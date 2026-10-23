@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { clientAssetsDir, requireHtmlShell } from './build-paths.mjs';
 
 const projectRoot = process.cwd();
 const showroomRoot = path.join(projectRoot, 'src/components/showroom');
@@ -87,7 +88,8 @@ async function walkArtifacts(directory) {
     else if (/\.(?:html|js|css|json|svg)$/i.test(entry.name)) artifactFiles.push(filePath);
   }
 }
-await walkArtifacts(path.join(projectRoot, 'dist'));
+await requireHtmlShell(path.join(clientAssetsDir, 'index.html'));
+await walkArtifacts(clientAssetsDir);
 
 const artifactViolations = [];
 for (const filePath of artifactFiles) {

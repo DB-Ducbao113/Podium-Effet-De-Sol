@@ -1,8 +1,9 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { clientAssetsDir, outputDirectoryFromArgs, requireHtmlShell } from './build-paths.mjs';
 
-const outputArg = process.argv.find((value) => value.startsWith('--output='));
-const outputDir = path.resolve(outputArg?.slice('--output='.length) || 'dist');
+const outputDir = outputDirectoryFromArgs();
+if (outputDir === clientAssetsDir) await requireHtmlShell(path.join(outputDir, 'index.html'));
 const parseSiteUrl = (value) => {
   if (!value) return null;
   try {

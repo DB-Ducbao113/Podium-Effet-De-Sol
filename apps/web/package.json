@@ -9,6 +9,6 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "build": "tsc --noEmit && vite build && node scripts/generate-seo-artifacts.mjs && node scripts/prerender-engineering.mjs && node scripts/prune-legacy-showroom-assets.mjs && node scripts/check-commercial-visual-isolation.mjs"
+    "build": "tsc --noEmit && vite build && node scripts/generate-seo-artifacts.mjs && node scripts/prerender-engineering.mjs && node scripts/prune-legacy-showroom-assets.mjs && node scripts/check-commercial-visual-isolation.mjs && node scripts/verify-cloudflare-build.mjs"
   }
 }

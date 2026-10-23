@@ -1,13 +1,12 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { outputDirectoryFromArgs, requireHtmlShell } from './build-paths.mjs';
 
-const outputArg = process.argv.find((value) => value.startsWith('--output='));
-const distDir = path.resolve(outputArg?.slice('--output='.length) || 'dist');
+const distDir = outputDirectoryFromArgs();
 const shellArg = process.argv.find((value) => value.startsWith('--shell='));
-const shell = await readFile(
-  path.resolve(shellArg?.slice('--shell='.length) || path.join('dist', 'index.html')),
-  'utf8',
-);
+const shellPath = path.resolve(shellArg?.slice('--shell='.length) || path.join(distDir, 'index.html'));
+await requireHtmlShell(shellPath);
+const shell = await readFile(shellPath, 'utf8');
 const articles = JSON.parse(await readFile('src/data/engineeringArticles.json', 'utf8'));
 const siteUrl = (() => {
   try {
