@@ -1,0 +1,21 @@
+{
+  "name": "PODIUM — Effet de Sol",
+  "short_name": "PODIUM",
+  "description": "Formula 1 3D showroom, live championship data and racing archive.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#08080b",
+  "theme_color": "#08080b",
+  "icons": [
+    {
+      "src": "/logo/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/logo/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

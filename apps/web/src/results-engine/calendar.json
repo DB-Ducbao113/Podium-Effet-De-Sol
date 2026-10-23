@@ -1,0 +1,26 @@
+[
+  {
+    "eventId": "2026-gp-bahrain",
+    "name": "Bahrain Grand Prix 2026",
+    "sessions": [
+      {
+        "type": "Practice",
+        "sessionId": "2026-gp-bahrain-practice-1",
+        "scheduledStartUtc": "2026-03-13T12:00:00Z",
+        "durationMinutes": 60
+      },
+      {
+        "type": "Qualifying",
+        "sessionId": "2026-gp-bahrain-qualifying",
+        "scheduledStartUtc": "2026-03-13T15:00:00Z",
+        "durationMinutes": 45
+      },
+      {
+        "type": "Race",
+        "sessionId": "2026-gp-bahrain-race",
+        "scheduledStartUtc": "2026-03-14T12:00:00Z",
+        "durationMinutes": 120
+      }
+    ]
+  }
+]

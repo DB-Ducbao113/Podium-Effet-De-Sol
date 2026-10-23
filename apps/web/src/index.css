@@ -1,0 +1,785 @@
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
+/* ─────────────────────────────────────────────────────────────
+   GLOBAL BASE  —  Luxury White Automotive Studio
+   ───────────────────────────────────────────────────────────── */
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: #fafafa;
+    color: #18181b;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    overflow-x: hidden;
+  }
+
+  /* Selection color — brand red */
+  ::selection {
+    background: #e10600;
+    color: #ffffff;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #d4d4d8 #f4f4f5;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   TYPOGRAPHY  —  Editorial + Precision Technical
+   ───────────────────────────────────────────────────────────── */
+@layer components {
+  /* Section overline label (Porsche/BMW style uppercase overline) */
+  .label-overline {
+    @apply text-[10px] font-body tracking-widest3 uppercase text-f1red font-semibold;
+  }
+
+  /* Display headline — editorial Playfair serif in deep obsidian */
+  .heading-display {
+    @apply font-display text-studio-950 leading-tight tracking-tight;
+  }
+
+  /* Sub-heading */
+  .heading-section {
+    @apply font-body font-light text-studio-800 uppercase tracking-widest2 leading-none;
+  }
+
+  /* Technical spec label */
+  .spec-label {
+    @apply text-[10px] font-body uppercase tracking-widest text-studio-500 font-medium;
+  }
+
+  /* Spec value */
+  .spec-value {
+    @apply text-sm font-body font-semibold text-studio-950 tabular-nums;
+  }
+
+  /* Horizontal rule — accent red line */
+  .accent-line {
+    @apply h-px bg-f1red w-12 block;
+  }
+
+  /* ─── NAVBAR ─────────────────────────────────────────────── */
+  .nav-link {
+    @apply relative text-[11px] font-body uppercase tracking-widest2 font-semibold text-studio-600
+           transition-colors duration-200 hover:text-studio-950
+           after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-f1red
+           after:transition-all after:duration-300 hover:after:w-full;
+  }
+
+  .nav-link-active {
+    @apply text-studio-950 after:w-full;
+  }
+
+  /* ─── BUTTONS ────────────────────────────────────────────── */
+  .btn-primary {
+    @apply inline-flex items-center gap-2.5 px-6 py-3 bg-f1red text-white
+           text-[11px] uppercase tracking-widest font-body font-semibold
+           shadow-sm transition-all duration-300 ease-premium
+           hover:bg-f1red-light active:bg-f1red-dark hover:shadow-md;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center gap-2.5 px-6 py-3 bg-white text-studio-900
+           border border-studio-300 text-[11px] uppercase tracking-widest font-body font-semibold
+           shadow-subtle transition-all duration-300 ease-premium
+           hover:border-studio-950 hover:bg-studio-50;
+  }
+
+  /* ─── CARDS ──────────────────────────────────────────────── */
+  .model-card {
+    @apply bg-white border border-studio-300 overflow-hidden
+           transition-all duration-500 ease-premium cursor-pointer
+           shadow-subtle hover:shadow-luxury hover:border-studio-500;
+  }
+
+  /* ─── DIVIDER ────────────────────────────────────────────── */
+  .divider {
+    @apply border-t border-studio-200;
+  }
+
+  /* ─── STAT BLOCK ─────────────────────────────────────────── */
+  .stat-block {
+    @apply flex flex-col gap-1 py-3.5 border-b border-studio-200 last:border-b-0;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   LAYOUT UTILITIES
+   ───────────────────────────────────────────────────────────── */
+@layer utilities {
+  .page-container {
+    @apply max-w-[1440px] mx-auto px-6 md:px-12 lg:px-20;
+  }
+
+  .page-section {
+    @apply py-20 md:py-28;
+  }
+
+  .hero-height {
+    height: calc(100svh - 64px);
+    min-height: 580px;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Gradient red text */
+  .text-gradient-red {
+    background: linear-gradient(135deg, #e10600 0%, #ff3b30 60%, #b30000 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   CUSTOM SCROLLBAR
+   ───────────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: #f4f4f5;
+}
+::-webkit-scrollbar-thumb {
+  background: #d4d4d8;
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1aa;
+}
+
+canvas.r3f {
+  display: block;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   PODIUM CINEMATIC BRAND HERO
+   ───────────────────────────────────────────────────────────── */
+.podium-metal-text {
+  color: #ececec;
+  background: linear-gradient(
+    112deg,
+    #777 0%,
+    #f7f7f5 18%,
+    #858585 42%,
+    #fff 59%,
+    #6f6f72 82%,
+    #dedede 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 0.45px rgba(255, 255, 255, 0.35);
+  filter: drop-shadow(0 4px 2px rgba(0, 0, 0, 0.95)) drop-shadow(0 10px 24px rgba(0, 0, 0, 0.9));
+}
+
+.podium-copy {
+  isolation: isolate;
+}
+
+.podium-copy::before {
+  content: '';
+  position: absolute;
+  inset: -2rem -2.5rem;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.podium-copy-left::before {
+  background: linear-gradient(
+    90deg,
+    rgba(2, 2, 4, 0.76) 0%,
+    rgba(2, 2, 4, 0.42) 68%,
+    transparent 100%
+  );
+}
+
+.podium-copy-right::before {
+  background: linear-gradient(
+    270deg,
+    rgba(2, 2, 4, 0.76) 0%,
+    rgba(2, 2, 4, 0.42) 68%,
+    transparent 100%
+  );
+}
+
+.podium-hero-image {
+  filter: brightness(1.08) contrast(1.03) saturate(1.05);
+  animation: podiumHeroReveal 1.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.podium-hero-image.hero-3d-ready {
+  animation: none;
+  opacity: 0;
+}
+
+@keyframes podiumHeroReveal {
+  from {
+    opacity: 0;
+    transform: scale(1.035);
+    filter: brightness(0.4) blur(5px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+    filter: brightness(1.08) contrast(1.03) saturate(1.05) blur(0);
+  }
+}
+
+@media (max-width: 640px) {
+  .podium-hero-image {
+    object-position: 50% 66%;
+    animation: none;
+    filter: brightness(1.6) contrast(1.12) saturate(1.12);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   3D CAR ENTRANCE & KINETIC REVEAL ANIMATIONS
+   ───────────────────────────────────────────────────────────── */
+@keyframes f1CarEntrance3D {
+  0% {
+    opacity: 0;
+    transform: perspective(1400px) translate3d(60px, 80px, -340px) rotateX(24deg) rotateY(-22deg)
+      rotateZ(4deg) scale(0.75);
+    filter: blur(14px) brightness(1.3);
+  }
+  65% {
+    opacity: 1;
+    transform: perspective(1400px) translate3d(-10px, -8px, 30px) rotateX(-2deg) rotateY(2deg)
+      rotateZ(-0.5deg) scale(1.02);
+    filter: blur(0px) brightness(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: perspective(1400px) translate3d(0, 0, 0) rotateX(0deg) rotateY(0deg) rotateZ(0deg)
+      scale(1);
+    filter: blur(0px) brightness(1);
+  }
+}
+
+.animate-car-entrance {
+  animation: f1CarEntrance3D 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes floatGentle {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-7px) rotate(0.4deg);
+  }
+}
+
+.animate-float-gentle {
+  animation: floatGentle 5s ease-in-out infinite;
+}
+
+@keyframes pulseGlowCyan {
+  0%,
+  100% {
+    opacity: 0.35;
+    filter: drop-shadow(0 0 10px rgba(0, 161, 156, 0.4));
+  }
+  50% {
+    opacity: 0.85;
+    filter: drop-shadow(0 0 25px rgba(39, 244, 210, 0.8));
+  }
+}
+
+.animate-pulse-cyan {
+  animation: pulseGlowCyan 2.5s ease-in-out infinite;
+}
+
+@keyframes dashStreamline {
+  to {
+    stroke-dashoffset: -100;
+  }
+}
+
+.animate-streamline {
+  stroke-dasharray: 8, 12;
+  animation: dashStreamline 1.2s linear infinite;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   PAGE TRANSITIONS & TELEMETRY MICRO-ANIMATIONS
+   ───────────────────────────────────────────────────────────── */
+@keyframes pageEnterTransition {
+  0% {
+    opacity: 0;
+    transform: translateY(14px) scale(0.996);
+  }
+  100% {
+    opacity: 1;
+    transform: none; /* Reset transform so containing block doesn't trap fixed elements/modals! */
+  }
+}
+
+.animate-page-enter {
+  animation: pageEnterTransition 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalScaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: modalFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-scale-up {
+  animation: modalScaleUp 0.26s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes f1SpeedBarScan {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0.2;
+  }
+  25% {
+    opacity: 1;
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.animate-f1-speed-scan {
+  animation: f1SpeedBarScan 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes carSwitchFade {
+  0% {
+    opacity: 0.2;
+    transform: perspective(1200px) scale(0.95) translateY(10px);
+    filter: blur(8px);
+  }
+  60% {
+    filter: blur(1px);
+  }
+  100% {
+    opacity: 1;
+    transform: perspective(1200px) scale(1) translateY(0);
+    filter: blur(0px);
+  }
+}
+
+.animate-car-switch {
+  animation: carSwitchFade 0.48s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes metricPopIn {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-metric-pop {
+  animation: metricPopIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes pulseGlowRed {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.08);
+  }
+  50% {
+    box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.15);
+  }
+}
+
+.animate-glow-red {
+  animation: pulseGlowRed 2s infinite ease-in-out;
+}
+
+/* ─── LIVE HOME ENHANCEMENTS KEYFRAMES ─── */
+@keyframes digitSlide {
+  0% {
+    opacity: 0;
+    transform: translateY(60%);
+    filter: blur(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.animate-digit-slide {
+  animation: digitSlide 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes colonPulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.animate-colon-pulse {
+  animation: colonPulse 1s infinite ease-in-out;
+}
+
+@keyframes livePulseGlow {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  }
+  50% {
+    transform: scale(1.03);
+    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.15);
+  }
+}
+
+.animate-live-glow {
+  animation: livePulseGlow 1.6s infinite ease-in-out;
+}
+
+@keyframes kenBurnsSlow {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.08);
+  }
+}
+
+.animate-ken-burns {
+  animation: kenBurnsSlow 20s ease-in-out infinite alternate;
+}
+
+@keyframes speedLineDrift {
+  0% {
+    transform: translate(80%, -80%);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.08;
+  }
+  80% {
+    opacity: 0.08;
+  }
+  100% {
+    transform: translate(-100%, 100%);
+    opacity: 0;
+  }
+}
+
+.animate-speed-drift-1 {
+  animation: speedLineDrift 9s linear infinite;
+}
+
+.animate-speed-drift-2 {
+  animation: speedLineDrift 12s linear infinite 3s;
+}
+
+.animate-speed-drift-3 {
+  animation: speedLineDrift 7.5s linear infinite 5s;
+}
+
+@keyframes tickerMarquee {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.animate-ticker-marquee {
+  animation: tickerMarquee 45s linear infinite;
+  will-change: transform;
+}
+
+.animate-ticker-marquee:hover,
+.animate-ticker-marquee[data-paused='true'] {
+  animation-play-state: paused;
+}
+
+@keyframes championFlash {
+  0%,
+  100% {
+    color: inherit;
+    text-shadow: none;
+  }
+  50% {
+    color: #eab308;
+    text-shadow: 0 0 12px rgba(234, 179, 8, 0.8);
+  }
+}
+
+.animate-champion-flash {
+  animation: championFlash 0.35s ease-out 1;
+}
+
+@keyframes scanlineSweep {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  35% {
+    transform: translateX(200%);
+    opacity: 1;
+  }
+  36%,
+  100% {
+    transform: translateX(200%);
+    opacity: 0;
+  }
+}
+
+.animate-scanline-sweep {
+  animation: scanlineSweep 6s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+@keyframes digitalScoreFlicker {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  30% {
+    opacity: 0.4;
+  }
+  60% {
+    opacity: 0.85;
+  }
+  80% {
+    opacity: 0.5;
+  }
+}
+
+.animate-score-flicker {
+  animation: digitalScoreFlicker 0.35s ease-in-out 1;
+}
+
+/* ── F1 Cinematic Scene & Page Transitions ── */
+@keyframes f1SpeedWipe {
+  0% {
+    transform: translate3d(-100%, 0, 0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(200%, 0, 0);
+    opacity: 0;
+  }
+}
+
+.animate-f1-speed-wipe {
+  animation: f1SpeedWipe 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes f1FlashTint {
+  0% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.08;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.animate-f1-flash-tint {
+  animation: f1FlashTint 0.38s ease-out forwards;
+}
+
+@keyframes f1DepthEnter {
+  0% {
+    opacity: 0;
+    transform: perspective(1200px) translate3d(0, 16px, -24px) scale(0.99);
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: none; /* Reset transform to avoid trapping fixed descendants */
+  }
+}
+
+.animate-f1-depth-enter {
+  animation: f1DepthEnter 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ── 3D Interactive Card & Button Hover Depth ── */
+.hover-depth-3d {
+  transition:
+    transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.25s ease;
+  transform-style: preserve-3d;
+}
+
+.hover-depth-3d:hover {
+  transform: translate3d(0, -4px, 12px);
+  box-shadow: 0 14px 30px -8px rgba(0, 0, 0, 0.14);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .podium-hero-image {
+    animation: none !important;
+  }
+  .animate-digit-slide,
+  .animate-colon-pulse,
+  .animate-live-glow,
+  .animate-ken-burns,
+  .animate-speed-drift-1,
+  .animate-speed-drift-2,
+  .animate-speed-drift-3,
+  .animate-champion-flash,
+  .animate-scanline-sweep,
+  .animate-score-flicker,
+  .animate-f1-speed-wipe,
+  .animate-f1-flash-tint,
+  .animate-f1-depth-enter {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* R1 primary-route treatment. Scoped so secondary editorial and data pages keep their own palette. */
+.r1-primary.bg-studio-100,
+.r1-primary .bg-studio-100 {
+  background-color: #09090b;
+}
+
+.r1-primary .bg-white,
+.r1-primary .bg-studio-50 {
+  background-color: #16161b;
+}
+
+.r1-primary .text-studio-950,
+.r1-primary .text-studio-900,
+.r1-primary .text-studio-800 {
+  color: #f5f5f6;
+}
+
+.r1-primary .text-studio-700,
+.r1-primary .text-studio-600 {
+  color: #c4c4cd;
+}
+
+.r1-primary .text-studio-500,
+.r1-primary .text-studio-400 {
+  color: #a3a3ad;
+}
+
+.r1-primary .border-studio-100,
+.r1-primary .border-studio-200,
+.r1-primary .border-studio-300 {
+  border-color: #34343d;
+}
+
+.r1-primary .from-emerald-50\/60 {
+  background-image: linear-gradient(120deg, #143029, #16161b);
+}
+
+.r1-primary .bg-f1red,
+.r1-primary .bg-studio-900 {
+  color: #fff;
+}
+
+.r1-primary .r1-countdown {
+  background-color: #202027;
+  border-color: #4b4b55;
+}
+
+@media (max-width: 860px) {
+  .r1-mobile-hub .podium-hero-image {
+    top: 50%;
+    bottom: auto;
+    height: 38%;
+    object-fit: cover;
+    object-position: center;
+    filter: brightness(0.84) contrast(1.1) saturate(1.03);
+  }
+
+  .r1-mobile-hero {
+    background: linear-gradient(
+      180deg,
+      rgba(5, 5, 8, 0.97) 0%,
+      rgba(5, 5, 8, 0.88) 38%,
+      rgba(5, 5, 8, 0.15) 67%,
+      rgba(5, 5, 8, 0.72) 100%
+    );
+  }
+
+  .r1-mobile-hub .page-container {
+    max-width: 100%;
+  }
+
+  .r1-mobile-hub .r1-championship {
+    padding-top: 3rem;
+  }
+
+  .r1-mobile-hub #showroom > div {
+    max-width: 100%;
+  }
+
+  .r1-mobile-hub .r1-quick-hud {
+    top: min(calc(50svh - 1.5rem), 26.5rem);
+    bottom: auto;
+  }
+}

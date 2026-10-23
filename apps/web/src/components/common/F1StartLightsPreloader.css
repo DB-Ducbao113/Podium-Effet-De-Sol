@@ -1,0 +1,568 @@
+.podium-intro {
+  --intro-red: #ff3028;
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  overflow: hidden;
+  isolation: isolate;
+  color: #fff;
+  font-family: 'Inter', system-ui, sans-serif;
+  user-select: none;
+}
+
+.podium-intro__sheet {
+  position: absolute;
+  inset: -1px -1px -1px -24vh;
+  background: #07080b;
+  /* Static silhouette: only the transform moves during the reveal. */
+  clip-path: polygon(24vh 0, 100% 0, 100% 100%, 0 100%);
+}
+
+.podium-intro__scene {
+  position: absolute;
+  inset: 0 0 0 24vh;
+  overflow: hidden;
+}
+
+.podium-intro__edge {
+  opacity: 0;
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: calc(24vh + 8px);
+  background: linear-gradient(100deg, #a20c09, var(--intro-red) 65%, #fff);
+  clip-path: polygon(calc(100% - 8px) 0, 100% 0, 8px 100%, 0 100%);
+}
+
+.podium-intro__grid,
+.podium-intro__vignette,
+.podium-intro__flash {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.podium-intro__grid {
+  background-image:
+    linear-gradient(#ffffff06 1px, transparent 1px),
+    linear-gradient(90deg, #ffffff06 1px, transparent 1px);
+  background-size: 72px 72px;
+  opacity: 0;
+  animation: podiumGridWake 1s ease-out forwards;
+}
+
+.podium-intro__vignette {
+  background: radial-gradient(ellipse at center, transparent 10%, #000 85%);
+  opacity: 0.55;
+  transition: opacity 0.2s ease-out;
+}
+
+.podium-intro[data-phase='hold'] .podium-intro__vignette {
+  opacity: 0.95;
+}
+
+.podium-intro__sweep {
+  position: absolute;
+  top: 48%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #a50b07, #ff7970, transparent);
+  box-shadow: 0 0 18px 2px #e1060040;
+  animation: podiumGridSweep 0.85s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.podium-intro__signature {
+  position: absolute;
+  top: clamp(24px, 5vh, 56px);
+  left: clamp(24px, 5vw, 80px);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  animation: podiumGridWake 1s ease-out both;
+}
+
+.podium-intro__signature strong {
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: -0.07em;
+}
+
+.podium-intro__signature strong span,
+.podium-intro__launch-brand strong span {
+  color: var(--intro-red);
+}
+
+.podium-intro__signature > span {
+  color: #8c8e95;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+}
+
+.podium-intro__grid-stage,
+.podium-intro__cue,
+.podium-intro__launch-brand {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.podium-intro__grid-stage {
+  animation: podiumRackWake 0.95s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.podium-intro__pressure {
+  position: absolute;
+  width: min(900px, 150vw);
+  height: min(650px, 85vh);
+  background: radial-gradient(ellipse, #e106003b, #e1060012 40%, transparent 68%);
+  animation: podiumPressure 0.42s ease-out both;
+}
+
+.podium-intro__eyebrow,
+.podium-intro__status {
+  position: relative;
+  color: #8c8e95;
+  font-size: clamp(9px, 1vw, 11px);
+  font-weight: 600;
+  letter-spacing: 0.28em;
+}
+
+.podium-intro__eyebrow {
+  margin-bottom: clamp(24px, 5vh, 44px);
+}
+
+.podium-intro__rack {
+  position: relative;
+  display: flex;
+  gap: clamp(8px, 1.8vw, 24px);
+  padding: clamp(10px, 2vw, 26px);
+  border: 1px solid #ffffff12;
+  border-top-color: #ffffff29;
+  border-radius: 16px;
+  background: linear-gradient(#13151b, #0a0b0e);
+  box-shadow: 0 20px 60px #000a;
+}
+
+.podium-intro__column {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(8px, 1.4vw, 18px);
+  padding: clamp(6px, 1vw, 12px);
+  border-radius: 9px;
+  background: #050608;
+  border: 1px solid #ffffff07;
+}
+
+.podium-intro__lamp {
+  position: relative;
+  display: block;
+  width: clamp(27px, 6.4vw, 70px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #1d0a0b;
+  box-shadow: inset 0 0 0 1px #ff302817;
+}
+
+.podium-intro__lamp::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle at 40% 35%, #ff786c, #ff3028 35%, #df0900 80%);
+  box-shadow:
+    0 0 24px #ff211779,
+    0 0 60px #ff211725,
+    inset 0 0 0 1px #ff8d81;
+  opacity: 0;
+  transition: opacity 80ms linear;
+}
+
+.podium-intro__lamp.is-on::after {
+  opacity: 1;
+}
+
+.podium-intro__status {
+  margin-top: 32px;
+}
+
+.podium-intro__count {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 18px;
+  color: #5e6067;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.12em;
+}
+
+.podium-intro__count span {
+  color: var(--intro-red);
+}
+.podium-intro__count i {
+  width: 40px;
+  height: 1px;
+  background: #ffffff20;
+}
+
+.podium-intro__cue {
+  padding: 20px;
+  z-index: 2;
+}
+
+.podium-intro__cue > div {
+  width: 100%;
+  animation: podiumLightsImpact 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Lights-out cue rushing past the camera as the launch brand takes over. */
+.podium-intro__cue.is-launching > div {
+  animation: podiumCueFlyby 0.32s cubic-bezier(0.5, 0, 0.9, 0.4) both;
+}
+
+@keyframes podiumCueFlyby {
+  0% {
+    opacity: 1;
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(2.4) translate3d(-14%, 0, 0);
+    filter: blur(6px);
+  }
+}
+
+.podium-intro__its {
+  display: block;
+  margin-bottom: 14px;
+  color: #a4a5ab;
+  font-size: clamp(10px, 1.1vw, 15px);
+  font-weight: 600;
+  letter-spacing: 0.6em;
+}
+
+.podium-intro__cue strong {
+  display: block;
+  font-size: clamp(42px, 11.5vw, 170px);
+  line-height: 1;
+  font-style: italic;
+  font-weight: 950;
+  letter-spacing: -0.045em;
+  word-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.podium-intro__away {
+  display: block;
+  margin-top: clamp(18px, 3vh, 32px);
+  color: #ff4b42;
+  font-size: clamp(11px, 2.1vw, 28px);
+  font-weight: 800;
+  letter-spacing: clamp(0.18em, 0.65vw, 0.45em);
+}
+
+.podium-intro__speed {
+  position: absolute;
+  inset: -20% -30%;
+  transform: rotate(-18deg);
+  opacity: 0.65;
+}
+
+.podium-intro__speed i {
+  position: absolute;
+  top: calc(18% + var(--line) * 13%);
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #df1c15 25%, #ff4b42 80%, transparent);
+  animation: podiumSpeedLine 0.55s cubic-bezier(0.16, 0.6, 0.3, 1) both;
+  animation-delay: calc(var(--line) * 15ms);
+}
+
+.podium-intro__speed i:nth-child(even) {
+  height: 1px;
+  background: #ffffff80;
+}
+
+.podium-intro__flash {
+  z-index: 3;
+  background: radial-gradient(ellipse, #fff7ed 0, #ff3028 65%, transparent 95%);
+  animation: podiumFlash 0.13s ease-out both;
+}
+
+.podium-intro__launch-brand {
+  align-items: flex-start;
+  padding-left: clamp(28px, 12vw, 200px);
+  background: linear-gradient(115deg, transparent 64%, #e10600 64%);
+  animation: podiumBrandSweep 0.45s cubic-bezier(0.76, 0, 0.24, 1) both;
+}
+
+/* Brand text slams in right after the cue flies past the camera. */
+.podium-intro__launch-brand strong,
+.podium-intro__launch-brand > span {
+  animation: podiumBrandIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both;
+}
+
+@keyframes podiumBrandSweep {
+  0% {
+    clip-path: inset(0 0 0 100%);
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes podiumBrandIn {
+  0% {
+    opacity: 0;
+    transform: translate3d(-8%, 0, 0) skewX(-6deg);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Speed streaks keep flowing through the launch so the transition never freezes. */
+.podium-intro[data-phase='launch'] .podium-intro__speed i {
+  animation: podiumSpeedStreak 0.6s linear infinite;
+  animation-delay: calc(var(--line) * 60ms);
+}
+
+@keyframes podiumSpeedStreak {
+  0% {
+    opacity: 0;
+    transform: translate3d(-60%, 0, 0);
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(60%, 0, 0);
+  }
+}
+
+.podium-intro__launch-brand strong {
+  font-size: clamp(58px, 12vw, 170px);
+  font-weight: 950;
+  letter-spacing: -0.08em;
+  line-height: 1;
+}
+
+.podium-intro__launch-brand > span {
+  margin-top: 24px;
+  color: #ff4b42;
+  font-size: clamp(11px, 2vw, 26px);
+  font-weight: 700;
+  letter-spacing: 0.4em;
+}
+
+.podium-intro[data-phase='launch'] .podium-intro__sheet {
+  animation: podiumLaunchReveal var(--intro-reveal-duration) cubic-bezier(0.76, 0, 0.24, 1)
+    var(--intro-logo-hold) both;
+}
+
+.podium-intro[data-phase='launch'] .podium-intro__edge {
+  opacity: 1;
+}
+
+.podium-intro__skip {
+  position: absolute;
+  top: clamp(24px, 5vh, 56px);
+  right: clamp(24px, 5vw, 80px);
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border: 1px solid #ffffff20;
+  border-radius: 4px;
+  color: #b2b3b8;
+  background: #07080b;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.podium-intro__skip span {
+  color: #62656e;
+  font-size: 9px;
+}
+.podium-intro__skip:hover {
+  color: #fff;
+  border-color: #ffffff60;
+}
+.podium-intro__skip:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 4px;
+}
+
+.podium-intro__footer {
+  position: absolute;
+  right: clamp(24px, 5vw, 80px);
+  bottom: clamp(24px, 5vh, 56px);
+  left: clamp(24px, 5vw, 80px);
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid #ffffff12;
+  padding-top: 16px;
+  color: #62656e;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  animation: podiumGridWake 1s ease-out both;
+}
+
+@keyframes podiumGridWake {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes podiumRackWake {
+  0%,
+  20% {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes podiumGridSweep {
+  0% {
+    opacity: 0;
+    transform: translate3d(-100%, 0, 0);
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(100%, 0, 0);
+  }
+}
+@keyframes podiumPressure {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  22% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.28;
+    transform: scale(1.15);
+  }
+}
+@keyframes podiumLightsImpact {
+  0% {
+    opacity: 0;
+    transform: scale(0.78);
+  }
+  48% {
+    opacity: 1;
+    transform: scale(1.035);
+  }
+  78% {
+    opacity: 1;
+    transform: scale(0.995);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes podiumSpeedLine {
+  from {
+    opacity: 0;
+    transform: translate3d(-80%, 0, 0);
+  }
+  30% {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.6;
+    transform: translate3d(15%, 0, 0);
+  }
+}
+@keyframes podiumFlash {
+  from {
+    opacity: 0.3;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes podiumLaunchReveal {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(calc(100vw + 24vh), 0, 0);
+  }
+}
+
+/* Preserve the explicitly requested start cue and reveal on this setup.
+   Reduce the flash intensity and ambient pulse; Skip remains available. */
+@media (prefers-reduced-motion: reduce) {
+  .podium-intro__flash {
+    animation-name: podiumQuietFlash;
+  }
+  .podium-intro__pressure {
+    animation-name: podiumQuietPressure;
+  }
+  .podium-intro__cue.is-launching > div {
+    animation: podiumQuietFadeOut 0.3s linear both;
+  }
+  .podium-intro__launch-brand {
+    animation: podiumQuietFadeIn 0.3s linear both;
+  }
+  .podium-intro__launch-brand strong,
+  .podium-intro__launch-brand > span {
+    animation: none;
+  }
+  .podium-intro[data-phase='launch'] .podium-intro__speed i {
+    animation: none;
+    opacity: 0.35;
+  }
+}
+@keyframes podiumQuietFadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes podiumQuietFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes podiumQuietPressure {
+  from {
+    opacity: 0.4;
+  }
+  to {
+    opacity: 0.2;
+  }
+}
+@keyframes podiumQuietFlash {
+  from {
+    opacity: 0.1;
+  }
+  to {
+    opacity: 0;
+  }
+}

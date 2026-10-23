@@ -1,0 +1,25 @@
+[
+  {
+    "eventId": "2026-synthetic-observation-gp",
+    "name": "Synthetic Observation Grand Prix",
+    "sessions": [
+      {
+        "type": "Race",
+        "sessionId": "2026-synthetic-observation-gp-race",
+        "scheduledStartUtc": "2026-10-18T12:00:00Z",
+        "durationMinutes": 120,
+        "providers": {
+          "openf1": {
+            "sessionKey": 99002,
+            "mappingVerification": {
+              "status": "SYNTHETIC",
+              "verifiedBy": "m4-replay-author",
+              "verifiedAtUtc": "2026-10-18T11:00:00Z",
+              "evidenceReference": "fixture:m4-multi-snapshot-replay-v1"
+            }
+          }
+        }
+      }
+    ]
+  }
+]

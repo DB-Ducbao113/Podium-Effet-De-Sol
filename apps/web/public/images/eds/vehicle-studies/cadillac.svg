@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Podium EDS-G01 vehicle field study 11</title>
+  <desc id="desc">Original brand-neutral engineering illustration generated from Podium EDS design language.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#07090d"/><stop offset="1" stop-color="#151a22"/></linearGradient>
+    <linearGradient id="body" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#151a21"/><stop offset=".45" stop-color="#35d07f"/><stop offset="1" stop-color="#252c36"/></linearGradient>
+    <radialGradient id="glow"><stop stop-color="#35d07f" stop-opacity=".35"/><stop offset="1" stop-color="#35d07f" stop-opacity="0"/></radialGradient>
+    <filter id="shadow" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="22"/></filter>
+    <pattern id="grid" width="64" height="64" patternUnits="userSpaceOnUse"><path d="M64 0H0V64" fill="none" stroke="#ffffff" stroke-opacity=".045"/></pattern>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <rect width="1600" height="900" fill="url(#grid)"/>
+  <ellipse cx="820" cy="530" rx="650" ry="310" fill="url(#glow)"/>
+  <path d="M130 650H1470" stroke="#ffffff" stroke-opacity=".16"/>
+  <ellipse cx="805" cy="677" rx="595" ry="48" fill="#000" opacity=".62" filter="url(#shadow)"/>
+  <g transform="translate(0 24)">
+    <g fill="#090b0f" stroke="#434b57" stroke-width="12">
+      <circle cx="438" cy="588" r="137"/><circle cx="1178" cy="588" r="137"/>
+    </g>
+    <g fill="none" stroke="#dfffee" stroke-opacity=".72" stroke-width="7">
+      <circle cx="438" cy="588" r="88"/><circle cx="1178" cy="588" r="88"/>
+    </g>
+    <g fill="#11161d" stroke="#707987" stroke-width="5">
+      <circle cx="438" cy="588" r="43"/><circle cx="1178" cy="588" r="43"/>
+    </g>
+    <path d="M166 543L312 523 358 548 347 579 152 581Z" fill="#141920" stroke="#35d07f" stroke-width="8"/>
+    <path d="M1250 485L1398 474 1437 502 1422 530 1244 534Z" fill="#141920" stroke="#35d07f" stroke-width="8"/>
+    <path d="M310 551C421 510 551 490 656 472L748 392 905 395 1007 475 1238 520 1267 578 1120 601 1008 570 592 572 493 607 329 593Z" fill="url(#body)" stroke="#9da6b4" stroke-opacity=".45" stroke-width="4"/>
+    <path d="M670 470L744 389 902 392 961 465 862 475 799 433 731 476Z" fill="#0a0d12" stroke="#dfffee" stroke-opacity=".55" stroke-width="4"/>
+    <path d="M742 395C765 326 849 317 884 392" fill="none" stroke="#35d07f" stroke-width="18" stroke-linecap="round"/>
+    <path d="M496 575L641 512 1007 508 1127 591 991 622 602 618Z" fill="#080b10" stroke="#58616e" stroke-width="4"/>
+    <path d="M586 580L1019 580" stroke="#35d07f" stroke-width="9"/>
+    <path d="M700 491L601 424 451 399" fill="none" stroke="#9aa4b1" stroke-width="11" stroke-linecap="round"/>
+    <path d="M930 487L1070 425 1185 405" fill="none" stroke="#9aa4b1" stroke-width="11" stroke-linecap="round"/>
+    <path d="M152 581H346M1250 533H1437" stroke="#dfffee" stroke-width="5" opacity=".7"/>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif" fill="#fff">
+    <text x="100" y="112" font-size="28" font-weight="700" letter-spacing="9">PODIUM EDS / ORIGINAL VISUAL SYSTEM</text>
+    <text x="100" y="178" font-size="64" font-weight="800" letter-spacing="3">EDS-G01</text>
+    <text x="100" y="218" fill="#dfffee" font-size="20" font-weight="700" letter-spacing="6">VEHICLE FIELD STUDY 11</text>
+    <text x="1460" y="118" text-anchor="end" font-size="24" font-weight="700">CADILLAC</text>
+    <text x="1460" y="152" text-anchor="end" fill="#8c96a5" font-size="17" letter-spacing="3">INDEPENDENT EDITORIAL CONFIGURATION</text>
+    <text x="100" y="814" fill="#9aa4b1" font-size="17" letter-spacing="3">ORIGINAL CHASSIS • NO CONSTRUCTOR MARKS • NOT AN OFFICIAL TEAM RENDER</text>
+  </g>
+</svg>

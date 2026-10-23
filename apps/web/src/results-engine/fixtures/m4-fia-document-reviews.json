@@ -1,0 +1,50 @@
+[
+  {
+    "documentId": "synthetic-provisional-001",
+    "title": "Synthetic Provisional Classification",
+    "classification": "PROVISIONAL",
+    "publishedAtUtc": "2026-10-18T14:25:00Z",
+    "observedAtUtc": "2026-10-18T14:27:00Z",
+    "url": "https://example.invalid/fia/synthetic-provisional-001",
+    "authoritative": false,
+    "sourceRegistryId": "fia-document-metadata",
+    "review": {
+      "reviewedBy": "m4-replay-operator",
+      "reviewedAtUtc": "2026-10-18T14:27:00Z",
+      "rightsStatus": "REVIEW_REQUIRED",
+      "notes": "Synthetic metadata for replay QA; not an FIA document or publication permission."
+    }
+  },
+  {
+    "documentId": "synthetic-final-002",
+    "title": "Synthetic Final Classification",
+    "classification": "FINAL",
+    "publishedAtUtc": "2026-10-18T15:10:00Z",
+    "observedAtUtc": "2026-10-18T15:12:00Z",
+    "url": "https://example.invalid/fia/synthetic-final-002",
+    "authoritative": true,
+    "sourceRegistryId": "fia-document-metadata",
+    "review": {
+      "reviewedBy": "m4-replay-operator",
+      "reviewedAtUtc": "2026-10-18T15:12:00Z",
+      "rightsStatus": "REVIEW_REQUIRED",
+      "notes": "Synthetic authoritative flag exercises validation only; no legal claim is made."
+    }
+  },
+  {
+    "documentId": "synthetic-corrected-003",
+    "title": "Synthetic Corrected Classification",
+    "classification": "CORRECTED",
+    "publishedAtUtc": "2026-10-18T16:00:00Z",
+    "observedAtUtc": "2026-10-18T16:02:00Z",
+    "url": "https://example.invalid/fia/synthetic-corrected-003",
+    "authoritative": true,
+    "sourceRegistryId": "fia-document-metadata",
+    "review": {
+      "reviewedBy": "m4-replay-operator",
+      "reviewedAtUtc": "2026-10-18T16:02:00Z",
+      "rightsStatus": "REVIEW_REQUIRED",
+      "notes": "Synthetic correction metadata used to verify immutable evidence history."
+    }
+  }
+]

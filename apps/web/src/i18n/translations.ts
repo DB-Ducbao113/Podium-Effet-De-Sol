@@ -1,0 +1,86 @@
+export const t = {
+  vi: {
+    nav: {
+      home: 'Trang chủ',
+      championship: 'Giải đấu',
+      collection: 'Showroom 3D',
+      brandTitle: 'PODIUM',
+      brandSub: 'Effet de Sol · 3D Racing Archive',
+    },
+    home: {
+      heroTitle1: 'Đỉnh Cao Tốc Độ.',
+      heroTitle2: 'Kỷ Nguyên Mới.',
+      viewStandings: 'Bảng Điểm Mùa Giải',
+    },
+    championship: {
+      badge: 'Giải đua xe Công thức 1 FIA',
+      title: 'Trung Tâm Giải Đấu',
+      desc: 'Theo dõi bảng xếp hạng tay đua, đội đua chính thức, lịch trình 23 chặng đua toàn cầu và diễn biến mùa giải Formula 1.',
+      tabStandings: 'Bảng Xếp Hạng',
+      tabCalendar: 'Lịch Thi Đấu',
+      tabResults: 'Kết Quả Chặng',
+      tabTeams: 'Đội Đua',
+      tabDrivers: 'Tay Đua',
+      driversTab: 'Bảng xếp hạng Tay đua',
+      constructorsTab: 'Bảng xếp hạng Đội đua',
+      pos: 'Hạng',
+      driver: 'Tay đua',
+      team: 'Đội đua',
+      points: 'Điểm',
+      wins: 'Thắng',
+      podiums: 'Podium',
+      engine: 'Động cơ',
+    },
+    footer: {
+      desc: 'PODIUM — Effet de Sol: nền tảng mô phỏng kỹ thuật 3D, kết quả chặng đua sau phiên và không gian lưu trữ di sản Formula 1.',
+      colExplore: 'Khám Phá',
+      colLegal: 'Bản Quyền & Ghi Nhận',
+      disclaimer:
+        'Dự án fan không chính thức, độc lập và phi lợi nhuận; không liên kết, tài trợ hay được chứng thực bởi Formula 1 hoặc bất kỳ đội đua nào. Formula 1, F1, Grand Prix cùng các thương hiệu và tài sản trí tuệ liên quan thuộc quyền sở hữu của Formula One Licensing B.V. và các chủ sở hữu tương ứng.',
+      copyright:
+        '© 2026 PODIUM — Effet de Sol · Phát triển bởi BaoBungBu · Tôn vinh kỷ nguyên hiệu ứng mặt đất F1.',
+    },
+  },
+  en: {
+    nav: {
+      home: 'Home',
+      championship: 'Championship',
+      collection: '3D Showroom',
+      brandTitle: 'PODIUM',
+      brandSub: 'Effet de Sol · 3D Racing Archive',
+    },
+    home: {
+      heroTitle1: 'Pinnacle Pace.',
+      heroTitle2: 'The New Era.',
+      viewStandings: 'Season Standings',
+    },
+    championship: {
+      badge: 'FIA Formula One World Championship',
+      title: 'Championship Hub',
+      desc: 'Follow official Driver and Constructor classifications, the full 23-round season calendar, and Grand Prix race classifications.',
+      tabStandings: 'Standings',
+      tabCalendar: 'Race Calendar',
+      tabResults: 'Race Results',
+      tabTeams: 'Teams',
+      tabDrivers: 'Drivers',
+      driversTab: 'Drivers Classification',
+      constructorsTab: 'Constructors Classification',
+      pos: 'Pos',
+      driver: 'Driver',
+      team: 'Team',
+      points: 'PTS',
+      wins: 'Wins',
+      podiums: 'Podiums',
+      engine: 'Power Unit',
+    },
+    footer: {
+      desc: 'PODIUM — Effet de Sol: an interactive 3D engineering platform, published post-session results, and Formula 1 heritage archive.',
+      colExplore: 'Explore',
+      colLegal: 'Attribution & Provenance',
+      disclaimer:
+        'Unofficial, independent, non-commercial fan project; not affiliated with, sponsored by, or endorsed by Formula 1 or any team. F1, FORMULA ONE, FIA FORMULA ONE WORLD CHAMPIONSHIP, GRAND PRIX, and associated marks belong to Formula One Licensing B.V. and their respective owners.',
+      copyright:
+        '© 2026 PODIUM — Effet de Sol · Engineered by BaoBungBu · Celebrating the Ground Effect F1 era.',
+    },
+  },
+};

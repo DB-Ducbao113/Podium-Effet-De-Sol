@@ -1,0 +1,72 @@
+{
+  "name": "podium-effet-de-sol",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=@peds/web",
+    "cloudflare:dev": "npm run dev --workspace=@peds/web",
+    "cloudflare:local": "npm run build && wrangler dev --local",
+    "cloudflare:dry-run": "wrangler deploy --dry-run --env=\"\" --outdir scratch/plan-d/cloudflare-dry-run",
+    "lint": "eslint .",
+    "format:check": "prettier --check .",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspace=@peds/web && npm run test --workspace=@peds/api && npm run test --workspace=@peds/security",
+    "test:coverage": "npm run test:coverage --workspace=@peds/web && npm run test --workspace=@peds/api && npm run test --workspace=@peds/security",
+    "build": "npm run build --workspace=@peds/web",
+    "sync:2026": "npm run sync:2026 --workspace=@peds/jobs",
+    "sync:sessions": "npm run sync:sessions --workspace=@peds/jobs",
+    "security:secrets": "node tools/scan-secrets.mjs",
+    "security:assets": "node tools/check-public-boundary.mjs",
+    "security:audit": "npm audit --audit-level=high",
+    "verify": "npm run lint && npm run typecheck && npm run test && npm run security:secrets && npm run security:assets && npm run build && npm run cloudflare:dry-run"
+  },
+  "dependencies": {
+    "@react-three/drei": "^9.108.4",
+    "@react-three/fiber": "^8.16.8",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.400.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^7.18.4",
+    "tailwind-merge": "^2.3.0",
+    "three": "^0.165.0",
+    "zustand": "^4.5.4"
+  },
+  "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.65.0",
+    "@cloudflare/workers-types": "^5.20261023.1",
+    "@eslint/js": "^10.0.1",
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^26.6.5",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@types/three": "^0.165.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "@vitest/coverage-v8": "^5.0.3",
+    "autoprefixer": "^10.4.19",
+    "eslint": "^10.11.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.7",
+    "globals": "^17.12.0",
+    "playwright-core": "^1.64.1",
+    "postcss": "^8.4.39",
+    "prettier": "^3.9.9",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5.5.3",
+    "typescript-eslint": "^8.70.1",
+    "vite": "^6.4.5",
+    "vitest": "^5.0.3",
+    "wrangler": "^4.152.0"
+  },
+  "overrides": {
+    "source-map-js": "1.2.2"
+  }
+}

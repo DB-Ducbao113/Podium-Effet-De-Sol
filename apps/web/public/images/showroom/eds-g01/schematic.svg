@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title description">
+  <title id="title">EDS-G01 MASTER AERODYNAMIC SCHEMATIC</title><desc id="description">Original Podium EDS technical illustration generated from the EDS-G01 design specification.</desc>
+  <defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#05080d"/><stop offset="1" stop-color="#101b28"/></linearGradient><filter id="glow"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+  <rect width="1600" height="900" fill="url(#bg)"/><g stroke="#173149" stroke-width="1" opacity=".42"><path d="M0 0V900"/><path d="M100 0V900"/><path d="M200 0V900"/><path d="M300 0V900"/><path d="M400 0V900"/><path d="M500 0V900"/><path d="M600 0V900"/><path d="M700 0V900"/><path d="M800 0V900"/><path d="M900 0V900"/><path d="M1000 0V900"/><path d="M1100 0V900"/><path d="M1200 0V900"/><path d="M1300 0V900"/><path d="M1400 0V900"/><path d="M1500 0V900"/><path d="M1600 0V900"/><path d="M0 0H1600"/><path d="M0 100H1600"/><path d="M0 200H1600"/><path d="M0 300H1600"/><path d="M0 400H1600"/><path d="M0 500H1600"/><path d="M0 600H1600"/><path d="M0 700H1600"/><path d="M0 800H1600"/><path d="M0 900H1600"/></g>
+  <path d="M50 72H1550M50 828H1550" stroke="#00e8ff" stroke-width="2" opacity=".55"/><text x="64" y="54" fill="#8fa9be" font-family="monospace" font-size="18" letter-spacing="4">PODIUM EDS // ORIGINAL ENGINEERING ASSET</text>
+  <text x="64" y="114" fill="white" font-family="Arial,sans-serif" font-size="38" font-weight="700">EDS-G01 MASTER AERODYNAMIC SCHEMATIC</text><text x="64" y="146" fill="#00e8ff" font-family="monospace" font-size="17">EDS-CAD-MASTER-01 · M2-P2-R1</text>
+  <g transform="translate(800 470)" fill="none" stroke="#d7f8ff" stroke-width="6" stroke-linejoin="round">
+  <path d="M-86-292L-210-220-270-75-220 195-112 292H112L220 195 270-75 210-220 86-292Z" fill="#0d2637"/>
+  <path d="M-38-340L-78-210-65 220-25 330H25L65 220 78-210 38-340Z" fill="#122f44"/>
+  <path d="M-330-320H330L290-275H-290Z M-270 310H270L245 365H-245Z" fill="#00e8ff" opacity=".6"/>
+  <g fill="#080a0d"><rect x="-342" y="-245" width="72" height="128" rx="30"/><rect x="270" y="-245" width="72" height="128" rx="30"/><rect x="-330" y="180" width="78" height="138" rx="32"/><rect x="252" y="180" width="78" height="138" rx="32"/></g>
+  <path d="M-70-80Q0-150 70-80V55Q0 125-70 55Z" fill="#05080d"/><path d="M-205-120Q-120-35-115 170M205-120Q120-35 115 170" stroke="#00e8ff" opacity=".7"/>
+</g>
+  <g fill="#b8d1df" font-family="monospace" font-size="18"><text x="170" y="315">01 · FOUR-PLANE FRONT WING</text><path d="M450 310H590L660 220" stroke="#00e8ff" fill="none"/><text x="1180" y="360">02 · SPLIT-KEEL NOSE</text><path d="M1170 355H1010L850 165" stroke="#00e8ff" fill="none"/><text x="120" y="575">03 · DELTA VENTURI FLOOR</text><path d="M450 570H610L680 520" stroke="#00e8ff" fill="none"/><text x="1160" y="615">04 · BRIDGE REAR WING</text><path d="M1150 610H990L860 790" stroke="#00e8ff" fill="none"/></g>
+  <text x="64" y="866" fill="#8fa9be" font-family="monospace" font-size="16">5.05 M LENGTH · 3.6 M WHEELBASE · 14 ASSEMBLIES</text><text x="1535" y="866" fill="#00e8ff" font-family="monospace" font-size="16" text-anchor="end">SOURCE: EDS-G01 PROCEDURAL MASTER</text>
+</svg>

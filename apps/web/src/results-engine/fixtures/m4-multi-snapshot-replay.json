@@ -1,0 +1,291 @@
+{
+  "schemaVersion": 2,
+  "sourceRegistryId": "synthetic-openf1-replay",
+  "sequenceId": "m4-multi-snapshot-replay-v1",
+  "snapshots": [
+    {
+      "snapshotId": "poll-001-no-result",
+      "observedAtUtc": "2026-10-18T14:00:00Z",
+      "raceControl": [],
+      "results": [],
+      "drivers": [
+        { "driver_number": 91, "full_name": "Synthetic Driver Alpha" },
+        { "driver_number": 92, "full_name": "Synthetic Driver Beta" },
+        { "driver_number": 93, "full_name": "Synthetic Driver Gamma" }
+      ]
+    },
+    {
+      "snapshotId": "poll-002-completion",
+      "observedAtUtc": "2026-10-18T14:08:00Z",
+      "raceControl": [
+        {
+          "meeting_key": 99001,
+          "session_key": 99002,
+          "date": "2026-10-18T14:07:30Z",
+          "category": "Flag",
+          "flag": "CHEQUERED",
+          "message": "Synthetic chequered observation"
+        }
+      ],
+      "results": [],
+      "drivers": [
+        { "driver_number": 91, "full_name": "Synthetic Driver Alpha" },
+        { "driver_number": 92, "full_name": "Synthetic Driver Beta" },
+        { "driver_number": 93, "full_name": "Synthetic Driver Gamma" }
+      ]
+    },
+    {
+      "snapshotId": "poll-003-partial",
+      "observedAtUtc": "2026-10-18T14:15:00Z",
+      "raceControl": [
+        {
+          "meeting_key": 99001,
+          "session_key": 99002,
+          "date": "2026-10-18T14:07:30Z",
+          "category": "Flag",
+          "flag": "CHEQUERED",
+          "message": "Synthetic chequered observation"
+        }
+      ],
+      "results": [
+        {
+          "driver_number": 91,
+          "position": 1,
+          "number_of_laps": 58,
+          "dns": false,
+          "dnf": false,
+          "dsq": false
+        },
+        {
+          "driver_number": 92,
+          "position": 2,
+          "number_of_laps": 58,
+          "dns": false,
+          "dnf": false,
+          "dsq": false
+        }
+      ],
+      "drivers": [
+        { "driver_number": 91, "full_name": "Synthetic Driver Alpha" },
+        { "driver_number": 92, "full_name": "Synthetic Driver Beta" },
+        { "driver_number": 93, "full_name": "Synthetic Driver Gamma" }
+      ]
+    },
+    {
+      "snapshotId": "poll-004-complete",
+      "observedAtUtc": "2026-10-18T14:20:00Z",
+      "raceControl": [
+        {
+          "meeting_key": 99001,
+          "session_key": 99002,
+          "date": "2026-10-18T14:07:30Z",
+          "category": "Flag",
+          "flag": "CHEQUERED",
+          "message": "Synthetic chequered observation"
+        }
+      ],
+      "results": [
+        {
+          "driver_number": 91,
+          "position": 1,
+          "number_of_laps": 58,
+          "dns": false,
+          "dnf": false,
+          "dsq": false
+        },
+        {
+          "driver_number": 92,
+          "position": 2,
+          "number_of_laps": 58,
+          "dns": false,
+          "dnf": false,
+          "dsq": false
+        },
+        {
+          "driver_number": 93,
+          "position": 3,
+          "number_of_laps": 57,
+          "dns": false,
+          "dnf": false,
+          "dsq": false
+        }
+      ],
+      "drivers": [
+        { "driver_number": 91, "full_name": "Synthetic Driver Alpha" },
+        { "driver_number": 92, "full_name": "Synthetic Driver Beta" },
+        { "driver_number": 93, "full_name": "Synthetic Driver Gamma" }
+      ],
+      "comparison": {
+        "sourceRegistryId": "synthetic-cross-source-replay",
+        "snapshotId": "secondary-complete-001",
+        "results": [
+          { "driver_number": 91, "position": 1, "dns": false, "dnf": false, "dsq": false },
+          { "driver_number": 92, "position": 3, "dns": false, "dnf": false, "dsq": false },
+          { "driver_number": 93, "position": 2, "dns": false, "dnf": false, "dsq": false }
+        ]
+      }
+    },
+    {
+      "snapshotId": "poll-005-provisional",
+      "observedAtUtc": "2026-10-18T14:27:00Z",
+      "raceControl": [],
+      "results": [
+        {
+          "driver_number": 91,
+          "position": 1,
+          "number_of_laps": 58,
+          "dns": false,
+          "dnf": false,
+          "dsq": false
+        },
+        {
+          "driver_number": 92,
+          "position": 2,
+          "number_of_laps": 58,
+          "dns": false,
+          "dnf": false,
+          "dsq": false
+        },
+        {
+          "driver_number": 93,
+          "position": 3,
+          "number_of_laps": 57,
+          "dns": false,
+          "dnf": false,
+          "dsq": false
+        }
+      ],
+      "drivers": [
+        { "driver_number": 91, "full_name": "Synthetic Driver Alpha" },
+        { "driver_number": 92, "full_name": "Synthetic Driver Beta" },
+        { "driver_number": 93, "full_name": "Synthetic Driver Gamma" }
+      ],
+      "fiaDocuments": [
+        {
+          "documentId": "synthetic-provisional-001",
+          "title": "Synthetic Provisional Classification",
+          "classification": "PROVISIONAL",
+          "publishedAtUtc": "2026-10-18T14:25:00Z",
+          "observedAtUtc": "2026-10-18T14:27:00Z",
+          "url": "https://example.invalid/fia/synthetic-provisional-001",
+          "authoritative": false,
+          "sourceRegistryId": "fia-document-metadata",
+          "review": {
+            "reviewedBy": "m4-replay-operator",
+            "reviewedAtUtc": "2026-10-18T14:27:00Z",
+            "rightsStatus": "REVIEW_REQUIRED",
+            "notes": "Synthetic metadata only; not FIA content or provider authorization."
+          }
+        }
+      ]
+    },
+    {
+      "snapshotId": "poll-006-final",
+      "observedAtUtc": "2026-10-18T15:12:00Z",
+      "raceControl": [],
+      "results": [
+        {
+          "driver_number": 91,
+          "position": 1,
+          "number_of_laps": 58,
+          "dns": false,
+          "dnf": false,
+          "dsq": false
+        },
+        {
+          "driver_number": 92,
+          "position": 2,
+          "number_of_laps": 58,
+          "dns": false,
+          "dnf": false,
+          "dsq": false
+        },
+        {
+          "driver_number": 93,
+          "position": 3,
+          "number_of_laps": 57,
+          "dns": false,
+          "dnf": false,
+          "dsq": false
+        }
+      ],
+      "drivers": [
+        { "driver_number": 91, "full_name": "Synthetic Driver Alpha" },
+        { "driver_number": 92, "full_name": "Synthetic Driver Beta" },
+        { "driver_number": 93, "full_name": "Synthetic Driver Gamma" }
+      ],
+      "fiaDocuments": [
+        {
+          "documentId": "synthetic-final-002",
+          "title": "Synthetic Final Classification",
+          "classification": "FINAL",
+          "publishedAtUtc": "2026-10-18T15:10:00Z",
+          "observedAtUtc": "2026-10-18T15:12:00Z",
+          "url": "https://example.invalid/fia/synthetic-final-002",
+          "authoritative": true,
+          "sourceRegistryId": "fia-document-metadata",
+          "review": {
+            "reviewedBy": "m4-replay-operator",
+            "reviewedAtUtc": "2026-10-18T15:12:00Z",
+            "rightsStatus": "REVIEW_REQUIRED",
+            "notes": "Synthetic metadata only; authoritative flag tests validation."
+          }
+        }
+      ]
+    },
+    {
+      "snapshotId": "poll-007-corrected",
+      "observedAtUtc": "2026-10-18T16:02:00Z",
+      "raceControl": [],
+      "results": [
+        {
+          "driver_number": 91,
+          "position": 1,
+          "number_of_laps": 58,
+          "dns": false,
+          "dnf": false,
+          "dsq": false
+        },
+        {
+          "driver_number": 92,
+          "position": 2,
+          "number_of_laps": 58,
+          "dns": false,
+          "dnf": false,
+          "dsq": false
+        },
+        {
+          "driver_number": 93,
+          "position": 3,
+          "number_of_laps": 57,
+          "dns": false,
+          "dnf": false,
+          "dsq": false
+        }
+      ],
+      "drivers": [
+        { "driver_number": 91, "full_name": "Synthetic Driver Alpha" },
+        { "driver_number": 92, "full_name": "Synthetic Driver Beta" },
+        { "driver_number": 93, "full_name": "Synthetic Driver Gamma" }
+      ],
+      "fiaDocuments": [
+        {
+          "documentId": "synthetic-corrected-003",
+          "title": "Synthetic Corrected Classification",
+          "classification": "CORRECTED",
+          "publishedAtUtc": "2026-10-18T16:00:00Z",
+          "observedAtUtc": "2026-10-18T16:02:00Z",
+          "url": "https://example.invalid/fia/synthetic-corrected-003",
+          "authoritative": true,
+          "sourceRegistryId": "fia-document-metadata",
+          "review": {
+            "reviewedBy": "m4-replay-operator",
+            "reviewedAtUtc": "2026-10-18T16:02:00Z",
+            "rightsStatus": "REVIEW_REQUIRED",
+            "notes": "Synthetic correction tests append-only history."
+          }
+        }
+      ]
+    }
+  ]
+}

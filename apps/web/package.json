@@ -1,0 +1,14 @@
+{
+  "name": "@peds/web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "build": "tsc --noEmit && vite build && node scripts/generate-seo-artifacts.mjs && node scripts/prerender-engineering.mjs && node scripts/prune-legacy-showroom-assets.mjs && node scripts/check-commercial-visual-isolation.mjs"
+  }
+}

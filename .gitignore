@@ -1,0 +1,35 @@
+# Dependencies and generated outputs
+node_modules/
+dist/
+coverage/
+.vite/
+*.tsbuildinfo
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+*.local
+.dev.vars
+.wrangler/
+
+# Local-only candidate assets and evidence
+.local-assets/
+scratch/
+references/
+archives/
+*.blend
+*.blend1
+*.mp4
+*.webm
+
+# Logs, caches, IDE and OS files
+*.log
+.eslintcache
+.prettiercache
+.results-engine/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+Desktop.ini
