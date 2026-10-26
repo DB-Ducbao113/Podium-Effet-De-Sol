@@ -9,6 +9,7 @@ import { CALENDAR_2026 } from './calendar';
 import { TEAMS_DATA } from '../teams';
 import openF1SessionResults from './openF1SessionResults2026.json';
 import { GrandPrixQualifyingData } from '../../types/qualifying';
+import { BASELINE_CUTOFF_BY_SEASON } from './baselineCutoff';
 
 /**
  * Bridge from OpenF1 live-timing sprint classifications into the standings
@@ -63,6 +64,10 @@ const liveSprintSource: OpenF1SprintSource = {
   getFinishedSprintEntries(season: SeasonYear, round: number) {
     // The committed snapshot only covers 2026.
     if (season !== 2026) return null;
+    // Historical sprint points are already included in the static standings
+    // baseline. Keep their classifications available to Results, but never
+    // feed them back into standings where they would be counted twice.
+    if (round < BASELINE_CUTOFF_BY_SEASON[season].completedRounds) return null;
     const data = (openF1SessionResults as { qualifying: Record<number, GrandPrixQualifyingData> })
       .qualifying?.[round];
     const session = data?.sessions?.sprint;
@@ -80,9 +85,7 @@ const liveSprintSource: OpenF1SprintSource = {
         teamId: isKnownTeam(entry.teamId) ? entry.teamId : UNKNOWN_TEAM_ID,
         teamName: entry.teamName,
         laps: entry.lapsCompleted || 0,
-        // OpenF1 live entries carry no status field; the official sync
-        // (with status) takes priority whenever it exists.
-        status: 'Finished',
+        status: entry.status || 'Finished',
         timeOrGap: entry.bestLapTime || '',
         points: sprintPointsForPosition(entry.position, entry.sprintPoints),
       }));

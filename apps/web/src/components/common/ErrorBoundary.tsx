@@ -1,5 +1,5 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { AlertTriangle, RefreshCw, Trash2, Home } from 'lucide-react';
+import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 
 interface Props {
   children: ReactNode;
@@ -33,16 +33,6 @@ export class ErrorBoundary extends Component<Props, State> {
     window.location.reload();
   };
 
-  private handleClearStorageAndReload = () => {
-    try {
-      localStorage.clear();
-      sessionStorage.clear();
-    } catch {
-      // ignore
-    }
-    window.location.href = '/';
-  };
-
   public render() {
     if (this.state.hasError) {
       if (this.props.fallback) {
@@ -67,9 +57,8 @@ export class ErrorBoundary extends Component<Props, State> {
             </div>
 
             <p className="text-sm text-zinc-300 leading-relaxed">
-              Ứng dụng vừa gặp một lỗi xử lý dữ liệu giao diện không mong muốn. Để tránh gián đoạn
-              trải nghiệm, bạn có thể thử tải lại hoặc xóa bộ nhớ tạm để hệ thống đồng bộ lại từ
-              đầu.
+              Ứng dụng vừa gặp lỗi hiển thị không mong muốn. Bạn có thể tải lại trang hoặc trở về
+              trang chủ. Dữ liệu đã lưu trong trình duyệt sẽ không bị xóa.
             </p>
 
             {this.state.error && (
@@ -90,14 +79,6 @@ export class ErrorBoundary extends Component<Props, State> {
               >
                 <RefreshCw className="w-4 h-4" />
                 <span>Tải lại trang</span>
-              </button>
-
-              <button
-                onClick={this.handleClearStorageAndReload}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-bold uppercase tracking-wider transition-all border border-zinc-700 cursor-pointer"
-              >
-                <Trash2 className="w-4 h-4 text-zinc-400" />
-                <span>Xóa dữ liệu đệm & Khôi phục</span>
               </button>
 
               <a

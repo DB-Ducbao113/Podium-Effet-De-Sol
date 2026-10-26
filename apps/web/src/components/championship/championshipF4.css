@@ -1,0 +1,73 @@
+.f4-championship {
+  background: radial-gradient(ellipse 80% 34rem at 50% -18rem, #343940 0, #171a1f 58%, #111317 100%);
+  color: #f3f3f1;
+}
+.f4-championship .page-container { max-width: 1480px; }
+.f4-championship .f4-controls {
+  background: #202329;
+  border: 1px solid #3a3f47;
+  box-shadow: 0 18px 50px #0003;
+}
+.f4-championship .f4-controls [role="tablist"] { flex: 1; min-width: 0; }
+.f4-championship .f4-controls [role="tab"] { white-space: nowrap; }
+.f4-championship .f4-controls [role="tab"][aria-selected="true"] {
+  background: #303239;
+  box-shadow: inset 0 -2px #e12635;
+  color: #fff;
+}
+.f4-championship .f4-controls [role="tab"]:not([aria-selected="true"]) { color: #b9bec6; }
+.f4-championship .f4-controls [role="tab"]:hover { color: #fff; }
+.f4-championship .f4-controls [data-season-option] { color: #c5c8ce; }
+.f4-championship .f4-controls [data-season-option]:hover { color: #fff; }
+.f4-championship .f4-controls [data-season-option].bg-white { background: #e12635; color: #fff; }
+.f4-kicker { color: #ed6972; font: 700 .7rem/1.3 var(--font-body, sans-serif); letter-spacing: .17em; text-transform: uppercase; }
+.f4-overview { display: grid; gap: 1.5rem; }
+.f4-overview-head h2, .f4-standings-head h2 { margin-top: .5rem; color: #fff; font-size: clamp(1.7rem, 3vw, 2.75rem); font-weight: 800; line-height: 1.12; }
+.f4-overview-head h2 span { color: #9fa5af; font-weight: 400; }
+.f4-overview-head > p:last-child, .f4-standings-note { margin-top: .7rem; color: #bfc3c9; font-size: .9rem; line-height: 1.6; }
+.f4-overview-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+.f4-overview-tile { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; min-height: 15rem; padding: clamp(1.2rem, 2vw, 2rem); border: 1px solid #3a3f47; border-top: 2px solid #a02d37; border-radius: .75rem; background: linear-gradient(145deg, #252930, #1c1f24); }
+.f4-overview-tile strong { margin-top: 1.5rem; overflow-wrap: anywhere; color: #fff; font-size: clamp(1.3rem, 2vw, 2rem); line-height: 1.18; }
+.f4-overview-tile > span:nth-of-type(2) { margin-top: .55rem; color: #c5cad0; font-variant-numeric: tabular-nums; }
+.f4-overview-tile button { margin-top: auto; padding-top: 1.3rem; color: #fb8e96; font-size: .8rem; font-weight: 700; text-align: left; }
+.f4-overview-tile button:hover { color: #fff; }
+.f4-standings { overflow: hidden; border: 1px solid #3a3f47; border-radius: .85rem; background: #202329; }
+.f4-standings-head { display: flex; align-items: end; justify-content: space-between; gap: 1rem; padding: clamp(1.2rem, 2vw, 2rem); }
+.f4-source-link { display: inline-flex; align-items: center; gap: .5rem; flex-shrink: 0; color: #d6d9de; font-size: .75rem; font-weight: 700; }
+.f4-source-link:hover { color: #fff; text-decoration: underline; }
+.f4-data-warning { margin: 0 1.2rem 1rem; padding: .8rem 1rem; border: 1px solid #9a673d; border-radius: .5rem; background: #3b2c22; color: #ffe0bd; font-size: .85rem; }
+.f4-table-scroll { overflow-x: auto; }
+.f4-table { width: 100%; min-width: 660px; border-collapse: collapse; text-align: left; }
+.f4-table thead { background: #292d33; color: #bfc4cb; font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; }
+.f4-table th, .f4-table td { padding: .95rem 1.1rem; border-top: 1px solid #373c44; }
+.f4-table thead th { border-top: 0; }
+.f4-table tbody tr:hover { background: #2c3037; }
+.f4-table tbody th { color: #f3f3f1; font-weight: 700; }
+.f4-table tbody td { color: #cdd1d6; font-size: .85rem; }
+.f4-table .f4-rank { width: 5rem; color: #aab0b9; font-variant-numeric: tabular-nums; text-align: center; }
+.f4-table .f4-number { text-align: right; font-variant-numeric: tabular-nums; }
+.f4-table .f4-points { color: #fff; font-weight: 800; font-size: 1rem; }
+.f4-table a:hover { color: #ff9ca3; text-decoration: underline; }
+.f4-identity { display: flex; align-items: center; gap: .75rem; }
+.f4-identity small { display: block; margin-top: .1rem; color: #aeb5bd; font-size: .7rem; font-weight: 500; }
+.f4-team-mark { flex: none; width: 3px; height: 1.8rem; border-radius: 2px; background: #ed6972; }
+.f4-empty { padding: 2rem; color: #c8cbd0; }
+.f4-mobile-standings { display: none; }
+.f4-mobile-row { display: flex; align-items: center; gap: .8rem; padding: .9rem 1rem; border-top: 1px solid #383e46; }
+.f4-mobile-rank { align-self: flex-start; min-width: 2rem; color: #ff8b94; font-size: .8rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.f4-mobile-main { display: flex; min-width: 0; flex: 1; flex-direction: column; gap: .2rem; }
+.f4-mobile-main strong { color: #fff; font-size: .92rem; line-height: 1.3; }
+.f4-mobile-main span { overflow-wrap: anywhere; color: #c3c9d0; font-size: .76rem; }
+.f4-mobile-main small { color: #aeb7c1; font-size: .68rem; }
+.f4-mobile-main a:hover { color: #ff9ca3; text-decoration: underline; }
+.f4-mobile-points { align-self: flex-start; color: #fff; font-size: 1.15rem; font-weight: 800; font-variant-numeric: tabular-nums; text-align: right; }
+.f4-mobile-points small { display: block; color: #aeb7c1; font-size: .6rem; font-weight: 600; text-transform: uppercase; }
+.f4-results .bg-studio-50\/80 :is(.text-studio-700, .text-studio-900),
+.f4-results .bg-amber-50\/70 .text-studio-900 { color: #26303b; }
+.f4-results .bg-studio-50\/80 .text-studio-700 { color: #34404d; }
+.f4-results .bg-studio-50\/80 .text-studio-900 { color: #1a222b; }
+.f4-championship .bg-white .text-studio-400 { color: #59616c; }
+.f4-championship .bg-white .text-studio-500 { color: #4b5663; }
+.f4-championship :is(button, a, [tabindex="0"]):focus-visible { outline: 2px solid #ff999f; outline-offset: 3px; }
+@media (max-width: 860px) { .f4-overview-grid { grid-template-columns: 1fr; } .f4-overview-tile { min-height: 12rem; } .f4-standings-head { align-items: start; flex-direction: column; } .f4-table-scroll { display: none; } .f4-mobile-standings { display: block; } }
+@media (prefers-reduced-motion: reduce) { .f4-championship *, .f4-championship *::before, .f4-championship *::after { animation-duration: .01ms !important; scroll-behavior: auto !important; transition-duration: .01ms !important; } }

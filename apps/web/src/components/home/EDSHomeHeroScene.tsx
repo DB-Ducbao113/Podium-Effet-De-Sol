@@ -1,9 +1,11 @@
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { ContactShadows, OrbitControls, useGLTF } from '@react-three/drei';
+import * as THREE from 'three';
 import { F1Car3DModel } from '../showroom/F1Car3DModel';
 import { EDSLiveryId } from '../../data/showroom/edsLiveries';
 import { useNavigationStore } from '../../store/useNavigationStore';
+import { useReducedMotion } from '../../hooks/useReducedMotion';
 
 function ReadySignal({ onReady }: { onReady: () => void }) {
   useGLTF('/models/eds-g01.glb');
@@ -21,14 +23,7 @@ export function EDSHomeHeroScene({
   active: boolean;
 }) {
   const lang = useNavigationStore((state) => state.lang);
-  const [reduceMotion, setReduceMotion] = useState(false);
-  useEffect(() => {
-    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const update = () => setReduceMotion(media.matches);
-    update();
-    media.addEventListener('change', update);
-    return () => media.removeEventListener('change', update);
-  }, []);
+  const reduceMotion = useReducedMotion();
   return (
     <Canvas
       aria-label="Interactive original EDS-G01 vehicle"
@@ -36,11 +31,17 @@ export function EDSHomeHeroScene({
       dpr={[1, 1.25]}
       camera={{ position: [4.5, 1.8, -4.7], fov: 43 }}
       gl={{ alpha: true, antialias: false, powerPreference: 'high-performance' }}
+      onCreated={({ gl }) => {
+        gl.toneMapping = THREE.ACESFilmicToneMapping;
+        gl.toneMappingExposure = 1.28;
+      }}
       className="h-full w-full cursor-grab active:cursor-grabbing"
     >
-      <ambientLight intensity={1.55} />
-      <directionalLight position={[4, 7, -4]} intensity={3} color="#ffffff" />
-      <directionalLight position={[-4, 3, 5]} intensity={1.5} color="#e10600" />
+      <ambientLight intensity={2.05} />
+      <hemisphereLight args={['#f3f6ff', '#11141b', 1.4]} />
+      <directionalLight position={[4, 7, -4]} intensity={4.2} color="#ffffff" />
+      <directionalLight position={[-4, 4, 5]} intensity={2.3} color="#d9e2ef" />
+      <directionalLight position={[0, 2, -6]} intensity={1.25} color="#d20a0a" />
       <Suspense fallback={null}>
         <F1Car3DModel
           activeHotspot={null}
@@ -52,7 +53,7 @@ export function EDSHomeHeroScene({
         <ReadySignal onReady={onReady} />
         <ContactShadows
           position={[0, -0.02, 0]}
-          opacity={0.65}
+          opacity={0.5}
           scale={8}
           blur={2}
           far={4}

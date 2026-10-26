@@ -33,6 +33,9 @@ export const RaceClassificationModal: React.FC<RaceClassificationModalProps> = (
   return createPortal(
     <div
       className="fixed inset-0 z-[9999] bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${race.grandPrix} race classification`}
       onClick={onClose}
     >
       <div

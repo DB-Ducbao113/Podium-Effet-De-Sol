@@ -22,7 +22,6 @@ import { formatDateStr, formatSessionName, toVietnamTime } from '../../utils/dat
 import { SeasonYear } from '../../types';
 import { GrandPrixQualifyingData } from '../../types/qualifying';
 import { GrandPrixPracticeData } from '../../types/practice';
-import { Card3DTilt } from '../common/Card3DTilt';
 import { getCalendarRaceState, getSessionTimeRange } from '../../utils/raceSchedule';
 import { CircuitTrackMap } from './CircuitTrackMap';
 
@@ -98,7 +97,7 @@ export const RaceCalendar: React.FC<RaceCalendarProps> = React.memo(({ season })
         setTimeout(() => {
           const targetEl = document.getElementById(`calendar-round-${round}`);
           if (targetEl) {
-            targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            targetEl.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' });
           }
         }, 50);
       });
@@ -144,17 +143,15 @@ export const RaceCalendar: React.FC<RaceCalendarProps> = React.memo(({ season })
       setTimeout(() => {
         const targetEl = document.getElementById(`calendar-round-${nextRace.round}`);
         if (targetEl) {
-          targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          targetEl.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' });
         }
       }, 50);
     });
   };
 
   return (
-    <div className="space-y-4">
-      <Card3DTilt
-        maxTilt={2}
-        glareOpacity={0.08}
+    <div className="f4-calendar space-y-4">
+      <div
         className="flex flex-col items-stretch min-[861px]:flex-row min-[861px]:items-center justify-between p-4 bg-white rounded-xl border border-studio-200 gap-3"
       >
         <div>
@@ -190,7 +187,7 @@ export const RaceCalendar: React.FC<RaceCalendarProps> = React.memo(({ season })
             {isVi ? 'Mùa giải hoàn tất' : 'Season complete'}
           </span>
         )}
-      </Card3DTilt>
+      </div>
 
       <div className="grid grid-cols-1 gap-3">
         {calendar.map((gp) => {
@@ -236,6 +233,17 @@ export const RaceCalendar: React.FC<RaceCalendarProps> = React.memo(({ season })
               {/* Collapsed Bar */}
               <div
                 onClick={() => toggleExpand(gp.round)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    toggleExpand(gp.round);
+                  }
+                }}
+                role="button"
+                tabIndex={0}
+                aria-expanded={isExpanded}
+                aria-controls={`calendar-schedule-${gp.round}`}
+                aria-label={`${isExpanded ? (isVi ? 'Thu gọn' : 'Collapse') : (isVi ? 'Mở' : 'Expand')} ${gp.name}`}
                 className="p-4 sm:p-5 flex items-center justify-between gap-4 cursor-pointer"
               >
                 <div className="flex items-center gap-4">
@@ -310,22 +318,19 @@ export const RaceCalendar: React.FC<RaceCalendarProps> = React.memo(({ season })
                     </span>
                   </div>
 
-                  <button
-                    className="p-1 rounded-full text-studio-400 hover:text-studio-900 transition-colors"
-                    aria-label="Expand schedule"
-                  >
+                  <span className="p-1 rounded-full text-studio-400" aria-hidden="true">
                     {isExpanded ? (
                       <ChevronUp className="w-5 h-5" />
                     ) : (
                       <ChevronDown className="w-5 h-5" />
                     )}
-                  </button>
+                  </span>
                 </div>
               </div>
 
               {/* Expanded Session Breakdown */}
               {isExpanded && (
-                <div className="px-5 pb-5 pt-2 border-t border-studio-100 bg-studio-50/50 rounded-b-xl space-y-4 animate-fade-in">
+                <div id={`calendar-schedule-${gp.round}`} className="px-5 pb-5 pt-2 border-t border-studio-100 bg-studio-50/50 rounded-b-xl space-y-4 animate-fade-in">
                   <div className="flex flex-wrap items-center justify-between gap-4 text-xs text-studio-600 pt-1">
                     <span className="flex items-center gap-1.5 font-medium">
                       <MapPin className="w-3.5 h-3.5 text-f1red" /> {gp.circuit}, {gp.location}

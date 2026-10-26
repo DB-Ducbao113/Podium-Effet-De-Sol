@@ -1,10 +1,27 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { DRIVER_STANDINGS_2026, CONSTRUCTOR_STANDINGS_2026 } from '../data/championship/standings';
 import { DetailedRaceResult } from '../types';
-import { normalizeDriverId } from './f1DataService';
+import { normalizeDriverId, syncF1SeasonData } from './f1DataService';
 import { recalculateStandingsFromRaces } from './standingsEngine';
 
 describe('Jolpica driver ID normalization', () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it('bounds HTTP 503 retries and keeps the saved snapshot without claiming success', async () => {
+    const saved: DetailedRaceResult[] = [{
+      id: 'saved-round', season: 2026, round: 1, grandPrix: 'Saved race',
+      officialName: 'Saved race', circuit: 'Saved circuit', date: '2026-03-01',
+      status: 'completed', lapsTotal: 57, entries: [],
+    }];
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response('', { status: 503, headers: { 'Retry-After': '0' } }),
+    );
+    const result = await syncF1SeasonData(2026, saved);
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+    expect(result.success).toBe(false);
+    expect(result.results).toBe(saved);
+    expect(result.source).toBe('Local saved snapshot');
+  });
   it.each([
     ['kimi_antonelli', 'antonelli'],
     ['isack_hadjar', 'hadjar'],

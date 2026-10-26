@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { CONFIGURED_SITE_URL, canIndexCurrentHost } from '../../config/site';
 import { getEngineeringArticle } from '../../data/engineeringArticles';
 import { useNavigationStore } from '../../store/useNavigationStore';
+import { modelBReviewCopy } from './modelBReviewCopy';
 
 const upsertMeta = (
   selector: string,
@@ -19,7 +20,20 @@ const upsertMeta = (
   element.content = content;
 };
 
-const routeCopy = (pathname: string, lang: 'vi' | 'en') => {
+const routeCopy = (pathname: string, lang: 'vi' | 'en', modelBReview = false) => {
+  if (pathname === '/engineering/car-anatomy') {
+    return {
+      title: lang === 'vi' ? 'Giải phẫu xe đua | Podium EDS' : 'Race Car Anatomy | Podium EDS',
+      description: lang === 'vi'
+        ? 'Bảy chương giải thích nguyên lý kỹ thuật xe đua với chú thích Model B tham khảo trong bản review local.'
+        : 'Seven bilingual race-engineering chapters with approximate Model B annotations in local review.',
+      type: 'website',
+      image: '/images/eds/engineering/ground-effect-flow.svg',
+    };
+  }
+  if (pathname === '/showroom' && modelBReview) {
+    return modelBReviewCopy(lang);
+  }
   if (pathname === '/engineering') {
     return {
       title: 'Engineering Insights | Podium EDS',
@@ -110,10 +124,12 @@ const routeCopy = (pathname: string, lang: 'vi' | 'en') => {
 };
 
 export const RouteSeo = () => {
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const lang = useNavigationStore((state) => state.lang);
   useEffect(() => {
-    const copy = routeCopy(pathname, lang);
+    const requestedModel = new URLSearchParams(search).get('model');
+    const modelBReview = import.meta.env.DEV && pathname === '/showroom' && requestedModel !== 'eds-g01' && requestedModel !== 'eds-g02';
+    const copy = routeCopy(pathname, lang, modelBReview);
     const canonicalUrl = CONFIGURED_SITE_URL ? `${CONFIGURED_SITE_URL}${pathname}` : null;
     const imageUrl = CONFIGURED_SITE_URL
       ? new URL(copy.image, CONFIGURED_SITE_URL).href
@@ -195,6 +211,6 @@ export const RouteSeo = () => {
       script.text = JSON.stringify(schema);
       document.head.appendChild(script);
     }
-  }, [lang, pathname]);
+  }, [lang, pathname, search]);
   return null;
 };

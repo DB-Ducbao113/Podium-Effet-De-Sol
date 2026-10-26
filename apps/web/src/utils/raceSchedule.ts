@@ -83,8 +83,7 @@ export function getCalendarRaceState(gp: GrandPrixRound, now = Date.now()): Cale
   const raceRange = getSessionTimeRange(gp, 'race');
   if (!raceRange) return gp.status;
 
-  if (gp.status === 'completed' || now >= raceRange.end.getTime()) return 'completed';
-  if (gp.status === 'current') return 'current';
+  if (now >= raceRange.end.getTime()) return 'completed';
 
   const sessionStarts = (Object.keys(gp.sessions) as RaceSessionKey[])
     .map((key) => getSessionStart(gp, key)?.getTime())

@@ -81,15 +81,63 @@ describe("commercial visual isolation", () => {
     expect(viteSource).toMatch(/apply:\s*["']serve["']/);
     expect(viteSource).toContain("PEDS_MODEL_B_PATH");
     expect(viteSource).toContain(
-      "../../.local-assets/model-b-eds-optimized-v1.glb",
+      "../../source-assets/models/model-b/model-b-eds-optimized-v1.glb",
+    );
+    expect(viteSource).toContain(
+      "2D0091661DACE5D6C61AEBF898B4974644B44E43A5E8D10F602685C1631610A2",
     );
     expect(showroomSource).toContain("import.meta.env.DEV");
+    expect(showroomSource).toContain('if (import.meta.env.DEV && CommercialBReviewShowroom)');
+    expect(showroomSource).not.toContain("requestedModel !== 'eds-g01'");
     for (const token of [
       "/__peds-review/model-b.glb",
+      "/__peds-review/tokyo-drift-final.mp4",
+      "/__peds-review/tokyo-drift-final-poster.png",
+      "/__peds-review/tokyo-drift-h2-9-final.mp4",
+      "/__peds-review/tokyo-drift-h2-9-poster.png",
+      "/__peds-review/tokyo-drift-h3-0-final.mp4",
+      "/__peds-review/tokyo-drift-h3-0-poster.png",
+      "/__peds-review/tokyo-drift-h3-1-2x.mp4",
+      "/__peds-review/tokyo-drift-h3-1-2x-poster.png",
+      "/__peds-review/tokyo-drift-h3-1-3x.mp4",
+      "/__peds-review/tokyo-drift-h3-1-3x-poster.png",
+      "/__peds-review/tokyo-drift-h3-2-2x.mp4",
+      "/__peds-review/tokyo-drift-h3-2-3x.mp4",
+      "/__peds-review/tokyo-drift-h3-2-poster.png",
+      "/__peds-review/tokyo-drift-h3-2-3x-poster.png",
       "model-b-eds-optimized-v1.glb",
+      "tokyo-drift-final.mp4",
+      "tokyo-drift-final-poster.png",
+      "tokyo-drift-h2-9-final.mp4",
+      "tokyo-drift-h2-9-poster.png",
+      "tokyo-drift-h3-0-final.mp4",
+      "tokyo-drift-h3-0-poster.png",
+      "tokyo-drift-h3-1-2x.mp4",
+      "tokyo-drift-h3-1-2x-poster.png",
+      "tokyo-drift-h3-1-3x.mp4",
+      "tokyo-drift-h3-1-3x-poster.png",
+      "tokyo-drift-h3-2-2x.mp4",
+      "tokyo-drift-h3-2-3x.mp4",
+      "tokyo-drift-h3-2-poster.png",
+      "tokyo-drift-h3-2-3x-poster.png",
       "commercial-b",
     ]) {
       expect(isolationSource).toContain(token);
     }
+  });
+
+  it("keeps Homepage film review-only and does not load its former WebGL scene", () => {
+    const heroSource = readFileSync("src/components/home/PodiumBrandHero.tsx", "utf8");
+    expect(heroSource).toContain("import.meta.env.DEV");
+    expect(heroSource).toContain("/__peds-review/tokyo-drift-h3-2-2x.mp4");
+    expect(heroSource).toContain("/__peds-review/tokyo-drift-h3-2-poster.png");
+    expect(heroSource).not.toContain("ModelBHomeHeroScene");
+    expect(heroSource).toContain("autoPlay");
+    expect(heroSource).toContain("playsInline");
+    expect(heroSource).toContain("poster=");
+    expect(heroSource).not.toContain("loop");
+    expect(heroSource).not.toContain("controls");
+    expect(heroSource).toContain("onEnded");
+    expect(heroSource).toContain("onError");
   });
 });

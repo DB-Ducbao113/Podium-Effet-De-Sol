@@ -23,7 +23,35 @@ const forbiddenArtifactTokens = [
   '/models/eds-g02.glb',
   '/models/eds-g03-preview.glb',
   '/__peds-review/model-b.glb',
+  '/__peds-review/tokyo-drift-final.mp4',
+  '/__peds-review/tokyo-drift-final-poster.png',
+  '/__peds-review/tokyo-drift-h2-9-final.mp4',
+  '/__peds-review/tokyo-drift-h2-9-poster.png',
+  '/__peds-review/tokyo-drift-h3-0-final.mp4',
+  '/__peds-review/tokyo-drift-h3-0-poster.png',
+  '/__peds-review/tokyo-drift-h3-1-2x.mp4',
+  '/__peds-review/tokyo-drift-h3-1-2x-poster.png',
+  '/__peds-review/tokyo-drift-h3-1-3x.mp4',
+  '/__peds-review/tokyo-drift-h3-1-3x-poster.png',
+  '/__peds-review/tokyo-drift-h3-2-2x.mp4',
+  '/__peds-review/tokyo-drift-h3-2-3x.mp4',
+  '/__peds-review/tokyo-drift-h3-2-poster.png',
+  '/__peds-review/tokyo-drift-h3-2-3x-poster.png',
   'model-b-eds-optimized-v1.glb',
+  'tokyo-drift-final.mp4',
+  'tokyo-drift-final-poster.png',
+  'tokyo-drift-h2-9-final.mp4',
+  'tokyo-drift-h2-9-poster.png',
+  'tokyo-drift-h3-0-final.mp4',
+  'tokyo-drift-h3-0-poster.png',
+  'tokyo-drift-h3-1-2x.mp4',
+  'tokyo-drift-h3-1-2x-poster.png',
+  'tokyo-drift-h3-1-3x.mp4',
+  'tokyo-drift-h3-1-3x-poster.png',
+  'tokyo-drift-h3-2-2x.mp4',
+  'tokyo-drift-h3-2-3x.mp4',
+  'tokyo-drift-h3-2-poster.png',
+  'tokyo-drift-h3-2-3x-poster.png',
   'commercial-b',
   '/textures/wheel_base.webp',
   'server.arcgisonline.com',
@@ -81,17 +109,27 @@ const sourceViolations = sourceGraph.filter((file) =>
 );
 
 const artifactFiles = [];
+const artifactPaths = [];
 async function walkArtifacts(directory) {
   for (const entry of await fs.readdir(directory, { withFileTypes: true })) {
     const filePath = path.join(directory, entry.name);
     if (entry.isDirectory()) await walkArtifacts(filePath);
-    else if (/\.(?:html|js|css|json|svg)$/i.test(entry.name)) artifactFiles.push(filePath);
+    else {
+      artifactPaths.push(filePath);
+      if (/\.(?:html|js|css|json|svg)$/i.test(entry.name)) artifactFiles.push(filePath);
+    }
   }
 }
 await requireHtmlShell(path.join(clientAssetsDir, 'index.html'));
 await walkArtifacts(clientAssetsDir);
 
 const artifactViolations = [];
+for (const filePath of artifactPaths) {
+  const relativePath = path.relative(projectRoot, filePath).replaceAll('\\', '/');
+  for (const forbiddenName of ['tokyo-drift-final.mp4', 'tokyo-drift-final-poster.png', 'tokyo-drift-h2-9-final.mp4', 'tokyo-drift-h2-9-poster.png', 'tokyo-drift-h3-0-final.mp4', 'tokyo-drift-h3-0-poster.png', 'tokyo-drift-h3-1-2x.mp4', 'tokyo-drift-h3-1-2x-poster.png', 'tokyo-drift-h3-1-3x.mp4', 'tokyo-drift-h3-1-3x-poster.png', 'tokyo-drift-h3-2-2x.mp4', 'tokyo-drift-h3-2-3x.mp4', 'tokyo-drift-h3-2-poster.png', 'tokyo-drift-h3-2-3x-poster.png']) {
+    if (relativePath.endsWith(forbiddenName)) artifactViolations.push(`${relativePath} -> forbidden filename`);
+  }
+}
 for (const filePath of artifactFiles) {
   const contents = await fs.readFile(filePath, 'utf8');
   for (const token of forbiddenArtifactTokens) {

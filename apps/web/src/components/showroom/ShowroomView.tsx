@@ -106,7 +106,9 @@ const ShowroomWebGLFallback: React.FC<{ accent: string; lang: 'vi' | 'en' }> = (
   </div>
 );
 
-const DefaultShowroomView: React.FC = () => {
+const DefaultShowroomView: React.FC<{ headingLevel?: 'h1' | 'h2' }> = ({
+  headingLevel = 'h1',
+}) => {
   const { lang } = useNavigationStore();
   const [searchParams] = useSearchParams();
   const reviewG02 = import.meta.env.DEV && searchParams.get('model') === 'eds-g02';
@@ -222,15 +224,17 @@ const DefaultShowroomView: React.FC = () => {
                 3D
               </span>
               <div>
-                <h1 className="font-display text-sm sm:text-base font-black uppercase tracking-wider">
-                  {reviewG02
+                {React.createElement(
+                  headingLevel,
+                  { className: 'font-display text-sm sm:text-base font-black uppercase tracking-wider' },
+                  reviewG02
                     ? lang === 'vi'
                       ? 'Xem thử EDS-G02 — chưa duyệt'
                       : 'EDS-G02 Review — Not Approved'
                     : lang === 'vi'
                       ? 'Showroom Kỹ thuật EDS-G01'
-                      : 'EDS-G01 Technical Showroom'}
-                </h1>
+                      : 'EDS-G01 Technical Showroom',
+                )}
                 <span className="text-[9px] font-black uppercase tracking-widest text-emerald-400">
                   {reviewG02
                     ? lang === 'vi'
@@ -394,11 +398,10 @@ const DefaultShowroomView: React.FC = () => {
   );
 };
 
-export const ShowroomView: React.FC = () => {
-  const [searchParams] = useSearchParams();
-  const reviewCommercialB = import.meta.env.DEV && searchParams.get('model') === 'commercial-b';
-
-  if (reviewCommercialB && CommercialBReviewShowroom) {
+export const ShowroomView: React.FC<{ headingLevel?: 'h1' | 'h2' }> = ({
+  headingLevel = 'h1',
+}) => {
+  if (import.meta.env.DEV && CommercialBReviewShowroom) {
     return (
       <Suspense
         fallback={
@@ -407,10 +410,10 @@ export const ShowroomView: React.FC = () => {
           </div>
         }
       >
-        <CommercialBReviewShowroom />
+        <CommercialBReviewShowroom headingLevel={headingLevel} />
       </Suspense>
     );
   }
 
-  return <DefaultShowroomView />;
+  return <DefaultShowroomView headingLevel={headingLevel} />;
 };

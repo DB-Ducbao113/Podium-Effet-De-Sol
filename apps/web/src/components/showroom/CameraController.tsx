@@ -22,13 +22,16 @@ export type CameraPreset =
   | 'top';
 
 interface CameraControllerProps {
-  activeHotspot: HotspotItem | null;
+  activeHotspot: Pick<HotspotItem, 'cameraPos' | 'cameraTarget'> | null;
   cameraPreset?: CameraPreset | null;
   presetTrigger?: number; // Increment to force re-transition even if same preset is clicked
   autoRotate: boolean;
   enableWheelZoom?: boolean;
   zoomTrigger?: number; // Increment to trigger programmatic zoom
   zoomDirection?: 'in' | 'out' | null;
+  reduceMotion?: boolean;
+  compactStage?: boolean;
+  narrowFramingMultiplier?: number;
 }
 
 const PRESET_VIEWS: Record<
@@ -100,6 +103,9 @@ export const CameraController: React.FC<CameraControllerProps> = React.memo(
     enableWheelZoom = false, // Default false: mouse wheel scrolls webpage, doesn't trap user
     zoomTrigger = 0,
     zoomDirection = null,
+    reduceMotion = false,
+    compactStage = false,
+    narrowFramingMultiplier = 1,
   }) => {
     const { camera, size } = useThree();
     const controlsRef = useRef<OrbitControlsImpl>(null);
@@ -111,10 +117,19 @@ export const CameraController: React.FC<CameraControllerProps> = React.memo(
     const frameForViewport = useCallback(
       (position: THREE.Vector3, target: THREE.Vector3) => {
         const aspect = size.width / Math.max(size.height, 1);
-        const distanceScale = aspect < 0.58 ? 2.6 : aspect < 0.9 ? 2.55 : 1.18;
-        return target.clone().add(position.clone().sub(target).multiplyScalar(distanceScale));
+        const distanceScale = compactStage && aspect < 0.9 ? 3.0 : aspect < 0.58 ? 2.6 : aspect < 0.9 ? 2.55 : compactStage && aspect < 1.15 ? 1.8 : compactStage && aspect < 1.65 ? 1.55 : 1.18;
+        return target
+          .clone()
+          .add(
+            position
+              .clone()
+              .sub(target)
+              .multiplyScalar(
+                distanceScale * (aspect < 0.9 ? narrowFramingMultiplier : 1),
+              ),
+          );
       },
-      [size.width, size.height],
+      [size.width, size.height, compactStage, narrowFramingMultiplier],
     );
 
     // Handle Hotspot and Preset transitions
@@ -155,6 +170,13 @@ export const CameraController: React.FC<CameraControllerProps> = React.memo(
       if (!controlsRef.current) return;
 
       if (isTransitioning.current) {
+        if (reduceMotion) {
+          camera.position.copy(desiredPos.current);
+          controlsRef.current.target.copy(desiredTarget.current);
+          controlsRef.current.update();
+          isTransitioning.current = false;
+          return;
+        }
         const factor = Math.min(delta * 3.5, 1);
         camera.position.lerp(desiredPos.current, factor);
         controlsRef.current.target.lerp(desiredTarget.current, factor);

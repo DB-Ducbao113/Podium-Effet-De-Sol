@@ -8,6 +8,8 @@ import { scheduleWallClockSecondTick, tabSync } from '../../lib/live/tabSync';
 import { getSessionTimeRange, RaceSessionKey } from '../../utils/raceSchedule';
 import { Card3DTilt } from '../common/Card3DTilt';
 import { getCalendarBySeason } from '../../data/championship';
+import { useTimezoneStore } from '../../store/useTimezoneStore';
+import { effectiveTimeZone, zoneOffsetLabel } from '../../utils/championshipTimezone';
 
 interface RaceWeekendWidgetProps {
   race: GrandPrixRound;
@@ -41,9 +43,9 @@ const SESSION_CARD_LABELS: Record<RaceSessionKey, { vi: string; en: string }> = 
   race: { vi: 'Đua Chính', en: 'Grand Prix' },
 };
 
-function formatIctSession(start: Date, lang: 'vi' | 'en') {
-  const parts = new Intl.DateTimeFormat('en-GB', {
-    timeZone: 'Asia/Bangkok',
+function formatZonedSession(start: Date, lang: 'vi' | 'en', zone: string) {
+  const parts = new Intl.DateTimeFormat(lang === 'vi' ? 'vi-VN' : 'en-GB', {
+    timeZone: effectiveTimeZone(zone),
     weekday: 'short',
     day: '2-digit',
     month: '2-digit',
@@ -53,13 +55,8 @@ function formatIctSession(start: Date, lang: 'vi' | 'en') {
   }).formatToParts(start);
   const value = (type: Intl.DateTimeFormatPartTypes) =>
     parts.find((part) => part.type === type)?.value || '';
-  const ictDate = new Date(start.toLocaleString('en-US', { timeZone: 'Asia/Bangkok' }));
-
   return {
-    day:
-      lang === 'vi'
-        ? ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'][ictDate.getDay()]
-        : value('weekday'),
+    day: value('weekday'),
     date: `${value('day')}/${value('month')}`,
     time: `${value('hour')}:${value('minute')}`,
   };
@@ -97,6 +94,7 @@ const TimeCluster: React.FC<{ value: number; label: string }> = ({ value, label 
 
 export const RaceWeekendWidget: React.FC<RaceWeekendWidgetProps> = ({ race }) => {
   const { lang } = useNavigationStore();
+  const timezone = useTimezoneStore((state) => state.preference);
   const navigate = useNavigate();
   const [now, setNow] = useState<number>(() => Date.now());
 
@@ -192,7 +190,7 @@ export const RaceWeekendWidget: React.FC<RaceWeekendWidgetProps> = ({ race }) =>
   const isLive = state === 'live';
   const sessionCards = sessions.map((session) => ({
     ...session,
-    local: formatIctSession(new Date(session.startIso), lang),
+    local: formatZonedSession(new Date(session.startIso), lang, timezone),
   }));
   const isMainRaceInProgress =
     activeSession?.id === 'race' && now < new Date(activeSession.endIso).getTime();
@@ -257,7 +255,7 @@ export const RaceWeekendWidget: React.FC<RaceWeekendWidgetProps> = ({ race }) =>
               </span>
               <span className="text-studio-300">|</span>
               <span className="text-studio-500 font-mono text-[11px]">
-                {lang === 'vi' ? 'Giờ Việt Nam (UTC+7)' : 'Vietnam time (UTC+7)'}
+                {zoneOffsetLabel(new Date(), timezone)}
               </span>
             </div>
 
@@ -436,7 +434,7 @@ export const RaceWeekendWidget: React.FC<RaceWeekendWidgetProps> = ({ race }) =>
                   <span
                     className={`text-[10px] font-mono ${isRace ? 'text-studio-300' : 'text-studio-500'}`}
                   >
-                    {session.local.time} {lang === 'vi' ? 'giờ VN' : 'UTC+7'}
+                    {session.local.time} {zoneOffsetLabel(new Date(session.startIso), timezone)}
                   </span>
                 </div>
               );

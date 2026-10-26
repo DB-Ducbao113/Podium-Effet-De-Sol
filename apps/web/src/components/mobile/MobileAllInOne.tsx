@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useRef, useState } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
 import { Home, Trophy, Box } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useNavigationStore } from '../../store/useNavigationStore';
@@ -15,33 +15,12 @@ const ShowroomView = lazy(() =>
 type SectionId = 'home' | 'giai-dau' | 'showroom';
 const ids: SectionId[] = ['home', 'giai-dau', 'showroom'];
 
-function VisibleShowroom() {
-  const sectionRef = useRef<HTMLDivElement | null>(null);
-  const [load, setLoad] = useState(false);
-  useEffect(() => {
-    const element = sectionRef.current;
-    if (!element) return;
-    if (!('IntersectionObserver' in window)) {
-      setLoad(true);
-      return;
-    }
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setLoad(true);
-          observer.disconnect();
-        }
-      },
-      { rootMargin: '500px 0px' },
-    );
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, []);
+function VisibleShowroom({ load, onOpen }: { load: boolean; onOpen: () => void }) {
   return (
-    <div ref={sectionRef} className="min-h-[75svh]">
+    <div className="min-h-[75svh]">
       {load ? (
         <Suspense fallback={<div className="min-h-[75svh] bg-[#09090e]" />}>
-          <ShowroomView />
+          <ShowroomView headingLevel="h2" />
         </Suspense>
       ) : (
         <div className="relative min-h-[75svh] overflow-hidden bg-[#09090e]">
@@ -54,6 +33,9 @@ function VisibleShowroom() {
           <span className="relative m-6 inline-block rounded-lg border border-white/20 bg-black/60 px-3 py-2 text-xs font-bold text-white">
             EDS-G01 Showroom
           </span>
+          <button type="button" onClick={onOpen} className="relative mx-6 block rounded-lg bg-f1red px-4 py-3 text-sm font-bold text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-white">
+            Open 3D Showroom
+          </button>
         </div>
       )}
     </div>
@@ -71,6 +53,8 @@ export function MobileAllInOne({ season }: { season: SeasonYear }) {
         ? 'giai-dau'
         : 'home';
   const [active, setActive] = useState<SectionId>(defaultSection);
+  const showHome = location.pathname === '/' || location.hash === '#home';
+  const showShowroom = location.pathname === '/showroom' || location.hash === '#showroom';
 
   useEffect(() => {
     const section = ids.find((id) => location.hash === `#${id}`) ?? defaultSection;
@@ -87,7 +71,8 @@ export function MobileAllInOne({ season }: { season: SeasonYear }) {
     };
     // Jump directly between long sections; smooth scrolling can leave the old section visible.
     frame = requestAnimationFrame(scroll);
-    if (section !== 'home') {
+    const targetIsControl = section === 'showroom' && Boolean((location.state as { showroomControl?: string } | null)?.showroomControl);
+    if (section !== 'home' && !targetIsControl) {
       observer = new ResizeObserver(() => {
         if (frame !== undefined) cancelAnimationFrame(frame);
         frame = requestAnimationFrame(scroll);
@@ -110,7 +95,7 @@ export function MobileAllInOne({ season }: { season: SeasonYear }) {
       window.removeEventListener('touchstart', stopFollowing);
       window.removeEventListener('keydown', stopFollowing);
     };
-  }, [location.hash, location.pathname, defaultSection]);
+  }, [location.hash, location.pathname, location.state, defaultSection]);
 
   useEffect(() => {
     let frame: number | undefined;
@@ -162,9 +147,11 @@ export function MobileAllInOne({ season }: { season: SeasonYear }) {
       data-mobile-hub
     >
       <section id="home" className="scroll-mt-16" aria-label={lang === 'vi' ? 'Trang chủ' : 'Home'}>
-        <Suspense fallback={<div className="min-h-screen" />}>
-          <HomeView />
-        </Suspense>
+        {showHome ? <Suspense fallback={<div className="min-h-screen" />}><HomeView /></Suspense> : (
+          <div className="flex min-h-[75svh] items-center justify-center bg-[#111317] px-6 text-center">
+            <div><p className="text-xs font-bold uppercase tracking-[.2em] text-red-400">PODIUM EDS</p><p className="mt-3 text-2xl font-bold text-white">{lang === 'vi' ? 'Trang chủ' : 'Home'}</p><button type="button" onClick={() => goTo('home')} className="mt-5 rounded-lg border border-white/30 px-5 py-3 text-sm font-bold text-white">{lang === 'vi' ? 'Mở trang chủ' : 'Open homepage'}</button></div>
+          </div>
+        )}
       </section>
       <section
         id="giai-dau"
@@ -175,11 +162,12 @@ export function MobileAllInOne({ season }: { season: SeasonYear }) {
           <ChampionshipView
             season={season}
             onSeasonChange={(next) => navigate(`/season/${next}#giai-dau`)}
+            headingLevel={showHome ? 'h2' : 'h1'}
           />
         </Suspense>
       </section>
       <section id="showroom" className="scroll-mt-16" aria-label="EDS-G01 Showroom">
-        <VisibleShowroom />
+        <VisibleShowroom load={showShowroom} onOpen={() => goTo('showroom')} />
       </section>
       <nav
         aria-label={lang === 'vi' ? 'Điều hướng mục' : 'Section navigation'}

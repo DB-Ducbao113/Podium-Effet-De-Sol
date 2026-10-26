@@ -40,7 +40,7 @@ export const AboutPage: React.FC = () => {
             {isVi ? 'Giới thiệu Dự án & Kiến trúc' : 'Project Architecture & Creator'}
           </span>
           <span className="inline-block text-xs font-bold uppercase tracking-wider text-studio-600 bg-studio-200/70 px-3 py-1 rounded-full">
-            {isVi ? 'Phi Thương Mại · Non-Commercial' : 'Open Fan Tribute'}
+            {isVi ? 'Nền tảng độc lập' : 'Independent platform'}
           </span>
         </div>
         <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tight text-studio-950">
@@ -68,8 +68,8 @@ export const AboutPage: React.FC = () => {
             </div>
             <p className="mt-3 text-sm text-studio-300 leading-relaxed max-w-3xl">
               {isVi
-                ? 'Dự án được khởi xướng và phát triển độc lập bởi BaoBungBu xuất phát từ niềm đam mê sâu sắc với tốc độ, kỹ thuật chế tạo xe đua Formula 1 và đồ họa không gian ba chiều WebGL. Toàn bộ nền tảng được xây dựng với mục tiêu mang đến một góc nhìn trực quan, hiện đại và hoàn toàn miễn phí cho cộng đồng người hâm mộ thể thao tốc độ.'
-                : 'PODIUM — Effet de Sol was conceived and engineered independently by BaoBungBu, driven by a profound enthusiasm for modern Formula 1 engineering, aerodynamics, and real-time WebGL experiences. The hub is built as a 100% free, community-first tribute for motorsport enthusiasts.'}
+                ? 'BaoBungBu xây dựng PODIUM — Effet de Sol như một không gian độc lập để khám phá thiết kế xe đua, dữ liệu mùa giải và trải nghiệm WebGL tương tác.'
+                : 'BaoBungBu created PODIUM — Effet de Sol as an independent space for exploring race-car design, season data and interactive WebGL experiences.'}
             </p>
             <div className="mt-4 flex flex-wrap items-center gap-4 text-xs text-studio-400 font-mono">
               <span className="flex items-center gap-1.5 text-f1red">
@@ -77,7 +77,7 @@ export const AboutPage: React.FC = () => {
                 {isVi ? 'Xây dựng vì đam mê thể thao' : 'Built for the racing community'}
               </span>
               <span>•</span>
-              <span>{isVi ? 'Độc lập & Phi lợi nhuận' : 'Independent & Non-profit'}</span>
+              <span>{isVi ? 'Độc lập · Không chính thức' : 'Independent · Unofficial'}</span>
               <span>•</span>
               <span>2024–2026</span>
             </div>
@@ -101,13 +101,13 @@ export const AboutPage: React.FC = () => {
             <div className="text-sm text-studio-600 leading-relaxed space-y-3">
               <p>
                 {isVi
-                  ? 'Để đảm bảo trải nghiệm tức thì trên cả trình duyệt máy tính lẫn điện thoại, showroom áp dụng giải pháp tối ưu: sử dụng một khung gầm 3D chuẩn mực (Alfa Romeo C42 base mesh) làm hình học đại diện cho toàn bộ quy định khí động học Venturi.'
-                  : 'To achieve instantaneous page loads and sustained 60 FPS performance across mobile and desktop devices, the showroom adopts an optimized architectural decision: a single unified Ground Effect chassis geometry (Alfa Romeo C42 base mesh) acts as the representative canvas.'}
+                  ? 'Showroom dùng Three.js và React Three Fiber để trình bày mẫu xe tương tác. Cảnh 3D được tải theo nhu cầu và có chế độ chất lượng phù hợp với thiết bị.'
+                  : 'The Showroom uses Three.js and React Three Fiber for an interactive vehicle presentation. The 3D scene loads on demand and offers device-aware quality settings.'}
               </p>
               <p>
                 {isVi
-                  ? 'Nhận diện và màu sắc của 11 đội đua được chiếu động bằng Canvas Procedural Texture Generator và hệ thống Shaders PBR. Nhờ đó, người dùng chỉ cần tải một file hình học 3D tối ưu (~2,4 MB) thay vì 11 file độc lập cồng kềnh (>200 MB).'
-                  : 'Liveries and textures for all 11 teams are procedurally synthesized via an in-memory canvas engine and custom PBR shaders, cutting network transfer from >200 MB down to a single compact asset.'}
+                  ? 'Các lựa chọn màu sơn và góc nhìn được tổ chức trong cùng trải nghiệm; chất lượng đồ họa có thể điều chỉnh mà không ảnh hưởng đến dữ liệu giải đua.'
+                  : 'Livery and camera options share one experience; graphics quality can be adjusted independently of championship data.'}
               </p>
             </div>
           </div>
@@ -204,8 +204,8 @@ export const AboutPage: React.FC = () => {
         <div className="text-xs sm:text-sm text-studio-300 leading-relaxed space-y-4 font-mono">
           <p>
             {isVi
-              ? '1. TÍNH CHẤT PHI THƯƠNG MẠI: PODIUM — Effet de Sol là một dự án nghiên cứu công nghệ, giao lưu văn hóa và tôn vinh thể thao hoàn toàn phi thương mại (non-commercial, non-profit open fan tribute). Trang web không bán sản phẩm, không thu phí người dùng, không chạy quảng cáo thương mại và không tạo ra bất kỳ doanh thu nào.'
-              : '1. NON-COMMERCIAL STATUS: PODIUM — Effet de Sol is an independent, non-commercial, non-monetized educational showcase and technical fan tribute. The website does not sell products, charges no fees, hosts no advertisements, and generates zero commercial revenue.'}
+              ? '1. TÍNH ĐỘC LẬP: PODIUM — Effet de Sol là nền tảng đua xe không chính thức, không liên kết, được tài trợ hoặc chứng thực bởi Formula 1, FIA hay bất kỳ đội đua nào. Nội dung kỹ thuật mang tính giải thích và không thay thế tài liệu chính thức.'
+              : '1. INDEPENDENCE: PODIUM — Effet de Sol is an unofficial motorsport platform. It is not affiliated with, sponsored by, or endorsed by Formula 1, the FIA or any team. Engineering content is explanatory and does not replace official technical documentation.'}
           </p>
           <p>
             {isVi

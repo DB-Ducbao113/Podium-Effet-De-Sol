@@ -32,11 +32,11 @@ export const t = {
       engine: 'Động cơ',
     },
     footer: {
-      desc: 'PODIUM — Effet de Sol: nền tảng mô phỏng kỹ thuật 3D, kết quả chặng đua sau phiên và không gian lưu trữ di sản Formula 1.',
+      desc: 'PODIUM — Effet de Sol: trải nghiệm đua xe độc lập với showroom 3D, dữ liệu mùa giải và góc nhìn kỹ thuật.',
       colExplore: 'Khám Phá',
       colLegal: 'Bản Quyền & Ghi Nhận',
       disclaimer:
-        'Dự án fan không chính thức, độc lập và phi lợi nhuận; không liên kết, tài trợ hay được chứng thực bởi Formula 1 hoặc bất kỳ đội đua nào. Formula 1, F1, Grand Prix cùng các thương hiệu và tài sản trí tuệ liên quan thuộc quyền sở hữu của Formula One Licensing B.V. và các chủ sở hữu tương ứng.',
+        'Nền tảng độc lập, không chính thức; không liên kết, được tài trợ hay chứng thực bởi Formula 1 hoặc bất kỳ đội đua nào. Formula 1, F1, Grand Prix và các nhãn hiệu liên quan thuộc chủ sở hữu tương ứng.',
       copyright:
         '© 2026 PODIUM — Effet de Sol · Phát triển bởi BaoBungBu · Tôn vinh kỷ nguyên hiệu ứng mặt đất F1.',
     },
@@ -74,11 +74,11 @@ export const t = {
       engine: 'Power Unit',
     },
     footer: {
-      desc: 'PODIUM — Effet de Sol: an interactive 3D engineering platform, published post-session results, and Formula 1 heritage archive.',
+      desc: 'PODIUM — Effet de Sol: an independent motorsport experience with a 3D showroom, season data and engineering insight.',
       colExplore: 'Explore',
       colLegal: 'Attribution & Provenance',
       disclaimer:
-        'Unofficial, independent, non-commercial fan project; not affiliated with, sponsored by, or endorsed by Formula 1 or any team. F1, FORMULA ONE, FIA FORMULA ONE WORLD CHAMPIONSHIP, GRAND PRIX, and associated marks belong to Formula One Licensing B.V. and their respective owners.',
+        'Independent, unofficial platform; not affiliated with, sponsored by, or endorsed by Formula 1 or any team. F1, FORMULA ONE, FIA FORMULA ONE WORLD CHAMPIONSHIP, GRAND PRIX and associated marks belong to their respective owners.',
       copyright:
         '© 2026 PODIUM — Effet de Sol · Engineered by BaoBungBu · Celebrating the Ground Effect F1 era.',
     },

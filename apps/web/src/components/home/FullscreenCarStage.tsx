@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useNavigationStore } from '../../store/useNavigationStore';
 import { t } from '../../i18n/translations';
@@ -6,6 +6,7 @@ import { TeamId } from '../../types';
 import { Sparkles, Trophy, ArrowRight } from 'lucide-react';
 import { ConstructorLogo } from '../common/ConstructorLogo';
 import { getOriginalTeamVisualAsset } from '../../config/originalVisualAssets';
+import { useReducedMotion } from '../../hooks/useReducedMotion';
 
 interface PosterCar {
   id: string;
@@ -149,9 +150,11 @@ const MagneticButton: React.FC<{
   onClick?: () => void;
 }> = ({ children, className, onClick }) => {
   const btnRef = useRef<HTMLButtonElement | null>(null);
+  const reducedMotion = useReducedMotion();
   const [offset, setOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
   const handleMouseMove = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (reducedMotion) return;
     if (!btnRef.current) return;
     const rect = btnRef.current.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
@@ -175,8 +178,10 @@ const MagneticButton: React.FC<{
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{
-        transform: `translate(${offset.x}px, ${offset.y}px)`,
-        transition: 'transform 0.3s cubic-bezier(0.22, 1, 0.36, 1)',
+        transform: reducedMotion ? undefined : `translate(${offset.x}px, ${offset.y}px)`,
+        transition: reducedMotion
+          ? 'background-color 120ms ease, color 120ms ease, border-color 120ms ease'
+          : 'transform 0.3s cubic-bezier(0.22, 1, 0.36, 1)',
       }}
       className={className}
     >
@@ -188,12 +193,12 @@ const MagneticButton: React.FC<{
 export function FullscreenCarStageHeading({ lang }: { lang: keyof typeof t }) {
   const { heroTitle1, heroTitle2 } = t[lang].home;
   return (
-    <h1
+    <h2
       data-testid="car-stage-heading"
       className={`text-2xl sm:text-4xl font-bold uppercase text-white ${lang === 'vi' ? 'font-body leading-[1.3] tracking-normal' : 'font-display leading-[1.2] tracking-normal'}`}
     >
       <span className="block">{heroTitle1}</span> <span className="block">{heroTitle2}</span>
-    </h1>
+    </h2>
   );
 }
 
@@ -201,6 +206,7 @@ export const FullscreenCarStage: React.FC = React.memo(() => {
   const { lang } = useNavigationStore();
   const navigate = useNavigate();
   const strings = t[lang].home;
+  const reducedMotion = useReducedMotion();
 
   // Active expanded car index (default to null: show all 11 teams evenly)
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -215,6 +221,7 @@ export const FullscreenCarStage: React.FC = React.memo(() => {
   });
 
   const handleHeroMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (reducedMotion) return;
     if (!heroRef.current) return;
     const rect = heroRef.current.getBoundingClientRect();
     setHeroCursor({
@@ -237,6 +244,7 @@ export const FullscreenCarStage: React.FC = React.memo(() => {
   } | null>(null);
 
   const handleActivePanelMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (reducedMotion) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
@@ -255,41 +263,6 @@ export const FullscreenCarStage: React.FC = React.memo(() => {
   const handleActivePanelMouseLeave = () => {
     setTilt(null);
   };
-
-  // Auto-rotate references (Plan 2.2)
-  const idleTimeoutRef = useRef<number | null>(null);
-  const rotateIntervalRef = useRef<number | null>(null);
-  const isUserInteractingRef = useRef<boolean>(false);
-
-  const startAutoRotate = useCallback(() => {
-    if (rotateIntervalRef.current) clearInterval(rotateIntervalRef.current);
-    rotateIntervalRef.current = window.setInterval(() => {
-      if (isUserInteractingRef.current) return;
-      setActiveIndex((prev) => (prev === null ? 0 : (prev + 1) % POSTER_CARS.length));
-    }, 5000);
-  }, []);
-
-  const stopAutoRotate = useCallback(() => {
-    isUserInteractingRef.current = true;
-    if (rotateIntervalRef.current) clearInterval(rotateIntervalRef.current);
-    if (idleTimeoutRef.current) clearTimeout(idleTimeoutRef.current);
-
-    // After 8s of inactivity, resume auto-rotate
-    idleTimeoutRef.current = window.setTimeout(() => {
-      isUserInteractingRef.current = false;
-      startAutoRotate();
-    }, 8000);
-  }, [startAutoRotate]);
-
-  useEffect(() => {
-    // Initial 8s delay before auto-rotate starts
-    idleTimeoutRef.current = window.setTimeout(startAutoRotate, 8000);
-
-    return () => {
-      if (idleTimeoutRef.current) clearTimeout(idleTimeoutRef.current);
-      if (rotateIntervalRef.current) clearInterval(rotateIntervalRef.current);
-    };
-  }, [startAutoRotate]);
 
   return (
     <div
@@ -363,12 +336,6 @@ export const FullscreenCarStage: React.FC = React.memo(() => {
       {/* ── 11-Car Interactive Multi-Slice Poster Canvas ── */}
       <div className="page-container relative z-10">
         <div
-          onMouseLeave={() => {
-            setActiveIndex(null);
-            stopAutoRotate();
-          }}
-          onMouseEnter={stopAutoRotate}
-          onTouchStart={stopAutoRotate}
           className="relative w-full h-[560px] sm:h-[640px] lg:h-[700px] rounded-3xl overflow-hidden bg-[#07070b] border border-white/15 shadow-[0_20px_50px_rgba(0,0,0,0.9)] flex flex-row"
         >
           {POSTER_CARS.map((car, idx) => {
@@ -378,7 +345,6 @@ export const FullscreenCarStage: React.FC = React.memo(() => {
               <div
                 key={car.id}
                 onMouseEnter={() => {
-                  stopAutoRotate();
                   setActiveIndex(idx);
                 }}
                 onMouseMove={isExpanded ? handleActivePanelMouseMove : undefined}
@@ -386,13 +352,13 @@ export const FullscreenCarStage: React.FC = React.memo(() => {
                   if (isExpanded) handleActivePanelMouseLeave();
                 }}
                 onClick={() => {
-                  stopAutoRotate();
                   setActiveIndex(activeIndex === idx ? null : idx);
                 }}
                 style={{
                   flex: isExpanded ? 12 : 1,
-                  transition:
-                    isExpanded && tilt
+                  transition: reducedMotion
+                    ? 'none'
+                    : isExpanded && tilt
                       ? 'flex 450ms cubic-bezier(0.25, 1, 0.5, 1)'
                       : 'flex 450ms cubic-bezier(0.25, 1, 0.5, 1), transform 500ms cubic-bezier(0.22, 1, 0.36, 1)',
                   transform:
@@ -571,22 +537,20 @@ export const FullscreenCarStage: React.FC = React.memo(() => {
         </div>
 
         {/* ── 11 Indicator Dots (Plan 2.2) ── */}
-        <div className="flex items-center justify-center gap-2 mt-4 select-none">
+        <div className="flex flex-wrap items-center justify-center gap-1 mt-4 select-none" role="group" aria-label={lang === 'vi' ? 'Chọn đội đua trên poster' : 'Select a team on the poster'}>
           {POSTER_CARS.map((car, idx) => {
             const isActive = activeIndex === idx;
             return (
               <button
                 key={car.id}
                 onClick={() => {
-                  stopAutoRotate();
                   setActiveIndex(idx);
                 }}
                 title={car.name}
                 aria-label={`Select ${car.name}`}
-                className={`transition-all duration-300 rounded-full cursor-pointer ${
-                  isActive ? 'w-7 h-2 bg-f1red shadow-xs' : 'w-2 h-2 bg-white/20 hover:bg-white/50'
-                }`}
-              />
+                aria-pressed={isActive}
+                className="flex h-11 w-8 items-center justify-center rounded-md cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              ><span aria-hidden="true" className={`rounded-full transition-[width,background-color] duration-300 motion-reduce:transition-none ${isActive ? 'w-6 h-2 bg-f1red' : 'w-2 h-2 bg-white/45 hover:bg-white/80'}`} /></button>
             );
           })}
         </div>

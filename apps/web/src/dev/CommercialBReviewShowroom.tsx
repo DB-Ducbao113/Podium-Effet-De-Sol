@@ -1,11 +1,19 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { ContactShadows, Html } from '@react-three/drei';
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
-import { ChevronDown, Gauge, RotateCcw, Settings2 } from 'lucide-react';
+import {
+  ExternalLink,
+  Gauge,
+  Pause,
+  Play,
+  RotateCcw,
+  ShieldCheck,
+} from 'lucide-react';
 import { CameraController, type CameraPreset } from '../components/showroom/CameraController';
+import { CompactShowroomLayout } from '../components/showroom/CompactShowroomLayout';
 import { ErrorBoundary } from '../components/common/ErrorBoundary';
+import { useReducedMotion } from '../hooks/useReducedMotion';
 import { useNavigationStore } from '../store/useNavigationStore';
 import {
   AdaptiveQualityController,
@@ -20,8 +28,11 @@ import {
   readGraphicsMode,
 } from './commercial-b/graphicsPreference';
 import { QUALITY_PROFILES } from './commercial-b/qualityProfiles';
+import { applyModelBLivery } from './commercial-b/modelBMaterials';
+import { MODEL_B_HOTSPOTS, MODEL_B_LIVERIES, type ModelBHotspot, type ModelBLivery } from './commercial-b/modelBExperience';
+import { disposeModelB, loadModelB } from './commercial-b/modelBLoader';
+import { getModelBPaintStorage, persistModelBPaint, readModelBPaint } from './commercial-b/paintPreference';
 
-const MODEL_URL = '/__peds-review/model-b.glb';
 const MODES: GraphicsMode[] = ['AUTO', 'HIGH', 'BALANCED', 'PERFORMANCE'];
 const CAMERA_PRESETS: CameraPreset[] = ['overview', 'front', 'side', 'cockpit', 'rear', 'top'];
 
@@ -74,6 +85,10 @@ const EMPTY_METRICS: LiveMetrics = {
 type ReviewApiState = LiveMetrics & {
   mode: GraphicsMode;
   profile: QualityProfile;
+  autoRotate: boolean;
+  liveryId: ModelBLivery['id'];
+  hotspotId: string | null;
+  cameraPreset: CameraPreset;
   modelLoaded: boolean;
   contextLost: boolean;
   loadEvidence: LoadEvidence;
@@ -94,40 +109,11 @@ declare global {
   }
 }
 
-const disposeObject = (root: THREE.Object3D) => {
-  root.traverse((object) => {
-    if (!(object instanceof THREE.Mesh)) return;
-    object.geometry.dispose();
-    const materials = Array.isArray(object.material) ? object.material : [object.material];
-    for (const material of materials) material.dispose();
-  });
-};
-
-const prepareModel = (scene: THREE.Group) => {
-  scene.rotation.y = Math.PI / 2;
-  scene.updateMatrixWorld(true);
-  let bounds = new THREE.Box3().setFromObject(scene);
-  const size = bounds.getSize(new THREE.Vector3());
-  const scale = 5.05 / Math.max(size.x, size.z);
-  scene.scale.setScalar(scale);
-  scene.updateMatrixWorld(true);
-  bounds = new THREE.Box3().setFromObject(scene);
-  const center = bounds.getCenter(new THREE.Vector3());
-  scene.position.set(-center.x, -bounds.min.y, -center.z);
-  scene.traverse((object) => {
-    if (object instanceof THREE.Mesh) {
-      object.castShadow = false;
-      object.receiveShadow = false;
-    }
-  });
-  scene.updateMatrixWorld(true);
-  return scene;
-};
-
 const FrozenCommercialModel: React.FC<{
+  livery: ModelBLivery;
   onLoaded: (evidence: Omit<LoadEvidence, 'firstRenderMs'>) => void;
   onError: (message: string) => void;
-}> = ({ onLoaded, onError }) => {
+}> = ({ livery, onLoaded, onError }) => {
   const [model, setModel] = useState<THREE.Group | null>(null);
 
   useEffect(() => {
@@ -135,28 +121,17 @@ const FrozenCommercialModel: React.FC<{
     let ownedModel: THREE.Group | null = null;
     const load = async () => {
       try {
-        const fetchStarted = performance.now();
-        const response = await fetch(MODEL_URL, { cache: 'no-store', signal: controller.signal });
-        if (!response.ok)
-          throw new Error(`HTTP ${response.status} while loading the local candidate`);
-        const buffer = await response.arrayBuffer();
-        const fetchMs = performance.now() - fetchStarted;
-        await MeshoptDecoder.ready;
-        const parseStarted = performance.now();
-        const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
-        const gltf = await new Promise<Awaited<ReturnType<GLTFLoader['parseAsync']>>>(
-          (resolve, reject) => loader.parse(buffer, '', resolve, reject),
-        );
+        const result = await loadModelB(controller.signal);
         if (controller.signal.aborted) {
-          disposeObject(gltf.scene);
+          disposeModelB(result.scene);
           return;
         }
-        ownedModel = prepareModel(gltf.scene);
+        ownedModel = result.scene;
         setModel(ownedModel);
         onLoaded({
-          fetchMs,
-          decodeParseMs: performance.now() - parseStarted,
-          bytes: buffer.byteLength,
+          fetchMs: result.fetchMs,
+          decodeParseMs: result.decodeParseMs,
+          bytes: result.bytes,
         });
       } catch (error) {
         if (!controller.signal.aborted) {
@@ -167,9 +142,13 @@ const FrozenCommercialModel: React.FC<{
     void load();
     return () => {
       controller.abort();
-      if (ownedModel) disposeObject(ownedModel);
+      if (ownedModel) disposeModelB(ownedModel);
     };
   }, [onError, onLoaded]);
+
+  useEffect(() => {
+    if (model) applyModelBLivery(model, livery);
+  }, [livery, model]);
 
   return model ? <primitive object={model} /> : null;
 };
@@ -264,6 +243,7 @@ const PerformanceProbe: React.FC<{
           retained.push(pending);
         }
       }
+      for (const expired of retained.slice(0, -12)) webgl2.deleteQuery(expired);
       pendingQueries.current = retained.slice(-12);
       gpuValues.current = gpuValues.current.slice(-180);
     }
@@ -299,16 +279,9 @@ const GraphicsSettings: React.FC<{
   lang: 'vi' | 'en';
   mode: GraphicsMode;
   profile: QualityProfile;
-  metrics: LiveMetrics;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
   onMode: (mode: GraphicsMode) => void;
   onReset: () => void;
-}> = ({ lang, mode, profile, metrics, open, onOpenChange, onMode, onReset }) => {
-  const [advanced, setAdvanced] = useState(false);
-  useEffect(() => {
-    if (!open) setAdvanced(false);
-  }, [open]);
+}> = ({ lang, mode, profile, onMode, onReset }) => {
   const labels = {
     AUTO: lang === 'vi' ? 'Tự động' : 'Auto',
     HIGH: lang === 'vi' ? 'Cao' : 'High',
@@ -316,24 +289,8 @@ const GraphicsSettings: React.FC<{
     PERFORMANCE: lang === 'vi' ? 'Hiệu năng' : 'Performance',
   } as const;
   return (
-    <div className="absolute right-3 top-3 z-30 w-[min(22rem,calc(100%-1.5rem))] text-left">
-      <button
-        type="button"
-        aria-expanded={open}
-        onClick={() => onOpenChange(!open)}
-        className="ml-auto flex items-center gap-2 rounded-xl border border-white/15 bg-black/75 px-3 py-2 text-xs font-bold text-white shadow-2xl backdrop-blur-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-f1red"
-      >
-        <Settings2 className="h-4 w-4 text-f1red" />
-        {lang === 'vi' ? 'Cài đặt đồ họa' : 'Graphics Settings'}
-        <span className="rounded bg-white/10 px-1.5 py-0.5 text-[10px] text-studio-200">
-          {profile}
-        </span>
-      </button>
-      {open && (
-        <section
-          className="mt-2 rounded-2xl border border-white/15 bg-[#080a0f]/95 p-3 shadow-2xl backdrop-blur-xl"
-          aria-label={lang === 'vi' ? 'Cài đặt đồ họa' : 'Graphics settings'}
-        >
+    <div className="relative w-full text-left">
+        <section className="mt-2 rounded-xl border border-white/15 bg-[#20262d] p-3" aria-label={lang === 'vi' ? 'Cài đặt đồ họa' : 'Graphics settings'}>
           <div className="mb-3 grid grid-cols-2 gap-2 text-[11px]">
             <div className="rounded-lg bg-white/5 p-2">
               <span className="block text-studio-400">
@@ -378,68 +335,73 @@ const GraphicsSettings: React.FC<{
             <RotateCcw className="h-3.5 w-3.5" />
             {lang === 'vi' ? 'Đặt lại AUTO' : 'Reset AUTO'}
           </button>
-          <button
-            type="button"
-            aria-expanded={advanced}
-            onClick={() => setAdvanced((value) => !value)}
-            className="mt-3 flex w-full items-center justify-between border-t border-white/10 pt-3 text-[11px] font-bold text-studio-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-f1red"
-          >
-            <span>{lang === 'vi' ? 'Chỉ số nâng cao' : 'Advanced metrics'}</span>
-            <ChevronDown
-              className={`h-4 w-4 transition-transform ${advanced ? 'rotate-180' : ''}`}
-            />
-          </button>
-          {advanced && (
-            <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-[10px] text-studio-300">
-              <dt>FPS avg / 1% low</dt>
-              <dd className="text-right text-white">
-                {metrics.averageFps.toFixed(1)} / {metrics.onePercentLowFps.toFixed(1)}
-              </dd>
-              <dt>Frame P50 / P95</dt>
-              <dd className="text-right text-white">
-                {metrics.frameTimeP50Ms.toFixed(1)} / {metrics.frameTimeP95Ms.toFixed(1)} ms
-              </dd>
-              <dt>GPU P50 / P95</dt>
-              <dd className="text-right text-white">
-                {metrics.gpuTimerStatus === 'AVAILABLE'
-                  ? `${metrics.gpuTimeP50Ms?.toFixed(1)} / ${metrics.gpuTimeP95Ms?.toFixed(1)} ms`
-                  : metrics.gpuTimerStatus}
-              </dd>
-              <dt>Render / DPR</dt>
-              <dd className="text-right text-white">
-                {metrics.renderWidth}×{metrics.renderHeight} / {metrics.effectiveDpr.toFixed(2)}
-              </dd>
-              <dt>Calls / triangles</dt>
-              <dd className="text-right text-white">
-                {metrics.drawCalls} / {metrics.triangles.toLocaleString()}
-              </dd>
-              <dt>Spikes / transitions</dt>
-              <dd className="text-right text-white">
-                {metrics.spikeCount} / {metrics.transitionCount}
-              </dd>
-            </dl>
-          )}
+
         </section>
-      )}
     </div>
   );
 };
 
-const ReviewFallback: React.FC<{ message?: string }> = ({ message }) => (
-  <div className="absolute inset-0 z-20 flex items-center justify-center bg-[#07090d] p-8 text-center">
+const ReviewFallback: React.FC<{
+  lang: 'vi' | 'en';
+  message?: string;
+}> = ({ lang, message }) => (
+  <div
+    className="absolute inset-0 z-20 flex items-center justify-center bg-[#07090d] p-8 text-center"
+    role="alert"
+  >
     <div className="max-w-md rounded-2xl border border-white/10 bg-black/50 p-6">
       <Gauge className="mx-auto mb-3 h-8 w-8 text-f1red" />
-      <h2 className="font-display text-lg font-black uppercase">Model B review unavailable</h2>
+      <h2 className="font-display text-lg font-black uppercase">
+        {lang === 'vi' ? 'Không thể tải Model B' : 'Model B unavailable'}
+      </h2>
       <p className="mt-2 text-xs leading-relaxed text-studio-300">
         {message ??
-          'WebGL context or the ignored local candidate is unavailable. The production Showroom remains unchanged.'}
+          (lang === 'vi'
+            ? 'WebGL hoặc Model B không khả dụng. Hãy kiểm tra tăng tốc phần cứng rồi tải lại trang.'
+            : 'WebGL or Model B is unavailable. Check hardware acceleration, then reload the page.')}
       </p>
+      <button type="button" onClick={() => window.location.reload()} className="mt-4 min-h-11 rounded-xl border border-white/15 bg-white/10 px-4 text-xs font-bold text-white hover:bg-white/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-f1red">
+        {lang === 'vi' ? 'Tải lại Showroom' : 'Reload showroom'}
+      </button>
     </div>
   </div>
 );
 
-export const CommercialBReviewShowroom: React.FC = () => {
+const MARKER_VIEWS: Partial<Record<CameraPreset, string[]>> = {
+  front: ['front-wing', 'suspension'],
+  side: ['sidepods', 'floor', 'suspension'],
+  cockpit: ['halo', 'sidepods'],
+  rear: ['rear-wing', 'diffuser'],
+};
+
+const ModelBMarkers: React.FC<{
+  selected: string | null;
+  cameraPreset: CameraPreset;
+  onSelect: (item: ModelBHotspot) => void;
+  lang: 'vi' | 'en';
+}> = ({ selected, cameraPreset, onSelect, lang }) => (
+  <group>
+    {MODEL_B_HOTSPOTS.filter((item) => selected ? item.id === selected : !MARKER_VIEWS[cameraPreset] || MARKER_VIEWS[cameraPreset]?.includes(item.id)).map((item) => (
+      <Html key={item.id} position={item.position} center zIndexRange={[19, 10]}>
+        <button
+          type="button"
+          onClick={() => onSelect(item)}
+          aria-label={`${lang === 'vi' ? 'Khám phá' : 'Explore'} ${lang === 'vi' ? item.nameVi : item.nameEn}`}
+          aria-pressed={selected === item.id}
+          className={`flex h-7 w-7 items-center justify-center rounded-full border-2 text-xs font-bold shadow-lg shadow-black/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ${selected === item.id ? 'border-white bg-[#cf2539] text-white' : 'border-[#cf2539] bg-[#171b21]/90 text-white hover:bg-[#cf2539]'}`}
+        >
+          +
+        </button>
+      </Html>
+    ))}
+  </group>
+);
+
+export const CommercialBReviewShowroom: React.FC<{ headingLevel?: 'h1' | 'h2' }> = ({
+  headingLevel = 'h1',
+}) => {
   const { lang } = useNavigationStore();
+  const reduceMotion = useReducedMotion();
   const initialMode = useMemo(() => readGraphicsMode(window.localStorage), []);
   const [controller] = useState(
     () =>
@@ -472,16 +434,28 @@ export const CommercialBReviewShowroom: React.FC = () => {
   );
   const [zoomTrigger, setZoomTrigger] = useState(0);
   const [zoomDirection, setZoomDirection] = useState<'in' | 'out' | null>(null);
-  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [selectedLiveryId, setSelectedLiveryId] = useState<ModelBLivery['id']>(() => readModelBPaint(getModelBPaintStorage()));
+  const [selectedHotspot, setSelectedHotspot] = useState<ModelBHotspot | null>(null);
+  const [hotspotsVisible, setHotspotsVisible] = useState(false);
+  const [lighting, setLighting] = useState<'neutral' | 'dramatic'>('dramatic');
   const contextExtension = useRef<WEBGL_lose_context | null>(null);
   const stageRef = useRef<HTMLDivElement | null>(null);
   const navigationStartedAt = useRef(0);
   const paused = !modelLoaded || contextLost || !documentVisible || !stageVisible;
   const continuous = continuousOverride ?? !paused;
+  const livery = useMemo(() => MODEL_B_LIVERIES.find((item) => item.id === selectedLiveryId) ?? MODEL_B_LIVERIES[0], [selectedLiveryId]);
+  const selectLivery = useCallback((id: string) => {
+    setSelectedLiveryId(id);
+    persistModelBPaint(getModelBPaintStorage(), id);
+  }, []);
 
   useEffect(() => {
     navigationStartedAt.current = performance.now();
   }, []);
+
+  useEffect(() => {
+    if (reduceMotion) setAutoRotate(false);
+  }, [reduceMotion]);
 
   useEffect(() => {
     if (initialMode !== 'AUTO') controller.setMode(initialMode, performance.now());
@@ -569,6 +543,10 @@ export const CommercialBReviewShowroom: React.FC = () => {
         ...metrics,
         mode,
         profile,
+        autoRotate,
+        liveryId: selectedLiveryId,
+        hotspotId: selectedHotspot?.id ?? null,
+        cameraPreset,
         modelLoaded,
         contextLost,
         loadEvidence,
@@ -596,6 +574,7 @@ export const CommercialBReviewShowroom: React.FC = () => {
     };
   }, [
     applyMode,
+    autoRotate,
     contextLost,
     loadError,
     loadEvidence,
@@ -604,60 +583,72 @@ export const CommercialBReviewShowroom: React.FC = () => {
     modelLoaded,
     profile,
     resetAuto,
+    selectedLiveryId,
+    selectedHotspot,
+    cameraPreset,
   ]);
 
   const selectPreset = (preset: CameraPreset) => {
+    setSelectedHotspot(null);
     setCameraPreset(preset);
     setPresetTrigger((value) => value + 1);
     setAutoRotate(false);
   };
   const resetCamera = () => {
+    setSelectedHotspot(null);
     setCameraPreset('overview');
     setPresetTrigger((value) => value + 1);
     setAutoRotate(!window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   };
   const scale = QUALITY_PROFILES[profile].renderScale;
   const isCanvasActive = documentVisible && stageVisible && !contextLost;
+  useEffect(() => {
+    if (!selectedHotspot) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setSelectedHotspot(null);
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [selectedHotspot]);
+
+  const selectHotspot = (item: ModelBHotspot) => {
+    setSelectedHotspot(item);
+    setAutoRotate(false);
+  };
 
   return (
-    <main className="min-h-screen bg-studio-950 text-white">
-      <header className="border-b border-amber-400/20 bg-[#0b0d12] px-4 py-3">
-        <div className="page-container flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-amber-300">
-              DEV REVIEW ONLY · LOCAL CANDIDATE
-            </p>
-            <h1 className="font-display text-lg font-black uppercase sm:text-xl">
-              Model B Meshopt v1
-            </h1>
+    <main className="min-h-screen bg-[#111417] text-white" data-testid="model-b-showroom">
+      <header className="border-b border-white/10 bg-[#171b21] px-4 py-5">
+        <div className="page-container">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              {React.createElement(
+                headingLevel,
+                { className: 'font-display text-2xl font-bold tracking-tight text-white sm:text-3xl' },
+                lang === 'vi' ? 'Studio kỹ thuật' : 'Engineering studio',
+              )}
+              <p className="mt-1 max-w-2xl text-xs leading-relaxed text-[#b8c0c8]">
+                {lang === 'vi'
+                  ? 'Formula 1 2022 Car · Model B — mô hình thử nghiệm local, có thể xoay và khám phá.'
+                  : 'Formula 1 2022 Car · Model B — local review model for rotation and exploration.'}
+              </p>
+            </div>
+            <span className="rounded-md border border-[#cf2539]/45 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.15em] text-[#f2a9b2]">DEV · Model B</span>
           </div>
-          <p className="max-w-xl text-[11px] leading-relaxed text-studio-300">
-            {lang === 'vi'
-              ? 'Route tách biệt để đánh giá tích hợp và đồ họa thích ứng. Livery, hotspot và hồ sơ EDS-G01 được ẩn vì không tương thích với vật liệu/tọa độ của Model B.'
-              : 'Isolated route for integration and adaptive-graphics review. EDS-G01 liveries, hotspots and dossier are hidden because they are incompatible with Model B materials and coordinates.'}
-          </p>
         </div>
       </header>
-      <section
-        ref={stageRef}
-        className="relative h-[calc(100vh-9rem)] min-h-[560px] w-full overflow-hidden bg-[#0b0d12]"
-        aria-label="Model B Meshopt development review"
-      >
-        <div
-          className={`relative h-full transition-[width] duration-300 ease-out ${settingsOpen ? 'lg:w-[calc(100%_-_23rem)]' : 'w-full'}`}
-          data-testid="commercial-b-stage"
-        >
-          <div className="absolute left-3 top-3 z-20 max-w-[16rem] rounded-xl border border-white/10 bg-black/65 p-3 text-[10px] text-studio-300 backdrop-blur-lg">
-            <strong className="block font-display text-xs uppercase text-white">
-              Frozen candidate · 79,925 triangles
-            </strong>
-            <span>
-              {(loadEvidence.bytes / 1_048_576).toFixed(2)} MiB · Meshopt decoder · original PBR
-              materials
-            </span>
-          </div>
+      <CompactShowroomLayout
+        lang={lang}
+        modelLabel="MODEL B"
+        paintPresets={MODEL_B_LIVERIES.map((item) => ({ id: item.id, name: lang === 'vi' ? item.nameVi : item.name, colors: [item.primary, item.secondary, item.accent] as [string, string, string] }))}
+        selectedPaintId={selectedLiveryId}
+        onSelectPaint={(id) => selectLivery(id as ModelBLivery['id'])}
+        graphicsSummary={`${mode} · ${profile} · ${scale.toFixed(2)}×`}
+        hotspotsEnabled={hotspotsVisible}
+        onToggleHotspots={() => setHotspotsVisible((value) => !value)}
+        cameraControls={modelLoaded && !loadError && !contextLost ? (
           <div
-            className="absolute bottom-4 left-1/2 z-30 flex max-w-[calc(100%-1.5rem)] -translate-x-1/2 flex-wrap justify-center gap-1 rounded-2xl border border-white/10 bg-black/70 p-2 backdrop-blur-xl"
+            className="flex items-center gap-1 p-1.5"
             role="group"
             aria-label={lang === 'vi' ? 'Góc camera' : 'Camera views'}
           >
@@ -665,20 +656,39 @@ export const CommercialBReviewShowroom: React.FC = () => {
               <button
                 key={preset}
                 type="button"
-                aria-pressed={cameraPreset === preset}
+                aria-pressed={cameraPreset === preset && !selectedHotspot}
                 onClick={() => selectPreset(preset)}
-                className={`rounded-lg px-2 py-1.5 text-[10px] font-bold uppercase focus-visible:outline focus-visible:outline-2 focus-visible:outline-f1red ${cameraPreset === preset ? 'bg-f1red text-white' : 'text-studio-300 hover:bg-white/10'}`}
+                className={`min-h-9 rounded-lg px-2 py-1.5 text-[10px] font-bold uppercase focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#cf2539] ${cameraPreset === preset && !selectedHotspot ? 'bg-[#cf2539] text-white' : 'text-[#c5cdd4] hover:bg-white/10'}`}
               >
                 {preset}
               </button>
             ))}
             <button
               type="button"
+              aria-pressed={autoRotate}
+              onClick={() => setAutoRotate((value) => !value)}
+              className={`min-h-9 rounded-lg px-2 py-1.5 text-[10px] font-bold uppercase focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#cf2539] ${autoRotate ? 'bg-white/10 text-white' : 'text-[#c5cdd4] hover:bg-white/10'}`}
+            >
+              {autoRotate ? (
+                <Pause className="mr-1 inline h-3 w-3" aria-hidden="true" />
+              ) : (
+                <Play className="mr-1 inline h-3 w-3" aria-hidden="true" />
+              )}
+              {autoRotate
+                ? lang === 'vi'
+                  ? 'Dừng xoay'
+                  : 'Pause'
+                : lang === 'vi'
+                  ? 'Tự xoay'
+                  : 'Rotate'}
+            </button>
+            <button
+              type="button"
               onClick={() => {
                 setZoomDirection('in');
                 setZoomTrigger((value) => value + 1);
               }}
-              className="rounded-lg px-2 py-1.5 text-[10px] font-bold uppercase text-studio-300 hover:bg-white/10"
+              className="min-h-9 rounded-lg px-2 py-1.5 text-[10px] font-bold uppercase text-[#c5cdd4] hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#cf2539]"
             >
               Zoom +
             </button>
@@ -688,19 +698,71 @@ export const CommercialBReviewShowroom: React.FC = () => {
                 setZoomDirection('out');
                 setZoomTrigger((value) => value + 1);
               }}
-              className="rounded-lg px-2 py-1.5 text-[10px] font-bold uppercase text-studio-300 hover:bg-white/10"
+              className="min-h-9 rounded-lg px-2 py-1.5 text-[10px] font-bold uppercase text-[#c5cdd4] hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#cf2539]"
             >
               Zoom −
             </button>
             <button
               type="button"
               onClick={resetCamera}
-              className="rounded-lg px-2 py-1.5 text-[10px] font-bold uppercase text-studio-300 hover:bg-white/10"
+              className="min-h-9 rounded-lg px-2 py-1.5 text-[10px] font-bold uppercase text-[#c5cdd4] hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#cf2539]"
             >
               Reset
             </button>
           </div>
-          <ErrorBoundary fallback={<ReviewFallback />}>
+        ) : null}
+        anatomyPanel={(
+            <section aria-label={lang === 'vi' ? 'Giải phẫu xe' : 'Car anatomy'}>
+              <h3 className="font-display text-base font-bold">{lang === 'vi' ? 'Giải phẫu xe' : 'Car anatomy'}</h3>
+              <p className="mt-1 text-xs text-[#b8c0c8]">{lang === 'vi' ? 'Các điểm tham chiếu gần đúng trên mô hình một mesh.' : 'Approximate anchors on a single-mesh model.'}</p>
+
+              <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label={lang === 'vi' ? 'Bộ phận xe' : 'Car components'}>{MODEL_B_HOTSPOTS.map((item) => <button key={item.id} type="button" aria-pressed={selectedHotspot?.id === item.id} onClick={() => selectHotspot(item)} className={`min-h-10 rounded-lg px-3 text-xs focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#cf2539] ${selectedHotspot?.id === item.id ? 'bg-[#cf2539] text-white' : 'bg-white/[0.07] text-[#cbd2d8] hover:bg-white/15'}`}>{lang === 'vi' ? item.nameVi : item.nameEn}</button>)}</div>
+              <div className="mt-3 min-h-16 text-xs leading-5 text-[#c5cdd4]" aria-live="polite">{selectedHotspot ? <><strong className="block text-white">{lang === 'vi' ? selectedHotspot.nameVi : selectedHotspot.nameEn}</strong>{lang === 'vi' ? selectedHotspot.summaryVi : selectedHotspot.summaryEn}</> : (lang === 'vi' ? 'Chọn bộ phận để lấy nét camera và xem giải thích.' : 'Choose a component to focus the camera and read its explanation.')}</div>
+            </section>
+        )}
+        graphicsPanel={(
+          <section aria-label={lang === 'vi' ? 'Hình ảnh và hiệu năng' : 'Visuals and performance'}>
+            <h3 className="font-display text-base font-bold">{lang === 'vi' ? 'Hình ảnh và hiệu năng' : 'Visuals and performance'}</h3>
+              <div className="mt-3 flex gap-2" role="group" aria-label={lang === 'vi' ? 'Kiểu ánh sáng' : 'Lighting preset'}>{(['dramatic', 'neutral'] as const).map((item) => <button key={item} type="button" aria-pressed={lighting === item} onClick={() => setLighting(item)} className={`min-h-11 rounded-lg border px-3 text-xs font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#cf2539] ${lighting === item ? 'border-white/55 bg-white/10 text-white' : 'border-white/15 text-[#b8c0c8] hover:bg-white/5'}`}>{item === 'dramatic' ? 'Studio' : lang === 'vi' ? 'Trung tính' : 'Neutral'}</button>)}</div>
+            <GraphicsSettings lang={lang} mode={mode} profile={profile} onMode={applyMode} onReset={resetAuto} />
+          </section>
+        )}
+        specificationsPanel={(
+          <section aria-label={lang === 'vi' ? 'Thông số hiệu năng' : 'Performance metrics'}>
+            <h3 className="font-display text-base font-bold">{lang === 'vi' ? 'Thông số hiệu năng' : 'Performance metrics'}</h3>
+            <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1 border-t border-white/10 pt-3 text-[10px] text-studio-300">
+              <dt>FPS avg / 1% low</dt>
+              <dd className="text-right text-white">
+                {metrics.averageFps.toFixed(1)} / {metrics.onePercentLowFps.toFixed(1)}
+              </dd>
+              <dt>Frame P50 / P95</dt>
+              <dd className="text-right text-white">
+                {metrics.frameTimeP50Ms.toFixed(1)} / {metrics.frameTimeP95Ms.toFixed(1)} ms
+              </dd>
+              <dt>GPU P50 / P95</dt>
+              <dd className="text-right text-white">
+                {metrics.gpuTimerStatus === 'AVAILABLE'
+                  ? `${metrics.gpuTimeP50Ms?.toFixed(1)} / ${metrics.gpuTimeP95Ms?.toFixed(1)} ms`
+                  : metrics.gpuTimerStatus}
+              </dd>
+              <dt>Render / DPR</dt>
+              <dd className="text-right text-white">
+                {metrics.renderWidth}×{metrics.renderHeight} / {metrics.effectiveDpr.toFixed(2)}
+              </dd>
+              <dt>Calls / triangles</dt>
+              <dd className="text-right text-white">
+                {metrics.drawCalls} / {metrics.triangles.toLocaleString()}
+              </dd>
+              <dt>Spikes / transitions</dt>
+              <dd className="text-right text-white">
+                {metrics.spikeCount} / {metrics.transitionCount}
+              </dd>
+            </dl>
+          </section>
+        )}
+      >
+        <div ref={stageRef} className="relative h-full min-w-0 overflow-hidden bg-[#111417]" aria-label="Formula 1 2022 Car Model B canvas" aria-busy={!modelLoaded && !loadError} data-testid="commercial-b-stage">
+          <ErrorBoundary fallback={<ReviewFallback lang={lang} />}>
             <Canvas
               dpr={Math.min(window.devicePixelRatio * scale, 2)}
               frameloop={isCanvasActive ? 'always' : 'never'}
@@ -713,28 +775,45 @@ export const CommercialBReviewShowroom: React.FC = () => {
               }}
               className="h-full w-full cursor-grab active:cursor-grabbing"
             >
-              <color attach="background" args={['#0b0d12']} />
-              <hemisphereLight args={['#dde8ff', '#111318', 1.65]} />
-              <directionalLight color="#fff5ec" intensity={4} position={[12, 18, 15]} />
-              <directionalLight color="#b8ceff" intensity={2.1} position={[-12, 8, -14]} />
-              <directionalLight color="#e9f2ff" intensity={2.7} position={[-15, 18, 8]} />
+              <color attach="background" args={['#1b2026']} />
+              <hemisphereLight args={['#e7edf7', '#20252b', lighting === 'dramatic' ? 1.25 : 1.75]} />
+              <directionalLight color="#fff7ee" intensity={lighting === 'dramatic' ? 4 : 3.1} position={[12, 18, 15]} />
+              <directionalLight color="#b9c8dd" intensity={lighting === 'dramatic' ? 2 : 2.6} position={[-12, 8, -14]} />
+              <directionalLight color="#eef4ff" intensity={lighting === 'dramatic' ? 2.6 : 2.2} position={[-15, 18, 8]} />
               <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.02, 0]}>
-                <planeGeometry args={[18, 18]} />
-                <meshStandardMaterial color="#11151a" roughness={0.82} metalness={0.05} />
+                <planeGeometry args={[200, 200]} />
+                <meshBasicMaterial color="#1b2026" toneMapped={false} />
               </mesh>
-              <FrozenCommercialModel onLoaded={handleLoaded} onError={handleError} />
+              <FrozenCommercialModel
+                livery={livery}
+                onLoaded={handleLoaded}
+                onError={handleError}
+              />
+              {hotspotsVisible && modelLoaded && <ModelBMarkers selected={selectedHotspot?.id ?? null} cameraPreset={cameraPreset} onSelect={selectHotspot} lang={lang} />}
+              <ContactShadows
+                position={[0, 0.015, 0]}
+                opacity={0.22}
+                scale={6}
+                blur={2.4}
+                far={3.5}
+                frames={1}
+                resolution={profile === 'HIGH' ? 256 : 128}
+                color="#000000"
+              />
               <ReviewContextGuard
                 onContextState={setContextLost}
                 onExtension={setContextExtension}
               />
               <CameraController
-                activeHotspot={null}
+                activeHotspot={selectedHotspot}
                 cameraPreset={cameraPreset}
                 presetTrigger={presetTrigger}
                 autoRotate={autoRotate}
                 enableWheelZoom
                 zoomTrigger={zoomTrigger}
                 zoomDirection={zoomDirection}
+                reduceMotion={reduceMotion}
+                compactStage
               />
               <PerformanceProbe
                 active={continuous}
@@ -748,6 +827,7 @@ export const CommercialBReviewShowroom: React.FC = () => {
             <div
               className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-[#080a0e]/70"
               role="status"
+              aria-live="polite"
             >
               <div className="rounded-xl border border-white/10 bg-black/70 px-5 py-3 text-xs font-bold">
                 {lang === 'vi' ? 'Đang tải Model B Meshopt…' : 'Loading Model B Meshopt…'}
@@ -756,6 +836,7 @@ export const CommercialBReviewShowroom: React.FC = () => {
           )}
           {(loadError || contextLost) && (
             <ReviewFallback
+              lang={lang}
               message={
                 loadError ??
                 (lang === 'vi'
@@ -765,16 +846,51 @@ export const CommercialBReviewShowroom: React.FC = () => {
             />
           )}
         </div>
-        <GraphicsSettings
-          lang={lang}
-          mode={mode}
-          profile={profile}
-          metrics={metrics}
-          open={settingsOpen}
-          onOpenChange={setSettingsOpen}
-          onMode={applyMode}
-          onReset={resetAuto}
-        />
+      </CompactShowroomLayout>
+      <section className="border-t border-white/10 bg-[#080a0e]">
+        <div className="page-container grid gap-4 py-5 text-xs text-studio-300 lg:grid-cols-[1fr_auto] lg:items-center">
+          <div className="flex gap-3">
+            <ShieldCheck
+              className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400"
+              aria-hidden="true"
+            />
+            <div>
+              <p className="font-bold text-white">
+                {lang === 'vi'
+                  ? 'Thông tin mô hình và giới hạn kỹ thuật'
+                  : 'Model information and technical boundary'}
+              </p>
+              <p className="mt-1 max-w-3xl leading-relaxed">
+                {lang === 'vi'
+                  ? 'Một mesh với 13 vùng vật liệu: phù hợp cho raycast hotspot và camera focus, không hỗ trợ true exploded geometry hoặc lựa chọn assembly độc lập.'
+                  : 'One mesh with 13 material regions: suitable for raycast hotspots and camera focus, but not true exploded geometry or independent assembly selection.'}
+              </p>
+            </div>
+          </div>
+          <p className="leading-relaxed lg:max-w-md lg:text-right">
+            “Formula 1 2022 Car” by{' '}
+            <a
+              href="https://sketchfab.com/3d-models/formula-1-2022-car-65dcd974798f4f03be5cdf4f79e228d8"
+              target="_blank"
+              rel="noreferrer"
+              className="font-bold text-white underline decoration-white/35 underline-offset-4 hover:decoration-f1red"
+            >
+              Luis Adrian V.{' '}
+              <ExternalLink className="inline h-3 w-3" aria-hidden="true" />
+            </a>{' '}
+            ·{' '}
+            <a
+              href="https://creativecommons.org/licenses/by/4.0/"
+              target="_blank"
+              rel="noreferrer"
+              className="font-bold text-white underline decoration-white/35 underline-offset-4 hover:decoration-f1red"
+            >
+              CC BY 4.0
+            </a>
+            . Modified by Podium EDS: materials replaced, textures removed, scene consolidated,
+            geometry quantized and Meshopt-compressed.
+          </p>
+        </div>
       </section>
     </main>
   );

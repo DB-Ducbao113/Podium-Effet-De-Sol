@@ -1,44 +1,45 @@
 import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useChampionshipStore } from '../../store/useChampionshipStore';
 import { useNavigationStore } from '../../store/useNavigationStore';
 import { SeasonYear } from '../../types';
 import { t } from '../../i18n/translations';
-import { StandingsTable } from './StandingsTable';
-import { RaceCalendar } from './RaceCalendar';
+import { ChampionshipStandings } from './ChampionshipStandings';
+import { ChampionshipCalendar } from './ChampionshipCalendar';
 import { RaceResults } from './RaceResults';
-import { TeamsDirectoryPage } from '../pages/TeamsDirectoryPage';
-import { DriversDirectoryPage } from '../pages/DriversDirectoryPage';
-import { Trophy, Calendar, CheckCircle2, RefreshCw, Users, UserRound } from 'lucide-react';
-import { CALENDAR_2026 } from '../../data/championship';
-import { getCalendarRaceState } from '../../utils/raceSchedule';
-import { RaceWeekendWidget } from '../home/RaceWeekendWidget';
-import { useMobileHub } from '../../hooks/useMobileHub';
+import { ChampionshipDirectory } from './ChampionshipDirectory';
+import { Trophy, Calendar, CheckCircle2, AlertCircle, RefreshCw, Users, UserRound } from 'lucide-react';
+import { SectionHeading } from '../ui/SectionHeading';
+import { Card } from '../ui/Card';
+import { Tabs } from '../ui/Tabs';
+import { Tooltip } from '../ui/Tooltip';
+import { Button } from '../ui/Button';
+import { AdSlot } from '../ui/AdSlot';
+import './championshipF4.css';
+import './championshipC1.css';
 
 interface ChampionshipViewProps {
   season: SeasonYear;
   onSeasonChange: (season: SeasonYear) => void;
+  headingLevel?: 'h1' | 'h2';
 }
 
-export const ChampionshipView: React.FC<ChampionshipViewProps> = ({ season, onSeasonChange }) => {
+export const ChampionshipView: React.FC<ChampionshipViewProps> = ({
+  season,
+  onSeasonChange,
+  headingLevel = 'h1',
+}) => {
   const { lang } = useNavigationStore();
-  const { setSelectedSeason, activeSubTab, setActiveSubTab, syncMeta, syncSeasonData } =
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { setSelectedSeason, activeSubTab, setActiveSubTab, standingsCategory, setStandingsCategory, syncMeta, syncSeasonData } =
     useChampionshipStore();
 
   const strings = t[lang].championship;
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const mobileHub = useMobileHub();
-  const [scheduleNow, setScheduleNow] = useState(() => Date.now());
 
-  useEffect(() => {
-    const interval = window.setInterval(() => setScheduleNow(Date.now()), 30_000);
-    return () => window.clearInterval(interval);
-  }, []);
-  const nextRace =
-    season === 2026
-      ? CALENDAR_2026.find((race) =>
-          ['current', 'upcoming'].includes(getCalendarRaceState(race, scheduleNow)),
-        )
-      : undefined;
+  const selectedTab = activeSubTab === 'standings' ? standingsCategory : activeSubTab === 'drivers' ? 'drivers-directory' : activeSubTab === 'teams' ? 'teams-directory' : activeSubTab;
+  const adReview = new URLSearchParams(window.location.search).get('design-review') === 'ads';
 
   const SEASONS: SeasonYear[] = [2026, 2025, 2024];
   useEffect(() => {
@@ -58,109 +59,102 @@ export const ChampionshipView: React.FC<ChampionshipViewProps> = ({ season, onSe
     );
   };
 
+  const tabItems = [
+    {
+      value: 'drivers',
+      label: lang === 'vi' ? 'BXH tay đua' : 'Driver standings',
+      icon: <Trophy className="h-3.5 w-3.5" />,
+    },
+    {
+      value: 'constructors',
+      label: lang === 'vi' ? 'BXH đội đua' : 'Constructor standings',
+      icon: <Trophy className="h-3.5 w-3.5" />,
+    },
+    {
+      value: 'calendar',
+      label: strings.tabCalendar,
+      icon: <Calendar className="h-3.5 w-3.5" />,
+    },
+    {
+      value: 'results',
+      label: strings.tabResults,
+      icon: <CheckCircle2 className="h-3.5 w-3.5" />,
+    },
+    {
+      value: 'teams-directory',
+      label: strings.tabTeams,
+      icon: <Users className="h-3.5 w-3.5" />,
+    },
+    {
+      value: 'drivers-directory',
+      label: strings.tabDrivers,
+      icon: <UserRound className="h-3.5 w-3.5" />,
+    },
+  ] as const;
+
+  const selectTab = (value: (typeof tabItems)[number]['value']) => {
+    const params = new URLSearchParams(location.search);
+    if (value === 'drivers' || value === 'constructors') {
+      setStandingsCategory(value);
+      setActiveSubTab('standings');
+      params.set('tab', 'standings');
+      params.set('category', value);
+    } else if (value === 'teams-directory') setActiveSubTab('teams');
+    else if (value === 'drivers-directory') setActiveSubTab('drivers');
+    else setActiveSubTab(value);
+    if (value !== 'drivers' && value !== 'constructors') {
+      params.set('tab', value === 'teams-directory' ? 'teams' : value === 'drivers-directory' ? 'drivers' : value);
+      params.delete('category');
+    }
+    if (location.pathname.startsWith('/season/')) navigate(`${location.pathname}?${params.toString()}${location.hash}`);
+  };
+
   return (
-    <div className="r1-primary r1-championship bg-studio-100 min-h-screen py-12 animate-fade-in relative">
+    <div className={`r1-primary r1-championship f4-championship min-h-screen py-12 relative ${activeSubTab === 'results' ? 'c1-results-active' : ''}`}>
       <div className="page-container space-y-8">
         {/* Header */}
-        <div className="max-w-3xl space-y-3">
-          <span className="text-xs font-bold uppercase tracking-widest text-f1red block">
-            {strings.badge}
-          </span>
-          <h1
-            className={`text-3xl uppercase text-studio-950 sm:text-5xl ${
-              lang === 'vi'
-                ? 'font-body font-bold leading-[1.2] tracking-normal'
-                : 'font-display font-black leading-[1.08] tracking-tight'
-            }`}
-          >
-            {strings.title}
-          </h1>
-          <p className="text-sm sm:text-base text-studio-600 font-light leading-relaxed">
-            {strings.desc}
-          </p>
-        </div>
+        <div className="c1-page-intro"><SectionHeading
+          eyebrow={strings.badge}
+          title={strings.title}
+          description={strings.desc}
+          titleAs={headingLevel}
+          titleClassName={
+            lang === 'vi'
+              ? 'font-body font-bold leading-[1.2] tracking-normal'
+              : 'font-display font-black leading-[1.08] tracking-tight'
+          }
+        /></div>
 
-        {nextRace && !mobileHub && <RaceWeekendWidget race={nextRace} />}
 
         {/* Top Control Bar: Season Selector & Subtabs */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white border border-studio-200 shadow-xs overflow-hidden">
+        <Card className="f4-controls flex flex-col items-stretch justify-between gap-3 overflow-hidden p-3 xl:flex-row xl:items-center xl:gap-4 sm:p-4">
           {/* Subtabs (Standings, Calendar, Results, Teams, Drivers) */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1.5 sm:pb-0 custom-scrollbar max-w-full -mx-1 px-1 sm:mx-0 sm:px-0">
-            <button
-              data-championship-tab="standings"
-              onClick={() => setActiveSubTab('standings')}
-              className={`flex min-h-11 min-[861px]:min-h-0 items-center gap-1.5 px-3 sm:px-4 py-2 rounded-lg text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-all shrink-0 cursor-pointer ${
-                activeSubTab === 'standings'
-                  ? 'bg-f1red text-white shadow-sm'
-                  : 'bg-studio-100 text-studio-700 hover:bg-studio-200'
-              }`}
-            >
-              <Trophy className="w-3.5 h-3.5" />
-              <span>{strings.tabStandings}</span>
-            </button>
-            <button
-              data-championship-tab="calendar"
-              onClick={() => setActiveSubTab('calendar')}
-              className={`flex min-h-11 min-[861px]:min-h-0 items-center gap-1.5 px-3 sm:px-4 py-2 rounded-lg text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-all shrink-0 cursor-pointer ${
-                activeSubTab === 'calendar'
-                  ? 'bg-f1red text-white shadow-sm'
-                  : 'bg-studio-100 text-studio-700 hover:bg-studio-200'
-              }`}
-            >
-              <Calendar className="w-3.5 h-3.5" />
-              <span>{strings.tabCalendar}</span>
-            </button>
-            <button
-              data-championship-tab="results"
-              onClick={() => setActiveSubTab('results')}
-              className={`flex min-h-11 min-[861px]:min-h-0 items-center gap-1.5 px-3 sm:px-4 py-2 rounded-lg text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-all shrink-0 cursor-pointer ${
-                activeSubTab === 'results'
-                  ? 'bg-f1red text-white shadow-sm'
-                  : 'bg-studio-100 text-studio-700 hover:bg-studio-200'
-              }`}
-            >
-              <CheckCircle2 className="w-3.5 h-3.5" />
-              <span>{strings.tabResults}</span>
-            </button>
-            <button
-              data-championship-tab="teams"
-              onClick={() => setActiveSubTab('teams')}
-              className={`flex min-h-11 min-[861px]:min-h-0 items-center gap-1.5 px-3 sm:px-4 py-2 rounded-lg text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-all shrink-0 cursor-pointer ${
-                activeSubTab === 'teams'
-                  ? 'bg-f1red text-white shadow-sm'
-                  : 'bg-studio-100 text-studio-700 hover:bg-studio-200'
-              }`}
-            >
-              <Users className="w-3.5 h-3.5" />
-              <span>{strings.tabTeams}</span>
-            </button>
-            <button
-              data-championship-tab="drivers"
-              onClick={() => setActiveSubTab('drivers')}
-              className={`flex min-h-11 min-[861px]:min-h-0 items-center gap-1.5 px-3 sm:px-4 py-2 rounded-lg text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-all shrink-0 cursor-pointer ${
-                activeSubTab === 'drivers'
-                  ? 'bg-f1red text-white shadow-sm'
-                  : 'bg-studio-100 text-studio-700 hover:bg-studio-200'
-              }`}
-            >
-              <UserRound className="w-3.5 h-3.5" />
-              <span>{strings.tabDrivers}</span>
-            </button>
-          </div>
+          <Tabs
+            items={tabItems}
+            value={selectedTab}
+            onValueChange={selectTab}
+            ariaLabel={lang === 'vi' ? 'Nội dung giải vô địch' : 'Championship content'}
+            idBase="championship"
+            className="custom-scrollbar -mx-1 max-w-full pb-1.5 sm:mx-0 sm:pb-1"
+          />
 
           {/* Season Switcher & Refresh */}
-          <div className="flex items-center justify-between sm:justify-end gap-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-studio-100">
-            <button
-              data-championship-refresh
-              onClick={handleManualSync}
-              disabled={syncMeta.syncStatus === 'syncing'}
-              className="p-2 rounded-lg bg-studio-100 hover:bg-studio-200 text-studio-600 hover:text-studio-900 border border-studio-200 transition-all disabled:opacity-50 cursor-pointer min-w-11 min-h-11 min-[861px]:min-w-[36px] min-[861px]:min-h-[36px] flex items-center justify-center"
-              title={lang === 'vi' ? 'Làm mới dữ liệu kết quả' : 'Refresh season data'}
-            >
-              <RefreshCw
-                className={`w-3.5 h-3.5 ${syncMeta.syncStatus === 'syncing' ? 'animate-spin text-f1red' : ''}`}
-              />
-            </button>
+          <div className="flex items-center justify-between xl:justify-end gap-2 shrink-0 pt-2 xl:pt-0 border-t xl:border-t-0 border-studio-100">
+            <Tooltip label={lang === 'vi' ? 'Làm mới dữ liệu kết quả' : 'Refresh season data'}>
+              <Button
+                data-championship-refresh
+                onClick={handleManualSync}
+                disabled={syncMeta.syncStatus === 'syncing'}
+                variant="secondary"
+                size="icon"
+                aria-label={lang === 'vi' ? 'Làm mới dữ liệu kết quả' : 'Refresh season data'}
+                className="min-[861px]:h-9 min-[861px]:w-9"
+              >
+                <RefreshCw
+                  className={`h-3.5 w-3.5 ${syncMeta.syncStatus === 'syncing' ? 'animate-spin text-peds-accent-soft motion-reduce:animate-none' : ''}`}
+                />
+              </Button>
+            </Tooltip>
 
             <div className="flex items-center gap-1 bg-studio-100 p-1 rounded-lg border border-studio-200">
               {SEASONS.map((seasonOption) => (
@@ -175,30 +169,36 @@ export const ChampionshipView: React.FC<ChampionshipViewProps> = ({ season, onSe
                   }`}
                 >
                   <span>{seasonOption}</span>
-                  {seasonOption === 2026 && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  )}
                 </button>
               ))}
             </div>
           </div>
-        </div>
+        </Card>
 
         {/* Content Render based on Subtab with 3D Depth Entrance */}
-        <div key={activeSubTab} className="animate-f1-depth-enter">
-          {activeSubTab === 'standings' && <StandingsTable season={season} />}
-          {activeSubTab === 'calendar' && <RaceCalendar season={season} />}
+        <div
+          key={selectedTab}
+          id={`championship-panel-${selectedTab}`}
+          role="tabpanel"
+          aria-labelledby={`championship-tab-${selectedTab}`}
+          className="f4-panel"
+        >
+          {activeSubTab === 'standings' && <ChampionshipStandings season={season} />}
+          {activeSubTab === 'calendar' && <ChampionshipCalendar season={season} />}
           {activeSubTab === 'results' && <RaceResults season={season} />}
-          {activeSubTab === 'teams' && <TeamsDirectoryPage initialSeason={season} hideHeader />}
-          {activeSubTab === 'drivers' && <DriversDirectoryPage initialSeason={season} hideHeader />}
+          {activeSubTab === 'teams' && <ChampionshipDirectory season={season} kind="teams" />}
+          {activeSubTab === 'drivers' && <ChampionshipDirectory season={season} kind="drivers" />}
         </div>
+        <AdSlot variant="leaderboard" placement="championship-after-content" reviewMode={adReview} />
       </div>
 
       {/* Floating Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 animate-bounce">
+        <div role="status" className="fixed bottom-6 right-6 z-50">
           <div className="bg-studio-950 text-white px-5 py-3 rounded-xl shadow-2xl border border-studio-700 flex items-center gap-3 text-xs font-bold">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+            {syncMeta.syncStatus === 'error'
+              ? <AlertCircle className="w-4 h-4 text-amber-400" />
+              : <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
             <span>{toastMessage}</span>
           </div>
         </div>

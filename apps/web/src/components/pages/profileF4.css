@@ -1,0 +1,39 @@
+.f4-profile .bg-white .text-studio-400 { color: #59616c; }
+.f4-profile .bg-white .text-studio-300 { color: #5d6570; }
+.f4-profile .bg-white .text-studio-500 { color: #4c5560; }
+.f4-directory .bg-white .text-studio-400 { color: #59616c; }
+.f4-directory .bg-white .text-studio-500 { color: #4c5560; }
+.f4-directory article, .f4-directory a.group { box-shadow: 0 8px 28px #0000000d; }
+.f4-directory :is(input, select, a, button):focus-visible { outline: 2px solid #c61727; outline-offset: 3px; }
+.f4-profile :is(a, button, select):focus-visible { outline: 2px solid #c61727; outline-offset: 3px; }
+
+/* R1.1: graphite is the page field; off-white remains an intentional data sheet. */
+.r11-shell.peds-editorial-light.bg-studio-100 {
+  background: var(--peds-color-canvas);
+  color: var(--peds-color-text);
+  color-scheme: dark;
+}
+.r11-shell.peds-editorial-light :is(.text-studio-950, .text-studio-900, .text-studio-800) {
+  color: var(--peds-color-text);
+}
+.r11-shell.peds-editorial-light :is(.text-studio-700, .text-studio-600, .text-studio-500, .text-studio-400, .text-studio-300) {
+  color: var(--peds-color-text-muted);
+}
+.r11-shell.peds-editorial-light :is(.bg-white, .bg-studio-50) {
+  color: var(--peds-color-light-text);
+  color-scheme: light;
+}
+.r11-shell.peds-editorial-light :is(.bg-white, .bg-studio-50) :is(.text-studio-950, .text-studio-900, .text-studio-800),
+.r11-shell.peds-editorial-light :is(.bg-white, .bg-studio-50):is(.text-studio-950, .text-studio-900, .text-studio-800) {
+  color: var(--peds-color-light-text);
+}
+.r11-shell.peds-editorial-light :is(.bg-white, .bg-studio-50) :is(.text-studio-700, .text-studio-600, .text-studio-500, .text-studio-400, .text-studio-300),
+.r11-shell.peds-editorial-light :is(.bg-white, .bg-studio-50):is(.text-studio-700, .text-studio-600, .text-studio-500, .text-studio-400, .text-studio-300) {
+  color: var(--peds-color-light-muted);
+}
+.r11-shell.f4-directory article,
+.r11-shell.f4-directory a.group { box-shadow: none; }
+.r11-shell :is(input, select, a, button):focus-visible { outline-color: var(--peds-color-focus); }
+@media (prefers-reduced-motion: reduce) {
+  .f4-profile *, .f4-profile *::before, .f4-profile *::after, .f4-directory *, .f4-directory *::before, .f4-directory *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}

@@ -6,14 +6,16 @@ interface EDSLiverySelectorProps {
   selectedId: EDSLiveryId;
   onSelect: (id: EDSLiveryId) => void;
   lang: 'vi' | 'en';
+  labelVi?: string;
+  labelEn?: string;
 }
 
 export const EDSLiverySelector: React.FC<EDSLiverySelectorProps> = React.memo(
-  ({ selectedId, onSelect, lang }) => (
+  ({ selectedId, onSelect, lang, labelVi = 'Màu EDS:', labelEn = 'EDS liveries:' }) => (
     <div className="flex items-center gap-2 pt-1 border-t border-studio-850/80">
       <div className="hidden lg:flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-studio-400 shrink-0 pr-1">
         <Palette className="w-3.5 h-3.5 text-cyan-400" />
-        <span>{lang === 'vi' ? 'Màu EDS:' : 'EDS liveries:'}</span>
+        <span>{lang === 'vi' ? labelVi : labelEn}</span>
       </div>
       <div className="flex items-center gap-1.5 overflow-x-auto py-1 px-0.5 custom-scrollbar w-full">
         {EDS_LIVERY_IDS.map((id) => {

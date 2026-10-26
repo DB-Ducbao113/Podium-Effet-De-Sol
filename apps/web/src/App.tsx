@@ -17,11 +17,13 @@ import { SeasonYear, isSeasonYear } from './types';
 import { RaceClassificationModal } from './components/championship/RaceClassificationModal';
 import { getCompleteRaceClassification } from './data/championship/raceClassificationHelper';
 
-import { F1SpeedStream } from './components/common/F1SpeedStream';
 import { F1PageTransition } from './components/common/F1PageTransition';
 import { RouteSeo } from './components/seo/RouteSeo';
 import { useMobileHub, isPrimaryPath } from './hooks/useMobileHub';
 import { MobileAllInOne } from './components/mobile/MobileAllInOne';
+import { Container } from './components/ui/Container';
+import { buttonClassName } from './components/ui/buttonStyles';
+import { StatePanel } from './components/ui/StatePanel';
 
 const HomeView = lazy(() =>
   import('./components/home/HomeView').then((m) => ({ default: m.HomeView })),
@@ -33,19 +35,29 @@ const ChampionshipView = lazy(() =>
 );
 
 const ShowroomView = lazy(() =>
-  import('./components/showroom/ShowroomView').then((m) => ({ default: m.ShowroomView })),
+  import('./components/showroom/ShowroomView').then((m) => ({
+    default: m.ShowroomView,
+  })),
 );
 const TeamDetailPage = lazy(() =>
-  import('./components/pages/TeamDetailPage').then((m) => ({ default: m.TeamDetailPage })),
+  import('./components/pages/TeamDetailPage').then((m) => ({
+    default: m.TeamDetailPage,
+  })),
 );
 const DriverDetailPage = lazy(() =>
-  import('./components/pages/DriverDetailPage').then((m) => ({ default: m.DriverDetailPage })),
+  import('./components/pages/DriverDetailPage').then((m) => ({
+    default: m.DriverDetailPage,
+  })),
 );
 const CarDetailPage = lazy(() =>
-  import('./components/pages/CarDetailPage').then((m) => ({ default: m.CarDetailPage })),
+  import('./components/pages/CarDetailPage').then((m) => ({
+    default: m.CarDetailPage,
+  })),
 );
 const TeamsDirectoryPage = lazy(() =>
-  import('./components/pages/TeamsDirectoryPage').then((m) => ({ default: m.TeamsDirectoryPage })),
+  import('./components/pages/TeamsDirectoryPage').then((m) => ({
+    default: m.TeamsDirectoryPage,
+  })),
 );
 const DriversDirectoryPage = lazy(() =>
   import('./components/pages/DriversDirectoryPage').then((m) => ({
@@ -53,7 +65,9 @@ const DriversDirectoryPage = lazy(() =>
   })),
 );
 const AboutPage = lazy(() =>
-  import('./components/pages/AboutPage').then((m) => ({ default: m.AboutPage })),
+  import('./components/pages/AboutPage').then((m) => ({
+    default: m.AboutPage,
+  })),
 );
 const EngineeringIndexPage = lazy(() =>
   import('./components/engineering/EngineeringIndexPage').then((m) => ({
@@ -65,6 +79,7 @@ const EngineeringArticlePage = lazy(() =>
     default: m.EngineeringArticlePage,
   })),
 );
+const EngineeringAnatomyPage = lazy(() => import('./components/engineering/EngineeringAnatomyPage'));
 
 let lastAutoRaceSyncAt = 0;
 
@@ -76,6 +91,7 @@ function SeasonRoute() {
   const navigate = useNavigate();
   const setSelectedSeason = useChampionshipStore((state) => state.setSelectedSeason);
   const setActiveSubTab = useChampionshipStore((state) => state.setActiveSubTab);
+  const setStandingsCategory = useChampionshipStore((state) => state.setStandingsCategory);
   const season = (validSeason(year) ? Number(year) : 2026) as SeasonYear;
   const mobileHub = useMobileHub();
 
@@ -84,10 +100,13 @@ function SeasonRoute() {
     const tab = searchParams.get('tab');
     if (tab && ['standings', 'calendar', 'results', 'teams', 'drivers'].includes(tab)) {
       setActiveSubTab(tab as 'standings' | 'calendar' | 'results' | 'teams' | 'drivers');
-    }
-  }, [year, season, setSelectedSeason, searchParams, setActiveSubTab]);
+    } else if (!tab) setActiveSubTab('standings');
+    const category = searchParams.get('category');
+    if (category === 'drivers' || category === 'constructors') setStandingsCategory(category);
+  }, [year, season, setSelectedSeason, searchParams, setActiveSubTab, setStandingsCategory]);
 
   if (!validSeason(year)) return <NotFound />;
+  if (searchParams.get('tab') === 'overview') return <Navigate to="/#championship-overview" replace />;
   if (mobileHub) return <MobileAllInOne season={season} />;
   return (
     <ChampionshipView season={season} onSeasonChange={(next) => navigate(`/season/${next}`)} />
@@ -129,15 +148,17 @@ function RaceRoute() {
 function NotFound() {
   const lang = useNavigationStore((state) => state.lang);
   return (
-    <div className="page-container py-24 min-h-[60vh] text-center">
-      <p className="text-f1red font-black text-6xl">404</p>
-      <h1 className="font-display text-2xl font-bold mt-4">
+    <Container className="flex min-h-[60vh] flex-col items-center justify-center py-24 text-center">
+      <p className="font-mono text-sm font-bold uppercase tracking-[0.28em] text-peds-accent-soft">
+        Route error · 404
+      </p>
+      <h1 className="mt-4 font-display text-4xl font-black uppercase text-peds-text">
         {lang === 'vi' ? 'Không tìm thấy trang' : 'Page not found'}
       </h1>
-      <Link className="inline-block mt-6 text-f1red font-bold" to="/">
+      <Link className={buttonClassName({ className: 'mt-7' })} to="/">
         {lang === 'vi' ? 'Về trang chủ' : 'Go home'}
       </Link>
-    </div>
+    </Container>
   );
 }
 
@@ -187,19 +208,14 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     if (mobileHub && isPrimaryPath(location.pathname)) return;
+    if (location.pathname.startsWith('/season/') && new URLSearchParams(location.search).get('tab') === 'calendar') return;
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [location.pathname, mobileHub]);
+  }, [location.pathname, location.search, mobileHub]);
 
-  const isEngineeringRoute = location.pathname.startsWith('/engineering');
 
   return (
-    <div className="min-h-screen bg-studio-100 text-studio-900 flex flex-col font-sans selection:bg-f1red selection:text-white relative">
+    <div className={`relative flex min-h-screen flex-col bg-peds-canvas font-sans text-peds-text selection:bg-peds-accent selection:text-white ${location.pathname === '/' ? 'h25-home-route' : ''}`}>
       <RouteSeo />
-      {/* ── 3D Aerodynamic Wind Tunnel Telemetry Particle Stream ── */}
-      {!isHubRoute && !location.pathname.startsWith('/showroom') && !isEngineeringRoute && (
-        <F1SpeedStream />
-      )}
-
       {/* ── D2. Film Grain Overlay (Cinematic Texture) ── */}
       <div
         aria-hidden="true"
@@ -227,7 +243,13 @@ export const App: React.FC = () => {
           pathname={isHubRoute ? '/mobile-hub' : location.pathname}
           noTransform={isHubRoute}
         >
-          <Suspense fallback={<div className="min-h-screen" />}>
+          <Suspense
+            fallback={
+              <Container className="min-h-[calc(100svh-64px)] py-16">
+                <StatePanel state="loading" title="Loading interface" />
+              </Container>
+            }
+          >
             <Routes>
               <Route
                 path="/"
@@ -256,6 +278,7 @@ export const App: React.FC = () => {
               <Route path="/drivers" element={<DriversDirectoryPage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/engineering" element={<EngineeringIndexPage />} />
+              <Route path="/engineering/car-anatomy" element={<EngineeringAnatomyPage />} />
               <Route path="/engineering/:slug" element={<EngineeringArticlePage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

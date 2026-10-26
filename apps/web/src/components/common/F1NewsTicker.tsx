@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Radio, Play, Pause } from 'lucide-react';
 import { CALENDAR_2026, getStandings } from '../../data/championship';
@@ -7,7 +7,7 @@ import { useNavigationStore } from '../../store/useNavigationStore';
 import { getCalendarRaceState } from '../../utils/raceSchedule';
 import { isPrimaryPath, useMobileHub } from '../../hooks/useMobileHub';
 
-export function F1NewsTicker() {
+export function F1NewsTicker({ variant = 'compact' }: { variant?: 'compact' | 'hero' }) {
   const lang = useNavigationStore((state) => state.lang);
   const calculatedStandings = useChampionshipStore((state) => state.calculatedStandings);
   const setActiveSubTab = useChampionshipStore((state) => state.setActiveSubTab);
@@ -16,11 +16,28 @@ export function F1NewsTicker() {
   const location = useLocation();
   const navigate = useNavigate();
   const [playing, setPlaying] = useState(true);
+  const heroRef = useRef<HTMLElement | null>(null);
+  const intersectingRef = useRef(true);
+  const [inView, setInView] = useState(true);
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     const interval = window.setInterval(() => setNow(Date.now()), 30_000);
     return () => window.clearInterval(interval);
   }, []);
+  useEffect(() => {
+    if (variant !== 'hero' || !heroRef.current) return;
+    const updateVisibility = () => setInView(intersectingRef.current && document.visibilityState === 'visible');
+    const observer = new IntersectionObserver(([entry]) => {
+      intersectingRef.current = entry.isIntersecting;
+      updateVisibility();
+    });
+    observer.observe(heroRef.current);
+    document.addEventListener('visibilitychange', updateVisibility);
+    return () => {
+      observer.disconnect();
+      document.removeEventListener('visibilitychange', updateVisibility);
+    };
+  }, [variant]);
   const nextRace =
     CALENDAR_2026.find((race) => getCalendarRaceState(race, now) === 'current') ??
     CALENDAR_2026.find((race) => getCalendarRaceState(race, now) === 'upcoming');
@@ -67,6 +84,22 @@ export function F1NewsTicker() {
       });
     } else navigate(`/season/2026?tab=${tab}`);
   };
+
+  if (variant === 'hero') return (
+    <section ref={heroRef} className="h1-ticker" data-active={inView} aria-label={lang === 'vi' ? 'Tin giải đua' : 'Race news'}>
+      <div className="h1-ticker__track">
+        <div className="h1-ticker__marquee">
+          {[0, 1].map((copy) => (
+            <div key={copy} className="flex shrink-0" aria-hidden={copy === 1 ? true : undefined}>
+              {items.map((item) => <button key={`${copy}-${item.tab}`} type="button" tabIndex={copy === 1 ? -1 : undefined} onClick={() => open(item.tab)} className="h1-ticker__item">
+                <span className="h1-ticker__badge">{item.badge}</span><span>{item.text}</span><span className="h1-ticker__separator" aria-hidden="true">///</span>
+              </button>)}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
 
   return (
     <div className="relative z-20 flex h-10 w-full items-center overflow-hidden border-y border-white/10 bg-[#08080b] text-white">

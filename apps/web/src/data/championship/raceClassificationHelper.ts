@@ -96,6 +96,11 @@ const FIA_POINTS = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1];
  * 2024 keeps +1 only for a top-10 finisher holding the fastest lap;
  * removed from 2025 onwards.
  */
+export function getSeasonDriverNumber(season: SeasonYear, driverId: string): number | undefined {
+  const grid = season === 2026 ? DRIVER_GRID_2026 : season === 2025 ? DRIVER_GRID_2025 : DRIVER_GRID_2024;
+  return grid.find((driver) => driver.driverId === driverId)?.driverNumber;
+}
+
 export function fastestLapBonusPoints(
   season: SeasonYear,
   position: number,

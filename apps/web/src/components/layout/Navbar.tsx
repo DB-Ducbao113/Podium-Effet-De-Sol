@@ -1,229 +1,157 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { BookOpen, Box, ChevronDown, Home, Menu, Trophy, X, Info } from 'lucide-react';
 import { useNavigationStore } from '../../store/useNavigationStore';
 import { t } from '../../i18n/translations';
-import { Menu, X, Trophy, Home, Box, BookOpen } from 'lucide-react';
 import { OfficialBrandLogo } from '../common/OfficialBrandLogo';
 import { isPrimaryPath, useMobileHub } from '../../hooks/useMobileHub';
+import './navbarH1.css';
 
-export const Navbar: React.FC = React.memo(() => {
+type Control = 'cameras' | 'livery' | 'hotspots';
+type SubItem = { label: string; to: string; control?: Control };
+type NavItem = { id: string; label: string; to: string; icon: typeof Home; children?: SubItem[] };
+
+export const Navbar = memo(function Navbar() {
   const { lang, setLang } = useNavigationStore();
   const location = useLocation();
-  const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
   const mobileHub = useMobileHub();
   const onHub = mobileHub && isPrimaryPath(location.pathname);
-  const hubParams = new URLSearchParams(location.search);
-  hubParams.delete('hotspot');
-  const hubSearch = hubParams.size ? `?${hubParams.toString()}` : '';
-
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [dismissedDropdown, setDismissedDropdown] = useState<string | null>(null);
+  const menuToggleRef = useRef<HTMLButtonElement | null>(null);
   const strings = t[lang].nav;
 
-  const NAV_ITEMS = useMemo(
-    () => [
-      { id: 'home', path: '/', label: strings.home, icon: <Home className="w-4 h-4" /> },
-      {
-        id: 'championship',
-        path: '/season/2026',
-        label: strings.championship,
-        icon: <Trophy className="w-4 h-4" />,
-      },
-      {
-        id: 'collection',
-        path: '/showroom',
-        label: strings.collection,
-        icon: <Box className="w-4 h-4" />,
-      },
-      {
-        id: 'engineering',
-        path: '/engineering',
-        label: lang === 'vi' ? 'Kỹ thuật' : 'Engineering',
-        icon: <BookOpen className="w-4 h-4" />,
-      },
-    ],
-    [lang, strings],
-  );
+  const items = useMemo<NavItem[]>(() => [
+    { id: 'home', to: '/', label: strings.home, icon: Home },
+    { id: 'championship', to: '/season/2026', label: strings.championship, icon: Trophy, children: [
+      { label: lang === 'vi' ? 'Tay đua' : 'Driver standings', to: '/season/2026?tab=standings&category=drivers' },
+      { label: lang === 'vi' ? 'Đội đua' : 'Constructor standings', to: '/season/2026?tab=standings&category=constructors' },
+      { label: lang === 'vi' ? 'Lịch đua' : 'Calendar', to: '/season/2026?tab=calendar' },
+      { label: lang === 'vi' ? 'Kết quả' : 'Results', to: '/season/2026?tab=results' },
+      { label: lang === 'vi' ? 'Đội đua' : 'Teams', to: '/season/2026?tab=teams' },
+      { label: lang === 'vi' ? 'Tay đua' : 'Drivers', to: '/season/2026?tab=drivers' },
+    ] },
+    { id: 'showroom', to: '/showroom', label: 'Showroom 3D', icon: Box, children: [
+      { label: lang === 'vi' ? 'Tổng quan' : 'Overview', to: '/showroom' },
+      { label: lang === 'vi' ? 'Góc camera' : 'Cameras', to: '/showroom', control: 'cameras' },
+      { label: lang === 'vi' ? 'Màu xe' : 'Livery', to: '/showroom', control: 'livery' },
+      { label: lang === 'vi' ? 'Bộ phận' : 'Hotspots', to: '/showroom', control: 'hotspots' },
+    ] },
+    { id: 'engineering', to: '/engineering/car-anatomy', label: lang === 'vi' ? 'Giải phẫu xe' : 'Engineering', icon: BookOpen, children: [
+      { label: lang === 'vi' ? 'Giải phẫu xe' : 'Car anatomy', to: '/engineering/car-anatomy' },
+      { label: lang === 'vi' ? 'Cánh trước' : 'Front wing', to: '/engineering/car-anatomy?chapter=front-wing' },
+      { label: lang === 'vi' ? 'Sàn xe' : 'Floor', to: '/engineering/car-anatomy?chapter=floor' },
+      { label: lang === 'vi' ? 'Bộ khuếch tán' : 'Diffuser', to: '/engineering/car-anatomy?chapter=diffuser' },
+      { label: lang === 'vi' ? 'Cánh sau' : 'Rear wing', to: '/engineering/car-anatomy?chapter=rear-wing' },
+    ] },
+    { id: 'about', to: '/about', label: lang === 'vi' ? 'Giới thiệu' : 'About', icon: Info, children: [
+      { label: lang === 'vi' ? 'Dự án' : 'Project', to: '/about' },
+      { label: lang === 'vi' ? 'Ghi công' : 'Credits', to: '/about#peds-credits' },
+    ] },
+  ], [lang, strings]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
+    onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   useEffect(() => {
     if (!menuOpen) return;
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setMenuOpen(false);
+    const onEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') { setMenuOpen(false); menuToggleRef.current?.focus(); }
     };
-    window.addEventListener('keydown', closeOnEscape);
-    return () => window.removeEventListener('keydown', closeOnEscape);
+    window.addEventListener('keydown', onEscape);
+    return () => window.removeEventListener('keydown', onEscape);
   }, [menuOpen]);
 
-  const drawerItems = onHub
-    ? [
-        NAV_ITEMS[3],
-        {
-          id: 'teams',
-          path: '/teams',
-          label: lang === 'vi' ? 'Đội đua' : 'Teams',
-          icon: <Trophy className="w-4 h-4" />,
-        },
-        {
-          id: 'drivers',
-          path: '/drivers',
-          label: lang === 'vi' ? 'Tay đua' : 'Drivers',
-          icon: <Home className="w-4 h-4" />,
-        },
-        {
-          id: 'about',
-          path: '/about',
-          label: lang === 'vi' ? 'Giới thiệu' : 'About',
-          icon: <BookOpen className="w-4 h-4" />,
-        },
-      ]
-    : NAV_ITEMS;
+  useEffect(() => {
+    const onEscape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      const focused = document.activeElement?.closest<HTMLElement>('.h1-nav__group');
+      const hovered = document.querySelector<HTMLElement>('.h1-nav__group:hover');
+      const group = focused ?? hovered;
+      if (!group) return;
+      setDismissedDropdown(group.dataset.navId ?? null);
+      group.querySelector<HTMLElement>('a')?.focus();
+    };
+    window.addEventListener('keydown', onEscape);
+    return () => window.removeEventListener('keydown', onEscape);
+  }, []);
 
-  return (
-    <>
-      <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          scrolled
-            ? 'bg-[#08080b]/95 backdrop-blur-xl border-b border-white/10 shadow-[0_12px_35px_rgba(0,0,0,0.35)]'
-            : 'bg-[#08080b]/90 backdrop-blur-md border-b border-white/10'
-        }`}
-        style={{ height: 64 }}
-      >
-        <div className="page-container h-full flex items-center justify-between gap-2 sm:gap-6">
-          {/* Brand Logo */}
-          <Link
-            to={onHub ? `${location.pathname}${hubSearch}#home` : '/'}
-            className="group focus:outline-none focus-visible:ring-2 focus-visible:ring-f1red rounded"
-            aria-label="PODIUM — Effet de Sol"
-          >
-            <OfficialBrandLogo size="md" variant="full" className="hidden sm:block" />
-            <OfficialBrandLogo size="md" variant="compact" className="sm:hidden" />
-          </Link>
+  useEffect(() => {
+    if (location.hash !== '#peds-credits') return;
+    const timer = window.setTimeout(() => document.getElementById('peds-credits')?.scrollIntoView({ block: 'start', behavior: 'instant' }), 500);
+    return () => window.clearTimeout(timer);
+  }, [location.hash, location.pathname]);
 
-          {/* Center Navigation Links */}
-          <nav
-            className="hidden min-[861px]:flex items-center gap-4 lg:gap-6"
-            aria-label="Main navigation"
-          >
-            {NAV_ITEMS.map((item) => {
-              const isActive =
-                item.id === 'home'
-                  ? location.pathname === '/'
-                  : item.id === 'championship'
-                    ? location.pathname.startsWith('/season') ||
-                      location.pathname.startsWith('/teams') ||
-                      location.pathname.startsWith('/drivers')
-                    : item.id === 'engineering'
-                      ? location.pathname.startsWith('/engineering')
-                      : location.pathname.startsWith('/showroom') ||
-                        location.pathname.startsWith('/gallery');
-              return (
-                <Link
-                  key={item.id}
-                  to={item.path}
-                  className={`flex items-center gap-1.5 lg:gap-2 py-1 text-[11px] lg:text-[13px] font-bold uppercase tracking-wider transition-all duration-200 border-b-2 ${
-                    isActive
-                      ? 'border-f1red text-f1red'
-                      : 'border-transparent text-studio-300 hover:text-white hover:border-white/30'
-                  }`}
-                >
-                  <span className={isActive ? 'text-f1red' : 'text-studio-400'}>{item.icon}</span>
-                  {item.label}
-                </Link>
-              );
-            })}
-          </nav>
+  useEffect(() => {
+    const control = (location.state as { showroomControl?: Control } | null)?.showroomControl;
+    if (!control || location.pathname !== '/showroom') return;
+    const labels = {
+      cameras: ['Góc camera', 'Camera views'],
+      livery: ['Màu thân xe', 'Body finish'],
+      hotspots: ['Bộ phận xe', 'Car components'],
+    }[control];
+    let attempts = 0;
+    const timer = window.setInterval(() => {
+      const group = [...document.querySelectorAll<HTMLElement>('[role="group"]')]
+        .find((element) => labels.includes(element.getAttribute('aria-label') || '')) ||
+        (mobileHub ? document.querySelector<HTMLElement>({ cameras: '.r1-quick-hud', livery: '[data-eds-livery]', hotspots: '[data-eds-hotspot]' }[control]) : null);
+      if (group) {
+        group.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
+        (group.matches('button') ? group : group.querySelector<HTMLElement>('button'))?.focus({ preventScroll: true });
+        window.clearInterval(timer);
+      } else if (++attempts >= 40) window.clearInterval(timer);
+    }, 100);
+    return () => window.clearInterval(timer);
+  }, [location.key, location.pathname, location.state, mobileHub]);
 
-          {/* Right — Language Selector & Mobile Toggle */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            {/* Language Switcher */}
-            <div className="flex items-center bg-white/5 p-0.5 rounded-full border border-white/10">
-              <button
-                onClick={() => setLang('vi')}
-                aria-label="Tiếng Việt"
-                className={`px-2 sm:px-2.5 py-1 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center ${
-                  lang === 'vi'
-                    ? 'bg-f1red text-white shadow-sm'
-                    : 'text-studio-300 hover:text-white'
-                }`}
-                title="Tiếng Việt"
-              >
-                VI
-              </button>
-              <button
-                onClick={() => setLang('en')}
-                aria-label="English"
-                className={`px-2 sm:px-2.5 py-1 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center ${
-                  lang === 'en'
-                    ? 'bg-f1red text-white shadow-sm'
-                    : 'text-studio-300 hover:text-white'
-                }`}
-                title="English"
-              >
-                EN
-              </button>
-            </div>
+  const active = (id: string) => id === 'home' ? location.pathname === '/' :
+    id === 'championship' ? location.pathname.startsWith('/season') :
+    id === 'showroom' ? location.pathname.startsWith('/showroom') || location.pathname.startsWith('/gallery') :
+    id === 'engineering' ? location.pathname.startsWith('/engineering') : location.pathname === '/about';
+  const closeMenu = () => { setMenuOpen(false); setExpanded(null); };
+  const hubParams = new URLSearchParams(location.search);
+  hubParams.delete('hotspot');
+  const hubSearch = hubParams.size ? `?${hubParams.toString()}` : '';
 
-            {/* Mobile menu button */}
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="min-[861px]:hidden p-2 text-studio-200 hover:text-white transition-colors focus:ring-2 focus:ring-f1red rounded-lg min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer"
-              aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-              aria-expanded={menuOpen}
-              aria-controls="mobile-nav-menu"
-            >
-              {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
+  return <>
+    <header className={`h1-nav fixed inset-x-0 top-0 z-50 border-b border-white/10 ${scrolled ? 'h1-nav--scrolled' : ''}`}>
+      <div className="page-container flex h-16 items-center justify-between gap-3">
+        <Link to={onHub ? `${location.pathname}${hubSearch}#home` : '/'} className="rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-f1red" aria-label="Podium Effet de Sol">
+          <OfficialBrandLogo size="md" variant="full" className="hidden sm:block" />
+          <OfficialBrandLogo size="md" variant="compact" className="sm:hidden" />
+        </Link>
+        <nav className="h1-nav__desktop" aria-label={lang === 'vi' ? 'Điều hướng chính' : 'Main navigation'}>
+          {items.map((item) => <div className="h1-nav__group" key={item.id} data-nav-id={item.id} data-dismissed={dismissedDropdown === item.id} onPointerLeave={() => setDismissedDropdown(null)} onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setDismissedDropdown(null); }} onKeyDown={(event) => { if (event.key === 'Escape') { event.preventDefault(); setDismissedDropdown(item.id); (event.currentTarget.querySelector('a') as HTMLElement | null)?.focus(); } }}>
+            <Link to={item.to} className={`h1-nav__link ${active(item.id) ? 'h1-nav__link--active' : ''}`} aria-current={active(item.id) ? 'page' : undefined}>
+              <item.icon size={15} aria-hidden="true" /><span>{item.label}</span>{item.children && <ChevronDown size={13} aria-hidden="true" />}
+            </Link>
+            {item.children && <div className="h1-nav__dropdown"><div className="h1-nav__dropdown-inner">
+              {item.children.map((child) => <Link key={child.label} to={child.to} state={child.control ? { showroomControl: child.control } : undefined} className="h1-nav__sub" onClick={() => {}}>{child.label}</Link>)}
+            </div></div>}
+          </div>)}
+        </nav>
+        <div className="flex shrink-0 items-center gap-2">
+          <div className="flex items-center rounded-full border border-white/10 bg-white/5 p-0.5">
+            {(['vi', 'en'] as const).map((code) => <button key={code} type="button" onClick={() => setLang(code)} aria-label={code === 'vi' ? 'Tiếng Việt' : 'English'} aria-pressed={lang === code} className={`flex min-h-11 min-w-11 items-center justify-center rounded-full text-[10px] font-bold focus-visible:outline focus-visible:outline-2 focus-visible:outline-white ${lang === code ? 'bg-f1red text-white' : 'text-studio-300 hover:text-white'}`}>{code.toUpperCase()}</button>)}
           </div>
+          <button ref={menuToggleRef} type="button" onClick={() => setMenuOpen(!menuOpen)} className="h1-nav__toggle flex min-h-11 min-w-11 items-center justify-center rounded text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-f1red" aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'} aria-expanded={menuOpen} aria-controls="mobile-nav-menu">{menuOpen ? <X size={21} /> : <Menu size={21} />}</button>
         </div>
-      </header>
-
-      {/* Mobile Drawer Menu */}
-      {menuOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm min-[861px]:hidden animate-fade-in"
-          onClick={() => setMenuOpen(false)}
-        >
-          <div
-            id="mobile-nav-menu"
-            className="fixed top-16 left-0 right-0 bg-[#0b0b0f]/98 border-b border-white/10 shadow-2xl p-6 flex flex-col gap-4 animate-slide-down"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {drawerItems.map((item) => {
-              const isActive =
-                item.id === 'home'
-                  ? location.pathname === '/'
-                  : item.id === 'championship'
-                    ? location.pathname.startsWith('/season') ||
-                      location.pathname.startsWith('/teams') ||
-                      location.pathname.startsWith('/drivers')
-                    : item.id === 'engineering'
-                      ? location.pathname.startsWith('/engineering')
-                      : location.pathname.startsWith('/showroom') ||
-                        location.pathname.startsWith('/gallery');
-              return (
-                <Link
-                  key={item.id}
-                  to={item.path}
-                  onClick={() => setMenuOpen(false)}
-                  className={`flex items-center gap-3 p-3 rounded-md text-sm font-bold uppercase tracking-wider text-left transition-colors ${
-                    isActive
-                      ? 'bg-f1red/10 text-f1red font-black'
-                      : 'text-studio-200 hover:text-white hover:bg-white/5'
-                  }`}
-                >
-                  {item.icon}
-                  {item.label}
-                </Link>
-              );
-            })}
-          </div>
+      </div>
+    </header>
+    {menuOpen && <div className="h1-nav__scrim" onClick={closeMenu}><nav id="mobile-nav-menu" className="h1-nav__mobile" aria-label={lang === 'vi' ? 'Điều hướng di động' : 'Mobile navigation'} onClick={(event) => event.stopPropagation()}>
+      {items.map((item) => <div key={item.id} className="h1-nav__mobile-group">
+        <div className="flex items-center">
+          <Link to={item.to} onClick={closeMenu} className="h1-nav__mobile-link"><item.icon size={17} aria-hidden="true" />{item.label}</Link>
+          {item.children && <button type="button" onClick={() => setExpanded(expanded === item.id ? null : item.id)} aria-expanded={expanded === item.id} aria-label={`${item.label}: ${lang === 'vi' ? 'mục con' : 'subpages'}`} className="h1-nav__expand"><ChevronDown size={18} aria-hidden="true" /></button>}
         </div>
-      )}
-    </>
-  );
+        {item.children && expanded === item.id && <div className="h1-nav__mobile-sublist">{item.children.map((child) => <Link key={child.label} to={child.to} state={child.control ? { showroomControl: child.control } : undefined} onClick={closeMenu}>{child.label}</Link>)}</div>}
+      </div>)}
+    </nav></div>}
+  </>;
 });

@@ -18,6 +18,7 @@ export interface PracticeSessionResult {
   sessionName: string; // e.g. 'Practice 1', 'Practice 2', 'Practice 3'
   dateStr: string;
   status: 'finished' | 'live' | 'scheduled';
+  dataSource?: string;
   weather?: string;
   airTempC?: number;
   trackTempC?: number;

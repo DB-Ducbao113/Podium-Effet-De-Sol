@@ -15,6 +15,7 @@ export interface QualifyingEntry {
   gapToPole: string;
   lapsCompleted?: number;
   sprintPoints?: number;
+  status?: string;
 }
 
 export interface QualifyingSessionResult {
@@ -22,6 +23,7 @@ export interface QualifyingSessionResult {
   sessionName: string;
   dateStr: string;
   status: 'finished' | 'live' | 'scheduled';
+  dataSource?: string;
   poleDriver?: { driver: string; team: string; time: string };
   weather?: string;
   airTempC?: number;

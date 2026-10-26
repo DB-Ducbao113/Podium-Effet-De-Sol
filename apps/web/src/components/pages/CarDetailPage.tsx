@@ -54,7 +54,7 @@ export const CarDetailPage: React.FC = () => {
   ].filter(([, value]) => Boolean(value));
 
   return (
-    <div className="min-h-[70vh] bg-studio-100 py-10 sm:py-16">
+    <div className="peds-editorial-light min-h-[70vh] bg-studio-100 py-10 sm:py-16">
       <div className="page-container space-y-8">
         <div className="flex items-center gap-3">
           <button

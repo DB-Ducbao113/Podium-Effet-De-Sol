@@ -3,18 +3,31 @@ import { describe, expect, it } from 'vitest';
 
 const source = readFileSync('src/dev/CommercialBReviewShowroom.tsx', 'utf8');
 
-describe('B8 Graphics Settings layout contract', () => {
-  it('resets advanced metrics whenever the panel closes', () => {
-    expect(source).toContain('if (!open) setAdvanced(false)');
+describe('Model B simplified showroom layout contract', () => {
+  it('uses the compact V2 shell with graphics, anatomy and metrics in separate slots', () => {
+    expect(source).toContain('<CompactShowroomLayout');
+    expect(source).toContain('anatomyPanel={(');
+    expect(source).toContain('graphicsPanel={(');
+    expect(source).toContain('specificationsPanel={(');
+    expect(source).toContain('<GraphicsSettings lang={lang}');
+    expect(source).toContain('MODEL_B_HOTSPOTS.map');
+    expect(source).not.toContain('<aside className=');
+    expect(source).not.toContain('settingsOpen');
   });
 
-  it('reserves a desktop side rail instead of covering the 3D stage', () => {
-    expect(source).toContain("settingsOpen ? 'lg:w-[calc(100%_-_23rem)]' : 'w-full'");
+  it('keeps one camera and zoom dock within the stage', () => {
     expect(source).toContain('data-testid="commercial-b-stage"');
+    expect(source).toContain('cameraControls={modelLoaded');
+    expect(source.match(/CAMERA_PRESETS\.map/g)).toHaveLength(1);
+    expect(source.match(/Zoom \+/g)).toHaveLength(1);
+    expect(source.match(/Zoom −/g)).toHaveLength(1);
+    expect(source).not.toContain('rollbackToEds');
   });
 
-  it('keeps the collapsed control concise', () => {
-    expect(source).toContain("lang === 'vi' ? 'Cài đặt đồ họa' : 'Graphics Settings'");
-    expect(source).toContain('{profile}');
+  it('retains the paint picker and model attribution', () => {
+    expect(source).toContain('MODEL_B_LIVERIES.map');
+    expect(source).toContain('readModelBPaint(getModelBPaintStorage())');
+    expect(source).toContain('Luis Adrian V.');
+    expect(source).toContain('CC BY 4.0');
   });
 });
