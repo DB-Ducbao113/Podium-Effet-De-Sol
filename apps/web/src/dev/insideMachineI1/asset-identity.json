@@ -1,0 +1,11 @@
+{
+  "namespace": "set-85d8e47c5b420e88",
+  "sourceSha256": "2D0091661DACE5D6C61AEBF898B4974644B44E43A5E8D10F602685C1631610A2",
+  "assets": {
+    "manifest": { "file": "manifest-85d8e47c5b420e88cb679c4f75661efff6ad313d3a5b4768f1b07360043f42f0.json", "sourceRelative": "assembly-manifest-r4-5.json", "bytes": 172404, "sha256": "85D8E47C5B420E88CB679C4F75661EFFF6AD313D3A5B4768F1B07360043F42F0", "type": "application/json" },
+    "HIGH": { "file": "high-2109752c95c3ebd84462215c78d6fa8abc0e329e349398747021ab7ad1353862.glb", "sourceRelative": "optimized/model-b-cinematic-r4-5-high.meshopt.glb", "bytes": 2764856, "sha256": "2109752C95C3EBD84462215C78D6FA8ABC0E329E349398747021AB7AD1353862", "type": "model/gltf-binary" },
+    "BALANCED": { "file": "balanced-75b374679d24c2737d813c1dc84cbe8dd3d08b58de57230c600d1b64a66f64ee.glb", "sourceRelative": "optimized/model-b-cinematic-r4-5-balanced.meshopt.glb", "bytes": 2536580, "sha256": "75B374679D24C2737D813C1DC84CBE8DD3D08B58DE57230C600D1B64A66F64EE", "type": "model/gltf-binary" },
+    "PERFORMANCE": { "file": "performance-cb4c864dc257423ecb52c25795ec7cec3c27c237966bce74bac00fc59892f0bb.glb", "sourceRelative": "optimized/model-b-cinematic-r4-5-performance.meshopt.glb", "bytes": 2254552, "sha256": "CB4C864DC257423ECB52C25795EC7CEC3C27C237966BCE74BAC00FC59892F0BB", "type": "model/gltf-binary" },
+    "poster": { "file": "poster-a184575ef92d2e9365e21be3188f9c1067520eb68867ece6b5b08f71c22b3fc1.webp", "sourceRelative": "fallback.webp", "bytes": 20768, "sha256": "A184575EF92D2E9365E21BE3188F9C1067520EB68867ECE6B5B08F71C22B3FC1", "type": "image/webp" }
+  }
+}

@@ -1,9 +1,10 @@
+import { useState } from 'react';
 import { F1StartLightsPreloader } from './F1StartLightsPreloader';
-import { isDocumentReload } from './documentReload';
-
-// Module evaluation happens once for this document, independently of router remounts.
-const showIntroForThisDocument = isDocumentReload();
+import { initialIntroDecision } from './documentIntroState';
 
 export function DocumentIntroController() {
-  return showIntroForThisDocument ? <F1StartLightsPreloader /> : null;
+  const [showIntro, setShowIntro] = useState(initialIntroDecision);
+
+  if (!showIntro) return null;
+  return <F1StartLightsPreloader onComplete={() => setShowIntro(false)} />;
 }

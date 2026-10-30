@@ -11,6 +11,7 @@ import { getCalendarRaceState, getSessionTimeRange, type RaceSessionKey } from '
 import { useNavigationStore } from '../../store/useNavigationStore';
 import { TimezoneSelector } from './TimezoneSelector';
 import { relevantRound } from '../../utils/relevantRace';
+import { resolveCalendarEntry } from './calendarNavigation';
 
 const ORDER: RaceSessionKey[] = ['fp1', 'fp2', 'fp3', 'sprintQualifying', 'sprint', 'qualifying', 'race'];
 
@@ -23,11 +24,13 @@ export function ChampionshipCalendar({ season }: { season: SeasonYear }) {
   const [now, setNow] = useState(() => Date.now());
   const explicitRound = Number(new URLSearchParams(location.search).get('round'));
   const requestedRound = calendar.some((race) => race.round === explicitRound) ? explicitRound : null;
-  const targetRound = requestedRound ?? relevantRound(calendar, now);
+  const { expandedRound: targetRound, autoScrollRound } = resolveCalendarEntry(
+    requestedRound,
+    relevantRound(calendar, now),
+  );
   const [expandedRound, setExpandedRound] = useState<number | null>(targetRound);
-  const focusKey = `${season}:${requestedRound ?? 'relevant'}`;
-  const focusedKey = useRef<string | null>(null);
-  const userScrolled = useRef(false);
+  const deepLinkKey = autoScrollRound === null ? null : `${season}:${autoScrollRound}`;
+  const scrolledDeepLinkKey = useRef<string | null>(null);
   const completedCount = calendar.filter((race) => getCalendarRaceState(race, now) === 'completed').length;
 
   useEffect(() => {
@@ -38,24 +41,27 @@ export function ChampionshipCalendar({ season }: { season: SeasonYear }) {
   }, []);
 
   useEffect(() => {
-    if (focusedKey.current === focusKey || targetRound === null) return;
-    userScrolled.current = false;
     setExpandedRound(targetRound);
-    const cancel = () => { userScrolled.current = true; };
+  }, [targetRound]);
+
+  useEffect(() => {
+    if (deepLinkKey === null || autoScrollRound === null || scrolledDeepLinkKey.current === deepLinkKey) return;
+    let userScrolled = false;
+    const cancel = () => { userScrolled = true; };
     window.addEventListener('wheel', cancel, { passive: true });
     window.addEventListener('touchstart', cancel, { passive: true });
     const timer = window.setTimeout(() => {
-      if (!userScrolled.current) {
-        document.getElementById(`calendar-round-${targetRound}`)?.scrollIntoView({
+      if (!userScrolled) {
+        document.getElementById(`calendar-round-${autoScrollRound}`)?.scrollIntoView({
           block: 'start', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
         });
-        focusedKey.current = focusKey;
+        scrolledDeepLinkKey.current = deepLinkKey;
       }
       window.removeEventListener('wheel', cancel);
       window.removeEventListener('touchstart', cancel);
     }, 120);
     return () => { window.clearTimeout(timer); window.removeEventListener('wheel', cancel); window.removeEventListener('touchstart', cancel); };
-  }, [focusKey, targetRound]);
+  }, [autoScrollRound, deepLinkKey]);
 
   const selectedRace = useMemo(() => calendar.find((race) => race.round === targetRound), [calendar, targetRound]);
   const jumpToRelevant = () => {

@@ -105,6 +105,8 @@ describe("commercial visual isolation", () => {
       "/__peds-review/tokyo-drift-h3-2-3x.mp4",
       "/__peds-review/tokyo-drift-h3-2-poster.png",
       "/__peds-review/tokyo-drift-h3-2-3x-poster.png",
+      "/__peds-review/tokyo-drift-h3-2r-homepage.mp4",
+      "/__peds-review/tokyo-drift-h3-2r-homepage-poster.png",
       "model-b-eds-optimized-v1.glb",
       "tokyo-drift-final.mp4",
       "tokyo-drift-final-poster.png",
@@ -120,24 +122,24 @@ describe("commercial visual isolation", () => {
       "tokyo-drift-h3-2-3x.mp4",
       "tokyo-drift-h3-2-poster.png",
       "tokyo-drift-h3-2-3x-poster.png",
+      "tokyo-drift-h3-2r-homepage.mp4",
+      "tokyo-drift-h3-2r-homepage-poster.png",
       "commercial-b",
     ]) {
       expect(isolationSource).toContain(token);
     }
   });
 
-  it("keeps Homepage film review-only and does not load its former WebGL scene", () => {
+  it("keeps H3.2 DEV-only and the original EDS-G01 scene for production", () => {
     const heroSource = readFileSync("src/components/home/PodiumBrandHero.tsx", "utf8");
-    expect(heroSource).toContain("import.meta.env.DEV");
-    expect(heroSource).toContain("/__peds-review/tokyo-drift-h3-2-2x.mp4");
-    expect(heroSource).toContain("/__peds-review/tokyo-drift-h3-2-poster.png");
+    expect(heroSource).toContain("./EDSHomeHeroScene");
+    expect(heroSource).toContain('livery="eds-crimson"');
+    expect(heroSource).toContain("/images/eds/editorial/eds-g01-hero.svg");
     expect(heroSource).not.toContain("ModelBHomeHeroScene");
-    expect(heroSource).toContain("autoPlay");
-    expect(heroSource).toContain("playsInline");
-    expect(heroSource).toContain("poster=");
-    expect(heroSource).not.toContain("loop");
-    expect(heroSource).not.toContain("controls");
-    expect(heroSource).toContain("onEnded");
-    expect(heroSource).toContain("onError");
+    expect(heroSource).toContain("const devCinematic = import.meta.env.DEV");
+    expect(heroSource).toContain("const renderScene = !devCinematic");
+    expect(heroSource).toContain("const renderVideo = devCinematic");
+    expect(heroSource).toContain("/__peds-review/tokyo-drift-h3-2-2x.mp4");
+    expect(heroSource).toContain("<video");
   });
 });

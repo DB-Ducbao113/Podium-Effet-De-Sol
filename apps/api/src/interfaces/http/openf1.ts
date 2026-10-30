@@ -16,6 +16,7 @@ import {
 
 const endpoints = new Set([
   "sessions",
+  "session_result",
   "drivers",
   "location",
   "car_data",

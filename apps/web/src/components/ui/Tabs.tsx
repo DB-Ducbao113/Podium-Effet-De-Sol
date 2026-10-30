@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { cn } from '../../utils/cn';
 
 export interface TabItem<T extends string> {
@@ -25,8 +25,27 @@ export function Tabs<T extends string>({
   idBase,
   className,
 }: TabsProps<T>) {
+  const tabListRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const tabList = tabListRef.current;
+    const selectedTab = tabList?.querySelector<HTMLElement>('[role="tab"][aria-selected="true"]');
+    if (!tabList || !selectedTab) return;
+
+    const selectedStart = selectedTab.offsetLeft;
+    const selectedEnd = selectedStart + selectedTab.offsetWidth;
+    const visibleStart = tabList.scrollLeft;
+    const visibleEnd = visibleStart + tabList.clientWidth;
+    if (selectedStart >= visibleStart && selectedEnd <= visibleEnd) return;
+
+    const centeredLeft = selectedStart - (tabList.clientWidth - selectedTab.offsetWidth) / 2;
+    const maxLeft = Math.max(0, tabList.scrollWidth - tabList.clientWidth);
+    tabList.scrollLeft = Math.min(maxLeft, Math.max(0, centeredLeft));
+  }, [value]);
+
   return (
     <div
+      ref={tabListRef}
       role="tablist"
       aria-label={ariaLabel}
       className={cn('flex items-center gap-1.5 overflow-x-auto p-1', className)}

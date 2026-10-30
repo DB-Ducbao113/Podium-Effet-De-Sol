@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { resolveTeamId, getTeamTextColor } from './teamColors';
+import {
+  resolveTeamId,
+  getTeamTextColor,
+  getTeamIdentityStyle,
+} from './teamColors';
 
 describe('teamColors', () => {
   describe('resolveTeamId', () => {
@@ -45,5 +49,14 @@ describe('teamColors', () => {
       expect(fallbackLight).toBe('#1e293b');
       expect(fallbackDark).toBe('#f1f5f9');
     });
+  });
+
+  it('shares distinct team surface tokens across directories and results', () => {
+    const ferrari = getTeamIdentityStyle('ferrari') as Record<string, string>;
+    const mercedes = getTeamIdentityStyle('mercedes') as Record<string, string>;
+    expect(ferrari['--team-color']).toBe('#ef4444');
+    expect(mercedes['--team-color']).toBe('#2dd4bf');
+    expect(ferrari['--team-surface']).not.toBe(mercedes['--team-surface']);
+    expect(ferrari['--team-border']).toContain(ferrari['--team-color']);
   });
 });

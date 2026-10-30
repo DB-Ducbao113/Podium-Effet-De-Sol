@@ -35,6 +35,12 @@ export const EngineeringIndexPage: React.FC = () => {
       </header>
 
       <main className="page-container py-14 md:py-20">
+        {import.meta.env.DEV && (
+          <Link to="/engineering" className="mb-6 flex min-h-20 items-center justify-between gap-5 border border-cyan-300/35 bg-[#101a20] px-6 py-5 text-white transition-colors hover:bg-[#1a2932] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300">
+            <span><strong className="block text-xl">Inside the Machine</strong><span className="mt-1 block text-sm text-white/75">{lang === 'vi' ? 'Sáu chương khám phá cấu trúc Model B.' : 'Six chapters exploring the Model B assembly.'}</span></span>
+            <ArrowRight className="h-5 w-5 shrink-0" aria-hidden="true" />
+          </Link>
+        )}
         <Link to="/engineering/car-anatomy" className="mb-10 flex min-h-20 items-center justify-between gap-5 bg-[#171b21] px-6 py-5 text-white transition-colors hover:bg-[#252c34] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-400">
           <span><strong className="block text-xl">{lang === 'vi' ? 'Giải phẫu xe đua tương tác' : 'Interactive race car anatomy'}</strong><span className="mt-1 block text-sm text-white/75">{lang === 'vi' ? 'Bảy chương kỹ thuật, sơ đồ và góc nhìn Model B trong bản review local.' : 'Seven engineering chapters, diagrams and local-review Model B views.'}</span></span>
           <ArrowRight className="h-5 w-5 shrink-0" aria-hidden="true" />

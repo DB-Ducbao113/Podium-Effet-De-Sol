@@ -53,7 +53,7 @@ describe('CircuitDetailModal Component', () => {
     expect(html).toContain('DRS 2');
     expect(html).toContain('DRS 3');
     expect(html).toContain('DRS 4');
-    expect(html).toContain('Review Khúc Cua');
+    expect(html).toContain('Corner Review');
     expect(html).toContain('TRACK STREET VIEW');
   });
 });

@@ -7,6 +7,7 @@ import { useReveal } from '../../hooks/useReveal';
 
 export function HomeStoryLinks() {
   const lang = useNavigationStore((state) => state.lang);
+  const insideMachineTrialEnabled = import.meta.env.DEV;
   const { ref: previewRef, isRevealed: previewRevealed } = useReveal(0.12);
   const { ref: editorialRef, isRevealed: editorialRevealed } = useReveal(0.12);
 
@@ -19,12 +20,18 @@ export function HomeStoryLinks() {
         <span>{lang === 'vi' ? 'Khám phá chiếc xe tham chiếu trong Showroom 3D tương tác.' : 'Explore the reference car in the interactive 3D Showroom.'}</span>
         <span className="h25-preview__link">Showroom 3D <ArrowUpRight size={17} aria-hidden="true" /></span>
       </Link>
-      <Link to="/engineering/car-anatomy" className="h25-preview h25-preview--engineering">
+      <Link to={insideMachineTrialEnabled ? '/engineering' : '/engineering/car-anatomy'} className="h25-preview h25-preview--engineering">
         <span className="h25-icon" aria-hidden="true"><Box size={28} strokeWidth={1.5} /></span>
         <span className="home-section-index">05 / Engineering</span>
         <strong>{lang === 'vi' ? 'Giải mã tốc độ.' : 'Anatomy of speed.'}</strong>
-        <span>{lang === 'vi' ? 'Sàn xe, luồng khí và những lựa chọn kỹ thuật — với chú thích giáo dục thận trọng.' : 'Floor, airflow and engineering choices — with carefully qualified educational notes.'}</span>
-        <span className="h25-preview__link">{lang === 'vi' ? 'Giải phẫu xe' : 'Car anatomy'} <ArrowUpRight size={17} aria-hidden="true" /></span>
+        <span>{insideMachineTrialEnabled
+          ? lang === 'vi'
+            ? 'Đi vào bên trong chiếc xe tham chiếu: hình học, chuyển động và lời giải thích kỹ thuật có kiểm chứng nguồn.'
+            : 'Step inside the reference car — geometry, motion and source-checked engineering explanations.'
+          : lang === 'vi'
+            ? 'Sàn xe, luồng khí và những lựa chọn kỹ thuật — với chú thích giáo dục thận trọng.'
+            : 'Floor, airflow and engineering choices — with carefully qualified educational notes.'}</span>
+        <span className="h25-preview__link">{insideMachineTrialEnabled ? 'Inside the Machine' : lang === 'vi' ? 'Giải phẫu xe' : 'Car anatomy'} <ArrowUpRight size={17} aria-hidden="true" /></span>
       </Link>
     </section>
     <section ref={editorialRef} className="page-container h25-editorial h25-reveal" data-revealed={editorialRevealed} aria-labelledby="h25-editorial-title">

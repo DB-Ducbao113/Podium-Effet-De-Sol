@@ -1,9 +1,19 @@
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
-import { F1StartLightsPreloader } from './F1StartLightsPreloader';
-import { getStartLightsFrame, START_LIGHT_CUE, START_LIGHT_TIMING } from './startLightsTiming';
+import { F1StartLightsPreloader, INTRO_SEEN_STORAGE_KEY } from './F1StartLightsPreloader';
+import {
+  getStartLightsFrame,
+  START_LIGHT_CUE,
+  START_LIGHT_TIMING,
+  START_LIGHT_TIMING_1X,
+  START_LIGHT_TIMING_2X,
+  START_LIGHT_TIMING_3X,
+  getIntroTiming,
+  resolveIntroSpeed,
+} from './startLightsTiming';
 import { isDocumentReload } from './documentReload';
+import { shouldShowDocumentIntro } from './documentIntroState';
 
 describe('F1StartLightsPreloader', () => {
   it('renders the unchanged animation when the document controller mounts it', () => {
@@ -72,7 +82,7 @@ describe('F1StartLightsPreloader', () => {
     [6199, 'launch', 0],
     [6200, 'complete', 0],
     [60000, 'complete', 0],
-  ])('at %d ms shows %s with %d red columns', (time, phase, litColumns) => {
+  ])('at %d ms shows %s with %d red columns in 1x baseline', (time, phase, litColumns) => {
     expect(getStartLightsFrame(time)).toEqual({ phase, litColumns });
   });
 
@@ -80,7 +90,7 @@ describe('F1StartLightsPreloader', () => {
     expect(START_LIGHT_CUE).toBe("IT'S LIGHTS OUT AND AWAY WE GO!");
   });
 
-  it('keeps the overlay mounted through the logo hold and entire reveal', () => {
+  it('keeps the overlay mounted through the logo hold and entire reveal in 1x', () => {
     const revealEnds =
       START_LIGHT_TIMING.launchMs +
       START_LIGHT_TIMING.logoHoldMs +
@@ -88,5 +98,75 @@ describe('F1StartLightsPreloader', () => {
     expect(revealEnds).toBe(START_LIGHT_TIMING.totalMs);
     expect(getStartLightsFrame(revealEnds - 1).phase).toBe('launch');
     expect(getStartLightsFrame(revealEnds).phase).toBe('complete');
+  });
+
+  describe('Variant A — 2x Speed Optimization', () => {
+    it('provides generous readability duration', () => {
+      expect(START_LIGHT_TIMING_2X.totalMs).toBe(4250);
+      expect(START_LIGHT_TIMING_2X.launchMs - START_LIGHT_TIMING_2X.lightsOutMs).toBe(900);
+      expect(START_LIGHT_TIMING_2X.logoHoldMs).toBe(950);
+    });
+
+    it('progresses smoothly through all 5 lights, hold, lights-out, and launch', () => {
+      const timing = START_LIGHT_TIMING_2X;
+      expect(getStartLightsFrame(0, timing)).toEqual({ phase: 'awakening', litColumns: 0 });
+      expect(getStartLightsFrame(timing.firstLightMs, timing)).toEqual({ phase: 'pressure', litColumns: 1 });
+      expect(getStartLightsFrame(timing.firstLightMs + timing.lightIntervalMs, timing)).toEqual({ phase: 'pressure', litColumns: 2 });
+      expect(getStartLightsFrame(timing.holdMs - 1, timing)).toEqual({ phase: 'pressure', litColumns: 4 });
+      expect(getStartLightsFrame(timing.holdMs, timing)).toEqual({ phase: 'hold', litColumns: 5 });
+      expect(getStartLightsFrame(timing.lightsOutMs, timing)).toEqual({ phase: 'lights-out', litColumns: 0 });
+      expect(getStartLightsFrame(timing.launchMs, timing)).toEqual({ phase: 'launch', litColumns: 0 });
+      expect(getStartLightsFrame(timing.totalMs, timing)).toEqual({ phase: 'complete', litColumns: 0 });
+    });
+
+    it('has totalMs equal to launchMs + logoHoldMs + revealDurationMs', () => {
+      const expected = START_LIGHT_TIMING_2X.launchMs + START_LIGHT_TIMING_2X.logoHoldMs + START_LIGHT_TIMING_2X.revealDurationMs;
+      expect(START_LIGHT_TIMING_2X.totalMs).toBe(expected);
+    });
+  });
+
+  describe('Variant B — 3x Speed Optimization (Preferred Candidate)', () => {
+    it('provides clear cue and brand readability with snappy lights sequence', () => {
+      expect(START_LIGHT_TIMING_3X.totalMs).toBe(3350);
+      // Lights out cue readable for 700ms
+      expect(START_LIGHT_TIMING_3X.launchMs - START_LIGHT_TIMING_3X.lightsOutMs).toBe(700);
+      // Brand hold readable for 800ms
+      expect(START_LIGHT_TIMING_3X.logoHoldMs).toBe(800);
+    });
+
+    it('progresses swiftly through all 5 lights, hold, lights-out, and launch', () => {
+      const timing = START_LIGHT_TIMING_3X;
+      expect(getStartLightsFrame(0, timing)).toEqual({ phase: 'awakening', litColumns: 0 });
+      expect(getStartLightsFrame(timing.firstLightMs, timing)).toEqual({ phase: 'pressure', litColumns: 1 });
+      expect(getStartLightsFrame(timing.firstLightMs + timing.lightIntervalMs, timing)).toEqual({ phase: 'pressure', litColumns: 2 });
+      expect(getStartLightsFrame(timing.holdMs - 1, timing)).toEqual({ phase: 'pressure', litColumns: 4 });
+      expect(getStartLightsFrame(timing.holdMs, timing)).toEqual({ phase: 'hold', litColumns: 5 });
+      expect(getStartLightsFrame(timing.lightsOutMs, timing)).toEqual({ phase: 'lights-out', litColumns: 0 });
+      expect(getStartLightsFrame(timing.launchMs, timing)).toEqual({ phase: 'launch', litColumns: 0 });
+      expect(getStartLightsFrame(timing.totalMs, timing)).toEqual({ phase: 'complete', litColumns: 0 });
+    });
+
+    it('has totalMs equal to launchMs + logoHoldMs + revealDurationMs', () => {
+      const expected = START_LIGHT_TIMING_3X.launchMs + START_LIGHT_TIMING_3X.logoHoldMs + START_LIGHT_TIMING_3X.revealDurationMs;
+      expect(START_LIGHT_TIMING_3X.totalMs).toBe(expected);
+    });
+  });
+
+  describe('Intro Controller Guard & Selection', () => {
+    it('resolves default speed as 3x when unconfigured', () => {
+      expect(getIntroTiming('3x').speed).toBe('3x');
+      expect(getIntroTiming('2x').speed).toBe('2x');
+      expect(getIntroTiming('1x').speed).toBe('1x');
+    });
+
+    it('renders with speed attribute on container', () => {
+      const html3x = renderToStaticMarkup(<F1StartLightsPreloader speed="3x" />);
+      expect(html3x).toContain('data-speed="3x"');
+      expect(html3x).toContain('EFFET DE SOL (3X)');
+
+      const html2x = renderToStaticMarkup(<F1StartLightsPreloader speed="2x" />);
+      expect(html2x).toContain('data-speed="2x"');
+      expect(html2x).toContain('EFFET DE SOL (2X)');
+    });
   });
 });

@@ -33,7 +33,9 @@ npm run dev
 npm run cloudflare:local
 ```
 
-Model B remains a local development candidate. Copy the frozen candidate to `.local-assets/model-b-eds-optimized-v1.glb` or set the server-only `PEDS_MODEL_B_PATH`. Never expose that path through a `VITE_*` variable.
+Model B remains a non-public development candidate. Its frozen Git source and attribution record live under `source-assets/models/model-b/`; copy the GLB to `.local-assets/model-b-eds-optimized-v1.glb` or set the server-only `PEDS_MODEL_B_PATH` for local review. Never expose that path through a `VITE_*` variable or copy the candidate into public build output before owner approval.
+
+Inside the Machine is the Engineering experience in local development: `npm run dev` serves it at `/engineering` with no extra flag. The previous Engineering index remains available at `/engineering/insights` and car anatomy at `/engineering/car-anatomy`. Its identity-checked runtime set is read from `.local-assets/inside-the-machine/runtime/set-85d8e47c5b420e88/` by a serve-only Vite middleware and is never copied into the public build output. Production builds keep the existing Engineering experience pending the separate rights and performance release gates.
 
 ## Verification
 

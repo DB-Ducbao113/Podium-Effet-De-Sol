@@ -1,4 +1,5 @@
 import { TeamId } from '../types';
+import type { CSSProperties } from 'react';
 
 /**
  * Palette with guaranteed WCAG AA accessible contrast (> 4.5:1) for both light and dark backgrounds.
@@ -147,11 +148,20 @@ export function resolveTeamId(raw?: string): TeamId | null {
   if (clean.includes('mercedes')) return 'mercedes';
   if (clean.includes('aston')) return 'astonmartin';
   if (clean.includes('alpine')) return 'alpine';
-  if (clean.includes('racingbulls') || clean.includes('vcarb') || clean.includes('cashapp'))
+  if (
+    clean.includes('racingbulls') ||
+    clean.includes('vcarb') ||
+    clean.includes('cashapp')
+  )
     return 'racingbulls';
   if (clean.includes('haas')) return 'haas';
   if (clean.includes('williams')) return 'williams';
-  if (clean.includes('audi') || clean.includes('sauber') || clean.includes('kick')) return 'audi';
+  if (
+    clean.includes('audi') ||
+    clean.includes('sauber') ||
+    clean.includes('kick')
+  )
+    return 'audi';
   if (clean.includes('cadillac')) return 'cadillac';
 
   return null;
@@ -162,11 +172,28 @@ export function resolveTeamId(raw?: string): TeamId | null {
  * @param identifier teamId, teamName, driverId, or driverName
  * @param isDarkTheme true if background is dark (e.g. modals), false if background is light (e.g. tables)
  */
-export function getTeamTextColor(identifier?: string, isDarkTheme: boolean = false): string {
+export function getTeamTextColor(
+  identifier?: string,
+  isDarkTheme: boolean = false,
+): string {
   const teamId = resolveTeamId(identifier);
   if (!teamId || !TEAM_TEXT_PALETTE[teamId]) {
     return isDarkTheme ? DEFAULT_FALLBACK.dark : DEFAULT_FALLBACK.light;
   }
 
-  return isDarkTheme ? TEAM_TEXT_PALETTE[teamId].dark : TEAM_TEXT_PALETTE[teamId].light;
+  return isDarkTheme
+    ? TEAM_TEXT_PALETTE[teamId].dark
+    : TEAM_TEXT_PALETTE[teamId].light;
+}
+
+/** One identity contract for Results rows and both profile directories. */
+export function getTeamIdentityStyle(identifier?: string): CSSProperties {
+  const accent = getTeamTextColor(identifier, true);
+  return {
+    '--team-color': accent,
+    '--team-surface': `color-mix(in srgb, ${accent} 15%, #111720)`,
+    '--team-surface-strong': `color-mix(in srgb, ${accent} 23%, #111720)`,
+    '--team-border': `color-mix(in srgb, ${accent} 42%, #3b434d)`,
+    '--team-wash': `color-mix(in srgb, ${accent} 28%, transparent)`,
+  } as CSSProperties;
 }

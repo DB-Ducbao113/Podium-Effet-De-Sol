@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { MemoryRouter } from "react-router-dom";
 import { ChampionshipCalendar } from "./ChampionshipCalendar";
+import { resolveCalendarEntry } from "./calendarNavigation";
 import { relevantRound } from "../../utils/relevantRace";
 import { ChampionshipStandings } from "./ChampionshipStandings";
 import { ChampionshipDirectory } from "./ChampionshipDirectory";
@@ -23,6 +24,16 @@ describe("C1 championship presentation", () => {
     expect(
       relevantRound(CALENDAR_2026, new Date("2026-12-31T00:00:00Z").getTime()),
     ).toBe(23);
+  });
+  it("keeps normal calendar entry at the tabs and only auto-scrolls explicit round links", () => {
+    expect(resolveCalendarEntry(null, 19)).toEqual({
+      expandedRound: 19,
+      autoScrollRound: null,
+    });
+    expect(resolveCalendarEntry(17, 19)).toEqual({
+      expandedRound: 17,
+      autoScrollRound: 17,
+    });
   });
   it("keeps the calendar to schedule and excludes map/classification UI", () => {
     const html = render(<ChampionshipCalendar season={2026} />);

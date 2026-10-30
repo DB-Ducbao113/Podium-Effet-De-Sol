@@ -12,6 +12,11 @@
     "build": "tsc --noEmit && vite build && node scripts/generate-seo-artifacts.mjs && node scripts/prerender-engineering.mjs && node scripts/prune-legacy-showroom-assets.mjs && node scripts/check-commercial-visual-isolation.mjs && node scripts/verify-cloudflare-build.mjs"
   },
   "dependencies": {
-    "animejs": "^4.5.0"
+    "@fontsource-variable/manrope": "5.3.0",
+    "@fontsource-variable/space-grotesk": "5.3.0",
+    "@fontsource/barlow-condensed": "5.3.0",
+    "@fontsource/ibm-plex-mono": "5.3.0",
+    "animejs": "^4.5.0",
+    "meshoptimizer": "0.18.1"
   }
 }

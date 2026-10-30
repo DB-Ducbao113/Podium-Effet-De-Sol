@@ -6,7 +6,7 @@
   overflow: hidden;
   isolation: isolate;
   color: #fff;
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: var(--peds-font-body);
   user-select: none;
 }
 
@@ -47,7 +47,7 @@
     linear-gradient(90deg, #ffffff06 1px, transparent 1px);
   background-size: 72px 72px;
   opacity: 0;
-  animation: podiumGridWake 1s ease-out forwards;
+  animation: podiumGridWake var(--intro-grid-wake-duration, 1s) ease-out forwards;
 }
 
 .podium-intro__vignette {
@@ -68,7 +68,7 @@
   height: 1px;
   background: linear-gradient(90deg, transparent, #a50b07, #ff7970, transparent);
   box-shadow: 0 0 18px 2px #e1060040;
-  animation: podiumGridSweep 0.85s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation: podiumGridSweep var(--intro-sweep-duration, 0.85s) cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
 .podium-intro__signature {
@@ -78,7 +78,7 @@
   display: flex;
   flex-direction: column;
   gap: 5px;
-  animation: podiumGridWake 1s ease-out both;
+  animation: podiumGridWake var(--intro-grid-wake-duration, 1s) ease-out both;
 }
 
 .podium-intro__signature strong {
@@ -112,7 +112,7 @@
 }
 
 .podium-intro__grid-stage {
-  animation: podiumRackWake 0.95s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: podiumRackWake var(--intro-rack-wake-duration, 0.95s) cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .podium-intro__pressure {
@@ -299,13 +299,13 @@
   align-items: flex-start;
   padding-left: clamp(28px, 12vw, 200px);
   background: linear-gradient(115deg, transparent 64%, #e10600 64%);
-  animation: podiumBrandSweep 0.45s cubic-bezier(0.76, 0, 0.24, 1) both;
+  animation: podiumBrandSweep var(--intro-brand-sweep-duration, 0.45s) cubic-bezier(0.76, 0, 0.24, 1) both;
 }
 
 /* Brand text slams in right after the cue flies past the camera. */
 .podium-intro__launch-brand strong,
 .podium-intro__launch-brand > span {
-  animation: podiumBrandIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both;
+  animation: podiumBrandIn var(--intro-brand-sweep-duration, 0.45s) cubic-bezier(0.16, 1, 0.3, 1) 0.04s both;
 }
 
 @keyframes podiumBrandSweep {
@@ -414,7 +414,7 @@
   font-size: 8px;
   font-weight: 600;
   letter-spacing: 0.18em;
-  animation: podiumGridWake 1s ease-out both;
+  animation: podiumGridWake var(--intro-grid-wake-duration, 1s) ease-out both;
 }
 
 @keyframes podiumGridWake {

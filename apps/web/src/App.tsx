@@ -80,6 +80,10 @@ const EngineeringArticlePage = lazy(() =>
   })),
 );
 const EngineeringAnatomyPage = lazy(() => import('./components/engineering/EngineeringAnatomyPage'));
+const insideMachineTrialEnabled = import.meta.env.DEV;
+const InsideMachineTrialPage = insideMachineTrialEnabled
+  ? lazy(() => import('./dev/insideMachineI1/InsideMachineTrialPage'))
+  : null;
 
 let lastAutoRaceSyncAt = 0;
 
@@ -166,6 +170,8 @@ export const App: React.FC = () => {
   const location = useLocation();
   const mobileHub = useMobileHub();
   const isHubRoute = mobileHub && isPrimaryPath(location.pathname);
+  const isInsideMachineTrial = insideMachineTrialEnabled &&
+    (location.pathname === '/engineering' || location.pathname === '/engineering/inside-the-machine');
   const syncSeasonData = useChampionshipStore((state) => state.syncSeasonData);
 
   useEffect(() => {
@@ -209,13 +215,13 @@ export const App: React.FC = () => {
   useEffect(() => {
     if (mobileHub && isPrimaryPath(location.pathname)) return;
     if (location.pathname.startsWith('/season/') && new URLSearchParams(location.search).get('tab') === 'calendar') return;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [location.pathname, location.search, mobileHub]);
+    window.scrollTo({ top: 0, behavior: isInsideMachineTrial ? 'auto' : 'smooth' });
+  }, [location.pathname, location.search, mobileHub, isInsideMachineTrial]);
 
 
   return (
     <div className={`relative flex min-h-screen flex-col bg-peds-canvas font-sans text-peds-text selection:bg-peds-accent selection:text-white ${location.pathname === '/' ? 'h25-home-route' : ''}`}>
-      <RouteSeo />
+      {!isInsideMachineTrial && <RouteSeo />}
       {/* ── D2. Film Grain Overlay (Cinematic Texture) ── */}
       <div
         aria-hidden="true"
@@ -225,7 +231,7 @@ export const App: React.FC = () => {
         }}
       />
 
-      <Navbar />
+      {!isInsideMachineTrial && <Navbar />}
 
       {/* ── D1. Scroll Progress Speed Strip ── */}
       <div className="fixed top-0 left-0 right-0 h-[2.5px] z-[70] pointer-events-none bg-black/20 overflow-hidden">
@@ -238,10 +244,10 @@ export const App: React.FC = () => {
         />
       </div>
 
-      <main className="flex-1 pt-16">
+      <main className={`flex-1 ${isInsideMachineTrial ? '' : 'pt-16'}`}>
         <F1PageTransition
           pathname={isHubRoute ? '/mobile-hub' : location.pathname}
-          noTransform={isHubRoute}
+          noTransform={isHubRoute || isInsideMachineTrial}
         >
           <Suspense
             fallback={
@@ -277,15 +283,17 @@ export const App: React.FC = () => {
               <Route path="/teams" element={<TeamsDirectoryPage />} />
               <Route path="/drivers" element={<DriversDirectoryPage />} />
               <Route path="/about" element={<AboutPage />} />
-              <Route path="/engineering" element={<EngineeringIndexPage />} />
+              <Route path="/engineering" element={InsideMachineTrialPage ? <InsideMachineTrialPage /> : <EngineeringIndexPage />} />
+              {InsideMachineTrialPage && <Route path="/engineering/insights" element={<EngineeringIndexPage />} />}
               <Route path="/engineering/car-anatomy" element={<EngineeringAnatomyPage />} />
+              {InsideMachineTrialPage && <Route path="/engineering/inside-the-machine" element={<InsideMachineTrialPage />} />}
               <Route path="/engineering/:slug" element={<EngineeringArticlePage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
         </F1PageTransition>
       </main>
-      <Footer />
+      {!isInsideMachineTrial && <Footer />}
     </div>
   );
 };

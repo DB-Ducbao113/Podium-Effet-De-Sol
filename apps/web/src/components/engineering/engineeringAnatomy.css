@@ -318,7 +318,7 @@
 }
 .anatomy-chapter h2 {
   margin-top: 2.25rem;
-  font-family: var(--font-display, inherit);
+  font-family: var(--peds-font-display);
   font-size: clamp(2.25rem, 3.4vw, 4.2rem);
   font-weight: 800;
   letter-spacing: -0.025em;

@@ -11,7 +11,7 @@ interface NavigationStoreState {
 export const useNavigationStore = create<NavigationStoreState>()(
   persist(
     (set) => ({
-      lang: 'vi',
+      lang: 'en',
       setLang: (lang) => set({ lang }),
       toggleLang: () => set((state) => ({ lang: state.lang === 'vi' ? 'en' : 'vi' })),
     }),

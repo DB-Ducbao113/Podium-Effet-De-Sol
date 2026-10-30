@@ -22,6 +22,7 @@ export const Navbar = memo(function Navbar() {
   const [dismissedDropdown, setDismissedDropdown] = useState<string | null>(null);
   const menuToggleRef = useRef<HTMLButtonElement | null>(null);
   const strings = t[lang].nav;
+  const insideMachineTrialEnabled = import.meta.env.DEV;
 
   const items = useMemo<NavItem[]>(() => [
     { id: 'home', to: '/', label: strings.home, icon: Home },
@@ -39,7 +40,11 @@ export const Navbar = memo(function Navbar() {
       { label: lang === 'vi' ? 'Màu xe' : 'Livery', to: '/showroom', control: 'livery' },
       { label: lang === 'vi' ? 'Bộ phận' : 'Hotspots', to: '/showroom', control: 'hotspots' },
     ] },
-    { id: 'engineering', to: '/engineering/car-anatomy', label: lang === 'vi' ? 'Giải phẫu xe' : 'Engineering', icon: BookOpen, children: [
+    { id: 'engineering', to: insideMachineTrialEnabled ? '/engineering' : '/engineering/car-anatomy', label: insideMachineTrialEnabled ? 'Inside the Machine' : lang === 'vi' ? 'Giải phẫu xe' : 'Engineering', icon: BookOpen, children: insideMachineTrialEnabled ? [
+      { label: 'Inside the Machine', to: '/engineering' },
+      { label: lang === 'vi' ? 'Bài viết kỹ thuật' : 'Engineering insights', to: '/engineering/insights' },
+      { label: lang === 'vi' ? 'Giải phẫu xe cũ' : 'Previous car anatomy', to: '/engineering/car-anatomy' },
+    ] : [
       { label: lang === 'vi' ? 'Giải phẫu xe' : 'Car anatomy', to: '/engineering/car-anatomy' },
       { label: lang === 'vi' ? 'Cánh trước' : 'Front wing', to: '/engineering/car-anatomy?chapter=front-wing' },
       { label: lang === 'vi' ? 'Sàn xe' : 'Floor', to: '/engineering/car-anatomy?chapter=floor' },
@@ -50,7 +55,7 @@ export const Navbar = memo(function Navbar() {
       { label: lang === 'vi' ? 'Dự án' : 'Project', to: '/about' },
       { label: lang === 'vi' ? 'Ghi công' : 'Credits', to: '/about#peds-credits' },
     ] },
-  ], [lang, strings]);
+  ], [lang, strings, insideMachineTrialEnabled]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -138,7 +143,7 @@ export const Navbar = memo(function Navbar() {
         </nav>
         <div className="flex shrink-0 items-center gap-2">
           <div className="flex items-center rounded-full border border-white/10 bg-white/5 p-0.5">
-            {(['vi', 'en'] as const).map((code) => <button key={code} type="button" onClick={() => setLang(code)} aria-label={code === 'vi' ? 'Tiếng Việt' : 'English'} aria-pressed={lang === code} className={`flex min-h-11 min-w-11 items-center justify-center rounded-full text-[10px] font-bold focus-visible:outline focus-visible:outline-2 focus-visible:outline-white ${lang === code ? 'bg-f1red text-white' : 'text-studio-300 hover:text-white'}`}>{code.toUpperCase()}</button>)}
+            {(['vi', 'en'] as const).map((code) => <button key={code} type="button" onClick={() => setLang(code)} aria-label={code === 'vi' ? 'Tiếng Việt' : 'English'} aria-pressed={lang === code} className={`flex min-h-11 min-w-11 items-center justify-center rounded-full text-[10px] font-bold focus-visible:outline focus-visible:outline-2 focus-visible:outline-white ${lang === code ? 'bg-f1red text-peds-canvas' : 'text-studio-300 hover:text-white'}`}>{code.toUpperCase()}</button>)}
           </div>
           <button ref={menuToggleRef} type="button" onClick={() => setMenuOpen(!menuOpen)} className="h1-nav__toggle flex min-h-11 min-w-11 items-center justify-center rounded text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-f1red" aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'} aria-expanded={menuOpen} aria-controls="mobile-nav-menu">{menuOpen ? <X size={21} /> : <Menu size={21} />}</button>
         </div>

@@ -49,6 +49,22 @@ describe("C1.1 simplified profiles and results", () => {
     expect(regular).not.toContain('id="c11-tab-sprint"');
   });
 
+  it("keeps the session order and explains an unverified scheduled round", () => {
+    const html = render(
+      "/season/2026?tab=results&round=23&session=race",
+      <RaceResults season={2026} />,
+    );
+    expect(html).toContain('class="c11-results-empty"');
+    expect(html).toContain("Session scheduled");
+    expect(html).toContain("Results appear after the source is verified");
+    expect(html.indexOf('id="c11-tab-race"')).toBeLessThan(
+      html.indexOf('id="c11-tab-qualifying"'),
+    );
+    expect(html.indexOf('id="c11-tab-qualifying"')).toBeLessThan(
+      html.indexOf('id="c11-tab-fp3"'),
+    );
+  });
+
   it("uses the season grid for racing numbers", () => {
     expect(getSeasonDriverNumber(2025, "norris")).toBe(4);
     expect(getSeasonDriverNumber(2026, "norris")).toBe(1);

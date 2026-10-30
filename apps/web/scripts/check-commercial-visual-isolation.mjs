@@ -37,6 +37,8 @@ const forbiddenArtifactTokens = [
   '/__peds-review/tokyo-drift-h3-2-3x.mp4',
   '/__peds-review/tokyo-drift-h3-2-poster.png',
   '/__peds-review/tokyo-drift-h3-2-3x-poster.png',
+  '/__peds-review/tokyo-drift-h3-2r-homepage.mp4',
+  '/__peds-review/tokyo-drift-h3-2r-homepage-poster.png',
   'model-b-eds-optimized-v1.glb',
   'tokyo-drift-final.mp4',
   'tokyo-drift-final-poster.png',
@@ -52,6 +54,8 @@ const forbiddenArtifactTokens = [
   'tokyo-drift-h3-2-3x.mp4',
   'tokyo-drift-h3-2-poster.png',
   'tokyo-drift-h3-2-3x-poster.png',
+  'tokyo-drift-h3-2r-homepage.mp4',
+  'tokyo-drift-h3-2r-homepage-poster.png',
   'commercial-b',
   '/textures/wheel_base.webp',
   'server.arcgisonline.com',
@@ -126,7 +130,7 @@ await walkArtifacts(clientAssetsDir);
 const artifactViolations = [];
 for (const filePath of artifactPaths) {
   const relativePath = path.relative(projectRoot, filePath).replaceAll('\\', '/');
-  for (const forbiddenName of ['tokyo-drift-final.mp4', 'tokyo-drift-final-poster.png', 'tokyo-drift-h2-9-final.mp4', 'tokyo-drift-h2-9-poster.png', 'tokyo-drift-h3-0-final.mp4', 'tokyo-drift-h3-0-poster.png', 'tokyo-drift-h3-1-2x.mp4', 'tokyo-drift-h3-1-2x-poster.png', 'tokyo-drift-h3-1-3x.mp4', 'tokyo-drift-h3-1-3x-poster.png', 'tokyo-drift-h3-2-2x.mp4', 'tokyo-drift-h3-2-3x.mp4', 'tokyo-drift-h3-2-poster.png', 'tokyo-drift-h3-2-3x-poster.png']) {
+  for (const forbiddenName of ['tokyo-drift-final.mp4', 'tokyo-drift-final-poster.png', 'tokyo-drift-h2-9-final.mp4', 'tokyo-drift-h2-9-poster.png', 'tokyo-drift-h3-0-final.mp4', 'tokyo-drift-h3-0-poster.png', 'tokyo-drift-h3-1-2x.mp4', 'tokyo-drift-h3-1-2x-poster.png', 'tokyo-drift-h3-1-3x.mp4', 'tokyo-drift-h3-1-3x-poster.png', 'tokyo-drift-h3-2-2x.mp4', 'tokyo-drift-h3-2-3x.mp4', 'tokyo-drift-h3-2-poster.png', 'tokyo-drift-h3-2-3x-poster.png', 'tokyo-drift-h3-2r-homepage.mp4', 'tokyo-drift-h3-2r-homepage-poster.png']) {
     if (relativePath.endsWith(forbiddenName)) artifactViolations.push(`${relativePath} -> forbidden filename`);
   }
 }

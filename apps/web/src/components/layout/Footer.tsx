@@ -8,10 +8,11 @@ export const Footer = memo(function Footer() {
   const { lang } = useNavigationStore();
   const strings = t[lang].footer;
   const nav = t[lang].nav;
+  const insideMachineTrialEnabled = import.meta.env.DEV;
   const quickLinks = [
     { to: '/season/2026', label: nav.championship },
     { to: '/showroom', label: 'Showroom 3D' },
-    { to: '/engineering/car-anatomy', label: lang === 'vi' ? 'Giải phẫu xe' : 'Car anatomy' },
+    { to: insideMachineTrialEnabled ? '/engineering' : '/engineering/car-anatomy', label: insideMachineTrialEnabled ? 'Inside the Machine' : lang === 'vi' ? 'Giải phẫu xe' : 'Car anatomy' },
     { to: '/teams', label: lang === 'vi' ? 'Đội đua' : 'Teams' },
     { to: '/drivers', label: lang === 'vi' ? 'Tay đua' : 'Drivers' },
   ];

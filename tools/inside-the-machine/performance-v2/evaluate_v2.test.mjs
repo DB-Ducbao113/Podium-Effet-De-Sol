@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {evaluate} from './evaluate_v2.mjs';
+const metadata={browserVersion:'Chrome test',renderer:'ANGLE hardware',os:'Windows',viewport:{width:1440,height:900},dpr:1,tier:'PERFORMANCE',powerState:'Online'};
+const base={scenario:'full_traversal', idleIntervalsMs:Array(650).fill(16.8),activeIntervalsMs:Array(980).fill(16.8),scenePoseUpdates:200,activeRenderFrames:200,canvasBlank:false,refreshClockResolutionMs:.1,chaptersVisited:[0,1,2,3,4,5],activeLongTaskDurationsMs:[],firstInputToUpdatedFrameMs:25,tabVisible:true,hardwareAccelerated:true,metadata,gpuTiming:{supported:true,nonDisjoint:true,sampleCount:200}};
+const good=evaluate(base);
+assert.equal(good.status,'PASS'); assert.equal(good.legacyP95Gate,'FAIL');
+const skipped=evaluate({...base,activeIntervalsMs:[...Array(900).fill(16.8),...Array(80).fill(33.5)]});
+assert.equal(skipped.status,'FAIL'); assert.equal(skipped.checks.missedRefresh,false);
+const frozen=evaluate({...base,scenePoseUpdates:0}); assert.equal(frozen.status,'INCOMPLETE');
+const firstStall=evaluate({...base,activeIntervalsMs:[...Array(979).fill(16.8),416.8]}); assert.equal(firstStall.status,'FAIL'); assert.equal(firstStall.checks.worstFrame,false);
+const firstScroll=evaluate({...base,scenario:'first_scroll',chaptersVisited:[0,1]}); assert.equal(firstScroll.status,'PASS');
+const badReassembly=evaluate({...base,scenario:'reassembly',maxTransformDelta:.001,transformCount:75}); assert.equal(badReassembly.status,'INCOMPLETE');
+console.log('Offline evaluator unit tests PASS (synthetic fixtures only; no hardware measurement was performed).');

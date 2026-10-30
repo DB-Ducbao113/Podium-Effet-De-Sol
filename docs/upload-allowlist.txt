@@ -340,6 +340,8 @@ packages/security/package.json
 packages/security/src/index.test.ts
 packages/security/src/index.ts
 packages/security/tsconfig.json
+source-assets/models/model-b/README.md
+source-assets/models/model-b/model-b-eds-optimized-v1.glb
 tools/browser-smoke.mjs
 tools/check-public-boundary.mjs
 tools/cloudflare-browser-smoke.mjs

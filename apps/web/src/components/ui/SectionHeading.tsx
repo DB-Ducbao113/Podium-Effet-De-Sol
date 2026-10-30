@@ -33,7 +33,7 @@ export const SectionHeading: React.FC<SectionHeadingProps> = ({
       ) : null}
       <Title
         className={cn(
-          'font-display text-3xl font-black uppercase leading-[1.04] tracking-[-0.025em] text-peds-text sm:text-5xl',
+          'font-ui text-3xl font-bold uppercase leading-[1.08] tracking-[-0.025em] text-peds-text sm:text-5xl',
           titleClassName,
         )}
       >

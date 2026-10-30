@@ -16,32 +16,33 @@
  *   node scripts/sync-openf1-sessions.js --source jolpica|f1   (pin a source)
  */
 
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const OUTPUT_FILE = path.join(
-  path.resolve(__dirname, '../../../apps/web/src'),
-  'data',
-  'championship',
-  'openF1SessionResults2026.json',
+  path.resolve(__dirname, "../../../apps/web/src"),
+  "data",
+  "championship",
+  "openF1SessionResults2026.json",
 );
-const LIVE_TIMING_BASE = 'https://livetiming.formula1.com/static';
-const JOLPICA_BASE = 'https://api.jolpi.ca/ergast/f1';
+const LIVE_TIMING_BASE = "https://livetiming.formula1.com/static";
+const OPENF1_BASE = "https://api.openf1.org/v1";
+const JOLPICA_BASE = "https://api.jolpi.ca/ergast/f1";
 const EXPECTED_GRID_SIZE = 22;
 const MAX_ATTEMPTS = 6;
 const RETRY_BASE_MS = 1500;
 const RETRY_CAP_MS = 12000;
 const USER_AGENT =
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36';
-const IS_DRY_RUN = process.argv.includes('--dry-run');
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
+const IS_DRY_RUN = process.argv.includes("--dry-run");
 const PINNED_SOURCE = (() => {
   const argIndex = process.argv.findIndex(
-    (arg) => arg === '--source' || arg.startsWith('--source='),
+    (arg) => arg === "--source" || arg.startsWith("--source="),
   );
   if (argIndex < 0) return null;
-  const inline = process.argv[argIndex]?.split('=')[1];
+  const inline = process.argv[argIndex]?.split("=")[1];
   return inline || process.argv[argIndex + 1] || null;
 })();
 
@@ -49,72 +50,159 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const jitterSleep = () => sleep(150 + Math.random() * 150);
 
 const DRIVER_FALLBACK = {
-  1: ['norris', 'Lando Norris', 'NOR', 'mclaren', 'McLaren F1 Team'],
-  3: ['verstappen', 'Max Verstappen', 'VER', 'redbull', 'Oracle Red Bull Racing'],
-  5: ['bortoleto', 'Gabriel Bortoleto', 'BOR', 'audi', 'Audi F1 Team'],
-  6: ['hadjar', 'Isack Hadjar', 'HAD', 'redbull', 'Oracle Red Bull Racing'],
-  10: ['gasly', 'Pierre Gasly', 'GAS', 'alpine', 'BWT Alpine F1 Team'],
-  11: ['perez', 'Sergio Pérez', 'PER', 'cadillac', 'Cadillac F1 Team'],
-  12: ['antonelli', 'Andrea Kimi Antonelli', 'ANT', 'mercedes', 'Mercedes-AMG PETRONAS F1 Team'],
-  14: ['alonso', 'Fernando Alonso', 'ALO', 'astonmartin', 'Aston Martin Aramco F1 Team'],
-  16: ['leclerc', 'Charles Leclerc', 'LEC', 'ferrari', 'Scuderia Ferrari HP'],
-  18: ['stroll', 'Lance Stroll', 'STR', 'astonmartin', 'Aston Martin Aramco F1 Team'],
-  23: ['albon', 'Alexander Albon', 'ALB', 'williams', 'Williams Racing'],
-  27: ['hulkenberg', 'Nico Hülkenberg', 'HUL', 'audi', 'Audi F1 Team'],
-  30: ['lawson', 'Liam Lawson', 'LAW', 'racingbulls', 'Visa Cash App Racing Bulls'],
-  31: ['ocon', 'Esteban Ocon', 'OCO', 'haas', 'MoneyGram Haas F1 Team'],
-  41: ['lindblad', 'Arvid Lindblad', 'LIN', 'racingbulls', 'Visa Cash App Racing Bulls'],
-  43: ['colapinto', 'Franco Colapinto', 'COL', 'alpine', 'BWT Alpine F1 Team'],
-  44: ['hamilton', 'Lewis Hamilton', 'HAM', 'ferrari', 'Scuderia Ferrari HP'],
-  55: ['sainz', 'Carlos Sainz', 'SAI', 'williams', 'Williams Racing'],
-  63: ['russell', 'George Russell', 'RUS', 'mercedes', 'Mercedes-AMG PETRONAS F1 Team'],
-  77: ['bottas', 'Valtteri Bottas', 'BOT', 'cadillac', 'Cadillac F1 Team'],
-  81: ['piastri', 'Oscar Piastri', 'PIA', 'mclaren', 'McLaren Mastercard F1 Team'],
-  87: ['bearman', 'Oliver Bearman', 'BEA', 'haas', 'MoneyGram Haas F1 Team'],
+  1: ["norris", "Lando Norris", "NOR", "mclaren", "McLaren F1 Team"],
+  3: [
+    "verstappen",
+    "Max Verstappen",
+    "VER",
+    "redbull",
+    "Oracle Red Bull Racing",
+  ],
+  5: ["bortoleto", "Gabriel Bortoleto", "BOR", "audi", "Audi F1 Team"],
+  6: ["hadjar", "Isack Hadjar", "HAD", "redbull", "Oracle Red Bull Racing"],
+  10: ["gasly", "Pierre Gasly", "GAS", "alpine", "BWT Alpine F1 Team"],
+  11: ["perez", "Sergio Pérez", "PER", "cadillac", "Cadillac F1 Team"],
+  12: [
+    "antonelli",
+    "Andrea Kimi Antonelli",
+    "ANT",
+    "mercedes",
+    "Mercedes-AMG PETRONAS F1 Team",
+  ],
+  14: [
+    "alonso",
+    "Fernando Alonso",
+    "ALO",
+    "astonmartin",
+    "Aston Martin Aramco F1 Team",
+  ],
+  16: ["leclerc", "Charles Leclerc", "LEC", "ferrari", "Scuderia Ferrari HP"],
+  18: [
+    "stroll",
+    "Lance Stroll",
+    "STR",
+    "astonmartin",
+    "Aston Martin Aramco F1 Team",
+  ],
+  23: ["albon", "Alexander Albon", "ALB", "williams", "Williams Racing"],
+  27: ["hulkenberg", "Nico Hülkenberg", "HUL", "audi", "Audi F1 Team"],
+  30: [
+    "lawson",
+    "Liam Lawson",
+    "LAW",
+    "racingbulls",
+    "Visa Cash App Racing Bulls",
+  ],
+  31: ["ocon", "Esteban Ocon", "OCO", "haas", "MoneyGram Haas F1 Team"],
+  41: [
+    "lindblad",
+    "Arvid Lindblad",
+    "LIN",
+    "racingbulls",
+    "Visa Cash App Racing Bulls",
+  ],
+  43: ["colapinto", "Franco Colapinto", "COL", "alpine", "BWT Alpine F1 Team"],
+  44: ["hamilton", "Lewis Hamilton", "HAM", "ferrari", "Scuderia Ferrari HP"],
+  55: ["sainz", "Carlos Sainz", "SAI", "williams", "Williams Racing"],
+  63: [
+    "russell",
+    "George Russell",
+    "RUS",
+    "mercedes",
+    "Mercedes-AMG PETRONAS F1 Team",
+  ],
+  77: ["bottas", "Valtteri Bottas", "BOT", "cadillac", "Cadillac F1 Team"],
+  81: [
+    "piastri",
+    "Oscar Piastri",
+    "PIA",
+    "mclaren",
+    "McLaren Mastercard F1 Team",
+  ],
+  87: ["bearman", "Oliver Bearman", "BEA", "haas", "MoneyGram Haas F1 Team"],
 };
 
 // Team name/IDs → our TeamId. Tokens cover both live-timing driver names
 // ("Oracle Red Bull Racing") and Jolpica names/constructorIds ("Red Bull",
 // "red_bull"). Any unmapped constructor stays unknown.
 const TEAM_IDS = [
-  ['red bull', 'redbull'],
-  ['red_bull', 'redbull'],
-  ['racing bulls', 'racingbulls'],
-  ['rb f1 team', 'racingbulls'],
-  ['rb', 'racingbulls'],
-  ['mercedes', 'mercedes'],
-  ['ferrari', 'ferrari'],
-  ['mclaren', 'mclaren'],
-  ['aston martin', 'astonmartin'],
-  ['aston_martin', 'astonmartin'],
-  ['williams', 'williams'],
-  ['alpine', 'alpine'],
-  ['haas', 'haas'],
-  ['sauber', 'audi'],
-  ['audi', 'audi'],
-  ['cadillac', 'cadillac'],
+  ["red bull", "redbull"],
+  ["red_bull", "redbull"],
+  ["racing bulls", "racingbulls"],
+  ["rb f1 team", "racingbulls"],
+  ["rb", "racingbulls"],
+  ["mercedes", "mercedes"],
+  ["ferrari", "ferrari"],
+  ["mclaren", "mclaren"],
+  ["aston martin", "astonmartin"],
+  ["aston_martin", "astonmartin"],
+  ["williams", "williams"],
+  ["alpine", "alpine"],
+  ["haas", "haas"],
+  ["sauber", "audi"],
+  ["audi", "audi"],
+  ["cadillac", "cadillac"],
 ];
 
 function teamTokenId(value) {
-  const normalized = String(value || '').toLowerCase();
-  return TEAM_IDS.find(([token]) => normalized.includes(token))?.[1] || 'unknown';
+  const normalized = String(value || "").toLowerCase();
+  return (
+    TEAM_IDS.find(([token]) => normalized.includes(token))?.[1] || "unknown"
+  );
 }
 
 const SESSION_MAP = {
-  'Practice 1': ['practice', 'fp1'],
-  'Practice 2': ['practice', 'fp2'],
-  'Practice 3': ['practice', 'fp3'],
-  'Sprint Qualifying': ['qualifying', 'sprintQualifying'],
-  Qualifying: ['qualifying', 'qualifying'],
-  Sprint: ['qualifying', 'sprint'],
+  "Practice 1": ["practice", "fp1"],
+  "Practice 2": ["practice", "fp2"],
+  "Practice 3": ["practice", "fp3"],
+  "Sprint Qualifying": ["qualifying", "sprintQualifying"],
+  Qualifying: ["qualifying", "qualifying"],
+  Sprint: ["qualifying", "sprint"],
 };
+
+function normalizeEventName(value) {
+  const normalized = String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/\bgrand prix\b/g, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+  return normalized === "barcelona" ? "barcelona catalunya" : normalized;
+}
+
+function localCalendarRounds() {
+  const calendarFile = path.join(
+    path.resolve(__dirname, "../../../apps/web/src"),
+    "data",
+    "championship",
+    "calendar.ts",
+  );
+  const source = fs.readFileSync(calendarFile, "utf8");
+  const rounds = [];
+  const pattern =
+    /round:\s*(\d+),\s*\r?\n\s*name:\s*'([^']+)'[\s\S]*?\r?\n\s*circuit:\s*'([^']+)'/g;
+  for (const match of source.matchAll(pattern)) {
+    rounds.push({
+      round: Number(match[1]),
+      name: match[2],
+      circuit: match[3],
+    });
+  }
+  if (rounds.length !== 23) {
+    throw new Error(
+      `Could not read the 23-round 2026 calendar (${rounds.length} found)`,
+    );
+  }
+  return new Map(rounds.map((race) => [normalizeEventName(race.name), race]));
+}
 
 async function fetchText(url, attempt = 0) {
   const response = await fetch(url, {
     headers: {
-      Accept: 'application/json',
-      'Accept-Language': 'en-US,en;q=0.9',
-      'User-Agent': USER_AGENT,
+      Accept: "application/json",
+      "Accept-Language": "en-US,en;q=0.9",
+      "User-Agent": USER_AGENT,
     },
     signal: AbortSignal.timeout(60_000),
   });
@@ -131,7 +219,7 @@ async function fetchText(url, attempt = 0) {
     return fetchText(url, attempt + 1);
   }
   if (!response.ok) throw new Error(`${url} returned ${response.status}`);
-  return (await response.text()).replace(/^\uFEFF/, '');
+  return (await response.text()).replace(/^\uFEFF/, "");
 }
 
 async function fetchJson(url) {
@@ -140,8 +228,13 @@ async function fetchJson(url) {
 }
 
 function mergePatch(target, patch) {
-  if (patch === null || typeof patch !== 'object') return patch;
-  const result = target && typeof target === 'object' ? target : Array.isArray(patch) ? [] : {};
+  if (patch === null || typeof patch !== "object") return patch;
+  const result =
+    target && typeof target === "object"
+      ? target
+      : Array.isArray(patch)
+        ? []
+        : {};
   for (const [key, value] of Object.entries(patch)) {
     result[key] = mergePatch(result[key], value);
   }
@@ -151,7 +244,7 @@ function mergePatch(target, patch) {
 function parseJsonStream(text) {
   let state = {};
   for (const line of text.split(/\r?\n/)) {
-    const payloadStart = line.indexOf('{');
+    const payloadStart = line.indexOf("{");
     if (payloadStart < 0) continue;
     state = mergePatch(state, JSON.parse(line.slice(payloadStart)));
   }
@@ -167,11 +260,12 @@ function profile(number, driver, constructor) {
   const fallback = DRIVER_FALLBACK[number] || [
     `driver-${number}`,
     driver
-      ? `${driver.givenName ?? ''} ${driver.familyName ?? ''}`.trim() || `Driver ${number}`
+      ? `${driver.givenName ?? ""} ${driver.familyName ?? ""}`.trim() ||
+        `Driver ${number}`
       : `Driver ${number}`,
     driver?.code || driver?.Tla || `#${number}`,
-    'unknown',
-    constructor?.name || 'Formula 1 Team',
+    "unknown",
+    constructor?.name || "Formula 1 Team",
   ];
   const driverName =
     fallback[1] ||
@@ -182,24 +276,31 @@ function profile(number, driver, constructor) {
       ? `${driver.givenName} ${driver.familyName}`.trim()
       : undefined) ||
     driver?.FullName;
-  const driverCode = driver?.Tla || driver?.code || fallback[2];
-  const teamName = driver?.TeamName || constructor?.name || fallback[4];
+  const driverCode =
+    driver?.Tla || driver?.code || driver?.name_acronym || fallback[2];
+  const teamName =
+    driver?.TeamName || driver?.team_name || constructor?.name || fallback[4];
+  const openF1Name = driver?.full_name
+    ? String(driver.full_name)
+        .toLocaleLowerCase("en")
+        .replace(/(^|\s)\p{L}/gu, (letter) => letter.toLocaleUpperCase("en"))
+    : undefined;
   const mappedTeam = teamTokenId(teamName);
   return {
     driverId: fallback[0],
-    driverName,
+    driverName: openF1Name || driverName,
     driverCode,
     driverNumber: number,
     // Never credit an unmapped constructor to another team: unknown stays
     // unknown and keeps the local fallback profile.
-    teamId: mappedTeam === 'unknown' ? fallback[3] : mappedTeam,
+    teamId: mappedTeam === "unknown" ? fallback[3] : mappedTeam,
     teamName,
   };
 }
 
 function lapTimeToSeconds(value) {
-  if (!value || typeof value !== 'string') return undefined;
-  const parts = value.split(':').map(Number);
+  if (!value || typeof value !== "string") return undefined;
+  const parts = value.split(":").map(Number);
   if (parts.some((part) => !Number.isFinite(part))) return undefined;
   if (parts.length === 2) return parts[0] * 60 + parts[1];
   if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
@@ -207,13 +308,13 @@ function lapTimeToSeconds(value) {
 }
 
 function formatGap(seconds) {
-  return Number.isFinite(seconds) ? `+${seconds.toFixed(3)}s` : '';
+  return Number.isFinite(seconds) ? `+${seconds.toFixed(3)}s` : "";
 }
 
 function cleanGap(value) {
-  if (!value) return '';
+  if (!value) return "";
   const text = String(value).trim();
-  if (/^\+?\d+(?:\.\d+)?$/.test(text)) return `+${text.replace(/^\+/, '')}s`;
+  if (/^\+?\d+(?:\.\d+)?$/.test(text)) return `+${text.replace(/^\+/, "")}s`;
   if (/L$/i.test(text)) return text;
   return text;
 }
@@ -227,16 +328,16 @@ function segmentBestLaps(line) {
   if (!Array.isArray(bests)) return undefined;
   const read = (index) => {
     const value = bests[index]?.Value;
-    return typeof value === 'string' && value ? value : undefined;
+    return typeof value === "string" && value ? value : undefined;
   };
   const segments = { q1: read(0), q2: read(1), q3: read(2) };
   return segments.q1 || segments.q2 || segments.q3 ? segments : undefined;
 }
 
 function sessionDate(session) {
-  const offset = String(session.GmtOffset || '00:00:00');
-  const sign = offset.startsWith('-') ? '-' : '+';
-  const normalized = offset.replace(/^[+-]/, '').slice(0, 5);
+  const offset = String(session.GmtOffset || "00:00:00");
+  const sign = offset.startsWith("-") ? "-" : "+";
+  const normalized = offset.replace(/^[+-]/, "").slice(0, 5);
   return new Date(`${session.StartDate}${sign}${normalized}`).toISOString();
 }
 
@@ -248,7 +349,7 @@ function baseEntries(timingData, timingStats, drivers) {
       const bestLapTime =
         timingStats.Lines?.[numberText]?.PersonalBestLapTime?.Value ||
         line.BestLapTime?.Value ||
-        '';
+        "";
       return {
         position,
         ...profile(number, drivers[numberText]),
@@ -269,10 +370,10 @@ function buildPracticeSession(session, entries) {
     const { segmentTimes: _segments, ...cleaned } = entry;
     return {
       ...cleaned,
-      bestLapTime: entry.bestLapTime || 'No time',
+      bestLapTime: entry.bestLapTime || "No time",
       gapToP1:
         entry.position === 1
-          ? 'LEADER'
+          ? "LEADER"
           : formatGap(
               Number.isFinite(seconds) && Number.isFinite(leaderSeconds)
                 ? seconds - leaderSeconds
@@ -285,7 +386,7 @@ function buildPracticeSession(session, entries) {
     sessionKey: SESSION_MAP[session.Name][1],
     sessionName: session.Name,
     dateStr: sessionDate(session),
-    status: 'finished',
+    status: "finished",
     fastestDriver: normalized[0]
       ? {
           driver: normalized[0].driverName,
@@ -298,8 +399,9 @@ function buildPracticeSession(session, entries) {
 }
 
 function buildClassificationSession(session, sessionKey, entries) {
-  const sprint = sessionKey === 'sprint';
-  const hasSegments = sessionKey === 'qualifying' || sessionKey === 'sprintQualifying';
+  const sprint = sessionKey === "sprint";
+  const hasSegments =
+    sessionKey === "qualifying" || sessionKey === "sprintQualifying";
   const leaderSeconds = lapTimeToSeconds(entries[0]?.bestLapTime);
   const sprintPoints = [8, 7, 6, 5, 4, 3, 2, 1];
   const normalized = entries.map((entry) => {
@@ -322,10 +424,11 @@ function buildClassificationSession(session, sessionKey, entries) {
         : {}),
       bestLapTime: sprint
         ? entry.position === 1
-          ? 'LEADER'
-          : displayGap || entry.bestLapTime || ''
-        : entry.bestLapTime || 'No time',
-      gapToPole: entry.position === 1 ? (sprint ? 'LEADER' : 'POLE') : displayGap,
+          ? "LEADER"
+          : displayGap || entry.bestLapTime || ""
+        : entry.bestLapTime || "No time",
+      gapToPole:
+        entry.position === 1 ? (sprint ? "LEADER" : "POLE") : displayGap,
       sprintPoints: sprint ? sprintPoints[entry.position - 1] : undefined,
       rawGap: undefined,
     };
@@ -334,7 +437,7 @@ function buildClassificationSession(session, sessionKey, entries) {
     sessionKey,
     sessionName: session.Name,
     dateStr: sessionDate(session),
-    status: 'finished',
+    status: "finished",
     poleDriver: normalized[0]
       ? {
           driver: normalized[0].driverName,
@@ -348,13 +451,16 @@ function buildClassificationSession(session, sessionKey, entries) {
 
 async function readSession(session) {
   const [drivers, timingData, timingStats] = await Promise.all([
-    fetchStream(session.Path, 'DriverList.jsonStream'),
-    fetchStream(session.Path, 'TimingData.jsonStream'),
-    fetchStream(session.Path, 'TimingStats.jsonStream'),
+    fetchStream(session.Path, "DriverList.jsonStream"),
+    fetchStream(session.Path, "TimingData.jsonStream"),
+    fetchStream(session.Path, "TimingStats.jsonStream"),
   ]);
   const entries = baseEntries(timingData, timingStats, drivers);
   const positions = new Set(entries.map((entry) => entry.position));
-  if (entries.length !== EXPECTED_GRID_SIZE || positions.size !== EXPECTED_GRID_SIZE) {
+  if (
+    entries.length !== EXPECTED_GRID_SIZE ||
+    positions.size !== EXPECTED_GRID_SIZE
+  ) {
     console.log(
       `[F1 timing] ${session.Name} is not complete (${entries.length}/${EXPECTED_GRID_SIZE}).`,
     );
@@ -365,7 +471,7 @@ async function readSession(session) {
     bucket,
     sessionKey,
     data:
-      bucket === 'practice'
+      bucket === "practice"
         ? buildPracticeSession(session, entries)
         : buildClassificationSession(session, sessionKey, entries),
   };
@@ -373,23 +479,269 @@ async function readSession(session) {
 
 // ─── Jolpica (Ergast) fallback ───────────────────────────────────────────────
 
+function formatOpenF1Duration(value) {
+  if (!Number.isFinite(value)) return "";
+  const hours = Math.floor(value / 3600);
+  const minutes = Math.floor((value % 3600) / 60);
+  const seconds = value % 60;
+  return hours > 0
+    ? `${hours}:${String(minutes).padStart(2, "0")}:${seconds.toFixed(3).padStart(6, "0")}`
+    : `${minutes}:${seconds.toFixed(3).padStart(6, "0")}`;
+}
+
+function openF1Status(entry) {
+  if (entry.dsq) return "DSQ";
+  if (entry.dns) return "DNS";
+  if (entry.dnf) return "DNF";
+  return "Finished";
+}
+
+function openF1Segments(duration) {
+  const values = Array.isArray(duration) ? duration : [];
+  return {
+    q1: formatOpenF1Duration(values[0]),
+    q2: formatOpenF1Duration(values[1]),
+    q3: formatOpenF1Duration(values[2]),
+  };
+}
+
+function buildOpenF1Session(session, results, drivers) {
+  const [, sessionKey] = SESSION_MAP[session.session_name];
+  const driverByNumber = new Map(
+    drivers.map((driver) => [Number(driver.driver_number), driver]),
+  );
+  const entries = results
+    .map((entry) => {
+      const parsedPosition = Number(entry.position);
+      const position =
+        entry.position != null && Number.isInteger(parsedPosition) && parsedPosition > 0
+          ? parsedPosition
+          : 0;
+      const number = Number(entry.driver_number);
+      const base = {
+        position,
+        ...profile(number, driverByNumber.get(number)),
+        lapsCompleted: Number(entry.number_of_laps) || 0,
+      };
+      if (sessionKey === "fp1" || sessionKey === "fp2" || sessionKey === "fp3") {
+        return {
+          ...base,
+          bestLapTime:
+            formatOpenF1Duration(
+              entry.duration == null ? undefined : Number(entry.duration),
+            ) || "No time",
+          gapToP1:
+            position === 1
+              ? "LEADER"
+              : formatGap(
+                  entry.gap_to_leader == null
+                    ? undefined
+                    : Number(entry.gap_to_leader),
+                ),
+        };
+      }
+      if (sessionKey === "sprint") {
+        return {
+          ...base,
+          bestLapTime:
+            position === 1
+              ? formatOpenF1Duration(Number(entry.duration)) || "LEADER"
+              : formatGap(
+                  entry.gap_to_leader == null
+                    ? undefined
+                    : Number(entry.gap_to_leader),
+                ),
+          gapToPole:
+            position === 1
+              ? "LEADER"
+              : formatGap(
+                  entry.gap_to_leader == null
+                    ? undefined
+                    : Number(entry.gap_to_leader),
+                ),
+          sprintPoints:
+            entry.points == null ? undefined : Number(entry.points),
+          status: openF1Status(entry),
+        };
+      }
+      const segments = openF1Segments(entry.duration);
+      const segmentValues = Array.isArray(entry.duration)
+        ? entry.duration.filter(Number.isFinite)
+        : [];
+      const best = segmentValues.length > 0 ? Math.min(...segmentValues) : undefined;
+      const gaps = Array.isArray(entry.gap_to_leader)
+        ? entry.gap_to_leader.filter(Number.isFinite)
+        : [];
+      return {
+        ...base,
+        q1Time: segments.q1 || undefined,
+        q2Time: segments.q2 || undefined,
+        q3Time: segments.q3 || undefined,
+        bestLapTime: formatOpenF1Duration(best) || "No time",
+        gapToPole:
+          position === 1
+            ? "POLE"
+            : formatGap(gaps.length > 0 ? gaps.at(-1) : undefined),
+        status: openF1Status(entry),
+      };
+    })
+    .filter((entry) => Number.isInteger(entry.position) && entry.position >= 0)
+    .sort((a, b) =>
+      a.position === 0
+        ? 1
+        : b.position === 0
+          ? -1
+          : a.position - b.position,
+    );
+
+  const common = {
+    sessionKey,
+    sessionName: session.session_name,
+    dateStr: new Date(session.date_end).toISOString(),
+    status: "finished",
+    dataSource: "OpenF1 API /v1/session_result",
+    entries,
+  };
+  if (sessionKey === "fp1" || sessionKey === "fp2" || sessionKey === "fp3") {
+    return {
+      bucket: "practice",
+      sessionKey,
+      data: {
+        ...common,
+        fastestDriver: entries[0]
+          ? {
+              driver: entries[0].driverName,
+              team: entries[0].teamName,
+              time: entries[0].bestLapTime,
+            }
+          : undefined,
+      },
+    };
+  }
+  return {
+    bucket: "qualifying",
+    sessionKey,
+    data: {
+      ...common,
+      poleDriver: entries[0]
+        ? {
+            driver: entries[0].driverName,
+            team: entries[0].teamName,
+            time: entries[0].bestLapTime,
+          }
+        : undefined,
+    },
+  };
+}
+
+async function syncFromOpenF1(existing) {
+  const [meetings, sessions] = await Promise.all([
+    fetchJson(`${OPENF1_BASE}/meetings?year=2026`),
+    fetchJson(`${OPENF1_BASE}/sessions?year=2026`),
+  ]);
+  const meetingByKey = new Map(
+    meetings.map((meeting) => [Number(meeting.meeting_key), meeting]),
+  );
+  const calendar = localCalendarRounds();
+  const now = Date.now();
+  const completed = sessions.filter(
+    (session) =>
+      SESSION_MAP[session.session_name] &&
+      new Date(session.date_end).getTime() <= now &&
+      calendar.has(
+        normalizeEventName(
+          meetingByKey.get(Number(session.meeting_key))?.meeting_name,
+        ),
+      ),
+  );
+  if (completed.length === 0) {
+    throw new Error("OpenF1 returned no completed 2026 session classifications");
+  }
+
+  let changed = false;
+  const sessionsByMeeting = new Map();
+  for (const session of completed) {
+    const meetingKey = Number(session.meeting_key);
+    const group = sessionsByMeeting.get(meetingKey) || [];
+    group.push(session);
+    sessionsByMeeting.set(meetingKey, group);
+  }
+  for (const [meetingKey, meetingSessions] of sessionsByMeeting) {
+    const meeting = meetingByKey.get(meetingKey);
+    const race = calendar.get(normalizeEventName(meeting?.meeting_name));
+    if (!meeting || !race) continue;
+    const drivers = await fetchJson(
+      `${OPENF1_BASE}/drivers?session_key=${meetingSessions[0].session_key}`,
+    );
+    const uniqueDrivers = new Set(
+      drivers.map((driver) => Number(driver.driver_number)),
+    );
+    const resultSets = await Promise.all(
+      meetingSessions.map((session) =>
+        fetchJson(`${OPENF1_BASE}/session_result?session_key=${session.session_key}`),
+      ),
+    );
+    for (const [index, session] of meetingSessions.entries()) {
+      const results = resultSets[index];
+      const resultDrivers = new Set(
+        results.map((entry) => Number(entry.driver_number)),
+      );
+      if (
+        results.length < 18 ||
+        resultDrivers.size !== results.length
+      ) {
+        console.log(
+          `[OpenF1] ${meeting.meeting_name} ${session.session_name} is incomplete (${results.length}/${uniqueDrivers.size}).`,
+        );
+        continue;
+      }
+      const normalized = buildOpenF1Session(session, results, drivers);
+      const record = existing[normalized.bucket][race.round] || {
+        round: race.round,
+        grandPrix: race.name,
+        season: 2026,
+        circuit: race.circuit,
+        sessions: {},
+      };
+      if (
+        JSON.stringify(record.sessions[normalized.sessionKey]) !==
+        JSON.stringify(normalized.data)
+      ) {
+        record.sessions[normalized.sessionKey] = normalized.data;
+        existing[normalized.bucket][race.round] = record;
+        changed = true;
+        console.log(
+          `[OpenF1] R${race.round} ${meeting.meeting_name}: ${session.session_name} updated.`,
+        );
+      }
+    }
+  }
+  if (!changed) console.log("[OpenF1] Completed classifications unchanged.");
+  return changed;
+}
+
 async function fetchJolpicaRaces(endpoint) {
   const races = [];
   let offset = 0;
   // Endpoint-specific entry keys: qualifying returns QualifyingResults,
   // sprint returns SprintResults, results returns Results.
-  const entryKey = endpoint.startsWith('qualifying')
-    ? 'QualifyingResults'
-    : endpoint.startsWith('sprint')
-      ? 'SprintResults'
-      : 'Results';
+  const entryKey = endpoint.startsWith("qualifying")
+    ? "QualifyingResults"
+    : endpoint.startsWith("sprint")
+      ? "SprintResults"
+      : "Results";
   for (let page = 0; page < 20; page += 1) {
     // Jolpica paginates by result entries, not by race weekends.
-    const response = await fetchJson(`${JOLPICA_BASE}/2026/${endpoint}?limit=100&offset=${offset}`);
+    const response = await fetchJson(
+      `${JOLPICA_BASE}/2026/${endpoint}?limit=100&offset=${offset}`,
+    );
     const pageRaces = response?.MRData?.RaceTable?.Races || [];
     races.push(...pageRaces);
     const total = Number(response?.MRData?.total || 0);
-    offset += pageRaces.reduce((sum, race) => sum + (race[entryKey] || []).length, 0);
+    offset += pageRaces.reduce(
+      (sum, race) => sum + (race[entryKey] || []).length,
+      0,
+    );
     if (pageRaces.length === 0 || offset >= total) break;
   }
   return races;
@@ -397,9 +749,11 @@ async function fetchJolpicaRaces(endpoint) {
 
 function fastestSegmentTime(entry) {
   const times = [entry.Q3, entry.Q2, entry.Q1]
-    .map((value) => (typeof value === 'string' && value ? value : undefined))
+    .map((value) => (typeof value === "string" && value ? value : undefined))
     .filter(Boolean);
-  return times.sort((a, b) => (lapTimeToSeconds(a) ?? 0) - (lapTimeToSeconds(b) ?? 0))[0];
+  return times.sort(
+    (a, b) => (lapTimeToSeconds(a) ?? 0) - (lapTimeToSeconds(b) ?? 0),
+  )[0];
 }
 
 function buildJolpicaQualifyingRace(race) {
@@ -412,10 +766,10 @@ function buildJolpicaQualifyingRace(race) {
       };
       return {
         ...profileEntry,
-        q1Time: typeof entry.Q1 === 'string' && entry.Q1 ? entry.Q1 : undefined,
-        q2Time: typeof entry.Q2 === 'string' && entry.Q2 ? entry.Q2 : undefined,
-        q3Time: typeof entry.Q3 === 'string' && entry.Q3 ? entry.Q3 : undefined,
-        bestLapTime: fastestSegmentTime(entry) || '',
+        q1Time: typeof entry.Q1 === "string" && entry.Q1 ? entry.Q1 : undefined,
+        q2Time: typeof entry.Q2 === "string" && entry.Q2 ? entry.Q2 : undefined,
+        q3Time: typeof entry.Q3 === "string" && entry.Q3 ? entry.Q3 : undefined,
+        bestLapTime: fastestSegmentTime(entry) || "",
       };
     })
     .filter((entry) => Number.isInteger(entry.position) && entry.position > 0)
@@ -426,26 +780,26 @@ function buildJolpicaQualifyingRace(race) {
     const seconds = lapTimeToSeconds(entry.bestLapTime);
     const gap =
       entry.position === 1
-        ? 'POLE'
+        ? "POLE"
         : formatGap(
             Number.isFinite(seconds) && Number.isFinite(leaderSeconds)
               ? seconds - leaderSeconds
               : undefined,
           );
-    return { ...entry, gapToPole: gap || '' };
+    return { ...entry, gapToPole: gap || "" };
   });
 
   return {
     round: Number(race.round),
     grandPrix: race.raceName,
     season: 2026,
-    circuit: race.Circuit?.circuitName || 'Circuit',
+    circuit: race.Circuit?.circuitName || "Circuit",
     sessions: {
       qualifying: {
-        sessionKey: 'qualifying',
-        sessionName: 'Qualifying',
+        sessionKey: "qualifying",
+        sessionName: "Qualifying",
         dateStr: race.date,
-        status: 'finished',
+        status: "finished",
         poleDriver: entriesWithGaps[0]
           ? {
               driver: entriesWithGaps[0].driverName,
@@ -463,13 +817,13 @@ function buildJolpicaSprintRace(race) {
   const entries = (race.SprintResults || [])
     .map((entry) => {
       const position = Number(entry.position);
-      const gapTime = entry.Time?.time ? cleanGap(entry.Time.time) : '';
+      const gapTime = entry.Time?.time ? cleanGap(entry.Time.time) : "";
       return {
         position,
         ...profile(Number(entry.number), entry.Driver, entry.Constructor),
         lapsCompleted: Number(entry.laps) || 0,
-        bestLapTime: position === 1 ? 'LEADER' : gapTime || '',
-        gapToPole: position === 1 ? 'LEADER' : gapTime || '',
+        bestLapTime: position === 1 ? "LEADER" : gapTime || "",
+        gapToPole: position === 1 ? "LEADER" : gapTime || "",
         sprintPoints: entry.points != null ? Number(entry.points) : undefined,
       };
     })
@@ -480,18 +834,18 @@ function buildJolpicaSprintRace(race) {
     round: Number(race.round),
     grandPrix: race.raceName,
     season: 2026,
-    circuit: race.Circuit?.circuitName || 'Circuit',
+    circuit: race.Circuit?.circuitName || "Circuit",
     sessions: {
       sprint: {
-        sessionKey: 'sprint',
-        sessionName: 'Sprint',
+        sessionKey: "sprint",
+        sessionName: "Sprint",
         dateStr: race.date,
-        status: 'finished',
+        status: "finished",
         poleDriver: entries[0]
           ? {
               driver: entries[0].driverName,
               team: entries[0].teamName,
-              time: 'LEADER',
+              time: "LEADER",
             }
           : undefined,
         entries,
@@ -502,51 +856,53 @@ function buildJolpicaSprintRace(race) {
 
 async function syncFromJolpica(existing) {
   const [qualifyingRaces, sprintRaces] = await Promise.all([
-    fetchJolpicaRaces('qualifying.json'),
-    fetchJolpicaRaces('sprint.json').catch(() => []),
+    fetchJolpicaRaces("qualifying.json"),
+    fetchJolpicaRaces("sprint.json").catch(() => []),
   ]);
 
-  // Only sync the most recent weekend that has a complete qualifying
-  // classification — same "latest meeting only" policy as the F1 path.
+  // Backfill every complete round; preserve independently captured session types.
   const completed = qualifyingRaces.filter(
     (race) => (race.QualifyingResults || []).length >= EXPECTED_GRID_SIZE,
   );
   if (completed.length === 0) {
-    console.log('[F1 timing] Jolpica has no completed qualifying classification.');
+    console.log(
+      "[F1 timing] Jolpica has no completed qualifying classification.",
+    );
     return false;
   }
-  const latest = completed.reduce((a, b) => (Number(a.round) >= Number(b.round) ? a : b));
-  const round = Number(latest.round);
-
-  const existingRecord = existing.qualifying?.[round];
-  const nextRecord = buildJolpicaQualifyingRace(latest);
-  const sprintRace = sprintRaces.find((race) => Number(race.round) === round);
-  if (sprintRace && (sprintRace.SprintResults || []).length >= EXPECTED_GRID_SIZE) {
-    nextRecord.sessions.sprint = buildJolpicaSprintRace(sprintRace).sessions.sprint;
-  }
-
-  if (existingRecord) {
-    // Jolpica has no practice sessions and no sprint qualifying: keep whatever
-    // the live-timing archive already captured for those sessions.
-    nextRecord.sessions = {
-      ...existingRecord.sessions,
-      ...nextRecord.sessions,
-    };
-  }
-
-  const changed =
-    JSON.stringify(existing.qualifying?.[round] || null) !== JSON.stringify(nextRecord);
-  if (changed) {
-    console.log(
-      `[F1 timing] Jolpica: round ${round} (${latest.raceName}) ${
-        existingRecord ? 'updated' : 'added'
-      }.`,
+  let changed = false;
+  for (const race of completed.sort(
+    (a, b) => Number(a.round) - Number(b.round),
+  )) {
+    const round = Number(race.round);
+    const existingRecord = existing.qualifying?.[round];
+    const nextRecord = buildJolpicaQualifyingRace(race);
+    const sprintRace = sprintRaces.find(
+      (candidate) => Number(candidate.round) === round,
     );
-    existing.qualifying = existing.qualifying || {};
-    existing.qualifying[round] = nextRecord;
-  } else {
-    console.log(`[F1 timing] Jolpica: round ${round} unchanged.`);
+    if (
+      sprintRace &&
+      (sprintRace.SprintResults || []).length >= EXPECTED_GRID_SIZE
+    ) {
+      nextRecord.sessions.sprint =
+        buildJolpicaSprintRace(sprintRace).sessions.sprint;
+    }
+    if (existingRecord) {
+      nextRecord.sessions = {
+        ...existingRecord.sessions,
+        ...nextRecord.sessions,
+      };
+    }
+    if (JSON.stringify(existingRecord || null) !== JSON.stringify(nextRecord)) {
+      console.log(
+        `[F1 timing] Jolpica: round ${round} (${race.raceName}) ${existingRecord ? "updated" : "added"}.`,
+      );
+      existing.qualifying = existing.qualifying || {};
+      existing.qualifying[round] = nextRecord;
+      changed = true;
+    }
   }
+  if (!changed) console.log("[F1 timing] Jolpica classifications unchanged.");
   return changed;
 }
 
@@ -555,85 +911,111 @@ async function syncFromJolpica(existing) {
 async function syncFromLiveTiming(existing) {
   const index = await fetchJson(`${LIVE_TIMING_BASE}/2026/Index.json`);
   const meetings = (index.Meetings || []).filter((meeting) =>
-    meeting.Sessions?.some((session) => SESSION_MAP[session.Name] && session.Path),
+    meeting.Sessions?.some(
+      (session) => SESSION_MAP[session.Name] && session.Path,
+    ),
   );
-  const meeting = meetings.at(-1);
-  if (!meeting) throw new Error('No completed 2026 race-weekend session was found');
-
-  const round = Number(meeting.Number);
-  if (!Number.isInteger(round)) throw new Error(`Invalid round number for ${meeting.Name}`);
+  if (meetings.length === 0)
+    throw new Error("No 2026 race-weekend session was found");
   let changed = false;
 
-  for (const session of meeting.Sessions || []) {
-    if (!SESSION_MAP[session.Name] || !session.Path) continue;
-    const result = await readSession(session);
-    if (!result) continue;
-    const raceRecord = existing[result.bucket][round] || {
-      round,
-      grandPrix: meeting.Name,
-      season: 2026,
-      circuit: meeting.Location,
-      sessions: {},
-    };
-    if (JSON.stringify(raceRecord.sessions[result.sessionKey]) !== JSON.stringify(result.data)) {
-      raceRecord.sessions[result.sessionKey] = result.data;
-      existing[result.bucket][round] = raceRecord;
-      changed = true;
+  for (const [meetingIndex, meeting] of meetings.entries()) {
+    const round = Number(meeting.Number);
+    if (!Number.isInteger(round))
+      throw new Error(`Invalid round number for ${meeting.Name}`);
+    const latestMeeting = meetingIndex === meetings.length - 1;
+    for (const session of meeting.Sessions || []) {
+      const mapping = SESSION_MAP[session.Name];
+      if (!mapping || !session.Path) continue;
+      const [bucket, sessionKey] = mapping;
+      const saved = existing[bucket]?.[round]?.sessions?.[sessionKey];
+      if (
+        !latestMeeting &&
+        saved?.status === "finished" &&
+        saved.entries?.length === EXPECTED_GRID_SIZE
+      ) {
+        continue;
+      }
+      const result = await readSession(session);
+      if (!result) continue;
+      const raceRecord = existing[result.bucket][round] || {
+        round,
+        grandPrix: meeting.Name,
+        season: 2026,
+        circuit: meeting.Location,
+        sessions: {},
+      };
+      if (
+        JSON.stringify(raceRecord.sessions[result.sessionKey]) !==
+        JSON.stringify(result.data)
+      ) {
+        raceRecord.sessions[result.sessionKey] = result.data;
+        existing[result.bucket][round] = raceRecord;
+        changed = true;
+      }
     }
   }
   if (!changed) {
-    console.log('[F1 timing] No new complete session results.');
+    console.log("[F1 timing] No new complete session results.");
   } else {
-    console.log(`[F1 timing] Updated complete session snapshot for round ${round}.`);
+    console.log("[F1 timing] Updated one or more complete session snapshots.");
   }
   return changed;
 }
 
 async function run() {
   const existing = fs.existsSync(OUTPUT_FILE)
-    ? JSON.parse(fs.readFileSync(OUTPUT_FILE, 'utf8'))
+    ? JSON.parse(fs.readFileSync(OUTPUT_FILE, "utf8"))
     : { practice: {}, qualifying: {} };
   existing.practice = existing.practice || {};
   existing.qualifying = existing.qualifying || {};
 
-  let changed = false;
-  const preferJolpica = PINNED_SOURCE === 'jolpica';
-  let useJolpica = preferJolpica;
-
-  if (!preferJolpica) {
+  let changed;
+  if (PINNED_SOURCE === "jolpica") {
+    changed = await syncFromJolpica(existing);
+  } else if (PINNED_SOURCE === "f1") {
+    changed = await syncFromLiveTiming(existing);
+  } else {
     try {
-      changed = await syncFromLiveTiming(existing);
+      changed = await syncFromOpenF1(existing);
     } catch (error) {
-      if (PINNED_SOURCE === 'f1') throw error;
+      if (PINNED_SOURCE === "openf1") throw error;
       console.log(
-        `[F1 timing] Live timing archive unavailable: ${error.message}. Trying Jolpica fallback...`,
+        `[OpenF1] API unavailable: ${error.message}. Trying F1 live timing...`,
       );
-      useJolpica = true;
+      try {
+        changed = await syncFromLiveTiming(existing);
+      } catch (liveTimingError) {
+        console.log(
+          `[F1 timing] Archive unavailable: ${liveTimingError.message}. Trying Jolpica fallback...`,
+        );
+        changed = await syncFromJolpica(existing);
+      }
     }
   }
 
-  if (useJolpica) {
-    changed = await syncFromJolpica(existing);
-  }
-
   if (!changed) {
-    console.log('[F1 timing] Nothing to write.');
+    console.log("[F1 timing] Nothing to write.");
     return;
   }
   if (IS_DRY_RUN) {
-    console.log('[F1 timing] Dry run: data changed but nothing was written.');
+    console.log("[F1 timing] Dry run: data changed but nothing was written.");
     return;
   }
-  fs.writeFileSync(OUTPUT_FILE, `${JSON.stringify(existing, null, 2)}\n`, 'utf8');
-  console.log('[F1 timing] Session snapshot written.');
+  fs.writeFileSync(
+    OUTPUT_FILE,
+    `${JSON.stringify(existing, null, 2)}\n`,
+    "utf8",
+  );
+  console.log("[F1 timing] Session snapshot written.");
 }
 
 run().catch((error) => {
   const hint = /returned 403/.test(error.message)
-    ? ' (F1 bot protection kept rejecting the request after retries; re-run later or from a different network)'
+    ? " (F1 bot protection kept rejecting the request after retries; re-run later or from a different network)"
     : /returned 429/.test(error.message)
-      ? ' (Jolpica rate limit hit; re-run in a minute)'
-      : '';
+      ? " (provider rate limit hit; re-run in a minute)"
+      : "";
   console.error(`[F1 timing] Sync failed: ${error.message}${hint}`);
   process.exit(1);
 });

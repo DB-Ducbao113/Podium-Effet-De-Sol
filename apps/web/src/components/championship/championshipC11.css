@@ -2,12 +2,12 @@
 .c11-directory,
 .c11-profile,
 .c11-standalone-directory {
-  --c11-carbon: #111417;
-  --c11-graphite: #171b21;
-  --c11-gunmetal: #343a43;
-  --c11-titanium: #a4adb5;
-  --c11-crimson: #cf2539;
-  color: #f4f5f6;
+  --c11-carbon: #05070b;
+  --c11-graphite: #0a1020;
+  --c11-gunmetal: #2a3242;
+  --c11-titanium: #a8b0bf;
+  --c11-crimson: #ff2a2a;
+  color: var(--peds-color-text);
 }
 .c1-results-active .c1-page-intro {
   position: absolute;
@@ -38,15 +38,15 @@
 }
 .c11-round {
   display: block;
-  color: #e6a7af;
+  color: var(--peds-color-brake-amber);
   font-size: 0.75rem;
-  font-weight: 800;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
   margin-bottom: 0.4rem;
 }
 .c11-race-identity h2 {
-  font: 800 clamp(1.45rem, 2.8vw, 2.2rem)/1.12 var(--font-display, sans-serif);
-  color: #fff;
+  font: 700 clamp(1.75rem, 3vw, 3rem)/1.05 var(--peds-font-ui);
+  color: var(--peds-color-text);
 }
 .c11-race-identity p {
   color: #c6cbd1;
@@ -61,7 +61,7 @@
 .c11-race-controls label {
   display: grid;
   gap: 0.3rem;
-  font-size: 0.73rem;
+  font-size: 0.75rem;
   font-weight: 700;
   color: #cbd0d6;
 }
@@ -108,6 +108,7 @@
   color: #c8cdd2;
   font-size: 0.78rem;
   font-weight: 700;
+  font-family: var(--peds-font-ui);
   transition:
     color 0.18s,
     border-color 0.18s;
@@ -135,7 +136,7 @@
 .c11-classification-meta h3 {
   color: #fff;
   font-size: 1rem;
-  font-weight: 800;
+  font-weight: 700;
 }
 .c11-classification-meta p {
   color: #c4cad1;
@@ -146,7 +147,7 @@
   position: relative;
   flex: none;
   color: #cbd0d6;
-  font-size: 0.73rem;
+  font-size: 0.75rem;
 }
 .c11-timezone summary {
   cursor: pointer;
@@ -188,7 +189,7 @@
 }
 .c11-table th {
   color: #b4bbc3;
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 600;
   padding: 0.8rem 1rem;
   border-bottom: 1px solid var(--c11-gunmetal);
@@ -217,7 +218,7 @@
 .c11-position,
 .c11-points {
   font-variant-numeric: tabular-nums;
-  font-weight: 800;
+  font-weight: 700;
   color: #fff;
 }
 .c11-points {
@@ -309,7 +310,7 @@
   width: 5rem;
 }
 .c11-intro-card strong {
-  font: 800 1.18rem/1.25 var(--font-display, sans-serif);
+  font: 700 1.45rem/1.1 var(--peds-font-display);
   color: #fff;
 }
 .c11-intro-card p,
@@ -320,8 +321,8 @@
 }
 .c11-intro-card span {
   color: var(--team-color);
-  font-size: 0.73rem;
-  font-weight: 800;
+  font-size: 0.75rem;
+  font-weight: 700;
 }
 .c11-intro-card .c11-card-action {
   color: #e5e8eb;
@@ -378,7 +379,7 @@
   margin-bottom: 1.5rem;
 }
 .c11-profile-hero h1 {
-  font: 800 clamp(2rem, 5vw, 4.5rem)/1.07 var(--font-display, sans-serif);
+  font: 700 clamp(2rem, 5vw, 4.5rem)/1.02 var(--peds-font-display);
   max-width: 18ch;
 }
 .c11-profile-hero p {
@@ -407,7 +408,7 @@
 }
 .c11-profile h2 {
   font-size: 1.5rem;
-  font-weight: 800;
+  font-weight: 700;
   margin: 2.5rem 0 1rem;
 }
 .c11-profile-links {
@@ -429,7 +430,7 @@
   padding: 0 1.25rem;
 }
 .c11-standalone-directory h1 {
-  font: 800 clamp(2rem, 4vw, 3rem)/1.1 var(--font-display, sans-serif);
+  font: 700 clamp(2rem, 4vw, 3rem)/1.05 var(--peds-font-display);
 }
 .c11-standalone-directory header p {
   color: #c2c9d0;
@@ -549,6 +550,121 @@
     grid-template-columns: 1fr 1fr;
   }
 }
+
+/* Results room: classification reads as a timed race document, not a generic table card. */
+.c11-results {
+  border-radius: 0;
+  background: var(--peds-color-surface);
+  box-shadow: 0 24px 58px rgba(0, 0, 0, 0.42);
+}
+
+.c11-race-head {
+  position: relative;
+  padding: clamp(1.6rem, 3vw, 2.8rem);
+  background:
+    radial-gradient(
+      ellipse at 88% 20%,
+      rgba(255, 106, 0, 0.2),
+      transparent 32%
+    ),
+    linear-gradient(
+      112deg,
+      var(--peds-color-surface-raised) 0 62%,
+      #2b1113 100%
+    );
+}
+
+.c11-race-head::after {
+  position: absolute;
+  right: clamp(1rem, 3vw, 2.8rem);
+  bottom: 0;
+  width: min(28vw, 21rem);
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    var(--peds-color-ignition),
+    var(--peds-color-burnt-orange)
+  );
+  content: "";
+}
+
+.c11-race-identity h2 {
+  letter-spacing: -0.025em;
+  text-transform: uppercase;
+}
+.c11-round,
+.c11-position,
+.c11-points,
+.c11-time,
+.c11-number,
+.c11-classification-meta p {
+  font-family: var(--peds-font-mono);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+.c11-race-controls select,
+.c11-adjacent button {
+  border-radius: 0;
+  background: var(--peds-color-surface-raised);
+}
+.c11-session-tabs {
+  padding-inline: clamp(1rem, 2vw, 1.6rem);
+  background: var(--peds-color-surface);
+}
+.c11-session-tabs button {
+  min-height: 54px;
+  font-weight: 700;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+}
+.c11-session-tabs button[aria-selected="true"] {
+  border-color: var(--peds-color-ignition);
+  background: rgba(255, 42, 42, 0.08);
+  color: var(--peds-color-text);
+}
+.c11-classification-meta {
+  padding: 1.3rem clamp(1rem, 3vw, 2rem);
+  background: var(--peds-color-surface-raised);
+}
+.c11-table th {
+  font-family: var(--peds-font-mono);
+  font-weight: 500;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+}
+.c11-table td {
+  padding-block: 1rem;
+}
+.c11-table tbody tr {
+  background: var(--peds-color-surface-raised);
+  transition: background-color 160ms ease;
+}
+.c11-table tbody tr:nth-child(-n + 3) {
+  background: color-mix(in srgb, var(--team-color) 8%, #171c24);
+}
+.c11-table tbody tr:nth-child(-n + 3) .c11-position {
+  font-family: var(--peds-font-display);
+  font-size: 1.55rem;
+  font-weight: 700;
+}
+.c11-table tbody tr:hover {
+  background: color-mix(in srgb, var(--team-color) 11%, #202630);
+}
+
+@media (max-width: 760px) {
+  .c11-race-head {
+    padding: 1.25rem 1rem;
+  }
+  .c11-race-head::after {
+    right: 1rem;
+    width: 8rem;
+  }
+  .c11-session-tabs {
+    padding-inline: 0.5rem;
+  }
+  .c11-table tbody tr:nth-child(-n + 3) .c11-position {
+    font-size: 1.35rem;
+  }
+}
 @media (max-width: 400px) {
   .c11-profile-facts {
     grid-template-columns: 1fr;
@@ -574,6 +690,254 @@
   }
 }
 
+/* R3: the season rail and the selected weekend remain reachable while reading long results. */
+.c1-results-active .f4-controls {
+  position: sticky;
+  top: 64px;
+  z-index: 40;
+}
+.c11-results {
+  overflow: clip;
+  border-color: #49515c;
+  background: #10151c;
+}
+.c11-pinned-controls {
+  position: sticky;
+  top: var(--c11-pinned-top, 140px);
+  z-index: 35;
+  background: #111720;
+  box-shadow: 0 12px 24px #0008;
+}
+.c11-race-head {
+  padding-block: clamp(1rem, 1.6vw, 1.55rem);
+}
+.c11-session-tabs {
+  background: #111720;
+  scrollbar-color: #78818d #111720;
+}
+.c11-session-tabs button {
+  border-bottom-width: 3px;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    border-color 160ms ease;
+}
+.c11-session-tabs button[aria-selected="true"] {
+  background: #3d2026;
+  box-shadow: inset 0 0 0 1px #8d444d;
+  border-color: #ff626d;
+}
+.c11-session-tabs button:hover:not([aria-selected="true"]) {
+  background: #252c36;
+}
+.c11-classification {
+  background: #111720;
+}
+.c11-classification-meta {
+  border-bottom: 1px solid #404954;
+}
+.c11-classification-meta h3 {
+  font-family: var(--peds-font-display);
+  font-size: 1.55rem;
+  line-height: 1.1;
+}
+.c11-table thead th {
+  background: #1b222d;
+  border-bottom: 1px solid #59616c;
+  color: #e1e5eb;
+}
+.c11-table tbody tr,
+.c11-table tbody tr:nth-child(-n + 3) {
+  background: var(--team-surface);
+  border-left: 1px solid var(--team-color);
+}
+.c11-table tbody tr:nth-child(-n + 3) {
+  background: var(--team-surface-strong);
+}
+.c11-table tbody tr:hover,
+.c11-table tbody tr:focus-within {
+  background: color-mix(in srgb, var(--team-color) 29%, #161d27);
+}
+.c11-table .c11-team a {
+  display: inline-block;
+  padding: 0.3rem 0.55rem;
+  border: 1px solid var(--team-border);
+  background: color-mix(in srgb, var(--team-color) 15%, #171d26);
+  color: #fff;
+  text-decoration: none;
+}
+.c11-table .c11-team a:hover {
+  border-color: var(--team-color);
+  text-decoration: underline;
+}
+.c11-table .c11-position {
+  color: #fff;
+}
+.c11-results-empty {
+  min-height: 12rem;
+  padding: clamp(1.5rem, 3vw, 2.5rem);
+  border-top: 1px solid #4e5560;
+  background: #202832;
+}
+.c11-results-empty strong {
+  display: block;
+  font: 700 clamp(1.5rem, 3vw, 2rem)/1.1 var(--peds-font-display);
+  color: #fff;
+}
+.c11-results-empty p {
+  max-width: 62ch;
+  margin-top: 0.7rem;
+  color: #d2d9e0;
+  line-height: 1.5;
+}
+.c11-result-state--upcoming {
+  color: #ffd087;
+  border-color: #9d7348;
+  background: #3c2e21;
+}
+.c11-result-state--unavailable {
+  color: #d5dce4;
+  border-color: #687381;
+  background: #29313b;
+}
+
+/* One visual identity field shared by both directory routes and Championship tabs. */
+.c11-directory .c11-directory-list,
+.c11-standalone-directory .c11-profile-grid {
+  gap: 0.85rem;
+  background: transparent;
+  border: 0;
+}
+.c11-directory .c11-directory-list {
+  padding: 1.15rem;
+}
+.c11-directory .c11-intro-card,
+.c11-standalone-directory .c11-intro-card {
+  min-height: 10.5rem;
+  gap: 0.65rem;
+  border: 1px solid var(--team-border);
+  border-radius: 0.6rem;
+  background: linear-gradient(
+    110deg,
+    var(--team-surface-strong),
+    var(--team-surface) 48%,
+    #111720
+  );
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease;
+}
+.c11-directory .c11-intro-card::before,
+.c11-standalone-directory .c11-intro-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2px;
+  background: var(--team-color);
+}
+.c11-directory .c11-intro-card::after,
+.c11-standalone-directory .c11-intro-card::after {
+  width: calc(100% - 3rem);
+  height: 1px;
+  opacity: 0.65;
+}
+.c11-directory .c11-intro-card:hover,
+.c11-standalone-directory .c11-intro-card:hover,
+.c11-directory .c11-intro-card:focus-visible,
+.c11-standalone-directory .c11-intro-card:focus-visible {
+  transform: translateY(-3px);
+  border-color: var(--team-color);
+  box-shadow: 0 12px 28px -18px var(--team-wash);
+  background: linear-gradient(
+    110deg,
+    var(--team-surface-strong),
+    var(--team-surface) 65%,
+    #18202a
+  );
+}
+.c11-directory .c11-intro-card:active,
+.c11-standalone-directory .c11-intro-card:active {
+  transform: translateY(0);
+}
+.c11-directory .c11-card-header,
+.c11-standalone-directory .c11-card-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.c11-directory .c11-card-meta,
+.c11-standalone-directory .c11-card-meta {
+  color: color-mix(in srgb, var(--team-color) 70%, white);
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+.c11-directory .c11-card-number,
+.c11-standalone-directory .c11-card-number {
+  flex: none;
+  padding: 0.25rem 0.55rem;
+  border: 1px solid var(--team-border);
+  background: var(--team-surface-strong);
+  color: #fff;
+  font: 600 1.1rem/1 var(--peds-font-mono);
+}
+.c11-directory .c11-intro-card strong,
+.c11-standalone-directory .c11-intro-card strong {
+  font-size: clamp(1.45rem, 2.2vw, 1.85rem);
+  line-height: 1.08;
+}
+.c11-directory .c11-intro-card p,
+.c11-standalone-directory .c11-intro-card p {
+  color: #e1e6eb;
+  font-size: 0.85rem;
+}
+.c11-directory .c11-card-action,
+.c11-standalone-directory .c11-card-action {
+  margin-top: auto;
+  padding-top: 0.6rem;
+  color: #fff;
+  font-weight: 700;
+}
+.c11-directory .c11-card-action span,
+.c11-standalone-directory .c11-card-action span {
+  display: inline-block;
+  margin-left: 0.35rem;
+  color: color-mix(in srgb, var(--team-color) 70%, white);
+  transition: transform 180ms ease;
+}
+.c11-directory .c11-intro-card:hover .c11-card-action span,
+.c11-standalone-directory .c11-intro-card:hover .c11-card-action span {
+  transform: translateX(3px);
+}
+
+@media (max-width: 760px) {
+  .c11-pinned-controls {
+    top: var(--c11-pinned-top, 210px);
+  }
+  .c11-race-head {
+    padding: 0.8rem 1rem;
+  }
+  .c11-race-identity h2 {
+    font-size: 1.55rem;
+  }
+  .c11-race-identity p {
+    display: none;
+  }
+  .c11-session-tabs button {
+    min-height: 44px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .c11-directory .c11-intro-card,
+  .c11-standalone-directory .c11-intro-card,
+  .c11-directory .c11-card-action span,
+  .c11-standalone-directory .c11-card-action span {
+    transition: none;
+    transform: none;
+  }
+}
+
 /* Results R2: provenance and session-specific classification density. */
 .c11-provenance {
   display: flex;
@@ -589,8 +953,8 @@
   border: 1px solid #68717d;
   border-radius: 999px;
   color: #e8ebee;
-  font-size: 0.64rem;
-  font-weight: 800;
+  font-size: 0.75rem;
+  font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -615,7 +979,7 @@
 }
 .c11-driver span {
   color: #aeb6bf;
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   font-weight: 500;
   white-space: nowrap;
 }
@@ -633,7 +997,7 @@
   padding: 0.16rem 0.42rem;
   border: 1px solid #59616b;
   border-radius: 999px;
-  font-size: 0.66rem;
+  font-size: 0.75rem;
   white-space: nowrap;
 }
 

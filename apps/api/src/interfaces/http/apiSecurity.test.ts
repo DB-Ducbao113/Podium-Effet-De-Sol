@@ -85,6 +85,25 @@ describe("Cloudflare Fetch API security boundary", () => {
     expect(String(fetchSpy.mock.calls[0]?.[0])).toContain("limit=500");
   });
 
+  it("allows the bounded session classification endpoint", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response("[]", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    const response = await openF1Handler(
+      new Request(
+        "https://podium.example/api/openf1/session_result?session_key=9668&limit=100",
+      ),
+      environment,
+    );
+    expect(response.status).toBe(200);
+    expect(String(fetchSpy.mock.calls[0]?.[0])).toContain(
+      "session_result?session_key=9668",
+    );
+  });
+
   it("rejects an untrusted browser origin", async () => {
     const response = await openF1Handler(
       new Request("https://podium.example/api/openf1/sessions", {

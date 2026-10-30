@@ -1,30 +1,73 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { getStartLightsFrame, START_LIGHT_CUE, START_LIGHT_TIMING } from './startLightsTiming';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  getIntroTiming,
+  getStartLightsFrame,
+  resolveIntroSpeed,
+  START_LIGHT_CUE,
+  type IntroSpeed,
+} from './startLightsTiming';
 import './F1StartLightsPreloader.css';
 
-export const F1StartLightsPreloader: React.FC = () => {
-  const [frame, setFrame] = useState(() => getStartLightsFrame(0));
+export const INTRO_SEEN_STORAGE_KEY = 'podium-start-lights-seen';
+
+export interface F1StartLightsPreloaderProps {
+  speed?: IntroSpeed;
+  onComplete?: () => void;
+}
+
+export const F1StartLightsPreloader: React.FC<F1StartLightsPreloaderProps> = ({
+  speed,
+  onComplete,
+}) => {
+  const activeSpeed = useMemo(() => speed ?? resolveIntroSpeed(), [speed]);
+  const timing = useMemo(() => getIntroTiming(activeSpeed), [activeSpeed]);
+  const [frame, setFrame] = useState(() => getStartLightsFrame(0, timing));
   const [startedAt] = useState(() => performance.now());
   const [dismissed, setDismissed] = useState(false);
-  const dismiss = useCallback(() => setDismissed(true), []);
+
+  const dismiss = useCallback(() => {
+    try {
+      window.sessionStorage?.setItem(INTRO_SEEN_STORAGE_KEY, '1');
+    } catch {
+      // ignore
+    }
+    setDismissed(true);
+    onComplete?.();
+  }, [onComplete]);
+
   const visible = !dismissed && frame.phase !== 'complete';
 
   useEffect(() => {
+    try {
+      window.sessionStorage?.setItem(INTRO_SEEN_STORAGE_KEY, '1');
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  useEffect(() => {
     if (!visible) return;
-    const update = () => setFrame(getStartLightsFrame(performance.now() - startedAt));
+    const update = () => {
+      const current = getStartLightsFrame(performance.now() - startedAt, timing);
+      setFrame(current);
+      if (current.phase === 'complete') {
+        onComplete?.();
+      }
+    };
+
     const deadlines = [
       ...Array.from(
         { length: 5 },
-        (_, index) => START_LIGHT_TIMING.firstLightMs + index * START_LIGHT_TIMING.lightIntervalMs,
+        (_, index) => timing.firstLightMs + index * timing.lightIntervalMs,
       ),
-      START_LIGHT_TIMING.lightsOutMs,
-      START_LIGHT_TIMING.launchMs,
-      START_LIGHT_TIMING.totalMs,
+      timing.lightsOutMs,
+      timing.launchMs,
+      timing.totalMs,
     ];
     const timers = deadlines.map((deadline) =>
       window.setTimeout(update, Math.max(0, deadline - (performance.now() - startedAt)) + 1),
     );
-    // Catch up to elapsed time when returning from a throttled/background tab.
+
     const onVisible = () => {
       if (!document.hidden) update();
     };
@@ -41,7 +84,7 @@ export const F1StartLightsPreloader: React.FC = () => {
       document.removeEventListener('visibilitychange', onVisible);
       window.removeEventListener('keydown', onKeyDown);
     };
-  }, [dismiss, visible, startedAt]);
+  }, [dismiss, visible, startedAt, timing, onComplete]);
 
   useEffect(() => {
     if (!visible) return;
@@ -62,13 +105,18 @@ export const F1StartLightsPreloader: React.FC = () => {
       aria-label="F1 Start Lights Preloader"
       className="podium-intro"
       data-phase={phase}
+      data-speed={activeSpeed}
     >
       <div
         className="podium-intro__sheet"
         style={
           {
-            '--intro-logo-hold': `${START_LIGHT_TIMING.logoHoldMs}ms`,
-            '--intro-reveal-duration': `${START_LIGHT_TIMING.revealDurationMs}ms`,
+            '--intro-logo-hold': `${timing.logoHoldMs}ms`,
+            '--intro-reveal-duration': `${timing.revealDurationMs}ms`,
+            '--intro-grid-wake-duration': `${timing.gridWakeMs}ms`,
+            '--intro-rack-wake-duration': `${timing.rackWakeMs}ms`,
+            '--intro-sweep-duration': `${timing.sweepMs}ms`,
+            '--intro-brand-sweep-duration': `${timing.brandSweepMs}ms`,
           } as React.CSSProperties
         }
       >
@@ -154,7 +202,7 @@ export const F1StartLightsPreloader: React.FC = () => {
           {phase === 'lights-out' && <div className="podium-intro__flash" aria-hidden="true" />}
           <div className="podium-intro__footer" aria-hidden="true">
             <span>FIVE LIGHTS. ONE MOMENT.</span>
-            <span>EFFET DE SOL</span>
+            <span>EFFET DE SOL ({activeSpeed.toUpperCase()})</span>
           </div>
         </div>
       </div>

@@ -8,21 +8,25 @@
   :root {
     color-scheme: dark;
 
-    /* PEDS F0 semantic foundation: graphite canvas, crimson signal, titanium type. */
-    --peds-color-canvas: #080a0d;
-    --peds-color-surface: #0d0f14;
-    --peds-color-surface-muted: #12151b;
-    --peds-color-surface-raised: #181c23;
-    --peds-color-surface-overlay: #20252e;
-    --peds-color-line: #2b303a;
-    --peds-color-line-strong: #414957;
-    --peds-color-text: #f4f5f7;
-    --peds-color-text-muted: #b4bac4;
-    --peds-color-text-subtle: #7d8592;
-    --peds-color-accent: #ed4452;
-    --peds-color-accent-strong: #ff626c;
-    --peds-color-accent-soft: #ff7480;
-    --peds-color-focus: #ff7480;
+    /* Fiery F1 foundation: night-race carbon, ignition signal, brake-temperature highlights. */
+    --peds-color-canvas: #05070b;
+    --peds-color-surface: #0a1020;
+    --peds-color-surface-muted: #0d1422;
+    --peds-color-surface-raised: #131a27;
+    --peds-color-surface-overlay: #1a2333;
+    --peds-color-line: #2a3242;
+    --peds-color-line-strong: #465166;
+    --peds-color-text: #f5f7fa;
+    --peds-color-text-muted: #a8b0bf;
+    --peds-color-text-subtle: #7f899b;
+    --peds-color-ignition: #ff2a2a;
+    --peds-color-scarlet: #ff4d37;
+    --peds-color-burnt-orange: #ff6a00;
+    --peds-color-brake-amber: #ffb347;
+    --peds-color-accent: var(--peds-color-ignition);
+    --peds-color-accent-strong: var(--peds-color-scarlet);
+    --peds-color-accent-soft: var(--peds-color-brake-amber);
+    --peds-color-focus: var(--peds-color-brake-amber);
 
     /* Titanium editorial field: intentional light reading surface, never an implicit white theme. */
     --peds-color-light-canvas: #e9e9e6;
@@ -32,9 +36,10 @@
     --peds-color-light-text: #111318;
     --peds-color-light-muted: #5d626b;
 
-    --peds-font-display: 'Playfair Display', Georgia, serif;
-    --peds-font-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
-    --peds-font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+    --peds-font-display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    --peds-font-ui: 'Space Grotesk Variable', 'Space Grotesk', Arial, sans-serif;
+    --peds-font-body: 'Manrope Variable', Manrope, Arial, sans-serif;
+    --peds-font-mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
 
     --peds-space-1: 0.25rem;
     --peds-space-2: 0.5rem;
@@ -61,7 +66,7 @@
     --peds-radius-xl: 1.5rem;
     --peds-shadow-panel: 0 12px 32px rgba(0, 0, 0, 0.22);
     --peds-shadow-elevated: 0 24px 64px rgba(0, 0, 0, 0.42);
-    --peds-shadow-accent: 0 10px 30px rgba(210, 10, 10, 0.22);
+    --peds-shadow-accent: 0 12px 34px rgba(255, 42, 42, 0.28);
 
     --peds-motion-fast: 140ms;
     --peds-motion-base: 240ms;
@@ -88,6 +93,15 @@
     overflow-x: hidden;
   }
 
+  :where(code, kbd, samp, pre, time, [data-numeric], .tabular-nums) {
+    font-family: var(--peds-font-mono);
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+
+  :where(button, input, select, textarea) {
+    font-family: var(--peds-font-ui);
+  }
+
   /* Selection color — brand red */
   ::selection {
     background: var(--peds-color-accent);
@@ -111,7 +125,7 @@
 @layer components {
   /* Section overline label (Porsche/BMW style uppercase overline) */
   .label-overline {
-    @apply text-[10px] font-body tracking-widest3 uppercase text-f1red font-semibold;
+    @apply text-[10px] font-ui tracking-widest3 uppercase text-f1red font-semibold;
   }
 
   /* Display headline — editorial Playfair serif in deep obsidian */
@@ -121,17 +135,17 @@
 
   /* Sub-heading */
   .heading-section {
-    @apply font-body font-light text-studio-800 uppercase tracking-widest2 leading-none;
+    @apply font-ui font-medium text-studio-800 uppercase tracking-widest2 leading-none;
   }
 
   /* Technical spec label */
   .spec-label {
-    @apply text-[10px] font-body uppercase tracking-widest text-studio-500 font-medium;
+    @apply text-[10px] font-ui uppercase tracking-widest text-studio-500 font-medium;
   }
 
   /* Spec value */
   .spec-value {
-    @apply text-sm font-body font-semibold text-studio-950 tabular-nums;
+    @apply text-sm font-mono font-semibold text-studio-950 tabular-nums;
   }
 
   /* Horizontal rule — accent red line */
@@ -141,7 +155,7 @@
 
   /* ─── NAVBAR ─────────────────────────────────────────────── */
   .nav-link {
-    @apply relative text-[11px] font-body uppercase tracking-widest2 font-semibold text-studio-600
+    @apply relative text-[11px] font-ui uppercase tracking-widest2 font-semibold text-studio-600
            transition-colors duration-200 hover:text-studio-950
            after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-f1red
            after:transition-all after:duration-300 hover:after:w-full;
@@ -153,15 +167,15 @@
 
   /* ─── BUTTONS ────────────────────────────────────────────── */
   .btn-primary {
-    @apply inline-flex items-center gap-2.5 px-6 py-3 bg-f1red text-white
-           text-[11px] uppercase tracking-widest font-body font-semibold
+    @apply inline-flex items-center gap-2.5 px-6 py-3 bg-f1red text-peds-canvas
+           text-[11px] uppercase tracking-widest font-ui font-semibold
            shadow-sm transition-all duration-300 ease-premium
            hover:bg-f1red-light active:bg-f1red-dark hover:shadow-md;
   }
 
   .btn-ghost {
     @apply inline-flex items-center gap-2.5 px-6 py-3 bg-white text-studio-900
-           border border-studio-300 text-[11px] uppercase tracking-widest font-body font-semibold
+           border border-studio-300 text-[11px] uppercase tracking-widest font-ui font-semibold
            shadow-subtle transition-all duration-300 ease-premium
            hover:border-studio-950 hover:bg-studio-50;
   }
@@ -209,12 +223,9 @@
     scrollbar-width: none;
   }
 
-  /* Gradient red text */
+  /* Solid signal red keeps editorial emphasis crisp at every contrast mode. */
   .text-gradient-red {
-    background: linear-gradient(135deg, #e10600 0%, #ff3b30 60%, #b30000 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--peds-color-accent-strong);
   }
 }
 
@@ -942,7 +953,7 @@ canvas.r3f {
 .home-data-details__summary:focus-visible { outline: 2px solid #ff7180; outline-offset: -4px; }
 .home-data-details[open] > .page-container:last-of-type { padding-bottom: 4rem; }
 .home-section-index { color: #ff625d; font-size: .7rem; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; }
-.home-section-title { max-width: 18ch; margin-top: 1rem; font-family: var(--font-display, inherit); font-size: clamp(2.4rem, 5vw, 5.5rem); font-weight: 800; line-height: 1.02; letter-spacing: -.035em; text-wrap: balance; }
+.home-section-title { max-width: 18ch; margin-top: 1rem; font-family: var(--peds-font-display); font-size: clamp(2.4rem, 5vw, 5.5rem); font-weight: 700; line-height: 1.02; letter-spacing: -.03em; text-wrap: balance; }
 .home-section-copy { max-width: 58ch; margin-top: 1.5rem; color: #c7cbd2; font-size: clamp(1rem, 1.25vw, 1.15rem); line-height: 1.65; }
 .home-text-link { display: inline-flex; align-items: center; gap: .55rem; min-height: 44px; color: #fff; font-size: .8rem; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; text-decoration: underline; text-decoration-color: #e10600; text-underline-offset: .45em; transition: color 180ms ease, gap 180ms ease; }
 .home-text-link:hover { color: #ff625d; gap: .8rem; }
