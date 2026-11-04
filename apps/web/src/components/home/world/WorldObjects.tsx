@@ -14,6 +14,7 @@ type WorldProps = { controller: MutableRefObject<WorldController> };
 const membraneVertex = /* glsl */ `
 uniform float uTime;
 uniform float uWeight;
+uniform float uPhase;
 uniform vec2 uPointer;
 varying vec2 vUv;
 varying float vDeform;
@@ -26,10 +27,15 @@ void main() {
   vec2 center = vec2(uPointer.x * 3.2, uPointer.y * 1.6);
   float pointerPressure = exp(-dot(p.xy-center,p.xy-center) * .22);
   float wake = sin((p.x - uTime * .78) * 4.5) * exp(-abs(p.y) * 1.6);
-  p.z += (laminar * .47 + shear * .13 + pointerPressure * (.25 + wake * .18)) * uWeight;
-  p.y += .13 * sin(p.x * .95 - uTime * .21) * uWeight;
+  float chapterTwist = sin(p.x * .62 + uPhase * 1.08) * cos(p.y * .7);
+  p.z += (laminar * .47 + shear * .13 + pointerPressure * (.25 + wake * .18) + chapterTwist * .28) * uWeight;
+  p.y += (.13 * sin(p.x * .95 - uTime * .21) + sin(uPhase * .7) * .16) * uWeight;
   vDeform = abs(laminar) * .7 + pointerPressure * .32;
-  vViewNormal = normalize(normalMatrix * normal);
+  float dX = (cos(p.x * 1.43 + p.y * .69 - uTime * .42) * .67 +
+              cos(p.x * 2.65 - p.y * 1.74 + uTime * .27) * .35) * uWeight;
+  float dY = (cos(p.x * 1.43 + p.y * .69 - uTime * .42) * .32 -
+              cos(p.x * 2.65 - p.y * 1.74 + uTime * .27) * .22) * uWeight;
+  vViewNormal = normalize(normalMatrix * normalize(vec3(-dX, -dY, 1.)));
   gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.);
 }`;
 
@@ -107,7 +113,8 @@ function useWorldMaterial(
 /** Shallow 3D pressure fabric with localized pointer displacement. */
 export function PressureMembrane({ controller }: WorldProps) {
   const uniforms = useMemo(() => ({
-    uTime: { value: 0 }, uWeight: { value: 1 }, uPointer: { value: new Vector2() },
+    uTime: { value: 0 }, uWeight: { value: 1 }, uPhase: { value: 0 },
+    uPointer: { value: new Vector2() },
   }), []);
   const material = useWorldMaterial(membraneVertex, membraneFragment, uniforms);
   const materialRef = useRef(material);
@@ -117,6 +124,7 @@ export function PressureMembrane({ controller }: WorldProps) {
     strength.current = smoothWorldValue(strength.current, getVisualWeights(state.phase, state.lab).pressure, delta);
     materialRef.current.uniforms.uWeight.value = strength.current;
     materialRef.current.uniforms.uTime.value = clock.elapsedTime;
+    materialRef.current.uniforms.uPhase.value = state.phase;
     (materialRef.current.uniforms.uPointer.value as Vector2).set(state.pointerX, state.pointerY);
   });
   return (
