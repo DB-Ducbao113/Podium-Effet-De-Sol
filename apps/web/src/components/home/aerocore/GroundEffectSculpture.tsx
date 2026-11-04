@@ -93,19 +93,26 @@ export function GroundEffectSculpture({ motion }: { motion: MutableRefObject<Aer
   return (
     <group ref={group} position={[1.7, 0, 0]} rotation={[-0.08, -0.19, -0.15]}>
       {shell.map((geometry, i) => (
-        <mesh key={'shell-' + i} geometry={geometry} castShadow={false} receiveShadow={false}>
-          <meshStandardMaterial
-            color={i === 0 ? '#34516a' : '#203448'}
-            metalness={0.58}
-            roughness={0.29}
-            side={DoubleSide}
-          />
-        </mesh>
-      ))}
-      {edges.map((geometry, i) => (
-        <mesh key={'edge-' + i} geometry={geometry}>
-          <meshBasicMaterial color={i < 2 ? '#8bc7dd' : '#fd7945'} transparent opacity={i === 0 || i === 2 ? 0.54 : 0.23} depthWrite={false} />
-        </mesh>
+        <group key={'shell-' + i}>
+          <mesh geometry={geometry} castShadow={false} receiveShadow={false}>
+            <meshStandardMaterial
+              color={i === 0 ? '#34516a' : '#203448'}
+              metalness={0.58}
+              roughness={0.29}
+              side={DoubleSide}
+            />
+          </mesh>
+          {edges.slice(i * 2, i * 2 + 2).map((edge, j) => (
+            <mesh key={'edge-' + j} geometry={edge}>
+              <meshBasicMaterial
+                color={i === 0 ? '#8bc7dd' : '#fd7945'}
+                transparent
+                opacity={j === 0 ? 0.54 : 0.23}
+                depthWrite={false}
+              />
+            </mesh>
+          ))}
+        </group>
       ))}
     </group>
   );
