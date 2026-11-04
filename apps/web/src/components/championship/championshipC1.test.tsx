@@ -38,13 +38,20 @@ describe("C1 championship presentation", () => {
     });
   });
   it("keeps the calendar to schedule and excludes map/classification UI", () => {
-    const html = render(<ChampionshipCalendar season={2026} />);
+    const html = render(<ChampionshipCalendar season={2026} />, '/season/2026?tab=calendar&view=classic');
     expect(html).toContain("calendar-round-");
     expect(
       html.includes("Go to relevant round") || html.includes("Đến chặng liên quan"),
     ).toBe(true);
     expect(html).not.toContain("CircuitTrackMap");
     expect(html).not.toContain("View Qualifying Table");
+  });
+  it("makes the world tour the primary calendar while preserving a classic mode", () => {
+    const html = render(<ChampionshipCalendar season={2026} />, '/season/2026?tab=calendar');
+    expect(html).toContain('THE GRAND PRIX WORLD TOUR');
+    expect(html).toContain('rcj-map-pin');
+    expect(html).toContain('Race Center');
+    expect(html).toContain('Season Journey');
   });
   it("filters rounds by schedule state and exposes the next race", () => {
     const now = Date.now();
