@@ -1,52 +1,134 @@
-/* AEROCORE V8.1 — precise annotations, not an unrelated radar or racetrack. */
-.home-pulse--aerocore {
-  position: relative; width: 100%; height: 100%; overflow: hidden;
-  pointer-events: none; background: transparent;
+/* V8.2 AERO-01 — original 2.5D F1 Hero, no GLB/WebGL. */
+.home-pulse--f1hero {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  isolation: isolate;
+  background: transparent;
 }
-.home-pulse__scanline {
-  position: absolute; top: 50%; left: 9%; width: 82%; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(90, 175, 212, .25) 22%, rgba(255, 131, 79, .2) 54%, transparent);
-}
-.home-pulse__flow-labels {
-  position: absolute; z-index: 3; left: 8%; right: 8%; bottom: 11%;
-  display: flex; justify-content: space-between; align-items: center; gap: 12px;
-}
-.home-pulse__flow-labels span {
-  display: flex; align-items: center; gap: 9px;
-  color: rgba(207, 226, 238, .74);
-  font: 600 clamp(8px, .67vw, 10px)/1 var(--peds-font-mono);
-  letter-spacing: .13em;
-  text-shadow: 0 2px 7px #02060c;
-}
-.home-pulse__flow-labels i {
-  width: 4px; height: 4px; flex: none; border-radius: 50%;
-  background: #68b8d7; box-shadow: 0 0 11px rgba(67, 193, 231, .52);
-}
-.home-pulse__flow-labels span:nth-child(2) i {
-  background: #ff7543; box-shadow: 0 0 11px rgba(255, 113, 55, .62);
-}
-.home-pulse__corner {
-  position: absolute; width: 24px; height: 24px;
-  border-color: rgba(149, 191, 213, .40); border-style: solid;
-}
-.home-pulse__corner--a { top: 19%; left: 7%; border-width: 1px 0 0 1px; }
-.home-pulse__corner--b { bottom: 19%; right: 8%; border-width: 0 1px 1px 0; }
-.home-pulse__ident {
+.f1hero {
   position: absolute;
-  font: 600 9px/1 var(--peds-font-mono);
-  letter-spacing: .13em; color: rgba(196, 219, 233, .62);
-  text-shadow: 0 2px 9px #02060c;
+  inset: -2% -5% -1% -9%;
+  pointer-events: none;
+  perspective: 1050px;
+  --f1-x: 0px;
+  --f1-y: 0px;
+  --f1-yaw: 0deg;
+  --f1-pitch: 0deg;
+  --f1-energy: 0;
+  --f1-shine-x: 54%;
+  --f1-shine-y: 49%;
 }
-.home-pulse__ident--top { top: clamp(22px, 4vw, 42px); right: 24px; }
-.home-pulse__ident--bottom { bottom: 20px; right: 27px; }
+.f1hero__halo {
+  position: absolute;
+  inset: 8% 3% 3%;
+  background:
+    radial-gradient(ellipse 45% 44% at 66% 49%, rgba(255,80,28,.19), transparent 84%),
+    radial-gradient(ellipse 42% 45% at 42% 61%, rgba(49,169,214,.13), transparent 78%);
+  filter: blur(16px);
+}
+.f1hero__contact {
+  position: absolute;
+  width: 79%;
+  height: 22%;
+  top: 72%;
+  left: 16%;
+  background: radial-gradient(ellipse, rgba(2,6,11,.78), rgba(255,72,25,.09) 53%, transparent 76%);
+  filter: blur(13px);
+  transform: translate3d(calc(var(--f1-x) * -.22), calc(var(--f1-y) * -.2), 0);
+}
+.f1hero__vehicle {
+  position: absolute;
+  inset: 1% -3% 8%;
+  display: grid;
+  place-items: center;
+  transform:
+    translate3d(var(--f1-x), var(--f1-y), 28px)
+    rotateY(var(--f1-yaw))
+    rotateX(var(--f1-pitch));
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.f1hero__car {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  user-select: none;
+  -webkit-user-drag: none;
+  filter: drop-shadow(0 18px 18px rgba(0,0,0,.46)) contrast(1.06) saturate(1.06);
+}
+.f1hero__reflection {
+  position: absolute;
+  inset: 8% 8% 12%;
+  opacity: calc(.22 + var(--f1-energy) * .12);
+  background: radial-gradient(
+    ellipse 24% 60% at var(--f1-shine-x) var(--f1-shine-y),
+    rgba(239,248,255,.21),
+    rgba(255,112,61,.07) 65%,
+    transparent
+  );
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+.f1hero__airflow {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  opacity: calc(.35 + var(--f1-energy) * .23);
+  pointer-events: none;
+}
+.f1hero__airflow--behind { z-index: -1; }
+.f1hero__airflow--front { z-index: 2; opacity: calc(.2 + var(--f1-energy) * .3); }
+.f1hero__airflow path { stroke-dasharray: 300 180; }
+.f1hero__microcopy {
+  position: absolute;
+  inset: auto 5% 0 5%;
+  z-index: 3;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  color: rgba(174,196,211,.66);
+  font: 600 9px/1.25 var(--peds-font-mono);
+  letter-spacing: .12em;
+  text-shadow: 0 2px 9px #06080d;
+}
+.f1hero__microcopy span { display: inline-flex; gap: 8px; align-items: center; }
+.f1hero__microcopy i { width: 4px; height: 4px; border-radius: 50%; background: #FF6F37; }
+.home-pulse__corner {
+  position: absolute;
+  z-index: 4;
+  width: 24px;
+  height: 24px;
+  border-color: rgba(255,112,58,.58);
+  border-style: solid;
+  pointer-events: none;
+}
+.home-pulse__corner--a { top: 19%; left: 6%; border-width: 1px 0 0 1px; }
+.home-pulse__corner--b { bottom: 15%; right: 6%; border-width: 0 1px 1px 0; }
+@media (prefers-reduced-motion: no-preference) {
+  .r1-cinema[data-visible='true'] .f1hero__airflow path { animation: f1hero-aero-flow 17s linear infinite; }
+}
+@keyframes f1hero-aero-flow { to { stroke-dashoffset: -960; } }
+@media (max-width: 850px) {
+  .f1hero { inset: -5% -5% 1%; }
+  .f1hero__vehicle { inset: 0 -4% 9%; }
+  .f1hero__microcopy { font-size: 8px; }
+}
 @media (max-width: 500px) {
-  .home-pulse__flow-labels { left: 5%; right: 5%; bottom: 19%; }
-  .home-pulse__flow-labels span { gap: 4px; font-size: 7px; letter-spacing: .06em; }
-  .home-pulse__ident--top { right: 15px; }
-  .home-pulse__ident--bottom { bottom: 12px; right: 13px; }
+  .f1hero { inset: -2% -7% 4%; }
+  .f1hero__vehicle { inset: 2% -3% 16%; }
+  .f1hero__microcopy { left: 7%; right: 7%; font-size: 7px; letter-spacing: .07em; }
+  .f1hero__microcopy span:last-child { display: none; }
+  .f1hero__airflow { opacity: .25; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .home-pulse--aerocore * { animation: none !important; transition: none !important; }
+  .f1hero__vehicle, .f1hero__airflow path, .f1hero__contact { animation: none !important; transition: none !important; }
 }
-[data-text-zoom='400'] .home-pulse__ident,
-[data-text-zoom='400'] .home-pulse__flow-labels { display: none; }
+[data-text-zoom='400'] .f1hero__microcopy { display: none; }
