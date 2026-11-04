@@ -151,7 +151,7 @@ export function F1HeroStage() {
   }, []);
 
   return (
-    <div ref={layerRef} className="f1hero" data-f1-visual="cinematic-2.5d-v83" aria-hidden="true">
+    <div ref={layerRef} className="f1hero" data-f1-visual="cinematic-2.5d" data-f1-effects="ignition-v83" aria-hidden="true">
       <div className="f1hero__atmosphere" />
       <div className="f1hero__launch-streak" />
       <div className="f1hero__shock" />
