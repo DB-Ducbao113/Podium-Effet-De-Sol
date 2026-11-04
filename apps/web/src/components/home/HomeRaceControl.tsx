@@ -47,6 +47,39 @@ export function HomeRaceControl({ race }: { race?: GrandPrixRound }) {
       <div className="home-rc__grid">
         <div className="home-rc__next">
           <div className="home-rc__map" data-asset-slot="circuit-map" aria-hidden="true">
+            <svg className="home-rc__signal" viewBox="0 0 360 200" preserveAspectRatio="xMidYMid slice" fill="none" role="presentation">
+              <defs>
+                <pattern id="home-rc-signal-grid" width="24" height="24" patternUnits="userSpaceOnUse">
+                  <path d="M24 0H0V24" stroke="#7DB4CC" strokeOpacity=".12" strokeWidth=".7" />
+                </pattern>
+                <linearGradient id="home-rc-signal-flow" x1="0" x2="1" y1="0" y2="1">
+                  <stop stopColor="#68C9EB" stopOpacity=".14" />
+                  <stop offset=".56" stopColor="#75D2F0" stopOpacity=".9" />
+                  <stop offset="1" stopColor="#FF6634" stopOpacity=".64" />
+                </linearGradient>
+              </defs>
+              <rect width="360" height="200" fill="url(#home-rc-signal-grid)" />
+              <g stroke="#75B8D4" strokeOpacity=".32">
+                <path d="M0 95H360M186 0V200" strokeDasharray="5 9" />
+                <circle cx="186" cy="95" r="52" />
+                <circle cx="186" cy="95" r="81" strokeDasharray="2 10" className="home-rc__signal-orbit" />
+              </g>
+              <path className="home-rc__signal-glow home-rc__signal-route"
+                d="M-20 149C66 99 102 151 164 95S253 41 380 83"
+                stroke="url(#home-rc-signal-flow)" strokeWidth="2.3" />
+              <path className="home-rc__signal-pulse"
+                d="M-20 149C66 99 102 151 164 95S253 41 380 83"
+                stroke="#FF8952" strokeWidth="3" />
+              <circle cx="186" cy="95" r="4" fill="#FF793D" fillOpacity=".8" />
+              <circle cx="186" cy="95" r="11" stroke="#FF793D" strokeOpacity=".58" />
+              <g fill="#90BBD0" fillOpacity=".56">
+                <rect x="19" y="172" width="28" height="2" />
+                <rect x="51" y="172" width="14" height="2" />
+                <rect x="69" y="172" width="9" height="2" />
+              </g>
+            </svg>
+            <span className="home-rc__map-label">SIGNAL / FIELD</span>
+            <span className="home-rc__map-index">{race ? 'R' + String(race.round).padStart(2, '0') : '—'}<small>2026</small></span>
             <span className="home-rc__map-corner" />
           </div>
           <div className="home-rc__identity">
