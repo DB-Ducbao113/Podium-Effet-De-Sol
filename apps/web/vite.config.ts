@@ -184,6 +184,55 @@ const p5Extended2026LocalAssetsPlugin = {
   },
 };
 
+// These cinematic concept crops are private owner-review media, NOT production assets.
+// Source files stay outside public/ and the route exists in Vite serve mode only.
+const homeExploreReviewAssets = {
+  showroom: { file: "showroom.webp", bytes: 28720, sha256: "499d7e9c0a06ef826dc721c5a8efd50d30aa80f427fb185c2dc74f0ea193b018" },
+  engineering: { file: "engineering.webp", bytes: 32990, sha256: "f8f0961c7f5d895519605b06525a9442d84a4949384cac964fd89cbf8cc63e3e" },
+  drivers: { file: "drivers.webp", bytes: 26846, sha256: "2d2d177ef0de27c887346984b50923cebb7c58c3dcc64c92cd5f1245a5d9f6f7" },
+  teams: { file: "teams.webp", bytes: 23314, sha256: "6edf89cf2a6ccd4722e45ffdc3b2988bbdf9534b7de835e7537792f6a8b7f829" },
+} as const;
+
+const homeExploreLocalAssetsPlugin = {
+  name: "peds-home-explore-local-assets",
+  apply: "serve" as const,
+  configureServer(server: import("vite").ViteDevServer) {
+    const localDir = path.resolve(import.meta.dirname, "../../.local-assets/home-explore-v2");
+    server.middlewares.use("/__peds-home-explore", (request, response) => {
+      if (request.method !== "GET" && request.method !== "HEAD") {
+        response.statusCode = 405;
+        response.end("Method not allowed.");
+        return;
+      }
+      const match = /^\/(showroom|engineering|drivers|teams)\.webp$/.exec(request.url?.split("?")[0] ?? "");
+      if (!match) {
+        response.statusCode = 404;
+        response.end("Unknown Explore review image.");
+        return;
+      }
+      const key = match[1] as keyof typeof homeExploreReviewAssets;
+      const item = homeExploreReviewAssets[key];
+      const file = path.join(localDir, item.file);
+      if (!fs.existsSync(file)) {
+        response.statusCode = 404;
+        response.end("Explore review image not installed.");
+        return;
+      }
+      const data = fs.readFileSync(file);
+      const sha256 = crypto.createHash("sha256").update(data).digest("hex");
+      if (data.length !== item.bytes || sha256 !== item.sha256) {
+        response.statusCode = 409;
+        response.end("Explore image hash/size mismatch.");
+        return;
+      }
+      response.setHeader("Content-Type", "image/webp");
+      response.setHeader("Cache-Control", "private, no-store");
+      response.setHeader("Content-Length", data.length);
+      response.end(request.method === "HEAD" ? undefined : data);
+    });
+  },
+};
+
 const commercialReviewAssetPlugin = {
   name: "peds-commercial-review-asset",
   apply: "serve" as const,
@@ -255,6 +304,7 @@ export default defineConfig(({ mode }) => ({
     insideMachineLocalAssetsPlugin,
     p5SeasonalLocalAssetsPlugin,
     p5Extended2026LocalAssetsPlugin,
+    homeExploreLocalAssetsPlugin,
     ...(mode === "test" ? [] : [cloudflare({ configPath: cloudflareConfig })]),
   ],
   test: {
