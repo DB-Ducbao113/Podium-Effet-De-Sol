@@ -29,6 +29,7 @@ import { StatePanel } from './components/ui/StatePanel';
 const HomeView = lazy(() =>
   import('./components/home/HomeView').then((m) => ({ default: m.HomeView })),
 );
+const SeasonJourney = lazy(() => import('./components/championship/SeasonJourney').then((m) => ({ default: m.SeasonJourney })));
 const ChampionshipView = lazy(() =>
   import('./components/championship/ChampionshipView').then((m) => ({
     default: m.ChampionshipView,
@@ -116,6 +117,12 @@ function SeasonRoute() {
   return (
     <ChampionshipView season={season} onSeasonChange={(next) => navigate(`/season/${next}${searchParams.size ? `?${searchParams.toString()}` : ''}`)} />
   );
+}
+
+function JourneyRoute() {
+  const { year } = useParams();
+  if (!validSeason(year)) return <NotFound />;
+  return <SeasonJourney season={Number(year) as SeasonYear} />;
 }
 
 function RaceRoute() {
@@ -273,6 +280,7 @@ export const App: React.FC = () => {
               <Route path="/season" element={<Navigate to="/season/2026" replace />} />
               <Route path="/championship" element={<Navigate to="/season/2026" replace />} />
               <Route path="/season/:year" element={<SeasonRoute />} />
+              <Route path="/season/:year/journey" element={<JourneyRoute />} />
               <Route path="/season/:year/race/:round" element={<RaceRoute />} />
               <Route
                 path="/showroom"
