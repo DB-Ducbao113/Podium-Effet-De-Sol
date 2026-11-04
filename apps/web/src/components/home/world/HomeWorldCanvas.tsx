@@ -32,6 +32,13 @@ function WorldCamera({ controller }: { controller: MutableRefObject<WorldControl
   return null;
 }
 
+function PointerImpulseDecay({ controller }: { controller: MutableRefObject<WorldController> }) {
+  useFrame((_, delta) => {
+    controller.current.pointerSpeed *= Math.exp(-Math.min(delta, .05) * 3.6);
+  });
+  return null;
+}
+
 function ContextAndFrameMonitor({ onFailure, onDegrade, quality }: Pick<Props, 'onFailure' | 'onDegrade' | 'quality'>) {
   const gl = useThree((state) => state.gl);
   const readings = useRef({ count: 0, total: 0, degraded: false });
@@ -70,6 +77,7 @@ function WorldScene({ controller, quality, onFailure, onDegrade }: Omit<Props, '
       <VelocityField controller={controller} count={count} />
       <CarbonArchitecture controller={controller} count={quality === 'low' ? 8 : quality === 'balanced' ? 12 : 16} />
       <WorldCamera controller={controller} />
+      <PointerImpulseDecay controller={controller} />
       <ContextAndFrameMonitor quality={quality} onFailure={onFailure} onDegrade={onDegrade} />
     </>
   );
