@@ -1,0 +1,236 @@
+/* V7 / ONE cinematic racing environment across Hero, Race Control, Title Fight, Explore.
+   No imported photo/video, no WebGL and no extra Canvas: all layers are CSS/SVG.
+   Pointer events never intercept a link. Animation and scroll motion are progressive. */
+.home-v3 {
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+  --home-depth-shift: 0px;
+  --home-stage-progress: 0;
+  --home-motion-state: running;
+  background: #05090f;
+}
+.home-v3 > .home-cinematic {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  contain: paint;
+  background: linear-gradient(180deg,#050911 0%,#0a121d 27%,#08111b 53%,#0b1019 77%,#060910 100%);
+}
+.home-v3 > .r1-cinema,
+.home-v3 > .home-v3__content {
+  position: relative;
+  z-index: 1;
+  background: transparent;
+}
+.home-v3 .home-v3__content::before {
+  background: repeating-linear-gradient(0deg,transparent 0 89px,rgba(167,203,229,.018) 90px 91px);
+  opacity: .4;
+}
+.home-cinematic__atmosphere {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 49% 13% at 79% 7%,rgba(255,75,29,.26),transparent 75%),
+    radial-gradient(ellipse 80% 21% at 84% 31%,rgba(33,101,139,.18),transparent 76%),
+    radial-gradient(ellipse 69% 14% at 18% 52%,rgba(232,61,27,.12),transparent 75%),
+    radial-gradient(ellipse 60% 19% at 89% 82%,rgba(33,104,147,.12),transparent 80%);
+}
+.home-cinematic__atmosphere::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: .42;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 95px, rgba(173,207,229,.025) 96px 97px),
+    repeating-linear-gradient(0deg, transparent 0 93px, rgba(173,207,229,.026) 94px 95px);
+  mask-image: linear-gradient(180deg,black,transparent 46%,transparent 80%,black);
+}
+.home-cinematic__architecture {
+  position: absolute;
+  top: 2%;
+  right: -18%;
+  width: min(104%,1580px);
+  height: clamp(650px,75vw,1140px);
+  perspective: 1000px;
+  transform: translate3d(0,calc(var(--home-depth-shift) * -.26),0);
+  transition: opacity 350ms ease;
+  opacity: .84;
+}
+.home-cinematic__architecture span {
+  position: absolute;
+  inset: 6% 11% 16% 11%;
+  border: 1px solid rgba(139,177,203,.24);
+  border-bottom: 0;
+  box-shadow: inset 0 4px rgba(255,93,43,.08);
+  transform-origin: 66% 37%;
+}
+.home-cinematic__architecture span:nth-child(1) { transform: perspective(740px) rotateY(-23deg) scale(.36); opacity: .32; }
+.home-cinematic__architecture span:nth-child(2) { transform: perspective(740px) rotateY(-23deg) scale(.51); opacity: .4; }
+.home-cinematic__architecture span:nth-child(3) { transform: perspective(740px) rotateY(-23deg) scale(.69); opacity: .48; }
+.home-cinematic__architecture span:nth-child(4) { transform: perspective(740px) rotateY(-23deg) scale(.89); opacity: .62; }
+.home-cinematic__architecture span:nth-child(5) { transform: perspective(740px) rotateY(-23deg) scale(1.12); opacity: .7; }
+.home-cinematic__architecture span:nth-child(6) { transform: perspective(740px) rotateY(-23deg) scale(1.39); opacity: .77; }
+.home-cinematic__road {
+  position: absolute;
+  top: 0;
+  left: 35%;
+  width: 100%;
+  height: clamp(970px,90vw,1550px);
+  transform-origin: 62% 7%;
+  transform: perspective(1000px) rotateX(65deg) rotateZ(-18deg) translate3d(0,calc(var(--home-depth-shift) * -.4),0);
+  opacity: .66;
+  background:
+    repeating-linear-gradient(90deg,transparent 0 58px,rgba(176,214,228,.035) 59px 60px),
+    repeating-linear-gradient(0deg,transparent 0 48px,rgba(176,214,228,.045) 49px 50px),
+    linear-gradient(90deg,transparent 0%,rgba(51,80,97,.16) 24%,rgba(6,10,18,.67) 52%,rgba(40,65,82,.28) 78%,transparent);
+  border-top: 2px solid rgba(255,107,52,.3);
+}
+.home-cinematic__road-edge {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg,transparent,rgba(255,91,44,.8) 22%,rgba(255,91,44,.1) 100%);
+  box-shadow: 0 0 12px rgba(255,74,24,.34);
+}
+.home-cinematic__road-edge--left { left: 14%; }
+.home-cinematic__road-edge--right { right: 10%; }
+.home-cinematic__road-center {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 52%;
+  width: 3px;
+  opacity: .55;
+  background: repeating-linear-gradient(180deg,rgba(235,239,244,.75) 0 25px,transparent 25px 74px);
+}
+.home-cinematic__racing-line {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transform: translate3d(0,calc(var(--home-depth-shift) * -.11),0);
+}
+.home-cinematic__track-shadow {
+  stroke: rgba(236,71,29,.14);
+  stroke-width: 27;
+  filter: blur(10px);
+}
+.home-cinematic__track-rail {
+  stroke: rgba(255,132,66,.35);
+  stroke-width: 3;
+}
+.home-cinematic__track-energy {
+  stroke: #ff7436;
+  stroke-width: 5;
+  stroke-dasharray: 26 230;
+  stroke-linecap: round;
+  opacity: .76;
+  filter: drop-shadow(0 0 6px rgba(255,74,24,.66));
+}
+.home-cinematic__track-secondary {
+  stroke: rgba(123,195,218,.24);
+  stroke-width: 1.7;
+  stroke-dasharray: 11 27 48 40;
+}
+.home-cinematic__sector {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(ellipse,rgba(255,93,40,.14),rgba(255,93,40,.04) 43%,transparent 72%);
+}
+.home-cinematic__sector--race { width: 70%; height: 610px; top: 23%; left: -18%; }
+.home-cinematic__sector--fight {
+  width: 70%; height: 720px; top: 49%; right: -19%;
+  background: radial-gradient(ellipse,rgba(22,99,139,.17),rgba(255,74,24,.05) 38%,transparent 72%);
+}
+.home-cinematic__sector--explore { width: 85%; height: 670px; bottom: -8%; left: -25%; }
+.home-cinematic__speed-beams {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  overflow: hidden;
+}
+.home-cinematic__speed-beams span {
+  position: absolute;
+  left: -45%;
+  width: 35%;
+  height: 1px;
+  opacity: .28;
+  background: linear-gradient(90deg,transparent,rgba(255,126,66,.8),transparent);
+  transform: skewY(-12deg);
+}
+.home-cinematic__speed-beams span:nth-child(1) { top: 13%; }
+.home-cinematic__speed-beams span:nth-child(2) { top: 34%; opacity: .18; }
+.home-cinematic__speed-beams span:nth-child(3) { top: 64%; }
+.home-cinematic__speed-beams span:nth-child(4) { top: 87%; opacity: .15; }
+.home-cinematic__vignette {
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  background:
+    linear-gradient(90deg,rgba(3,7,13,.85),transparent 42%),
+    linear-gradient(180deg,rgba(2,5,10,.18),transparent 18% 81%,rgba(2,5,10,.65)),
+    radial-gradient(ellipse at 50% 42%,transparent 38%,rgba(3,6,11,.31) 92%);
+}
+.r1-cinema--v7 {
+  background: transparent;
+}
+.r1-cinema--v7::before { opacity: .25; }
+.r1-cinema--v7::after { opacity: .25; }
+.home-v3 .home-rc__next,
+.home-v3 .home-rc__timing,
+.home-v3 .home-rc__result,
+.home-v3 .home-title-fight__panel {
+  background: linear-gradient(130deg,rgba(17,26,38,.9),rgba(7,12,20,.82));
+  border-color: rgba(162,191,211,.25);
+  backdrop-filter: blur(7px);
+}
+.home-v3 .home-rc__result {
+  background: radial-gradient(circle at 110% 100%,rgba(255,74,24,.18),transparent 60%),linear-gradient(130deg,rgba(17,26,38,.9),rgba(7,12,20,.82));
+}
+.home-v3 .eds-explore { border-top-color: rgba(255,74,24,.18); }
+@keyframes home-cinematic-racing-pulse { to { stroke-dashoffset: -2048; } }
+@keyframes home-cinematic-beam { from { left: -45%; } to { left: 120%; } }
+@media (prefers-reduced-motion: no-preference) {
+  .home-cinematic__track-energy {
+    animation: home-cinematic-racing-pulse 30s linear infinite;
+    animation-play-state: var(--home-motion-state);
+  }
+  .home-cinematic__speed-beams span {
+    animation: home-cinematic-beam 16s linear infinite;
+    animation-play-state: var(--home-motion-state);
+  }
+  .home-cinematic__speed-beams span:nth-child(2) { animation-delay: -6s; animation-duration: 21s; }
+  .home-cinematic__speed-beams span:nth-child(3) { animation-delay: -12s; animation-duration: 24s; }
+  .home-cinematic__speed-beams span:nth-child(4) { animation-delay: -3s; animation-duration: 28s; }
+}
+@media (max-width: 900px) {
+  .home-cinematic__architecture { right: -42%; width: 150%; opacity: .47; }
+  .home-cinematic__road { left: 10%; width: 160%; opacity: .4; }
+  .home-cinematic__track-shadow { filter: none; stroke-width: 13; }
+  .home-cinematic__racing-line { opacity: .75; }
+  .home-v3 .home-rc__next,
+  .home-v3 .home-rc__timing,
+  .home-v3 .home-rc__result,
+  .home-v3 .home-title-fight__panel { backdrop-filter: none; }
+}
+@media (max-width: 600px) {
+  .home-cinematic__architecture { right: -60%; opacity: .33; }
+  .home-cinematic__road { opacity: .28; }
+  .home-cinematic__speed-beams { opacity: .3; }
+  .home-cinematic__racing-line { opacity: .54; }
+  .home-cinematic__track-energy { stroke-width: 3; filter: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-cinematic *, .home-cinematic *::before, .home-cinematic *::after {
+    animation: none !important; transition: none !important;
+  }
+  .home-cinematic__track-energy { stroke-dasharray: 28 300; }
+}
+[data-text-zoom='400'] .home-cinematic { opacity: .22; }
