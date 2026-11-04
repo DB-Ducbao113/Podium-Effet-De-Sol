@@ -96,6 +96,35 @@
 .h25-home-route[data-home-v9='true'] .home-v3__content::before { opacity: .12; }
 .h25-home-route[data-home-v9='true'] .peds-footer__aero-art { opacity: .63; }
 
+
+/* V9 Scene 05: asymmetric cinematic destinations, not four equal poster tiles.
+   Showroom and Engineering lead; the two racing-identity links recede. */
+@media (min-width: 1080px) {
+  .h25-home-route[data-home-v9='true'] .eds-explore__grid {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .h25-home-route[data-home-v9='true'] .eds-explore__card--showroom,
+  .h25-home-route[data-home-v9='true'] .eds-explore__card--engineering {
+    grid-column: span 6;
+    min-height: 255px;
+    aspect-ratio: 2.2;
+    clip-path: polygon(0 0, 100% 0, 100% 86%, 95% 100%, 0 100%);
+  }
+  .h25-home-route[data-home-v9='true'] .eds-explore__card--drivers,
+  .h25-home-route[data-home-v9='true'] .eds-explore__card--teams {
+    grid-column: span 6;
+    min-height: 138px;
+    aspect-ratio: 4.1;
+    clip-path: polygon(0 0, 98% 0, 100% 100%, 0 100%);
+  }
+  .h25-home-route[data-home-v9='true'] .eds-explore__card--drivers .eds-explore__art img,
+  .h25-home-route[data-home-v9='true'] .eds-explore__card--teams .eds-explore__art img {
+    object-position: center 28%;
+    opacity: .77;
+  }
+}
+
 /* Developer laboratory */
 .v9-lab {
   position: relative;
