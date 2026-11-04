@@ -16,15 +16,15 @@ const FLOOR_DASH_DEPTHS = [-5.6, -4.8, -4, -3.2, -2.4, -1.6, -.8, .8, 1.6, 2.4, 
 const PIT_STRIPE_DEPTHS = [-5.6, -4.7, -3.8, -2.9, 2.9, 3.8, 4.7, 5.6];
 
 const pillarPositions: Vector3Tuple[] = RIB_DEPTHS.flatMap((z) => [
-  [-3.9, 1.48, z],
-  [3.9, 1.48, z],
+  [-3.9, 1.48, z] as Vector3Tuple,
+  [3.9, 1.48, z] as Vector3Tuple,
 ]);
-const archPositions: Vector3Tuple[] = RIB_DEPTHS.map((z) => [0, 3.04, z]);
-const archGlowPositions: Vector3Tuple[] = RIB_DEPTHS.map((z) => [0, 2.92, z]);
-const pitLinePositions: Vector3Tuple[] = FLOOR_DASH_DEPTHS.map((z) => [2.64, -.019, z]);
+const archPositions: Vector3Tuple[] = RIB_DEPTHS.map((z) => [0, 3.04, z] as Vector3Tuple);
+const archGlowPositions: Vector3Tuple[] = RIB_DEPTHS.map((z) => [0, 2.92, z] as Vector3Tuple);
+const pitLinePositions: Vector3Tuple[] = FLOOR_DASH_DEPTHS.map((z) => [2.64, -.019, z] as Vector3Tuple);
 const edgeLightPositions: Vector3Tuple[] = PIT_STRIPE_DEPTHS.flatMap((z) => [
-  [-3.19, -.014, z],
-  [3.19, -.014, z],
+  [-3.19, -.014, z] as Vector3Tuple,
+  [3.19, -.014, z] as Vector3Tuple,
 ]);
 
 function StaticInstances({
