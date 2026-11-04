@@ -1,20 +1,27 @@
-import { useEffect, useRef } from 'react';
-import type { CSSProperties, PointerEventHandler } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import type { PointerEventHandler } from 'react';
 import { animate, createScope } from 'animejs';
 import { ArrowDown, ArrowRight, Move3d } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useNavigationStore } from '../../store/useNavigationStore';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
+import { HomeHudScene } from './HomeHudScene';
 import './podiumHeroR1.css';
 
-const HERO_PLATE = '/images/p4/template/rc-hero';
+const chapters = [
+  { number: '01', id: 'launch-control' },
+  { number: '02', id: 'race-control' },
+  { number: '03', id: 'championship-overview' },
+  { number: '04', id: 'eds-explore' },
+];
 
 export function PodiumBrandHero() {
   const lang = useNavigationStore((state) => state.lang);
   const navigate = useNavigate();
   const reducedMotion = useReducedMotion();
   const heroRef = useRef<HTMLElement | null>(null);
-  const pointerFrame = useRef<number | null>(null);
+  const frame = useRef<number | null>(null);
+  const [chapter, setChapter] = useState('launch-control');
 
   useEffect(() => {
     const root = heroRef.current;
@@ -22,92 +29,85 @@ export function PodiumBrandHero() {
     const scope = createScope({ root }).add(() => {
       animate(root.querySelectorAll('[data-launch-reveal]'), {
         opacity: [0, 1],
-        translateY: [32, 0],
-        duration: 850,
+        translateY: [20, 0],
+        duration: 660,
         ease: 'out(4)',
         delay: (_: unknown, index = 0) => index * 95,
       });
-      const rail = root.querySelector('[data-launch-rail]');
-      if (rail) animate(rail, { scaleX: [0, 1], duration: 1100, ease: 'out(5)' });
     });
     return () => scope.revert();
   }, [reducedMotion]);
 
+  useEffect(() => {
+    const root = heroRef.current;
+    if (!root || !('IntersectionObserver' in window)) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      root.dataset.visible = String(entry.isIntersecting);
+    }, { threshold: 0.03 });
+    observer.observe(root);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!('IntersectionObserver' in window)) return;
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) setChapter(entry.target.id);
+      }
+    }, { rootMargin: '-20% 0px -55% 0px' });
+    for (const entry of chapters) {
+      const element = document.getElementById(entry.id);
+      if (element) observer.observe(element);
+    }
+    return () => observer.disconnect();
+  }, []);
+
   useEffect(() => () => {
-    if (pointerFrame.current !== null) cancelAnimationFrame(pointerFrame.current);
+    if (frame.current !== null) cancelAnimationFrame(frame.current);
   }, []);
 
   const moveScene: PointerEventHandler<HTMLElement> = (event) => {
-    if (reducedMotion || event.pointerType === 'touch') return;
+    if (reducedMotion || (event.pointerType !== 'mouse' && event.pointerType !== 'pen')) return;
     const root = heroRef.current;
     if (!root) return;
     const rect = root.getBoundingClientRect();
-    const x = (event.clientX - rect.left) / rect.width - 0.5;
-    const y = (event.clientY - rect.top) / rect.height - 0.5;
-    if (pointerFrame.current !== null) cancelAnimationFrame(pointerFrame.current);
-    pointerFrame.current = requestAnimationFrame(() => {
-      root.style.setProperty('--launch-x', `${(x * 18).toFixed(1)}px`);
-      root.style.setProperty('--launch-y', `${(y * 13).toFixed(1)}px`);
-      root.style.setProperty('--launch-light-x', `${((x + 0.5) * 100).toFixed(1)}%`);
-      root.style.setProperty('--launch-light-y', `${((y + 0.5) * 100).toFixed(1)}%`);
+    if (rect.width === 0 || rect.height === 0) return;
+    const x = (event.clientX - rect.left) / rect.width - .5;
+    const y = (event.clientY - rect.top) / rect.height - .5;
+    if (frame.current !== null) cancelAnimationFrame(frame.current);
+    frame.current = requestAnimationFrame(() => {
+      root.style.setProperty('--launch-x', `${(x * 13).toFixed(1)}px`);
+      root.style.setProperty('--launch-y', `${(y * 10).toFixed(1)}px`);
+      root.style.setProperty('--launch-light-x', `${((x + .5) * 100).toFixed(1)}%`);
+      root.style.setProperty('--launch-light-y', `${((y + .5) * 100).toFixed(1)}%`);
     });
   };
-
   const resetScene = () => {
-    if (pointerFrame.current !== null) cancelAnimationFrame(pointerFrame.current);
-    pointerFrame.current = null;
+    if (frame.current !== null) cancelAnimationFrame(frame.current);
+    frame.current = null;
     const root = heroRef.current;
     if (!root) return;
-    root.style.removeProperty('--launch-x');
-    root.style.removeProperty('--launch-y');
-    root.style.removeProperty('--launch-light-x');
-    root.style.removeProperty('--launch-light-y');
+    for (const key of ['--launch-x', '--launch-y', '--launch-light-x', '--launch-light-y']) {
+      root.style.removeProperty(key);
+    }
   };
-
-  const goToSection = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({
-      behavior: reducedMotion ? 'instant' : 'smooth',
-      block: 'start',
-    });
+  const goTo = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: reducedMotion ? 'instant' : 'smooth', block: 'start' });
+    setChapter(id);
   };
 
   return (
     <section
       ref={heroRef}
       id="launch-control"
-      className="r1-cinema"
+      className="r1-cinema r1-cinema--v4"
       data-lang={lang}
+      data-visible="true"
       data-motion-engine={reducedMotion ? 'reduced' : 'animejs'}
       aria-labelledby="podium-hero-title"
       onPointerMove={moveScene}
       onPointerLeave={resetScene}
     >
-      <div className="r1-cinema__ambient" aria-hidden="true">
-        <span className="r1-cinema__horizon" />
-        <span className="r1-cinema__velocity" />
-        <span className="r1-cinema__beacon" data-launch-rail />
-      </div>
-
-      <div className="r1-cinema__scene" aria-hidden="true">
-        <picture className="r1-cinema__picture">
-          <source media="(max-width: 700px)" type="image/avif" srcSet={`${HERO_PLATE}-896.avif`} />
-          <source type="image/avif" srcSet={`${HERO_PLATE}-1344.avif 1344w, ${HERO_PLATE}-1792.avif 1792w`} sizes="100vw" />
-          <source type="image/webp" srcSet={`${HERO_PLATE}-896.webp 896w, ${HERO_PLATE}-1344.webp 1344w, ${HERO_PLATE}-1792.webp 1792w`} sizes="100vw" />
-          <img src={`${HERO_PLATE}-1344.webp`} alt="" fetchPriority="high" decoding="async" />
-        </picture>
-        <div className="r1-cinema__glass" />
-        <svg className="r1-cinema__flow" viewBox="0 0 1000 500" fill="none" preserveAspectRatio="none">
-          <path d="M-25 320 C235 85 330 365 590 212 S880 200 1040 10" />
-          <path d="M-20 380 C240 145 388 420 650 252 S875 260 1030 90" />
-          <path d="M-20 435 C280 245 390 468 680 340 S920 315 1050 145" />
-        </svg>
-        <span className="r1-cinema__target r1-cinema__target--left" />
-        <span className="r1-cinema__target r1-cinema__target--right" />
-        <span className="r1-cinema__radar" />
-        <span className="r1-cinema__micro-label r1-cinema__micro-label--top">EDS / AERO FIELD</span>
-        <span className="r1-cinema__micro-label r1-cinema__micro-label--bottom">DIGITAL RACING EXPERIENCE · 2026</span>
-      </div>
-
       <div className="r1-cinema__inner page-container">
         <div className="r1-cinema__copy">
           <p className="r1-cinema__eyebrow" data-launch-reveal>
@@ -121,45 +121,35 @@ export function PodiumBrandHero() {
           </h1>
           <div className="r1-cinema__actions" data-launch-reveal>
             <button type="button" className="r1-cinema__primary" onClick={() => navigate('/season/2026?tab=results')}>
-              {lang === 'vi' ? 'Khám phá mùa giải' : 'Explore season'}
-              <ArrowRight size={19} aria-hidden="true" />
+              {lang === 'vi' ? 'Mùa giải 2026' : 'Explore season'} <ArrowRight size={18} aria-hidden="true" />
             </button>
             <button type="button" className="r1-cinema__secondary" onClick={() => navigate('/showroom')}>
-              <Move3d size={19} aria-hidden="true" />
-              Showroom 3D
+              <Move3d size={18} aria-hidden="true" /> Showroom 3D
             </button>
           </div>
         </div>
-        <div className="r1-cinema__launch" aria-hidden="true" data-launch-reveal>
-          <span className="r1-cinema__launch-name">LAUNCH CONTROL</span>
-          <div className="r1-cinema__lights">
-            {Array.from({ length: 5 }, (_, index) => <span key={index} style={{ '--light-index': index } as CSSProperties} />)}
+        <div className="r1-cinema__scene" data-launch-reveal>
+          <div className="r1-cinema__scene-heading" aria-hidden="true">
+            <span>LAUNCH CONTROL</span>
+            <span>EDS / 01</span>
           </div>
-          <span className="r1-cinema__launch-caption">FIVE LIGHTS / ONE START</span>
+          <HomeHudScene lang={lang} />
         </div>
       </div>
-
-      <nav className="r1-cinema__chapters" aria-label={lang === 'vi' ? 'Đi tới khu vực trang chủ' : 'Jump to homepage section'}>
-        {[
-          ['01', 'launch-control'],
-          ['02', 'race-control'],
-          ['03', 'championship-overview'],
-          ['04', 'eds-explore'],
-        ].map(([number, id], index) => (
+      <nav className="r1-cinema__chapters" aria-label={lang === 'vi' ? 'Đi tới khu vực trang chủ' : 'Homepage sections'}>
+        {chapters.map(({ number, id }) => (
           <button
             key={id}
             type="button"
-            className={index === 0 ? 'is-active' : undefined}
-            onClick={() => goToSection(id)}
+            data-active={chapter === id}
             aria-label={`${lang === 'vi' ? 'Khu vực' : 'Section'} ${number}`}
-            aria-current={index === 0 ? 'step' : undefined}
+            aria-current={chapter === id ? 'step' : undefined}
+            onClick={() => goTo(id)}
           >{number}</button>
         ))}
       </nav>
-
-      <button type="button" className="r1-cinema__scroll" onClick={() => goToSection('race-control')}>
-        <span>{lang === 'vi' ? 'Cuộn khám phá' : 'Scroll to explore'}</span>
-        <ArrowDown size={18} aria-hidden="true" />
+      <button type="button" className="r1-cinema__scroll" onClick={() => goTo('race-control')}>
+        <span>{lang === 'vi' ? 'Khám phá' : 'Scroll to explore'}</span><ArrowDown size={16} aria-hidden="true" />
       </button>
       <div className="r1-cinema__energy-rail" aria-hidden="true" />
     </section>
