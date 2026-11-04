@@ -1,93 +1,100 @@
-/* Homepage / Explore V2
- * Four cinematic entry points; decorative imagery remains independent of
- * verified racing results and of the locked Showroom/hero models.
+/* Podium EDS / Explore — cinematic launch gateway
+ * Four concise, independently interactive links. All text is native HTML.
+ * DEV photos come from the private, hash-validated Vite middleware.
  */
 .eds-explore {
   position: relative;
-  padding-block: clamp(2.5rem, 5vw, 4.5rem);
-  border-top: 1px solid var(--peds-color-line);
+  padding-block: clamp(2.2rem, 4.8vw, 4.2rem);
+  border-top: 1px solid rgba(244,240,232,.09);
+  isolation: isolate;
+}
+.eds-explore::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 3% 0 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 45% 100%, rgba(151,21,15,.11), transparent 72%);
 }
 .eds-explore__header {
   display: flex;
   align-items: center;
-  gap: clamp(.65rem, 1.3vw, 1.25rem);
-  margin-bottom: clamp(1.1rem, 2.3vw, 1.8rem);
+  gap: clamp(.6rem, 1.25vw, 1.1rem);
+  margin-bottom: clamp(1.2rem, 2.3vw, 1.9rem);
 }
 .eds-explore__mark {
+  display: block;
   flex: 0 0 auto;
-  width: 29px;
+  width: 33px;
   height: 13px;
   background: var(--peds-color-ignition);
-  clip-path: polygon(26% 0, 50% 0, 26% 100%, 0 100%, 26% 0, 77% 0, 100% 0, 76% 100%, 52% 100%);
-  filter: drop-shadow(0 0 8px rgba(255, 74, 24, .3));
+  clip-path: polygon(24% 0, 48% 0, 25% 100%, 0 100%, 24% 0, 78% 0, 100% 0, 76% 100%, 52% 100%);
+  filter: drop-shadow(0 0 8px rgba(255,74,24,.46));
 }
 .eds-explore__header h2 {
   margin: 0;
   font-family: var(--peds-font-display);
-  font-size: clamp(1.3rem, 2.4vw, 2rem);
+  font-size: clamp(1.55rem, 2.5vw, 2.3rem);
+  font-style: italic;
   font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: .015em;
+  line-height: 1;
   text-transform: uppercase;
+  letter-spacing: -.015em;
   color: var(--peds-color-ivory);
 }
 .eds-explore__header-rule {
-  flex: 1;
-  min-width: 20px;
-  height: 1px;
-  background: linear-gradient(90deg, rgba(255, 74, 24, .75), rgba(255, 74, 24, 0));
+  flex: 1 1 auto;
+  min-width: 15px;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(255,74,24,.52), rgba(255,74,24,.9) 55%, rgba(255,74,24,0));
 }
 .eds-explore__grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: clamp(.55rem, 1vw, .9rem);
+  gap: clamp(.32rem, .7vw, .8rem);
 }
 .eds-explore__card {
   position: relative;
   display: block;
   min-width: 0;
-  min-height: 205px;
-  aspect-ratio: 1.42;
+  min-height: 260px;
+  aspect-ratio: 1.24;
   isolation: isolate;
   overflow: hidden;
-  border: 1px solid rgba(232, 242, 255, .18);
-  border-radius: 9px;
-  background: #0a1018;
+  border: 1px solid rgba(224,230,240,.34);
+  clip-path: polygon(9% 0, 100% 0, 91% 100%, 0 100%);
+  background: #080b12;
   color: var(--peds-color-ivory);
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.04), 0 12px 26px rgba(0,0,0,.2);
   text-decoration: none;
   touch-action: manipulation;
-  transition:
-    transform 290ms cubic-bezier(.22, 1, .36, 1),
-    border-color 230ms ease,
-    box-shadow 290ms ease;
+  will-change: auto;
+  transition: border-color 220ms ease, transform 300ms cubic-bezier(.22,1,.36,1), filter 300ms;
 }
 .eds-explore__card::before {
-  content: '';
+  content: "";
   position: absolute;
   z-index: 4;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(240px circle at var(--ex-pointer-x, 50%) var(--ex-pointer-y, 50%), rgba(255, 132, 79, .27), transparent 70%);
+  background: radial-gradient(235px circle at var(--ex-pointer-x, 50%) var(--ex-pointer-y, 50%), rgba(255,113,55,.28), transparent 72%);
   opacity: 0;
   transition: opacity 220ms ease;
 }
 .eds-explore__card::after {
-  content: '';
+  content: "";
   position: absolute;
-  z-index: 3;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent 5%, var(--peds-color-ignition), #ffb69d 80%, transparent 100%);
-  transform: scaleX(.35);
+  z-index: 5;
+  inset: auto 0 0;
+  height: 3px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, #e51b37 20%, #ff4a18 58%, #ffdacd 77%, transparent);
+  opacity: .85;
+  box-shadow: 0 0 16px rgba(255,74,24,.75);
+  transform: scaleX(.68);
   transform-origin: left;
-  opacity: .6;
-  transition: transform 420ms cubic-bezier(.22, 1, .36, 1), opacity 250ms;
+  transition: transform 390ms cubic-bezier(.22,1,.36,1), opacity 240ms;
 }
 .eds-explore__art,
-.eds-explore__art picture,
 .eds-explore__art img {
   position: absolute;
   inset: 0;
@@ -95,186 +102,185 @@
   width: 100%;
   height: 100%;
 }
-.eds-explore__art {
-  overflow: hidden;
-  background: #0a1018;
-}
+.eds-explore__art { overflow: hidden; background: #080b12; }
 .eds-explore__art img {
   object-fit: cover;
   object-position: center 43%;
-  transform: scale(1.01);
-  filter: saturate(.88) contrast(1.12);
-  transition: transform 650ms cubic-bezier(.2, .8, .2, 1), filter 400ms;
+  transform: scale(1.025);
+  filter: saturate(.94) contrast(1.07);
+  transition: transform 720ms cubic-bezier(.2,.8,.2,1), filter 420ms ease;
 }
 .eds-explore__art::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(4, 8, 13, .03) 0%, rgba(5, 8, 13, .07) 37%, rgba(4, 7, 11, .76) 75%, rgba(3, 5, 9, .97) 100%);
+  pointer-events: none;
+  background:
+    linear-gradient(0deg, rgba(0,0,0,.91) 0%, rgba(0,0,0,.62) 18%, rgba(0,0,0,0) 62%),
+    linear-gradient(90deg, rgba(0,0,0,.23), transparent 45%),
+    linear-gradient(135deg, rgba(255,74,24,.12), transparent 50%);
 }
-.eds-explore__card--showroom .eds-explore__art img { object-position: 54% 50%; }
-.eds-explore__card--engineering .eds-explore__art img { object-position: 46% 54%; }
-.eds-explore__card--drivers .eds-explore__art img { object-position: 59% 42%; }
-.eds-explore__card--teams .eds-explore__art img { object-position: 54% 43%; }
+.eds-explore__card--engineering .eds-explore__art img { object-position: center 53%; }
+.eds-explore__card--drivers .eds-explore__art img { object-position: 56% 35%; }
+.eds-explore__card--teams .eds-explore__art img { object-position: center 48%; }
 .eds-explore__grid-lines {
   position: absolute;
   z-index: 2;
   inset: 0;
   pointer-events: none;
   background:
-    repeating-linear-gradient(0deg, transparent 0 38px, rgba(153, 197, 227, .035) 39px 40px),
-    linear-gradient(135deg, transparent 65%, rgba(255, 74, 24, .14) 100%);
+    repeating-linear-gradient(0deg, transparent 0 46px, rgba(118,161,186,.032) 47px 48px),
+    linear-gradient(145deg, transparent 48%, rgba(255,74,24,.13));
   mix-blend-mode: screen;
 }
 .eds-explore__light-pass {
   position: absolute;
   z-index: 3;
-  top: -20%;
-  bottom: -20%;
+  top: -25%;
+  bottom: -25%;
   left: -65%;
-  width: 35%;
+  width: 31%;
+  transform: skewX(-18deg);
+  background: linear-gradient(90deg, transparent, rgba(255,237,222,.23), transparent);
   pointer-events: none;
-  background: linear-gradient(90deg, transparent, rgba(253, 240, 230, .19), transparent);
-  transform: skewX(-22deg);
   opacity: 0;
 }
 .eds-explore__number {
   position: absolute;
-  z-index: 5;
-  top: 12px;
-  right: 13px;
+  z-index: 6;
+  top: 13px;
+  right: 19px;
   font-family: var(--peds-font-mono);
-  font-size: .65rem;
+  font-size: .68rem;
   font-weight: 600;
-  color: rgba(244, 240, 232, .64);
-  letter-spacing: .1em;
+  letter-spacing: .12em;
+  color: rgba(255,255,255,.77);
+  text-shadow: 0 2px 8px #000;
+}
+.eds-explore__number::after {
+  content: "";
+  display: inline-block;
+  width: 12px;
+  height: 4px;
+  margin-left: 5px;
+  vertical-align: middle;
+  background: var(--peds-color-ignition);
+  transform: skewX(-25deg);
 }
 .eds-explore__bottom {
   position: absolute;
-  z-index: 5;
-  right: 13px;
-  bottom: clamp(14px, 1.4vw, 20px);
-  left: clamp(12px, 1.2vw, 18px);
+  z-index: 6;
+  bottom: clamp(16px, 1.8vw, 27px);
+  left: clamp(16px, 2vw, 31px);
+  right: clamp(27px, 3.4vw, 54px);
   display: flex;
   align-items: center;
-  gap: clamp(.35rem, .7vw, .7rem);
-  min-width: 0;
+  gap: clamp(.48rem, .8vw, .85rem);
 }
 .eds-explore__bottom strong {
-  flex: 1;
+  flex: 1 1 auto;
+  min-width: 0;
   font-family: var(--peds-font-display);
-  font-size: clamp(1.07rem, 1.55vw, 1.57rem);
+  font-size: clamp(1.23rem, 1.9vw, 1.95rem);
+  font-style: italic;
   font-weight: 800;
-  line-height: 1;
-  letter-spacing: .015em;
+  line-height: .94;
+  letter-spacing: -.015em;
   text-transform: uppercase;
-  text-shadow: 0 3px 9px rgba(0, 0, 0, .85);
+  text-shadow: 0 3px 8px rgba(0,0,0,.84);
 }
-.eds-explore__icon,
-.eds-explore__arrow {
-  display: inline-flex;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  filter: drop-shadow(0 2px 6px #000b);
-}
-.eds-explore__icon {
-  color: var(--peds-color-ivory);
+.eds-explore__icon, .eds-explore__arrow {
+  flex: none;
+  color: #f4f0e8;
+  filter: drop-shadow(0 2px 4px #000b);
 }
 .eds-explore__arrow {
-  transition: transform 240ms cubic-bezier(.22, 1, .36, 1), color 240ms;
+  transition: transform 240ms cubic-bezier(.22,1,.36,1), color 240ms ease;
 }
 .eds-explore__card:focus-visible {
   outline: 3px solid var(--peds-color-brake-amber);
-  outline-offset: 3px;
+  outline-offset: -5px;
+  border-color: var(--peds-color-ignition);
+}
+.eds-explore__card:active {
+  transform: scale(.982);
+  filter: brightness(1.1);
 }
 @media (hover: hover) and (pointer: fine) {
   .eds-explore__card:hover {
     transform: translateY(-5px);
     border-color: var(--peds-color-ignition);
-    box-shadow: 0 18px 32px rgba(0, 0, 0, .34), 0 0 0 1px rgba(255,74,24,.27);
+    filter: drop-shadow(0 0 10px rgba(255,74,24,.26));
   }
   .eds-explore__card:hover::before { opacity: 1; }
   .eds-explore__card:hover::after { transform: scaleX(1); opacity: 1; }
   .eds-explore__card:hover .eds-explore__art img {
-    transform: scale(1.085);
-    filter: saturate(1.08) contrast(1.07);
+    transform: scale(1.12);
+    filter: saturate(1.13) contrast(1.07);
   }
   .eds-explore__card:hover .eds-explore__light-pass {
-    animation: eds-explore-sweep 640ms cubic-bezier(.22, 1, .36, 1) both;
+    animation: eds-explore-sweep 610ms cubic-bezier(.22,1,.36,1) both;
   }
   .eds-explore__card:hover .eds-explore__arrow {
-    transform: translate(3px, -3px);
+    transform: translate(4px,-4px);
     color: #ffa780;
   }
 }
-.eds-explore__card:active {
-  transform: scale(.985);
-  border-color: var(--peds-color-ignition);
-}
 @keyframes eds-explore-sweep {
   from { left: -65%; opacity: 0; }
-  22% { opacity: 1; }
-  to { left: 140%; opacity: 0; }
+  25% { opacity: 1; }
+  to { left: 150%; opacity: 0; }
 }
 @keyframes eds-explore-reveal {
-  from { opacity: .4; transform: translateY(18px); }
+  from { opacity: .65; transform: translateY(17px); }
   to { opacity: 1; transform: translateY(0); }
 }
 @media (prefers-reduced-motion: no-preference) {
   .eds-explore[data-revealed='true'] .eds-explore__card {
-    animation: eds-explore-reveal 580ms cubic-bezier(.22, 1, .36, 1) both;
+    animation: eds-explore-reveal 560ms cubic-bezier(.22,1,.36,1) both;
     animation-delay: calc(var(--ex-order) * 70ms);
   }
 }
-@media (max-width: 1050px) {
-  .eds-explore__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .eds-explore__card { min-height: 205px; aspect-ratio: 1.85; }
-  .eds-explore__bottom strong { font-size: clamp(1.2rem, 2.8vw, 1.65rem); }
+@media (max-width: 1100px) {
+  .eds-explore__grid { grid-template-columns: repeat(2, minmax(0,1fr)); gap: .7rem; }
+  .eds-explore__card { min-height: 250px; aspect-ratio: 1.7; }
+  .eds-explore__bottom strong { font-size: clamp(1.5rem, 3vw, 2rem); }
 }
 @media (max-width: 640px) {
   .eds-explore { padding-block: 2.25rem; }
-  .eds-explore__header h2 { font-size: 1.45rem; }
+  .eds-explore__header h2 { font-size: clamp(1.3rem, 6vw, 1.75rem); }
   .eds-explore__grid {
     display: grid;
-    grid-auto-flow: column;
-    grid-auto-columns: minmax(230px, 78%);
     grid-template-columns: none;
-    gap: .75rem;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(245px, 82%);
+    gap: .6rem;
     overflow-x: auto;
-    padding: 2px 4px 15px 2px;
+    overflow-y: hidden;
+    padding: 3px 3px 14px;
     scroll-snap-type: x mandatory;
-    scroll-padding-inline: 2px;
+    scroll-padding-inline: 3px;
     overscroll-behavior-inline: contain;
     -webkit-overflow-scrolling: touch;
   }
-  .eds-explore__card {
-    scroll-snap-align: start;
-    min-height: 218px;
-    aspect-ratio: 1.4;
-  }
-  .eds-explore__bottom strong { font-size: 1.45rem; }
-  .eds-explore__card:active { transform: scale(.99); }
+  .eds-explore__card { min-height: 265px; aspect-ratio: 1.16; scroll-snap-align: start; }
+  .eds-explore__bottom strong { font-size: 1.75rem; }
+  .eds-explore__bottom { left: 23px; right: 35px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .eds-explore,
-  .eds-explore *,
-  .eds-explore *::before,
-  .eds-explore *::after {
+  .eds-explore *, .eds-explore *::before, .eds-explore *::after {
     animation: none !important;
     transition: none !important;
   }
-  .eds-explore__card,
-  .eds-explore__card:active,
-  .eds-explore__card:hover,
-  .eds-explore__art img { transform: none !important; opacity: 1 !important; }
+  .eds-explore__card, .eds-explore__card:hover, .eds-explore__card:active,
+  .eds-explore__art img { transform: none !important; }
   .eds-explore__light-pass { display: none; }
 }
 [data-text-zoom='400'] .eds-explore__header { flex-wrap: wrap; }
-[data-text-zoom='400'] .eds-explore__header h2 { font-size: 22px; }
+[data-text-zoom='400'] .eds-explore__header h2 { font-size: 23px; }
 [data-text-zoom='400'] .eds-explore__grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: minmax(0,1fr);
   grid-auto-flow: row;
   grid-auto-columns: auto;
   overflow: visible;
@@ -282,7 +288,8 @@
 }
 [data-text-zoom='400'] .eds-explore__card {
   aspect-ratio: auto;
-  min-height: 200px;
+  min-height: 210px;
+  clip-path: none;
 }
-[data-text-zoom='400'] .eds-explore__bottom { flex-wrap: wrap; }
+[data-text-zoom='400'] .eds-explore__bottom { flex-wrap: wrap; left: 16px; right: 16px; }
 [data-text-zoom='400'] .eds-explore__bottom strong { font-size: 22px; overflow-wrap: anywhere; }
