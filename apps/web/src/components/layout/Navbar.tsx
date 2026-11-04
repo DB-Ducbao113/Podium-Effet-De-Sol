@@ -45,7 +45,7 @@ export const Navbar = memo(function Navbar() {
   const hubHash = location.hash;
   const currentUrl = `${location.pathname}${location.search}`;
 
-  const isActive = (id: string) => {
+  const isActive = (id: string): boolean => {
     switch (id) {
       case 'overview':
         return location.pathname === '/'
