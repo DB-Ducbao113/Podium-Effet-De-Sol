@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { useChampionshipStore } from "../../store/useChampionshipStore";
 import { useNavigationStore } from "../../store/useNavigationStore";
 import { SeasonYear } from "../../types";
@@ -153,6 +154,11 @@ export const ChampionshipView: React.FC<ChampionshipViewProps> = ({
             </Tooltip>
           </div>
         </div>
+
+        <Link to={`/season/${season}/journey`} className="group flex items-center justify-between gap-4 border border-[var(--peds-color-ignition)]/50 bg-[var(--peds-color-carbon)] px-5 py-4 text-[var(--peds-color-ivory)] transition-colors hover:border-[var(--peds-color-ignition)] hover:bg-[#171b22] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--peds-color-ignition)]">
+          <span className="flex flex-col gap-1"><strong className="font-display text-2xl uppercase">{lang === 'vi' ? 'Khám phá hành trình mùa giải' : 'Explore the Season Journey'}</strong><span className="text-xs text-studio-400">{lang === 'vi' ? 'Race + Calendar trong một hành trình cuộn tương tác' : 'Race + Calendar in one interactive scroll experience'}</span></span>
+          <span aria-hidden="true" className="font-mono text-xl text-[var(--peds-color-ignition)]">↗</span>
+        </Link>
 
         {/* Section content selected by the primary navigation. */}
         <div
