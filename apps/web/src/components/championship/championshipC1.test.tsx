@@ -51,8 +51,9 @@ describe("C1 championship presentation", () => {
     expect(html).toContain('THE GRAND PRIX WORLD TOUR');
     expect(html).toContain('rcj-map-pin');
     expect(html).toContain('data-experience="world-tour-v5"');
-    expect(html).toContain('Race Center');
-    expect(html).toContain('Season Journey');
+    expect(html).toContain('data-view-details');
+    expect(html).toContain('href="/season/2026?tab=calendar&amp;round=1"');
+    expect(html).not.toContain('class="rcj-chapter"');
   });
   it("opens the full calendar for the selected round via View Details", () => {
     const html = render(<ChampionshipCalendar season={2026} />, '/season/2026?tab=calendar&round=1');
