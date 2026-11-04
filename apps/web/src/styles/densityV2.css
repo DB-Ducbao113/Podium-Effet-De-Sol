@@ -5,7 +5,7 @@
  * CSS version can be checked in DevTools:
  * getComputedStyle(document.documentElement).getPropertyValue('--peds-density-version')
  */
-:root { --peds-density-version: 2; }
+:root { --peds-density-version: 2; --peds-hero-stage-safety: 1; }
 
 @media (min-width: 1180px) {
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .page-container {
