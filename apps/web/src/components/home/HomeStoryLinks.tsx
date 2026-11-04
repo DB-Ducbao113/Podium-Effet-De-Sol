@@ -24,11 +24,19 @@ function handlePointerMove(event: PointerEvent<HTMLAnchorElement>) {
   const y = Math.min(100, Math.max(0, ((event.clientY - rect.top) / rect.height) * 100));
   event.currentTarget.style.setProperty('--ex-pointer-x', `${x.toFixed(1)}%`);
   event.currentTarget.style.setProperty('--ex-pointer-y', `${y.toFixed(1)}%`);
+  event.currentTarget.style.setProperty('--ex-tilt-x', `${((50 - y) * .052).toFixed(2)}deg`);
+  event.currentTarget.style.setProperty('--ex-tilt-y', `${((x - 50) * .052).toFixed(2)}deg`);
+  event.currentTarget.style.setProperty('--ex-shift-x', `${((50 - x) * .14).toFixed(1)}px`);
+  event.currentTarget.style.setProperty('--ex-shift-y', `${((50 - y) * .12).toFixed(1)}px`);
 }
 
 function clearPointer(event: PointerEvent<HTMLAnchorElement>) {
   event.currentTarget.style.removeProperty('--ex-pointer-x');
   event.currentTarget.style.removeProperty('--ex-pointer-y');
+  event.currentTarget.style.removeProperty('--ex-tilt-x');
+  event.currentTarget.style.removeProperty('--ex-tilt-y');
+  event.currentTarget.style.removeProperty('--ex-shift-x');
+  event.currentTarget.style.removeProperty('--ex-shift-y');
 }
 
 export function HomeStoryLinks() {
