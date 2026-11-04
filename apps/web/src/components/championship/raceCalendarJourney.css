@@ -321,7 +321,7 @@
 .rcj-stage-viewport .rcj-map-viewport {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   width: 100%;
   height: 100%;
   overflow-x: auto;
@@ -337,6 +337,7 @@
   width: min(100%, calc((100svh - 118px) * 2));
   min-width: 1050px;
   max-width: 1720px;
+  margin-inline: auto;
   height: auto;
   aspect-ratio: 2 / 1;
   overflow: visible;
