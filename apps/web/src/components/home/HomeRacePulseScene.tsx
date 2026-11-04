@@ -1,19 +1,13 @@
+import { F1HeroStage } from './hero2d/F1HeroStage';
 import './homeRacePulseScene.css';
 
-/** Quiet engineering annotations: inlet -> pressure throat -> diffuser. No track/car. */
+/** Visual-only F1 illustration; the real 3D model stays in Showroom. */
 export function HomeRacePulseScene() {
   return (
-    <div className="home-pulse home-pulse--aerocore" aria-hidden="true" data-home-hero-visual="aerocore">
-      <div className="home-pulse__flow-labels">
-        <span><i />01 / INLET</span>
-        <span><i />02 / THROAT</span>
-        <span><i />03 / DIFFUSER</span>
-      </div>
-      <div className="home-pulse__scanline" />
-      <span className="home-pulse__corner home-pulse__corner--a" />
-      <span className="home-pulse__corner home-pulse__corner--b" />
-      <span className="home-pulse__ident home-pulse__ident--top">GROUND EFFECT / FORM STUDY</span>
-      <span className="home-pulse__ident home-pulse__ident--bottom">AEROCORE · PEDS / 08</span>
+    <div className="home-pulse home-pulse--f1hero" aria-hidden="true" data-home-hero-visual="f1-2.5d">
+      <F1HeroStage />
+      <div className="home-pulse__corner home-pulse__corner--a" />
+      <div className="home-pulse__corner home-pulse__corner--b" />
     </div>
   );
 }
