@@ -18,6 +18,7 @@ export function HomeHudScene({ lang }: { lang: 'vi' | 'en' }) {
   const [mode, setMode] = useState<HomeModelBMode>('aero');
   const [enabled, setEnabled] = useState(false);
   const [inView, setInView] = useState(false);
+  const [wasVisible, setWasVisible] = useState(false);
   const [tabVisible, setTabVisible] = useState(true);
   const reducedMotion = useReducedMotion();
   const viewRef = useRef<HTMLDivElement | null>(null);
@@ -30,9 +31,13 @@ export function HomeHudScene({ lang }: { lang: 'vi' | 'en' }) {
     if (!root) return;
     if (!('IntersectionObserver' in window)) {
       setInView(true);
+      setWasVisible(true);
       return;
     }
-    const observer = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), {
+    const observer = new IntersectionObserver(([entry]) => {
+      setInView(entry.isIntersecting);
+      if (entry.isIntersecting) setWasVisible(true);
+    }, {
       rootMargin: '100px 0px',
       threshold: .05,
     });
@@ -47,7 +52,9 @@ export function HomeHudScene({ lang }: { lang: 'vi' | 'en' }) {
     return () => document.removeEventListener('visibilitychange', refresh);
   }, []);
 
-  const mounted = enabled && inView;
+  // Keep a loaded Canvas in memory when scrolled away; demand rendering
+  // stops via active=false, avoiding GLB re-fetch on every scroll cycle.
+  const mounted = enabled && wasVisible;
   const active = inView && tabVisible;
   const fallback = (
     <div className="launch-hud__fallback" role="status">
@@ -81,7 +88,7 @@ export function HomeHudScene({ lang }: { lang: 'vi' | 'en' }) {
           <div className="launch-hud__standby">
             <span className="launch-hud__standby-symbol" aria-hidden="true"><Move3d size={27} strokeWidth={1.2} /></span>
             <strong>MODEL B</strong>
-            <button type="button" onClick={() => { setEnabled(true); setInView(true); }}>
+            <button type="button" onClick={() => { setEnabled(true); setWasVisible(true); }}>
               {lang === 'vi' ? 'BẬT XEM 3D' : 'ACTIVATE 3D'}
             </button>
           </div>
