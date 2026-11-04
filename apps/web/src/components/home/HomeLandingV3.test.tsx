@@ -24,8 +24,8 @@ describe('Homepage Cinematic V7', () => {
     expect(html).toContain('LAUNCH CONTROL');
     expect(html).not.toContain('<img');
     expect(html).not.toContain('<picture');
-    expect(html).toContain('home-pulse__reticle');
-    expect(html).toContain('home-pulse__axis');
+    expect(html).toContain('home-pulse__flow-labels');
+    expect(html).toContain('home-pulse__scanline');
     expect(html).toContain('data-home-hero-visual="aerocore"');
     expect(html).not.toContain('MODEL B / DIGITAL TWIN');
     expect(html).not.toContain('ACTIVATE 3D');

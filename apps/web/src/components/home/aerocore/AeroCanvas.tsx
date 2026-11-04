@@ -2,7 +2,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { useEffect, useMemo, useRef } from 'react';
 import type { MutableRefObject } from 'react';
 import { AdditiveBlending, CatmullRomCurve3, DoubleSide, ShaderMaterial, TubeGeometry, Vector3 } from 'three';
-import type { Group } from 'three';
+import { GroundEffectSculpture } from './GroundEffectSculpture';
 import type { AeroController } from '../HomeCinematicBackground';
 import { clamp, getAeroEnergy } from './aeroMotion';
 
@@ -11,10 +11,9 @@ type Props = { controller: MutableRefObject<AeroController>; visible: boolean; o
 const vertexShader = [
   'varying vec2 vUv;',
   'uniform float uTime;',
-  'uniform float uEnergy;',
   'void main() {',
   '  vUv = uv;',
-  '  vec3 p = position + normal * (0.028 * uEnergy * sin(uv.x * 38.0 - uTime * 1.3));',
+  '  vec3 p = position + normal * (0.012 * sin(uv.x * 21.0 - uTime * 1.1));',
   '  gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);',
   '}',
 ].join('\n');
@@ -25,13 +24,17 @@ const fragmentShader = [
   'uniform float uEnergy;',
   'uniform float uPhase;',
   'void main() {',
-  '  float heat = smoothstep(-0.65, 0.9, sin(vUv.x * 18.0 - uTime * 1.65 + uPhase));',
-  '  vec3 cold = vec3(0.11, 0.68, 0.91);',
-  '  vec3 hot = vec3(1.0, 0.24, 0.075);',
-  '  vec3 color = mix(cold, hot, heat * (0.66 + 0.2 * uEnergy));',
-  '  float taper = smoothstep(0.0, 0.12, vUv.x) * (1.0 - smoothstep(0.82, 1.0, vUv.x));',
-  '  float highlight = pow(1.0 - abs(vUv.y - 0.5) * 2.0, 2.0);',
-  '  gl_FragColor = vec4(color * (0.55 + highlight * 0.8), taper * (0.26 + highlight * 0.42));',
+  '  float throat = smoothstep(0.23, 0.42, vUv.x) * (1.0 - smoothstep(0.54, 0.78, vUv.x));',
+  '  vec3 inlet = vec3(0.19, 0.74, 0.91);',
+  '  vec3 compression = vec3(1.0, 0.34, 0.13);',
+  '  vec3 release = vec3(0.5, 0.83, 1.0);',
+  '  vec3 color = mix(inlet, compression, throat * (0.64 + uEnergy * 0.22));',
+  '  color = mix(color, release, smoothstep(0.69, 0.98, vUv.x) * 0.45);',
+  '  float movingHighlight = pow(max(sin(vUv.x * 31.0 - uTime * 2.2 + uPhase), 0.0), 8.0);',
+  '  float taper = smoothstep(0.0, 0.13, vUv.x) * (1.0 - smoothstep(0.82, 1.0, vUv.x));',
+  '  float core = pow(1.0 - abs(vUv.y - 0.5) * 2.0, 1.8);',
+  '  float alpha = taper * (0.19 + core * 0.41) * (0.85 + throat * 0.15);',
+  '  gl_FragColor = vec4(color * (0.65 + core * 0.6 + movingHighlight * 0.32), alpha);',
   '}',
 ].join('\n');
 
@@ -42,17 +45,19 @@ function Airflow({ motion }: { motion: MutableRefObject<AeroController> }) {
     uniforms: { uTime: { value: 0 }, uEnergy: { value: 0.7 }, uPhase: { value: 0 } },
   }), []);
   const materialRef = useRef(material);
-  const geometries = useMemo(() => Array.from({ length: 12 }, (_, i) => {
-    const shift = ((i % 6) - 2.5) * .44;
-    const back = Math.floor(i / 6);
+  // Laminar streamlines converge at the venturi throat, then expand in the diffuser.
+  const geometries = useMemo(() => Array.from({ length: 16 }, (_, i) => {
+    const line = (i - 7.5) / 7.5;
+    const depth = i % 3;
     return new TubeGeometry(new CatmullRomCurve3([
-      new Vector3(-6, shift - .8, -1.3 - back),
-      new Vector3(-3.3, shift + .65, -1 - back * .7),
-      new Vector3(-1.25, shift - .45, -back * .3),
-      new Vector3(1.1, shift + .45, .4 - back * .7),
-      new Vector3(3.1, shift - .9, -.5 - back * .6),
-      new Vector3(6, shift + .5, -2 - back),
-    ]), 100, back ? .017 : .027, 5, false);
+      new Vector3(-5.25, line * 1.38, 1.22 - depth * 0.22),
+      new Vector3(-3.65, line * 1.05, 1.37 - depth * 0.19),
+      new Vector3(-1.45, line * 0.39, 1.56 - depth * 0.12),
+      new Vector3(0.0, line * 0.27, 1.65 - depth * 0.12),
+      new Vector3(1.45, line * 0.59, 1.58 - depth * 0.19),
+      new Vector3(3.4, line * 1.04, 1.33 - depth * 0.21),
+      new Vector3(5.6, line * 1.43, 1.12 - depth * 0.24),
+    ]), 128, i % 4 === 0 ? 0.023 : 0.013, 5, false);
   }), []);
   useEffect(() => () => { material.dispose(); geometries.forEach((g) => g.dispose()); }, [geometries, material]);
   useFrame(({ clock }, delta) => {
@@ -60,46 +65,9 @@ function Airflow({ motion }: { motion: MutableRefObject<AeroController> }) {
     materialRef.current.uniforms.uPhase.value = motion.current.phase;
     materialRef.current.uniforms.uEnergy.value += (getAeroEnergy(motion.current.phase) - materialRef.current.uniforms.uEnergy.value) * clamp(delta * 3, 0, 1);
   });
-  return <group rotation={[.05, -.12, -.08]}>
+  return <group position={[1.7, 0, 0]} rotation={[-.08, -.19, -.15]}>
     {geometries.map((geometry, index) =>
       <mesh key={index} geometry={geometry} material={material} frustumCulled={false} />)}
-  </group>;
-}
-
-function CarbonCore({ motion }: { motion: MutableRefObject<AeroController> }) {
-  const group = useRef<Group>(null);
-  const phase = useRef(0);
-  useFrame(({ clock }, delta) => {
-    phase.current += (motion.current.phase - phase.current) * clamp(delta * 2.2, 0, 1);
-    const g = group.current;
-    if (!g) return;
-    g.rotation.y = -.38 + phase.current * .39 + Math.sin(clock.elapsedTime * .15) * .045;
-    g.rotation.x = .18 + phase.current * .08;
-    g.rotation.z = -.18 + Math.sin(clock.elapsedTime * .13) * .05;
-    g.position.x = 1.35 + Math.sin(phase.current * 1.2) * .7;
-    const spread = clamp(phase.current - 2.45, 0, .55) * 1.5;
-    g.children.forEach((child, index) => {
-      if (index > 0 && index < 6) child.position.z = (index - 3) * (.22 + spread);
-    });
-  });
-  return <group ref={group} position={[1.35, 0, 0]}>
-    <mesh rotation={[.1, .3, 0]}>
-      <icosahedronGeometry args={[1.48, 1]} />
-      <meshStandardMaterial color="#172431" metalness={.84} roughness={.28} flatShading />
-    </mesh>
-    {Array.from({ length: 5 }, (_, i) =>
-      <mesh key={i} rotation={[.15 + i * .12, .12 + i * .52, .35 + i * .62]} position={[0, 0, (i - 2) * .22]}>
-        <boxGeometry args={[3.25 - i * .22, .14 + (i % 2) * .11, 1.26]} />
-        <meshStandardMaterial color={i % 2 === 0 ? '#314052' : '#1c2b39'} metalness={.88} roughness={.28} />
-      </mesh>)}
-    <mesh rotation={[.18, .44, 0]}>
-      <torusGeometry args={[2.05, .045, 8, 90]} />
-      <meshStandardMaterial color="#91b9ce" emissive="#215775" emissiveIntensity={.32} metalness={.9} roughness={.2} />
-    </mesh>
-    <mesh rotation={[.5, 1.1, 0]}>
-      <torusGeometry args={[2.32, .025, 8, 90]} />
-      <meshBasicMaterial color="#ff632e" transparent opacity={.55} />
-    </mesh>
   </group>;
 }
 
@@ -130,11 +98,12 @@ function AeroWorld({ controller, onFailure }: Pick<Props, 'controller' | 'onFail
     return () => element.removeEventListener('webglcontextlost', lost);
   }, [gl, onFailure]);
   return <>
-    <ambientLight intensity={.65} />
-    <directionalLight position={[3, 4, 6]} intensity={2.3} color="#a3dafa" />
-    <pointLight position={[0, -2, 4]} intensity={45} distance={12} color="#ff5b29" />
-    <pointLight position={[-4, 3, 0]} intensity={24} distance={11} color="#319bc7" />
-    <CarbonCore motion={controller} />
+    <hemisphereLight args={['#a8d3ef', '#160d13', 1.15]} />
+    <directionalLight position={[2, 5, 7]} intensity={3.4} color="#d9edff" />
+    <directionalLight position={[-5, -2, 2]} intensity={2.2} color="#fb784d" />
+    <pointLight position={[3, -0.6, 3.5]} intensity={22} distance={12} color="#ff6a35" />
+    <pointLight position={[-2, 2.2, 4]} intensity={17} distance={13} color="#59c2ea" />
+    <GroundEffectSculpture motion={controller} />
     <Airflow motion={controller} />
     <CameraRig motion={controller} />
   </>;

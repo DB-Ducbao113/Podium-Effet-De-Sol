@@ -24,7 +24,7 @@ describe('Homepage V8 — V7 DOM contract and AEROCORE rendering', () => {
   it('uses an original aerial-energy HUD, without track or vehicle', () => {
     const html = renderToStaticMarkup(<HomeRacePulseScene />);
     expect(html).toContain('data-home-hero-visual="aerocore"');
-    expect(html).toContain('home-pulse__reticle');
+    expect(html).toContain('home-pulse__flow-labels');
     expect(html).not.toMatch(/road|track|trajectory|kerb|<canvas|<img|<video/i);
     expect(hero).toContain('<HomeRacePulseScene />');
     expect(hero).toContain('r1-cinema--v7');

@@ -1,41 +1,52 @@
-/* V8 HUD. The Carbon Core and ribbons live in one full-page WebGL world. */
+/* AEROCORE V8.1 — precise annotations, not an unrelated radar or racetrack. */
 .home-pulse--aerocore {
-  position: relative; width: 100%; height: 100%; overflow: hidden; pointer-events: none;
-  background: radial-gradient(ellipse at 65% 48%,rgba(45,137,173,.065),transparent 60%);
+  position: relative; width: 100%; height: 100%; overflow: hidden;
+  pointer-events: none; background: transparent;
 }
-.home-pulse__reticle {
-  position: absolute; width: min(72%,370px); aspect-ratio: 1;
-  left: 47%; top: 45%; transform: translate(-50%,-50%) rotate(-23deg);
-  border: 1px solid rgba(109,190,224,.2); border-radius: 50%;
+.home-pulse__scanline {
+  position: absolute; top: 50%; left: 9%; width: 82%; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(90, 175, 212, .25) 22%, rgba(255, 131, 79, .2) 54%, transparent);
 }
-.home-pulse__reticle span {
-  position: absolute; inset: 12%; border: 1px dashed rgba(255,121,67,.29); border-radius: 50%;
+.home-pulse__flow-labels {
+  position: absolute; z-index: 3; left: 8%; right: 8%; bottom: 11%;
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
 }
-.home-pulse__reticle span:nth-child(2) { inset: 26%; border: 1px solid rgba(144,198,223,.3); }
-.home-pulse__reticle span:nth-child(3) {
-  inset: 45%; border: 1px solid rgba(255,121,67,.58); background: rgba(255,100,48,.1);
+.home-pulse__flow-labels span {
+  display: flex; align-items: center; gap: 9px;
+  color: rgba(207, 226, 238, .74);
+  font: 600 clamp(8px, .67vw, 10px)/1 var(--peds-font-mono);
+  letter-spacing: .13em;
+  text-shadow: 0 2px 7px #02060c;
 }
-.home-pulse__axis {
-  position: absolute; top: 50%; left: 6%; right: 6%; height: 1px;
-  background: linear-gradient(90deg,transparent,rgba(105,197,235,.28),transparent);
+.home-pulse__flow-labels i {
+  width: 4px; height: 4px; flex: none; border-radius: 50%;
+  background: #68b8d7; box-shadow: 0 0 11px rgba(67, 193, 231, .52);
+}
+.home-pulse__flow-labels span:nth-child(2) i {
+  background: #ff7543; box-shadow: 0 0 11px rgba(255, 113, 55, .62);
 }
 .home-pulse__corner {
-  position: absolute; width: 34px; height: 34px;
-  border-color: rgba(255,112,58,.66); border-style: solid;
+  position: absolute; width: 24px; height: 24px;
+  border-color: rgba(149, 191, 213, .40); border-style: solid;
 }
-.home-pulse__corner--a { top: 18%; left: 8%; border-width: 1px 0 0 1px; }
-.home-pulse__corner--b { bottom: 12%; right: 7%; border-width: 0 1px 1px 0; }
+.home-pulse__corner--a { top: 19%; left: 7%; border-width: 1px 0 0 1px; }
+.home-pulse__corner--b { bottom: 19%; right: 8%; border-width: 0 1px 1px 0; }
 .home-pulse__ident {
-  position: absolute; font: 600 9px/1 var(--peds-font-mono);
-  letter-spacing: .14em; color: rgba(198,221,234,.72);
+  position: absolute;
+  font: 600 9px/1 var(--peds-font-mono);
+  letter-spacing: .13em; color: rgba(196, 219, 233, .62);
+  text-shadow: 0 2px 9px #02060c;
 }
-.home-pulse__ident--top { top: clamp(22px,4vw,42px); right: 24px; }
-.home-pulse__ident--bottom { bottom: 22px; right: 27px; }
-@media (max-width:500px) {
+.home-pulse__ident--top { top: clamp(22px, 4vw, 42px); right: 24px; }
+.home-pulse__ident--bottom { bottom: 20px; right: 27px; }
+@media (max-width: 500px) {
+  .home-pulse__flow-labels { left: 5%; right: 5%; bottom: 19%; }
+  .home-pulse__flow-labels span { gap: 4px; font-size: 7px; letter-spacing: .06em; }
   .home-pulse__ident--top { right: 15px; }
   .home-pulse__ident--bottom { bottom: 12px; right: 13px; }
 }
-@media (prefers-reduced-motion:reduce) {
+@media (prefers-reduced-motion: reduce) {
   .home-pulse--aerocore * { animation: none !important; transition: none !important; }
 }
-[data-text-zoom='400'] .home-pulse__ident { display: none; }
+[data-text-zoom='400'] .home-pulse__ident,
+[data-text-zoom='400'] .home-pulse__flow-labels { display: none; }
