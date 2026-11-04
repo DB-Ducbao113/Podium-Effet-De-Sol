@@ -41,6 +41,7 @@ function Airflow({ motion }: { motion: MutableRefObject<AeroController> }) {
     side: DoubleSide, blending: AdditiveBlending,
     uniforms: { uTime: { value: 0 }, uEnergy: { value: 0.7 }, uPhase: { value: 0 } },
   }), []);
+  const materialRef = useRef(material);
   const geometries = useMemo(() => Array.from({ length: 12 }, (_, i) => {
     const shift = ((i % 6) - 2.5) * .44;
     const back = Math.floor(i / 6);
@@ -55,9 +56,9 @@ function Airflow({ motion }: { motion: MutableRefObject<AeroController> }) {
   }), []);
   useEffect(() => () => { material.dispose(); geometries.forEach((g) => g.dispose()); }, [geometries, material]);
   useFrame(({ clock }, delta) => {
-    material.uniforms.uTime.value = clock.elapsedTime;
-    material.uniforms.uPhase.value = motion.current.phase;
-    material.uniforms.uEnergy.value += (getAeroEnergy(motion.current.phase) - material.uniforms.uEnergy.value) * clamp(delta * 3, 0, 1);
+    materialRef.current.uniforms.uTime.value = clock.elapsedTime;
+    materialRef.current.uniforms.uPhase.value = motion.current.phase;
+    materialRef.current.uniforms.uEnergy.value += (getAeroEnergy(motion.current.phase) - materialRef.current.uniforms.uEnergy.value) * clamp(delta * 3, 0, 1);
   });
   return <group rotation={[.05, -.12, -.08]}>
     {geometries.map((geometry, index) =>
