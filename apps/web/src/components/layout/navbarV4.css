@@ -51,8 +51,9 @@
   display: none;
   margin-inline: auto;
   align-items: center;
-  gap: 1px;
+  gap: clamp(12px,1.5vw,26px);
   height: 100%;
+  margin-inline: auto clamp(16px,2vw,38px);
 }
 .h1-nav--v4 .h1-nav__group {
   position: relative;
@@ -66,7 +67,7 @@
 .h1-nav--v4 .h1-nav__link {
   height: 100%;
   min-height: 44px;
-  padding: 0 clamp(.38rem,.5vw,.75rem);
+  padding: 0 clamp(.65rem,.8vw,1rem);
   color: #acbac7;
   font: 700 clamp(.71rem,.8vw,.84rem)/1 var(--peds-font-display);
   letter-spacing: .058em;
@@ -90,9 +91,9 @@
 }
 .h1-nav--v4 .h1-nav__chevron {
   height: 44px;
-  width: 22px;
-  margin-left: -6px;
-  margin-right: 4px;
+  width: 24px;
+  margin-left: -4px;
+  margin-right: 2px;
   padding: 0;
   color: #7e96a7;
 }
@@ -130,8 +131,8 @@
 .h1-nav--v4 .h1-nav__sub[aria-current='true'] { color: #ffad87; }
 .h1-nav--v4 .h1-nav__cta {
   min-height: 39px;
-  margin-left: .45rem;
-  padding: 0 .85rem;
+  margin-left: clamp(14px,1.4vw,26px);
+  padding: 0 1.1rem;
   border: 1px solid rgba(255,132,81,.4);
   border-radius: 7px;
   clip-path: none;
@@ -196,12 +197,12 @@
   letter-spacing: .06em;
 }
 .h1-nav--v4 .h1-nav__mobile-cta { border-radius: 7px; }
-@media (min-width: 1280px) {
+@media (min-width: 1180px) {
   .h1-nav--v4 .h1-nav__desktop { display: flex; }
   .h1-nav--v4 .h1-nav__toggle { display: none; }
   .h1-nav--v4 ~ .h1-nav__scrim { display: none; }
 }
-@media (max-width: 1279px) {
+@media (max-width: 1179px) {
   .h1-nav--v4 .h1-nav__desktop { display: none; }
   .h1-nav--v4 .h1-nav__toggle { display: flex; }
   .h1-nav__scrim { display: flex; }
