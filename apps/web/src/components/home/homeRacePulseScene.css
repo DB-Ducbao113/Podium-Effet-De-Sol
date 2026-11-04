@@ -17,7 +17,9 @@
   --f1-y: 0px;
   --f1-yaw: 0deg;
   --f1-pitch: 0deg;
-  --f1-energy: 0;
+  --f1-reflection-opacity: .22;
+  --f1-air-back-opacity: .35;
+  --f1-air-front-opacity: .20;
   --f1-shine-x: 54%;
   --f1-shine-y: 49%;
 }
@@ -37,7 +39,7 @@
   left: 16%;
   background: radial-gradient(ellipse, rgba(2,6,11,.78), rgba(255,72,25,.09) 53%, transparent 76%);
   filter: blur(13px);
-  transform: translate3d(calc(var(--f1-x) * -.22), calc(var(--f1-y) * -.2), 0);
+  transform: translate3d(0, 0, 0);
 }
 .f1hero__vehicle {
   position: absolute;
@@ -64,7 +66,7 @@
 .f1hero__reflection {
   position: absolute;
   inset: 8% 8% 12%;
-  opacity: calc(.22 + var(--f1-energy) * .12);
+  opacity: var(--f1-reflection-opacity);
   background: radial-gradient(
     ellipse 24% 60% at var(--f1-shine-x) var(--f1-shine-y),
     rgba(239,248,255,.21),
@@ -80,11 +82,11 @@
   width: 100%;
   height: 100%;
   overflow: visible;
-  opacity: calc(.35 + var(--f1-energy) * .23);
+  opacity: var(--f1-air-back-opacity);
   pointer-events: none;
 }
 .f1hero__airflow--behind { z-index: -1; }
-.f1hero__airflow--front { z-index: 2; opacity: calc(.2 + var(--f1-energy) * .3); }
+.f1hero__airflow--front { z-index: 2; opacity: var(--f1-air-front-opacity); }
 .f1hero__airflow path { stroke-dasharray: 300 180; }
 .f1hero__microcopy {
   position: absolute;
