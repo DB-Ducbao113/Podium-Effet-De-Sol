@@ -12,6 +12,8 @@ describe('PEDS editorial compact density contract', () => {
       entry.indexOf('import "./styles/compactDesktop.css"'),
     );
     expect(about).toContain('peds-about-layout');
+    expect(styles).toContain('.p5-gallery-hero h1');
+    expect(styles).toContain('.peds-engineering-index');
   });
   it('reflows on desktop without browser zoom, app scaling or touching Model B', () => {
     expect(styles).toContain('@media (min-width: 1180px)');

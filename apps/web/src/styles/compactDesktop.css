@@ -280,3 +280,65 @@
     min-height: 235px;
   }
 }
+
+
+/* Large editorial directory heroes and engineering listing also share the density system. */
+@media (min-width: 1180px) {
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .p5-gallery-page {
+    padding-block: 1.4rem 2.75rem;
+  }
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .p5-gallery-hero,
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .p5-drivers-hero {
+    min-height: 315px;
+    padding: clamp(1.35rem, 2.4vw, 2.25rem);
+    border-radius: 18px;
+  }
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .p5-gallery-hero h1 {
+    font-size: clamp(3.6rem, 8.7vw, 8rem);
+  }
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .p5-controls {
+    margin-block: .75rem 1.1rem;
+    padding: .75rem;
+  }
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .p5-controls :is(input, select) {
+    min-height: 44px;
+  }
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .p5-driver-card {
+    aspect-ratio: .83;
+  }
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .p5-team-card {
+    min-height: 295px;
+    border-radius: 16px;
+  }
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .peds-engineering-index > header > .page-container {
+    padding-block: clamp(3rem, 5.2vw, 5rem);
+  }
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .peds-engineering-index > header h1 {
+    font-size: clamp(2.8rem, 4.7vw, 4.8rem);
+  }
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .peds-engineering-index > main.page-container {
+    padding-block: 2.8rem;
+  }
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .peds-engineering-index > main .grid {
+    gap: 1rem;
+  }
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .peds-engineering-index > main article a > div:last-child {
+    padding: 1.25rem;
+  }
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .peds-engineering-index > main article h2 {
+    font-size: clamp(1.4rem, 1.8vw, 1.9rem);
+  }
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .peds-engineering-index > main article {
+    border-radius: 1rem;
+  }
+}
+@media (min-width: 851px) and (max-width: 1179px) {
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .p5-gallery-hero,
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .p5-drivers-hero {
+    min-height: 340px;
+    padding: 1.5rem;
+  }
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .p5-gallery-hero h1 {
+    font-size: clamp(3.8rem, 8vw, 6rem);
+  }
+}

@@ -8,7 +8,7 @@ export const EngineeringIndexPage: React.FC = () => {
   const lang = useNavigationStore((state) => state.lang);
 
   return (
-    <div className="min-h-screen bg-[#080a0f] text-white">
+    <div className="peds-engineering-index min-h-screen bg-[#080a0f] text-white">
       <header className="relative overflow-hidden border-b border-white/10">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_10%,rgba(82,229,255,0.12),transparent_35%),radial-gradient(circle_at_20%_70%,rgba(239,68,68,0.12),transparent_40%)]" />
         <div className="page-container relative py-20 md:py-28">
