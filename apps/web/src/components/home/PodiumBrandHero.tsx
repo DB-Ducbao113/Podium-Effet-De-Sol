@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { useNavigationStore } from '../../store/useNavigationStore';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import { HomeHudScene } from './HomeHudScene';
+import { HomeLaunchEnvironment } from './HomeLaunchEnvironment';
 import './podiumHeroR1.css';
 
 const chapters = [
@@ -100,7 +101,7 @@ export function PodiumBrandHero() {
     <section
       ref={heroRef}
       id="launch-control"
-      className="r1-cinema r1-cinema--v4"
+      className="r1-cinema r1-cinema--v6"
       data-lang={lang}
       data-visible="true"
       data-motion-engine={reducedMotion ? 'reduced' : 'animejs'}
@@ -108,6 +109,7 @@ export function PodiumBrandHero() {
       onPointerMove={moveScene}
       onPointerLeave={resetScene}
     >
+      <HomeLaunchEnvironment />
       <div className="r1-cinema__inner page-container">
         <div className="r1-cinema__copy">
           <p className="r1-cinema__eyebrow" data-launch-reveal>
