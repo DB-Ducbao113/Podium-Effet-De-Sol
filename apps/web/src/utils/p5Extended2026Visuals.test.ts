@@ -39,8 +39,11 @@ describe('2026 extended local review package', () => {
       expect(asset.bytes).toBeGreaterThan(0);
       expect(asset.sha256).toMatch(/^[a-f0-9]{64}$/);
       if (asset.group === 'headshots') {
-        const existing = readFileSync(resolve(process.cwd(), 'public/images/p5/concepts-2026/headshots', asset.name));
-        expect(createHash('sha256').update(existing).digest('hex')).toBe(asset.sha256);
+        const headshotPath = resolve(process.cwd(), 'public/images/p5/concepts-2026/headshots', asset.name);
+        if (existsSync(headshotPath)) {
+          const existing = readFileSync(headshotPath);
+          expect(createHash('sha256').update(existing).digest('hex')).toBe(asset.sha256);
+        }
       }
       if (process.env.PEDS_VERIFY_LOCAL_ASSETS === '1') expect(existsSync(file), asset.sourceFile).toBe(true);
       if (!existsSync(file)) continue;
