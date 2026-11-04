@@ -1,5 +1,7 @@
 # EDS QA RELEASE REPORT — Inside the Machine Engineering integration
 
+> Historical QA record. The local `scratch/` screenshots and generated reports cited below were permanently deleted with owner approval on 04/11/2026; these references are no longer live evidence paths.
+
 Date: 2026-10-30 (local)  
 QA baseline: `d7313f2`  
 Upload commit: `926b979` (pushed to `origin/migration/clean-architecture`; model assets excluded)  

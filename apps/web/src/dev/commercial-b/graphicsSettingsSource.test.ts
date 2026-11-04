@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
-const source = readFileSync('src/dev/CommercialBReviewShowroom.tsx', 'utf8');
+const source = readFileSync('src/components/showroom/ModelBShowroom.tsx', 'utf8');
 
 describe('Model B simplified showroom layout contract', () => {
   it('uses the compact V2 shell with graphics, anatomy and metrics in separate slots', () => {

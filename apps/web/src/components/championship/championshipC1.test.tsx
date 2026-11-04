@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
 import { renderToStaticMarkup } from "react-dom/server";
 import { MemoryRouter } from "react-router-dom";
 import { ChampionshipCalendar } from "./ChampionshipCalendar";
@@ -8,6 +9,7 @@ import { ChampionshipStandings } from "./ChampionshipStandings";
 import { ChampionshipDirectory } from "./ChampionshipDirectory";
 import { WeekendResults } from "./WeekendResults";
 import { CALENDAR_2026 } from "../../data/championship/calendar";
+import { getCalendarRaceState } from "../../utils/raceSchedule";
 import { useNavigationStore } from "../../store/useNavigationStore";
 
 const render = (node: React.ReactNode, path = "/season/2026") =>
@@ -26,11 +28,11 @@ describe("C1 championship presentation", () => {
     ).toBe(23);
   });
   it("keeps normal calendar entry at the tabs and only auto-scrolls explicit round links", () => {
-    expect(resolveCalendarEntry(null, 19)).toEqual({
-      expandedRound: 19,
+    expect(resolveCalendarEntry(null)).toEqual({
+      expandedRound: null,
       autoScrollRound: null,
     });
-    expect(resolveCalendarEntry(17, 19)).toEqual({
+    expect(resolveCalendarEntry(17)).toEqual({
       expandedRound: 17,
       autoScrollRound: 17,
     });
@@ -39,29 +41,84 @@ describe("C1 championship presentation", () => {
     const html = render(<ChampionshipCalendar season={2026} />);
     expect(html).toContain("calendar-round-");
     expect(
-      html.includes("Relevant round") || html.includes("Về chặng liên quan"),
+      html.includes("Go to relevant round") || html.includes("Đến chặng liên quan"),
     ).toBe(true);
     expect(html).not.toContain("CircuitTrackMap");
     expect(html).not.toContain("View Qualifying Table");
   });
-  it("shows relative point bars and no fabricated movement", () => {
-    const html = render(<ChampionshipStandings season={2026} />);
+  it("filters rounds by schedule state and exposes the next race", () => {
+    const now = Date.now();
+    const completedRounds = CALENDAR_2026.filter(
+      (race) => getCalendarRaceState(race, now) === "completed",
+    ).length;
+    const nextRace =
+      CALENDAR_2026.find((race) => getCalendarRaceState(race, now) === "current") ??
+      CALENDAR_2026.find((race) => getCalendarRaceState(race, now) === "upcoming") ??
+      null;
+    const completed = render(
+      <ChampionshipCalendar season={2026} />,
+      "/season/2026?tab=calendar&view=completed",
+    );
+    const upcoming = render(
+      <ChampionshipCalendar season={2026} />,
+      "/season/2026?tab=calendar&view=upcoming",
+    );
     expect(
-      html.includes("leader points") || html.includes("điểm của người dẫn đầu"),
-    ).toBe(true);
-    expect(
-      html.includes("No comparable verified scoring cutoffs") ||
-        html.includes("Chưa có hai mốc tính điểm"),
-    ).toBe(true);
-    expect(html).toContain("c1-points-track");
+      completed.match(/class="c1-round"/g),
+    ).toHaveLength(completedRounds);
+    expect(upcoming.match(/class="c1-round"/g)).toHaveLength(
+      CALENDAR_2026.length - completedRounds,
+    );
+    expect(completed).toContain(
+      'data-filter="completed" aria-pressed="true"',
+    );
+    expect(completed).not.toContain("CircuitTrackMap");
+    expect(completed).not.toContain('href="/circuits"');
+    if (nextRace) {
+      expect(upcoming).toContain(`data-next-round="${nextRace.round}"`);
+      expect(upcoming).toContain(nextRace.name);
+      expect(upcoming).toContain("Open Race Center");
+      expect(
+        upcoming.includes("Lights out in") ||
+          upcoming.includes("Race in progress"),
+      ).toBe(true);
+    } else {
+      expect(upcoming).toContain("Season complete");
+    }
   });
-  it("keeps directory imagery outside Championship", () => {
-    expect(
-      render(<ChampionshipDirectory season={2026} kind="teams" />),
-    ).not.toContain("<img");
-    expect(
-      render(<ChampionshipDirectory season={2026} kind="drivers" />),
-    ).not.toContain("<img");
+  it("never renders an isolated session separator when date or time is missing", () => {
+    const source = readFileSync(
+      "src/components/championship/ChampionshipCalendar.tsx",
+      "utf8",
+    );
+    expect(source).toContain("const partialLabel = [");
+    expect(source).toContain("const fallbackTime = [session.dateStr, session.timeStr]");
+    expect(source).toMatch(/\.map\(\(part\) => part\?\.trim\(\)\)/);
+    expect(source).toContain(".filter(Boolean)");
+    expect(source).toContain(".join(' · ')");
+    expect(source).toContain("'Time to be confirmed'");
+    expect(source).toContain("'Chưa có giờ xác nhận'");
+    expect(source).not.toMatch(
+      /\{nextRace\.sessions\[key\]\?\.dateStr\}\s*·/,
+    );
+    expect(source).not.toMatch(/\$\{session\.dateStr\} · \$\{session\.timeStr\}/);
+  });
+  it("keeps P5 standings movement and form honest", () => {
+    const html = render(<ChampionshipStandings season={2026} />);
+    expect(html).toContain("p5-table-row");
+    expect(html).toContain("No verified prior rank");
+    expect(html).toContain("not a full-grid result");
+    expect(html).not.toContain("c1-points-track");
+  });
+  it("renders directory portraits with accessible labels", () => {
+    const teams = render(<ChampionshipDirectory season={2026} kind="teams" />);
+    expect(teams).toContain("<picture");
+    expect(teams).toContain('alt=""');
+    expect(teams).toContain('aria-label="P1 ');
+    const drivers = render(<ChampionshipDirectory season={2026} kind="drivers" />);
+    expect(drivers).toContain("<picture");
+    expect(drivers).toContain("Portrait of ");
+    expect(drivers).toContain('aria-label="P1 ');
   });
   it("derives Sprint and normal weekend sessions from the calendar", () => {
     const sprint = render(

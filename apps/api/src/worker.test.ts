@@ -35,7 +35,7 @@ describe("Cloudflare Worker router", () => {
   it("serves only the approved production model through the asset binding", async () => {
     const env = environment("approved-glb");
     const response = await worker.fetch(
-      new Request("https://podium.example/models/eds-g01.glb"),
+      new Request("https://podium.example/models/model-b-eds-optimized-v1.glb"),
       env,
     );
     expect(response.status).toBe(200);

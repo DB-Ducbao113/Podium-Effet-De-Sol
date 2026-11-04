@@ -4,6 +4,7 @@ import { CONFIGURED_SITE_URL, canIndexCurrentHost } from '../../config/site';
 import { getEngineeringArticle } from '../../data/engineeringArticles';
 import { useNavigationStore } from '../../store/useNavigationStore';
 import { modelBReviewCopy } from './modelBReviewCopy';
+import { normalizeRoutePath } from './routePath';
 
 const upsertMeta = (
   selector: string,
@@ -39,8 +40,8 @@ const routeCopy = (pathname: string, lang: 'vi' | 'en', modelBReview = false) =>
       title: 'Engineering Insights | Podium EDS',
       description:
         lang === 'vi'
-          ? 'Chuyên đề kỹ thuật xe đua song ngữ về khí động học, hybrid và động lực học xe qua nguyên mẫu EDS-G01.'
-          : 'Bilingual race-engineering features on aerodynamics, hybrid systems and vehicle dynamics using EDS-G01.',
+          ? 'Chuyên đề kỹ thuật xe đua song ngữ về khí động học, hybrid và động lực học xe.'
+          : 'Bilingual race-engineering features on aerodynamics, hybrid systems and vehicle dynamics.',
       type: 'website',
       image: '/images/eds/engineering/ground-effect-flow.svg',
     };
@@ -58,14 +59,14 @@ const routeCopy = (pathname: string, lang: 'vi' | 'en', modelBReview = false) =>
     '/': [
       'Podium EDS | Kỹ thuật và dữ liệu đua xe',
       'Podium EDS | Race Engineering and Data',
-      'Ấn phẩm đua xe độc lập với Showroom EDS-G01, chuyên đề kỹ thuật và dữ liệu kết quả.',
-      'An independent motorsport publication with the EDS-G01 Showroom, engineering features and results data.',
+      'Ấn phẩm đua xe độc lập với Showroom Model B, chuyên đề kỹ thuật và dữ liệu kết quả.',
+      'An independent motorsport publication with the Model B Showroom, engineering features and results data.',
     ],
     '/showroom': [
-      'Showroom kỹ thuật EDS-G01 | Podium EDS',
-      'EDS-G01 Technical Showroom | Podium EDS',
-      'Khám phá nguyên mẫu EDS-G01 gốc, sáu livery và bảy hotspot kỹ thuật tương tác.',
-      'Explore the original EDS-G01 prototype, six liveries and seven interactive engineering hotspots.',
+      'Showroom kỹ thuật Model B | Podium EDS',
+      'Model B Technical Showroom | Podium EDS',
+      'Khám phá Model B với các màu sơn và hotspot kỹ thuật tương tác.',
+      'Explore Model B with interactive finishes and engineering hotspots.',
     ],
     '/teams': [
       'Danh bạ đội đua | Podium EDS',
@@ -125,12 +126,13 @@ const routeCopy = (pathname: string, lang: 'vi' | 'en', modelBReview = false) =>
 
 export const RouteSeo = () => {
   const { pathname, search } = useLocation();
+  const routePath = normalizeRoutePath(pathname);
   const lang = useNavigationStore((state) => state.lang);
   useEffect(() => {
     const requestedModel = new URLSearchParams(search).get('model');
-    const modelBReview = import.meta.env.DEV && pathname === '/showroom' && requestedModel !== 'eds-g01' && requestedModel !== 'eds-g02';
-    const copy = routeCopy(pathname, lang, modelBReview);
-    const canonicalUrl = CONFIGURED_SITE_URL ? `${CONFIGURED_SITE_URL}${pathname}` : null;
+    const modelBReview = import.meta.env.DEV && routePath === '/showroom' && requestedModel !== 'eds-g01' && requestedModel !== 'eds-g02';
+    const copy = routeCopy(routePath, lang, modelBReview);
+    const canonicalUrl = CONFIGURED_SITE_URL ? `${CONFIGURED_SITE_URL}${routePath}` : null;
     const imageUrl = CONFIGURED_SITE_URL
       ? new URL(copy.image, CONFIGURED_SITE_URL).href
       : copy.image;
@@ -198,7 +200,7 @@ export const RouteSeo = () => {
       : canonicalUrl
         ? {
             '@context': 'https://schema.org',
-            '@type': pathname === '/engineering' ? 'CollectionPage' : 'WebPage',
+            '@type': routePath === '/engineering' ? 'CollectionPage' : 'WebPage',
             name: copy.title,
             description: copy.description,
             url: canonicalUrl,
@@ -211,6 +213,6 @@ export const RouteSeo = () => {
       script.text = JSON.stringify(schema);
       document.head.appendChild(script);
     }
-  }, [lang, pathname, search]);
+  }, [lang, routePath, search]);
   return null;
 };

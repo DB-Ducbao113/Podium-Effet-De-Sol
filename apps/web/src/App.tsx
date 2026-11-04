@@ -20,6 +20,7 @@ import { getCompleteRaceClassification } from './data/championship/raceClassific
 import { F1PageTransition } from './components/common/F1PageTransition';
 import { RouteSeo } from './components/seo/RouteSeo';
 import { useMobileHub, isPrimaryPath } from './hooks/useMobileHub';
+import { useTextZoomAttribute } from './hooks/useTextZoomAttribute';
 import { MobileAllInOne } from './components/mobile/MobileAllInOne';
 import { Container } from './components/ui/Container';
 import { buttonClassName } from './components/ui/buttonStyles';
@@ -113,7 +114,7 @@ function SeasonRoute() {
   if (searchParams.get('tab') === 'overview') return <Navigate to="/#championship-overview" replace />;
   if (mobileHub) return <MobileAllInOne season={season} />;
   return (
-    <ChampionshipView season={season} onSeasonChange={(next) => navigate(`/season/${next}`)} />
+    <ChampionshipView season={season} onSeasonChange={(next) => navigate(`/season/${next}${searchParams.size ? `?${searchParams.toString()}` : ''}`)} />
   );
 }
 
@@ -167,6 +168,7 @@ function NotFound() {
 }
 
 export const App: React.FC = () => {
+  useTextZoomAttribute();
   const location = useLocation();
   const mobileHub = useMobileHub();
   const isHubRoute = mobileHub && isPrimaryPath(location.pathname);
@@ -244,7 +246,7 @@ export const App: React.FC = () => {
         />
       </div>
 
-      <main className={`flex-1 ${isInsideMachineTrial ? '' : 'pt-16'}`}>
+      <main className={`flex-1 ${isInsideMachineTrial ? '' : 'pt-16 peds-header-offset'}`}>
         <F1PageTransition
           pathname={isHubRoute ? '/mobile-hub' : location.pathname}
           noTransform={isHubRoute || isInsideMachineTrial}

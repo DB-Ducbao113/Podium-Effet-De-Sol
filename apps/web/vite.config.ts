@@ -6,6 +6,8 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { cloudflare } from "@cloudflare/vite-plugin";
 import itmAssetIdentity from "./src/dev/insideMachineI1/asset-identity.json";
+import p5SeasonalManifest from "./src/data/visualAssets/p5SeasonalManifest.json";
+import p5Extended2026Manifest from "./src/data/visualAssets/p5Extended2026Manifest.json";
 
 const cloudflareConfig = path.resolve(
   import.meta.dirname,
@@ -20,22 +22,6 @@ const modelBReviewPreview = path.resolve(
   import.meta.dirname,
   "../../source-assets/models/model-b/model-b-prototype-overview.webp",
 );
-const cinematicReviewDir = path.resolve(
-  import.meta.dirname,
-  "../../scratch/frontend/homepage-h2-8-final",
-);
-const cinematicH29ReviewDir = path.resolve(
-  import.meta.dirname,
-  "../../scratch/frontend/homepage-h2-9-final",
-);
-const cinematicH30ReviewDir = path.resolve(
-  import.meta.dirname,
-  "../../scratch/frontend/homepage-h3-0-final",
-);
-const cinematicH31ReviewDir = path.resolve(
-  import.meta.dirname,
-  "../../scratch/frontend/homepage-h3-1-final",
-);
 const cinematicH32ReviewDir = path.resolve(
   import.meta.dirname,
   "../../.local-assets/recovered/homepage-h3-2",
@@ -44,15 +30,15 @@ const cinematicH32rReviewDir = path.resolve(
   import.meta.dirname,
   "../../.local-assets/recovered/homepage-h3-2r",
 );
-const legacyLocalCommercialModel = path.resolve(
+const checkedInCommercialModel = path.resolve(
   import.meta.dirname,
-  "../../.local-assets/model-b-eds-optimized-v1.glb",
+  "public/models/model-b-eds-optimized-v1.glb",
 );
 const commercialReviewModel = path.resolve(
   process.env.PEDS_MODEL_B_PATH ||
     (fs.existsSync(frozenCommercialModel)
       ? frozenCommercialModel
-      : legacyLocalCommercialModel),
+      : checkedInCommercialModel),
 );
 const expectedCommercialModelBytes = 2_120_816;
 const expectedCommercialModelSha256 =
@@ -108,6 +94,96 @@ const insideMachineLocalAssetsPlugin = {
   },
 };
 
+const p5SeasonalLocalAssetsPlugin = {
+  name: "p5-seasonal-local-review-assets",
+  apply: "serve" as const,
+  configureServer(server: import("vite").ViteDevServer) {
+    if (process.env.VITE_P5_LOCAL_REVIEW === "0") return;
+    const repoRoot = path.resolve(import.meta.dirname, "../..");
+    const entries = new Map<string, { sourceFile: string; bytes: number; sha256: string }>();
+    for (const circuit of p5SeasonalManifest.circuits) {
+      for (const variant of ["desktop", "mobile", "thumbnail"] as const) {
+        entries.set(`/${circuit.season}/circuits/${variant}/${circuit.eventId.split(":")[1]}.webp`, circuit[variant]);
+      }
+    }
+    for (const driver of p5SeasonalManifest.drivers) {
+      for (const variant of ["full", "small"] as const) {
+        entries.set(`/${driver.season}/drivers/${variant}/${driver.driverId}.webp`, driver[variant]);
+      }
+    }
+    server.middlewares.use("/__p5-seasonal", (request, response) => {
+      if (request.method !== "GET" && request.method !== "HEAD") {
+        response.statusCode = 405;
+        response.end("Method not allowed.");
+        return;
+      }
+      const entry = entries.get(request.url?.split("?")[0] || "");
+      if (!entry) {
+        response.statusCode = 404;
+        response.end("Unknown review asset.");
+        return;
+      }
+      const file = path.resolve(repoRoot, entry.sourceFile);
+      if (!file.startsWith(repoRoot + path.sep) || !fs.existsSync(file)) {
+        response.statusCode = 404;
+        response.end("Review asset unavailable.");
+        return;
+      }
+      const data = fs.readFileSync(file);
+      const hash = crypto.createHash("sha256").update(data).digest("hex");
+      if (data.length !== entry.bytes || hash !== entry.sha256) {
+        response.statusCode = 409;
+        response.end("Review asset identity mismatch.");
+        return;
+      }
+      response.setHeader("Content-Type", "image/webp");
+      response.setHeader("Content-Length", data.length);
+      response.setHeader("Cache-Control", "private, max-age=0, must-revalidate");
+      response.end(request.method === "HEAD" ? undefined : data);
+    });
+  },
+};
+
+const p5Extended2026LocalAssetsPlugin = {
+  name: "p5-extended-2026-local-review-assets",
+  apply: "serve" as const,
+  configureServer(server: import("vite").ViteDevServer) {
+    if (process.env.VITE_P5_LOCAL_REVIEW === "0") return;
+    const repoRoot = path.resolve(import.meta.dirname, "../..");
+    const entries = new Map(p5Extended2026Manifest.files.map((asset) => [`/${asset.group}/${asset.name}`, asset]));
+    server.middlewares.use("/__p5-extra-2026", (request, response) => {
+      if (request.method !== "GET" && request.method !== "HEAD") {
+        response.statusCode = 405;
+        response.end("Method not allowed.");
+        return;
+      }
+      const asset = entries.get(request.url?.split("?")[0] || "");
+      if (!asset) {
+        response.statusCode = 404;
+        response.end("Unknown review asset.");
+        return;
+      }
+      const file = path.resolve(repoRoot, asset.sourceFile);
+      if (!file.startsWith(repoRoot + path.sep) || !fs.existsSync(file)) {
+        response.statusCode = 404;
+        response.end("Review asset unavailable.");
+        return;
+      }
+      const data = fs.readFileSync(file);
+      const hash = crypto.createHash("sha256").update(data).digest("hex");
+      if (data.length !== asset.bytes || hash !== asset.sha256) {
+        response.statusCode = 409;
+        response.end("Review asset identity mismatch.");
+        return;
+      }
+      response.setHeader("Content-Type", "image/webp");
+      response.setHeader("Content-Length", data.length);
+      response.setHeader("Cache-Control", "private, max-age=0, must-revalidate");
+      response.end(request.method === "HEAD" ? undefined : data);
+    });
+  },
+};
+
 const commercialReviewAssetPlugin = {
   name: "peds-commercial-review-asset",
   apply: "serve" as const,
@@ -149,16 +225,6 @@ const commercialReviewAssetPlugin = {
       fs.createReadStream(modelBReviewPreview).pipe(response);
     });
     for (const [name, contentType, reviewDir] of [
-      ["tokyo-drift-final.mp4", "video/mp4", cinematicReviewDir],
-      ["tokyo-drift-final-poster.png", "image/png", cinematicReviewDir],
-      ["tokyo-drift-h2-9-final.mp4", "video/mp4", cinematicH29ReviewDir],
-      ["tokyo-drift-h2-9-poster.png", "image/png", cinematicH29ReviewDir],
-      ["tokyo-drift-h3-0-final.mp4", "video/mp4", cinematicH30ReviewDir],
-      ["tokyo-drift-h3-0-poster.png", "image/png", cinematicH30ReviewDir],
-      ["tokyo-drift-h3-1-2x.mp4", "video/mp4", cinematicH31ReviewDir],
-      ["tokyo-drift-h3-1-2x-poster.png", "image/png", cinematicH31ReviewDir],
-      ["tokyo-drift-h3-1-3x.mp4", "video/mp4", cinematicH31ReviewDir],
-      ["tokyo-drift-h3-1-3x-poster.png", "image/png", cinematicH31ReviewDir],
       ["tokyo-drift-h3-2-2x.mp4", "video/mp4", cinematicH32ReviewDir],
       ["tokyo-drift-h3-2-3x.mp4", "video/mp4", cinematicH32ReviewDir],
       ["tokyo-drift-h3-2-poster.png", "image/png", cinematicH32ReviewDir],
@@ -187,6 +253,8 @@ export default defineConfig(({ mode }) => ({
     react(),
     commercialReviewAssetPlugin,
     insideMachineLocalAssetsPlugin,
+    p5SeasonalLocalAssetsPlugin,
+    p5Extended2026LocalAssetsPlugin,
     ...(mode === "test" ? [] : [cloudflare({ configPath: cloudflareConfig })]),
   ],
   test: {
@@ -205,6 +273,10 @@ export default defineConfig(({ mode }) => ({
   build: {
     sourcemap: false,
     chunkSizeWarningLimit: 1000,
+    // The production CSP allows fonts from 'self' only, so small font subsets
+    // must ship as files instead of Vite's default inline data: URL.
+    assetsInlineLimit: (filePath: string) =>
+      /\.(?:woff2?|ttf|otf|eot)$/i.test(filePath) ? false : undefined,
     rollupOptions: {
       output: {
         manualChunks(id) {

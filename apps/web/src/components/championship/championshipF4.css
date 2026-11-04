@@ -7,12 +7,162 @@
 .f4-championship .page-container { max-width: 1480px; }
 .f4-championship .championship-page-title { font-family: var(--peds-font-display); }
 .f4-championship .f4-controls {
-  background: var(--peds-color-surface-raised);
-  border: 1px solid var(--peds-color-line);
-  box-shadow: 0 18px 50px #0006, inset 4px 0 var(--peds-color-ignition);
+  display: flex;
+  justify-content: flex-start;
+  min-width: 0;
+  border-bottom: 1px solid #303a47;
+  padding-bottom: 0.65rem;
 }
-.f4-championship .f4-controls [role="tablist"] { flex: 1; min-width: 0; }
+.f4-championship .f4-season-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  gap: 0.65rem;
+}
+.f4-season-label {
+  color: #aeb9c7;
+  font: 700 0.72rem/1.2 var(--peds-font-ui);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+.f4-season-switcher {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.15rem;
+  min-width: 0;
+}
+.f4-season-switcher button {
+  min-height: 44px;
+  padding: 0.5rem 0.85rem;
+  border-bottom: 2px solid transparent;
+  color: #b6c0cc;
+  background: transparent;
+  font: 700 0.85rem/1 var(--peds-font-ui);
+  font-variant-numeric: tabular-nums;
+  transition: color 150ms ease, border-color 150ms ease;
+}
+.f4-season-switcher button:hover { color: #f4f0e8; }
+.f4-season-switcher button.is-active { color: #f4f0e8; border-color: #ff4a18; }
+.f4-season-switcher button:focus-visible { outline: 2px solid #ff4a18; outline-offset: -2px; }
+.f4-season-row > :last-child { margin-inline-start: auto; }
+.f4-season-refresh { min-width: 44px; min-height: 44px; border-color: #46515f; background: transparent; }
+.peds-tabs-shell { position: relative; }
+.peds-tabs-shell::before,
+.peds-tabs-shell::after {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  z-index: 1;
+  width: 2.25rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 140ms ease;
+}
+.peds-tabs-shell::before {
+  inset-inline-start: 0;
+  background: linear-gradient(90deg, var(--peds-color-surface-raised), transparent);
+}
+.peds-tabs-shell::after {
+  inset-inline-end: 0;
+  background: linear-gradient(270deg, var(--peds-color-surface-raised), transparent);
+}
+.peds-tabs-shell[data-scroll-start="true"]::before,
+.peds-tabs-shell[data-scroll-end="true"]::after {
+  opacity: 1;
+}
+.peds-tabs-rail {
+  scroll-behavior: smooth;
+  scroll-padding-inline: 2.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: #6b7480 transparent;
+}
+.f4-championship .f4-controls .f4-season-row { min-width: 0; }
+.f4-championship .f4-season-switcher { min-width: 0; }
+/* 200% text zoom: the season switcher wraps below the tab rail instead of
+   being clipped by the card. Navigation semantics stay unchanged. */
+.f4-championship[data-text-zoom="200"] .f4-controls,
+.f4-championship[data-text-zoom="400"] .f4-controls {
+  flex-wrap: wrap;
+}
+.f4-championship[data-text-zoom="200"] .f4-season-row,
+.f4-championship[data-text-zoom="400"] .f4-season-row {
+  width: 100%;
+}
+.f4-championship[data-text-zoom="200"] .f4-season-switcher {
+  flex: 1 1 auto;
+  justify-content: flex-start;
+}
+.f4-championship[data-text-zoom="400"] .f4-season-switcher {
+  width: 100%;
+  flex-direction: column;
+  align-items: stretch;
+}
+.f4-championship[data-text-zoom="400"] .f4-season-switcher [data-season-option] {
+  width: 100%;
+  flex: 1 1 auto;
+  justify-content: center;
+  padding-inline: 8px;
+}
+.f4-championship[data-text-zoom="400"] [role="tooltip"] {
+  display: none;
+}
+/* Text-only zoom: a horizontally scrolled rail can only ever show a slice of a
+   tab once a label is wider than the rail. At 200% the rail wraps into rows and
+   at 400% into a full-width stack, so every label reads and selects in full.
+   Labels break between words only; rem-based padding/min-heights are pinned. */
+.f4-championship[data-text-zoom="200"] .peds-tabs-shell,
+.f4-championship[data-text-zoom="400"] .peds-tabs-shell { overflow: visible; }
+.f4-championship[data-text-zoom="200"] .peds-tabs-shell::before,
+.f4-championship[data-text-zoom="200"] .peds-tabs-shell::after,
+.f4-championship[data-text-zoom="400"] .peds-tabs-shell::before,
+.f4-championship[data-text-zoom="400"] .peds-tabs-shell::after { display: none; }
+.f4-championship[data-text-zoom="200"] .peds-tabs-rail,
+.f4-championship[data-text-zoom="400"] .peds-tabs-rail {
+  flex-wrap: wrap;
+  overflow: visible;
+  gap: 4px;
+  padding: 4px;
+  margin-inline: 0;
+  scroll-padding-inline: 0;
+}
+.f4-championship[data-text-zoom="200"] .peds-tabs-rail > [role="tab"],
+.f4-championship[data-text-zoom="400"] .peds-tabs-rail > [role="tab"] {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 48px;
+  padding: 8px 12px;
+  justify-content: flex-start;
+  white-space: normal;
+  overflow-wrap: normal;
+  text-align: start;
+}
+.f4-championship[data-text-zoom="200"] .peds-tabs-rail > [role="tab"] {
+  font-size: 16px;
+  line-height: 1.3;
+  letter-spacing: 0.04em;
+}
+.f4-championship[data-text-zoom="400"] .peds-tabs-rail > [role="tab"] {
+  flex: 1 1 100%;
+  font-size: 20px;
+  line-height: 1.3;
+  letter-spacing: 0.04em;
+}
 .f4-championship .f4-controls [role="tab"] { font-family: var(--peds-font-ui); white-space: nowrap; }
+@media (min-width: 761px) and (max-width: 1100px) {
+  .f4-championship .f4-controls [role="tablist"] {
+    flex-wrap: wrap;
+    overflow-x: visible;
+    gap: 0.2rem 0.25rem;
+  }
+  .f4-championship .f4-controls [role="tab"] {
+    flex: 1 1 auto;
+    padding-inline: 0.65rem;
+  }
+}
 .f4-championship .f4-controls [role="tab"][aria-selected="true"] {
   background: #291315;
   box-shadow: inset 0 -3px var(--peds-color-ignition);
@@ -41,19 +191,19 @@
 .f4-data-warning { margin: 0 1.2rem 1rem; padding: .8rem 1rem; border: 1px solid #9a673d; border-radius: .5rem; background: #3b2c22; color: #ffe0bd; font-size: .85rem; }
 .f4-table-scroll { overflow-x: auto; }
 .f4-table { width: 100%; min-width: 660px; border-collapse: collapse; text-align: left; }
-.f4-table thead { background: #292d33; color: #bfc4cb; font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; }
-.f4-table th, .f4-table td { padding: .95rem 1.1rem; border-top: 1px solid #373c44; }
+.f4-table thead { background: var(--peds-color-surface-raised); color: var(--peds-color-text-muted); font-family: var(--peds-font-ui); font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; }
+.f4-table th, .f4-table td { padding: .95rem 1.1rem; border-top: var(--peds-border-hairline) solid var(--peds-color-line); }
 .f4-table thead th { border-top: 0; }
-.f4-table tbody tr:hover { background: #2c3037; }
-.f4-table tbody th { color: #f3f3f1; font-weight: 700; }
-.f4-table tbody td { color: #cdd1d6; font-size: .85rem; }
-.f4-table .f4-rank { width: 5rem; color: #aab0b9; font-variant-numeric: tabular-nums; text-align: center; }
-.f4-table .f4-number { text-align: right; font-variant-numeric: tabular-nums; }
-.f4-table .f4-points { color: #fff; font-weight: 800; font-size: 1rem; }
+.f4-table tbody tr:hover { background: var(--peds-color-surface-raised); }
+.f4-table tbody th { color: var(--peds-color-text); font-weight: 700; }
+.f4-table tbody td { color: var(--peds-color-text-muted); font-size: .85rem; }
+.f4-table .f4-rank { width: 5rem; color: var(--peds-color-text-subtle); font-family: var(--peds-font-mono); font-variant-numeric: lining-nums tabular-nums; text-align: center; }
+.f4-table .f4-number { font-family: var(--peds-font-mono); font-variant-numeric: lining-nums tabular-nums; text-align: right; }
+.f4-table .f4-points { color: var(--peds-color-text); font-weight: 800; font-size: 1rem; }
 .f4-table a:hover { color: #ff9ca3; text-decoration: underline; }
 .f4-identity { display: flex; align-items: center; gap: .75rem; }
 .f4-identity small { display: block; margin-top: .1rem; color: #aeb5bd; font-size: .7rem; font-weight: 500; }
-.f4-team-mark { flex: none; width: 3px; height: 1.8rem; border-radius: 2px; background: #ed6972; }
+.f4-team-mark { flex: none; width: 3px; height: 1.8rem; border-radius: 2px; background: var(--peds-color-racing-red); }
 .f4-empty { padding: 2rem; color: #c8cbd0; }
 .f4-mobile-standings { display: none; }
 .f4-mobile-row { display: flex; align-items: center; gap: .8rem; padding: .9rem 1rem; border-top: 1px solid #383e46; }

@@ -72,6 +72,7 @@ export function mapConstructorId(constructorId: string | undefined): TeamId {
 const DRIVER_MAP: Record<string, string> = {
   max_verstappen: 'verstappen',
   arvid_lindblad: 'lindblad',
+  ryo_hirakawa: 'hirakawa',
 };
 
 const CANONICAL_DRIVER_IDS = new Set(DRIVER_STANDINGS_2026.map((driver) => driver.driverId));

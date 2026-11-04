@@ -20,7 +20,7 @@ export const Footer = memo(function Footer() {
   return <footer id="peds-credits" className="mt-auto border-t border-white/15 bg-[#080a0e] text-white scroll-mt-16">
     <div className="page-container grid gap-10 py-12 md:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)] md:gap-12 md:py-16">
       <div>
-        <OfficialBrandLogo size="md" variant="full" />
+        <OfficialBrandLogo size="md" variant="full" className="footer-brand-logo" />
         <p className="mt-5 max-w-sm text-sm leading-6 text-white/65">{strings.desc}</p>
       </div>
       <nav aria-label={strings.colExplore}>

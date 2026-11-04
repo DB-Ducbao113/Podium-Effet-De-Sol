@@ -1,5 +1,7 @@
 # EDS QA RELEASE REPORT — Results Engine R2
 
+> Historical QA record. The local `scratch/` screenshots and generated reports cited below were permanently deleted with owner approval on 04/11/2026; these references are no longer live evidence paths.
+
 Date: 2026-10-26 (Asia/Bangkok)  
 Commit SHA: `c7fab22a9b8cbfe92326775d0c568fd8d556bfa6` (working-tree changes are not committed)  
 Target branch: `migration/clean-architecture`  

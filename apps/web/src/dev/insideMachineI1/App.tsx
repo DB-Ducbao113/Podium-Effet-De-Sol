@@ -83,7 +83,6 @@ export default function App(){
   const activeAssembly=assemblyList.find(x=>x.id===active.assembly);
   const componentIds=activeAssembly?.componentIds??[];
   const activeComponent=manifest?.components.find(x=>x.id===selectedComponent);
-  const ownerGeometry=['r4_3_authored_illustrative_mechanical_system','newly_authored','newly_authored_closed_geometry_from_model_b_envelope','mixed_original_and_new'].includes(activeComponent?.provenance??'');
   const provenanceLabel=componentProvenance(activeComponent?.provenance,lang);
 
   useEffect(()=>{fetch(MANIFEST_URL,{cache:'no-store'}).then(r=>{if(!r.ok)throw Error(`Manifest HTTP ${r.status}`);return r.json();}).then(setManifest).catch(e=>setManifestError(String(e)));},[]);

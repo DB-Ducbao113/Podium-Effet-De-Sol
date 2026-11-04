@@ -7,6 +7,7 @@ export default {
       colors: {
         peds: {
           canvas: 'var(--peds-color-canvas)',
+          carbon: 'var(--peds-color-carbon)',
           surface: 'var(--peds-color-surface)',
           'surface-muted': 'var(--peds-color-surface-muted)',
           'surface-raised': 'var(--peds-color-surface-raised)',
@@ -14,12 +15,15 @@ export default {
           line: 'var(--peds-color-line)',
           'line-strong': 'var(--peds-color-line-strong)',
           text: 'var(--peds-color-text)',
+          ivory: 'var(--peds-color-ivory)',
           'text-muted': 'var(--peds-color-text-muted)',
           'text-subtle': 'var(--peds-color-text-subtle)',
           accent: 'var(--peds-color-accent)',
           'accent-strong': 'var(--peds-color-accent-strong)',
           'accent-soft': 'var(--peds-color-accent-soft)',
           ignition: 'var(--peds-color-ignition)',
+          'racing-red': 'var(--peds-color-racing-red)',
+          signal: 'var(--peds-color-signal)',
           scarlet: 'var(--peds-color-scarlet)',
           'burnt-orange': 'var(--peds-color-burnt-orange)',
           'brake-amber': 'var(--peds-color-brake-amber)',
@@ -86,6 +90,7 @@ export default {
         'peds-panel': 'var(--peds-shadow-panel)',
         'peds-elevated': 'var(--peds-shadow-elevated)',
         'peds-accent': 'var(--peds-shadow-accent)',
+        'peds-ignition': '0 12px 34px rgba(255, 74, 24, 0.3)',
       },
       animation: {
         'fade-in-up': 'fadeInUp 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) both',

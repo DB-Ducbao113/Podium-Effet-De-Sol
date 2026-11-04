@@ -5,15 +5,26 @@ import { X, Trophy, MapPin, Activity, Zap, Camera } from 'lucide-react';
 import { useNavigationStore } from '../../store/useNavigationStore';
 import { CircuitStreetReview } from './CircuitStreetReview';
 import { CircuitRealWorldMap } from './CircuitRealWorldMap';
+import { circuitVisual2026For } from '../../utils/circuitVisualAssets2026';
+import { CircuitPhoto } from './CircuitPhoto';
+import { SeasonalCircuitPhoto } from './SeasonalCircuitPhoto';
+import { P5_SEASONAL_REVIEW_ENABLED, resolveCircuitVisual } from '../../utils/p5SeasonalVisuals';
+import type { SeasonYear } from '../../types';
 
 interface CircuitDetailModalProps {
   circuit: CircuitData;
+  season?: number;
+  eventRound?: number;
   onClose: () => void;
 }
 
-export const CircuitDetailModal: React.FC<CircuitDetailModalProps> = ({ circuit, onClose }) => {
+export const CircuitDetailModal: React.FC<CircuitDetailModalProps> = ({ circuit, season, eventRound, onClose }) => {
   const { lang } = useNavigationStore();
   const isVi = lang === 'vi';
+  const visual = circuitVisual2026For(season ?? 0, circuit.id);
+  const preview = P5_SEASONAL_REVIEW_ENABLED && season && eventRound
+    ? resolveCircuitVisual(season as SeasonYear, eventRound)
+    : undefined;
 
   // Prevent background scrolling and support Escape key
   useEffect(() => {
@@ -53,7 +64,7 @@ export const CircuitDetailModal: React.FC<CircuitDetailModalProps> = ({ circuit,
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider px-2 py-0.5 rounded bg-f1red text-white">
-                  {isVi ? `Vòng ${circuit.round}` : `Round ${circuit.round}`}
+                  {isVi ? `Vòng ${eventRound ?? circuit.round}` : `Round ${eventRound ?? circuit.round}`}
                 </span>
                 <span className="text-xs text-studio-400 font-medium">
                   {circuit.city}, {circuit.country}
@@ -77,6 +88,16 @@ export const CircuitDetailModal: React.FC<CircuitDetailModalProps> = ({ circuit,
           </button>
         </div>
 
+        {(preview || visual) && (
+          <figure className="relative mx-4 mt-4 sm:mx-5 lg:mx-6 h-40 sm:h-56 overflow-hidden rounded-xl bg-studio-900">
+            {preview && season && eventRound
+              ? <SeasonalCircuitPhoto season={season as SeasonYear} round={eventRound} className="block h-full w-full object-cover" fallback="/images/p4/template/cal-hero-1344.webp" sizes="(max-width: 768px) 100vw, 960px" />
+              : <CircuitPhoto visual={visual} className="block h-full w-full object-cover" fallback="/images/p4/template/cal-hero-1344.webp" sizes="(max-width: 768px) 100vw, 960px" />}
+            <figcaption className="absolute bottom-0 inset-x-0 px-4 py-2 text-xs text-white bg-gradient-to-t from-black/90 to-transparent">
+              {preview ? (isVi ? 'Ảnh minh họa AI · xem trước local' : 'AI illustration · local preview') : visual && <>{isVi ? 'Ảnh đường đua' : 'Circuit photo'} · <a className="underline" href={visual.sourcePage} target="_blank" rel="noreferrer">{visual.credit}</a> · <a className="underline" href={visual.licenseUrl} target="_blank" rel="noreferrer">{visual.license}</a> · {isVi ? 'đã cắt' : 'cropped'}</>}
+            </figcaption>
+          </figure>
+        )}
         {/* Modal Body: Responsive 2-column layout on desktop (lg:) so map and stats fit without scrolling */}
         <div className="p-4 sm:p-5 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
           {/* Left Column (7 cols): Map + Essential Telemetry Grid */}

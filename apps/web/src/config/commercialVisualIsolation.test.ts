@@ -67,7 +67,7 @@ describe("commercial visual isolation", () => {
     }
   });
 
-  it("keeps the commercial Model B route and frozen local candidate out of production artifacts", () => {
+  it("serves the owner-selected Model B in production while keeping review media isolated", () => {
     const viteSource = readFileSync("vite.config.ts", "utf8");
     const showroomSource = readFileSync(
       "src/components/showroom/ShowroomView.tsx",
@@ -87,7 +87,10 @@ describe("commercial visual isolation", () => {
       "2D0091661DACE5D6C61AEBF898B4974644B44E43A5E8D10F602685C1631610A2",
     );
     expect(showroomSource).toContain("import.meta.env.DEV");
-    expect(showroomSource).toContain('if (import.meta.env.DEV && CommercialBReviewShowroom)');
+    expect(showroomSource).toContain("import('./ModelBShowroom')");
+    expect(showroomSource).toContain("<ModelBShowroom headingLevel={headingLevel} />");
+    expect(isolationSource).toContain("models/model-b-eds-optimized-v1.glb");
+    expect(isolationSource).toContain("2D0091661DACE5D6C61AEBF898B4974644B44E43A5E8D10F602685C1631610A2");
     expect(showroomSource).not.toContain("requestedModel !== 'eds-g01'");
     for (const token of [
       "/__peds-review/model-b.glb",
@@ -107,7 +110,6 @@ describe("commercial visual isolation", () => {
       "/__peds-review/tokyo-drift-h3-2-3x-poster.png",
       "/__peds-review/tokyo-drift-h3-2r-homepage.mp4",
       "/__peds-review/tokyo-drift-h3-2r-homepage-poster.png",
-      "model-b-eds-optimized-v1.glb",
       "tokyo-drift-final.mp4",
       "tokyo-drift-final-poster.png",
       "tokyo-drift-h2-9-final.mp4",
@@ -124,22 +126,27 @@ describe("commercial visual isolation", () => {
       "tokyo-drift-h3-2-3x-poster.png",
       "tokyo-drift-h3-2r-homepage.mp4",
       "tokyo-drift-h3-2r-homepage-poster.png",
-      "commercial-b",
     ]) {
       expect(isolationSource).toContain(token);
     }
   });
 
-  it("keeps H3.2 DEV-only and the original EDS-G01 scene for production", () => {
+  it("renders the owner-approved Homepage film in production with no EDS-G01 hero renderer", () => {
     const heroSource = readFileSync("src/components/home/PodiumBrandHero.tsx", "utf8");
-    expect(heroSource).toContain("./EDSHomeHeroScene");
-    expect(heroSource).toContain('livery="eds-crimson"');
-    expect(heroSource).toContain("/images/eds/editorial/eds-g01-hero.svg");
-    expect(heroSource).not.toContain("ModelBHomeHeroScene");
-    expect(heroSource).toContain("const devCinematic = import.meta.env.DEV");
-    expect(heroSource).toContain("const renderScene = !devCinematic");
-    expect(heroSource).toContain("const renderVideo = devCinematic");
-    expect(heroSource).toContain("/__peds-review/tokyo-drift-h3-2-2x.mp4");
+    expect(heroSource).toContain("export const HERO_VIDEO_SRC = '/media/homepage/hero-h3-2.mp4'");
+    expect(heroSource).toContain("export const HERO_POSTER_SRC = '/media/homepage/hero-h3-2-poster.png'");
     expect(heroSource).toContain("<video");
+    expect(heroSource).toContain("muted");
+    expect(heroSource).toContain("playsInline");
+    expect(heroSource).not.toContain("loop");
+    expect(heroSource).not.toContain("autoPlay");
+    expect(heroSource).not.toContain("playbackRate");
+    expect(heroSource).not.toContain("__peds-review");
+    expect(heroSource).not.toContain("EDSHomeHeroScene");
+    expect(heroSource).not.toContain("eds-g01-hero.svg");
+    expect(heroSource).not.toContain("EDS-G01 / ORIGINAL CONCEPT");
+    expect(heroSource).not.toContain("Kéo hoặc dùng phím mũi tên");
+    expect(heroSource).not.toContain("devCinematic");
+    expect(heroSource).not.toContain("ModelBHomeHeroScene");
   });
 });

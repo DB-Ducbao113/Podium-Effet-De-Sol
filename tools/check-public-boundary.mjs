@@ -5,7 +5,18 @@ import crypto from 'node:crypto';
 const root = process.cwd();
 const forbiddenDirectories = ['docs/visual-feedback'];
 const forbiddenExtensions = new Set(['.blend', '.blend1', '.mp4', '.webm', '.zip', '.7z']);
-const allowedPublicGlb = new Set(['apps/web/public/models/eds-g01.glb']);
+const approvedModelB = {
+  path: 'apps/web/public/models/model-b-eds-optimized-v1.glb',
+  sha256: '2D0091661DACE5D6C61AEBF898B4974644B44E43A5E8D10F602685C1631610A2',
+};
+// The owner-approved Homepage film is the only media file allowed in the public
+// tree. Its path and bytes are pinned, so any re-encode or replacement fails here.
+const allowedPublicMedia = new Map([
+  [
+    'apps/web/public/media/homepage/hero-h3-2.mp4',
+    'FC9DE024524B299003AEE507798F4A89BDAF635C87EF0EF3770DD29AB94BD421',
+  ],
+]);
 const frozenSourceAssets = new Map([
   [
     'source-assets/models/model-b/model-b-eds-optimized-v1.glb',
@@ -44,7 +55,21 @@ function walk(directory) {
       else walk(absolute);
     } else {
       const extension = path.extname(entry.name).toLowerCase();
-      if (extension === '.glb' && allowedPublicGlb.has(relative)) continue;
+      if (relative === approvedModelB.path) {
+        const actualHash = crypto.createHash('sha256').update(fs.readFileSync(absolute)).digest('hex').toUpperCase();
+        if (actualHash !== approvedModelB.sha256) violations.push(`${relative} (SHA-256 mismatch)`);
+        continue;
+      }
+      const allowedMediaHash = allowedPublicMedia.get(relative);
+      if (allowedMediaHash && (extension === '.mp4' || extension === '.webm')) {
+        const actualHash = crypto
+          .createHash('sha256')
+          .update(fs.readFileSync(absolute))
+          .digest('hex')
+          .toUpperCase();
+        if (actualHash !== allowedMediaHash) violations.push(`${relative} (SHA-256 mismatch)`);
+        continue;
+      }
       const frozenHash = frozenSourceAssets.get(relative);
       if (frozenHash && (extension === '.glb' || extension === '.blend')) {
         const actualHash = crypto

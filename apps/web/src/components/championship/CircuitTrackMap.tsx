@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { CircuitData } from '../../types/circuit';
-import { getCircuitByRound, findCircuitByName } from '../../data/championship/circuitsData';
+import { findCircuitByName } from '../../data/championship/circuitsData';
+import { getSeasonCircuit } from '../../utils/p5SeasonalVisuals';
+import type { SeasonYear } from '../../types';
 import { useNavigationStore } from '../../store/useNavigationStore';
 import { CircuitDetailModal } from './CircuitDetailModal';
 import { CircuitStreetReview } from './CircuitStreetReview';
 import { Maximize2, Trophy, Zap } from 'lucide-react';
 
 interface CircuitTrackMapProps {
+  season?: number;
   round?: number;
   circuitName?: string;
   circuitData?: CircuitData;
@@ -17,6 +20,7 @@ interface CircuitTrackMapProps {
 
 export const CircuitTrackMap: React.FC<CircuitTrackMapProps> = React.memo(
   ({
+    season,
     round,
     circuitName,
     circuitData: explicitData,
@@ -31,7 +35,7 @@ export const CircuitTrackMap: React.FC<CircuitTrackMapProps> = React.memo(
     // Resolve circuit data by round, or fuzzy match by circuitName
     const circuit: CircuitData | undefined =
       explicitData ||
-      (round ? getCircuitByRound(round) : undefined) ||
+      (round ? getSeasonCircuit((season ?? 2026) as SeasonYear, round) : undefined) ||
       (circuitName ? findCircuitByName(circuitName) : undefined);
 
     if (!circuit) {
@@ -161,7 +165,7 @@ export const CircuitTrackMap: React.FC<CircuitTrackMapProps> = React.memo(
           </div>
 
           {isModalOpen && (
-            <CircuitDetailModal circuit={circuit} onClose={() => setIsModalOpen(false)} />
+            <CircuitDetailModal circuit={circuit} season={season} eventRound={round} onClose={() => setIsModalOpen(false)} />
           )}
         </div>
       );
@@ -289,7 +293,7 @@ export const CircuitTrackMap: React.FC<CircuitTrackMapProps> = React.memo(
 
         {/* Modal Portal */}
         {isModalOpen && (
-          <CircuitDetailModal circuit={circuit} onClose={() => setIsModalOpen(false)} />
+          <CircuitDetailModal circuit={circuit} season={season} eventRound={round} onClose={() => setIsModalOpen(false)} />
         )}
       </div>
     );

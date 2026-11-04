@@ -1,0 +1,267 @@
+{
+  "version": 1,
+  "totalFiles": 44,
+  "totalBytes": 3653197,
+  "items": [
+    {
+      "role": "ART-RC-HERO",
+      "outputs": [
+        {
+          "file": "rc-hero-1344.avif",
+          "bytes": 48547,
+          "sha256": "66d0abaaa94f4b8b863717a7b7554a20ffc5881fd024ab2cdd1654c34fa88e88"
+        },
+        {
+          "file": "rc-hero-1344.webp",
+          "bytes": 81484,
+          "sha256": "c1e1b37eeae685101862cad178891391acf9e1d3964dde8348416c053080eedb"
+        },
+        {
+          "file": "rc-hero-1792.avif",
+          "bytes": 71603,
+          "sha256": "a173a12b927eb2436b687475b0a7fad6197b28c20597fb13ebf023df1b7899d9"
+        },
+        {
+          "file": "rc-hero-1792.webp",
+          "bytes": 117966,
+          "sha256": "97e6bc1cf1475367107795946e5b34b11ad3c5f4c250c5fc06ebb8ed1f686684"
+        },
+        {
+          "file": "rc-hero-896.avif",
+          "bytes": 27470,
+          "sha256": "8427ba24f3bd5f7b28e547053ebea047f61b49792f99cb466bb1f8c3bef8b02b"
+        },
+        {
+          "file": "rc-hero-896.webp",
+          "bytes": 45980,
+          "sha256": "c1dc3bb180678f9c621850d285cb09594ad875934b320002d9b1513a2011b552"
+        }
+      ]
+    },
+    {
+      "role": "ART-CAL-HERO",
+      "outputs": [
+        {
+          "file": "cal-hero-1344.avif",
+          "bytes": 68226,
+          "sha256": "f1db544c6c54c6b545aa2b1dc27f4ceec1bb5ce1e35c15de5c9e4d9e1b198543"
+        },
+        {
+          "file": "cal-hero-1344.webp",
+          "bytes": 135612,
+          "sha256": "11ca31e84e4f6d71c190410da1199f5689e51b13aae0b8c28cbfff3e7f7e3d8b"
+        },
+        {
+          "file": "cal-hero-1792.avif",
+          "bytes": 103774,
+          "sha256": "33fb541f80d1da329c852af5ec4df73fd179eea50a2b94eac44242d7cf4a8f71"
+        },
+        {
+          "file": "cal-hero-1792.webp",
+          "bytes": 206124,
+          "sha256": "d92e178fff124420a5b442167919df2e342de7d286efa5ea373f515a93774b10"
+        },
+        {
+          "file": "cal-hero-896.avif",
+          "bytes": 36722,
+          "sha256": "d682fa891215c0118fd0926cf17cf71ddcb73066a6f71fce8abe4c9def147984"
+        },
+        {
+          "file": "cal-hero-896.webp",
+          "bytes": 69634,
+          "sha256": "55394be4613da2fc46f263bcbb3aad3d2ca8d7c38638842257fe7b0b464fa13b"
+        }
+      ]
+    },
+    {
+      "role": "ART-CAL-NEXT",
+      "outputs": [
+        {
+          "file": "cal-next-1200.avif",
+          "bytes": 71385,
+          "sha256": "be98d785451ca9e7da62fc98774d4cb8b217f14a08831b7f652904e98a19568c"
+        },
+        {
+          "file": "cal-next-1200.webp",
+          "bytes": 134354,
+          "sha256": "27edee27f81a8b2a225ab4fddb6b6ec78494a892e3aaaab3198216f8e9a825f8"
+        },
+        {
+          "file": "cal-next-800.avif",
+          "bytes": 37192,
+          "sha256": "e6c6996fff05786a947a51ed0f7691539a5ee08c2e3ce09191e9907ef88fce22"
+        },
+        {
+          "file": "cal-next-800.webp",
+          "bytes": 69968,
+          "sha256": "2da874297eef9bd667385408752ac52b9313dcaab62e09e0d8d3f0c4a603f953"
+        }
+      ]
+    },
+    {
+      "role": "ART-CAL-EDITORIAL",
+      "outputs": [
+        {
+          "file": "cal-editorial-1000.avif",
+          "bytes": 34208,
+          "sha256": "5be3f7aa8f5e83d10668b46878385feb367705fc4c8c2291345079382239985b"
+        },
+        {
+          "file": "cal-editorial-1000.webp",
+          "bytes": 59112,
+          "sha256": "9a630dfcdd34fd0fd4247a266c67bc272afc0c1f8ce52be0931b299705f9540f"
+        },
+        {
+          "file": "cal-editorial-640.avif",
+          "bytes": 19253,
+          "sha256": "58f683855a5f64c0e8150962840e07f1c89f4410d39254558152a2f72edf4e19"
+        },
+        {
+          "file": "cal-editorial-640.webp",
+          "bytes": 32884,
+          "sha256": "5d55cf900f3575fa5fc1b85ea56d804975a7b926f064acb74bdfc2618cf4733a"
+        }
+      ]
+    },
+    {
+      "role": "ART-RC-VENUE-DESERT",
+      "outputs": [
+        {
+          "file": "venue-desert-1024.avif",
+          "bytes": 43902,
+          "sha256": "91cc4618d8356054e24e6c056d3c637a64911170380566942e6d67a9a89c614d"
+        },
+        {
+          "file": "venue-desert-1024.webp",
+          "bytes": 86340,
+          "sha256": "318dac9199108ce4842fe050ee5fb18b644be3597dd92cd8c2c4de82aeda1b67"
+        },
+        {
+          "file": "venue-desert-1600.avif",
+          "bytes": 93290,
+          "sha256": "fa72cc5ac02ebb93ede5585eee545b01bae7a181b3dd00e24dd6531993edbd5d"
+        },
+        {
+          "file": "venue-desert-1600.webp",
+          "bytes": 184208,
+          "sha256": "d786b4f7575943faa1e87ac834c0306c4661d14b29dce940ab7fd87f108e6bf0"
+        },
+        {
+          "file": "venue-desert-640.avif",
+          "bytes": 19325,
+          "sha256": "1e001d31c79ac3402ae49e011e8112532aea6fcb70019c203fa1b5127e666f3e"
+        },
+        {
+          "file": "venue-desert-640.webp",
+          "bytes": 37306,
+          "sha256": "1a6dfa95ecb06bfa5dd438b2c0f476736bd1055af400237824e5be1bc22d9c58"
+        }
+      ]
+    },
+    {
+      "role": "ART-RC-VENUE-FOREST",
+      "outputs": [
+        {
+          "file": "venue-forest-1024.avif",
+          "bytes": 53430,
+          "sha256": "40e1a65545297902fe2f7f3a1424b5a022b164985b680963e241b7b5f9e19ece"
+        },
+        {
+          "file": "venue-forest-1024.webp",
+          "bytes": 99010,
+          "sha256": "cf0165fe3abeeb1f8213f85635125bebf77e42f16c2ead01b7068cee8f17148e"
+        },
+        {
+          "file": "venue-forest-1600.avif",
+          "bytes": 109440,
+          "sha256": "36c4b435c6add063ffc29321c435e3783b15770ed4fadd14b92b80210f78f36a"
+        },
+        {
+          "file": "venue-forest-1600.webp",
+          "bytes": 200472,
+          "sha256": "c3c942ceb885010ac6c98a4808b64a88f62040298182488abd37dd72fe98437a"
+        },
+        {
+          "file": "venue-forest-640.avif",
+          "bytes": 23342,
+          "sha256": "50b77647e80b111b66db23806a0f1555e359a4b92ba812e9f7b3f46ba41fb4b8"
+        },
+        {
+          "file": "venue-forest-640.webp",
+          "bytes": 43576,
+          "sha256": "23d87c967b8e45e350f9752abf7480f4e5254b9f70f355ade015e2769b3342db"
+        }
+      ]
+    },
+    {
+      "role": "ART-RC-VENUE-MODERN",
+      "outputs": [
+        {
+          "file": "venue-modern-1024.avif",
+          "bytes": 45683,
+          "sha256": "866232188b40b5d77bfbf4003c6ec6606134ab5ff4797408bd133fceaef6ea2b"
+        },
+        {
+          "file": "venue-modern-1024.webp",
+          "bytes": 88154,
+          "sha256": "c1e618b43e79e85ce1b80134f7f160ecbb2945ace636e5977e73f12229a6f109"
+        },
+        {
+          "file": "venue-modern-1600.avif",
+          "bytes": 101310,
+          "sha256": "18672da800a7cb104de19680880c43ad6ffd8e15e00eb340c87740bae09048ff"
+        },
+        {
+          "file": "venue-modern-1600.webp",
+          "bytes": 196934,
+          "sha256": "e5ef49afcbbcaacd63475a1652941211582a92e8339b2020ca2d77714a338c28"
+        },
+        {
+          "file": "venue-modern-640.avif",
+          "bytes": 19137,
+          "sha256": "f601d1391c373388b8ca220003db4aad4c3cfea5578017cd93ef34aff19d42b0"
+        },
+        {
+          "file": "venue-modern-640.webp",
+          "bytes": 37110,
+          "sha256": "32fbe31add61f0808fd742b83efbdc2f8236806e8b521f3983a05630c657f254"
+        }
+      ]
+    },
+    {
+      "role": "ART-RC-VENUE-STREET",
+      "outputs": [
+        {
+          "file": "venue-street-1024.avif",
+          "bytes": 68267,
+          "sha256": "e976230f83f88b2aea883b889ec543ee9917fb613819602af6c35b25977ba089"
+        },
+        {
+          "file": "venue-street-1024.webp",
+          "bytes": 130344,
+          "sha256": "2681478bcf019902672b396646e55cd5bc35acff5f17d52993d6ac6640a2c64c"
+        },
+        {
+          "file": "venue-street-1600.avif",
+          "bytes": 140968,
+          "sha256": "1d522ab23dd157781c542d0c74799e1a7b985960b4e4f11aebac7f3acdc84889"
+        },
+        {
+          "file": "venue-street-1600.webp",
+          "bytes": 276658,
+          "sha256": "6ffbf5a40f8e83112de84244ed9c667a780189aafad8faadf488211252390b0c"
+        },
+        {
+          "file": "venue-street-640.avif",
+          "bytes": 28747,
+          "sha256": "55873ecba44433059076820b5616137d26ec90d62fcfa0818982744b18724ab5"
+        },
+        {
+          "file": "venue-street-640.webp",
+          "bytes": 54746,
+          "sha256": "711681b5a71e33e2b9aedf0cc60bc99d50be3b0c0bc5e9308513619d3ed5bd08"
+        }
+      ]
+    }
+  ]
+}

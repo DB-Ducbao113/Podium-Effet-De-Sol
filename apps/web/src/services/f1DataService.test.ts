@@ -27,6 +27,7 @@ describe('Jolpica driver ID normalization', () => {
     ['isack_hadjar', 'hadjar'],
     ['max_verstappen', 'verstappen'],
     ['arvid_lindblad', 'lindblad'],
+    ['ryo_hirakawa', 'hirakawa'],
   ])('normalizes %s to the championship ID %s', (providerId, expectedId) => {
     expect(normalizeDriverId(providerId)).toBe(expectedId);
   });

@@ -1,61 +1,79 @@
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { BookOpen, Box, ChevronDown, Home, Menu, Trophy, X, Info } from 'lucide-react';
+import { ArrowUpRight, ChevronDown, Menu, X } from 'lucide-react';
 import { useNavigationStore } from '../../store/useNavigationStore';
-import { t } from '../../i18n/translations';
 import { OfficialBrandLogo } from '../common/OfficialBrandLogo';
 import { isPrimaryPath, useMobileHub } from '../../hooks/useMobileHub';
+import { buttonClassName } from '../ui/buttonStyles';
+import { buildNavItems, type NavItem } from './navItems';
 import './navbarH1.css';
-
-type Control = 'cameras' | 'livery' | 'hotspots';
-type SubItem = { label: string; to: string; control?: Control };
-type NavItem = { id: string; label: string; to: string; icon: typeof Home; children?: SubItem[] };
 
 export const Navbar = memo(function Navbar() {
   const { lang, setLang } = useNavigationStore();
   const location = useLocation();
   const mobileHub = useMobileHub();
   const onHub = mobileHub && isPrimaryPath(location.pathname);
+  const isVi = lang === 'vi';
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [focusedGroup, setFocusedGroup] = useState<string | null>(null);
   const [dismissedDropdown, setDismissedDropdown] = useState<string | null>(null);
   const menuToggleRef = useRef<HTMLButtonElement | null>(null);
-  const strings = t[lang].nav;
+  const menuRef = useRef<HTMLDivElement | null>(null);
   const insideMachineTrialEnabled = import.meta.env.DEV;
+  const season = Number(location.pathname.match(/^\/season\/(2024|2025|2026)(?:\/|$)/)?.[1] ?? 2026) as 2024 | 2025 | 2026;
 
-  const items = useMemo<NavItem[]>(() => [
-    { id: 'home', to: '/', label: strings.home, icon: Home },
-    { id: 'championship', to: '/season/2026', label: strings.championship, icon: Trophy, children: [
-      { label: lang === 'vi' ? 'Tay đua' : 'Driver standings', to: '/season/2026?tab=standings&category=drivers' },
-      { label: lang === 'vi' ? 'Đội đua' : 'Constructor standings', to: '/season/2026?tab=standings&category=constructors' },
-      { label: lang === 'vi' ? 'Lịch đua' : 'Calendar', to: '/season/2026?tab=calendar' },
-      { label: lang === 'vi' ? 'Kết quả' : 'Results', to: '/season/2026?tab=results' },
-      { label: lang === 'vi' ? 'Đội đua' : 'Teams', to: '/season/2026?tab=teams' },
-      { label: lang === 'vi' ? 'Tay đua' : 'Drivers', to: '/season/2026?tab=drivers' },
-    ] },
-    { id: 'showroom', to: '/showroom', label: 'Showroom 3D', icon: Box, children: [
-      { label: lang === 'vi' ? 'Tổng quan' : 'Overview', to: '/showroom' },
-      { label: lang === 'vi' ? 'Góc camera' : 'Cameras', to: '/showroom', control: 'cameras' },
-      { label: lang === 'vi' ? 'Màu xe' : 'Livery', to: '/showroom', control: 'livery' },
-      { label: lang === 'vi' ? 'Bộ phận' : 'Hotspots', to: '/showroom', control: 'hotspots' },
-    ] },
-    { id: 'engineering', to: insideMachineTrialEnabled ? '/engineering' : '/engineering/car-anatomy', label: insideMachineTrialEnabled ? 'Inside the Machine' : lang === 'vi' ? 'Giải phẫu xe' : 'Engineering', icon: BookOpen, children: insideMachineTrialEnabled ? [
-      { label: 'Inside the Machine', to: '/engineering' },
-      { label: lang === 'vi' ? 'Bài viết kỹ thuật' : 'Engineering insights', to: '/engineering/insights' },
-      { label: lang === 'vi' ? 'Giải phẫu xe cũ' : 'Previous car anatomy', to: '/engineering/car-anatomy' },
-    ] : [
-      { label: lang === 'vi' ? 'Giải phẫu xe' : 'Car anatomy', to: '/engineering/car-anatomy' },
-      { label: lang === 'vi' ? 'Cánh trước' : 'Front wing', to: '/engineering/car-anatomy?chapter=front-wing' },
-      { label: lang === 'vi' ? 'Sàn xe' : 'Floor', to: '/engineering/car-anatomy?chapter=floor' },
-      { label: lang === 'vi' ? 'Bộ khuếch tán' : 'Diffuser', to: '/engineering/car-anatomy?chapter=diffuser' },
-      { label: lang === 'vi' ? 'Cánh sau' : 'Rear wing', to: '/engineering/car-anatomy?chapter=rear-wing' },
-    ] },
-    { id: 'about', to: '/about', label: lang === 'vi' ? 'Giới thiệu' : 'About', icon: Info, children: [
-      { label: lang === 'vi' ? 'Dự án' : 'Project', to: '/about' },
-      { label: lang === 'vi' ? 'Ghi công' : 'Credits', to: '/about#peds-credits' },
-    ] },
-  ], [lang, strings, insideMachineTrialEnabled]);
+  const items = useMemo<NavItem[]>(
+    () => buildNavItems(lang, insideMachineTrialEnabled, season),
+    [lang, insideMachineTrialEnabled, season],
+  );
+
+  const tab = new URLSearchParams(location.search).get('tab');
+  const onRaceRoute = /^\/season\/[^/]+\/race\//.test(location.pathname);
+  const seasonSection = !location.pathname.startsWith('/season/')
+    ? null
+    : onRaceRoute || tab === 'results' || tab === 'calendar'
+      ? 'results'
+      : tab === 'drivers'
+        ? 'drivers'
+        : tab === 'teams'
+          ? 'teams'
+          : 'standings';
+  const hubHash = location.hash;
+  const currentUrl = `${location.pathname}${location.search}`;
+
+  const isActive = (id: string) => {
+    switch (id) {
+      case 'overview':
+        return location.pathname === '/'
+          ? hubHash !== '#showroom' && hubHash !== '#giai-dau'
+          : onHub && hubHash === '#home';
+      case 'results':
+        return seasonSection === 'results';
+      case 'standings':
+        return seasonSection === 'standings' || (onHub && hubHash === '#giai-dau');
+      case 'drivers':
+        return location.pathname === '/drivers' || location.pathname.startsWith('/drivers/') || seasonSection === 'drivers';
+      case 'teams':
+        return location.pathname === '/teams' || location.pathname.startsWith('/teams/') || seasonSection === 'teams';
+      case 'engineering':
+        return location.pathname.startsWith('/engineering');
+      case 'showroom':
+        return location.pathname.startsWith('/showroom') || location.pathname.startsWith('/gallery') || hubHash === '#showroom';
+      default:
+        return false;
+    }
+  };
+  const isChildActive = (to: string) => to === currentUrl;
+  const showroomActive = isActive('showroom');
+
+  const hubParams = new URLSearchParams(location.search);
+  hubParams.delete('hotspot');
+  const hubSearch = hubParams.size ? `?${hubParams.toString()}` : '';
+  const homeHref = onHub ? `${location.pathname}${hubSearch}#home` : '/';
+  const showroomHref = onHub ? `${location.pathname}${hubSearch}#showroom` : '/showroom';
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -65,27 +83,92 @@ export const Navbar = memo(function Navbar() {
   }, []);
 
   useEffect(() => {
-    if (!menuOpen) return;
+    setMenuOpen(false);
+    setExpanded(null);
+    setOpenDropdown(null);
+    setFocusedGroup(null);
+    setDismissedDropdown(null);
+  }, [location.pathname, location.search]);
+
+  useEffect(() => {
+    const activeDropdown = openDropdown ?? focusedGroup;
+    if (!activeDropdown) return;
+    const onPointerDown = (event: PointerEvent) => {
+      const group = (event.target as Element | null)?.closest?.('.h1-nav__group');
+      if (group?.getAttribute('data-nav-id') === activeDropdown) return;
+      setOpenDropdown(null);
+      setFocusedGroup(null);
+      setDismissedDropdown(activeDropdown);
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    return () => document.removeEventListener('pointerdown', onPointerDown);
+  }, [openDropdown, focusedGroup]);
+
+  useEffect(() => {
     const onEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') { setMenuOpen(false); menuToggleRef.current?.focus(); }
+      if (event.key !== 'Escape' || menuOpen) return;
+      const focused = document.activeElement?.closest<HTMLElement>('.h1-nav__group');
+      const hovered = document.querySelector<HTMLElement>('.h1-nav__group:hover');
+      const group = focused ?? hovered;
+      if (!group) return;
+      setDismissedDropdown(group.dataset.navId ?? null);
+      setOpenDropdown(null);
+      setFocusedGroup(null);
+      (group.querySelector<HTMLElement>('.h1-nav__chevron') ?? group.querySelector<HTMLElement>('.h1-nav__link'))?.focus();
     };
     window.addEventListener('keydown', onEscape);
     return () => window.removeEventListener('keydown', onEscape);
   }, [menuOpen]);
 
   useEffect(() => {
-    const onEscape = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape') return;
-      const focused = document.activeElement?.closest<HTMLElement>('.h1-nav__group');
-      const hovered = document.querySelector<HTMLElement>('.h1-nav__group:hover');
-      const group = focused ?? hovered;
-      if (!group) return;
-      setDismissedDropdown(group.dataset.navId ?? null);
-      group.querySelector<HTMLElement>('a')?.focus();
+    const query = window.matchMedia('(min-width: 1024px)');
+    const onChange = () => {
+      if (!query.matches) return;
+      setMenuOpen(false);
+      setExpanded(null);
     };
-    window.addEventListener('keydown', onEscape);
-    return () => window.removeEventListener('keydown', onEscape);
+    query.addEventListener('change', onChange);
+    return () => query.removeEventListener('change', onChange);
   }, []);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const panel = menuRef.current;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const focusables = () => Array.from(
+      panel?.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])') ?? [],
+    ).filter((element) => element.offsetParent !== null);
+    focusables()[0]?.focus();
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        setMenuOpen(false);
+        setExpanded(null);
+        menuToggleRef.current?.focus();
+        return;
+      }
+      if (event.key !== 'Tab') return;
+      const list = focusables();
+      if (!list.length) return;
+      const first = list[0];
+      const last = list[list.length - 1];
+      if (event.shiftKey) {
+        if (document.activeElement === first || !panel?.contains(document.activeElement)) {
+          event.preventDefault();
+          last.focus();
+        }
+      } else if (document.activeElement === last || !panel?.contains(document.activeElement)) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [menuOpen]);
 
   useEffect(() => {
     if (location.hash !== '#peds-credits') return;
@@ -93,70 +176,190 @@ export const Navbar = memo(function Navbar() {
     return () => window.clearTimeout(timer);
   }, [location.hash, location.pathname]);
 
-  useEffect(() => {
-    const control = (location.state as { showroomControl?: Control } | null)?.showroomControl;
-    if (!control || location.pathname !== '/showroom') return;
-    const labels = {
-      cameras: ['Góc camera', 'Camera views'],
-      livery: ['Màu thân xe', 'Body finish'],
-      hotspots: ['Bộ phận xe', 'Car components'],
-    }[control];
-    let attempts = 0;
-    const timer = window.setInterval(() => {
-      const group = [...document.querySelectorAll<HTMLElement>('[role="group"]')]
-        .find((element) => labels.includes(element.getAttribute('aria-label') || '')) ||
-        (mobileHub ? document.querySelector<HTMLElement>({ cameras: '.r1-quick-hud', livery: '[data-eds-livery]', hotspots: '[data-eds-hotspot]' }[control]) : null);
-      if (group) {
-        group.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
-        (group.matches('button') ? group : group.querySelector<HTMLElement>('button'))?.focus({ preventScroll: true });
-        window.clearInterval(timer);
-      } else if (++attempts >= 40) window.clearInterval(timer);
-    }, 100);
-    return () => window.clearInterval(timer);
-  }, [location.key, location.pathname, location.state, mobileHub]);
+  const closeMenu = (restoreFocus = false) => {
+    setMenuOpen(false);
+    setExpanded(null);
+    setOpenDropdown(null);
+    if (restoreFocus) window.requestAnimationFrame(() => menuToggleRef.current?.focus());
+  };
 
-  const active = (id: string) => id === 'home' ? location.pathname === '/' :
-    id === 'championship' ? location.pathname.startsWith('/season') :
-    id === 'showroom' ? location.pathname.startsWith('/showroom') || location.pathname.startsWith('/gallery') :
-    id === 'engineering' ? location.pathname.startsWith('/engineering') : location.pathname === '/about';
-  const closeMenu = () => { setMenuOpen(false); setExpanded(null); };
-  const hubParams = new URLSearchParams(location.search);
-  hubParams.delete('hotspot');
-  const hubSearch = hubParams.size ? `?${hubParams.toString()}` : '';
+  const mobileTarget = (item: NavItem) => item.id === 'overview' ? homeHref : item.to;
 
   return <>
-    <header className={`h1-nav fixed inset-x-0 top-0 z-50 border-b border-white/10 ${scrolled ? 'h1-nav--scrolled' : ''}`}>
-      <div className="page-container flex h-16 items-center justify-between gap-3">
-        <Link to={onHub ? `${location.pathname}${hubSearch}#home` : '/'} className="rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-f1red" aria-label="Podium Effet de Sol">
-          <OfficialBrandLogo size="md" variant="full" className="hidden sm:block" />
-          <OfficialBrandLogo size="md" variant="compact" className="sm:hidden" />
+    <header aria-hidden={menuOpen || undefined} className={`h1-nav fixed inset-x-0 top-0 z-50 border-b border-white/10 ${scrolled ? 'h1-nav--scrolled' : ''}`}>
+      <div className="page-container h1-nav__bar flex h-16 items-center justify-between gap-3">
+        <Link
+          to={homeHref}
+          className="h1-nav__brand"
+          aria-label={isVi ? 'PODIUM EDS — Trang chủ' : 'PODIUM EDS — Home'}
+        >
+          <OfficialBrandLogo size="sm" variant="full" className="h1-nav__brand-logo" />
         </Link>
-        <nav className="h1-nav__desktop" aria-label={lang === 'vi' ? 'Điều hướng chính' : 'Main navigation'}>
-          {items.map((item) => <div className="h1-nav__group" key={item.id} data-nav-id={item.id} data-dismissed={dismissedDropdown === item.id} onPointerLeave={() => setDismissedDropdown(null)} onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setDismissedDropdown(null); }} onKeyDown={(event) => { if (event.key === 'Escape') { event.preventDefault(); setDismissedDropdown(item.id); (event.currentTarget.querySelector('a') as HTMLElement | null)?.focus(); } }}>
-            <Link to={item.to} className={`h1-nav__link ${active(item.id) ? 'h1-nav__link--active' : ''}`} aria-current={active(item.id) ? 'page' : undefined}>
-              <item.icon size={15} aria-hidden="true" /><span>{item.label}</span>{item.children && <ChevronDown size={13} aria-hidden="true" />}
-            </Link>
-            {item.children && <div className="h1-nav__dropdown"><div className="h1-nav__dropdown-inner">
-              {item.children.map((child) => <Link key={child.label} to={child.to} state={child.control ? { showroomControl: child.control } : undefined} className="h1-nav__sub" onClick={() => {}}>{child.label}</Link>)}
-            </div></div>}
-          </div>)}
+        <nav className="h1-nav__desktop" aria-label={isVi ? 'Điều hướng chính' : 'Main navigation'}>
+          {items.map((item) => {
+            const active = isActive(item.id);
+            const dismissed = dismissedDropdown === item.id;
+            const dropdownOpen = (openDropdown === item.id || focusedGroup === item.id) && !dismissed;
+            return <div
+              className={`h1-nav__group${active ? ' h1-nav__group--active' : ''}`}
+              key={item.id}
+              data-nav-id={item.id}
+              data-open={dropdownOpen}
+              data-dismissed={dismissed}
+              onFocusCapture={() => {
+                if (dismissedDropdown === item.id) return;
+                setFocusedGroup(item.id);
+              }}
+              onPointerEnter={() => {
+                setDismissedDropdown(null);
+                if (openDropdown && openDropdown !== item.id) setOpenDropdown(null);
+              }}
+              onPointerLeave={(event) => {
+                if (!event.currentTarget.contains(document.activeElement)) setDismissedDropdown(null);
+              }}
+              onBlur={(event) => {
+                if (event.currentTarget.contains(event.relatedTarget as Node | null)) return;
+                setDismissedDropdown(null);
+                setFocusedGroup(null);
+                setOpenDropdown((current) => current === item.id ? null : current);
+              }}
+            >
+              <Link
+                to={item.to}
+                className="h1-nav__link"
+                aria-current={active ? 'page' : undefined}
+                onClick={() => { setOpenDropdown(null); setDismissedDropdown(null); }}
+              >
+                <span>{item.label}</span>
+              </Link>
+              {item.children && <>
+                <button
+                  type="button"
+                  className="h1-nav__chevron"
+                  aria-label={`${item.label} — ${isVi ? 'mục con' : 'submenu'}`}
+                  aria-expanded={dropdownOpen}
+                  aria-controls={`h1-nav-dropdown-${item.id}`}
+                  onClick={() => {
+                    if (openDropdown === item.id) {
+                      setOpenDropdown(null);
+                      setFocusedGroup(null);
+                      setDismissedDropdown(item.id);
+                      return;
+                    }
+                    setDismissedDropdown(null);
+                    setOpenDropdown(item.id);
+                  }}
+                >
+                  <ChevronDown size={13} aria-hidden="true" />
+                </button>
+                <div className="h1-nav__dropdown" id={`h1-nav-dropdown-${item.id}`}>
+                  <div className="h1-nav__dropdown-inner">
+                    {item.children.map((child) => <Link
+                      key={child.id}
+                      to={child.to}
+                      className="h1-nav__sub"
+                      aria-current={isChildActive(child.to) ? 'true' : undefined}
+                      onClick={() => { setOpenDropdown(null); setDismissedDropdown(null); }}
+                    >{child.label}</Link>)}
+                  </div>
+                </div>
+              </>}
+            </div>;
+          })}
+          <Link
+            to={showroomHref}
+            className={buttonClassName({ size: 'sm', className: `h1-nav__cta${showroomActive ? ' h1-nav__cta--active' : ''}` })}
+            aria-current={showroomActive ? 'page' : undefined}
+            onClick={() => setOpenDropdown(null)}
+          >
+            <span>Showroom 3D</span>
+            <ArrowUpRight size={14} aria-hidden="true" />
+          </Link>
         </nav>
-        <div className="flex shrink-0 items-center gap-2">
-          <div className="flex items-center rounded-full border border-white/10 bg-white/5 p-0.5">
-            {(['vi', 'en'] as const).map((code) => <button key={code} type="button" onClick={() => setLang(code)} aria-label={code === 'vi' ? 'Tiếng Việt' : 'English'} aria-pressed={lang === code} className={`flex min-h-11 min-w-11 items-center justify-center rounded-full text-[10px] font-bold focus-visible:outline focus-visible:outline-2 focus-visible:outline-white ${lang === code ? 'bg-f1red text-peds-canvas' : 'text-studio-300 hover:text-white'}`}>{code.toUpperCase()}</button>)}
+        <div className="h1-nav__actions flex shrink-0 items-center gap-2">
+          <div className="h1-nav__lang flex items-center rounded-full border border-white/10 bg-white/5 p-0.5">
+            {(['vi', 'en'] as const).map((code) => <button
+              key={code}
+              type="button"
+              onClick={() => setLang(code)}
+              aria-label={code === 'vi' ? 'Tiếng Việt' : 'English'}
+              aria-pressed={lang === code}
+              className={`h1-nav__lang-option${lang === code ? ' is-active' : ''}`}
+            >{code.toUpperCase()}</button>)}
           </div>
-          <button ref={menuToggleRef} type="button" onClick={() => setMenuOpen(!menuOpen)} className="h1-nav__toggle flex min-h-11 min-w-11 items-center justify-center rounded text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-f1red" aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'} aria-expanded={menuOpen} aria-controls="mobile-nav-menu">{menuOpen ? <X size={21} /> : <Menu size={21} />}</button>
+          <button
+            ref={menuToggleRef}
+            type="button"
+            onClick={() => menuOpen ? closeMenu(true) : setMenuOpen(true)}
+            className="h1-nav__toggle flex min-h-11 min-w-11 items-center justify-center rounded text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-f1red"
+            aria-label={menuOpen ? (isVi ? 'Đóng menu' : 'Close navigation menu') : (isVi ? 'Mở menu' : 'Open navigation menu')}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-nav-menu"
+          >{menuOpen ? <X size={21} /> : <Menu size={21} />}</button>
         </div>
       </div>
     </header>
-    {menuOpen && <div className="h1-nav__scrim" onClick={closeMenu}><nav id="mobile-nav-menu" className="h1-nav__mobile" aria-label={lang === 'vi' ? 'Điều hướng di động' : 'Mobile navigation'} onClick={(event) => event.stopPropagation()}>
-      {items.map((item) => <div key={item.id} className="h1-nav__mobile-group">
-        <div className="flex items-center">
-          <Link to={item.to} onClick={closeMenu} className="h1-nav__mobile-link"><item.icon size={17} aria-hidden="true" />{item.label}</Link>
-          {item.children && <button type="button" onClick={() => setExpanded(expanded === item.id ? null : item.id)} aria-expanded={expanded === item.id} aria-label={`${item.label}: ${lang === 'vi' ? 'mục con' : 'subpages'}`} className="h1-nav__expand"><ChevronDown size={18} aria-hidden="true" /></button>}
+    {menuOpen && <div className="h1-nav__scrim" onClick={() => closeMenu(true)}>
+      <div
+        ref={menuRef}
+        className="h1-nav__panel"
+        role="dialog"
+        aria-modal="true"
+        aria-label={isVi ? 'Điều hướng' : 'Navigation'}
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="h1-nav__panel-top">
+          <OfficialBrandLogo size="sm" variant="full" />
+          <button type="button" className="h1-nav__panel-close" onClick={() => closeMenu(true)} aria-label={isVi ? 'Đóng menu' : 'Close navigation menu'}>
+            <X size={20} aria-hidden="true" />
+          </button>
         </div>
-        {item.children && expanded === item.id && <div className="h1-nav__mobile-sublist">{item.children.map((child) => <Link key={child.label} to={child.to} state={child.control ? { showroomControl: child.control } : undefined} onClick={closeMenu}>{child.label}</Link>)}</div>}
-      </div>)}
-    </nav></div>}
+        <p className="h1-nav__mobile-eyebrow"><span>{isVi ? 'Điều hướng' : 'Navigation'}</span><span>2026</span></p>
+        <nav id="mobile-nav-menu" className="h1-nav__mobile" aria-label={isVi ? 'Điều hướng di động' : 'Mobile navigation'}>
+          {items.map((item) => <div className={`h1-nav__mobile-group${isActive(item.id) ? ' is-active' : ''}`} key={item.id}>
+            <div className="h1-nav__mobile-row">
+              <Link
+                to={mobileTarget(item)}
+                onClick={() => closeMenu()}
+                className="h1-nav__mobile-link"
+                aria-current={isActive(item.id) ? 'page' : undefined}
+              >
+                <item.icon size={17} aria-hidden="true" />
+                <span>{item.label}</span>
+              </Link>
+              {item.children && <button
+                type="button"
+                onClick={() => setExpanded(expanded === item.id ? null : item.id)}
+                aria-expanded={expanded === item.id}
+                aria-controls={`h1-nav-mobile-${item.id}`}
+                aria-label={`${item.label}: ${isVi ? 'mục con' : 'subpages'}`}
+                className="h1-nav__expand"
+              ><ChevronDown size={18} aria-hidden="true" /></button>}
+            </div>
+            {item.children && expanded === item.id && <div id={`h1-nav-mobile-${item.id}`} className="h1-nav__mobile-sublist">
+              {item.children.map((child) => <Link
+                key={child.id}
+                to={child.to}
+                onClick={() => closeMenu()}
+                aria-current={isChildActive(child.to) ? 'true' : undefined}
+              >{child.label}</Link>)}
+            </div>}
+          </div>)}
+          <Link
+            to={showroomHref}
+            onClick={() => closeMenu()}
+            className="h1-nav__mobile-cta"
+            aria-current={showroomActive ? 'page' : undefined}
+          >
+            <span>Showroom 3D</span>
+            <ArrowUpRight size={16} aria-hidden="true" />
+          </Link>
+          <div className="h1-nav__mobile-secondary">
+            <Link to="/about" onClick={() => closeMenu()}>{isVi ? 'Giới thiệu' : 'About'}</Link>
+            <Link to="/about#peds-credits" onClick={() => closeMenu()}>{isVi ? 'Ghi công' : 'Credits'}</Link>
+          </div>
+        </nav>
+      </div>
+    </div>}
   </>;
 });

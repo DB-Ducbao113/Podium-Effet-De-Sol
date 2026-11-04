@@ -1,19 +1,16 @@
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
-import { F1StartLightsPreloader, INTRO_SEEN_STORAGE_KEY } from './F1StartLightsPreloader';
+import { F1StartLightsPreloader } from './F1StartLightsPreloader';
 import {
   getStartLightsFrame,
   START_LIGHT_CUE,
   START_LIGHT_TIMING,
-  START_LIGHT_TIMING_1X,
   START_LIGHT_TIMING_2X,
   START_LIGHT_TIMING_3X,
   getIntroTiming,
-  resolveIntroSpeed,
 } from './startLightsTiming';
 import { isDocumentReload } from './documentReload';
-import { shouldShowDocumentIntro } from './documentIntroState';
 
 describe('F1StartLightsPreloader', () => {
   it('renders the unchanged animation when the document controller mounts it', () => {

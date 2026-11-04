@@ -2,7 +2,9 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.js";
 
-export const MODEL_B_REVIEW_URL = "/__peds-review/model-b.glb";
+export const MODEL_B_RUNTIME_URL = import.meta.env.DEV
+  ? "/__peds-review/model-b.glb"
+  : "/models/model-b-eds-optimized-v1.glb";
 
 export function disposeModelB(root: THREE.Object3D) {
   root.traverse((object) => {
@@ -47,8 +49,8 @@ export function prepareModelB(scene: THREE.Group) {
 
 export async function loadModelB(signal: AbortSignal) {
   const fetchStarted = performance.now();
-  const response = await fetch(MODEL_B_REVIEW_URL, {
-    cache: "no-store",
+  const response = await fetch(MODEL_B_RUNTIME_URL, {
+    cache: import.meta.env.DEV ? "no-store" : "default",
     signal,
   });
   if (!response.ok) throw new Error(`Model B HTTP ${response.status}`);

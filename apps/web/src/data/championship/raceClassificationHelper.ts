@@ -41,6 +41,7 @@ const DRIVER_GRID_2026: GridDriver[] = [
   { driverId: 'colapinto', driverName: 'Franco Colapinto', driverCode: 'COL', driverNumber: 43, teamId: 'alpine', teamName: 'BWT Alpine F1 Team' },
   { driverId: 'perez', driverName: 'Sergio Pérez', driverCode: 'PER', driverNumber: 11, teamId: 'cadillac', teamName: 'Cadillac Formula 1 Team' },
   { driverId: 'bottas', driverName: 'Valtteri Bottas', driverCode: 'BOT', driverNumber: 77, teamId: 'cadillac', teamName: 'Cadillac Formula 1 Team' },
+  { driverId: 'hirakawa', driverName: 'Ryo Hirakawa', driverCode: 'HIR', driverNumber: 50, teamId: 'haas', teamName: 'TGR Haas F1 Team' },
 ];
 
 const DRIVER_GRID_2025: GridDriver[] = [

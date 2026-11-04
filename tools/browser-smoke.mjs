@@ -69,7 +69,7 @@ const failures = results.filter(
     (result.route.includes('commercial-b') && (!result.graphicsSettings || result.canvasCount === 0)),
 );
 const report = { generatedAt: new Date().toISOString(), baseUrl, results };
-fs.mkdirSync('scratch/plan-d', { recursive: true });
-fs.writeFileSync('scratch/plan-d/browser-smoke.json', `${JSON.stringify(report, null, 2)}\n`);
+fs.mkdirSync('.results-engine', { recursive: true });
+fs.writeFileSync('.results-engine/browser-smoke.json', `${JSON.stringify(report, null, 2)}\n`);
 console.log(JSON.stringify(report, null, 2));
 if (failures.length) process.exit(1);

@@ -7,9 +7,13 @@ export function RollingDigits({ value, minDigits = 2 }: { value: number; minDigi
 
   return <span className="h25-odometer" aria-hidden="true" data-reduced-motion={reducedMotion}>
     {digits.map((digit, index) => <span className="h25-odometer__window" key={`${digits.length}-${index}`}>
-      <span className="h25-odometer__strip" style={{ transform: `translateY(-${Number(digit) * 10}%)` }}>
-        {Array.from({ length: 10 }, (_, numeral) => <span key={numeral}>{numeral}</span>)}
-      </span>
+      {reducedMotion ? (
+        <span className="h25-odometer__value">{digit}</span>
+      ) : (
+        <span className="h25-odometer__strip" style={{ transform: `translateY(-${Number(digit) * 10}%)` }}>
+          {Array.from({ length: 10 }, (_, numeral) => <span key={numeral}>{numeral}</span>)}
+        </span>
+      )}
     </span>)}
   </span>;
 }

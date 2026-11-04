@@ -1,9 +1,6 @@
-export function resolveCalendarEntry(
-  requestedRound: number | null,
-  relevantRound: number | null,
-) {
+export function resolveCalendarEntry(requestedRound: number | null) {
   return {
-    expandedRound: requestedRound ?? relevantRound,
+    expandedRound: requestedRound,
     autoScrollRound: requestedRound,
   };
 }

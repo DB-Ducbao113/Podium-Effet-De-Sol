@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { CALENDAR_2026 } from '../data/championship/calendar';
-import { effectiveTimeZone, formatRaceSessionTime, formatZonedDate, validTimeZone, zoneOffsetLabel } from './championshipTimezone';
+import { effectiveTimeZone, formatRaceSessionTime, formatZonedDate, validTimeZone, venueOffsetLabel, zoneOffsetLabel } from './championshipTimezone';
 
 describe('championship timezone presentation', () => {
   it('validates preferences and falls back on an unsupported zone', () => {
@@ -19,5 +19,14 @@ describe('championship timezone presentation', () => {
     expect(formatZonedDate(instant, 'UTC', 'en')).toContain('08 Mar 2026');
     expect(formatZonedDate(instant, 'Asia/Bangkok', 'en')).toContain('09 Mar 2026');
     expect(formatRaceSessionTime(CALENDAR_2026[0], 'race', 'UTC', 'en')).toContain('UTC+00:00');
+  });
+  it('shows each race at its recorded venue time without asking for a zone', () => {
+    const melbourne = CALENDAR_2026[0];
+    expect(validTimeZone('venue')).toBe(true);
+    expect(venueOffsetLabel(melbourne.venueUtcOffset!)).toBe('UTC+11:00');
+    const display = formatRaceSessionTime(melbourne, 'race', 'venue', 'en');
+    expect(display).toContain(melbourne.sessions.race.timeStr);
+    expect(display).toContain('UTC+11:00');
+    expect(venueOffsetLabel(-5.5)).toBe('UTC-05:30');
   });
 });

@@ -6,7 +6,7 @@ describe('timezone preference', () => {
   it('rejects an invalid saved IANA identifier', async () => {
     vi.stubGlobal('localStorage', { getItem: () => 'Mars/Olympus', setItem: vi.fn() });
     const { useTimezoneStore } = await import('./useTimezoneStore');
-    expect(useTimezoneStore.getState().preference).toBe('local');
+    expect(useTimezoneStore.getState().preference).toBe('venue');
   });
   it('persists a supported choice and ignores invalid updates', async () => {
     const setItem = vi.fn();

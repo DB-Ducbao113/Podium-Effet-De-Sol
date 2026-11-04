@@ -1,6 +1,20 @@
+import crypto from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { clientAssetsDir, requireHtmlShell } from './build-paths.mjs';
+
+const approvedHeroMedia = [
+  {
+    path: 'media/homepage/hero-h3-2.mp4',
+    bytes: 1761848,
+    sha256: 'FC9DE024524B299003AEE507798F4A89BDAF635C87EF0EF3770DD29AB94BD421',
+  },
+  {
+    path: 'media/homepage/hero-h3-2-poster.png',
+    bytes: 866844,
+    sha256: '98F88281993C94425BBC6D6E3FF7EF7E621650A05213EC48937BAD60B691CC69',
+  },
+];
 
 const projectRoot = process.cwd();
 const showroomRoot = path.join(projectRoot, 'src/components/showroom');
@@ -39,7 +53,6 @@ const forbiddenArtifactTokens = [
   '/__peds-review/tokyo-drift-h3-2-3x-poster.png',
   '/__peds-review/tokyo-drift-h3-2r-homepage.mp4',
   '/__peds-review/tokyo-drift-h3-2r-homepage-poster.png',
-  'model-b-eds-optimized-v1.glb',
   'tokyo-drift-final.mp4',
   'tokyo-drift-final-poster.png',
   'tokyo-drift-h2-9-final.mp4',
@@ -56,7 +69,6 @@ const forbiddenArtifactTokens = [
   'tokyo-drift-h3-2-3x-poster.png',
   'tokyo-drift-h3-2r-homepage.mp4',
   'tokyo-drift-h3-2r-homepage-poster.png',
-  'commercial-b',
   '/textures/wheel_base.webp',
   'server.arcgisonline.com',
   'tile.openstreetmap.org',
@@ -143,7 +155,47 @@ for (const filePath of artifactFiles) {
   }
 }
 
-if (sourceViolations.length || artifactViolations.length) {
+const heroMediaViolations = [];
+const modelBAsset = {
+  path: 'models/model-b-eds-optimized-v1.glb',
+  bytes: 2120816,
+  sha256: '2D0091661DACE5D6C61AEBF898B4974644B44E43A5E8D10F602685C1631610A2',
+};
+const modelBPath = path.join(clientAssetsDir, modelBAsset.path);
+try {
+  const bytes = await fs.readFile(modelBPath);
+  const sha256 = crypto.createHash('sha256').update(bytes).digest('hex').toUpperCase();
+  if (bytes.length !== modelBAsset.bytes || sha256 !== modelBAsset.sha256) {
+    artifactViolations.push(`${modelBAsset.path} -> Model B identity mismatch`);
+  }
+} catch (error) {
+  if (error.code !== 'ENOENT') throw error;
+  artifactViolations.push(`${modelBAsset.path} -> missing from production build`);
+}
+for (const asset of approvedHeroMedia) {
+  const filePath = path.join(clientAssetsDir, asset.path);
+  try {
+    const bytes = await fs.readFile(filePath);
+    const sha256 = crypto.createHash('sha256').update(bytes).digest('hex').toUpperCase();
+    if (bytes.length !== asset.bytes) {
+      heroMediaViolations.push(`${asset.path} -> ${bytes.length} B (expected ${asset.bytes} B)`);
+    }
+    if (sha256 !== asset.sha256) {
+      heroMediaViolations.push(`${asset.path} -> SHA-256 ${sha256} (expected ${asset.sha256})`);
+    }
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error;
+    heroMediaViolations.push(`${asset.path} -> missing from production build`);
+  }
+}
+const videoArtifacts = artifactPaths
+  .filter((filePath) => filePath.endsWith('.mp4'))
+  .map((filePath) => path.relative(clientAssetsDir, filePath).replaceAll('\\', '/'));
+if (videoArtifacts.length !== 1 || videoArtifacts[0] !== approvedHeroMedia[0].path) {
+  heroMediaViolations.push(`Unexpected production video artifacts: ${videoArtifacts.join(', ') || 'none'}`);
+}
+
+if (sourceViolations.length || artifactViolations.length || heroMediaViolations.length) {
   throw new Error(
     [
       sourceViolations.length
@@ -151,6 +203,9 @@ if (sourceViolations.length || artifactViolations.length) {
         : '',
       artifactViolations.length
         ? `Forbidden commercial artifact tokens:\n${artifactViolations.join('\n')}`
+        : '',
+      heroMediaViolations.length
+        ? `Approved Homepage film verification:\n${heroMediaViolations.join('\n')}`
         : '',
     ]
       .filter(Boolean)

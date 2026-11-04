@@ -1,13 +1,23 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { STANDINGS_DATA } from "../../data/championship";
-import { getSeasonDriverNumber } from "../../data/championship/raceClassificationHelper";
 import { DRIVERS_DATA } from "../../data/drivers";
 import { getTeamSeasonProfile } from "../../data/teamSeasons";
 import { useNavigationStore } from "../../store/useNavigationStore";
 import type { SeasonYear } from "../../types";
-import { ProfileIdentityCard } from "../championship/ProfileIdentityCard";
-import "../championship/championshipC11.css";
+import {
+  P5DriverGrid,
+  P5DriversHero,
+  P5GalleryHero,
+  P5PortraitCredit,
+  P5TeamGrid,
+} from "../p5/P5DirectorySurfaces";
+import { useP5SeasonData } from "../p5/useP5ChampionshipData";
+import { useP5Reveal } from "../p5/useP5Reveal";
+import "../p5/p5.css";
+import { P5DriverIcon } from '../p5/P5DriverIcon';
+import { P5_SEASONAL_REVIEW_ENABLED, packageOnlyDriverVisuals } from '../../utils/p5SeasonalVisuals';
+
+const SEASONS: SeasonYear[] = [2026, 2025, 2024];
 
 export function StandaloneProfileDirectory({
   kind,
@@ -19,58 +29,98 @@ export function StandaloneProfileDirectory({
   hideHeader?: boolean;
 }) {
   const lang = useNavigationStore((state) => state.lang);
+  const isDrivers = kind === "drivers";
   const [season, setSeason] = useState<SeasonYear>(initialSeason);
   const [query, setQuery] = useState("");
   useEffect(() => setSeason(initialSeason), [initialSeason]);
-  const isDrivers = kind === "drivers";
+
   const normalized = query.trim().toLocaleLowerCase();
-  const teams = [...STANDINGS_DATA[season].constructors]
-    .sort((a, b) => a.teamName.localeCompare(b.teamName))
+  const { standings } = useP5SeasonData(season);
+  const drivers = [...standings.drivers]
+    .sort((a, b) => a.rank - b.rank)
+    .filter((driver) => {
+      const profile = DRIVERS_DATA[driver.driverId];
+      return (
+        !normalized ||
+        [
+          driver.driverName,
+          driver.driverCode,
+          driver.teamName,
+          profile?.country,
+        ].some((value) => value?.toLocaleLowerCase().includes(normalized))
+      );
+    });
+  const teams = [...standings.constructors]
+    .sort((a, b) => a.rank - b.rank)
     .filter((team) => {
       const profile = getTeamSeasonProfile(team.teamId, season);
       return (
         !normalized ||
         [
           team.teamName,
+          team.engine,
           profile?.fullName,
           profile?.base,
           profile?.powerUnit,
         ].some((value) => value?.toLocaleLowerCase().includes(normalized))
       );
     });
-  const drivers = [...STANDINGS_DATA[season].drivers]
-    .sort((a, b) => a.driverName.localeCompare(b.driverName))
-    .filter(
-      (driver) =>
-        !normalized ||
-        [
-          driver.driverName,
-          driver.teamName,
-          DRIVERS_DATA[driver.driverId]?.country,
-        ].some((value) => value?.toLocaleLowerCase().includes(normalized)),
-    );
+
+  const count = isDrivers ? drivers.length : teams.length;
+  const total = isDrivers ? standings.drivers.length : standings.constructors.length;
+  const emptyLabel = isDrivers
+    ? lang === "vi"
+      ? "Không tìm thấy tay đua phù hợp."
+      : "No matching drivers found."
+    : lang === "vi"
+      ? "Không tìm thấy đội đua phù hợp."
+      : "No matching teams found.";
+  const creditIds = isDrivers
+    ? drivers.map((driver) => driver.driverId)
+    : standings.drivers.map((driver) => driver.driverId);
+  const packageOnlyIcons = isDrivers && P5_SEASONAL_REVIEW_ENABLED
+    ? packageOnlyDriverVisuals(season, standings.drivers.map((driver) => driver.driverId))
+    : [];
+  const revealRef = useP5Reveal<HTMLElement>(`${kind}-${season}`);
+
   return (
-    <main className="c11-standalone-directory">
-      <div className="c11-standalone-inner">
-        {!hideHeader && (
-          <header>
-            <h1>
-              {isDrivers
-                ? lang === "vi"
-                  ? "Tay đua"
-                  : "Drivers"
-                : lang === "vi"
-                  ? "Đội đua"
-                  : "Teams"}
-            </h1>
-            <p>
-              {lang === "vi"
-                ? `Hồ sơ ${isDrivers ? "tay đua" : "đội đua"} mùa ${season}.`
-                : `${season} ${isDrivers ? "driver" : "constructor"} profiles.`}
-            </p>
-          </header>
+    <main
+      ref={revealRef}
+      className={`p5-gallery-page${isDrivers && !hideHeader ? ' p5-gallery-page-drivers' : ''}`}
+    >
+      <div className="p5-gallery-inner">
+        {!hideHeader && isDrivers && (
+          <P5DriversHero
+            season={season}
+            driverCount={standings.drivers.length}
+            teamCount={standings.constructors.length}
+            lang={lang}
+          />
         )}
-        <div className="c11-directory-controls">
+
+        {!hideHeader && !isDrivers && (
+          <P5GalleryHero
+            kind={kind}
+            season={season}
+            driverCount={standings.drivers.length}
+            teamCount={standings.constructors.length}
+            lang={lang}
+          />
+        )}
+
+        {hideHeader && (
+          <div className="p5-section-head" data-p5-reveal>
+            <div>
+              <p className="p5-kicker">{season} / {isDrivers ? 'DRIVERS' : 'CONSTRUCTORS'}</p>
+              <h2>{isDrivers ? (lang === "vi" ? "Tay đua" : "Drivers") : lang === "vi" ? "Đội đua" : "Teams"}</h2>
+            </div>
+            <p className="p5-section-note">
+              {lang === "vi" ? "Chọn thẻ để mở hồ sơ." : "Select a card to open its profile."}
+            </p>
+          </div>
+        )}
+
+        <div className="p5-controls" data-p5-reveal>
           <label>
             {lang === "vi" ? "Tìm kiếm" : "Search"}
             <input
@@ -78,7 +128,9 @@ export function StandaloneProfileDirectory({
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder={
-                lang === "vi" ? "Tên, đội hoặc địa điểm" : "Name, team or base"
+                isDrivers
+                  ? lang === "vi" ? "Tên, đội hoặc quốc gia" : "Name, team or country"
+                  : lang === "vi" ? "Đội, động cơ hoặc địa điểm" : "Team, power unit or base"
               }
             />
           </label>
@@ -87,96 +139,59 @@ export function StandaloneProfileDirectory({
               {lang === "vi" ? "Mùa giải" : "Season"}
               <select
                 value={season}
-                onChange={(event) =>
-                  setSeason(Number(event.target.value) as SeasonYear)
-                }
+                onChange={(event) => setSeason(Number(event.target.value) as SeasonYear)}
               >
-                {([2026, 2025, 2024] as SeasonYear[]).map((year) => (
-                  <option key={year} value={year}>
-                    {year}
-                  </option>
+                {SEASONS.map((year) => (
+                  <option key={year} value={year}>{year}</option>
                 ))}
               </select>
             </label>
           )}
-        </div>
-        {isDrivers ? (
-          drivers.length ? (
-            <div className="c11-profile-grid">
-              {drivers.map((driver) => {
-                const profile = DRIVERS_DATA[driver.driverId];
-                const number = getSeasonDriverNumber(season, driver.driverId);
-                return (
-                  <ProfileIdentityCard
-                    key={driver.driverId}
-                    kind="driver"
-                    teamId={driver.teamId}
-                    href={`/drivers/${driver.driverId}?season=${season}`}
-                    name={driver.driverName}
-                    number={number}
-                    meta={
-                      profile?.country ||
-                      driver.countryFlag ||
-                      driver.driverCode
-                    }
-                    detail={driver.teamName}
-                    action={lang === "vi" ? "Hồ sơ tay đua" : "Driver profile"}
-                  />
-                );
-              })}
-            </div>
-          ) : (
-            <p className="c11-empty">
-              {lang === "vi"
-                ? "Không tìm thấy tay đua phù hợp."
-                : "No matching drivers found."}
-            </p>
-          )
-        ) : teams.length ? (
-          <div className="c11-profile-grid">
-            {teams.map((team) => {
-              const profile = getTeamSeasonProfile(team.teamId, season);
-              return (
-                <ProfileIdentityCard
-                  key={team.teamId}
-                  kind="team"
-                  teamId={team.teamId}
-                  href={`/teams/${team.teamId}?season=${season}`}
-                  name={profile?.fullName || team.teamName}
-                  meta={
-                    profile?.base ||
-                    (lang === "vi"
-                      ? "Địa điểm chưa có dữ liệu"
-                      : "Base unavailable")
-                  }
-                  detail={
-                    profile?.powerUnit
-                      ? `${lang === "vi" ? "Động cơ" : "Power unit"}: ${profile.powerUnit}`
-                      : lang === "vi"
-                        ? "Thông tin đội theo mùa"
-                        : "Season team profile"
-                  }
-                  action={lang === "vi" ? "Hồ sơ đội đua" : "Team profile"}
-                />
-              );
-            })}
-          </div>
-        ) : (
-          <p className="c11-empty">
-            {lang === "vi"
-              ? "Không tìm thấy đội đua phù hợp."
-              : "No matching teams found."}
+          <p className="p5-controls-meta" role="status">
+            {lang === "vi" ? `${count}/${total} kết quả` : `${count}/${total} results`}
           </p>
+        </div>
+
+        {isDrivers ? (
+          <P5DriverGrid rows={drivers} season={season} lang={lang} emptyLabel={emptyLabel} />
+        ) : (
+          <P5TeamGrid
+            rows={teams}
+            season={season}
+            lang={lang}
+            drivers={standings.drivers}
+            emptyLabel={emptyLabel}
+          />
         )}
-        <div className="c11-profile-links">
+
+        {packageOnlyIcons.length > 0 && (
+          <aside className="p5-package-icons" aria-label={lang === 'vi' ? 'Avatar chỉ có trong gói ảnh' : 'Package-only avatars'}>
+            <p className="p5-kicker">{lang === 'vi' ? 'XEM TRƯỚC GÓI ẢNH' : 'PACKAGE REVIEW'}</p>
+            <p>{lang === 'vi' ? 'Các avatar này có trong gói ảnh nhưng không có hàng xếp hạng mùa hiện tại; chúng không được gán thứ hạng hay điểm.' : 'These avatars are in the image package but have no current season standings row; no rank or points are assigned.'}</p>
+            <div className="p5-package-icons-list">
+              {packageOnlyIcons.map((visual) => (
+                <span key={visual.driverId}>
+                  <P5DriverIcon season={season} driverId={visual.driverId} teamId={visual.teamId} size={44} />
+                  <strong>{DRIVERS_DATA[visual.driverId]?.name ?? (visual.driverId === 'hirakawa' ? 'Ryo Hirakawa' : visual.driverId)}</strong>
+                </span>
+              ))}
+            </div>
+          </aside>
+        )}
+
+        <P5PortraitCredit lang={lang} driverIds={creditIds} season={season} />
+
+        <div className="p5-footer-links p5-gallery-links">
+          <Link to={`/season/${season}?tab=${isDrivers ? "standings&category=drivers" : "standings&category=constructors"}`}>
+            {isDrivers
+              ? lang === "vi" ? "Bảng xếp hạng tay đua" : "Driver standings"
+              : lang === "vi" ? "Bảng xếp hạng đội đua" : "Constructor standings"}{" "}
+            →
+          </Link>
           <Link to={`/season/${season}?tab=${isDrivers ? "teams" : "drivers"}`}>
             {isDrivers
-              ? lang === "vi"
-                ? "Xem đội đua"
-                : "Explore teams"
-              : lang === "vi"
-                ? "Xem tay đua"
-                : "Explore drivers"}{" "}
+              ? lang === "vi" ? "Xem đội đua" : "Explore teams"
+              : lang === "vi" ? "Xem tay đua" : "Explore drivers"}{" "}
             →
           </Link>
         </div>

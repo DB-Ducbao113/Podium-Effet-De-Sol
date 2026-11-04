@@ -18,8 +18,8 @@ export function HomeView() {
   const location = useLocation();
   const detailedResultsRaw = useChampionshipStore((state) => state.detailedResults?.[2026]);
   const [scheduleNow, setScheduleNow] = useState(() => Date.now());
+  const { ref: latestRef, isRevealed: latestRevealed } = useReveal(0.1);
   const { ref: countdownRef, isRevealed: countdownRevealed } = useReveal(0.1);
-  const { ref: highlightRef, isRevealed: highlightRevealed } = useReveal(0.1);
 
   useEffect(() => {
     if (location.hash !== '#championship-overview') return;
@@ -58,7 +58,10 @@ export function HomeView() {
       <PodiumBrandHero />
       <F1NewsTicker variant="hero" />
       <div className="home-story">
-        <div id="r1-first-content" ref={countdownRef} data-revealed={countdownRevealed} className="h25-reveal scroll-mt-20">
+        <div id="r1-first-content" ref={latestRef} data-revealed={latestRevealed} className="h25-reveal scroll-mt-20">
+          <FeaturedRace />
+        </div>
+        <div ref={countdownRef} data-revealed={countdownRevealed} className="h25-reveal">
           <HomeRaceCountdown race={nextRace} />
         </div>
         {showAdReview && (
@@ -67,9 +70,6 @@ export function HomeView() {
           </section>
         )}
         <HomeSeasonOverview />
-        <div ref={highlightRef} data-revealed={highlightRevealed} className="h25-reveal">
-          <FeaturedRace />
-        </div>
         <HomeStoryLinks />
         {showAdReview && (
           <section className="page-container h1-ad-band h1-ad-band--lower" aria-label="Advertising placement review">

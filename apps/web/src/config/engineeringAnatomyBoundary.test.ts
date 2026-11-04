@@ -9,7 +9,7 @@ describe("F3 route and asset boundary", () => {
     );
   });
 
-  it("keeps Model B viewer DEV-only and outside public assets", () => {
+  it("keeps the anatomy review in DEV and uses the approved Showroom runtime URL", () => {
     const page = readFileSync(
       "src/components/engineering/EngineeringAnatomyPage.tsx",
       "utf8",
@@ -17,6 +17,6 @@ describe("F3 route and asset boundary", () => {
     const loader = readFileSync("src/dev/commercial-b/modelBLoader.ts", "utf8");
     expect(page).toContain("import.meta.env.DEV");
     expect(loader).toContain("/__peds-review/model-b.glb");
-    expect(loader).not.toContain("/models/");
+    expect(loader).toContain("/models/model-b-eds-optimized-v1.glb");
   });
 });

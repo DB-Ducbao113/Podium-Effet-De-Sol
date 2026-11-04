@@ -3,6 +3,7 @@ import path from 'node:path';
 import { clientAssetsDir, requireHtmlShell } from './build-paths.mjs';
 
 const legacyTargets = [
+  'dist/models/README.md',
   'dist/models/c42.v2.glb',
   'dist/textures/wheel_base.webp',
   'dist/images/showroom/closeups',
@@ -18,7 +19,7 @@ const legacyTargets = [
   'dist/images/podium-diffuser-hero-v2.webp',
   'dist/dev-showroom.html',
 ];
-const reviewOnlyTargets = ['dist/models/eds-g02.glb', 'dist/models/eds-g03-preview.glb'];
+const reviewOnlyTargets = ['dist/models/eds-g01.glb', 'dist/models/eds-g02.glb', 'dist/models/eds-g03-preview.glb'];
 const originalTeamStudies = [
   'ferrari',
   'mclaren',
@@ -63,7 +64,7 @@ const originalDriverProfiles = [
   'doohan',
 ];
 const requiredOriginalAssets = [
-  'dist/models/eds-g01.glb',
+  'dist/models/model-b-eds-optimized-v1.glb',
   'dist/images/showroom/eds-g01/schematic.svg',
   'dist/images/showroom/eds-g01/wings.svg',
   'dist/images/showroom/eds-g01/drs.svg',
@@ -154,5 +155,5 @@ if (remaining.length > 0)
 
 for (const requiredAsset of requiredOriginalAssets) await fs.access(clientTarget(requiredAsset));
 console.log(
-  `Commercial artifact guard: removed ${legacyTargets.length} legacy and ${reviewOnlyTargets.length} review-only visual targets; verified ${requiredOriginalAssets.length} original EDS assets.`,
+  `Commercial artifact guard: removed ${legacyTargets.length} legacy and ${reviewOnlyTargets.length} review-only visual targets; verified ${requiredOriginalAssets.length} required assets.`,
 );

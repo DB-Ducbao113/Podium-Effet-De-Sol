@@ -3,6 +3,8 @@ import ReactDOM from "react-dom/client";
 import "@fontsource/barlow-condensed/600.css";
 import "@fontsource/barlow-condensed/700.css";
 import "@fontsource/barlow-condensed/800.css";
+import "@fontsource/barlow-condensed/700-italic.css";
+import "@fontsource/barlow-condensed/800-italic.css";
 import "@fontsource-variable/space-grotesk/wght.css";
 import "@fontsource-variable/manrope/wght.css";
 import "@fontsource/ibm-plex-mono/500.css";

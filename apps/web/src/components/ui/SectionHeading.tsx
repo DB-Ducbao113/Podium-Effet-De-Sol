@@ -27,13 +27,11 @@ export const SectionHeading: React.FC<SectionHeadingProps> = ({
   <Root className={cn('flex flex-wrap items-end justify-between gap-5', className)} {...props}>
     <div className="max-w-3xl">
       {eyebrow ? (
-        <p className="mb-3 text-[0.6875rem] font-bold uppercase tracking-[0.2em] text-peds-accent-soft">
-          {eyebrow}
-        </p>
+        <p className="peds-eyebrow mb-3">{eyebrow}</p>
       ) : null}
       <Title
         className={cn(
-          'font-ui text-3xl font-bold uppercase leading-[1.08] tracking-[-0.025em] text-peds-text sm:text-5xl',
+          'font-display text-3xl font-bold uppercase leading-[1.08] tracking-[-0.025em] text-peds-text sm:text-5xl',
           titleClassName,
         )}
       >

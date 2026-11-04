@@ -60,7 +60,7 @@ export function HomeRaceCountdown({ race }: { race?: GrandPrixRound }) {
   return (
     <section className="h1-countdown page-container" aria-labelledby="h1-countdown-title">
       <div className="h1-countdown__identity">
-        <p className="home-section-index"><Clock3 size={16} aria-hidden="true" /> {lang === 'vi' ? 'Chặng tiếp theo / 2026' : 'Next round / 2026'}</p>
+        <p className="home-section-index"><Clock3 size={16} aria-hidden="true" /> 02 / {lang === 'vi' ? 'Chặng tiếp theo / 2026' : 'Next round / 2026'}</p>
         <h2 id="h1-countdown-title">{race ? race.name : lang === 'vi' ? 'Lịch chặng tiếp theo' : 'Next race calendar'}</h2>
         <p>{race ? `${race.circuit} · ${race.location} · R${String(race.round).padStart(2, '0')}` : lang === 'vi' ? 'Chưa có chặng đua sắp tới trong lịch hiện có.' : 'No upcoming race in the available calendar.'}</p>
         <Link className="home-text-link" to="/season/2026?tab=calendar">

@@ -343,6 +343,7 @@ export const RaceCalendar: React.FC<RaceCalendarProps> = React.memo(({ season })
                   </div>
 
                   <CircuitTrackMap
+                    season={activeSeason}
                     round={gp.round}
                     circuitName={gp.circuit}
                     variant="card"

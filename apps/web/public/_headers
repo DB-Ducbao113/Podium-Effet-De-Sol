@@ -9,5 +9,5 @@
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
 
-/models/eds-g01.glb
+/models/model-b-eds-optimized-v1.glb
   Cache-Control: public, max-age=31536000, immutable

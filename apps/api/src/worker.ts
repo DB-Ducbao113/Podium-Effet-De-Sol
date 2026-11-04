@@ -34,7 +34,7 @@ async function route(
   const pathname = new URL(request.url).pathname;
   if (pathname.startsWith("/models/")) {
     if (
-      pathname !== "/models/eds-g01.glb" ||
+      pathname !== "/models/model-b-eds-optimized-v1.glb" ||
       !["GET", "HEAD"].includes(request.method)
     ) {
       return new Response("Model asset not found", {

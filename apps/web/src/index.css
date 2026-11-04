@@ -1,6 +1,41 @@
 @import 'tailwindcss';
 @config "../tailwind.config.js";
 
+/* Barlow Condensed is ~20% narrower than Arial Narrow, so a late font swap
+   rewrapped the Race Center hero title from one line to two and shifted the
+   hero by 44px (Results VI mobile CLS 0.13). These fallback faces scale the
+   local fonts to Barlow's measured advance widths (0.803 / 0.676) so line
+   counts stay stable while the webfont loads, on slow networks too.
+   ExtraBold Italic (the P4 hero display cut) runs 3.7% wider than the regular
+   calibration, so it gets its own faces; otherwise the VI Race Center title
+   flipped from two lines back to one during the swap at 1440. */
+@font-face {
+  font-family: 'Barlow Condensed Fallback';
+  src: local('Arial Narrow');
+  size-adjust: 80%;
+  font-weight: 100 900;
+}
+@font-face {
+  font-family: 'Barlow Condensed Arial Fallback';
+  src: local('Arial'), local('Helvetica'), local('Liberation Sans');
+  size-adjust: 68%;
+  font-weight: 100 900;
+}
+@font-face {
+  font-family: 'Barlow Condensed Fallback';
+  src: local('Arial Narrow');
+  size-adjust: 83%;
+  font-weight: 100 900;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'Barlow Condensed Arial Fallback';
+  src: local('Arial'), local('Helvetica'), local('Liberation Sans');
+  size-adjust: 70.5%;
+  font-weight: 100 900;
+  font-style: italic;
+}
+
 /* ─────────────────────────────────────────────────────────────
    GLOBAL BASE  —  Luxury White Automotive Studio
    ───────────────────────────────────────────────────────────── */
@@ -8,22 +43,29 @@
   :root {
     color-scheme: dark;
 
+    /* IGNITION canonical palette (P1-A) — the single source for phase tokens. */
+    --peds-color-carbon: #0a0c10;
+    --peds-color-ignition: #ff4a18;
+    --peds-color-racing-red: #e51b37;
+    --peds-color-ivory: #f4f0e8;
+    --peds-color-signal: #b7ff37;
+
     /* Fiery F1 foundation: night-race carbon, ignition signal, brake-temperature highlights. */
     --peds-color-canvas: #05070b;
-    --peds-color-surface: #0a1020;
+    --peds-color-surface: var(--peds-color-carbon);
     --peds-color-surface-muted: #0d1422;
     --peds-color-surface-raised: #131a27;
     --peds-color-surface-overlay: #1a2333;
     --peds-color-line: #2a3242;
     --peds-color-line-strong: #465166;
-    --peds-color-text: #f5f7fa;
+    --peds-color-text: var(--peds-color-ivory);
     --peds-color-text-muted: #a8b0bf;
     --peds-color-text-subtle: #7f899b;
-    --peds-color-ignition: #ff2a2a;
     --peds-color-scarlet: #ff4d37;
     --peds-color-burnt-orange: #ff6a00;
     --peds-color-brake-amber: #ffb347;
-    --peds-color-accent: var(--peds-color-ignition);
+    /* Legacy red roles remain unchanged in P1 while pages migrate. */
+    --peds-color-accent: #ff2a2a;
     --peds-color-accent-strong: var(--peds-color-scarlet);
     --peds-color-accent-soft: var(--peds-color-brake-amber);
     --peds-color-focus: var(--peds-color-brake-amber);
@@ -36,7 +78,9 @@
     --peds-color-light-text: #111318;
     --peds-color-light-muted: #5d626b;
 
-    --peds-font-display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    --peds-font-display: 'Barlow Condensed',
+      'Barlow Condensed Fallback', 'Barlow Condensed Arial Fallback',
+      'Arial Narrow', sans-serif;
     --peds-font-ui: 'Space Grotesk Variable', 'Space Grotesk', Arial, sans-serif;
     --peds-font-body: 'Manrope Variable', Manrope, Arial, sans-serif;
     --peds-font-mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
@@ -50,6 +94,8 @@
     --peds-space-12: 3rem;
     --peds-space-16: 4rem;
     --peds-space-24: 6rem;
+    --peds-grid-gutter: 1.5rem;
+    --peds-border-hairline: 1px;
 
     --peds-container-content: 80rem;
     --peds-container-wide: 90rem;
@@ -71,6 +117,10 @@
     --peds-motion-fast: 140ms;
     --peds-motion-base: 240ms;
     --peds-motion-slow: 420ms;
+    --peds-motion-reduced: 0.01ms;
+    --peds-focus-ring-width: 2px;
+    --peds-focus-ring-offset: 3px;
+    --peds-focus-ring-color: var(--peds-color-focus);
     --peds-ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
     --peds-ease-emphasis: cubic-bezier(0.16, 1, 0.3, 1);
   }
@@ -114,8 +164,8 @@
   }
 
   :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
-    outline: 2px solid var(--peds-color-focus);
-    outline-offset: 3px;
+    outline: var(--peds-focus-ring-width) solid var(--peds-focus-ring-color);
+    outline-offset: var(--peds-focus-ring-offset);
   }
 }
 
@@ -136,6 +186,24 @@
   /* Sub-heading */
   .heading-section {
     @apply font-ui font-medium text-studio-800 uppercase tracking-widest2 leading-none;
+  }
+
+  /* Shared display primitives — pages compose these instead of parallel scales. */
+  .peds-display-page {
+    @apply font-display uppercase text-peds-text;
+    font-size: clamp(2.5rem, 6vw, 4.75rem);
+    font-weight: 800;
+    line-height: 0.98;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  .peds-eyebrow {
+    @apply font-ui uppercase text-peds-accent-soft;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.17em;
+    line-height: 1.4;
   }
 
   /* Technical spec label */
@@ -756,6 +824,12 @@ canvas.r3f {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  :root {
+    --peds-motion-fast: var(--peds-motion-reduced);
+    --peds-motion-base: var(--peds-motion-reduced);
+    --peds-motion-slow: var(--peds-motion-reduced);
+  }
+
   html {
     scroll-behavior: auto;
   }
@@ -958,17 +1032,7 @@ canvas.r3f {
 .home-text-link { display: inline-flex; align-items: center; gap: .55rem; min-height: 44px; color: #fff; font-size: .8rem; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; text-decoration: underline; text-decoration-color: #e10600; text-underline-offset: .45em; transition: color 180ms ease, gap 180ms ease; }
 .home-text-link:hover { color: #ff625d; gap: .8rem; }
 .home-text-link:focus-visible, .home-editorial__article:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
-.home-featured-race { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: clamp(3rem,7vw,9rem); padding-top: 5rem; padding-bottom: 5rem; border-top: 1px solid #454950; }
-.home-featured-race__intro .home-text-link, .home-engineering__copy .home-text-link { margin-top: 1.5rem; }
-.home-featured-race__result { min-width: 0; padding: 2rem 0 0 2rem; border-left: 1px solid #60636a; }
-.home-featured-race__meta { color: #ff625d; font-size: .7rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
-.home-featured-race__result h3 { margin-top: 1.2rem; font-size: clamp(1.8rem,3vw,3rem); font-weight: 800; line-height: 1.1; }
-.home-featured-race__circuit { margin-top: .6rem; color: #c7cbd2; }
-.home-featured-race__podium { margin: 2rem 0 1rem; }
-.home-featured-race__podium li { display: grid; grid-template-columns: 2rem minmax(0,1fr) auto; align-items: center; gap: 1rem; padding: .9rem 0; border-top: 1px solid #41454c; }
-.home-featured-race__podium li span { color: #ff625d; font-variant-numeric: tabular-nums; }
-.home-featured-race__podium li small { color: #c7cbd2; }
-.home-featured-race__unavailable p { margin-top: 1rem; color: #c7cbd2; }
+.home-engineering__copy .home-text-link { margin-top: 1.5rem; }
 .home-engineering { display: grid; grid-template-columns: minmax(0,.85fr) minmax(0,1.15fr); gap: 4rem; align-items: center; padding-top: 5rem; padding-bottom: 5rem; border-top: 1px solid #454950; }
 .home-engineering__topics { display: flex; flex-wrap: wrap; gap: .55rem 1.1rem; max-width: 44rem; margin-top: 1.5rem; color: #e3e5e9; font-size: .88rem; line-height: 1.5; }
 .home-engineering__topics li { display: inline-flex; align-items: center; gap: .5rem; }
@@ -987,11 +1051,130 @@ canvas.r3f {
 .home-editorial__article svg { display: inline; margin-left: .7rem; color: #ff625d; }
 @media (max-width: 767px) {
   .home-editorial__heading { align-items: start; flex-direction: column; }
-  .home-featured-race, .home-engineering { grid-template-columns: 1fr; gap: 2rem; }
-  .home-featured-race__result { padding: 1.5rem 0 0; border-left: 0; border-top: 1px solid #60636a; }
+  .home-engineering { grid-template-columns: 1fr; gap: 2rem; }
   .home-editorial__grid { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce) {
   .home-text-link, .home-editorial__article { transition: none; }
   .home-editorial__article:hover { transform: none; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   TEXT-ONLY ZOOM REFLOW (200% / 400%)
+   Text zoom multiplies rem-based chrome — page gutters, gaps, logo
+   boxes and control minimums grow with the text and push the header
+   and footer past the viewport. Structural sizes below are pinned in
+   px so the chrome reflows vertically instead of clipping or forcing
+   page-level horizontal scroll. The official logo artwork is never
+   altered, only the box it renders into.
+   ───────────────────────────────────────────────────────────── */
+[data-text-zoom="200"] .page-container { padding-inline: 20px; }
+[data-text-zoom="400"] .page-container { padding-inline: 12px; }
+
+/* A fixed bar cannot grow with wrapped text without covering content,
+   so at high zoom the header joins normal flow. */
+[data-text-zoom="200"] .h1-nav,
+[data-text-zoom="400"] .h1-nav {
+  position: relative;
+  top: auto;
+  height: auto;
+}
+
+[data-text-zoom="200"] .h1-nav__bar,
+[data-text-zoom="400"] .h1-nav__bar {
+  height: auto;
+  min-height: 64px;
+  padding-block: 8px;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+[data-text-zoom="200"] .peds-header-offset { padding-top: 20px; }
+[data-text-zoom="400"] .peds-header-offset { padding-top: 12px; }
+
+/* The desktop link row can no longer fit four-times text: reuse the
+   existing mobile menu so every destination stays reachable. */
+[data-text-zoom="200"] .h1-nav__desktop,
+[data-text-zoom="400"] .h1-nav__desktop { display: none; }
+[data-text-zoom="200"] .h1-nav__toggle,
+[data-text-zoom="400"] .h1-nav__toggle { display: flex; }
+
+[data-text-zoom="200"] .h1-nav .h1-nav__brand-logo { height: 56px; }
+[data-text-zoom="400"] .h1-nav .h1-nav__brand-logo { height: 64px; }
+[data-text-zoom="200"] .h1-nav__panel-top img { height: 56px; width: auto; }
+[data-text-zoom="400"] .h1-nav__panel-top img { height: 56px; width: auto; }
+
+[data-text-zoom="200"] .h1-nav .h1-nav__toggle,
+[data-text-zoom="400"] .h1-nav .h1-nav__toggle {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 6px;
+}
+
+[data-text-zoom="200"] .h1-nav__lang-option,
+[data-text-zoom="400"] .h1-nav__lang-option {
+  min-width: 40px;
+  min-height: 40px;
+  padding-inline: 6px;
+}
+
+/* The slide-over menu is a fixed 430px panel; at 400% its rem-based labels
+   were wider than the panel. Labels keep the project's 400% display cap and
+   may wrap, so every destination stays whole and tappable. */
+[data-text-zoom="200"] .h1-nav__mobile-eyebrow,
+[data-text-zoom="400"] .h1-nav__mobile-eyebrow {
+  flex-wrap: wrap;
+  gap: 2px 12px;
+}
+[data-text-zoom="400"] .h1-nav__mobile-eyebrow {
+  font-size: 12px;
+  letter-spacing: 0.14em;
+}
+[data-text-zoom="400"] .h1-nav__mobile-link {
+  min-width: 0;
+  font-size: 20px;
+  letter-spacing: 0.04em;
+  overflow-wrap: anywhere;
+}
+[data-text-zoom="400"] .h1-nav__mobile-sublist a {
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+[data-text-zoom="400"] .h1-nav__mobile-cta {
+  min-height: 48px;
+  padding-inline: 12px;
+  font-size: 18px;
+  letter-spacing: 0.06em;
+  white-space: normal;
+  text-align: start;
+}
+[data-text-zoom="400"] .h1-nav__mobile-secondary a { font-size: 14px; }
+
+[data-text-zoom="200"] #peds-credits > .page-container,
+[data-text-zoom="400"] #peds-credits > .page-container {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+}
+[data-text-zoom="200"] #peds-credits > .page-container { padding-block: 32px; }
+[data-text-zoom="400"] #peds-credits > .page-container { padding-block: 24px; }
+
+[data-text-zoom="200"] .footer-brand-logo { height: 48px; }
+[data-text-zoom="400"] .footer-brand-logo { height: 64px; }
+
+[data-text-zoom="400"] #peds-credits { overflow-wrap: anywhere; }
+
+/* Deep-linked hub routes keep the home placeholder in the stack; its
+   rem-based gutter and button padding alone exceeded a 390px viewport. */
+[data-text-zoom="400"] .r1-mobile-hub__placeholder {
+  padding-inline: 12px;
+  overflow-wrap: anywhere;
+}
+[data-text-zoom="400"] .r1-mobile-hub__placeholder > div {
+  min-width: 0;
+  max-width: 100%;
+}
+[data-text-zoom="400"] .r1-mobile-hub__placeholder button {
+  max-width: 100%;
+  padding-inline: 12px;
+  white-space: normal;
 }

@@ -39,7 +39,11 @@ describe('PEDS typography contract', () => {
 
   it('uses one token contract without remote fonts or legacy aliases', () => {
     expect(contractSources).not.toMatch(/fonts\.(googleapis|gstatic)\.com/i);
-    expect(contractSources).not.toMatch(/['"](?:Inter|Playfair Display|Segoe UI)['"]/i);
+    // Only font declarations count: `data-compound="inter"` is a tyre compound,
+    // not the legacy Inter family.
+    expect(contractSources).not.toMatch(
+      /(?:font-family|font)\s*:[^;}]*['"](?:Inter|Playfair Display|Segoe UI)['"]/i,
+    );
     expect(contractSources).not.toMatch(/--font-(?:display|body|mono)\b/);
     expect(contractSources).toContain("--peds-font-display: 'Barlow Condensed'");
     expect(contractSources).toContain("--peds-font-ui: 'Space Grotesk Variable'");

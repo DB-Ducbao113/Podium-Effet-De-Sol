@@ -43,10 +43,10 @@ export const AboutPage: React.FC = () => {
             {isVi ? 'Nền tảng độc lập' : 'Independent platform'}
           </span>
         </div>
-        <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tight text-studio-950">
+        <h1 className="peds-display-page">
           PODIUM — Effet de Sol
         </h1>
-        <p className="mt-4 text-base sm:text-lg text-studio-600 max-w-3xl leading-relaxed">
+        <p className="mt-4 text-base sm:text-lg text-peds-text-muted max-w-3xl leading-relaxed">
           {isVi
             ? 'Không gian trải nghiệm 3D tương tác và trung tâm lưu trữ dữ liệu chuyên sâu dành riêng cho kỷ nguyên khí động học hiệu ứng mặt đất Formula 1 (2022–2026).'
             : 'Interactive 3D technical showcase and championship data archive dedicated to the Formula 1 Ground Effect era (2022–2026).'}

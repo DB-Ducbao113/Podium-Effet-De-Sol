@@ -16,17 +16,17 @@ The API domain and application layers do not import React, Vite, or Cloudflare r
 
 ### `apps/web`
 
-The current UI is preserved without redesign. Existing feature slices remain under clear responsibility boundaries:
+The current UI is organized into these feature slices:
 
-- `components/showroom` and `data/showroom`: EDS-G01 production Showroom.
-- `dev/CommercialBReviewShowroom.tsx` and `dev/commercial-b`: Model B and Adaptive Graphics development preview, loaded only in DEV.
+- `components/showroom`: Model B Showroom and shared 3D layout.
+- `dev/commercial-b`: Model B loader, paint and Adaptive Graphics modules shared with the Showroom.
 - `components/championship`, `data/championship`, `services`: championship and result workflows.
 - `components/engineering` and `data/engineeringArticles.json`: engineering content.
 - `components/pages`, `data/teams`, `data/drivers`: Teams and Drivers.
 - `components/common`, `components/layout`, `components/seo`: shared UI.
 - `App.tsx` and `main.tsx`: routing and providers.
 
-Model B is served by a development-only Vite middleware from `.local-assets` or `PEDS_MODEL_B_PATH`. It is not copied into production output.
+The DEV review route serves Model B from `PEDS_MODEL_B_PATH`, the frozen local source when present, or the checked-in public GLB. Production serves that same verified GLB through the Worker asset route. The removed EDS-G01 GLB is absent from the source tree; the build guard still rejects any legacy copy in client output.
 
 ### `apps/api`
 

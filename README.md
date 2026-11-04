@@ -1,10 +1,10 @@
 # Podium Effet De Sol
 
-Clean-architecture migration workspace for the Podium Effet De Sol Formula 1 editorial and 3D experience.
+Podium Effet De Sol Formula 1 editorial and 3D experience, organized as an npm workspace.
 
 ## Repository status
 
-This repository is in **LOCAL MIGRATION — OWNER GATE**. Cloudflare deployment, Git integration, domains, and schedules are intentionally disabled. The legacy production repository and its Vercel configuration are untouched.
+This checkout is on `migration/clean-architecture`. Local changes require QA and owner review before a push or deployment. The Cloudflare configuration does not define a production route or scheduled data job.
 
 ## Structure
 
@@ -14,7 +14,7 @@ apps/api       Cloudflare Worker plus domain/application/infrastructure/interfac
 apps/jobs      Explicitly invoked F1 data synchronization jobs
 packages       Shared HTTP contracts and security primitives
 tools          Repository security and public-asset boundary checks
-docs           Minimal architecture, security, migration and license records
+docs           Architecture, security, migration history and asset provenance
 wrangler.jsonc Cloudflare Worker, Static Assets, SPA and environment configuration
 ```
 
@@ -33,9 +33,11 @@ npm run dev
 npm run cloudflare:local
 ```
 
-Model B remains a non-public development candidate. Its frozen Git source and attribution record live under `source-assets/models/model-b/`; copy the GLB to `.local-assets/model-b-eds-optimized-v1.glb` or set the server-only `PEDS_MODEL_B_PATH` for local review. Never expose that path through a `VITE_*` variable or copy the candidate into public build output before owner approval.
+The owner selected Model B for the Showroom. Its frozen source and attribution record remain under `source-assets/models/model-b/`; the byte-identical runtime GLB is `apps/web/public/models/model-b-eds-optimized-v1.glb`. The local DEV review middleware still supports the server-only `PEDS_MODEL_B_PATH`. The production build excludes EDS-G01 GLB. Deployment remains subject to the normal QA and owner gates.
 
 Inside the Machine is the Engineering experience in local development: `npm run dev` serves it at `/engineering` with no extra flag. The previous Engineering index remains available at `/engineering/insights` and car anatomy at `/engineering/car-anatomy`. Its identity-checked runtime set is read from `.local-assets/inside-the-machine/runtime/set-85d8e47c5b420e88/` by a serve-only Vite middleware and is never copied into the public build output. Production builds keep the existing Engineering experience pending the separate rights and performance release gates.
+
+P5 seasonal artwork review appears by default in DEV when the 429 local source images under `.local-assets/p5-review/` are present. Set `VITE_P5_LOCAL_REVIEW=0` to hide it locally. The images are excluded from Git and production output. Set `PEDS_VERIFY_LOCAL_ASSETS=1` when running the two P5 visual manifest tests to require every local image and verify its size and SHA-256; normal CI checks the manifest structure without requiring private review media.
 
 ## Verification
 
