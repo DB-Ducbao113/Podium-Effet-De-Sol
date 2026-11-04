@@ -438,23 +438,27 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
         });
         continue;
       }
-      placementAudit.push({
+      const auditRow: PlacementAudit = {
         id: entry.id, state: placement.adapted ? 'adapted' : 'placed', reason: 'geometry-preflight-passed',
         coverage: probe.coverage, normalDegrees: probe.normalSpreadDegrees, stretchRatio: probe.stretchRatio,
-      });
+      };
+      placementAudit.push(auditRow);
+      const decalsBefore = decals.length;
       const sign = anchor.side === 'left' ? -1 : 1;
       const from = anchor.side === 'top' ? new THREE.Vector3(anchor.x ?? 0, 2, anchor.z) : anchor.side === 'rear' ? new THREE.Vector3(anchor.x ?? 0, anchor.y, 3) : new THREE.Vector3(sign * 2, anchor.y, anchor.z);
       const direction = anchor.side === 'top' ? new THREE.Vector3(0, -1, 0) : anchor.side === 'rear' ? new THREE.Vector3(0, 0, -1) : new THREE.Vector3(-sign, 0, 0);
       const orientation = anchor.side === 'top' ? new THREE.Euler(-Math.PI / 2, 0, anchor.rotation) : anchor.side === 'rear' ? new THREE.Euler(0, 0, anchor.rotation) : new THREE.Euler(0, sign * Math.PI / 2, anchor.rotation);
       if (needsPlanar) {
         fittedWingMark(entry.id, entry.artwork, anchor, atlas, probe);
-        continue;
-      }
-      if ((entry.id.startsWith('williams-atlassian-') || entry.id.startsWith('cadillac-twg-')) && !authorOverrides.has(entry.id)) {
+      } else if ((entry.id.startsWith('williams-atlassian-') || entry.id.startsWith('cadillac-twg-')) && !authorOverrides.has(entry.id)) {
         conformingSideMark(entry.id, entry.artwork, anchor, atlas, targetMesh);
-        continue;
+      } else {
+        decal(entry.id, entry.artwork, atlas, targetMesh, from, direction, orientation, new THREE.Vector3(anchor.width, anchor.height, anchor.depth), anchor.offset, anchor.side !== 'rear' ? anchor.side : undefined);
       }
-      decal(entry.id, entry.artwork, atlas, targetMesh, from, direction, orientation, new THREE.Vector3(anchor.width, anchor.height, anchor.depth), anchor.offset, anchor.side !== 'rear' ? anchor.side : undefined);
+      if (decals.length === decalsBefore) {
+        auditRow.state = 'unplaced';
+        auditRow.reason = 'projection-empty-after-preflight';
+      }
     }
     if (authorMode && selectedDecalId) {
       for (const item of decals.filter((decal) => decal.id === selectedDecalId)) {
