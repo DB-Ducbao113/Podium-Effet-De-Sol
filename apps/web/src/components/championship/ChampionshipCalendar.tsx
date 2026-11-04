@@ -42,6 +42,7 @@ import { TimezoneSelector } from './TimezoneSelector';
 import { relevantRound } from '../../utils/relevantRace';
 import { resolveCalendarEntry } from './calendarNavigation';
 import './championshipC1.css';
+import { JourneyViewSwitch, RaceCalendarJourney } from './RaceCalendarJourney';
 
 const ORDER: RaceSessionKey[] = [
   'fp1',
@@ -89,6 +90,7 @@ export function ChampionshipCalendar({ season }: { season: SeasonYear }) {
     (state) => state.setSelectedRaceRound,
   );
   const location = useLocation();
+  const [journeyMode, setJourneyMode] = useState(() => !new URLSearchParams(location.search).has('round'));
   const navigate = useNavigate();
   const calendar = getCalendarBySeason(season);
   const [now, setNow] = useState(() => Date.now());
@@ -131,6 +133,7 @@ export function ChampionshipCalendar({ season }: { season: SeasonYear }) {
 
   useEffect(() => {
     setExpandedRound(requestedRound);
+    if (requestedRound !== null) setJourneyMode(false);
   }, [requestedRound, season]);
 
   useEffect(() => {
@@ -406,6 +409,9 @@ export function ChampionshipCalendar({ season }: { season: SeasonYear }) {
           : 'Upcoming';
 
   return (
+    <>
+      <JourneyViewSwitch mode={journeyMode ? 'journey' : 'classic'} onChange={(mode) => setJourneyMode(mode === 'journey')} />
+      {journeyMode ? <RaceCalendarJourney season={season} /> : (
     <section
       ref={rootRef}
       className="c1-calendar"
@@ -1152,6 +1158,8 @@ export function ChampionshipCalendar({ season }: { season: SeasonYear }) {
         </aside>
       </div>
     </section>
+      )}
+    </>
   );
 }
 
