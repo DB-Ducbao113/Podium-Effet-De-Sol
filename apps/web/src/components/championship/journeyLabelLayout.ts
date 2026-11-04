@@ -1,12 +1,12 @@
 import type { GrandPrixRound } from '../../types';
 
+const WIDTH = 1000;
+const HEIGHT = 500;
+const LABEL_WIDTH = 34;
+const LABEL_HEIGHT = 19;
+
 export type MapPoint = { race: GrandPrixRound; x: number; y: number };
 type LabelledPoint = MapPoint & { labelX: number; labelY: number };
-
-const project = (latitude: number, longitude: number) => ({
-  x: ((longitude + 180) / 360) * WIDTH,
-  y: ((90 - latitude) / 180) * HEIGHT,
-});
 
 /**
  * The world overview always shows every round. Numbered labels use deterministic,
