@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { ArrowDown, ArrowLeft, ArrowRight, CalendarDays, Flag, MapPin, Trophy, Zap } from 'lucide-react';
 import { getCalendarBySeason } from '../../data/championship';
 import { useChampionshipStore } from '../../store/useChampionshipStore';
@@ -29,7 +29,6 @@ function getStatus(race: GrandPrixRound, completed: boolean, now: number) {
 }
 
 export function SeasonJourney({ season }: { season: SeasonYear }) {
-  const navigate = useNavigate();
   const { lang } = useNavigationStore();
   const vi = lang === 'vi';
   const calendar = useMemo(() => getCalendarBySeason(season), [season]);
