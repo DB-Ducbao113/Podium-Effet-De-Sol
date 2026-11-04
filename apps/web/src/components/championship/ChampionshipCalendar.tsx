@@ -414,7 +414,7 @@ export function ChampionshipCalendar({ season }: { season: SeasonYear }) {
 
   return (
     <>
-      <JourneyViewSwitch mode={journeyMode ? 'journey' : 'classic'} onChange={(mode) => setJourneyMode(mode === 'journey')} />
+      {!journeyMode && <JourneyViewSwitch mode='classic' onChange={(mode) => setJourneyMode(mode === 'journey')} />}
       {journeyMode ? <RaceCalendarJourney season={season} /> : (
     <section
       ref={rootRef}
