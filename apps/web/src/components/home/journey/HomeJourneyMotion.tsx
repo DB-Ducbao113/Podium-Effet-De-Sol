@@ -66,7 +66,7 @@ export function HomeJourneyMotion() {
           for (const entry of entries) {
             if (entry.isIntersecting) {
               (entry.target as HTMLElement).dataset.homeEntered = 'true';
-              observer.unobserve(entry.target);
+              observer?.unobserve(entry.target);
             }
           }
         }, { rootMargin: '0px 0px -6% 0px', threshold: .04 })
