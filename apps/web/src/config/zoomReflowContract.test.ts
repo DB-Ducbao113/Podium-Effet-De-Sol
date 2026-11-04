@@ -83,18 +83,18 @@ describe('text-only zoom reflow contract', () => {
     );
   });
 
-  it('stacks the cinematic Home hero and caps its display type at 400%', () => {
+  it('keeps Launch Control type and navigation usable at 400% text zoom', () => {
     expect(heroCss).toMatch(
-      /\[data-text-zoom='400'\] \.r1-cinema__inner\s*\{[^}]*flex-direction:\s*column;[^}]*min-height:\s*0;/s,
+      /\[data-text-zoom='400'\] \.r1-cinema__inner\s*\{[^}]*min-height:\s*0;/s,
     );
     expect(heroCss).toMatch(
-      /\[data-text-zoom='400'\] \.r1-cinema__title,\s*\[data-text-zoom='400'\] \.r1-cinema\[data-lang='vi'\] \.r1-cinema__title\s*\{[^}]*font-size:\s*34px;[^}]*letter-spacing:\s*0;/s,
+      /\[data-text-zoom='400'\] \.r1-cinema__title\s*\{[^}]*font-size:\s*37px;[^}]*letter-spacing:\s*0;/s,
     );
     expect(heroCss).toMatch(
-      /\[data-text-zoom='400'\] \.r1-cinema__title-accent\s*\{\s*white-space:\s*normal;/s,
+      /\[data-text-zoom='400'\] \.r1-cinema__actions\s*\{[^}]*flex-direction:\s*column;/s,
     );
     expect(heroCss).toMatch(
-      /\[data-text-zoom='400'\] \.r1-cinema__telemetry\s*\{\s*position:\s*static;/s,
+      /\[data-text-zoom='400'\] \.r1-cinema__launch,\s*\[data-text-zoom='400'\] \.r1-cinema__chapters\s*\{\s*display:\s*none;/s,
     );
   });
 
