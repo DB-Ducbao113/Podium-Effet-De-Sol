@@ -11,6 +11,11 @@ const HEIGHT = 500;
 const LABEL_WIDTH = 34;
 const LABEL_HEIGHT = 19;
 
+const project = (latitude: number, longitude: number) => ({
+  x: ((longitude + 180) / 360) * WIDTH,
+  y: ((90 - latitude) / 180) * HEIGHT,
+});
+
 export function JourneyWorldMap({
   season,
   calendar,
