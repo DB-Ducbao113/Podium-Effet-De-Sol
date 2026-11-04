@@ -28,8 +28,10 @@ export function HomeWorldHost({ mode = 'page', lab = null }: Props) {
     previous === 'high' ? 'balanced' : previous === 'balanced' ? 'low' : previous,
   ), []);
 
-  controller.current.lab = lab;
-  if (quality !== 'static') controller.current.quality = quality;
+  useEffect(() => {
+    controller.current.lab = lab;
+    if (quality !== 'static') controller.current.quality = quality;
+  }, [lab, quality]);
 
   useEffect(() => {
     const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
