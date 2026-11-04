@@ -1,9 +1,6 @@
 import type { GrandPrixRound } from '../../types';
 
 export type Geo = { latitude: number; longitude: number };
-type Waypoint = { race: GrandPrixRound; x: number; y: number; longitude: number; latitude: number };
-const WIDTH = 1000;
-const HEIGHT = 500;
 
 // Geographic coordinates identify the circuits, not artificial positions along a timeline.
 // Shared names across 2024–2026 map to the same venue; multiple races in a country remain distinct.
