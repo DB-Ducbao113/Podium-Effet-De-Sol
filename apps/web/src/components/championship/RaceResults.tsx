@@ -1,25 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useLocation } from 'react-router-dom';
 import type { SeasonYear } from '../../types';
 import { WeekendResults } from './WeekendResults';
-import { JourneyViewSwitch, RaceCalendarJourney } from './RaceCalendarJourney';
+import { BackToJourney, RaceCalendarJourney } from './RaceCalendarJourney';
 
 export const RaceResults: React.FC<{ season: SeasonYear }> = React.memo(({ season }) => {
   const location = useLocation();
-  const [mode, setMode] = useState<'journey' | 'classic'>(() =>
-    new URLSearchParams(location.search).has('round') ||
-    new URLSearchParams(location.search).get('view') === 'classic' ? 'classic' : 'journey'
-  );
-
-  useEffect(() => {
-    const query = new URLSearchParams(location.search);
-    setMode(query.has('round') || query.get('view') === 'classic' ? 'classic' : 'journey');
-  }, [location.search]);
-
-  return (
+  const query = new URLSearchParams(location.search);
+  const round = Number(query.get('round'));
+  const classic = query.has('round') || query.get('view') === 'classic';
+  return classic ? (
     <>
-      {mode === 'classic' && <JourneyViewSwitch mode={mode} onChange={setMode} />}
-      {mode === 'journey' ? <RaceCalendarJourney season={season} /> : <WeekendResults season={season} />}
+      <BackToJourney season={season} tab="results" round={Number.isInteger(round) && round > 0 ? round : null} />
+      <WeekendResults season={season} />
     </>
-  );
+  ) : <RaceCalendarJourney season={season} />;
 });
