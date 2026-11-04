@@ -102,7 +102,6 @@
   filter: drop-shadow(0 0 10px rgba(255,74,24,.58));
 }
 .r1-cinema__flow path {
-  stroke: url(#nonexistent);
   stroke: rgba(255,96,48,.62);
   stroke-width: 1.25;
   stroke-dasharray: 12 14 25 18;
@@ -162,13 +161,13 @@
   align-items: center;
   gap: .75rem;
   margin: 0 0 clamp(20px, 3vw, 34px);
-  font: 650 clamp(.63rem, .7vw, .78rem)/1.2 var(--peds-font-mono);
+  font: 600 clamp(.63rem, .7vw, .78rem)/1.2 var(--peds-font-mono);
   letter-spacing: .28em;
   color: #f4f0e8d9;
 }
 .r1-cinema__slashes {
   color: #ff4a18;
-  font: 900 1.25rem/1 var(--peds-font-display);
+  font: 800 1.25rem/1 var(--peds-font-display);
   letter-spacing: -.21em;
 }
 .r1-cinema__title {
@@ -176,7 +175,7 @@
   flex-direction: column;
   margin: 0;
   font-family: var(--peds-font-display);
-  font-weight: 900;
+  font-weight: 800;
   font-style: italic;
   font-size: clamp(5.4rem, 10vw, 10rem);
   line-height: .72;
@@ -277,7 +276,7 @@
   background: rgba(2,5,9,.4);
   color: #f4f0e880;
   text-align: right;
-  font: 700 .72rem/1 var(--peds-font-mono);
+  font: 600 .72rem/1 var(--peds-font-mono);
   transition: border-color 220ms, color 220ms, background 220ms;
 }
 .r1-cinema__chapters button:hover,
@@ -296,7 +295,7 @@
   gap: 8px;
   transform: translateX(-50%);
   color: #f4f0e8;
-  font: 700 .65rem/1 var(--peds-font-mono);
+  font: 600 .65rem/1 var(--peds-font-mono);
   letter-spacing: .18em;
   text-transform: uppercase;
 }
