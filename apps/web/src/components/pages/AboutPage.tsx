@@ -21,7 +21,7 @@ export const AboutPage: React.FC = () => {
   const isVi = lang === 'vi';
 
   return (
-    <div className="page-container py-12 md:py-16 max-w-5xl">
+    <div className="page-container peds-about-layout py-12 md:py-16 max-w-5xl">
       {/* Top Breadcrumb */}
       <div className="mb-6">
         <Link

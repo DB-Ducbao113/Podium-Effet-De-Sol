@@ -11,6 +11,7 @@ import "@fontsource/ibm-plex-mono/500.css";
 import "@fontsource/ibm-plex-mono/600.css";
 import App from "./App";
 import "./index.css";
+import "./styles/compactDesktop.css";
 import { BrowserRouter } from "react-router-dom";
 import { ErrorBoundary } from "./components/common/ErrorBoundary";
 import { DocumentIntroController } from "./components/common/DocumentIntroController";
