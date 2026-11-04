@@ -13,6 +13,10 @@ describe('Density-02 stronger site-wide compact pass', () => {
       entry.indexOf('import "./styles/densityV2.css"'),
     );
     expect(styles).toContain('--peds-density-version: 2');
+    expect(styles).toContain('--peds-hero-stage-safety: 1');
+    expect(styles).toContain('min-height: clamp(500px, 57svh, 620px)');
+    expect(styles).toContain('height: clamp(385px, 32vw, 468px)');
+    expect(styles).not.toContain('min-height: clamp(335px, 43svh, 435px)');
   });
 
   it('does not shrink the whole app using zoom or transform scaling', () => {
@@ -20,6 +24,12 @@ describe('Density-02 stronger site-wide compact pass', () => {
     expect(styles).not.toMatch(/transform\s*:\s*scale\(/);
     expect(styles).not.toContain('.rcj-map-stage {');
     expect(styles).not.toContain('.peds-compact-studio__canvas {');
+  });
+
+  it('does not clip the F1 vehicle or alpha layers while compacting content', () => {
+    expect(styles).toContain('.home-pulse.home-pulse--f1hero');
+    expect(styles).toContain('mask-image: none');
+    expect(styles).toContain('height: 305px');
   });
 
   it('addresses all major giant desktop heroes, card systems and article pages', () => {
