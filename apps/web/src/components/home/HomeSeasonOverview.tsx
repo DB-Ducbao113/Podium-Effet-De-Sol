@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowUpRight, Trophy } from 'lucide-react';
 import { getStandings } from '../../data/championship';
@@ -11,6 +12,8 @@ export function HomeSeasonOverview() {
   const fallback = getStandings(2026);
   const drivers = (calculated?.drivers ?? fallback.drivers).slice(0, 3);
   const constructors = (calculated?.constructors ?? fallback.constructors).slice(0, 3);
+  const driverLeader = Math.max(1, ...drivers.map((entry) => entry.points));
+  const constructorLeader = Math.max(1, ...constructors.map((entry) => entry.points));
   const { ref, isRevealed } = useReveal(0.12);
 
   return (
@@ -38,7 +41,14 @@ export function HomeSeasonOverview() {
           </div>
           <ol className="home-title-fight__rows">
             {drivers.map((entry, index) => (
-              <li key={entry.driverName}>
+              <li
+                key={entry.driverName}
+                style={{
+                  '--home-rank-width': `${Math.round(Math.max(0, entry.points) / driverLeader * 100)}%`,
+                  '--home-rank-delay': `${index * 110}ms`,
+                } as CSSProperties}
+              >
+                <span className="home-title-fight__scorebar" aria-hidden="true" />
                 <span className="home-title-fight__rank">{String(index + 1).padStart(2, '0')}</span>
                 <span className="home-title-fight__portrait" data-asset-slot="driver-photo" aria-hidden="true" />
                 <span className="home-title-fight__name">{entry.driverName}</span>
@@ -57,7 +67,14 @@ export function HomeSeasonOverview() {
           </div>
           <ol className="home-title-fight__rows">
             {constructors.map((entry, index) => (
-              <li key={entry.teamName}>
+              <li
+                key={entry.teamName}
+                style={{
+                  '--home-rank-width': `${Math.round(Math.max(0, entry.points) / constructorLeader * 100)}%`,
+                  '--home-rank-delay': `${index * 110}ms`,
+                } as CSSProperties}
+              >
+                <span className="home-title-fight__scorebar" aria-hidden="true" />
                 <span className="home-title-fight__rank">{String(index + 1).padStart(2, '0')}</span>
                 <span className="home-title-fight__team-mark" aria-hidden="true" />
                 <span className="home-title-fight__name">{entry.teamName}</span>
