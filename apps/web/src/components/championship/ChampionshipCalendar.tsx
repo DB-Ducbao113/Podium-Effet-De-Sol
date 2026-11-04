@@ -136,8 +136,9 @@ export function ChampionshipCalendar({ season }: { season: SeasonYear }) {
 
   useEffect(() => {
     setExpandedRound(requestedRound);
-    if (requestedRound !== null) setJourneyMode(false);
-  }, [requestedRound, season]);
+    const view = new URLSearchParams(location.search).get('view') ?? '';
+    setJourneyMode(requestedRound === null && !['classic', 'completed', 'upcoming'].includes(view));
+  }, [requestedRound, season, location.search]);
 
   useEffect(() => {
     const scroller = roundsRef.current;
