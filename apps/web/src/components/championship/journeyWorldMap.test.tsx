@@ -5,7 +5,8 @@ import { MemoryRouter } from 'react-router-dom';
 import { getCalendarBySeason } from '../../data/championship';
 import type { SeasonYear } from '../../types';
 import { resolveCircuit } from './journeyCoordinates';
-import { JourneyWorldMap, layoutRoundLabels } from './JourneyWorldMap';
+import { JourneyWorldMap } from './JourneyWorldMap';
+import { layoutRoundLabels } from './journeyLabelLayout';
 
 describe('2D World Tour: all-round atlas, not a progressive flight map', () => {
   for (const season of [2024, 2025, 2026] as const satisfies readonly SeasonYear[]) {
