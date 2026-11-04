@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="t d">
+<title id="t">Original race engineering garage illustration</title><desc id="d">Unbranded garage with abstract single-seat race car and anonymous crew silhouettes</desc>
+<defs><linearGradient id="bg" x2="0" y2="1"><stop stop-color="#09121b"/><stop offset=".62" stop-color="#151b23"/><stop offset="1" stop-color="#050609"/></linearGradient>
+<linearGradient id="rim" x2="1" y2="0"><stop stop-color="#ff4a18"/><stop offset=".52" stop-color="#ffd3c3"/><stop offset="1" stop-color="#ff4a18"/></linearGradient>
+<linearGradient id="car" x2="0" y2="1"><stop stop-color="#383b46"/><stop offset=".55" stop-color="#11151d"/><stop offset="1" stop-color="#05070b"/></linearGradient>
+<pattern id="floor" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M100 0H0V100" fill="none" stroke="#c7d6e1" stroke-opacity=".09"/></pattern>
+<filter id="blur"><feGaussianBlur stdDeviation="27"/></filter>
+</defs>
+<rect width="1600" height="900" fill="url(#bg)"/>
+<path d="M0 0H1600V370H0Z" fill="#070c12"/>
+<path d="M160 0V640M560 0V640M960 0V640M1360 0V640" stroke="#273646" stroke-width="26"/>
+<path d="M0 185H1600M0 308H1600" stroke="#323e4a" stroke-width="18"/>
+<path d="M90 105H520M660 105H1030M1150 105H1550" stroke="#cfe9ff" stroke-width="30" opacity=".83"/>
+<path d="M0 650H1600V900H0Z" fill="#121820"/><path d="M0 650H1600V900H0Z" fill="url(#floor)"/>
+<ellipse cx="860" cy="680" rx="610" ry="100" fill="#ff4a18" opacity=".16" filter="url(#blur)"/>
+<g fill="#080e15" stroke="#728394" stroke-opacity=".6" stroke-width="10">
+<circle cx="470" cy="652" r="113"/><circle cx="1150" cy="652" r="113"/>
+</g>
+<g fill="none" stroke="url(#rim)" stroke-width="7" opacity=".9"><circle cx="470" cy="652" r="65"/><circle cx="1150" cy="652" r="65"/></g>
+<path d="M180 610L317 567 384 564 560 520 660 510 728 409H866L984 515 1190 547 1350 528 1460 562 1440 601 1200 622 1000 603 662 600 445 633 245 638Z" fill="url(#car)" stroke="#6f7784" stroke-width="9"/>
+<path d="M700 520L765 404 876 424 954 514" fill="none" stroke="#ff4a18" stroke-width="16"/>
+<path d="M300 574L510 566 730 550 1100 565 1370 556" stroke="#ff5c37" stroke-width="9" fill="none"/>
+<path d="M115 564H350M1200 527H1510" stroke="#b4d1df" stroke-width="18" stroke-opacity=".65"/>
+<g fill="#080b11" stroke="#364451" stroke-width="7">
+<path d="M140 468C124 401 175 348 224 351 280 355 291 412 267 457L292 503 308 644 128 644 149 510Z"/>
+<path d="M1420 458C1400 404 1430 353 1483 356 1544 361 1560 430 1531 462L1557 510 1560 644 1385 644 1404 513Z"/>
+</g>
+<path d="M0 711H1600" stroke="url(#rim)" stroke-width="5" opacity=".75"/>
+<path d="M48 744H1548" stroke="#7f9dad" stroke-opacity=".2" stroke-width="3" stroke-dasharray="15 20"/>
+</svg>
