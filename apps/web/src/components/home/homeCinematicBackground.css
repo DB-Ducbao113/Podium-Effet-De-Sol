@@ -62,3 +62,11 @@
   }
 }
 [data-text-zoom='400'] .home-aerocore { opacity: .25; }
+
+/* V8.2: the illustrated F1 is the focus; V8.1 sculpture becomes atmospheric. */
+.home-v3 > .home-cinematic .home-aerocore__carbon-fallback { opacity: .10; }
+.r1-cinema--v7 .home-pulse--f1hero { overflow: visible; mask-image: none; }
+.home-v3 .r1-cinema--v7 .r1-cinema__scene { overflow: visible; }
+@media (max-width: 850px) {
+  .home-v3 > .home-cinematic .home-aerocore__carbon-fallback { opacity: .07; }
+}
