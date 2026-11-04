@@ -6,7 +6,8 @@ import { t } from '../../i18n/translations';
 
 const locale = vi.hoisted(() => ({ lang: 'en' as 'en' | 'vi' }));
 vi.mock('../../store/useNavigationStore', () => ({
-  useNavigationStore: () => ({ lang: locale.lang }),
+  useNavigationStore: (selector: (state: { lang: 'en' | 'vi' }) => unknown) =>
+    selector({ lang: locale.lang }),
 }));
 
 function renderFooter(lang: 'en' | 'vi') {
