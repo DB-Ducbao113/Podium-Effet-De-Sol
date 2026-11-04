@@ -71,6 +71,7 @@ export function HomeStoryLinks() {
 
   return (
     <section
+      id="eds-explore"
       ref={ref}
       className="page-container eds-explore h25-reveal"
       data-revealed={isRevealed}
