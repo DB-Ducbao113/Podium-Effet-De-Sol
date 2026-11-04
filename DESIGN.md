@@ -17,7 +17,7 @@ The official raster logo and its original assets (`apps/web/public/logo/logo.png
 
 **MODEL LOCK.** . Never restore it, derive cinematic imagery from it, or use it as a fallback without a new explicit owner instruction. The owner selected the attributed Model B asset for the Showroom and confirmed its commercial rights. Any new derivative artwork requires its own provenance and rights check; never substitute another model on your own initiative.
 
-**HOMEPAGE VIDEO LOCK.** Never modify, replace, optimise, regenerate, retime, re-poster or re-encode the Homepage hero video without explicit owner instruction. Its source, poster, playback logic (muted, inline, one-shot, autoplay on intro completion), asset location and asset bytes are immutable. Do not substitute a 3D scene or static image for it in the DEV review experience.
+**HOMEPAGE HERO OWNER OVERRIDE — 04/11/2026.** The owner explicitly requested removing the Tokyo Drift/H3.2 video import and playback from the Homepage, and redesigning the landing experience as a cinematic technology-led Launch Control scene. The video and poster files are retained as untouched archival assets (no recoding, reposter, deletion or byte changes), but the Homepage must not import, play or preload them. The Launch Control visual uses the separately approved project-original P4 artwork as a temporary visual plate plus lightweight HTML/SVG/CSS motion; the final dedicated hero artwork requires owner review.
 
 **BRAND LOCK.** Never modify or replace the original PODIUM EDS logo or its companion raster assets. This extends the brand identity lock above and applies to every phase.
 
@@ -50,7 +50,7 @@ The only CSS font tokens are `--peds-font-display`, `--peds-font-ui`, `--peds-fo
 
 ## Composition and interaction
 
-The Homepage first viewport pairs an editorial headline with the owner-approved hero video and poster in `PodiumBrandHero`. Motion honors `prefers-reduced-motion`; content remains visible before animation initialization.
+The Homepage first viewport is a concise interactive Launch Control scene in `PodiumBrandHero`, with no video element. Below it, Race Control and Title Fight provide only essential real-data previews; circuit map and driver portrait media slots remain intentionally blank until the owner approves visual assets. Deep data and image galleries belong to linked destination pages. Motion honors `prefers-reduced-motion`; content remains visible before animation initialization.
 
 Shared primitives consume the tokens above: `Button` (primary, outline, secondary, ghost, danger), `Tabs` (tab and chip), `Card` (panel rule), `SectionHeading` (display heading and eyebrow), the table header/row rule, and the global focus ring. Pages must not introduce parallel colour or type scales.
 
