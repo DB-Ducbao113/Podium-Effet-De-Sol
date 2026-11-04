@@ -1,221 +1,166 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { animate, createScope } from 'animejs';
-import { ArrowDown, ArrowRight, Move3d, Pause, Play } from 'lucide-react';
+import { ArrowDown, ArrowRight, Move3d } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useNavigationStore } from '../../store/useNavigationStore';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import './podiumHeroR1.css';
 
-export const HERO_VIDEO_SRC = '/media/homepage/hero-h3-2.mp4';
-export const HERO_POSTER_SRC = '/media/homepage/hero-h3-2-poster.png';
-
-type NetworkInformation = { saveData?: boolean };
+const HERO_PLATE = '/images/p4/template/rc-hero';
 
 export function PodiumBrandHero() {
   const lang = useNavigationStore((state) => state.lang);
   const navigate = useNavigate();
   const reducedMotion = useReducedMotion();
   const heroRef = useRef<HTMLElement | null>(null);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-  const wasPlayingRef = useRef(false);
-  const [visible, setVisible] = useState(true);
-  const [introDone, setIntroDone] = useState(false);
-  const [videoReady, setVideoReady] = useState(false);
-  const [videoPlaying, setVideoPlaying] = useState(false);
-  const [videoFailed, setVideoFailed] = useState(false);
-  const [videoEnded, setVideoEnded] = useState(false);
-  const saveData = typeof navigator !== 'undefined'
-    && ((navigator as Navigator & { connection?: NetworkInformation }).connection?.saveData ?? false);
-  const lowEnd = typeof navigator !== 'undefined'
-    && ((navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 8) <= 4;
-  // The approved Homepage film is the production hero; the poster is the only fallback.
-  const renderVideo = !reducedMotion && !saveData && !lowEnd && !videoFailed && !videoEnded;
-
-  useEffect(() => {
-    if (!document.querySelector('.podium-intro')) {
-      setIntroDone(true);
-      return;
-    }
-    const observer = new MutationObserver(() => {
-      if (document.querySelector('.podium-intro')) return;
-      observer.disconnect();
-      setIntroDone(true);
-    });
-    observer.observe(document.body, { childList: true, subtree: true });
-    return () => observer.disconnect();
-  }, []);
+  const pointerFrame = useRef<number | null>(null);
 
   useEffect(() => {
     const root = heroRef.current;
-    if (!root || reducedMotion || !introDone) return;
+    if (!root || reducedMotion) return;
     const scope = createScope({ root }).add(() => {
-      animate(root.querySelectorAll('[data-r1-reveal]'), {
-        opacity: [0.55, 1],
-        translateY: [24, 0],
-        filter: ['blur(9px)', 'blur(0px)'],
-        duration: 620,
+      animate(root.querySelectorAll('[data-launch-reveal]'), {
+        opacity: [0, 1],
+        translateY: [32, 0],
+        duration: 850,
         ease: 'out(4)',
-        delay: (_: unknown, index = 0) => index * 70,
+        delay: (_: unknown, index = 0) => index * 95,
       });
-      const rail = root.querySelector('[data-r1-rail]');
-      if (rail) {
-        animate(rail, {
-          scaleX: [0.12, 1],
-          duration: 900,
-          ease: 'out(5)',
-        });
-      }
+      const rail = root.querySelector('[data-launch-rail]');
+      if (rail) animate(rail, { scaleX: [0, 1], duration: 1100, ease: 'out(5)' });
     });
     return () => scope.revert();
-  }, [reducedMotion, introDone]);
+  }, [reducedMotion]);
 
-  useEffect(() => {
-    const root = heroRef.current;
-    if (!root || !('IntersectionObserver' in window)) return;
-    const observer = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting), { threshold: 0.08 });
-    observer.observe(root);
-    return () => observer.disconnect();
+  useEffect(() => () => {
+    if (pointerFrame.current !== null) cancelAnimationFrame(pointerFrame.current);
   }, []);
 
-  useEffect(() => {
-    if (!renderVideo || !introDone) return;
-    const video = videoRef.current;
-    if (!video) return;
-    if (!visible) {
-      wasPlayingRef.current = !video.paused && !video.ended;
-      video.pause();
-      return;
-    }
-    if (!wasPlayingRef.current && video.currentTime > 0 && video.paused) return;
-    wasPlayingRef.current = true;
-    video.play().catch(() => {
-      wasPlayingRef.current = false;
-      setVideoFailed(true);
+  const moveScene: React.PointerEventHandler<HTMLElement> = (event) => {
+    if (reducedMotion || event.pointerType === 'touch') return;
+    const root = heroRef.current;
+    if (!root) return;
+    const rect = root.getBoundingClientRect();
+    const x = (event.clientX - rect.left) / rect.width - 0.5;
+    const y = (event.clientY - rect.top) / rect.height - 0.5;
+    if (pointerFrame.current !== null) cancelAnimationFrame(pointerFrame.current);
+    pointerFrame.current = requestAnimationFrame(() => {
+      root.style.setProperty('--launch-x', `${(x * 18).toFixed(1)}px`);
+      root.style.setProperty('--launch-y', `${(y * 13).toFixed(1)}px`);
+      root.style.setProperty('--launch-light-x', `${((x + 0.5) * 100).toFixed(1)}%`);
+      root.style.setProperty('--launch-light-y', `${((y + 0.5) * 100).toFixed(1)}%`);
     });
-  }, [renderVideo, introDone, visible]);
-
-  const togglePlayback = () => {
-    const video = videoRef.current;
-    if (!video) return;
-    if (video.paused) {
-      wasPlayingRef.current = true;
-      video.play().catch(() => setVideoFailed(true));
-      return;
-    }
-    wasPlayingRef.current = false;
-    video.pause();
   };
 
-  const scrollToContent = () => document.getElementById('r1-first-content')?.scrollIntoView({
-    behavior: reducedMotion ? 'instant' : 'smooth',
-  });
+  const resetScene = () => {
+    if (pointerFrame.current !== null) cancelAnimationFrame(pointerFrame.current);
+    pointerFrame.current = null;
+    const root = heroRef.current;
+    if (!root) return;
+    root.style.removeProperty('--launch-x');
+    root.style.removeProperty('--launch-y');
+    root.style.removeProperty('--launch-light-x');
+    root.style.removeProperty('--launch-light-y');
+  };
+
+  const goToSection = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({
+      behavior: reducedMotion ? 'instant' : 'smooth',
+      block: 'start',
+    });
+  };
 
   return (
     <section
       ref={heroRef}
+      id="launch-control"
       className="r1-cinema"
       data-lang={lang}
-      data-video-ready={videoReady && renderVideo}
       data-motion-engine={reducedMotion ? 'reduced' : 'animejs'}
       aria-labelledby="podium-hero-title"
+      onPointerMove={moveScene}
+      onPointerLeave={resetScene}
     >
-      <div className="r1-cinema__aero-field" aria-hidden="true"><span data-r1-rail /></div>
+      <div className="r1-cinema__ambient" aria-hidden="true">
+        <span className="r1-cinema__horizon" />
+        <span className="r1-cinema__velocity" />
+        <span className="r1-cinema__beacon" data-launch-rail />
+      </div>
+
+      <div className="r1-cinema__scene" aria-hidden="true">
+        <picture className="r1-cinema__picture">
+          <source media="(max-width: 700px)" type="image/avif" srcSet={`${HERO_PLATE}-896.avif`} />
+          <source type="image/avif" srcSet={`${HERO_PLATE}-1344.avif 1344w, ${HERO_PLATE}-1792.avif 1792w`} sizes="100vw" />
+          <source type="image/webp" srcSet={`${HERO_PLATE}-896.webp 896w, ${HERO_PLATE}-1344.webp 1344w, ${HERO_PLATE}-1792.webp 1792w`} sizes="100vw" />
+          <img src={`${HERO_PLATE}-1344.webp`} alt="" fetchPriority="high" decoding="async" />
+        </picture>
+        <div className="r1-cinema__glass" />
+        <svg className="r1-cinema__flow" viewBox="0 0 1000 500" fill="none" preserveAspectRatio="none">
+          <path d="M-25 320 C235 85 330 365 590 212 S880 200 1040 10" />
+          <path d="M-20 380 C240 145 388 420 650 252 S875 260 1030 90" />
+          <path d="M-20 435 C280 245 390 468 680 340 S920 315 1050 145" />
+        </svg>
+        <span className="r1-cinema__target r1-cinema__target--left" />
+        <span className="r1-cinema__target r1-cinema__target--right" />
+        <span className="r1-cinema__radar" />
+        <span className="r1-cinema__micro-label r1-cinema__micro-label--top">EDS / AERO FIELD</span>
+        <span className="r1-cinema__micro-label r1-cinema__micro-label--bottom">DIGITAL RACING EXPERIENCE · 2026</span>
+      </div>
+
       <div className="r1-cinema__inner page-container">
         <div className="r1-cinema__copy">
-          <p className="r1-cinema__eyebrow" data-r1-reveal>
-            <span className="r1-cinema__eyebrow-index" aria-hidden="true">01</span>
-            <span className="r1-cinema__eyebrow-line" aria-hidden="true" />
-            {lang === 'vi' ? 'TRẢI NGHIỆM ĐUA XE TÁI ĐỊNH NGHĨA' : 'THE RACING EXPERIENCE REIMAGINED'}
+          <p className="r1-cinema__eyebrow" data-launch-reveal>
+            <span aria-hidden="true" className="r1-cinema__slashes">///</span>
+            THE F1 EXPERIENCE
           </p>
-          <div className="r1-cinema__heading">
-            <h1 id="podium-hero-title" className="r1-cinema__title" data-r1-reveal>
-              <span>{lang === 'vi' ? 'ĐUA' : 'RACE'}</span>
-              <span>{lang === 'vi' ? 'VƯỢT' : 'BEYOND'}</span>
-              <span className="r1-cinema__title-accent">{lang === 'vi' ? 'GIỚI HẠN' : 'LIMITS'}<b>.</b></span>
-            </h1>
-            <p className="r1-cinema__description" data-r1-reveal>
-              {lang === 'vi'
-                ? 'Kỹ thuật 3D nguyên bản, dữ liệu mùa giải và câu chuyện sau từng phần mười giây — một cách trải nghiệm đua xe mới.'
-                : 'Original 3D engineering, season data and the stories behind every tenth — a new way to experience racing.'}
-            </p>
-          </div>
-          <div className="r1-cinema__actions" data-r1-reveal>
+          <h1 id="podium-hero-title" className="r1-cinema__title" data-launch-reveal>
+            <span>RACE</span>
+            <span>BEYOND</span>
+            <span className="r1-cinema__title-accent">LIMITS.</span>
+          </h1>
+          <div className="r1-cinema__actions" data-launch-reveal>
             <button type="button" className="r1-cinema__primary" onClick={() => navigate('/season/2026?tab=results')}>
-              {lang === 'vi' ? 'Khám phá mùa giải' : 'Explore the season'} <ArrowRight size={17} aria-hidden="true" />
+              {lang === 'vi' ? 'Khám phá mùa giải' : 'Explore season'}
+              <ArrowRight size={19} aria-hidden="true" />
             </button>
             <button type="button" className="r1-cinema__secondary" onClick={() => navigate('/showroom')}>
-              {lang === 'vi' ? 'Mở Showroom 3D' : 'Open Showroom'} <Move3d size={17} aria-hidden="true" />
+              <Move3d size={19} aria-hidden="true" />
+              Showroom 3D
             </button>
           </div>
-          <ul className="r1-cinema__meta" aria-hidden="true" data-r1-reveal>
-            {(lang === 'vi'
-              ? ['TỐC ĐỘ', 'KỸ THUẬT', 'TAY ĐUA', 'ĐƯỜNG ĐUA', 'ĐAM MÊ']
-              : ['SPEED', 'TECHNOLOGY', 'DRIVERS', 'CIRCUITS', 'PASSION']).map((label, index) => (
-                <li key={label}><span>{String(index + 1).padStart(2, '0')}</span>{label}</li>
-              ))}
-          </ul>
         </div>
-
-        <div className="r1-cinema__visual" data-r1-reveal>
-          <img
-            src={HERO_POSTER_SRC}
-            alt=""
-            aria-hidden="true"
-            className="r1-cinema__fallback r1-cinema__fallback--cinematic"
-            loading="eager"
-            decoding="async"
-          />
-          {renderVideo && (
-            <video
-              ref={videoRef}
-              className="r1-cinema__video"
-              src={HERO_VIDEO_SRC}
-              poster={HERO_POSTER_SRC}
-              muted
-              playsInline
-              preload="auto"
-              aria-hidden="true"
-              onPlaying={() => { setVideoReady(true); setVideoPlaying(true); }}
-              onPause={() => setVideoPlaying(false)}
-              onEnded={() => { setVideoReady(false); setVideoPlaying(false); setVideoEnded(true); }}
-              onError={() => { setVideoReady(false); setVideoPlaying(false); setVideoFailed(true); }}
-            />
-          )}
-          {renderVideo && videoReady && (
-            <button
-              type="button"
-              className="r1-cinema__media-toggle"
-              onClick={togglePlayback}
-              aria-label={videoPlaying
-                ? (lang === 'vi' ? 'Tạm dừng phim' : 'Pause the film')
-                : (lang === 'vi' ? 'Phát phim' : 'Play the film')}
-            >
-              {videoPlaying ? <Pause size={15} aria-hidden="true" /> : <Play size={15} aria-hidden="true" />}
-              <span>{videoPlaying ? (lang === 'vi' ? 'Tạm dừng' : 'Pause') : (lang === 'vi' ? 'Phát' : 'Play')}</span>
-            </button>
-          )}
-          <div className="r1-cinema__hud" aria-hidden="true">
-            <span>EDS / FILM</span>
-            <span>TOKYO DRIFT</span>
-            <i />
+        <div className="r1-cinema__launch" aria-hidden="true" data-launch-reveal>
+          <span className="r1-cinema__launch-name">LAUNCH CONTROL</span>
+          <div className="r1-cinema__lights">
+            {Array.from({ length: 5 }, (_, index) => <span key={index} style={{ '--light-index': index } as React.CSSProperties} />)}
           </div>
-          <div className="r1-cinema__lifestyle" aria-hidden="true">
-            <span>{lang === 'vi' ? 'KHÔNG CHỈ LÀ ĐUA XE' : 'MORE THAN RACING'}</span>
-            <strong>{lang === 'vi' ? 'ĐÓ LÀ PHONG CÁCH SỐNG' : "IT'S A LIFESTYLE"}</strong>
-          </div>
+          <span className="r1-cinema__launch-caption">FIVE LIGHTS / ONE START</span>
         </div>
       </div>
 
-      <div className="r1-cinema__telemetry" data-r1-reveal>
-        <div className="page-container">
-          <span><b>01</b> ORIGINAL 3D</span>
-          <span><b>02</b> RACE INTELLIGENCE</span>
-          <span><b>03</b> AERO ENGINEERING</span>
-          <button type="button" onClick={scrollToContent}>
-            {lang === 'vi' ? 'Tiếp tục' : 'Continue'} <ArrowDown size={15} aria-hidden="true" />
-          </button>
-        </div>
-      </div>
+      <nav className="r1-cinema__chapters" aria-label={lang === 'vi' ? 'Đi tới khu vực trang chủ' : 'Jump to homepage section'}>
+        {[
+          ['01', 'launch-control'],
+          ['02', 'race-control'],
+          ['03', 'championship-overview'],
+          ['04', 'eds-explore'],
+        ].map(([number, id], index) => (
+          <button
+            key={id}
+            type="button"
+            className={index === 0 ? 'is-active' : undefined}
+            onClick={() => goToSection(id)}
+            aria-label={`${lang === 'vi' ? 'Khu vực' : 'Section'} ${number}`}
+            aria-current={index === 0 ? 'step' : undefined}
+          >{number}</button>
+        ))}
+      </nav>
+
+      <button type="button" className="r1-cinema__scroll" onClick={() => goToSection('race-control')}>
+        <span>{lang === 'vi' ? 'Cuộn khám phá' : 'Scroll to explore'}</span>
+        <ArrowDown size={18} aria-hidden="true" />
+      </button>
+      <div className="r1-cinema__energy-rail" aria-hidden="true" />
     </section>
   );
 }
