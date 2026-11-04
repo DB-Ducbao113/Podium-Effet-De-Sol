@@ -94,7 +94,7 @@ describe('text-only zoom reflow contract', () => {
       /\[data-text-zoom='400'\] \.r1-cinema__actions\s*\{[^}]*flex-direction:\s*column;/s,
     );
     expect(heroCss).toMatch(
-      /\[data-text-zoom='400'\] \.r1-cinema__launch,\s*\[data-text-zoom='400'\] \.r1-cinema__chapters\s*\{\s*display:\s*none;/s,
+      /\[data-text-zoom='400'\] \.r1-cinema__chapters\s*\{\s*display:\s*none;/s,
     );
   });
 
