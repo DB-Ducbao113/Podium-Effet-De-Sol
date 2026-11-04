@@ -90,8 +90,10 @@ export function ChampionshipCalendar({ season }: { season: SeasonYear }) {
     (state) => state.setSelectedRaceRound,
   );
   const location = useLocation();
-  const [journeyMode, setJourneyMode] = useState(() => !new URLSearchParams(location.search).has('round') &&
-    new URLSearchParams(location.search).get('view') !== 'classic');
+  const [journeyMode, setJourneyMode] = useState(() => {
+    const params = new URLSearchParams(location.search);
+    return !params.has('round') && !['classic', 'completed', 'upcoming'].includes(params.get('view') ?? '');
+  });
   const navigate = useNavigate();
   const calendar = getCalendarBySeason(season);
   const [now, setNow] = useState(() => Date.now());
