@@ -1,6 +1,6 @@
 import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ArrowLeft, ArrowUpRight, Flag } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight } from 'lucide-react';
 import { getCalendarBySeason } from '../../data/championship';
 import { getRaceResults } from '../../data/championship/results';
 import openF1SessionResults from '../../data/championship/openF1SessionResults2026.json';
@@ -14,7 +14,6 @@ import {
   type ResultDataSources,
   type ResultSessionKey,
 } from '../../results-engine/availability';
-import { getCalendarRaceState } from '../../utils/raceSchedule';
 import { JourneyWorldMap } from './JourneyWorldMap';
 import './raceCalendarJourney.css';
 
