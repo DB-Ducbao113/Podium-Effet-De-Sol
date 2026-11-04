@@ -4,11 +4,20 @@ import type { TeamLivery } from './teamLiveries';
 import { artwork, type ArtworkKey } from './officialArtwork';
 import { createPaintAtlas, type PrecisionTeam } from './paintAtlas';
 import { liveryDefinitions, type SurfaceAnchorMap } from './liveryDefinitions';
+import { fitModelBSurface, surfaceLimitsForArtwork, type SurfaceProbe } from './modelBSurfaceAudit';
 
 type Decal = { mesh: THREE.Mesh; key: ArtworkKey; id: string };
 type AtlasRect = { u: number; v: number; w: number; h: number };
 type DecalAtlas = { map: THREE.CanvasTexture; rects: Partial<Record<ArtworkKey, AtlasRect>> };
 const vector = new THREE.Vector3();
+type PlacementAudit = { id: string; state: 'placed' | 'adapted' | 'unplaced' | 'blocked'; reason: string; coverage?: number; normalDegrees?: number; stretchRatio?: number };
+const REVIEW_BLOCKED_ARTWORK = new Set<ArtworkKey>(['velo', 'allwyn']);
+const PLANAR_MARK_IDS = new Set([
+  'mclaren-dropbox-right',
+  'mclaren-pirelli-wing-top',
+  'mclaren-wordmark-wing-rear',
+  'mclaren-groq-underwing-rear',
+]);
 
 function zoneColor(team: TeamLivery, x: number, y: number, z: number): string {
   if (team.id === 'cadillac') {
@@ -107,6 +116,7 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
   paintMesh.material.vertexColors = true;
   paintMesh.material.needsUpdate = true;
   const decals: Decal[] = [];
+  let placementAudit: PlacementAudit[] = [];
   const wheelDetails: THREE.Mesh[] = [];
   const authorOverrides = new Map<string, SurfaceAnchorMap>();
   const undoStack: string[] = [];
@@ -337,92 +347,24 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
     decals.push({ mesh, key, id });
   }
 
-  function fittedMcLarenDropbox(atlas: DecalAtlas) {
-    const rect = atlas.rects.dropbox;
-    if (!rect) return;
-    // This wing endplate is almost planar, while the triangulated paint mesh
-    // folds the wordmark. Anchor a thin applique just outside its measured X
-    // bound (0.617) so the word stays intact without changing the source GLB.
-    const geometry = new THREE.PlaneGeometry(.39, .08);
-    const uv = geometry.getAttribute('uv') as THREE.BufferAttribute;
-    for (let index = 0; index < uv.count; index++) uv.setXY(index, rect.u + uv.getX(index) * rect.w, rect.v + uv.getY(index) * rect.h);
-    uv.needsUpdate = true;
-    const material = new THREE.MeshBasicMaterial({ map: atlas.map, transparent:true, depthTest:true, depthWrite:false, side:THREE.DoubleSide, toneMapped:false });
-    const mesh = new THREE.Mesh(geometry, material);
-    mesh.name = 'mclaren-dropbox-right';
-    mesh.rotation.y = Math.PI / 2;
-    mesh.position.set(.627, .82, 2.28);
-    mesh.renderOrder = 4;
-    scene.add(mesh);
-    decals.push({ mesh, key:'dropbox', id:mesh.name });
-  }
-
-  function fittedMcLarenPirelli(atlas: DecalAtlas) {
-    const rect = atlas.rects.pirelliBlack;
-    if (!rect) return;
-    // The upper flap is nearly flat across its span, but its mesh also
-    // contains the curved rear face. A shallow applique keeps the lettering
-    // on the measured papaya upper strip instead of folding onto that face.
-    const geometry = new THREE.PlaneGeometry(.68, .28);
-    const uv = geometry.getAttribute('uv') as THREE.BufferAttribute;
-    for (let index = 0; index < uv.count; index++) uv.setXY(index, rect.u + uv.getX(index) * rect.w, rect.v + uv.getY(index) * rect.h);
-    uv.needsUpdate = true;
-    const material = new THREE.MeshBasicMaterial({ map: atlas.map, transparent: true, depthTest: true, depthWrite: false, side: THREE.DoubleSide, toneMapped: false });
-    const mesh = new THREE.Mesh(geometry, material);
-    mesh.name = 'mclaren-pirelli-wing-top';
-    mesh.rotation.x = -2.06;
-    mesh.position.set(0, .82, 2.27);
-    mesh.renderOrder = 4;
-    scene.add(mesh);
-    decals.push({ mesh, key: 'pirelliBlack', id: mesh.name });
-  }
-
-  function fittedMcLarenRearWordmark(atlas: DecalAtlas) {
-    const rect = atlas.rects.mclarenWordmarkWhite;
-    if (!rect) return;
-    const geometry = new THREE.PlaneGeometry(.68, .075);
-    const uv = geometry.getAttribute('uv') as THREE.BufferAttribute;
-    for (let index = 0; index < uv.count; index++) uv.setXY(index, rect.u + uv.getX(index) * rect.w, rect.v + uv.getY(index) * rect.h);
-    uv.needsUpdate = true;
-    const material = new THREE.MeshBasicMaterial({ map: atlas.map, transparent: true, depthTest: true, depthWrite: false, side: THREE.DoubleSide, toneMapped: false });
-    const mesh = new THREE.Mesh(geometry, material);
-    mesh.name = 'mclaren-wordmark-wing-rear';
-    mesh.position.set(0, .91, 2.51);
-    mesh.renderOrder = 4;
-    scene.add(mesh);
-    decals.push({ mesh, key: 'mclarenWordmarkWhite', id: mesh.name });
-  }
-
-  function fittedMcLarenLowerGroq(atlas: DecalAtlas) {
-    const rect = atlas.rects.groqWhite;
-    if (!rect) return;
-    const geometry = new THREE.PlaneGeometry(.24, .07);
-    const uv = geometry.getAttribute('uv') as THREE.BufferAttribute;
-    for (let index = 0; index < uv.count; index++) uv.setXY(index, rect.u + uv.getX(index) * rect.w, rect.v + uv.getY(index) * rect.h);
-    uv.needsUpdate = true;
-    const material = new THREE.MeshBasicMaterial({ map: atlas.map, transparent: true, depthTest: true, depthWrite: false, side: THREE.DoubleSide, toneMapped: false });
-    const mesh = new THREE.Mesh(geometry, material);
-    mesh.name = 'mclaren-groq-underwing-rear';
-    mesh.position.set(.28, .58, 2.53);
-    mesh.renderOrder = 4;
-    scene.add(mesh);
-    decals.push({ mesh, key: 'groqWhite', id: mesh.name });
-  }
-
-  function fittedWingMark(id: string, key: ArtworkKey, anchor: SurfaceAnchorMap, atlas: DecalAtlas) {
+  function fittedWingMark(id: string, key: ArtworkKey, anchor: SurfaceAnchorMap, atlas: DecalAtlas, probe: SurfaceProbe) {
     const rect = atlas.rects[key];
-    if (!rect) return;
-    // Model B's main wing has a curved rear face, so a decal projector folds
-    // wordmarks across two flaps. Use the measured outer surface as a thin
-    // local review applique; the original GLB remains unchanged.
+    if (!rect || !probe.accepted || !probe.center) return;
+    // Apply a thin plate only after all 25 footprint samples proved near-planar.
+    // The position comes from the hit surface, never a hard-coded world X/Z.
     const geometry = new THREE.PlaneGeometry(anchor.width, anchor.height);
     const uv = geometry.getAttribute('uv') as THREE.BufferAttribute;
     for (let index = 0; index < uv.count; index++) uv.setXY(index, rect.u + uv.getX(index) * rect.w, rect.v + uv.getY(index) * rect.h);
     uv.needsUpdate = true;
     const material = new THREE.MeshBasicMaterial({ map: atlas.map, transparent: true, depthTest: true, depthWrite: false, side: THREE.DoubleSide, toneMapped: false });
     const mesh = new THREE.Mesh(geometry, material);
+    const outward = anchor.side === 'left' ? new THREE.Vector3(-1, 0, 0)
+      : anchor.side === 'right' ? new THREE.Vector3(1, 0, 0)
+      : anchor.side === 'top' ? new THREE.Vector3(0, 1, 0)
+      : new THREE.Vector3(0, 0, 1);
     if (anchor.side === 'left' || anchor.side === 'right') mesh.rotation.y = anchor.side === 'right' ? Math.PI / 2 : -Math.PI / 2;
-    mesh.position.set(anchor.side === 'rear' ? anchor.x ?? 0 : anchor.side === 'right' ? .627 : -.627, anchor.y, anchor.z);
+    if (anchor.side === 'top') mesh.rotation.x = -Math.PI / 2;
+    mesh.position.copy(probe.center).addScaledVector(outward, anchor.offset);
     mesh.name = id;
     mesh.renderOrder = 4;
     scene.add(mesh);
@@ -467,21 +409,51 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
   let activeAtlas: DecalAtlas | null = null;
   function renderDecals(team: Pick<TeamLivery, 'id'>, atlas: DecalAtlas) {
     clearDecals();
+    placementAudit = [];
     for (const entry of liveryDefinitions[team.id as PrecisionTeam].decals) {
-      const anchor = authorOverrides.get(entry.id) ?? entry.anchor;
+      const requested = authorOverrides.get(entry.id) ?? entry.anchor;
+      if (requested.visible === false) {
+        placementAudit.push({ id: entry.id, state: 'unplaced', reason: 'hidden-by-author' });
+        continue;
+      }
+      // Do not introduce age-restricted sponsor artwork through the review renderer.
+      if (REVIEW_BLOCKED_ARTWORK.has(entry.artwork)) {
+        placementAudit.push({ id: entry.id, state: 'blocked', reason: 'age-restricted-artwork' });
+        continue;
+      }
+      const targetMesh = requested.meshName ? model.getObjectByName(requested.meshName) : paintMesh;
+      if (!(targetMesh instanceof THREE.Mesh)) {
+        placementAudit.push({ id: entry.id, state: 'unplaced', reason: 'missing-target-mesh' });
+        continue;
+      }
+      const needsPlanar = PLANAR_MARK_IDS.has(entry.id)
+        || entry.id.endsWith('-rear-wing-main') || entry.id.endsWith('-wing-endplate-right');
+      const limits = surfaceLimitsForArtwork(entry.artwork);
+      const placement = fitModelBSurface(targetMesh, requested, needsPlanar ? { ...limits, maxDepthRange: 0.018 } : limits);
+      const { anchor, probe } = placement;
+      if (!probe.accepted) {
+        placementAudit.push({
+          id: entry.id, state: 'unplaced', reason: probe.reason,
+          coverage: probe.coverage, normalDegrees: probe.normalSpreadDegrees, stretchRatio: probe.stretchRatio,
+        });
+        continue;
+      }
+      placementAudit.push({
+        id: entry.id, state: placement.adapted ? 'adapted' : 'placed', reason: 'geometry-preflight-passed',
+        coverage: probe.coverage, normalDegrees: probe.normalSpreadDegrees, stretchRatio: probe.stretchRatio,
+      });
       const sign = anchor.side === 'left' ? -1 : 1;
-      if (anchor.visible === false) continue;
       const from = anchor.side === 'top' ? new THREE.Vector3(anchor.x ?? 0, 2, anchor.z) : anchor.side === 'rear' ? new THREE.Vector3(anchor.x ?? 0, anchor.y, 3) : new THREE.Vector3(sign * 2, anchor.y, anchor.z);
       const direction = anchor.side === 'top' ? new THREE.Vector3(0, -1, 0) : anchor.side === 'rear' ? new THREE.Vector3(0, 0, -1) : new THREE.Vector3(-sign, 0, 0);
       const orientation = anchor.side === 'top' ? new THREE.Euler(-Math.PI / 2, 0, anchor.rotation) : anchor.side === 'rear' ? new THREE.Euler(0, 0, anchor.rotation) : new THREE.Euler(0, sign * Math.PI / 2, anchor.rotation);
-      const targetMesh = anchor.meshName ? model.getObjectByName(anchor.meshName) : paintMesh;
-      if (!(targetMesh instanceof THREE.Mesh)) continue;
-      if (team.id === 'mclaren' && entry.id === 'mclaren-dropbox-right' && !authorOverrides.has(entry.id)) { fittedMcLarenDropbox(atlas); continue; }
-      if (team.id === 'mclaren' && entry.id === 'mclaren-pirelli-wing-top' && !authorOverrides.has(entry.id)) { fittedMcLarenPirelli(atlas); continue; }
-      if (team.id === 'mclaren' && entry.id === 'mclaren-wordmark-wing-rear' && !authorOverrides.has(entry.id)) { fittedMcLarenRearWordmark(atlas); continue; }
-      if (team.id === 'mclaren' && entry.id === 'mclaren-groq-underwing-rear' && !authorOverrides.has(entry.id)) { fittedMcLarenLowerGroq(atlas); continue; }
-      if ((entry.id.endsWith('-rear-wing-main') || entry.id.endsWith('-wing-endplate-right')) && !authorOverrides.has(entry.id)) { fittedWingMark(entry.id, entry.artwork, anchor, atlas); continue; }
-      if ((entry.id.startsWith('williams-atlassian-') || entry.id.startsWith('cadillac-twg-')) && !authorOverrides.has(entry.id)) { conformingSideMark(entry.id, entry.artwork, anchor, atlas, targetMesh); continue; }
+      if (needsPlanar) {
+        fittedWingMark(entry.id, entry.artwork, anchor, atlas, probe);
+        continue;
+      }
+      if ((entry.id.startsWith('williams-atlassian-') || entry.id.startsWith('cadillac-twg-')) && !authorOverrides.has(entry.id)) {
+        conformingSideMark(entry.id, entry.artwork, anchor, atlas, targetMesh);
+        continue;
+      }
       decal(entry.id, entry.artwork, atlas, targetMesh, from, direction, orientation, new THREE.Vector3(anchor.width, anchor.height, anchor.depth), anchor.offset, anchor.side !== 'rear' ? anchor.side : undefined);
     }
     if (authorMode && selectedDecalId) {
@@ -651,5 +623,5 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
     paintMesh.material.metalness = team.finish === 'gloss' ? .32 : .25;
   }
 
-  return { setTeam, frame, author, dispose: () => { disposed = true; clearDecals(); clearWheelDetails(); for (const pending of textureCache.values()) void pending.then((item) => item.dispose()); for (const pending of decalAtlases.values()) void pending.then((item) => item.map.dispose()); paintFrom?.dispose(); if (paintTo !== paintFrom) paintTo?.dispose(); emptyPaintTexture.dispose(); textureCache.clear(); decalAtlases.clear(); }, getDebug: () => ({ team: currentTeam, decalCount: decals.length, decalIds: decals.map((item) => item.id), decalKeys: decals.map((item) => item.key), decalVertices: decals.map((item) => item.mesh.geometry.getAttribute('position').count), wheelDetails: wheelDetails.map((item) => item.name), bodyVertices: positions.count, paintAtlas: paintUniforms.uUsePaintAtlas.value === 1, paintBlend: paintUniforms.uPaintBlend.value, paintAtlasSize: paintUniforms.uUsePaintAtlas.value === 1 ? [1536, 512] : null }) };
+  return { setTeam, frame, author, dispose: () => { disposed = true; clearDecals(); clearWheelDetails(); for (const pending of textureCache.values()) void pending.then((item) => item.dispose()); for (const pending of decalAtlases.values()) void pending.then((item) => item.map.dispose()); paintFrom?.dispose(); if (paintTo !== paintFrom) paintTo?.dispose(); emptyPaintTexture.dispose(); textureCache.clear(); decalAtlases.clear(); }, getDebug: () => ({ team: currentTeam, placementAudit: [...placementAudit], decalCount: decals.length, decalIds: decals.map((item) => item.id), decalKeys: decals.map((item) => item.key), decalVertices: decals.map((item) => item.mesh.geometry.getAttribute('position').count), wheelDetails: wheelDetails.map((item) => item.name), bodyVertices: positions.count, paintAtlas: paintUniforms.uUsePaintAtlas.value === 1, paintBlend: paintUniforms.uPaintBlend.value, paintAtlasSize: paintUniforms.uUsePaintAtlas.value === 1 ? [1536, 512] : null }) };
 }
