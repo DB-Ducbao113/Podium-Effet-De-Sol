@@ -203,7 +203,8 @@ export function RaceCalendarJourney({ season }: { season: SeasonYear }) {
               <span><Globe2 size={14} aria-hidden="true" /> GEO / RACE NAVIGATION SYSTEM</span>
               <strong>{vi ? 'CẢ MÙA GIẢI. MỘT HÀNH TRÌNH.' : 'THE ENTIRE SEASON. ONE JOURNEY.'}</strong>
             </div>
-            <div className="rcj-stage-controls" role="group" aria-label={vi ? 'Chế độ bản đồ' : 'Map rendering mode'}>
+            <div className="rcj-stage-actions">
+              <div className="rcj-stage-controls" role="group" aria-label={vi ? 'Chế độ bản đồ' : 'Map rendering mode'}>
               <button type="button" disabled={!webglAvailable} aria-pressed={show3D} onClick={() => setPreferredMap('3d')}>3D</button>
               <button type="button" aria-pressed={!show3D} onClick={() => setPreferredMap('2d')}>2D</button>
               {show3D && <button type="button" className="rcj-zoom-control" aria-pressed={closeUp}
@@ -218,6 +219,7 @@ export function RaceCalendarJourney({ season }: { season: SeasonYear }) {
               <span className="rcj-view-details-icon"><ArrowUpRight size={21} aria-hidden="true" /></span>
               <span className="rcj-view-details-text">VIEW<br/>DETAILS</span>
             </Link>
+            </div>
           </header>
           <div className="rcj-stage-viewport">
             {show3D ? (
