@@ -84,7 +84,7 @@
   height: 100%;
   inset: 0;
   opacity: .42;
-  transform: translate3d(0, 0, 0);
+  transform: translate3d(0, var(--home-vector-offset, 0px), 0);
   transition: opacity 850ms ease;
   filter: drop-shadow(0 0 12px rgba(103,187,223,.14));
 }
@@ -326,6 +326,18 @@
 @keyframes home-v84-gateway-light {
   from { transform: scaleX(.05); opacity: .15; }
   to { transform: scaleX(.68); opacity: .85; }
+}
+
+
+/* Continuously scrub non-text decoration with the user's scroll position. */
+.home-v3 #race-control .home-rc__signal {
+  transform: translate3d(0, var(--home-chapter-offset, 0px), 0);
+}
+.home-v3 #championship-overview .home-title-fight__panel::before {
+  transform: translate3d(var(--home-chapter-offset, 0px), 0, 0);
+}
+.home-v3 #eds-explore .eds-explore__header-rule {
+  transform: translate3d(var(--home-chapter-offset, 0px), 0, 0);
 }
 
 /* No heavy animation on small devices, data saver or reduced motion. */
