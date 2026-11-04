@@ -1,57 +1,100 @@
-/* V8.2 AERO-01 — original 2.5D F1 Hero, no GLB/WebGL. */
+/*
+ * V8.3 — F1 Ignition. One cut-out car, composited light, shallow depth and airflow.
+ * No model, WebGL, fake telemetry measurements or pointer-trapping overlays.
+ */
 .home-pulse--f1hero {
   position: relative;
   width: 100%;
   height: 100%;
   overflow: visible;
-  pointer-events: none;
   isolation: isolate;
+  pointer-events: none;
   background: transparent;
 }
+
 .f1hero {
   position: absolute;
-  inset: -2% -5% -1% -9%;
+  inset: -3% -7% -2% -10%;
+  overflow: visible;
   pointer-events: none;
-  perspective: 1050px;
+  perspective: 1150px;
   --f1-x: 0px;
   --f1-y: 0px;
   --f1-yaw: 0deg;
   --f1-pitch: 0deg;
-  --f1-reflection-opacity: .22;
-  --f1-air-back-opacity: .35;
-  --f1-air-front-opacity: .20;
-  --f1-shine-x: 54%;
-  --f1-shine-y: 49%;
+  --f1-shine-x: 52%;
+  --f1-shine-y: 47%;
+  --f1-light-opacity: .14;
+  --f1-aero-energy: .48;
+  --f1-readout-energy: .3;
+  --f1-scroll-offset: 0px;
+  --f1-scroll-scale: 1;
 }
-.f1hero__halo {
+
+/* Wide, low-frequency lighting gives the cut-out its own stage without a road. */
+.f1hero__atmosphere {
   position: absolute;
-  inset: 8% 3% 3%;
+  inset: -12% -10% -9%;
+  z-index: -3;
   background:
-    radial-gradient(ellipse 45% 44% at 66% 49%, rgba(255,80,28,.19), transparent 84%),
-    radial-gradient(ellipse 42% 45% at 42% 61%, rgba(49,169,214,.13), transparent 78%);
-  filter: blur(16px);
+    radial-gradient(ellipse 36% 35% at 67% 48%, rgba(255, 78, 24, .18), transparent 85%),
+    radial-gradient(ellipse 43% 45% at 32% 65%, rgba(56, 158, 209, .14), transparent 84%),
+    linear-gradient(106deg, transparent 9%, rgba(111, 201, 232, .018) 45%, transparent 75%);
+  filter: blur(7px);
 }
-.f1hero__contact {
+.f1hero__launch-streak {
   position: absolute;
-  width: 79%;
-  height: 22%;
-  top: 72%;
-  left: 16%;
-  background: radial-gradient(ellipse, rgba(2,6,11,.78), rgba(255,72,25,.09) 53%, transparent 76%);
-  filter: blur(13px);
-  transform: translate3d(0, 0, 0);
+  z-index: -2;
+  top: 58%;
+  left: -28%;
+  width: 136%;
+  height: 3px;
+  transform: rotate(-16deg) scaleX(0);
+  transform-origin: 2% 50%;
+  background: linear-gradient(90deg, transparent, rgba(92, 208, 255, .26) 33%, rgba(255, 97, 38, .58) 72%, transparent);
+  box-shadow: 0 0 22px rgba(255, 93, 34, .24);
+  opacity: 0;
 }
+.f1hero__shock {
+  position: absolute;
+  z-index: -2;
+  inset: 26% 7% 9%;
+  opacity: 0;
+  transform: skewX(-24deg) scaleX(.2);
+  background: linear-gradient(105deg, transparent 27%, rgba(83, 184, 235, .10) 43%, rgba(255, 84, 28, .08) 58%, transparent 74%);
+  filter: blur(8px);
+}
+
+.f1hero__ground-shadow {
+  position: absolute;
+  z-index: -1;
+  width: 79%;
+  height: 18%;
+  top: 79%;
+  left: 16%;
+  transform: translate3d(-4px, 1px, 0) scale(var(--f1-scroll-scale));
+  background: radial-gradient(ellipse, rgba(0, 0, 0, .72), rgba(255, 89, 27, .10) 50%, transparent 75%);
+  filter: blur(12px);
+}
+
 .f1hero__vehicle {
   position: absolute;
-  inset: 1% -3% 8%;
+  z-index: 1;
+  inset: 2% -4% 8%;
   display: grid;
   place-items: center;
   transform:
-    translate3d(var(--f1-x), var(--f1-y), 28px)
+    translate3d(var(--f1-x), calc(var(--f1-y) + var(--f1-scroll-offset)), 0)
     rotateY(var(--f1-yaw))
-    rotateX(var(--f1-pitch));
+    rotateX(var(--f1-pitch))
+    scale(var(--f1-scroll-scale));
   transform-style: preserve-3d;
   will-change: transform;
+}
+.f1hero__floating {
+  position: relative;
+  width: 100%;
+  height: 100%;
 }
 .f1hero__car {
   display: block;
@@ -59,78 +102,266 @@
   height: 100%;
   object-fit: contain;
   object-position: center;
-  user-select: none;
   -webkit-user-drag: none;
-  filter: drop-shadow(0 18px 18px rgba(0,0,0,.46)) contrast(1.06) saturate(1.06);
+  user-select: none;
+  filter: drop-shadow(0 20px 18px rgba(0, 0, 0, .5)) contrast(1.035) saturate(1.045);
 }
-.f1hero__reflection {
+
+/* Use the car WebP alpha channel as a mask: highlight can never form a rectangular halo. */
+.f1hero__paint-light,
+.f1hero__metal-sweep {
   position: absolute;
-  inset: 8% 8% 12%;
-  opacity: var(--f1-reflection-opacity);
-  background: radial-gradient(
-    ellipse 24% 60% at var(--f1-shine-x) var(--f1-shine-y),
-    rgba(239,248,255,.21),
-    rgba(255,112,61,.07) 65%,
-    transparent
-  );
-  mix-blend-mode: screen;
+  inset: 0;
   pointer-events: none;
+  -webkit-mask-image: url('/media/homepage/f1-hero/peds-aero01-car.webp');
+  mask-image: url('/media/homepage/f1-hero/peds-aero01-car.webp');
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  mix-blend-mode: screen;
 }
-.f1hero__airflow {
+.f1hero__paint-light {
+  z-index: 1;
+  opacity: var(--f1-light-opacity);
+  background:
+    radial-gradient(
+      ellipse 24% 48% at var(--f1-shine-x) var(--f1-shine-y),
+      rgba(217, 242, 255, .85),
+      rgba(255, 127, 71, .35) 40%,
+      transparent 91%
+    );
+}
+.f1hero__metal-sweep {
+  z-index: 2;
+  opacity: .2;
+  background: linear-gradient(
+    108deg,
+    transparent 33%,
+    rgba(156, 219, 249, .05) 45%,
+    rgba(231, 248, 255, .43) 50%,
+    rgba(255, 111, 48, .07) 54%,
+    transparent 67%
+  );
+  background-size: 240% 100%;
+  background-position: 0% 50%;
+}
+
+/* Streamlines remain below the body except for two grazing highlights near the front wing. */
+.f1hero__aero {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   overflow: visible;
-  opacity: var(--f1-air-back-opacity);
   pointer-events: none;
+  opacity: var(--f1-aero-energy);
 }
-.f1hero__airflow--behind { z-index: -1; }
-.f1hero__airflow--front { z-index: 2; opacity: var(--f1-air-front-opacity); }
-.f1hero__airflow path { stroke-dasharray: 300 180; }
-.f1hero__microcopy {
-  position: absolute;
-  inset: auto 5% 0 5%;
-  z-index: 3;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  color: rgba(174,196,211,.66);
-  font: 600 9px/1.25 var(--peds-font-mono);
-  letter-spacing: .12em;
-  text-shadow: 0 2px 9px #06080d;
+.f1hero__aero--behind { z-index: -2; }
+.f1hero__aero--front { z-index: 2; opacity: .27; }
+.f1hero__flow {
+  stroke-linecap: round;
+  stroke-dasharray: 52 250;
+  stroke-dashoffset: 0;
+  filter: drop-shadow(0 0 5px rgba(93, 200, 248, .24));
 }
-.f1hero__microcopy span { display: inline-flex; gap: 8px; align-items: center; }
-.f1hero__microcopy i { width: 4px; height: 4px; border-radius: 50%; background: #FF6F37; }
-.home-pulse__corner {
+.f1hero__flow--a { stroke-dasharray: 112 210; }
+.f1hero__flow--b { stroke-dasharray: 90 270; }
+.f1hero__flow--c { stroke-dasharray: 36 245; }
+.f1hero__flow--d { stroke-dasharray: 125 290; }
+.f1hero__flow--e { stroke-dasharray: 85 245; }
+.f1hero__flow--f { stroke-dasharray: 50 260; }
+
+/* Callout connectors: meaningful labels, no invented downforce/pressure figures. */
+.f1hero__hud {
   position: absolute;
   z-index: 4;
-  width: 24px;
-  height: 24px;
-  border-color: rgba(255,112,58,.58);
+  pointer-events: none;
+  color: rgba(194, 222, 236, .70);
+  font: 600 9px/1.15 var(--peds-font-mono);
+  letter-spacing: .13em;
+  text-shadow: 0 2px 8px #050910;
+}
+.f1hero__hud--inlet { top: 18%; left: 9%; }
+.f1hero__hud--wake { top: 25%; right: 4%; text-align: right; }
+.f1hero__hud-index { display: block; white-space: nowrap; }
+.f1hero__hud-line {
+  display: block;
+  width: 57px;
+  height: 17px;
+  margin-top: 7px;
+  border-color: rgba(112, 205, 239, .44);
+  border-style: solid;
+  border-width: 1px 0 0 1px;
+  transform: skewX(-30deg);
+}
+.f1hero__hud--wake .f1hero__hud-line {
+  margin-left: auto;
+  border-color: rgba(255, 119, 63, .56);
+  border-width: 1px 1px 0 0;
+  transform: skewX(30deg);
+}
+.f1hero__telemetry {
+  position: absolute;
+  z-index: 4;
+  top: 7%;
+  left: 39%;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  font: 600 8px/1.2 var(--peds-font-mono);
+  color: rgba(187, 209, 222, .62);
+  letter-spacing: .12em;
+  white-space: nowrap;
+  text-shadow: 0 2px 8px #040710;
+}
+.f1hero__telemetry-bars { display: flex; gap: 3px; opacity: var(--f1-readout-energy); }
+.f1hero__telemetry-bars i {
+  display: inline-block;
+  width: 10px;
+  height: 3px;
+  background: #69C7EA;
+  transform: skewX(-22deg);
+}
+.f1hero__telemetry-bars i:nth-child(4),
+.f1hero__telemetry-bars i:nth-child(5) { background: #FF713D; }
+.f1hero__telemetry-state { color: #FF8B5B; }
+.f1hero__microcopy {
+  position: absolute;
+  z-index: 4;
+  inset: auto 5% 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  color: rgba(183, 207, 220, .61);
+  font: 600 9px/1.25 var(--peds-font-mono);
+  letter-spacing: .13em;
+  text-shadow: 0 2px 9px #02060b;
+}
+.f1hero__microcopy span { display: inline-flex; gap: 8px; align-items: center; }
+.f1hero__microcopy i { width: 4px; height: 4px; border-radius: 50%; background: #FF783E; }
+
+.home-pulse__corner {
+  position: absolute;
+  z-index: 5;
+  width: 27px;
+  height: 27px;
+  border-color: rgba(255, 115, 61, .55);
   border-style: solid;
   pointer-events: none;
 }
-.home-pulse__corner--a { top: 19%; left: 6%; border-width: 1px 0 0 1px; }
-.home-pulse__corner--b { bottom: 15%; right: 6%; border-width: 0 1px 1px 0; }
+.home-pulse__corner--a { top: 18%; left: 5%; border-width: 1px 0 0 1px; }
+.home-pulse__corner--b { bottom: 12%; right: 5%; border-width: 0 1px 1px 0; }
+
+/* Entry has a single kinetic burst; idle loops are quiet and independent. */
 @media (prefers-reduced-motion: no-preference) {
-  .r1-cinema[data-visible='true'] .f1hero__airflow path { animation: f1hero-aero-flow 17s linear infinite; }
+  .r1-cinema[data-visible='true'] .f1hero__car {
+    animation: f1hero-car-arrive 920ms cubic-bezier(.16, 1, .3, 1) both;
+  }
+  .r1-cinema[data-visible='true'] .f1hero__launch-streak {
+    animation: f1hero-launch-streak 1350ms ease-out 120ms both;
+  }
+  .r1-cinema[data-visible='true'] .f1hero__shock {
+    animation: f1hero-pressure-release 1350ms ease-out 200ms both;
+  }
+  .r1-cinema[data-visible='true'] .f1hero__metal-sweep {
+    animation: f1hero-reflect 8.4s ease-in-out 2s infinite;
+  }
+  .r1-cinema[data-visible='true'] .f1hero__flow--a { animation: f1hero-stream 6.3s linear infinite; }
+  .r1-cinema[data-visible='true'] .f1hero__flow--b { animation: f1hero-stream 7.8s linear -2.1s infinite; }
+  .r1-cinema[data-visible='true'] .f1hero__flow--c { animation: f1hero-stream 8.7s linear -5.5s infinite; }
+  .r1-cinema[data-visible='true'] .f1hero__flow--d { animation: f1hero-stream 5.8s linear -1.2s infinite; }
+  .r1-cinema[data-visible='true'] .f1hero__flow--e { animation: f1hero-stream 7s linear -3.3s infinite; }
+  .r1-cinema[data-visible='true'] .f1hero__flow--f { animation: f1hero-stream 8.2s linear -4.7s infinite; }
+  .r1-cinema[data-visible='true'] .f1hero__telemetry-bars i {
+    animation: f1hero-readout 2.1s ease-in-out infinite alternate;
+  }
+  .r1-cinema[data-visible='true'] .f1hero__telemetry-bars i:nth-child(2) { animation-delay: .2s; }
+  .r1-cinema[data-visible='true'] .f1hero__telemetry-bars i:nth-child(3) { animation-delay: .4s; }
+  .r1-cinema[data-visible='true'] .f1hero__telemetry-bars i:nth-child(4) { animation-delay: .6s; }
+  .r1-cinema[data-visible='true'] .f1hero__telemetry-bars i:nth-child(5) { animation-delay: .8s; }
+  .r1-cinema[data-visible='false'] .f1hero *,
+  .r1-cinema[data-visible='false'] .f1hero *::before,
+  .r1-cinema[data-visible='false'] .f1hero *::after { animation-play-state: paused !important; }
 }
-@keyframes f1hero-aero-flow { to { stroke-dashoffset: -960; } }
+@keyframes f1hero-car-arrive {
+  0% { opacity: 0; transform: translate3d(38px, 12px, 0) scale(.975); }
+  55% { opacity: 1; }
+  100% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+@keyframes f1hero-launch-streak {
+  0% { transform: rotate(-16deg) scaleX(0); opacity: 0; }
+  32% { opacity: 1; }
+  75% { opacity: .46; }
+  100% { transform: rotate(-16deg) scaleX(1); opacity: 0; }
+}
+@keyframes f1hero-pressure-release {
+  0% { opacity: 0; transform: skewX(-24deg) scaleX(.2); }
+  48% { opacity: .8; }
+  100% { opacity: 0; transform: skewX(-24deg) scaleX(1.55); }
+}
+@keyframes f1hero-reflect {
+  0%, 19% { background-position: 0% 50%; opacity: 0; }
+  33% { opacity: .18; }
+  52%, 100% { background-position: 100% 50%; opacity: 0; }
+}
+@keyframes f1hero-stream { to { stroke-dashoffset: -940; } }
+@keyframes f1hero-readout { to { opacity: .31; } }
+
+/* Keep the copy editorial; just give the existing actions and energy rail a little life. */
+.r1-cinema--v7 .r1-cinema__actions .r1-cinema__primary {
+  box-shadow: 0 4px 30px rgba(255, 74, 24, .17), inset 0 1px 0 rgba(255, 255, 255, .18);
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+.r1-cinema--v7 .r1-cinema__actions .r1-cinema__primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 42px rgba(255, 74, 24, .32), inset 0 1px 0 rgba(255, 255, 255, .2);
+}
+.r1-cinema--v7 .r1-cinema__actions .r1-cinema__secondary {
+  transition: transform 180ms ease, border-color 180ms ease;
+}
+.r1-cinema--v7 .r1-cinema__actions .r1-cinema__secondary:hover {
+  transform: translateY(-2px);
+  border-color: rgba(166, 225, 245, .69);
+}
 @media (max-width: 850px) {
   .f1hero { inset: -5% -5% 1%; }
-  .f1hero__vehicle { inset: 0 -4% 9%; }
-  .f1hero__microcopy { font-size: 8px; }
+  .f1hero__vehicle { inset: 1% -3% 12%; }
+  .f1hero__telemetry { top: 5%; left: 42%; }
+  .f1hero__hud--inlet { top: 25%; left: 5%; }
+  .f1hero__hud--wake { right: 3%; }
+  .f1hero__metal-sweep, .f1hero__shock { display: none; }
+  .f1hero__flow { animation: none !important; stroke-dasharray: none; }
+  .f1hero__telemetry-bars i { animation: none !important; }
 }
 @media (max-width: 500px) {
-  .f1hero { inset: -2% -7% 4%; }
-  .f1hero__vehicle { inset: 2% -3% 16%; }
-  .f1hero__microcopy { left: 7%; right: 7%; font-size: 7px; letter-spacing: .07em; }
+  .f1hero { inset: -2% -5% 3%; }
+  .f1hero__vehicle { inset: 0 -4% 14%; }
+  .f1hero__aero { opacity: .2; }
+  .f1hero__hud { font-size: 7px; letter-spacing: .05em; }
+  .f1hero__hud--inlet { left: 7%; top: 25%; }
+  .f1hero__hud--wake { right: 5%; top: 16%; }
+  .f1hero__hud-line { width: 24px; height: 12px; }
+  .f1hero__telemetry { display: none; }
+  .f1hero__microcopy { font-size: 7px; left: 7%; right: 7%; letter-spacing: .07em; }
   .f1hero__microcopy span:last-child { display: none; }
-  .f1hero__airflow { opacity: .25; }
+  .home-pulse__corner { width: 17px; height: 17px; }
 }
+/* Data Saver / low-memory gate and static preference take precedence over all visual flourish. */
+.f1hero[data-fx='lite'] .f1hero__paint-light,
+.f1hero[data-fx='lite'] .f1hero__metal-sweep,
+.f1hero[data-fx='lite'] .f1hero__shock,
+.f1hero[data-fx='lite'] .f1hero__launch-streak { display: none; }
+.f1hero[data-fx='lite'] .f1hero__flow,
+.f1hero[data-fx='lite'] .f1hero__telemetry-bars i { animation: none !important; }
 @media (prefers-reduced-motion: reduce) {
-  .f1hero__vehicle, .f1hero__airflow path, .f1hero__contact { animation: none !important; transition: none !important; }
+  .f1hero *, .f1hero *::before, .f1hero *::after,
+  .r1-cinema--v7 .r1-cinema__actions button { animation: none !important; transition: none !important; }
+  .f1hero__metal-sweep, .f1hero__shock, .f1hero__launch-streak { display: none; }
+  .f1hero__flow { stroke-dasharray: none; }
 }
-[data-text-zoom='400'] .f1hero__microcopy { display: none; }
+[data-text-zoom='400'] .f1hero__microcopy,
+[data-text-zoom='400'] .f1hero__hud,
+[data-text-zoom='400'] .f1hero__telemetry { display: none; }
