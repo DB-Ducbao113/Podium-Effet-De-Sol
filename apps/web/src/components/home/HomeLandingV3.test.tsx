@@ -22,11 +22,11 @@ describe('Homepage Cinematic V7', () => {
     expect(html).toContain('BEYOND');
     expect(html).toContain('LIMITS.');
     expect(html).toContain('LAUNCH CONTROL');
-    expect(html).not.toContain('<img');
-    expect(html).not.toContain('<picture');
-    expect(html).toContain('home-pulse__flow-labels');
-    expect(html).toContain('home-pulse__scanline');
-    expect(html).toContain('data-home-hero-visual="aerocore"');
+    expect(html).toContain('peds-aero01-car.webp');
+    expect(html).toContain('data-f1-visual="cinematic-2.5d"');
+    expect(html).toContain('f1hero__vehicle');
+    expect(html).toContain('f1hero__airflow');
+    expect(html).toContain('data-home-hero-visual="f1-2.5d"');
     expect(html).not.toContain('MODEL B / DIGITAL TWIN');
     expect(html).not.toContain('ACTIVATE 3D');
     expect(html).not.toContain('<canvas');
