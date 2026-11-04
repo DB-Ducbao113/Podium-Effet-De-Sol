@@ -50,6 +50,7 @@ describe("C1 championship presentation", () => {
     const html = render(<ChampionshipCalendar season={2026} />, '/season/2026?tab=calendar');
     expect(html).toContain('THE GRAND PRIX WORLD TOUR');
     expect(html).toContain('rcj-map-pin');
+    expect(html).toContain('data-experience="world-tour-v4"');
     expect(html).toContain('Race Center');
     expect(html).toContain('Season Journey');
   });
