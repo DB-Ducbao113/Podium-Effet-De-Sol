@@ -1,12 +1,16 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { MemoryRouter } from 'react-router-dom';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Footer } from './Footer';
-import { useNavigationStore } from '../../store/useNavigationStore';
 import { t } from '../../i18n/translations';
 
+const locale = vi.hoisted(() => ({ lang: 'en' as 'en' | 'vi' }));
+vi.mock('../../store/useNavigationStore', () => ({
+  useNavigationStore: () => ({ lang: locale.lang }),
+}));
+
 function renderFooter(lang: 'en' | 'vi') {
-  useNavigationStore.setState({ lang });
+  locale.lang = lang;
   return renderToStaticMarkup(
     <MemoryRouter>
       <Footer />
@@ -15,7 +19,7 @@ function renderFooter(lang: 'en' | 'vi') {
 }
 
 describe('Cinematic Footer / About and Credits contract', () => {
-  beforeEach(() => useNavigationStore.setState({ lang: 'en' }));
+  beforeEach(() => { locale.lang = 'en'; });
 
   it.each(['en', 'vi'] as const)('preserves attribution, official brand, routes and accessible links (%s)', (lang) => {
     const html = renderFooter(lang);
