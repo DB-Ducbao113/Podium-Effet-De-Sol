@@ -184,31 +184,31 @@ export function RaceCalendarJourney({ season }: { season: SeasonYear }) {
                   aria-label={vi ? 'Chuyển mức phóng to bản đồ' : 'Toggle globe zoom'}
                   onClick={() => setCloseUp((value) => !value)}>{closeUp ? '−' : '+'}</button>}
               </div>
-              <Link className="rcj-view-details" data-view-details
-                to={`/season/${season}?tab=calendar&round=${activeRound}`}
-                aria-label={vi ? `Xem lịch chi tiết chặng ${activeRound}: ${active?.name}` : `Calendar details for round ${activeRound}: ${active?.name}`}>
-                <ArrowUpRight size={19} aria-hidden="true" />
-                <span>{vi ? 'CHI TIẾT' : 'DETAILS'}</span>
-              </Link>
+
             </div>
           </header>
           <div className="rcj-stage-viewport">
             {show3D ? (
-              <Suspense fallback={<JourneyWorldMap season={season} calendar={calendar} activeRound={activeRound} travelProgress={travelProgress} onSelectRound={jump} lang={lang} />}>
+              <Suspense fallback={<JourneyWorldMap season={season} calendar={calendar} activeRound={activeRound} onSelectRound={jump} lang={lang} />}>
                 <JourneyGlobe3D season={season} calendar={calendar} travelProgress={travelProgress} onSelectRound={jump} lang={lang} closeUp={closeUp} />
               </Suspense>
             ) : (
-              <JourneyWorldMap season={season} calendar={calendar} activeRound={activeRound} travelProgress={travelProgress} onSelectRound={jump} lang={lang} />
+              <JourneyWorldMap season={season} calendar={calendar} activeRound={activeRound} onSelectRound={jump} lang={lang} />
             )}
           </div>
-          <div className="rcj-stage-data" aria-live="polite" aria-atomic="true">
+          {show3D && <div className="rcj-stage-data" aria-live="polite" aria-atomic="true">
             <span className="rcj-stage-counter">R{String(activeRound).padStart(2, '0')}</span>
             <div className="rcj-stage-active">
               <strong>{active?.name}</strong>
               <span>{active?.circuit} · {active?.location}</span>
               {activeChapter?.winner && <small>{vi ? 'Chiến thắng' : 'Winner'} · {activeChapter.winner.driverName}</small>}
+              <Link className="rcj-globe-details" data-view-details
+                to={`/season/${season}?tab=calendar&round=${activeRound}`}
+                aria-label={vi ? `Mở lịch chặng ${activeRound}: ${active?.name}` : `Open weekend details for round ${activeRound}: ${active?.name}`}>
+                {vi ? 'Lịch & kết quả' : 'View weekend'} <ArrowUpRight size={15} aria-hidden="true" />
+              </Link>
             </div>
-          </div>
+          </div>}
           <nav className="rcj-nav" aria-label={vi ? 'Chọn chặng trong năm' : 'Season round navigation'}>
             <div className="rcj-nav-main">
               <span className="rcj-scroll-hint">{vi ? 'CUỘN ĐỂ KHÁM PHÁ' : 'SCROLL TO TRAVEL'}</span>
