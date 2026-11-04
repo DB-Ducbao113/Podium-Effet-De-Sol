@@ -160,7 +160,7 @@ export function ChampionshipCalendar({ season }: { season: SeasonYear }) {
       });
     });
     return () => window.cancelAnimationFrame(frame);
-  }, [expandedRound]);
+  }, [expandedRound, journeyMode]);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -241,7 +241,7 @@ export function ChampionshipCalendar({ season }: { season: SeasonYear }) {
       observer?.disconnect();
       scope.revert();
     };
-  }, [motionEnabled]);
+  }, [motionEnabled, journeyMode]);
 
   useEffect(() => {
     if (
