@@ -30,7 +30,7 @@ export const EngineeringArticlePage: React.FC = () => {
   const related = getRelatedEngineeringArticles(article);
 
   return (
-    <article className="min-h-screen bg-[#090b10] text-white">
+    <article className="peds-engineering-article min-h-screen bg-[#090b10] text-white">
       <header className="border-b border-white/10">
         <div className="page-container py-10 md:py-16">
           <Link
