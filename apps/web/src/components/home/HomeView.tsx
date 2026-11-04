@@ -3,24 +3,19 @@ import { useLocation, useSearchParams } from 'react-router-dom';
 import { CALENDAR_2026 } from '../../data/championship';
 import { useChampionshipStore } from '../../store/useChampionshipStore';
 import { getCalendarRaceState } from '../../utils/raceSchedule';
-import { useReveal } from '../../hooks/useReveal';
 import { AdSlot } from '../ui/AdSlot';
-import { F1NewsTicker } from '../common/F1NewsTicker';
-import { FeaturedRace } from './FeaturedRace';
-import { HomeRaceCountdown } from './HomeRaceCountdown';
+import { HomeRaceControl } from './HomeRaceControl';
 import { HomeSeasonOverview } from './HomeSeasonOverview';
 import { HomeStoryLinks } from './HomeStoryLinks';
 import { PodiumBrandHero } from './PodiumBrandHero';
 import './homepageH1.css';
-import './homeMotionV2.css';
+import './homeLandingV3.css';
 
 export function HomeView() {
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const detailedResultsRaw = useChampionshipStore((state) => state.detailedResults?.[2026]);
   const [scheduleNow, setScheduleNow] = useState(() => Date.now());
-  const { ref: latestRef, isRevealed: latestRevealed } = useReveal(0.1);
-  const { ref: countdownRef, isRevealed: countdownRevealed } = useReveal(0.1);
 
   useEffect(() => {
     if (location.hash !== '#championship-overview') return;
@@ -38,7 +33,7 @@ export function HomeView() {
     };
   }, []);
 
-  // Retain the existing calendar and verified-results selection contract.
+  // Keep calendar and validated-results selection contracts unchanged.
   const nextRace = useMemo(() => {
     const completed = new Set(
       (Array.isArray(detailedResultsRaw) ? detailedResultsRaw : [])
@@ -55,15 +50,11 @@ export function HomeView() {
   const showAdReview = import.meta.env.DEV && searchParams.get('design-review') === 'ads';
 
   return (
-    <div className="r1-primary r1-home h1-home min-h-screen bg-studio-100">
+    <div className="r1-primary r1-home h1-home home-v3 min-h-screen bg-studio-100">
       <PodiumBrandHero />
-      <F1NewsTicker variant="hero" />
-      <div className="home-story">
-        <div id="r1-first-content" ref={latestRef} data-revealed={latestRevealed} className="h25-reveal scroll-mt-20">
-          <FeaturedRace />
-        </div>
-        <div ref={countdownRef} data-revealed={countdownRevealed} className="h25-reveal">
-          <HomeRaceCountdown race={nextRace} />
+      <div className="home-v3__content">
+        <div id="r1-first-content" className="scroll-mt-20">
+          <HomeRaceControl race={nextRace} />
         </div>
         {showAdReview && (
           <section className="page-container h1-ad-band" aria-label="Advertising placement review">
