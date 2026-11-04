@@ -75,6 +75,17 @@ No asset was added, moved or re-licensed in this stage. The proposal (schematic-
 
 All four images are decorative gateway art with empty alt text; visible titles, destination links and hover effects are rendered in HTML/CSS. The prior AI concept sheet containing recognizable team/driver branding is **NOT** imported. No owner-locked video, logo, Showroom model or disallowed EDS-G01 derivative is modified or used as a source. This feature branch is for review; no production deployment is authorized by the asset inventory.
 
+## Homepage Explore V2 — local cinematic review only (04/11/2026)
+
+A second owner-review iteration follows feedback that the four vector cards did not visually match the approved cinematic concept. Four temporary WebP crops (Showroom, Engineering, Drivers, Teams) were extracted from the generated composite concept `a_cinematic_futuristic_ui_hero_section_for_explo.png`; the prominent synthetic F1 mark on the garage wall was obscured. **They are neither four independently generated masters nor cleared production imagery.** The local owner-review package is distributed separately and is **not committed to GitHub**.
+
+- **Review directory:** `.local-assets/home-explore-v2/{showroom,engineering,drivers,teams}.webp`.
+- **DEV-only URL:** `/__peds-home-explore/{name}.webp`, registered by the Vite serve-only middleware with allowed filenames and exact byte/SHA-256 validation.
+- **Production behavior:** `HomeStoryLinks.tsx` uses previously registered unbranded P4 / original SVG fallback imagery when `import.meta.env.DEV` is false. No local-review file is present in `public/` or the production build.
+- **Source caveats:** output resolution of these concept crops is limited; independent high-resolution, rights-approved final images are still required before commercial release.
+- **Asset locks:** Homepage H3.2 film and poster, official logo, Model B and EDS-G01 remain untouched.
+
+
 ## Excluded or local-only assets
 
 - Model B Meshopt v1 is the selected Showroom runtime model at `apps/web/public/models/model-b-eds-optimized-v1.glb`; the frozen source and attribution record are under `source-assets/models/model-b/`. Its SHA-256 is `2D0091661DACE5D6C61AEBF898B4974644B44E43A5E8D10F602685C1631610A2`. The source is “Formula 1 2022 Car” by Luis Adrian V. (`luis.adrian.villagrana`) on [Sketchfab](https://sketchfab.com/3d-models/formula-1-2022-car-65dcd974798f4f03be5cdf4f79e228d8), licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). The optimized file replaces materials, removes texture dependencies, consolidates the scene, and applies quantized Meshopt delivery. The owner states that commercial use is authorized; visual, performance, and release QA remain separate gates.
