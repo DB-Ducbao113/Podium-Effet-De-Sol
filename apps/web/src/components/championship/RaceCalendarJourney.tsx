@@ -18,6 +18,7 @@ import {
 import { getCalendarRaceState, getSessionTimeRange } from '../../utils/raceSchedule';
 import { getSeasonCircuit } from '../../utils/p5SeasonalVisuals';
 import { CircuitTrace } from './CircuitTrace';
+import { JourneyWorldMap } from './JourneyWorldMap';
 import './raceCalendarJourney.css';
 
 type Mode = 'journey' | 'classic';
@@ -61,6 +62,7 @@ export function RaceCalendarJourney({ season }: { season: SeasonYear }) {
   const syncMeta = useChampionshipStore((state) => state.syncMeta);
   const [now, setNow] = useState(() => Date.now());
   const [activeRound, setActiveRound] = useState(calendar[0]?.round ?? 1);
+  const [travelProgress, setTravelProgress] = useState(0);
   const [expandedRound, setExpandedRound] = useState<number | null>(null);
   const sections = useRef(new Map<number, HTMLElement>());
 
@@ -93,8 +95,7 @@ export function RaceCalendarJourney({ season }: { season: SeasonYear }) {
     !chapter.sessions.some((s) => s.key === 'race' && s.classification?.status === 'final')
   )?.race.round ?? chapterData[chapterData.length - 1]?.race.round;
   const active = calendar.find((race) => race.round === activeRound) ?? calendar[0];
-  const activeIndex = calendar.findIndex((race) => race.round === activeRound);
-  const progress = calendar.length > 1 ? 100 * Math.max(0, activeIndex) / (calendar.length - 1) : 0;
+  const progress = calendar.length > 1 ? 100 * travelProgress / (calendar.length - 1) : 0;
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(Date.now()), 60_000);
@@ -103,19 +104,51 @@ export function RaceCalendarJourney({ season }: { season: SeasonYear }) {
 
   useEffect(() => {
     setActiveRound(calendar[0]?.round ?? 1);
+    setTravelProgress(0);
     setExpandedRound(null);
   }, [calendar]);
 
+  // Drive the traced route directly from the page's scroll position, not a decorative timer.
   useEffect(() => {
-    if (typeof IntersectionObserver === 'undefined') return;
-    const observer = new IntersectionObserver((entries) => {
-      const visible = entries.filter((entry) => entry.isIntersecting)
-        .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
-      if (visible[0]) setActiveRound(Number((visible[0].target as HTMLElement).dataset.round));
-    }, { rootMargin: '-18% 0px -42% 0px', threshold: [0, 0.2, 0.5] });
-    sections.current.forEach((element) => observer.observe(element));
-    return () => observer.disconnect();
-  }, [season, calendar]);
+    if (!calendar.length) return;
+    let frame = 0;
+    const measure = () => {
+      const guide = Math.min(window.innerHeight * 0.55, 580);
+      const tops = calendar.map((race) =>
+        sections.current.get(race.round)?.getBoundingClientRect().top ?? Number.POSITIVE_INFINITY
+      );
+      if (!Number.isFinite(tops[0]) || tops[0] > guide) {
+        setActiveRound(calendar[0].round);
+        setTravelProgress(0);
+        return;
+      }
+      let index = 0;
+      for (let i = 1; i < tops.length; i++) {
+        if (tops[i] <= guide) index = i;
+        else break;
+      }
+      const next = tops[index + 1];
+      const span = next - tops[index];
+      const fraction = Number.isFinite(next) && span > 0
+        ? Math.max(0, Math.min(1, (guide - tops[index]) / span))
+        : 0;
+      setActiveRound((previous) => previous === calendar[index].round ? previous : calendar[index].round);
+      setTravelProgress((previous) =>
+        Math.abs(previous - (index + fraction)) > 0.008 ? index + fraction : previous
+      );
+    };
+    const schedule = () => {
+      if (!frame) frame = window.requestAnimationFrame(() => { frame = 0; measure(); });
+    };
+    schedule();
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+    return () => {
+      if (frame) window.cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', schedule);
+      window.removeEventListener('resize', schedule);
+    };
+  }, [calendar]);
 
   const jump = (round: number) => {
     setActiveRound(round);
@@ -140,7 +173,7 @@ export function RaceCalendarJourney({ season }: { season: SeasonYear }) {
       <header className="rcj-hero">
         <p className="rcj-eyebrow">PODIUM EDS / SEASON {season} / THE WORLD TOUR</p>
         <h2>ONE YEAR.<span>ONE RACE.</span></h2>
-        <p className="rcj-subtitle">{vi ? 'Từ chặng mở màn đến đích cuối cùng. Lịch thi đấu và kết quả hợp nhất trong hành trình cuộn tương tác.' : 'From lights out to the final flag. The full calendar and verified results in one scroll-driven journey.'}</p>
+        <p className="rcj-subtitle">{vi ? 'Cuộn để khám phá đường đua xuyên lục địa: mỗi Grand Prix hiện lên đúng vị trí và đường sáng nối tới chặng kế tiếp.' : 'Scroll the world tour: each Grand Prix lights up on the map, with a racing line connecting every stop.'}</p>
         <div className="rcj-metrics">
           <div><strong>{calendar.length}</strong><span>{vi ? 'CHẶNG TRONG LỊCH' : 'SCHEDULED ROUNDS'}</span></div>
           <div><strong>{completedCount}</strong><span>{vi ? 'CHẶNG CÓ KẾT QUẢ' : 'RACE RESULTS'}</span></div>
@@ -172,14 +205,7 @@ export function RaceCalendarJourney({ season }: { season: SeasonYear }) {
         </div>
       </nav>
       <div className="rcj-content">
-        <aside className="rcj-atlas">
-          <div className="rcj-atlas-heading"><span>SEASON ROUTE / {season}</span><span>{Math.max(0, activeIndex + 1)} / {calendar.length}</span></div>
-          <div className="rcj-atlas-orbit" aria-hidden="true"><div className="rcj-atlas-ring"><span>EDS</span></div></div>
-          <p className="rcj-atlas-caption">{vi ? 'Bản đồ tiến trình cách điệu · không phải bản đồ địa lý' : 'Stylized progress atlas · not a geographic map'}</p>
-          <div className="rcj-atlas-identity"><span>{active?.flag} {active?.country}</span><strong>{active?.name}</strong><small>{active?.circuit}</small></div>
-          <div className="rcj-atlas-markers"><div style={{ width: `${progress}%` }} /></div>
-          <p className="rcj-atlas-footer">{vi ? 'Cuộn để đi qua từng Grand Prix. Các mốc và dữ liệu kết quả lấy từ mùa giải đang chọn.' : 'Scroll through each Grand Prix. Rounds and results follow the selected season data.'}</p>
-        </aside>
+        <JourneyWorldMap season={season} calendar={calendar} activeRound={activeRound} travelProgress={travelProgress} onSelectRound={jump} lang={lang} />
         <div className="rcj-chapters">
           {chapterData.map(({ race, sessions, confirmations, winner }) => {
             const scheduleState = getCalendarRaceState(race, now);
