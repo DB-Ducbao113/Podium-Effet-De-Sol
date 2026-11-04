@@ -134,7 +134,7 @@ export const Footer = memo(function Footer() {
               <h2>{isVi ? 'VỀ PODIUM EDS' : 'ABOUT PODIUM EDS'}</h2>
             </div>
             <div className="peds-footer__about-spotlight">
-              <span className="peds-footer__about-overline">EST. 2026 / INDEPENDENT</span>
+              <span className="peds-footer__about-overline">PROJECT / INDEPENDENT</span>
               <strong>{isVi ? 'ĐƯỢC TẠO NÊN TỪ ĐAM MÊ.' : 'BUILT FOR THE LOVE OF RACING.'}</strong>
               <p>
                 {isVi
