@@ -29,7 +29,7 @@ describe('Homepage Launch Corridor V6', () => {
     expect(environmentSource).toContain('<instancedMesh');
     expect(environmentSource).toContain('meshStandardMaterial');
     expect(environmentSource).not.toContain('<Canvas');
-    expect(environmentSource).not.toMatch(/reflector|effectComposer|bloom|shaderMaterial|shadowMap|useFrame/);
+    expect(environmentSource).not.toMatch(/<(?:Reflector|EffectComposer|Bloom|shaderMaterial)\b|shadowMap\s*=|useFrame\s*\(/);
     expect(stageSource).toContain('frameloop="demand"');
     expect(stageSource).toContain('dpr={[1, 1.35]}');
   });
