@@ -14,11 +14,11 @@ The official raster logo and its original assets (`apps/web/public/logo/logo.png
 
 ## Asset locks (P4–P8 and all future work)
 
-**MODEL B — OWNER SELECTED.** On 04/11/2026 the owner selected the attributed, rights-cleared Model B as the canonical car. The Homepage V5 may reuse the **exact verified Model B GLB** through `loadModelB` (the same loader as Showroom). Do not substitute, rewrite, re-export, retime or derive new cinematic assets from Model B unless separately approved. Homepage rendering may use lower DPR and camera presets, but must preserve geometry/material identity.
+**MODEL B — SHOWROOM ONLY (OWNER CLARIFICATION 04/11/2026).** Model B is the approved canonical 3D car, but belongs in Showroom, not on Homepage. Homepage must not import its loader, GLB, livery module, WebGL Canvas, duplicate 3D stage or EDS-G01. Keep original Model B bytes/hash and Showroom behavior unchanged.
 
 **EDS-G01 RETIRED.** EDS-G01 is no longer an active model. Never restore it to Showroom or Homepage, use it as a fallback, or derive artwork from it. Historical manifests and any legacy static paths are archival references; delete remaining files only after a dependency audit confirms zero active consumers.
 
-**HOMEPAGE VIDEO REMOVED — OWNER OVERRIDE 04/11/2026.** The owner explicitly removed Tokyo Drift/H3.2 from Homepage render/import/playback. Existing archived video and poster bytes remain untouched. The Homepage V6 hero is an interactive Model B 3D viewport in a lightweight cinematic launch corridor, lazy-loaded on desktop and available on demand on mobile, with AERO/CHASSIS/POWER camera views. The V6 environment adds a real static asphalt/pit-wall/tunnel geometry group inside the **existing** R3F Canvas, plus a separate CSS-only 2.5D perspective treatment behind the Hero; no second Canvas, reflector, volumetric effect, heavyweight textures, film, poster or new car model may be introduced. These are conceptual camera angles, not independent exploded assemblies or measured physical data. Reduced motion and WebGL error fallbacks are mandatory.
+**HOMEPAGE VIDEO REMOVED — OWNER OVERRIDE 04/11/2026.** Tokyo Drift/H3.2 and its poster are not rendered or imported by Homepage. Original archived assets remain intact. The owner's V7 correction requires a cinematic, reactive racing background behind the **entire Homepage** (Hero, Race Control, Title Fight and Explore), not a 3D environment inside a Model B panel. Implement with original CSS/SVG paths, track perspective, dynamic light and viewport-safe effects; keep it usable without WebGL, external assets or animation.
 
 **BRAND LOCK.** Never modify or replace the original PODIUM EDS logo or its companion raster assets. This extends the brand identity lock above and applies to every phase.
 
@@ -51,20 +51,20 @@ The only CSS font tokens are `--peds-font-display`, `--peds-font-ui`, `--peds-fo
 
 ## Composition and interaction
 
-The Homepage first viewport is a compact (desktop approximately 61svh with 490–650px bounds) interactive Launch Control scene in `PodiumBrandHero` plus `HomeLaunchEnvironment`, `HomeHudScene`, `HomeModelBStage` and `HomeTrackEnvironment3D`. The Hero has a CSS-based perspective tunnel plus one Model B WebGL Canvas, with no drift video or raster hero background. Model B uses demand rendering, bounded DPR and approximate camera views. The floating Navbar groups the six original destinations into four spaced desktop categories (Overview / Championship / The Grid / Engineering) with all routes available in dropdowns and mobile navigation; brand, keyboard, language and mobile hub contracts remain intact. Below it, Race Control and Title Fight provide only essential real-data previews; circuit map and driver portrait media slots remain intentionally blank until the owner approves visual assets. Deep data and image galleries belong to linked destination pages. Motion honors `prefers-reduced-motion`; content remains visible before animation initialization.
+The Homepage first viewport is a compact (approximately 58svh bounded at 460–605px desktop) text-led Launch Control Hero with original SVG/CSS racing-energy composition, not a car showcase. A single HomeCinematicBackground is mounted at the root of HomeView, beneath **all** Homepage sections. Scroll-reactive depth and a continuous racing path run behind Race Control, Title Fight and Explore; content remains HTML with clear contrast. Navbar remains the spacious V5 grouped control bar; existing route, keyboard and language contracts remain intact. Driver-photo and circuit-map media slots stay blank. Reduced motion disables movement, and hiding the tab pauses loops.
 
 Shared primitives consume the tokens above: `Button` (primary, outline, secondary, ghost, danger), `Tabs` (tab and chip), `Card` (panel rule), `SectionHeading` (display heading and eyebrow), the table header/row rule, and the global focus ring. Pages must not introduce parallel colour or type scales.
 
 Navigation behaves like an instrument rail. Championship standings promote the first three classified entries into a podium field, while results remain a dense, keyboard-accessible classification document. Focus states, text spacing, bilingual layout and 200%/400% zoom must remain usable.
 
-### Homepage V6.1–V6.2 rendering and review contract
+### Homepage V7 full-page cinematic review contract
 
-- The car is the unaltered approved Model B; the new track floor, wall and light bars are project-original geometry aligned with its normalized long Z-axis, and **do not** represent a real named circuit or verified vehicle telemetry.
-- V6.1 uses DOM/CSS only for deep horizon, light beams, track perspective and speed lines outside the Canvas; V6.2 adds instanced low-poly architecture inside the existing demand-driven R3F Canvas.
-- Avoid continuous WebGL rendering. Static environment instances invalidate once on mount; camera presets invalidate only while transitioning. Pause CSS loops off viewport; honor reduced-motion preferences.
-- Do not obscure the Model B under overhead crossbars on the CHASSIS top-camera preset. Never create dynamic shadows, reflections, extra renderers or unbounded particles.
-- Driver photos and circuit-map placeholders are unchanged. Navbar V5 and all linked destinations remain outside the V6 scope.
-- Browser QA must explicitly compare AERO/CHASSIS/POWER camera visibility, local Model B loading/fallback, desktop/mobile, 200%/400% zoom and WebGL unavailable behavior. GitHub CI is necessary but is not sufficient to approve visual release.
+- The background is **one root-level atmosphere shared by all sections**, not an isolated Hero component. It must have visible visual continuity behind Race Control, Title Fight and Explore.
+- Hero focuses on kinetic F1 racing identity: original start lights, corner/aero lines and animated trajectory. Model B/EDS-G01 are not imported to Homepage, and no Showroom 3D stage is duplicated.
+- Use CSS perspective and SVG paths only; no second WebGL renderer, video, model fetch, heavy reflection pass or unlicensed background photograph. Mouse parallax and scroll depth are capped; moving layers must ignore pointer events.
+- Reduced motion must render the full visual without movement; video-free Hero works on WebGL-disabled devices; screen-reader navigation remains unchanged.
+- Keep verified data and real page routes unchanged. Empty driver portraits and circuit-map frames stay for a later asset pass.
+- QA: verify the entire page on mobile and desktop, 200%/400% zoom, readable content overlays, scroll from Hero to Explore, tab-hide pause, menu interactions and WebGL-disabled behavior. CI alone never implies visual acceptance.
 
 ## Release boundary
 
