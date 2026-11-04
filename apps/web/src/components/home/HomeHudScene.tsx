@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { CSSProperties } from 'react';
 import { Activity, CircuitBoard, Gauge } from 'lucide-react';
+import './homeHudV4.css';
 
 type Mode = 'aero' | 'chassis' | 'power';
 
