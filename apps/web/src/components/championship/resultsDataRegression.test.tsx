@@ -51,10 +51,16 @@ describe("Results data selection against the live season data", () => {
 
   it("resolves a link without a round to the latest verified round", () => {
     expect(latest).not.toBeNull();
-    const html = render("/season/2026?tab=results");
+    const html = render("/season/2026?tab=results&view=classic");
     expect(html).toContain(`ROUND ${String(latest).padStart(2, "0")}`);
   });
 
+  it("presents the season map and scroll route by default", () => {
+    const html = render("/season/2026?tab=results");
+    expect(html).toContain('THE GRAND PRIX WORLD TOUR');
+    expect(html).toContain('rcj-map-pin');
+    expect(html).toContain('R23');
+  });
   it("keeps a deep link to a verified round and session", () => {
     const round = latest as number;
     const [session] = getAvailableSessions(sources, round);
