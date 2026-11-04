@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowDown, ArrowRight, CalendarDays, Flag, MapPin, Trophy } from 'lucide-react';
+import { ArrowDown, ArrowRight, CalendarDays, Flag, MapPin, Trophy, Globe2 } from 'lucide-react';
 import { getCalendarBySeason } from '../../data/championship';
 import { getRaceResults } from '../../data/championship/results';
 import openF1SessionResults from '../../data/championship/openF1SessionResults2026.json';
@@ -20,6 +20,9 @@ import { getSeasonCircuit } from '../../utils/p5SeasonalVisuals';
 import { CircuitTrace } from './CircuitTrace';
 import { JourneyWorldMap } from './JourneyWorldMap';
 import './raceCalendarJourney.css';
+
+// Heavy WebGL code is only fetched after the user opens the Journey on a capable device.
+const JourneyGlobe3D = lazy(() => import('./JourneyGlobe3D').then((module) => ({ default: module.JourneyGlobe3D })));
 
 type Mode = 'journey' | 'classic';
 type SessionState = 'final' | 'provisional' | 'awaiting' | 'scheduled';
@@ -64,6 +67,10 @@ export function RaceCalendarJourney({ season }: { season: SeasonYear }) {
   const [activeRound, setActiveRound] = useState(calendar[0]?.round ?? 1);
   const [travelProgress, setTravelProgress] = useState(0);
   const [expandedRound, setExpandedRound] = useState<number | null>(null);
+  const [webglAvailable, setWebglAvailable] = useState(false);
+  const [auto3D, setAuto3D] = useState(false);
+  const [preferredMap, setPreferredMap] = useState<'3d' | '2d' | null>(null);
+  const [closeUp, setCloseUp] = useState(false);
   const sections = useRef(new Map<number, HTMLElement>());
 
   const sources: ResultDataSources = useMemo(() => ({
@@ -95,7 +102,31 @@ export function RaceCalendarJourney({ season }: { season: SeasonYear }) {
     !chapter.sessions.some((s) => s.key === 'race' && s.classification?.status === 'final')
   )?.race.round ?? chapterData[chapterData.length - 1]?.race.round;
   const active = calendar.find((race) => race.round === activeRound) ?? calendar[0];
+  const activeChapter = chapterData.find((chapter) => chapter.race.round === activeRound);
+  const activeRaceClassification = activeChapter?.sessions.find((entry) => entry.key === 'race')?.classification;
+  const activeRaceStatus = activeRaceClassification?.status === 'final'
+    ? (vi ? 'KẾT QUẢ CHÍNH THỨC' : 'RACE CLASSIFICATION')
+    : activeChapter?.confirmations ? (vi ? 'ĐÃ CÓ KẾT QUẢ PHIÊN' : 'SESSION RESULTS AVAILABLE')
+    : active ? (getCalendarRaceState(active, now) === 'current' ? (vi ? 'ĐANG DIỄN RA' : 'RACE WEEKEND') : (vi ? 'THEO LỊCH MÙA GIẢI' : 'SEASON SCHEDULE'))
+    : '';
+  const show3D = webglAvailable && (preferredMap === '3d' || (preferredMap === null && auto3D));
   const progress = calendar.length > 1 ? 100 * travelProgress / (calendar.length - 1) : 0;
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    const canvas = document.createElement('canvas');
+    let supported = false;
+    try {
+      const context = canvas.getContext('webgl2') || canvas.getContext('webgl');
+      supported = Boolean(context);
+      context?.getExtension('WEBGL_lose_context')?.loseContext();
+    } catch { supported = false; }
+    setWebglAvailable(supported);
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const weak = typeof navigator !== 'undefined' &&
+      typeof navigator.hardwareConcurrency === 'number' && navigator.hardwareConcurrency <= 2;
+    setAuto3D(supported && !reduced && !weak && window.innerWidth >= 750);
+  }, []);
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(Date.now()), 60_000);
@@ -205,7 +236,46 @@ export function RaceCalendarJourney({ season }: { season: SeasonYear }) {
         </div>
       </nav>
       <div className="rcj-content">
-        <JourneyWorldMap season={season} calendar={calendar} activeRound={activeRound} travelProgress={travelProgress} onSelectRound={jump} lang={lang} />
+        <div className="rcj-map-stage">
+          <header className="rcj-stage-top">
+            <div className="rcj-stage-heading">
+              <span><Globe2 size={14} aria-hidden="true" /> GEO / RACE NAVIGATION SYSTEM</span>
+              <strong>{vi ? 'CẢ MÙA GIẢI. MỘT HÀNH TRÌNH.' : 'THE ENTIRE SEASON. ONE JOURNEY.'}</strong>
+            </div>
+            <div className="rcj-stage-controls" role="group" aria-label={vi ? 'Chế độ bản đồ' : 'Map rendering mode'}>
+              <button type="button" disabled={!webglAvailable} aria-pressed={show3D} onClick={() => setPreferredMap('3d')}>3D</button>
+              <button type="button" aria-pressed={!show3D} onClick={() => setPreferredMap('2d')}>2D</button>
+              {show3D && <button type="button" className="rcj-zoom-control" aria-pressed={closeUp}
+                onClick={() => setCloseUp((value) => !value)}>{closeUp ? '−' : '+'}</button>}
+            </div>
+          </header>
+          <div className="rcj-stage-viewport">
+            {show3D ? (
+              <Suspense fallback={<JourneyWorldMap season={season} calendar={calendar} activeRound={activeRound} travelProgress={travelProgress} onSelectRound={jump} lang={lang} />}>
+                <JourneyGlobe3D season={season} calendar={calendar} travelProgress={travelProgress} onSelectRound={jump} lang={lang} closeUp={closeUp} />
+              </Suspense>
+            ) : (
+              <JourneyWorldMap season={season} calendar={calendar} activeRound={activeRound} travelProgress={travelProgress} onSelectRound={jump} lang={lang} />
+            )}
+            <div className="rcj-stage-edge" aria-hidden="true"/>
+          </div>
+          <div className="rcj-stage-data" aria-live="polite" aria-atomic="true">
+            <div className="rcj-stage-counter"><span>R{String(activeRound).padStart(2, '0')}</span><small>/ {String(calendar.length).padStart(2, '0')}</small></div>
+            <div className="rcj-stage-active">
+              <span>{activeRaceStatus}</span>
+              <strong>{active?.flag} {active?.name}</strong>
+              <p>{active?.circuit} · {active?.location} · {active?.dates}</p>
+            </div>
+            <div className="rcj-stage-winner">
+              {activeChapter?.winner ? <><Trophy size={18} aria-hidden="true" /><span>{vi ? 'CHIẾN THẮNG CHẶNG' : 'RACE WINNER'}<strong>{activeChapter.winner.driverName}</strong></span></>
+                : <><Flag size={18} aria-hidden="true" /><span>{vi ? 'LỊCH & KẾT QUẢ' : 'CALENDAR / RESULTS'}<strong>{activeChapter?.confirmations ?? 0} / {activeChapter?.sessions.length ?? 0} SESSIONS</strong></span></>}
+            </div>
+          </div>
+          <div className="rcj-stage-bottom">
+            <span>{vi ? 'KÉO ĐỂ DU HÀNH' : 'SCROLL TO TRAVEL'} · {String(Math.max(0, Math.min(100, progress)).toFixed(0))}%</span>
+            <span>{show3D ? (vi ? 'ĐỊA CẦU 3D' : '3D GLOBE') : (vi ? 'BẢN ĐỒ 2D' : '2D ATLAS')} · {season}</span>
+          </div>
+        </div>
         <div className="rcj-chapters">
           {chapterData.map(({ race, sessions, confirmations, winner }) => {
             const scheduleState = getCalendarRaceState(race, now);
