@@ -135,7 +135,9 @@ describe("commercial visual isolation", () => {
     // Explicit owner override on 04/11/2026: film bytes remain archived,
     // but its source, playback controls and poster must not be imported by Home.
     const heroSource = readFileSync("src/components/home/PodiumBrandHero.tsx", "utf8");
-    expect(heroSource).toContain("import { HomeHudScene } from './HomeHudScene'");
+    expect(heroSource).toContain("import { HomeRacePulseScene } from './HomeRacePulseScene'");
+    expect(heroSource).not.toContain('HomeModelBStage');
+    expect(heroSource).not.toContain('loadModelB');
     expect(heroSource).not.toContain('<picture');
     expect(heroSource).not.toContain('<img');
     expect(heroSource).toContain('r1-cinema__scene');
