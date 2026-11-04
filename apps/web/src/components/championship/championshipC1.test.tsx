@@ -50,11 +50,16 @@ describe("C1 championship presentation", () => {
     const html = render(<ChampionshipCalendar season={2026} />, '/season/2026?tab=calendar');
     expect(html).toContain('THE GRAND PRIX WORLD TOUR');
     expect(html).toContain('rcj-map-pin');
-    expect(html).toContain('data-experience="world-tour-v4"');
+    expect(html).toContain('data-experience="world-tour-v5"');
     expect(html).toContain('Race Center');
     expect(html).toContain('Season Journey');
   });
-  it("filters rounds by schedule state and exposes the next race", () => {
+  it("opens the full calendar for the selected round via View Details", () => {
+    const html = render(<ChampionshipCalendar season={2026} />, '/season/2026?tab=calendar&round=1');
+    expect(html).toContain('calendar-round-1');
+    expect(html).not.toContain('data-experience="world-tour-v5"');
+  });
+    it("filters rounds by schedule state and exposes the next race", () => {
     const now = Date.now();
     const completedRounds = CALENDAR_2026.filter(
       (race) => getCalendarRaceState(race, now) === "completed",
