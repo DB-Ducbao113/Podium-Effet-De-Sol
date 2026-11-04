@@ -7,7 +7,7 @@ import { JourneyViewSwitch, RaceCalendarJourney } from './RaceCalendarJourney';
 export const RaceResults: React.FC<{ season: SeasonYear }> = React.memo(({ season }) => {
   const location = useLocation();
   const [mode, setMode] = useState<'journey' | 'classic'>(() =>
-    new URLSearchParams(location.search).has('round') ? 'classic' : 'journey'
+    new URLSearchParams(location.search).get('journey') === '1' ? 'journey' : 'classic'
   );
 
   useEffect(() => {
