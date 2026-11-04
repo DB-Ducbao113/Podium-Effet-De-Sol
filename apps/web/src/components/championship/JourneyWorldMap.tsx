@@ -4,6 +4,10 @@ import type { GrandPrixRound, SeasonYear } from '../../types';
 import { JOURNEY_WORLD_LAND_PATH } from './journeyWorldAtlas';
 import { resolveCircuit, type Geo } from './journeyCoordinates';
 
+type Waypoint = { race: GrandPrixRound; x: number; y: number; longitude: number; latitude: number };
+const WIDTH = 1000;
+const HEIGHT = 500;
+
 const project = ({ longitude, latitude }: Geo) => ({
   x: (longitude + 180) / 360 * WIDTH,
   y: (90 - latitude) / 180 * HEIGHT,
