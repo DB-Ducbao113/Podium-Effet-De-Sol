@@ -51,6 +51,10 @@ export const Navbar = memo(function Navbar() {
         return location.pathname === '/'
           ? hubHash !== '#showroom' && hubHash !== '#giai-dau'
           : onHub && hubHash === '#home';
+      case 'championship':
+        return seasonSection === 'results' || seasonSection === 'standings' || (onHub && hubHash === '#giai-dau');
+      case 'grid':
+        return isActive('drivers') || isActive('teams');
       case 'results':
         return seasonSection === 'results';
       case 'standings':
@@ -68,6 +72,41 @@ export const Navbar = memo(function Navbar() {
     }
   };
   const isChildActive = (to: string) => to === currentUrl;
+  // Desktop V5 deliberately shows four well-spaced categories instead of
+  // squeezing six destinations together. Mobile keeps every original item.
+  const resultsItem = items.find((item) => item.id === 'results')!;
+  const standingsItem = items.find((item) => item.id === 'standings')!;
+  const driversItem = items.find((item) => item.id === 'drivers')!;
+  const teamsItem = items.find((item) => item.id === 'teams')!;
+  const engineeringItem = items.find((item) => item.id === 'engineering')!;
+  const overviewItem = items.find((item) => item.id === 'overview')!;
+  const desktopItems: NavItem[] = [
+    overviewItem,
+    {
+      id: 'championship',
+      label: isVi ? 'Giải đấu' : 'Championship',
+      to: isActive('standings') ? standingsItem.to : resultsItem.to,
+      icon: resultsItem.icon,
+      children: [
+        { id: 'champ-results', label: resultsItem.label, to: resultsItem.to },
+        ...resultsItem.children!,
+        { id: 'champ-standings', label: standingsItem.label, to: standingsItem.to },
+        ...standingsItem.children!,
+      ],
+    },
+    {
+      id: 'grid',
+      label: isVi ? 'Đội hình' : 'The Grid',
+      to: isActive('teams') ? teamsItem.to : driversItem.to,
+      icon: driversItem.icon,
+      children: [
+        { id: 'grid-drivers', label: driversItem.label, to: driversItem.to },
+        { id: 'grid-teams', label: teamsItem.label, to: teamsItem.to },
+      ],
+    },
+    engineeringItem,
+  ];
+
   const showroomActive = isActive('showroom');
 
   const hubParams = new URLSearchParams(location.search);
@@ -122,7 +161,7 @@ export const Navbar = memo(function Navbar() {
   }, [menuOpen]);
 
   useEffect(() => {
-    const query = window.matchMedia('(min-width: 1280px)');
+    const query = window.matchMedia('(min-width: 1180px)');
     const onChange = () => {
       if (!query.matches) return;
       setMenuOpen(false);
@@ -197,7 +236,7 @@ export const Navbar = memo(function Navbar() {
           <OfficialBrandLogo size="sm" variant="full" className="h1-nav__brand-logo" />
         </Link>
         <nav className="h1-nav__desktop" aria-label={isVi ? 'Điều hướng chính' : 'Main navigation'}>
-          {items.map((item) => {
+          {desktopItems.map((item) => {
             const active = isActive(item.id);
             const dismissed = dismissedDropdown === item.id;
             const dropdownOpen = (openDropdown === item.id || focusedGroup === item.id) && !dismissed;
