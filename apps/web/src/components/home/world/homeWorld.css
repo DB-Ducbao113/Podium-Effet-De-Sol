@@ -82,6 +82,20 @@
 .h25-home-route[data-home-v9='true'] .peds-footer__feature {
   border-color: rgba(141, 196, 219, .31);
 }
+
+/* V9 replaces the redundant V8 neon streamlines, but retains the real car,
+   silhouette-masked light and its pointer motion. The world handles the flow. */
+.h25-home-route[data-home-v9='true'] .f1hero__aero,
+.h25-home-route[data-home-v9='true'] .f1hero__hud,
+.h25-home-route[data-home-v9='true'] .f1hero__telemetry,
+.h25-home-route[data-home-v9='true'] .f1hero__launch-streak,
+.h25-home-route[data-home-v9='true'] .f1hero__shock,
+.h25-home-route[data-home-v9='true'] .f1hero__atmosphere {
+  display: none;
+}
+.h25-home-route[data-home-v9='true'] .home-v3__content::before { opacity: .12; }
+.h25-home-route[data-home-v9='true'] .peds-footer__aero-art { opacity: .63; }
+
 /* Developer laboratory */
 .v9-lab {
   position: relative;
