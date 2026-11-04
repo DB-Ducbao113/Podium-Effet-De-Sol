@@ -104,7 +104,7 @@
   border-radius: 5px;
   color: #f4f0e8;
   background: rgba(255,74,24,.17);
-  font: 700 11px var(--peds-font-mono);
+  font: 600 11px var(--peds-font-mono);
   text-decoration: none;
   cursor: pointer;
 }
