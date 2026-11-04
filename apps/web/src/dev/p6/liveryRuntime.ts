@@ -4,13 +4,13 @@ import type { TeamLivery } from './teamLiveries';
 import { artwork, type ArtworkKey } from './officialArtwork';
 import { createPaintAtlas, type PrecisionTeam } from './paintAtlas';
 import { liveryDefinitions, type SurfaceAnchorMap } from './liveryDefinitions';
-import { fitModelBSurface, surfaceLimitsForArtwork, type SurfaceProbe } from './modelBSurfaceAudit';
+import { fitModelBSurface, surfaceLimitsForArtwork, type SurfacePlacement, type SurfaceProbe } from './modelBSurfaceAudit';
 
 type Decal = { mesh: THREE.Mesh; key: ArtworkKey; id: string };
 type AtlasRect = { u: number; v: number; w: number; h: number };
 type DecalAtlas = { map: THREE.CanvasTexture; rects: Partial<Record<ArtworkKey, AtlasRect>> };
 const vector = new THREE.Vector3();
-type PlacementAudit = { id: string; state: 'placed' | 'adapted' | 'unplaced' | 'blocked'; reason: string; coverage?: number; normalDegrees?: number; stretchRatio?: number };
+type PlacementAudit = { id: string; state: 'placed' | 'adapted' | 'unplaced' | 'blocked'; reason: string; coverage?: number; normalDegrees?: number; stretchRatio?: number; depthRange?: number; anchor?: SurfaceAnchorMap };
 const REVIEW_BLOCKED_ARTWORK = new Set<ArtworkKey>(['velo', 'allwyn']);
 const PLANAR_MARK_IDS = new Set([
   'mclaren-dropbox-right',
@@ -117,6 +117,7 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
   paintMesh.material.needsUpdate = true;
   const decals: Decal[] = [];
   let placementAudit: PlacementAudit[] = [];
+  const placementCache = new Map<string, SurfacePlacement>();
   const wheelDetails: THREE.Mesh[] = [];
   const authorOverrides = new Map<string, SurfaceAnchorMap>();
   const undoStack: string[] = [];
@@ -429,18 +430,23 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
       const needsPlanar = PLANAR_MARK_IDS.has(entry.id)
         || entry.id.endsWith('-rear-wing-main') || entry.id.endsWith('-wing-endplate-right');
       const limits = surfaceLimitsForArtwork(entry.artwork);
-      const placement = fitModelBSurface(targetMesh, requested, needsPlanar ? { ...limits, maxDepthRange: 0.018 } : limits);
+      const cacheKey = entry.id + '|' + JSON.stringify(requested) + (needsPlanar ? '|planar' : '|curved');
+      let placement = placementCache.get(cacheKey);
+      if (!placement) {
+        placement = fitModelBSurface(targetMesh, requested, needsPlanar ? { ...limits, maxDepthRange: 0.018 } : limits);
+        placementCache.set(cacheKey, placement);
+      }
       const { anchor, probe } = placement;
       if (!probe.accepted) {
         placementAudit.push({
           id: entry.id, state: 'unplaced', reason: probe.reason,
-          coverage: probe.coverage, normalDegrees: probe.normalSpreadDegrees, stretchRatio: probe.stretchRatio,
+          coverage: probe.coverage, normalDegrees: probe.normalSpreadDegrees, stretchRatio: probe.stretchRatio, depthRange: probe.depthRange, anchor,
         });
         continue;
       }
       const auditRow: PlacementAudit = {
         id: entry.id, state: placement.adapted ? 'adapted' : 'placed', reason: 'geometry-preflight-passed',
-        coverage: probe.coverage, normalDegrees: probe.normalSpreadDegrees, stretchRatio: probe.stretchRatio,
+        coverage: probe.coverage, normalDegrees: probe.normalSpreadDegrees, stretchRatio: probe.stretchRatio, depthRange: probe.depthRange, anchor,
       };
       placementAudit.push(auditRow);
       const decalsBefore = decals.length;
@@ -560,6 +566,7 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
   function snapshot() { return JSON.stringify(Object.fromEntries(authorOverrides)); }
   function restore(serialized: string) {
     authorOverrides.clear();
+    placementCache.clear();
     for (const [id, value] of Object.entries(JSON.parse(serialized) as Record<string, SurfaceAnchorMap>)) authorOverrides.set(id, value);
     localStorage.setItem(authorStorageKey, snapshot());
     if (currentTeam && activeAtlas) renderDecals({ id: currentTeam }, activeAtlas);
@@ -570,6 +577,7 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
     if (!before || (before.locked && patch.locked !== false)) return false;
     if (record) { undoStack.push(snapshot()); if (undoStack.length > 80) undoStack.shift(); redoStack.length = 0; }
     authorOverrides.set(id, { ...before, ...patch });
+    placementCache.clear();
     localStorage.setItem(authorStorageKey, snapshot());
     if (currentTeam && activeAtlas) renderDecals({ id: currentTeam }, activeAtlas);
     return true;
@@ -627,5 +635,5 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
     paintMesh.material.metalness = team.finish === 'gloss' ? .32 : .25;
   }
 
-  return { setTeam, frame, author, dispose: () => { disposed = true; clearDecals(); clearWheelDetails(); for (const pending of textureCache.values()) void pending.then((item) => item.dispose()); for (const pending of decalAtlases.values()) void pending.then((item) => item.map.dispose()); paintFrom?.dispose(); if (paintTo !== paintFrom) paintTo?.dispose(); emptyPaintTexture.dispose(); textureCache.clear(); decalAtlases.clear(); }, getDebug: () => ({ team: currentTeam, placementAudit: [...placementAudit], decalCount: decals.length, decalIds: decals.map((item) => item.id), decalKeys: decals.map((item) => item.key), decalVertices: decals.map((item) => item.mesh.geometry.getAttribute('position').count), wheelDetails: wheelDetails.map((item) => item.name), bodyVertices: positions.count, paintAtlas: paintUniforms.uUsePaintAtlas.value === 1, paintBlend: paintUniforms.uPaintBlend.value, paintAtlasSize: paintUniforms.uUsePaintAtlas.value === 1 ? [1536, 512] : null }) };
+  return { setTeam, frame, author, dispose: () => { disposed = true; placementCache.clear(); clearDecals(); clearWheelDetails(); for (const pending of textureCache.values()) void pending.then((item) => item.dispose()); for (const pending of decalAtlases.values()) void pending.then((item) => item.map.dispose()); paintFrom?.dispose(); if (paintTo !== paintFrom) paintTo?.dispose(); emptyPaintTexture.dispose(); textureCache.clear(); decalAtlases.clear(); }, getDebug: () => ({ team: currentTeam, placementAudit: [...placementAudit], decalCount: decals.length, decalIds: decals.map((item) => item.id), decalKeys: decals.map((item) => item.key), decalVertices: decals.map((item) => item.mesh.geometry.getAttribute('position').count), wheelDetails: wheelDetails.map((item) => item.name), bodyVertices: positions.count, paintAtlas: paintUniforms.uUsePaintAtlas.value === 1, paintBlend: paintUniforms.uPaintBlend.value, paintAtlasSize: paintUniforms.uUsePaintAtlas.value === 1 ? [1536, 512] : null }) };
 }
