@@ -3,6 +3,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { HomeCinematicBackground } from './HomeCinematicBackground';
 import { HomeRacePulseScene } from './HomeRacePulseScene';
+import { HomeJourneyMotion } from './journey/HomeJourneyMotion';
 
 const root = 'src/components/home';
 const home = readFileSync(root + '/HomeView.tsx', 'utf8');
@@ -12,6 +13,7 @@ const background = readFileSync(root + '/HomeCinematicBackground.tsx', 'utf8');
 describe('Homepage V8.2 — V7 DOM contract and model-free F1 Hero', () => {
   it('keeps one full-page environment and all four content sections', () => {
     expect(home).toContain('<HomeCinematicBackground />');
+    expect(home).toContain('<HomeJourneyMotion />');
     expect(home).toContain('<PodiumBrandHero />');
     expect(home).toContain('<HomeRaceControl race={nextRace} />');
     expect(home).toContain('<HomeSeasonOverview />');
@@ -20,6 +22,15 @@ describe('Homepage V8.2 — V7 DOM contract and model-free F1 Hero', () => {
     expect(html).toContain('data-home-environment="full-page"');
     expect(html).toContain('data-aerocore-mode="fallback"');
     expect(html).not.toMatch(/<canvas|<img|<video|<picture/i);
+  });
+  it('coordinates the entire Homepage as four motion chapters with no extra canvas', () => {
+    const journey = renderToStaticMarkup(<HomeJourneyMotion />);
+    expect(journey).toContain('data-home-storyboard="four-chapters"');
+    expect(journey).toContain('home-journey__rail-fill');
+    expect(journey).toContain('home-journey__wash--control');
+    expect(journey).toContain('home-journey__wash--fight');
+    expect(journey).toContain('home-journey__wash--explore');
+    expect(journey).not.toMatch(/<canvas|<video|<img/i);
   });
   it('displays an original 2.5D F1 illustration without road, track or WebGL', () => {
     const html = renderToStaticMarkup(<HomeRacePulseScene />);
