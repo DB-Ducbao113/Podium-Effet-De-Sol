@@ -7,7 +7,7 @@ import openF1SessionResults from '../../data/championship/openF1SessionResults20
 import { findCircuitByName } from '../../data/championship/circuitsData';
 import { useChampionshipStore } from '../../store/useChampionshipStore';
 import { useNavigationStore } from '../../store/useNavigationStore';
-import type { GrandPrixRound, SeasonYear } from '../../types';
+import type { SeasonYear } from '../../types';
 import type { GrandPrixPracticeData } from '../../types/practice';
 import type { GrandPrixQualifyingData } from '../../types/qualifying';
 import {
@@ -120,7 +120,7 @@ export function RaceCalendarJourney({ season }: { season: SeasonYear }) {
       const context = canvas.getContext('webgl2') || canvas.getContext('webgl');
       supported = Boolean(context);
       context?.getExtension('WEBGL_lose_context')?.loseContext();
-    } catch { supported = false; }
+    } catch { /* WebGL unavailable: retain the non-GPU 2D map. */ }
     setWebglAvailable(supported);
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const weak = typeof navigator !== 'undefined' &&
