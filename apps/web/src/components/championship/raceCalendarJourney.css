@@ -343,33 +343,34 @@
   overflow: visible;
 }
 .rcj-map-number { cursor: pointer; outline: none; }
+/* Soft glass coordinates: keep every Rxx readable without hard badge frames.
+   SVG rects cannot reliably use backdrop-filter, so translucency comes from fill. */
 .rcj-map-number rect {
-  fill: #0c2130;
-  stroke: #6f8a96;
-  stroke-opacity: .75;
-  stroke-width: .85;
-  transition: fill .15s ease, stroke .15s ease;
+  fill: rgba(5, 19, 34, .43);
+  stroke: rgba(160, 191, 203, .16);
+  stroke-width: .65;
+  transition: fill .18s ease, stroke .18s ease;
 }
 .rcj-map-number text {
-  fill: #e1e8e9;
+  fill: #e4edf0;
   pointer-events: none;
-  font: 700 10.5px var(--peds-font-mono, monospace);
-  letter-spacing: .02em;
+  font: 700 10px var(--peds-font-mono, monospace);
+  letter-spacing: .015em;
 }
 .rcj-map-number:is(:hover, :focus-visible) rect,
 .rcj-map-number[data-selected="true"] rect {
-  fill: #d85029;
-  stroke: #f4f0e8;
+  fill: rgba(255, 74, 24, .18);
+  stroke: rgba(255, 166, 132, .48);
 }
 .rcj-map-number:is(:hover, :focus-visible) text,
-.rcj-map-number[data-selected="true"] text { fill: #09121c; }
+.rcj-map-number[data-selected="true"] text { fill: #fff5ef; }
 .rcj-map-number[data-active="true"] rect {
-  fill: #ff4a18;
-  stroke: #ffcfbb;
-  stroke-width: 1.15;
+  fill: rgba(255, 74, 24, .23);
+  stroke: rgba(255, 186, 160, .38);
+  stroke-width: .9;
 }
-.rcj-map-number[data-active="true"] text { fill: #06111c; }
-.rcj-map-number:focus-visible rect { stroke: white; stroke-width: 2; }
+.rcj-map-number[data-active="true"] text { fill: #fff7f2; }
+.rcj-map-number:focus-visible rect { stroke: rgba(255, 255, 255, .92); stroke-width: 1.5; }
 .rcj-map-key {
   position: absolute;
   z-index: 5;
@@ -386,6 +387,7 @@
 }
 .rcj-map-key span { display: inline-flex; gap: 6px; align-items: center; }
 .rcj-map-key i { width: 7px; height: 7px; background: #ff4a18; border-radius: 50%; }
+/* Borderless, low-contrast glass HUD — a quiet part of the atlas, not a card. */
 .rcj-map-selection {
   position: absolute;
   z-index: 8;
@@ -393,67 +395,72 @@
   bottom: 115px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  width: min(315px, calc(100vw - 44px));
-  padding: 15px 19px 16px;
+  gap: 7px;
+  width: min(305px, calc(100vw - 44px));
+  padding: 14px 17px 13px;
   color: #f4f0e8;
-  background: linear-gradient(108deg, #081a26ef, #071824e5);
-  backdrop-filter: blur(10px);
-  border-left: 2px solid #ff4a18;
-  box-shadow: 0 12px 36px #0006;
+  background: linear-gradient(110deg, rgba(5, 19, 34, .62), rgba(5, 19, 34, .42));
+  -webkit-backdrop-filter: blur(10px) saturate(115%);
+  backdrop-filter: blur(10px) saturate(115%);
+  border: 0;
+  border-radius: 9px;
+  box-shadow: none;
 }
 .rcj-map-selection-round {
-  color: #ff9a71;
-  font: 700 11px var(--peds-font-mono, monospace);
+  color: #ffa27e;
+  font: 700 10px var(--peds-font-mono, monospace);
+  letter-spacing: .04em;
 }
 .rcj-map-selection strong {
-  font: 750 clamp(19px, 2vw, 25px)/1.15 var(--peds-font-display, Impact);
+  font: 750 clamp(18px, 1.65vw, 22px)/1.14 var(--peds-font-display, Impact);
   text-transform: uppercase;
-  padding-right: 16px;
+  padding-right: 22px;
 }
 .rcj-map-selection small {
-  color: #c1cdd2;
-  font: 400 12px/1.3 var(--peds-font-ui, inherit);
+  color: #bdcbd2;
+  font: 400 11.5px/1.4 var(--peds-font-ui, inherit);
 }
 .rcj-map-dismiss {
   position: absolute;
-  right: 9px;
-  top: 8px;
+  right: 7px;
+  top: 6px;
   display: grid;
   place-items: center;
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border: 0;
+  border-radius: 6px;
   background: transparent;
-  color: #c9d4d8;
+  color: #c2d1d8;
   cursor: pointer;
+}
+.rcj-map-dismiss:hover {
+  background: rgba(255, 255, 255, .05);
+  color: white;
 }
 .rcj-map-selection-actions {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 14px;
   flex-wrap: wrap;
-  margin-top: 5px;
+  margin-top: 2px;
 }
-.rcj-map-selection-actions a {
+.rcj-map-selection-actions a,
+.rcj-map-selection-actions button {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  min-height: 40px;
-  text-decoration: none;
-  font: 700 12px var(--peds-font-ui, inherit);
-  color: #ff946e;
-}
-.rcj-map-selection-actions button {
-  min-height: 40px;
-  padding: 4px 0;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0;
   border: 0;
   background: transparent;
-  color: #c4d0d6;
+  text-decoration: none;
   cursor: pointer;
-  font: 600 11px var(--peds-font-ui, inherit);
+  font: 700 11.5px var(--peds-font-ui, inherit);
 }
-.rcj-map-selection-actions :is(a, button):hover { color: white; }
+.rcj-map-selection-actions a { color: #ff9b77; }
+.rcj-map-selection-actions button { color: #c2ced4; font-weight: 600; }
+.rcj-map-selection-actions :is(a, button):hover { color: #fff; }
 @media(max-width:760px) {
   .rcj-map-atlas { min-width: 1050px; }
   .rcj-map-key { display: none; }
