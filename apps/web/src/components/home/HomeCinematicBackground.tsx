@@ -1,76 +1,97 @@
-import { useEffect, useRef } from 'react';
+import { Component, lazy, Suspense, useEffect, useRef, useState } from 'react';
+import type { ReactNode } from 'react';
+import { AERO_SECTION_IDS, getAeroPhase } from './aerocore/aeroMotion';
 import './homeCinematicBackground.css';
 
-/**
- * ONE decorative environment across the entire Homepage, not a Showroom scene.
- * CSS perspective + scalable SVG racing trajectories; no video, image or WebGL.
- * Scroll offset is clamped and updated at most once per animation frame.
- */
+export type AeroController = { phase: number; pointerX: number; pointerY: number };
+
+const LazyAeroCanvas = lazy(() =>
+  import('./aerocore/AeroCanvas').then((module) => ({ default: module.AeroCanvas })),
+);
+
+class AeroBoundary extends Component<{ children: ReactNode; onFailure: () => void }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() { return { failed: true }; }
+  componentDidCatch() { this.props.onFailure(); }
+  render() { return this.state.failed ? null : this.props.children; }
+}
+
+function canRunAero() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
+  if (window.matchMedia('(max-width: 850px)').matches) return false;
+  const nav = navigator as Navigator & { connection?: { saveData?: boolean }; deviceMemory?: number };
+  if (nav.connection?.saveData || (nav.deviceMemory !== undefined && nav.deviceMemory <= 4)) return false;
+  try {
+    const gl = document.createElement('canvas').getContext('webgl2', { alpha: true, powerPreference: 'low-power' });
+    if (!gl) return false;
+    gl.getExtension('WEBGL_lose_context')?.loseContext();
+    return true;
+  } catch { return false; }
+}
+
+/** Single, non-interactive full-viewport world under the existing Home DOM. */
 export function HomeCinematicBackground() {
-  const ref = useRef<HTMLDivElement | null>(null);
+  const [enabled, setEnabled] = useState(false);
+  const [visible, setVisible] = useState(true);
+  const [failed, setFailed] = useState(false);
+  const controller = useRef<AeroController>({ phase: 0, pointerX: 0, pointerY: 0 });
 
   useEffect(() => {
-    const background = ref.current;
-    const home = background?.parentElement;
-    if (!background || !home) return;
-
-    let frame = 0;
-    const update = () => {
-      frame = 0;
-      const distance = Math.max(0, -home.getBoundingClientRect().top);
-      home.style.setProperty('--home-depth-shift', `${Math.min(175, distance * .065).toFixed(1)}px`);
-      home.style.setProperty('--home-stage-progress', `${Math.min(1, distance / 1800).toFixed(3)}`);
-    };
-    const onScroll = () => {
-      if (!frame) frame = window.requestAnimationFrame(update);
-    };
-    const onVisibility = () => {
-      home.style.setProperty('--home-motion-state', document.hidden ? 'paused' : 'running');
-    };
-    update();
-    onVisibility();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    document.addEventListener('visibilitychange', onVisibility);
+    const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const viewport = window.matchMedia('(max-width: 850px)');
+    const updateGate = () => setEnabled(canRunAero());
+    updateGate();
+    motion.addEventListener('change', updateGate);
+    viewport.addEventListener('change', updateGate);
     return () => {
-      if (frame) window.cancelAnimationFrame(frame);
-      window.removeEventListener('scroll', onScroll);
-      document.removeEventListener('visibilitychange', onVisibility);
-      home.style.removeProperty('--home-depth-shift');
-      home.style.removeProperty('--home-stage-progress');
-      home.style.removeProperty('--home-motion-state');
+      motion.removeEventListener('change', updateGate);
+      viewport.removeEventListener('change', updateGate);
+    };
+  }, []);
+
+  useEffect(() => {
+    let frame = 0;
+    const sync = () => {
+      frame = 0;
+      const anchors = AERO_SECTION_IDS.map((id) => document.getElementById(id))
+        .filter((node): node is HTMLElement => node !== null)
+        .map((node) => node.getBoundingClientRect().top + window.scrollY - window.innerHeight * 0.23);
+      controller.current.phase = getAeroPhase(anchors, window.scrollY);
+    };
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(sync); };
+    const pointer = (event: PointerEvent) => {
+      if (event.pointerType !== 'mouse' && event.pointerType !== 'pen') return;
+      controller.current.pointerX = (event.clientX / Math.max(window.innerWidth, 1) - .5) * 2;
+      controller.current.pointerY = (event.clientY / Math.max(window.innerHeight, 1) - .5) * 2;
+    };
+    const visibility = () => setVisible(!document.hidden);
+    sync();
+    visibility();
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule, { passive: true });
+    window.addEventListener('pointermove', pointer, { passive: true });
+    document.addEventListener('visibilitychange', visibility);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', schedule);
+      window.removeEventListener('resize', schedule);
+      window.removeEventListener('pointermove', pointer);
+      document.removeEventListener('visibilitychange', visibility);
     };
   }, []);
 
   return (
-    <div ref={ref} className="home-cinematic" aria-hidden="true" data-home-environment="full-page">
-      <div className="home-cinematic__atmosphere" />
-      <div className="home-cinematic__architecture">
-        <span /><span /><span /><span /><span /><span />
-      </div>
-      <div className="home-cinematic__road">
-        <span className="home-cinematic__road-edge home-cinematic__road-edge--left" />
-        <span className="home-cinematic__road-edge home-cinematic__road-edge--right" />
-        <span className="home-cinematic__road-center" />
-      </div>
-      <svg className="home-cinematic__racing-line" viewBox="0 0 1200 2600" preserveAspectRatio="none" fill="none">
-        <defs>
-          <linearGradient id="home-track-ignition" x1="0" y1="0" x2="1" y2="0">
-            <stop stopColor="#FF4A18" stopOpacity="0" />
-            <stop offset=".26" stopColor="#FF4A18" stopOpacity=".82" />
-            <stop offset=".7" stopColor="#FFB16E" stopOpacity=".54" />
-            <stop offset="1" stopColor="#FF4A18" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-        <path className="home-cinematic__track-shadow" d="M1310 -80 C1040 250 490 140 720 570 S1300 930 720 1240 S80 1530 520 1940 S1100 2130 870 2710" />
-        <path className="home-cinematic__track-rail" d="M1310 -80 C1040 250 490 140 720 570 S1300 930 720 1240 S80 1530 520 1940 S1100 2130 870 2710" />
-        <path className="home-cinematic__track-energy" d="M1310 -80 C1040 250 490 140 720 570 S1300 930 720 1240 S80 1530 520 1940 S1100 2130 870 2710" />
-        <path className="home-cinematic__track-secondary" d="M1220 -130 C930 190 570 220 812 552 S1190 890 649 1160 S130 1600 630 1950 S1160 2210 940 2650" />
-      </svg>
-      <div className="home-cinematic__sector home-cinematic__sector--race" />
-      <div className="home-cinematic__sector home-cinematic__sector--fight" />
-      <div className="home-cinematic__sector home-cinematic__sector--explore" />
-      <div className="home-cinematic__speed-beams"><span /><span /><span /><span /></div>
-      <div className="home-cinematic__vignette" />
+    <div className="home-cinematic home-aerocore" aria-hidden="true" data-home-environment="full-page" data-aerocore-mode={enabled && !failed ? 'webgl' : 'fallback'}>
+      <div className="home-aerocore__aura" />
+      <div className="home-aerocore__carbon-fallback" />
+      {enabled && !failed && (
+        <AeroBoundary onFailure={() => setFailed(true)}>
+          <Suspense fallback={null}>
+            <LazyAeroCanvas controller={controller} visible={visible} onFailure={() => setFailed(true)} />
+          </Suspense>
+        </AeroBoundary>
+      )}
+      <div className="home-aerocore__vignette" />
     </div>
   );
 }
