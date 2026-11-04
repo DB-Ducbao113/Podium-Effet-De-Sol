@@ -1,10 +1,13 @@
 import { useEffect, useRef } from 'react';
-import { carPose, damp, normalizePointer } from './carMotion';
+import { carPose, clamp, damp, heroScrollProgress, movementImpulse, normalizePointer } from './carMotion';
 
 const CAR_URL = '/media/homepage/f1-hero/peds-aero01-car.webp';
 const CAR_FALLBACK = '/media/homepage/f1-hero/peds-aero01-fallback.svg';
 
-/** No model or WebGL; Hero already captures mouse input and buttons remain clickable. */
+/**
+ * Original AERO-01 F1 cinematic illustration, not a 3D model.
+ * Hero owns the pointer; all layers stay decorative, so the V7 CTAs remain interactive.
+ */
 export function F1HeroStage() {
   const layerRef = useRef<HTMLDivElement | null>(null);
 
@@ -14,12 +17,19 @@ export function F1HeroStage() {
     if (!layer || !hero) return;
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const nav = navigator as Navigator & { connection?: { saveData?: boolean }; deviceMemory?: number };
+    const lite = Boolean(nav.connection?.saveData || (nav.deviceMemory !== undefined && nav.deviceMemory <= 4));
+    layer.dataset.fx = lite ? 'lite' : 'full';
+
     let raf = 0;
     let visible = true;
-    let x = 0;
-    let y = 0;
     let targetX = 0;
     let targetY = 0;
+    let x = 0;
+    let y = 0;
+    let impulse = 0;
+    let scrollValue = 0;
+    let targetScroll = 0;
     let lastTime = 0;
 
     const apply = (time: number) => {
@@ -27,101 +37,189 @@ export function F1HeroStage() {
       if (!visible || document.hidden || reduced.matches) return;
       const delta = lastTime ? (time - lastTime) / 1000 : 1 / 60;
       lastTime = time;
-      x = damp(x, targetX, delta);
-      y = damp(y, targetY, delta);
+
+      x = damp(x, targetX, delta, 6.2);
+      y = damp(y, targetY, delta, 6.2);
+      impulse = damp(impulse, 0, delta, 2.7);
+      scrollValue = damp(scrollValue, targetScroll, delta, 4.2);
       const pose = carPose(x, y);
+      const energy = clamp(impulse * .76 + Math.hypot(x, y) * .13, 0, 1);
+
       layer.style.setProperty('--f1-x', pose.translateX.toFixed(2) + 'px');
       layer.style.setProperty('--f1-y', pose.translateY.toFixed(2) + 'px');
       layer.style.setProperty('--f1-yaw', pose.yaw.toFixed(2) + 'deg');
       layer.style.setProperty('--f1-pitch', pose.pitch.toFixed(2) + 'deg');
-      layer.style.setProperty('--f1-shine-x', pose.shineX.toFixed(2) + '%');
-      layer.style.setProperty('--f1-shine-y', pose.shineY.toFixed(2) + '%');
-      const energy = Math.min(1, Math.hypot(x, y) * .65);
-      layer.style.setProperty('--f1-reflection-opacity', (0.22 + energy * .12).toFixed(3));
-      layer.style.setProperty('--f1-air-back-opacity', (0.35 + energy * .23).toFixed(3));
-      layer.style.setProperty('--f1-air-front-opacity', (0.20 + energy * .30).toFixed(3));
-      if (Math.abs(x - targetX) > .003 || Math.abs(y - targetY) > .003) raf = requestAnimationFrame(apply);
-      else lastTime = 0;
+      layer.style.setProperty('--f1-shine-x', pose.shineX.toFixed(1) + '%');
+      layer.style.setProperty('--f1-shine-y', pose.shineY.toFixed(1) + '%');
+      layer.style.setProperty('--f1-light-opacity', (.14 + energy * .47).toFixed(3));
+      layer.style.setProperty('--f1-aero-energy', (.48 + energy * .52).toFixed(3));
+      layer.style.setProperty('--f1-readout-energy', (.3 + energy * .7).toFixed(3));
+      layer.style.setProperty('--f1-scroll-offset', (scrollValue * 38).toFixed(2) + 'px');
+      layer.style.setProperty('--f1-scroll-scale', (1 - scrollValue * .055).toFixed(3));
+
+      if (
+        Math.abs(x - targetX) > .002 ||
+        Math.abs(y - targetY) > .002 ||
+        Math.abs(scrollValue - targetScroll) > .002 ||
+        impulse > .012
+      ) {
+        raf = requestAnimationFrame(apply);
+      } else {
+        lastTime = 0;
+      }
     };
+
     const schedule = () => {
       if (!raf && visible && !document.hidden && !reduced.matches) raf = requestAnimationFrame(apply);
     };
+
     const pointer = (event: PointerEvent) => {
       if (event.pointerType !== 'mouse' && event.pointerType !== 'pen') return;
-      const rect = hero.getBoundingClientRect();
-      const next = normalizePointer(event.clientX, event.clientY, rect);
+      const next = normalizePointer(event.clientX, event.clientY, hero.getBoundingClientRect());
+      impulse = Math.max(impulse, movementImpulse(Math.hypot(next.x - targetX, next.y - targetY)));
       targetX = next.x;
       targetY = next.y;
       schedule();
     };
-    const reset = () => { targetX = 0; targetY = 0; schedule(); };
-    const visibility = () => {
-      if (document.hidden) { cancelAnimationFrame(raf); raf = 0; lastTime = 0; }
-      else schedule();
+
+    const reset = () => {
+      targetX = 0;
+      targetY = 0;
+      schedule();
     };
+
+    const syncScroll = () => {
+      targetScroll = heroScrollProgress(hero.getBoundingClientRect().top, hero.offsetHeight);
+      schedule();
+    };
+
+    const visibility = () => {
+      if (document.hidden) {
+        cancelAnimationFrame(raf);
+        raf = 0;
+        lastTime = 0;
+      } else schedule();
+    };
+
     const preference = () => {
       if (reduced.matches) {
         cancelAnimationFrame(raf);
         raf = 0;
         layer.removeAttribute('style');
-        x = 0; y = 0; targetX = 0; targetY = 0;
-      } else schedule();
+        x = 0;
+        y = 0;
+        targetX = 0;
+        targetY = 0;
+        impulse = 0;
+        scrollValue = 0;
+        lastTime = 0;
+      } else {
+        syncScroll();
+      }
     };
+
     const observer = typeof IntersectionObserver !== 'undefined'
       ? new IntersectionObserver(([entry]) => {
           visible = entry.isIntersecting;
-          if (!visible) { cancelAnimationFrame(raf); raf = 0; lastTime = 0; }
-          else schedule();
+          if (!visible) {
+            cancelAnimationFrame(raf);
+            raf = 0;
+            lastTime = 0;
+          } else {
+            syncScroll();
+          }
         }, { threshold: .01 })
       : null;
+
     observer?.observe(hero);
     hero.addEventListener('pointermove', pointer, { passive: true });
     hero.addEventListener('pointerleave', reset);
+    window.addEventListener('scroll', syncScroll, { passive: true });
     document.addEventListener('visibilitychange', visibility);
     reduced.addEventListener('change', preference);
+    syncScroll();
+
     return () => {
       cancelAnimationFrame(raf);
       observer?.disconnect();
       hero.removeEventListener('pointermove', pointer);
       hero.removeEventListener('pointerleave', reset);
+      window.removeEventListener('scroll', syncScroll);
       document.removeEventListener('visibilitychange', visibility);
       reduced.removeEventListener('change', preference);
     };
   }, []);
 
   return (
-    <div ref={layerRef} className="f1hero" data-f1-visual="cinematic-2.5d" aria-hidden="true">
-      <div className="f1hero__halo" />
-      <svg className="f1hero__airflow f1hero__airflow--behind" viewBox="0 0 1200 560" preserveAspectRatio="none" fill="none" role="presentation">
-        <defs><linearGradient id="f1hero-air-cold" x1="0" y1="0" x2="1" y2="0">
-          <stop stopColor="#4DA4D3" stopOpacity="0" />
-          <stop offset=".42" stopColor="#70CBEF" stopOpacity=".45" />
-          <stop offset="1" stopColor="#47BBED" stopOpacity="0" />
-        </linearGradient></defs>
-        <path d="M-70 401 C280 228 440 245 679 312 S1015 191 1290 98" stroke="url(#f1hero-air-cold)" strokeWidth="2" />
-        <path d="M-40 463 C305 346 474 369 724 360 S1017 260 1270 192" stroke="url(#f1hero-air-cold)" strokeWidth="1" />
+    <div ref={layerRef} className="f1hero" data-f1-visual="cinematic-2.5d-v83" aria-hidden="true">
+      <div className="f1hero__atmosphere" />
+      <div className="f1hero__launch-streak" />
+      <div className="f1hero__shock" />
+
+      <svg className="f1hero__aero f1hero__aero--behind" viewBox="0 0 1200 560" preserveAspectRatio="none" fill="none" role="presentation">
+        <defs>
+          <linearGradient id="f1hero-cold" x1="0" y1="0" x2="1" y2="0">
+            <stop stopColor="#56B5E8" stopOpacity="0" />
+            <stop offset=".30" stopColor="#83DBF8" stopOpacity=".16" />
+            <stop offset=".70" stopColor="#86DFFF" stopOpacity=".75" />
+            <stop offset="1" stopColor="#61BDFA" stopOpacity="0" />
+          </linearGradient>
+          <linearGradient id="f1hero-warm" x1="0" y1="0" x2="1" y2="0">
+            <stop stopColor="#FF4A18" stopOpacity="0" />
+            <stop offset=".55" stopColor="#FF895A" stopOpacity=".7" />
+            <stop offset="1" stopColor="#FF4A18" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        <g className="f1hero__flow-group">
+          <path className="f1hero__flow f1hero__flow--a" d="M-90 390 C125 332 274 308 422 294 S690 204 844 170 S1060 91 1290 85" stroke="url(#f1hero-cold)" strokeWidth="2.5" />
+          <path className="f1hero__flow f1hero__flow--b" d="M-90 427 C173 343 336 340 486 311 S784 265 986 185 S1150 162 1310 159" stroke="url(#f1hero-cold)" strokeWidth="1.4" />
+          <path className="f1hero__flow f1hero__flow--c" d="M-60 471 C171 425 338 425 501 411 S829 352 987 294 S1169 253 1320 270" stroke="url(#f1hero-cold)" strokeWidth=".9" />
+          <path className="f1hero__flow f1hero__flow--d" d="M780 450 C896 440 1017 453 1122 425 S1270 385 1390 370" stroke="url(#f1hero-warm)" strokeWidth="1.8" />
+        </g>
       </svg>
-      <div className="f1hero__contact" />
+
+      <div className="f1hero__ground-shadow" />
       <div className="f1hero__vehicle">
-        <img className="f1hero__car" src={CAR_URL} alt="" width="1310" height="542" decoding="async" fetchPriority="high" draggable={false}
-          onError={(event) => {
-            const img = event.currentTarget;
-            if (!img.src.endsWith('peds-aero01-fallback.svg')) img.src = CAR_FALLBACK;
-          }}
-        />
-        <div className="f1hero__reflection" />
+        <div className="f1hero__floating">
+          <img
+            className="f1hero__car"
+            src={CAR_URL}
+            alt=""
+            width="1983"
+            height="793"
+            decoding="async"
+            fetchPriority="high"
+            draggable={false}
+            onError={(event) => {
+              const image = event.currentTarget;
+              if (!image.src.endsWith('peds-aero01-fallback.svg')) image.src = CAR_FALLBACK;
+            }}
+          />
+          <div className="f1hero__paint-light" />
+          <div className="f1hero__metal-sweep" />
+        </div>
       </div>
-      <svg className="f1hero__airflow f1hero__airflow--front" viewBox="0 0 1200 560" preserveAspectRatio="none" fill="none" role="presentation">
-        <defs><linearGradient id="f1hero-air-hot" x1="0" y1="0" x2="1" y2="0">
-          <stop stopColor="#FF4A18" stopOpacity="0" />
-          <stop offset=".5" stopColor="#FD7447" stopOpacity=".54" />
-          <stop offset="1" stopColor="#FF4A18" stopOpacity="0" />
-        </linearGradient></defs>
-        <path d="M-80 476 C284 428 520 461 712 465 S1015 483 1290 374" stroke="url(#f1hero-air-hot)" strokeWidth="2.2" />
-        <path d="M-30 489 C297 471 487 484 702 484 S978 522 1260 442" stroke="url(#f1hero-air-hot)" strokeWidth=".9" />
+
+      <svg className="f1hero__aero f1hero__aero--front" viewBox="0 0 1200 560" preserveAspectRatio="none" fill="none" role="presentation">
+        <path className="f1hero__flow f1hero__flow--e" d="M-120 445 C131 403 245 429 358 454 S617 492 760 480 S973 444 1320 481" stroke="url(#f1hero-warm)" strokeWidth="2" />
+        <path className="f1hero__flow f1hero__flow--f" d="M-100 489 C120 468 227 489 385 505 S740 513 893 504 S1169 473 1320 519" stroke="url(#f1hero-cold)" strokeWidth="1.2" />
       </svg>
+
+      <div className="f1hero__hud f1hero__hud--inlet">
+        <span className="f1hero__hud-index">01 / FLOW ENTRY</span>
+        <span className="f1hero__hud-line" />
+      </div>
+      <div className="f1hero__hud f1hero__hud--wake">
+        <span className="f1hero__hud-index">02 / AERO WAKE</span>
+        <span className="f1hero__hud-line" />
+      </div>
+      <div className="f1hero__telemetry">
+        <span>VECTOR FIELD</span>
+        <span className="f1hero__telemetry-bars"><i /><i /><i /><i /><i /></span>
+        <span className="f1hero__telemetry-state">ACTIVE</span>
+      </div>
       <div className="f1hero__microcopy">
-        <span>AERO-01 <i /> CONCEPT STUDY</span>
+        <span>AERO-01 <i /> CINEMATIC STUDY</span>
         <span>MOVE POINTER TO EXPLORE</span>
       </div>
     </div>
