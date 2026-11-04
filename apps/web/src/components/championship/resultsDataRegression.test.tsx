@@ -58,11 +58,13 @@ describe("Results data selection against the live season data", () => {
   it("presents the season map and scroll route by default", () => {
     const html = render("/season/2026?tab=results");
     expect(html).toContain('WORLD TOUR');
-    expect(html).toContain('rcj-map-pin');
+    expect(html).toContain('data-map-mode="all-rounds"');
+    expect(html).toContain('data-route-lines="false"');
+    expect(html).toContain('data-round-label="R01"');
+    expect(html).toContain('data-round-label="R23"');
     expect(html).toContain('data-experience="world-tour-v6"');
-    expect(html).toContain('R23');
-    expect(html).toContain('data-view-details');
-    expect(html).toContain('href="/season/2026?tab=calendar&amp;round=1"');
+    expect(html).not.toContain('rcj-view-details');
+    expect(html).not.toContain('data-view-details');
     expect(html).toContain('rcj-scroll-beat');
     expect(html).toContain('rcj-stage-title');
     expect(html).not.toContain('ONE YEAR.');
