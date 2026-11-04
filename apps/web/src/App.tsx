@@ -25,10 +25,14 @@ import { MobileAllInOne } from './components/mobile/MobileAllInOne';
 import { Container } from './components/ui/Container';
 import { buttonClassName } from './components/ui/buttonStyles';
 import { StatePanel } from './components/ui/StatePanel';
+import { HomeWorldHost } from './components/home/world/HomeWorldHost';
 
 const HomeView = lazy(() =>
   import('./components/home/HomeView').then((m) => ({ default: m.HomeView })),
 );
+const V9VisualLab = import.meta.env.DEV
+  ? lazy(() => import('./components/home/world/V9VisualLab').then((m) => ({ default: m.V9VisualLab })))
+  : null;
 const ChampionshipView = lazy(() =>
   import('./components/championship/ChampionshipView').then((m) => ({
     default: m.ChampionshipView,
@@ -171,6 +175,8 @@ export const App: React.FC = () => {
   useTextZoomAttribute();
   const location = useLocation();
   const mobileHub = useMobileHub();
+  const v9Preview = import.meta.env.DEV && !mobileHub && location.pathname === '/' &&
+    new URLSearchParams(location.search).get('v9') === '1';
   const isHubRoute = mobileHub && isPrimaryPath(location.pathname);
   const isInsideMachineTrial = insideMachineTrialEnabled &&
     (location.pathname === '/engineering' || location.pathname === '/engineering/inside-the-machine');
@@ -222,7 +228,7 @@ export const App: React.FC = () => {
 
 
   return (
-    <div className={`relative flex min-h-screen flex-col bg-peds-canvas font-sans text-peds-text selection:bg-peds-accent selection:text-white ${location.pathname === '/' ? 'h25-home-route' : ''}`}>
+    <div className={`relative flex min-h-screen flex-col bg-peds-canvas font-sans text-peds-text selection:bg-peds-accent selection:text-white ${location.pathname === '/' ? 'h25-home-route' : ''}`} data-home-v9={v9Preview ? 'true' : undefined}>
       {!isInsideMachineTrial && <RouteSeo />}
       {/* ── D2. Film Grain Overlay (Cinematic Texture) ── */}
       <div
@@ -233,6 +239,7 @@ export const App: React.FC = () => {
         }}
       />
 
+      {v9Preview && <HomeWorldHost />}
       {!isInsideMachineTrial && <Navbar />}
 
       {/* ── D1. Scroll Progress Speed Strip ── */}
@@ -261,8 +268,9 @@ export const App: React.FC = () => {
             <Routes>
               <Route
                 path="/"
-                element={mobileHub ? <MobileAllInOne season={2026} /> : <HomeView />}
+                element={mobileHub ? <MobileAllInOne season={2026} /> : <HomeView worldPreview={v9Preview} />}
               />
+              {V9VisualLab && <Route path="/__home-v9-lab" element={<V9VisualLab />} />}
               {['/live', '/archive', '/timing'].map((path) => (
                 <Route
                   key={path}
