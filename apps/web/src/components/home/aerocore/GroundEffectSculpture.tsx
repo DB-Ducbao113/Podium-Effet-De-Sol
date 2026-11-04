@@ -11,7 +11,7 @@ import { clamp } from './aeroMotion';
  * wide inlet -> narrow throat -> widening diffuser.
  * Not a real 2026 underfloor, car part, or CFD result.
  */
-export function venturiGap(u: number): number {
+function venturiGap(u: number): number {
   const throat = Math.exp(-Math.pow((u - 0.45) / 0.21, 2));
   const diffuser = Math.pow(clamp((u - 0.55) / 0.45, 0, 1), 2);
   return 0.32 + 0.76 * (1 - throat) + 0.2 * diffuser;
