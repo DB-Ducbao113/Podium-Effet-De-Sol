@@ -1,10 +1,9 @@
 import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowDown, ArrowRight, CalendarDays, Flag, MapPin, Trophy, Globe2 } from 'lucide-react';
+import { ArrowDown, ArrowRight, ArrowUpRight, Flag, Trophy, Globe2 } from 'lucide-react';
 import { getCalendarBySeason } from '../../data/championship';
 import { getRaceResults } from '../../data/championship/results';
 import openF1SessionResults from '../../data/championship/openF1SessionResults2026.json';
-import { findCircuitByName } from '../../data/championship/circuitsData';
 import { useChampionshipStore } from '../../store/useChampionshipStore';
 import { useNavigationStore } from '../../store/useNavigationStore';
 import type { SeasonYear } from '../../types';
@@ -15,9 +14,7 @@ import {
   type ResultDataSources,
   type ResultSessionKey,
 } from '../../results-engine/availability';
-import { getCalendarRaceState, getSessionTimeRange } from '../../utils/raceSchedule';
-import { getSeasonCircuit } from '../../utils/p5SeasonalVisuals';
-import { CircuitTrace } from './CircuitTrace';
+import { getCalendarRaceState } from '../../utils/raceSchedule';
 import { JourneyWorldMap } from './JourneyWorldMap';
 import './raceCalendarJourney.css';
 
@@ -25,17 +22,7 @@ import './raceCalendarJourney.css';
 const JourneyGlobe3D = lazy(() => import('./JourneyGlobe3D').then((module) => ({ default: module.JourneyGlobe3D })));
 
 type Mode = 'journey' | 'classic';
-type SessionState = 'final' | 'provisional' | 'awaiting' | 'scheduled';
 const ORDER: ResultSessionKey[] = ['fp1', 'fp2', 'fp3', 'sprintQualifying', 'sprint', 'qualifying', 'race'];
-const LABELS: Record<ResultSessionKey, { vi: string; en: string }> = {
-  fp1: { vi: 'Thử nghiệm 1', en: 'Practice 1' },
-  fp2: { vi: 'Thử nghiệm 2', en: 'Practice 2' },
-  fp3: { vi: 'Thử nghiệm 3', en: 'Practice 3' },
-  sprintQualifying: { vi: 'Phân hạng Sprint', en: 'Sprint Qualifying' },
-  sprint: { vi: 'Sprint', en: 'Sprint' },
-  qualifying: { vi: 'Phân hạng', en: 'Qualifying' },
-  race: { vi: 'Đua chính', en: 'Race' },
-};
 const OPEN = openF1SessionResults as {
   practice: Record<number, GrandPrixPracticeData>;
   qualifying: Record<number, GrandPrixQualifyingData>;
@@ -66,7 +53,6 @@ export function RaceCalendarJourney({ season }: { season: SeasonYear }) {
   const [now, setNow] = useState(() => Date.now());
   const [activeRound, setActiveRound] = useState(calendar[0]?.round ?? 1);
   const [travelProgress, setTravelProgress] = useState(0);
-  const [expandedRound, setExpandedRound] = useState<number | null>(null);
   const [webglAvailable, setWebglAvailable] = useState(false);
   const [auto3D, setAuto3D] = useState(false);
   const [preferredMap, setPreferredMap] = useState<'3d' | '2d' | null>(null);
@@ -86,7 +72,6 @@ export function RaceCalendarJourney({ season }: { season: SeasonYear }) {
     const sessions = ORDER.filter((key) => Boolean(race.sessions[key])).map((key) => ({
       key,
       classification: getSessionClassification(sources, race.round, key),
-      range: getSessionTimeRange(race, key),
     }));
     const confirmations = sessions.filter((entry) => entry.classification !== null);
     const verifiedRace = sessions.find((entry) => entry.key === 'race')?.classification;
@@ -136,7 +121,6 @@ export function RaceCalendarJourney({ season }: { season: SeasonYear }) {
   useEffect(() => {
     setActiveRound(calendar[0]?.round ?? 1);
     setTravelProgress(0);
-    setExpandedRound(null);
   }, [calendar]);
 
   // Drive the traced route directly from the page's scroll position, not a decorative timer.
@@ -189,18 +173,12 @@ export function RaceCalendarJourney({ season }: { season: SeasonYear }) {
     });
   };
 
-  const sessionState = (entry: (typeof chapterData)[number]['sessions'][number]): SessionState => {
-    if (entry.classification) return entry.classification.status;
-    if (entry.range && now >= entry.range.end.getTime()) return 'awaiting';
-    return 'scheduled';
-  };
-
   if (!calendar.length) return (
     <div className="rcj-empty" role="status">{vi ? 'Chưa có lịch mùa giải này.' : 'No calendar is available for this season.'}</div>
   );
 
   return (
-    <div className="rcj" data-experience="world-tour-v4">
+    <div className="rcj rcj--immersive" data-experience="world-tour-v5">
       <header className="rcj-hero">
         <p className="rcj-eyebrow">PODIUM EDS / SEASON {season} / THE WORLD TOUR</p>
         <h2>ONE YEAR.<span>ONE RACE.</span></h2>
@@ -217,24 +195,7 @@ export function RaceCalendarJourney({ season }: { season: SeasonYear }) {
           <span><ArrowDown size={14} aria-hidden="true" /> SCROLL TO EXPLORE</span>
         </div>
       </header>
-      <nav className="rcj-nav" aria-label={vi ? 'Điều hướng hành trình' : 'Journey navigation'}>
-        <div className="rcj-nav-main">
-          <span className="rcj-nav-season">{season} <b>/</b> R{String(active?.round ?? 1).padStart(2, '0')}</span>
-          <span className="rcj-nav-active">{active?.flag} {active?.name}</span>
-          <select aria-label={vi ? 'Chuyển đến chặng' : 'Jump to Grand Prix'} value={activeRound} onChange={(event) => jump(Number(event.target.value))}>
-            {calendar.map((race) => <option key={race.round} value={race.round}>R{String(race.round).padStart(2, '0')} · {race.name}</option>)}
-          </select>
-        </div>
-        <div className="rcj-progress" role="progressbar" aria-label={vi ? 'Tiến trình khám phá' : 'Exploration progress'} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress)}>
-          <span style={{ width: `${progress}%` }} />
-        </div>
-        <div className="rcj-rounds">
-          {calendar.map((race) => <button key={race.round} type="button" onClick={() => jump(race.round)}
-            aria-label={`Round ${race.round}: ${race.name}`} aria-current={activeRound === race.round ? 'step' : undefined}>
-            {String(race.round).padStart(2, '0')}
-          </button>)}
-        </div>
-      </nav>
+
       <div className="rcj-content">
         <div className="rcj-map-stage">
           <header className="rcj-stage-top">
@@ -248,6 +209,15 @@ export function RaceCalendarJourney({ season }: { season: SeasonYear }) {
               {show3D && <button type="button" className="rcj-zoom-control" aria-pressed={closeUp}
                 onClick={() => setCloseUp((value) => !value)}>{closeUp ? '−' : '+'}</button>}
             </div>
+            <Link
+              className="rcj-view-details"
+              data-view-details
+              to={`/season/${season}?tab=calendar&round=${activeRound}`}
+              aria-label={vi ? `Xem chi tiết lịch chặng ${activeRound} — ${active?.name}` : `View calendar details for round ${activeRound} — ${active?.name}`}
+            >
+              <span className="rcj-view-details-icon"><ArrowUpRight size={21} aria-hidden="true" /></span>
+              <span className="rcj-view-details-text">VIEW<br/>DETAILS</span>
+            </Link>
           </header>
           <div className="rcj-stage-viewport">
             {show3D ? (
@@ -271,51 +241,49 @@ export function RaceCalendarJourney({ season }: { season: SeasonYear }) {
                 : <><Flag size={18} aria-hidden="true" /><span>{vi ? 'LỊCH & KẾT QUẢ' : 'CALENDAR / RESULTS'}<strong>{activeChapter?.confirmations ?? 0} / {activeChapter?.sessions.length ?? 0} SESSIONS</strong></span></>}
             </div>
           </div>
-          <div className="rcj-stage-bottom">
-            <span>{vi ? 'KÉO ĐỂ DU HÀNH' : 'SCROLL TO TRAVEL'} · {String(Math.max(0, Math.min(100, progress)).toFixed(0))}%</span>
-            <span>{show3D ? (vi ? 'ĐỊA CẦU 3D' : '3D GLOBE') : (vi ? 'BẢN ĐỒ 2D' : '2D ATLAS')} · {season}</span>
-          </div>
+
+          <nav className="rcj-nav" aria-label={vi ? 'Điều hướng hành trình' : 'Journey navigation'}>
+        <div className="rcj-nav-main">
+          <span className="rcj-nav-season">{season} <b>/</b> R{String(active?.round ?? 1).padStart(2, '0')}</span>
+          <span className="rcj-nav-active">{active?.flag} {active?.name}</span>
+          <select aria-label={vi ? 'Chuyển đến chặng' : 'Jump to Grand Prix'} value={activeRound} onChange={(event) => jump(Number(event.target.value))}>
+            {calendar.map((race) => <option key={race.round} value={race.round}>R{String(race.round).padStart(2, '0')} · {race.name}</option>)}
+          </select>
         </div>
-        <div className="rcj-chapters">
-          {chapterData.map(({ race, sessions, confirmations, winner }) => {
-            const scheduleState = getCalendarRaceState(race, now);
-            const raceFinal = sessions.some((s) => s.key === 'race' && s.classification?.status === 'final');
-            const status = raceFinal ? 'completed' : confirmations ? 'partial' : scheduleState === 'completed' ? 'awaiting' : scheduleState;
-            const circuit = getSeasonCircuit(season, race.round) ?? findCircuitByName(race.circuit);
-            const expanded = expandedRound === race.round;
-            return (
-              <section key={race.round} data-round={race.round} data-state={status} className="rcj-chapter"
-                id={`rcj-round-${race.round}`} aria-labelledby={`rcj-title-${race.round}`}
-                ref={(node) => { if (node) sections.current.set(race.round, node); else sections.current.delete(race.round); }}>
-                <div className="rcj-chapter-bar"><span>CHAPTER {String(race.round).padStart(2, '0')} / {String(calendar.length).padStart(2, '0')}</span><span>{race.flag} {race.country}</span></div>
-                <div className="rcj-chapter-inner">
-                  <div className="rcj-chapter-top"><span className="rcj-chapter-number">{String(race.round).padStart(2, '0')}</span><span className={`rcj-badge rcj-badge--${status}`}>{raceFinal ? vi ? 'CÓ KẾT QUẢ ĐUA CHÍNH' : 'RACE RESULT AVAILABLE' : confirmations ? vi ? 'CÓ KẾT QUẢ MỘT SỐ PHIÊN' : 'SESSION RESULTS AVAILABLE' : scheduleState === 'completed' ? vi ? 'CHỜ PHÂN HẠNG' : 'AWAITING RESULTS' : scheduleState === 'current' ? vi ? 'CUỐI TUẦN THI ĐẤU' : 'RACE WEEKEND' : vi ? 'SẮP TỚI' : 'UPCOMING'}</span></div>
-                  <h3 id={`rcj-title-${race.round}`}>{race.name}</h3>
-                  <p className="rcj-location"><MapPin size={15} aria-hidden="true" /> {race.circuit} · {race.location}</p>
-                  <div className="rcj-spec"><div><small>RACE WEEKEND</small><strong>{race.dates}</strong></div><div><small>{vi ? 'VÒNG ĐUA' : 'LAPS'}</small><strong>{race.laps || '—'}</strong></div><div><small>{vi ? 'CHIỀU DÀI' : 'LENGTH'}</small><strong>{race.circuitLengthKm || '—'} km</strong></div></div>
-                  <div className="rcj-track"><div className="rcj-track-image">{circuit ? <CircuitTrace circuit={circuit} variant="thumbnail" /> : <Flag size={40} aria-hidden="true" />}</div><div><span>CIRCUIT PROFILE</span><strong>{race.hasSprint ? 'SPRINT WEEKEND' : 'GRAND PRIX WEEKEND'}</strong></div></div>
-                  {winner && <div className="rcj-winner"><Trophy size={19} aria-hidden="true" /><span><small>{vi ? 'NGƯỜI CHIẾN THẮNG CHẶNG' : 'RACE WINNER'}</small><strong>{winner.driverName}</strong><em>{winner.teamName}</em></span></div>}
-                  <button type="button" className="rcj-session-toggle" aria-expanded={expanded} aria-controls={`rcj-sessions-${race.round}`} onClick={() => setExpandedRound(expanded ? null : race.round)}><CalendarDays size={16} aria-hidden="true" /> {vi ? 'Lịch và kết quả các phiên' : 'Weekend sessions and results'} <span>{expanded ? '−' : '+'}</span></button>
-                  {expanded && <div className="rcj-sessions" id={`rcj-sessions-${race.round}`}>
-                    {sessions.map((entry) => {
-                      const state = sessionState(entry);
-                      const date = entry.range ? new Intl.DateTimeFormat(vi ? 'vi-VN' : 'en-GB', { timeZone: 'Asia/Ho_Chi_Minh', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }).format(entry.range.start) + ' ICT' : `${race.sessions[entry.key]?.dateStr ?? ''} · ${race.sessions[entry.key]?.timeStr ?? ''} (venue)`;
-                      const leader = entry.classification?.rows[0];
-                      return <div className="rcj-session" key={entry.key}>
-                        <div><strong>{LABELS[entry.key][lang]}</strong><small>{date}</small>{leader && <small> P1 · {leader.driverName}</small>}</div>
-                        <div><span data-result-state={state}>{state === 'final' ? 'FINAL' : state === 'provisional' ? 'PROVISIONAL' : state === 'awaiting' ? 'AWAITING' : 'SCHEDULED'}</span><Link to={`/season/${season}?tab=results&round=${race.round}&session=${entry.key}`}>{vi ? 'Chi tiết' : 'Details'} <ArrowRight size={13} aria-hidden="true" /></Link></div>
-                      </div>;
-                    })}
-                  </div>}
-                  <div className="rcj-chapter-links">
-                    <Link to={`/season/${season}?tab=calendar&round=${race.round}`}>{vi ? 'Chi tiết lịch' : 'Calendar details'} <ArrowRight size={14} aria-hidden="true" /></Link>
-                    <Link to={`/season/${season}?tab=results&round=${race.round}`}>{vi ? 'Trung tâm kết quả' : 'Race Center'} <ArrowRight size={14} aria-hidden="true" /></Link>
-                  </div>
-                </div>
-              </section>
-            );
-          })}
-          <div className="rcj-end"><Flag size={30} aria-hidden="true" /><h3>THE FINAL FLAG.</h3><p>{vi ? 'Hành trình vẫn tiếp diễn khi có kết quả mới.' : 'The journey updates as new results arrive.'}</p><button type="button" onClick={() => relevantRound && jump(relevantRound)}>{vi ? 'Đến chặng liên quan' : 'Return to relevant round'} <ArrowRight size={16} aria-hidden="true" /></button></div>
+        <div className="rcj-progress" role="progressbar" aria-label={vi ? 'Tiến trình khám phá' : 'Exploration progress'} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress)}>
+          <span style={{ width: `${progress}%` }} />
+        </div>
+        <div className="rcj-rounds">
+          {calendar.map((race) => <button key={race.round} type="button" onClick={() => jump(race.round)}
+            aria-label={`Round ${race.round}: ${race.name}`} aria-current={activeRound === race.round ? 'step' : undefined}>
+            {String(race.round).padStart(2, '0')}
+          </button>)}
+        </div>
+      </nav>
+        </div>
+        <div className="rcj-scroll-track" aria-label={vi ? 'Cuộn qua các chặng trong mùa giải' : 'Scroll through the season rounds'}>
+          {calendar.map((race) => (
+            <section
+              key={race.round}
+              id={`rcj-round-${race.round}`}
+              data-round={race.round}
+              className="rcj-scroll-beat"
+              aria-label={`Round ${race.round}: ${race.name}`}
+              ref={(node) => {
+                if (node) sections.current.set(race.round, node);
+                else sections.current.delete(race.round);
+              }}
+            >
+              <div className="rcj-scroll-beat-caption" aria-hidden="true">
+                <span>R{String(race.round).padStart(2, '0')}</span>
+                <span>{race.flag} {race.name}</span>
+              </div>
+            </section>
+          ))}
+          <div className="rcj-scroll-finish" aria-hidden="true">
+            <Flag size={23} />
+            <span>{vi ? 'HẾT HÀNH TRÌNH' : 'SEASON FINISH'}</span>
+          </div>
         </div>
       </div>
       {syncMeta.syncStatus === 'error' && <p className="rcj-sync-note" role="status">{vi ? 'Đồng bộ tạm gián đoạn — đang sử dụng dữ liệu đã lưu.' : 'Sync currently unavailable — showing saved data.'}</p>}
