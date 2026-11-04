@@ -200,7 +200,7 @@ export function RaceCalendarJourney({ season }: { season: SeasonYear }) {
   );
 
   return (
-    <div className="rcj">
+    <div className="rcj" data-experience="world-tour-v4">
       <header className="rcj-hero">
         <p className="rcj-eyebrow">PODIUM EDS / SEASON {season} / THE WORLD TOUR</p>
         <h2>ONE YEAR.<span>ONE RACE.</span></h2>
