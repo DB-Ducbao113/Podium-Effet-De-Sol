@@ -18,7 +18,7 @@ export const RaceResults: React.FC<{ season: SeasonYear }> = React.memo(({ seaso
 
   return (
     <>
-      <JourneyViewSwitch mode={mode} onChange={setMode} />
+      {mode === 'classic' && <JourneyViewSwitch mode={mode} onChange={setMode} />}
       {mode === 'journey' ? <RaceCalendarJourney season={season} /> : <WeekendResults season={season} />}
     </>
   );
