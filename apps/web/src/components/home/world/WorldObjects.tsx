@@ -198,7 +198,7 @@ function makeCarbonFin(): ExtrudeGeometry {
 /** Curved bevelled aerofoils, one instanced draw call; never a box sculpture. */
 export function CarbonArchitecture({ controller, count }: WorldProps & { count: number }) {
   const ref = useRef<InstancedMesh>(null);
-  const dummy = useMemo(() => new Object3D(), []);
+  const dummy = useRef(new Object3D());
   const shape = useMemo(() => makeCarbonFin(), []);
   const material = useMemo(() => new MeshPhysicalMaterial({
     color: '#233647', metalness: .65, roughness: .25,
@@ -218,20 +218,20 @@ export function CarbonArchitecture({ controller, count }: WorldProps & { count: 
       const spread = order / Math.max(1, count / 2);
       const phase = state.lab === 'carbon' ? 3.2 : state.phase;
       const spiral = Math.sin((i / count) * Math.PI * 2 + phase * .42);
-      dummy.position.set(
+      dummy.current.position.set(
         1.9 + spiral * .42 + Math.sin(clock.elapsedTime * .21 + i) * .055,
         spread * (1.2 + open * 1.5),
         -3.4 + Math.cos(i * 1.73) * (1.55 + open * .9),
       );
-      dummy.rotation.set(
+      dummy.current.rotation.set(
         -.09 + spread * .17 + open * .10,
         -.42 + spread * .18 + phase * .045,
         (order * .115 + Math.sin(phase * .44 + i * .22) * .19) * open,
       );
       const size = .85 + .13 * Math.sin(i * 1.39);
-      dummy.scale.set(size * (.65 + open * .55), size * .95, size * (.7 + open * .45));
-      dummy.updateMatrix();
-      mesh.setMatrixAt(i, dummy.matrix);
+      dummy.current.scale.set(size * (.65 + open * .55), size * .95, size * (.7 + open * .45));
+      dummy.current.updateMatrix();
+      mesh.setMatrixAt(i, dummy.current.matrix);
     }
     mesh.instanceMatrix.needsUpdate = true;
   });
