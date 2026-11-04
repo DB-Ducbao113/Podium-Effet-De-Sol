@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import { applyModelBLivery } from '../../dev/commercial-b/modelBMaterials';
 import { MODEL_B_LIVERIES } from '../../dev/commercial-b/modelBExperience';
 import { disposeModelB, loadModelB } from '../../dev/commercial-b/modelBLoader';
+import { HomeTrackEnvironment3D } from './HomeTrackEnvironment3D';
 
 export type HomeModelBMode = 'aero' | 'chassis' | 'power';
 
@@ -139,7 +140,7 @@ export function HomeModelBStage({ mode, active, reducedMotion, lang }: {
         <directionalLight position={[8, 12, -8]} intensity={4} color="#fff4e9" />
         <directionalLight position={[-7, 6, 8]} intensity={2.5} color="#94b6d5" />
         <directionalLight position={[-2, 3, -5]} intensity={1.4} color="#ff5c31" />
-        <gridHelper args={[9, 18, '#31566c', '#162c40']} position={[0, -.035, 0]} />
+        <HomeTrackEnvironment3D mode={mode} reducedMotion={reducedMotion} />
         <ModelBObject onReady={onReady} onFailure={onFailure} />
         <ModelBCamera mode={mode} active={active && ready} reducedMotion={reducedMotion} />
       </Canvas>
