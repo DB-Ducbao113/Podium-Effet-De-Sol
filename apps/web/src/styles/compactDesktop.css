@@ -254,7 +254,6 @@
 /* Mobile: modest whitespace trim only; never shrink targets or force a 4-column layout. */
 @media (max-width: 850px) {
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .r1-cinema--v7 .r1-cinema__inner {
-    padding-top: 66px;
     padding-bottom: 56px;
   }
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .home-v3 .home-rc {
@@ -269,7 +268,6 @@
 }
 @media (max-width: 500px) {
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .r1-cinema--v7 .r1-cinema__inner {
-    padding-top: 59px;
     padding-bottom: 54px;
   }
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .r1-cinema--v7 .r1-cinema__title {
