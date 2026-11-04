@@ -11,7 +11,7 @@ function markup(node: ReactNode) {
   return renderToStaticMarkup(<MemoryRouter>{node}</MemoryRouter>);
 }
 
-describe('Homepage Launch Control V3', () => {
+describe('Homepage Launch Control V4', () => {
   it('does not render the removed drift video or drift poster', () => {
     const html = markup(<PodiumBrandHero />);
     expect(html).not.toContain('<video');
@@ -22,7 +22,13 @@ describe('Homepage Launch Control V3', () => {
     expect(html).toContain('BEYOND');
     expect(html).toContain('LIMITS.');
     expect(html).toContain('LAUNCH CONTROL');
-    expect(html).toContain('src="/images/p4/template/rc-hero-1344.webp"');
+    expect(html).not.toContain('<img');
+    expect(html).not.toContain('<picture');
+    expect(html).toContain('launch-hud__vehicle');
+    expect(html).toContain('AERO');
+    expect(html).toContain('CHASSIS');
+    expect(html).toContain('POWER');
+    expect(html).toContain('aria-pressed="true"');
   });
 
   it('keeps race map and driver photographs empty during the layout phase', () => {
