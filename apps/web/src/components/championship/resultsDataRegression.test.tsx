@@ -59,6 +59,7 @@ describe("Results data selection against the live season data", () => {
     const html = render("/season/2026?tab=results");
     expect(html).toContain('THE GRAND PRIX WORLD TOUR');
     expect(html).toContain('rcj-map-pin');
+    expect(html).toContain('data-experience="world-tour-v4"');
     expect(html).toContain('R23');
   });
   it("keeps a deep link to a verified round and session", () => {
