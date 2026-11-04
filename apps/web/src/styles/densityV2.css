@@ -38,15 +38,16 @@
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .h1-nav--v4 .h1-nav__cta { min-height: 44px; }
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .h1-nav--v4 .h1-nav__lang-option { min-height: 44px; min-width: 44px; }
 
-  /* Home: hero ~38% shorter than V7, while keeping the car full silhouette */
+  /* Hero is an art-directed exception to compact density: do NOT shrink the F1 stage.
+     Preserve the actual image silhouette; compact the DATA sections below instead. */
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .r1-cinema--v7,
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .r1-cinema--v7 .r1-cinema__inner {
-    min-height: clamp(335px, 43svh, 435px);
+    min-height: clamp(500px, 57svh, 620px);
   }
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .r1-cinema--v7 .r1-cinema__inner {
-    padding-top: clamp(22px, 2.2vw, 32px);
-    padding-bottom: clamp(29px, 2.8vw, 42px);
-    gap: clamp(10px, 1.2vw, 18px);
+    padding-top: clamp(34px, 3.2vw, 48px);
+    padding-bottom: clamp(56px, 5vw, 76px);
+    gap: clamp(16px, 2vw, 32px);
   }
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .r1-cinema--v7 .r1-cinema__title {
     font-size: clamp(2.75rem, 4.1vw, 4.25rem);
@@ -55,7 +56,8 @@
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .r1-cinema--v7 .r1-cinema__eyebrow { margin-bottom: .65rem; }
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .r1-cinema--v7 .r1-cinema__actions { margin-top: .9rem; gap: .48rem; }
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .r1-cinema--v7 .r1-cinema__scene {
-    height: clamp(260px, 23vw, 322px);
+    height: clamp(385px, 32vw, 468px);
+    overflow: visible;
   }
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .home-v3 .home-rc { padding-block: 1.1rem 1.1rem; }
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .home-v3 .home-title-fight { padding-block: .65rem 1.2rem; }
@@ -231,7 +233,16 @@
 
 /* Laptops 1024–1179px: tighter than V1, but still avoid nav/content collisions. */
 @media (min-width: 1024px) and (max-width: 1179px) {
-  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .p5-hero { min-height: 340px; padding-bottom: 6rem; }
+  /* Hero is exempt on 1024–1179px laptops too. */
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .r1-cinema--v7,
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .r1-cinema--v7 .r1-cinema__inner {
+    min-height: clamp(500px, 57svh, 595px);
+  }
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .r1-cinema--v7 .r1-cinema__scene {
+    height: clamp(355px, 37vw, 420px);
+    overflow: visible;
+  }
+    html:not([data-text-zoom='200']):not([data-text-zoom='400']) .p5-hero { min-height: 340px; padding-bottom: 6rem; }
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .p5-mega { font-size: clamp(3.6rem, 7vw, 5.5rem); }
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .p5-podium-card { height: 285px; }
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .p5-podium-1 { height: 330px; }
@@ -250,3 +261,36 @@
 }
 
 /* Mobile intentionally NOT miniaturized. 44px control size and text-zoom are hard gates. */
+
+/* Hero protection for the entire two-column breakpoint, including 851–1023px.
+   Override the earlier global Density-01 values without affecting other routes. */
+@media (min-width: 851px) and (max-width: 1023px) {
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .r1-cinema--v7,
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .r1-cinema--v7 .r1-cinema__inner {
+    min-height: 510px;
+  }
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .r1-cinema--v7 .r1-cinema__scene {
+    height: clamp(340px, 41vw, 395px);
+    overflow: visible;
+  }
+}
+@media (max-width: 850px) {
+  /* Mobile remains stacked. Do not let the compact pass crush the car. */
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .r1-cinema--v7 .r1-cinema__scene {
+    height: clamp(305px, 55vw, 405px);
+    overflow: visible;
+  }
+}
+@media (max-width: 500px) {
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .r1-cinema--v7 .r1-cinema__scene {
+    height: 305px;
+  }
+}
+
+/* The legacy scene vignette must not mask an alpha-car visual. */
+.home-v3 .r1-cinema--v7 .home-pulse.home-pulse--f1hero {
+  overflow: visible;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+.home-v3 .r1-cinema--v7 .r1-cinema__scene { overflow: visible; }
