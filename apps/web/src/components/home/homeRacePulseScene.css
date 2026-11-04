@@ -113,8 +113,9 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  -webkit-mask-image: url('/media/homepage/f1-hero/peds-aero01-car.webp');
-  mask-image: url('/media/homepage/f1-hero/peds-aero01-car.webp');
+  /* Switch to the fallback silhouette too when the owner WebP was not installed. */
+  -webkit-mask-image: var(--f1-image-mask, url('/media/homepage/f1-hero/peds-aero01-car.webp'));
+  mask-image: var(--f1-image-mask, url('/media/homepage/f1-hero/peds-aero01-car.webp'));
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
   -webkit-mask-position: center;
