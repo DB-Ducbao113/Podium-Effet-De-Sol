@@ -131,22 +131,23 @@ describe("commercial visual isolation", () => {
     }
   });
 
-  it("renders the owner-approved Homepage film in production with no EDS-G01 hero renderer", () => {
+  it("keeps the owner-removed drift film out of the Homepage and does not render EDS-G01", () => {
+    // Explicit owner override on 04/11/2026: film bytes remain archived,
+    // but its source, playback controls and poster must not be imported by Home.
     const heroSource = readFileSync("src/components/home/PodiumBrandHero.tsx", "utf8");
-    expect(heroSource).toContain("export const HERO_VIDEO_SRC = '/media/homepage/hero-h3-2.mp4'");
-    expect(heroSource).toContain("export const HERO_POSTER_SRC = '/media/homepage/hero-h3-2-poster.png'");
-    expect(heroSource).toContain("<video");
-    expect(heroSource).toContain("muted");
-    expect(heroSource).toContain("playsInline");
-    expect(heroSource).not.toContain("loop");
-    expect(heroSource).not.toContain("autoPlay");
-    expect(heroSource).not.toContain("playbackRate");
-    expect(heroSource).not.toContain("__peds-review");
-    expect(heroSource).not.toContain("EDSHomeHeroScene");
-    expect(heroSource).not.toContain("eds-g01-hero.svg");
-    expect(heroSource).not.toContain("EDS-G01 / ORIGINAL CONCEPT");
-    expect(heroSource).not.toContain("Kéo hoặc dùng phím mũi tên");
-    expect(heroSource).not.toContain("devCinematic");
-    expect(heroSource).not.toContain("ModelBHomeHeroScene");
+    expect(heroSource).toContain("const HERO_PLATE = '/images/p4/template/rc-hero'");
+    expect(heroSource).toContain('r1-cinema__scene');
+    for (const forbidden of [
+      "HERO_VIDEO_SRC",
+      "HERO_POSTER_SRC",
+      "hero-h3-2.mp4",
+      "hero-h3-2-poster.png",
+      "<video",
+      "video.play()",
+      "__peds-review",
+      "EDSHomeHeroScene",
+      "eds-g01-hero.svg",
+      "ModelBHomeHeroScene",
+    ]) expect(heroSource).not.toContain(forbidden);
   });
 });
