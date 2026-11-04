@@ -252,7 +252,7 @@ export const App: React.FC = () => {
           }}
           className="w-full h-full bg-gradient-to-r from-f1red via-amber-400 to-yellow-300 transition-transform duration-75 ease-out"
         />
-      </div>
+      </div>}
 
       <main className={`flex-1 ${isInsideMachineTrial ? '' : 'pt-16 peds-header-offset'}`}>
         <F1PageTransition
