@@ -167,7 +167,7 @@ function StopMarker({ stop, visited, active, onSelectRound }: {
 function SceneMotion({ stops, travelProgress, onSelectRound, closeUp }: SceneProps) {
   const globe = useRef<THREE.Group>(null);
   const firstFrame = useRef(true);
-  const { camera, invalidate } = useThree();
+  const { invalidate } = useThree();
   const last = Math.max(0, stops.length - 1);
   const position = THREE.MathUtils.clamp(travelProgress, 0, last);
   const index = Math.min(last, Math.floor(position));
@@ -189,7 +189,8 @@ function SceneMotion({ stops, travelProgress, onSelectRound, closeUp }: ScenePro
     invalidate();
   }, [travelProgress, closeUp, desiredPitch, desiredYaw, invalidate]);
 
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
+    const camera = state.camera;
     if (!globe.current) return;
     const smoothing = 1 - Math.exp(-Math.min(0.1, delta) * 3.6);
     const rotation = globe.current.rotation;
