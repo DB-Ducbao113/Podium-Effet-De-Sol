@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import type { CSSProperties, PointerEventHandler } from 'react';
 import { animate, createScope } from 'animejs';
 import { ArrowDown, ArrowRight, Move3d } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -36,7 +37,7 @@ export function PodiumBrandHero() {
     if (pointerFrame.current !== null) cancelAnimationFrame(pointerFrame.current);
   }, []);
 
-  const moveScene: React.PointerEventHandler<HTMLElement> = (event) => {
+  const moveScene: PointerEventHandler<HTMLElement> = (event) => {
     if (reducedMotion || event.pointerType === 'touch') return;
     const root = heroRef.current;
     if (!root) return;
@@ -132,7 +133,7 @@ export function PodiumBrandHero() {
         <div className="r1-cinema__launch" aria-hidden="true" data-launch-reveal>
           <span className="r1-cinema__launch-name">LAUNCH CONTROL</span>
           <div className="r1-cinema__lights">
-            {Array.from({ length: 5 }, (_, index) => <span key={index} style={{ '--light-index': index } as React.CSSProperties} />)}
+            {Array.from({ length: 5 }, (_, index) => <span key={index} style={{ '--light-index': index } as CSSProperties} />)}
           </div>
           <span className="r1-cinema__launch-caption">FIVE LIGHTS / ONE START</span>
         </div>
