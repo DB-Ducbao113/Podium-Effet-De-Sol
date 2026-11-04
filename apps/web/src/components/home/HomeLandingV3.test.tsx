@@ -25,7 +25,8 @@ describe('Homepage Cinematic V7', () => {
     expect(html).toContain('peds-aero01-car.webp');
     expect(html).toContain('data-f1-visual="cinematic-2.5d"');
     expect(html).toContain('f1hero__vehicle');
-    expect(html).toContain('f1hero__airflow');
+    expect(html).toContain('f1hero__aero');
+    expect(html).toContain('data-f1-effects="ignition-v83"');
     expect(html).toContain('data-home-hero-visual="f1-2.5d"');
     expect(html).not.toContain('MODEL B / DIGITAL TWIN');
     expect(html).not.toContain('ACTIVATE 3D');
