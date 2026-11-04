@@ -64,6 +64,17 @@ No asset was added, moved or re-licensed in this stage. The proposal (schematic-
 
 `apps/web/public/images/p5/hero/lando-helmet-2024.jpg` is a 1,280 × 1,280 Wikimedia Commons thumbnail of Lando Norris's 2024 helmet, photographed on 18 April 2024 by Liauzh and published under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). The [source page](https://commons.wikimedia.org/wiki/File:Lando_Norris_Helmet_2024.jpg) identifies the subject and photographer. The source bytes are retained; the runtime applies CSS crop, reduced saturation and red/orange lighting. The hero labels the image as archival and links the source and license. Bytes and SHA-256 are in `docs/asset-manifests/p5-drivers-hero.json`. Commercial use and related trade dress remain subject to owner/legal review.
 
+## Homepage Explore V1 — 04/11/2026 (feature branch review)
+
+| Visual | Runtime path | Source / treatment |
+|---|---|---|
+| Showroom card | `public/images/p4/template/rc-hero-1344.{avif,webp}` | Reuses the previously approved original, unbranded ART-RC-HERO artwork. It is illustrative and not the owner-locked Model B or EDS-G01. |
+| Engineering card | `public/images/home/explore/engineering-flow.svg` | New project-original, model-free technical illustration authored for the Homepage. Not computed CFD or measured telemetry. |
+| Drivers card | `public/images/home/explore/driver-helmet.svg` | New project-original generic helmet drawing; no driver likeness or sponsor marks. |
+| Teams card | `public/images/home/explore/team-garage.svg` | New project-original fictional pit garage; no team name, sponsor or real venue. |
+
+All four images are decorative gateway art with empty alt text; visible titles, destination links and hover effects are rendered in HTML/CSS. The prior AI concept sheet containing recognizable team/driver branding is **NOT** imported. No owner-locked video, logo, Showroom model or disallowed EDS-G01 derivative is modified or used as a source. This feature branch is for review; no production deployment is authorized by the asset inventory.
+
 ## Excluded or local-only assets
 
 - Model B Meshopt v1 is the selected Showroom runtime model at `apps/web/public/models/model-b-eds-optimized-v1.glb`; the frozen source and attribution record are under `source-assets/models/model-b/`. Its SHA-256 is `2D0091661DACE5D6C61AEBF898B4974644B44E43A5E8D10F602685C1631610A2`. The source is “Formula 1 2022 Car” by Luis Adrian V. (`luis.adrian.villagrana`) on [Sketchfab](https://sketchfab.com/3d-models/formula-1-2022-car-65dcd974798f4f03be5cdf4f79e228d8), licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). The optimized file replaces materials, removes texture dependencies, consolidates the scene, and applies quantized Meshopt delivery. The owner states that commercial use is authorized; visual, performance, and release QA remain separate gates.
