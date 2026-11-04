@@ -42,10 +42,14 @@ export function HomeJourneyMotion() {
       raf = 0;
       if (document.hidden) return;
       const height = Math.max(document.documentElement.scrollHeight, host.scrollHeight);
-      host.style.setProperty('--home-scroll-progress', getHomePageProgress(window.scrollY, height, window.innerHeight).toFixed(4));
+      const progress = getHomePageProgress(window.scrollY, height, window.innerHeight);
+      host.style.setProperty('--home-scroll-progress', progress.toFixed(4));
+      host.style.setProperty('--home-vector-offset', ((progress - .5) * 115).toFixed(1) + 'px');
       const rects = nodes.map((node) => {
         const rect = node.getBoundingClientRect();
-        node.style.setProperty('--home-chapter-progress', getHomeSectionProgress(rect.top, rect.height, window.innerHeight).toFixed(3));
+        const sectionProgress = getHomeSectionProgress(rect.top, rect.height, window.innerHeight);
+        node.style.setProperty('--home-chapter-progress', sectionProgress.toFixed(3));
+        node.style.setProperty('--home-chapter-offset', ((sectionProgress - .5) * 32).toFixed(1) + 'px');
         return { id: node.id as (typeof HOME_CHAPTER_IDS)[number], top: rect.top, bottom: rect.bottom };
       });
       host.dataset.homeChapter = getCurrentHomeChapter(rects, window.innerHeight);
@@ -91,9 +95,11 @@ export function HomeJourneyMotion() {
       delete host.dataset.homeMotion;
       delete host.dataset.homeMotionPlayback;
       host.style.removeProperty('--home-scroll-progress');
+      host.style.removeProperty('--home-vector-offset');
       nodes.forEach((node) => {
         delete node.dataset.homeEntered;
         node.style.removeProperty('--home-chapter-progress');
+        node.style.removeProperty('--home-chapter-offset');
       });
     };
   }, []);
