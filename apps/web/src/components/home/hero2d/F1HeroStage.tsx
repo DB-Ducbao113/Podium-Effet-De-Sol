@@ -36,7 +36,10 @@ export function F1HeroStage() {
       layer.style.setProperty('--f1-pitch', pose.pitch.toFixed(2) + 'deg');
       layer.style.setProperty('--f1-shine-x', pose.shineX.toFixed(2) + '%');
       layer.style.setProperty('--f1-shine-y', pose.shineY.toFixed(2) + '%');
-      layer.style.setProperty('--f1-energy', Math.min(1, Math.hypot(x, y) * .65).toFixed(3));
+      const energy = Math.min(1, Math.hypot(x, y) * .65);
+      layer.style.setProperty('--f1-reflection-opacity', (0.22 + energy * .12).toFixed(3));
+      layer.style.setProperty('--f1-air-back-opacity', (0.35 + energy * .23).toFixed(3));
+      layer.style.setProperty('--f1-air-front-opacity', (0.20 + energy * .30).toFixed(3));
       if (Math.abs(x - targetX) > .003 || Math.abs(y - targetY) > .003) raf = requestAnimationFrame(apply);
       else lastTime = 0;
     };
