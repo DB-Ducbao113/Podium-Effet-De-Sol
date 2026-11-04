@@ -1,0 +1,94 @@
+/* H1.0 / Racing Motion V1: lightweight visual instrumentation.
+ * Never change the owner-locked H3.2 video, poster or playback logic.
+ */
+.r1-cinema__visual::after {
+  content: '';
+  position: absolute;
+  z-index: 3;
+  inset: 9% 6% 15% 5%;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(255,74,24,.8), rgba(255,74,24,0)) left top / 72px 1px no-repeat,
+    linear-gradient(180deg, rgba(255,74,24,.65), rgba(255,74,24,0)) left top / 1px 52px no-repeat,
+    linear-gradient(270deg, rgba(244,240,232,.68), rgba(244,240,232,0)) right bottom / 72px 1px no-repeat,
+    linear-gradient(0deg, rgba(244,240,232,.6), rgba(244,240,232,0)) right bottom / 1px 52px no-repeat;
+  opacity: .76;
+}
+.r1-cinema__aero-field > span {
+  box-shadow: 0 0 10px rgba(255,74,24,.35), 0 0 27px rgba(255,74,24,.13);
+}
+.r1-cinema__title-accent {
+  background: linear-gradient(110deg, var(--peds-color-ignition) 15%, #ff9065 37%, var(--peds-color-ignition) 60%);
+  background-size: 220% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.r1-cinema__actions button {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.r1-cinema__actions button::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 25%, rgba(255,255,255,.22) 49%, transparent 72%);
+  transform: translateX(-130%);
+  pointer-events: none;
+}
+.r1-cinema__actions button:active {
+  transform: translateY(1px) scale(.982);
+}
+.r1-cinema__actions button:focus-visible {
+  outline-color: var(--peds-color-focus);
+}
+.home-latest-gp__panel,
+.h1-countdown,
+.h25-leader {
+  transition: box-shadow 260ms ease, border-color 260ms ease, transform 260ms ease;
+}
+.h25-leader:focus-visible,
+.h1-countdown a:focus-visible,
+.home-latest-gp a:focus-visible {
+  outline: 2px solid var(--peds-color-focus);
+  outline-offset: 4px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .r1-cinema__actions button:hover::after {
+    animation: peds-hero-button-sweep 520ms cubic-bezier(.22, 1, .36, 1) both;
+  }
+  .home-latest-gp__panel:hover,
+  .h1-countdown:hover,
+  .h25-leader:hover {
+    box-shadow: 0 15px 34px rgba(0,0,0,.24), 0 0 0 1px rgba(255,74,24,.09);
+  }
+}
+@keyframes peds-hero-button-sweep {
+  from { transform: translateX(-130%); }
+  to { transform: translateX(140%); }
+}
+@keyframes peds-hero-energy {
+  0% { background-position: 100% 0; }
+  100% { background-position: 0 0; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .r1-cinema__title-accent {
+    animation: peds-hero-energy 7s ease-in-out 1 both;
+  }
+}
+@media (max-width: 860px) {
+  .r1-cinema__visual::after { inset: 7% 3% 12%; opacity: .46; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .r1-cinema__title-accent {
+    animation: none !important;
+    background: none !important;
+    -webkit-text-fill-color: currentColor;
+  }
+  .r1-cinema__actions button::after { display: none; }
+  .home-latest-gp__panel,
+  .h1-countdown,
+  .h25-leader { transition: none !important; }
+}
