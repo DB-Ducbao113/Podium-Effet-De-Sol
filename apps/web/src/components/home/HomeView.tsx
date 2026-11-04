@@ -9,6 +9,7 @@ import { HomeSeasonOverview } from './HomeSeasonOverview';
 import { HomeStoryLinks } from './HomeStoryLinks';
 import { PodiumBrandHero } from './PodiumBrandHero';
 import { HomeCinematicBackground } from './HomeCinematicBackground';
+import { HomeJourneyMotion } from './journey/HomeJourneyMotion';
 import './homepageH1.css';
 import './homeLandingV3.css';
 import './homeV83Interactions.css';
@@ -54,6 +55,7 @@ export function HomeView() {
   return (
     <div className="r1-primary r1-home h1-home home-v3 min-h-screen bg-studio-100">
       <HomeCinematicBackground />
+      <HomeJourneyMotion />
       <PodiumBrandHero />
       <div className="home-v3__content">
         <div id="r1-first-content" className="scroll-mt-20">
