@@ -5,9 +5,9 @@ import { ArrowDown, ArrowRight, Move3d } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useNavigationStore } from '../../store/useNavigationStore';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
-import { HomeHudScene } from './HomeHudScene';
-import { HomeLaunchEnvironment } from './HomeLaunchEnvironment';
+import { HomeRacePulseScene } from './HomeRacePulseScene';
 import './podiumHeroR1.css';
+import './homeHeroV7.css';
 
 const chapters = [
   { number: '01', id: 'launch-control' },
@@ -101,7 +101,7 @@ export function PodiumBrandHero() {
     <section
       ref={heroRef}
       id="launch-control"
-      className="r1-cinema r1-cinema--v6"
+      className="r1-cinema r1-cinema--v7"
       data-lang={lang}
       data-visible="true"
       data-motion-engine={reducedMotion ? 'reduced' : 'animejs'}
@@ -109,7 +109,6 @@ export function PodiumBrandHero() {
       onPointerMove={moveScene}
       onPointerLeave={resetScene}
     >
-      <HomeLaunchEnvironment />
       <div className="r1-cinema__inner page-container">
         <div className="r1-cinema__copy">
           <p className="r1-cinema__eyebrow" data-launch-reveal>
@@ -135,7 +134,7 @@ export function PodiumBrandHero() {
             <span>LAUNCH CONTROL</span>
             <span>EDS / 01</span>
           </div>
-          <HomeHudScene lang={lang} />
+          <HomeRacePulseScene />
         </div>
       </div>
       <nav className="r1-cinema__chapters" aria-label={lang === 'vi' ? 'Đi tới khu vực trang chủ' : 'Homepage sections'}>
