@@ -1,113 +1,128 @@
+import type { CSSProperties, PointerEvent } from 'react';
 import { Link } from 'react-router-dom';
-import type { CSSProperties } from 'react';
-import { ArrowUpRight, BookOpen, Box, Compass, FlagTriangleRight, Move3d, Shield, Trophy, Users } from 'lucide-react';
-import { ENGINEERING_ARTICLES } from '../../data/engineeringArticles';
+import { ArrowUpRight, Box, Move3d, Shield, Users } from 'lucide-react';
 import { useNavigationStore } from '../../store/useNavigationStore';
 import { useReveal } from '../../hooks/useReveal';
+import './homeExploreV2.css';
+
+type ExploreArtwork = {
+  webp?: string;
+  avif?: string;
+  image: string;
+};
+
+type ExploreEntry = {
+  id: 'showroom' | 'engineering' | 'drivers' | 'teams';
+  to: string;
+  label: string;
+  Icon: typeof Box;
+  artwork: ExploreArtwork;
+};
+
+function handleCardPointerMove(event: PointerEvent<HTMLAnchorElement>) {
+  if (event.pointerType !== 'mouse' && event.pointerType !== 'pen') return;
+  const rect = event.currentTarget.getBoundingClientRect();
+  if (!rect.width || !rect.height) return;
+  const x = Math.min(100, Math.max(0, ((event.clientX - rect.left) / rect.width) * 100));
+  const y = Math.min(100, Math.max(0, ((event.clientY - rect.top) / rect.height) * 100));
+  event.currentTarget.style.setProperty('--ex-pointer-x', `${x.toFixed(1)}%`);
+  event.currentTarget.style.setProperty('--ex-pointer-y', `${y.toFixed(1)}%`);
+}
+
+function clearCardPointer(event: PointerEvent<HTMLAnchorElement>) {
+  event.currentTarget.style.removeProperty('--ex-pointer-x');
+  event.currentTarget.style.removeProperty('--ex-pointer-y');
+}
 
 export function HomeStoryLinks() {
   const lang = useNavigationStore((state) => state.lang);
   const insideMachineTrialEnabled = import.meta.env.DEV;
-  const { ref: exploreRef, isRevealed: exploreRevealed } = useReveal(0.12);
-  const { ref: editorialRef, isRevealed: editorialRevealed } = useReveal(0.12);
+  const { ref, isRevealed } = useReveal(0.1);
 
-  const cards = [
+  // The four gateways are teasers only. Race data, standings, long-form copy
+  // and engineering detail belong to their destination pages.
+  const cards: ExploreEntry[] = [
     {
-      to: '/season/2026?tab=results',
-      Icon: FlagTriangleRight,
-      tone: 'racing',
-      type: lang === 'vi' ? 'Kết quả' : 'Results',
-      title: lang === 'vi' ? 'Mọi kết quả. Đã xác minh.' : 'Every result. Verified.',
-      copy: lang === 'vi' ? 'Phân loại chặng đua từ dữ liệu giải đấu đã xác minh.' : 'Race classifications from verified championship data.',
-      cta: lang === 'vi' ? 'Xem kết quả' : 'Open results',
-    },
-    {
-      to: '/season/2026?tab=standings',
-      Icon: Trophy,
-      tone: 'racing',
-      type: lang === 'vi' ? 'Bảng xếp hạng' : 'Standings',
-      title: lang === 'vi' ? 'Cuộc đua danh hiệu.' : 'The title fight.',
-      copy: lang === 'vi' ? 'Tay đua và đội đua từ cùng nguồn bảng xếp hạng đã xác minh.' : 'Drivers and constructors from the same verified standings.',
-      cta: lang === 'vi' ? 'Xem bảng xếp hạng' : 'View standings',
-    },
-    {
-      to: '/drivers',
-      Icon: Users,
-      tone: 'slate',
-      type: lang === 'vi' ? 'Tay đua' : 'Drivers',
-      title: lang === 'vi' ? 'Gặp gỡ các tay đua.' : 'Meet the grid.',
-      copy: lang === 'vi' ? 'Hồ sơ và thông số mùa giải của từng tay đua.' : 'Profiles and season numbers for every driver.',
-      cta: lang === 'vi' ? 'Khám phá tay đua' : 'Browse drivers',
-    },
-    {
-      to: '/teams',
-      Icon: Shield,
-      tone: 'slate',
-      type: lang === 'vi' ? 'Đội đua' : 'Teams',
-      title: lang === 'vi' ? 'Các đội đua.' : 'The constructors.',
-      copy: lang === 'vi' ? 'Những đội đua và câu chuyện kỹ thuật phía sau màn trình diễn.' : 'The teams and engineering stories behind the performance.',
-      cta: lang === 'vi' ? 'Khám phá đội đua' : 'Browse teams',
-    },
-    {
+      id: 'showroom',
       to: '/showroom',
+      label: 'Showroom 3D',
       Icon: Move3d,
-      tone: 'showroom',
-      type: 'Showroom 3D',
-      title: lang === 'vi' ? 'Từng đường nét. Mọi góc nhìn.' : 'Every line. Every angle.',
-      copy: lang === 'vi' ? 'Khám phá chiếc xe tham chiếu trong Showroom 3D tương tác.' : 'Explore the reference car in the interactive 3D Showroom.',
-      cta: lang === 'vi' ? 'Khám phá 3D' : 'Explore in 3D',
+      artwork: {
+        image: '/images/p4/template/rc-hero-1344.webp',
+        webp: '/images/p4/template/rc-hero-1344.webp',
+        avif: '/images/p4/template/rc-hero-1344.avif',
+      },
     },
     {
+      id: 'engineering',
       to: insideMachineTrialEnabled ? '/engineering' : '/engineering/car-anatomy',
+      label: lang === 'vi' ? 'Kỹ thuật' : 'Engineering',
       Icon: Box,
-      tone: 'engineering',
-      type: lang === 'vi' ? 'Kỹ thuật' : 'Engineering',
-      title: lang === 'vi' ? 'Giải mã tốc độ.' : 'Anatomy of speed.',
-      copy: insideMachineTrialEnabled
-        ? lang === 'vi'
-          ? 'Đi vào bên trong chiếc xe tham chiếu: hình học, chuyển động và lời giải thích kỹ thuật có kiểm chứng nguồn.'
-          : 'Step inside the reference car — geometry, motion and source-checked engineering explanations.'
-        : lang === 'vi'
-          ? 'Sàn xe, luồng khí và những lựa chọn kỹ thuật — với chú thích giáo dục thận trọng.'
-          : 'Floor, airflow and engineering choices — with carefully qualified educational notes.',
-      cta: insideMachineTrialEnabled ? 'Inside the Machine' : lang === 'vi' ? 'Giải phẫu xe' : 'Car anatomy',
+      artwork: { image: '/images/home/explore/engineering-flow.svg' },
+    },
+    {
+      id: 'drivers',
+      to: '/drivers',
+      label: lang === 'vi' ? 'Tay đua' : 'Drivers',
+      Icon: Users,
+      artwork: { image: '/images/home/explore/driver-helmet.svg' },
+    },
+    {
+      id: 'teams',
+      to: '/teams',
+      label: lang === 'vi' ? 'Đội đua' : 'Teams',
+      Icon: Shield,
+      artwork: { image: '/images/home/explore/team-garage.svg' },
     },
   ];
 
-  return <>
-    <section ref={exploreRef} className="page-container h25-explore h25-reveal" data-revealed={exploreRevealed} aria-labelledby="h25-explore-title">
-      <div className="h25-explore__heading">
-        <p className="home-section-index"><Compass size={16} aria-hidden="true" /> 04 / {lang === 'vi' ? 'Khám phá' : 'Explore'}</p>
-        <h2 id="h25-explore-title" className="home-section-title">{lang === 'vi' ? 'Chọn chặng đường tiếp theo.' : 'Choose your next lap.'}</h2>
-        <p className="home-section-copy">{lang === 'vi' ? 'Sáu lối vào giải đấu, showroom 3D và kho kỹ thuật.' : 'Six ways into the championship, the 3D showroom and the engineering archive.'}</p>
-      </div>
-      <div className="h25-explore__grid">
-        {cards.map(({ to, Icon, tone, type, title, copy, cta }) => (
-          <Link key={to} to={to} className={`h25-card h25-card--${tone}`}>
-            <span className="h25-icon" aria-hidden="true"><Icon size={26} strokeWidth={1.5} /></span>
-            <span className="h25-card__body">
-              <span className="h25-card__type">{type}</span>
-              <strong>{title}</strong>
-            </span>
-            <span className="h25-card__copy">{copy}</span>
-            <span className="h25-card__link">{cta} <ArrowUpRight size={16} aria-hidden="true" /></span>
-          </Link>
-        ))}
+  return (
+    <section
+      ref={ref}
+      className="page-container eds-explore h25-reveal"
+      data-revealed={isRevealed}
+      aria-labelledby="eds-explore-title"
+    >
+      <header className="eds-explore__header">
+        <span className="eds-explore__mark" aria-hidden="true" />
+        <h2 id="eds-explore-title">
+          {lang === 'vi' ? 'Khám phá Podium EDS' : 'Explore Podium EDS'}
+        </h2>
+        <span className="eds-explore__header-rule" aria-hidden="true" />
+      </header>
+      <div className="eds-explore__grid">
+        {cards.map((card, index) => {
+          const Icon = card.Icon;
+          return (
+            <Link
+              key={card.id}
+              to={card.to}
+              className={`eds-explore__card eds-explore__card--${card.id}`}
+              onPointerMove={handleCardPointerMove}
+              onPointerLeave={clearCardPointer}
+              style={{ '--ex-order': index } as CSSProperties}
+            >
+              <div className="eds-explore__art" aria-hidden="true">
+                <picture>
+                  {card.artwork.avif && <source type="image/avif" srcSet={card.artwork.avif} />}
+                  {card.artwork.webp && <source type="image/webp" srcSet={card.artwork.webp} />}
+                  <img src={card.artwork.image} alt="" loading="lazy" decoding="async" />
+                </picture>
+              </div>
+              <span className="eds-explore__grid-lines" aria-hidden="true" />
+              <span className="eds-explore__light-pass" aria-hidden="true" />
+              <span className="eds-explore__number" aria-hidden="true">
+                {String(index + 1).padStart(2, '0')}
+              </span>
+              <span className="eds-explore__bottom">
+                <span className="eds-explore__icon" aria-hidden="true"><Icon size={22} strokeWidth={1.7} /></span>
+                <strong>{card.label}</strong>
+                <ArrowUpRight className="eds-explore__arrow" size={21} aria-hidden="true" />
+              </span>
+            </Link>
+          );
+        })}
       </div>
     </section>
-    <section ref={editorialRef} className="page-container h25-editorial h25-reveal" data-revealed={editorialRevealed} aria-labelledby="h25-editorial-title">
-      <div className="h25-editorial__heading">
-        <p className="home-section-index"><BookOpen size={16} aria-hidden="true" /> 05 / Editorial</p>
-        <h2 id="h25-editorial-title" className="home-section-title">{lang === 'vi' ? 'Đọc sâu hơn.' : 'Go deeper.'}</h2>
-        <p className="home-section-copy">{lang === 'vi' ? 'Bài phân tích kỹ thuật đã kiểm tra nguồn; tiếp tục cần biên tập viên duyệt nội dung.' : 'Source-checked technical explainers; editorial human review is still required.'}</p>
-      </div>
-      <div className="h25-editorial__grid">
-        {ENGINEERING_ARTICLES.slice(0, 3).map((article, index) => <Link key={article.slug} to={`/engineering/${article.slug}`} className="h25-editorial__card" style={{ '--h25-stagger': `${index * 90}ms` } as CSSProperties}>
-          <span>{String(index + 1).padStart(2, '0')} / {article.topic[lang]}</span>
-          <strong>{article.title[lang]}</strong>
-          <small>{article.readingMinutes} {lang === 'vi' ? 'phút đọc' : 'min read'} <ArrowUpRight size={15} aria-hidden="true" /></small>
-        </Link>)}
-      </div>
-    </section>
-  </>;
+  );
 }
