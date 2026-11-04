@@ -13,7 +13,7 @@ export const RaceResults: React.FC<{ season: SeasonYear }> = React.memo(({ seaso
 
   useEffect(() => {
     const query = new URLSearchParams(location.search);
-    if (query.has('round') || query.get('view') === 'classic') setMode('classic');
+    setMode(query.has('round') || query.get('view') === 'classic' ? 'classic' : 'journey');
   }, [location.search]);
 
   return (
