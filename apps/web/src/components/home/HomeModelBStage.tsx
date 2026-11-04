@@ -126,7 +126,7 @@ export function HomeModelBStage({ mode, active, reducedMotion, lang }: {
       <Canvas
         frameloop="demand"
         dpr={[1, 1.35]}
-        camera={{ position: [3.5, 1.6, -4.0], fov: 42, near: .05, far: 60 }}
+        camera={{ position: [4.8, 2.5, -5.6], fov: 42, near: .05, far: 60 }}
         gl={{ alpha: true, antialias: false, powerPreference: 'low-power' }}
         onCreated={({ gl }) => {
           gl.outputColorSpace = THREE.SRGBColorSpace;
@@ -141,7 +141,7 @@ export function HomeModelBStage({ mode, active, reducedMotion, lang }: {
         <directionalLight position={[-2, 3, -5]} intensity={1.4} color="#ff5c31" />
         <gridHelper args={[9, 18, '#31566c', '#162c40']} position={[0, -.035, 0]} />
         <ModelBObject onReady={onReady} onFailure={onFailure} />
-        <ModelBCamera mode={mode} active={active} reducedMotion={reducedMotion} />
+        <ModelBCamera mode={mode} active={active && ready} reducedMotion={reducedMotion} />
       </Canvas>
     </div>
   );
