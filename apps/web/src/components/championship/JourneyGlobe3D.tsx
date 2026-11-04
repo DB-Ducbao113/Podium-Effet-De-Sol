@@ -124,7 +124,8 @@ function Route({ from, to, completedFraction }: {
       new THREE.CatmullRomCurve3(arcPoints(from, to)), ARC_SEGMENTS, 0.0048, ARC_SIDES, false,
     ),
   [from, to]);
-  useEffect(() => () => geometry.dispose(), [geometry]);
+  const ghostGeometry = useMemo(() => geometry.clone(), [geometry]);
+  useEffect(() => () => { geometry.dispose(); ghostGeometry.dispose(); }, [geometry, ghostGeometry]);
   useEffect(() => {
     const segmentCount = Math.round(THREE.MathUtils.clamp(completedFraction, 0, 1) * ARC_SEGMENTS);
     geometry.setDrawRange(0, segmentCount * ARC_SIDES * 6);
@@ -132,7 +133,7 @@ function Route({ from, to, completedFraction }: {
   }, [completedFraction, geometry, invalidate]);
   return (
     <>
-      <mesh geometry={geometry} renderOrder={2}>
+      <mesh geometry={ghostGeometry} renderOrder={2}>
         <meshBasicMaterial color="#436b7b" transparent opacity={0.28} depthWrite={false} />
       </mesh>
       <mesh geometry={geometry} renderOrder={3}>
@@ -165,6 +166,7 @@ function StopMarker({ stop, visited, active, onSelectRound }: {
 
 function SceneMotion({ stops, travelProgress, onSelectRound, closeUp }: SceneProps) {
   const globe = useRef<THREE.Group>(null);
+  const firstFrame = useRef(true);
   const { camera, invalidate } = useThree();
   const last = Math.max(0, stops.length - 1);
   const position = THREE.MathUtils.clamp(travelProgress, 0, last);
@@ -179,7 +181,13 @@ function SceneMotion({ stops, travelProgress, onSelectRound, closeUp }: ScenePro
   const desiredPitch = latitude;
   const distance = (closeUp ? 3.22 : 3.78) + Math.sin(fraction * Math.PI) * 0.15;
 
-  useEffect(() => { invalidate(); }, [travelProgress, closeUp, invalidate]);
+  useEffect(() => {
+    if (firstFrame.current && globe.current) {
+      globe.current.rotation.set(desiredPitch, desiredYaw, 0, 'XYZ');
+      firstFrame.current = false;
+    }
+    invalidate();
+  }, [travelProgress, closeUp, desiredPitch, desiredYaw, invalidate]);
 
   useFrame((_, delta) => {
     if (!globe.current) return;
@@ -253,7 +261,7 @@ export function JourneyGlobe3D({ season, calendar, travelProgress, onSelectRound
         <SceneMotion stops={stops} travelProgress={travelProgress}
           onSelectRound={onSelectRound} closeUp={closeUp} />
       </Canvas>
-      <span className="rcj-globe-caption">51.507° / 0.000° · PODIUM EDS / GEO RACE ENGINE</span>
+      <span className="rcj-globe-caption">PODIUM EDS / GEOGRAPHIC RACING ATLAS</span>
     </div>
   );
 }
