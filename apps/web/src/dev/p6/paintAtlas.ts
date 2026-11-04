@@ -185,16 +185,16 @@ export function createPaintAtlas(team: PrecisionTeam): THREE.CanvasTexture {
     fill(ctx, 2, '#111315', [[-2.525,-1.1],[-1.95,-1.1],[-1.95,-.54],[-2.525,-.54]], true);
     fill(ctx, 2, '#111315', [[-2.525,.54],[-1.95,.54],[-1.95,1.1],[-2.525,1.1]], true);
   } else {
-    // Belgium-onward black/white version. Both physical sides use the same scheme.
+    // Cadillac's February 2026 standard launch is intentionally asymmetric.
+    // Physical left is light, physical right is dark; the Belgium revision is
+    // NOT the canonical season-default for this local study.
     ctx.fillStyle = '#111315'; ctx.fillRect(0, 0, canvas.width, panel);
-    for (const column of sides) {
-      fill(ctx, column, '#edece8', [[-1.86, .52], [-.64, .47], [-.22, .67], [.22, .7], [.62, .54], [1.62, .51], [1.81, .62], [1.81, 1.1], [-1.86, 1.1]]);
-      fill(ctx, column, '#edece8', [[1.88, 0], [2.525, 0], [2.525, 1.1], [1.88, 1.1]]);
-      fill(ctx, column, '#edece8', [[-1.86, .2], [-.64, .2], [-.64, .47], [-1.86, .52]]);
-    }
-    ctx.fillStyle = '#edece8'; ctx.fillRect(panel * 2, 0, panel, panel);
-    fill(ctx, 2, '#111315', [[-2.525, -.97], [-1.86, -.97], [-1.86, -.35], [-2.525, -.35]], true);
-    fill(ctx, 2, '#111315', [[-2.525, .35], [-1.86, .35], [-1.86, .97], [-2.525, .97]], true);
+    ctx.fillStyle = '#e6e6e2'; ctx.fillRect(0, 0, panel, panel);
+    fill(ctx, 0, '#d4d7d5', [[-.78,.18],[-.22,.22],[.20,.18],[.58,.25],[1.56,.22],[1.56,.39],[.58,.43],[.20,.36],[-.22,.40],[-.78,.33]]);
+    fill(ctx, 1, '#1c2023', [[-.78,.18],[-.22,.22],[.20,.18],[.58,.25],[1.56,.22],[1.56,.39],[.58,.43],[.20,.36],[-.22,.40],[-.78,.33]]);
+    // topX mirrors model-space X: physical left occupies the right atlas half.
+    ctx.fillStyle = '#111315'; ctx.fillRect(panel * 2, 0, panel, panel);
+    ctx.fillStyle = '#e6e6e2'; ctx.fillRect(panel * 2 + panel / 2, 0, panel / 2, panel);
   }
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
