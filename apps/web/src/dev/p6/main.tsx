@@ -8,6 +8,7 @@ import { StudioCameraController } from './StudioCameraController';
 import { loadModelB, disposeModelB } from '../commercial-b/modelBLoader';
 import { createLiveryRuntime } from './liveryRuntime';
 import { teamLiveries, type TeamLivery } from './teamLiveries';
+import { STANDARD_2026_REFERENCE_SETS } from './standard2026References';
 import { badgeForTeam } from './officialArtwork';
 import { AuthorPanel } from './AuthorPanel';
 import '@fontsource/barlow-condensed/700.css';
@@ -16,6 +17,7 @@ import '@fontsource-variable/manrope/index.css';
 type LightMode = 'Studio' | 'Team' | 'Presentation' | 'Night';
 type Panel = 'paint' | 'advanced' | null;
 type RenderMetrics = { fps: number; frameP95Ms: number; drawCalls: number; triangles: number; textures: number };
+type PlacementSummary = { placed: number; adapted: number; unplaced: number; blocked: number };
 const authorMode = new URLSearchParams(window.location.search).get('author') === '1';
 type AuthorApi = ReturnType<typeof createLiveryRuntime>['author'];
 function setSceneReflections(scene: THREE.Scene, texture: THREE.Texture | null) {
@@ -212,13 +214,27 @@ export function App({ embedded = false }: { embedded?: boolean }) {
   const [error, setError] = React.useState('');
   const [bytes, setBytes] = React.useState(0);
   const [readyTeam, setReadyTeam] = React.useState('');
+  const [placementSummary, setPlacementSummary] = React.useState<PlacementSummary | null>(null);
   const [authorApi, setAuthorApi] = React.useState<AuthorApi | null>(null);
   const [reduced, setReduced] = React.useState(matchMedia('(prefers-reduced-motion: reduce)').matches);
   const paintButton = React.useRef<HTMLButtonElement>(null);
   const mobileAdvancedButton = React.useRef<HTMLButtonElement>(null);
   const onLoad = React.useCallback((count: number) => { setBytes(count); setLoaded(true); }, []);
   const onFailure = React.useCallback((message: string) => setError(message), []);
-  const onTeamReady = React.useCallback((id: string) => { setReadyTeam(id); setError(''); }, []);
+  const onTeamReady = React.useCallback((id: string) => {
+    setReadyTeam(id);
+    setError('');
+    const debug = (window as Window & {
+      __P6_LIVERY_DEBUG__?: () => { placementAudit?: Array<{ state: keyof PlacementSummary }> };
+    }).__P6_LIVERY_DEBUG__?.();
+    const rows = debug?.placementAudit ?? [];
+    setPlacementSummary({
+      placed: rows.filter((item) => item.state === 'placed').length,
+      adapted: rows.filter((item) => item.state === 'adapted').length,
+      unplaced: rows.filter((item) => item.state === 'unplaced').length,
+      blocked: rows.filter((item) => item.state === 'blocked').length,
+    });
+  }, []);
   const onAuthorReady = React.useCallback((api: AuthorApi | null) => setAuthorApi(api), []);
   React.useEffect(() => {
     const media = matchMedia('(prefers-reduced-motion: reduce)');
@@ -252,6 +268,12 @@ export function App({ embedded = false }: { embedded?: boolean }) {
       </dl>
       <p>Live browser estimate. Physical device performance still needs separate review.</p>
     </div>
+    <div className="advanced-group"><h3>Decal surface QA</h3>
+      {placementSummary && readyTeam === team.id
+        ? <p>{placementSummary.placed} direct · {placementSummary.adapted} resized/repositioned · {placementSummary.unplaced} unplaced · {placementSummary.blocked} blocked</p>
+        : <p>Waiting for geometry placement scan…</p>}
+      <p>25 samples per mark. Coverage, curvature and stretch are checked before drawing. A geometry pass does not replace visual or licensing approval.</p>
+    </div>
     <div className="advanced-group"><h3>Body surface</h3><label className="surface-control">Gloss response <output>{`${Math.round((1 - surface) * 100)}%`}</output><input type="range" min="0.18" max="0.72" step="0.01" value={surface} onChange={(event) => setSurface(Number(event.target.value))} /></label></div>
   </>;
   return <div className={`app ${panel ? `panel-${panel}` : ''}`} style={{ '--team-accent': team.accent, '--team-primary': team.primary } as React.CSSProperties}>
@@ -267,7 +289,7 @@ export function App({ embedded = false }: { embedded?: boolean }) {
       <div className="config-head"><h2>CONFIGURE</h2><span>MODEL B · LIVE 3D</span></div>
       <div className="config-tabs" role="tablist" aria-label="Configuration groups">{(['paint','advanced','lighting'] as const).map((item) => <button type="button" role="tab" aria-selected={tab === item} className={tab === item ? 'selected' : ''} key={item} onClick={() => setTab(item)}>{item === 'paint' ? 'TEAM LIVERY' : item.toUpperCase()}</button>)}</div>
       <div className="config-content" role="tabpanel">
-        {tab === 'paint' && <><div className="section-heading"><h3>2026 livery study</h3><span>{String(teamLiveries.indexOf(team) + 1).padStart(2, '0')} / 11</span></div><p>All eleven cars have multi-region paint studies and sourced team badges. Sponsor coverage and positions remain under visual review.</p>{swatches}<div className="selected-paint">{badgeForTeam[team.id] ? <img className="team-badge" src={badgeForTeam[team.id]} alt="" /> : <span style={{ background: `linear-gradient(135deg, ${team.primary} 50%, ${team.secondary} 50%)` }} />}<div><small>3D LIVERY STUDY · {team.finish.toUpperCase()}</small><strong>{team.name} · {team.car}</strong></div></div>{readyTeam !== team.id && <p className="artwork-progress" role="status">Applying sponsor artwork…</p>}<p className="team-description">{team.description}</p><a className="team-reference" href={team.reference} target="_blank" rel="noopener noreferrer">2026 reference ↗</a></>}
+        {tab === 'paint' && <><div className="section-heading"><h3>2026 livery study</h3><span>{String(teamLiveries.indexOf(team) + 1).padStart(2, '0')} / 11</span></div><p>All eleven cars have multi-region paint studies and sourced team badges. Sponsor coverage and positions remain under visual review.</p>{swatches}<div className="selected-paint">{badgeForTeam[team.id] ? <img className="team-badge" src={badgeForTeam[team.id]} alt="" /> : <span style={{ background: `linear-gradient(135deg, ${team.primary} 50%, ${team.secondary} 50%)` }} />}<div><small>3D LIVERY STUDY · {team.finish.toUpperCase()}</small><strong>{team.name} · {team.car}</strong></div></div>{readyTeam !== team.id && <p className="artwork-progress" role="status">Applying sponsor artwork…</p>}<p className="team-description">{team.description}</p><a className="team-reference" href={STANDARD_2026_REFERENCE_SETS[team.id as keyof typeof STANDARD_2026_REFERENCE_SETS].galleryUrl} target="_blank" rel="noopener noreferrer">2026 multi-angle reference ↗</a></>}
         {tab === 'advanced' && <><div className="section-heading"><h3>Advanced</h3><span>LIVE</span></div>{advancedControls}</>}
         {tab === 'lighting' && <><div className="section-heading"><h3>Lighting</h3><span>LIVE</span></div><p>Choose a real studio light arrangement.</p>{lights}</>}
       </div>
