@@ -548,7 +548,7 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
     if (first) { colors.set(target); attribute.needsUpdate = true; animating = false; first = false; }
     else animating = true;
     for (const accent of accents) accent.color.set(team.accent);
-    const keys = [...new Set(definition.decals.map((entry) => entry.artwork))];
+    const keys = [...new Set(definition.decals.filter((entry) => !REVIEW_BLOCKED_ARTWORK.has(entry.artwork)).map((entry) => entry.artwork))];
     const atlas = await getDecalAtlas(team.id, keys);
     if (disposed || request !== requestId) return false;
     if (activeAtlas && activeAtlas !== atlas) activeAtlas.map.dispose();
