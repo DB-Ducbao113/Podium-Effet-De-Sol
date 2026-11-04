@@ -151,7 +151,7 @@ export function F1HeroStage() {
   }, []);
 
   return (
-    <div ref={layerRef} className="f1hero" data-f1-visual="cinematic-2.5d" data-f1-effects="ignition-v83" aria-hidden="true">
+    <div ref={layerRef} className="f1hero" data-f1-visual="cinematic-2.5d" data-f1-effects="ignition-v83" data-f1-asset="webp" aria-hidden="true">
       <div className="f1hero__atmosphere" />
       <div className="f1hero__launch-streak" />
       <div className="f1hero__shock" />
@@ -192,7 +192,12 @@ export function F1HeroStage() {
             draggable={false}
             onError={(event) => {
               const image = event.currentTarget;
-              if (!image.src.endsWith('peds-aero01-fallback.svg')) image.src = CAR_FALLBACK;
+              if (!image.src.endsWith('peds-aero01-fallback.svg')) {
+                image.src = CAR_FALLBACK;
+                image.closest<HTMLElement>('.f1hero')?.style.setProperty('--f1-image-mask', `url("${CAR_FALLBACK}")`);
+                const stage = image.closest<HTMLElement>('.f1hero');
+                if (stage) stage.dataset.f1Asset = 'fallback';
+              }
             }}
           />
           <div className="f1hero__paint-light" />
