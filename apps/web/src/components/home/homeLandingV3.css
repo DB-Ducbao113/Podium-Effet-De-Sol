@@ -30,13 +30,13 @@
 }
 .home-live__slash {
   color: #ff4a18;
-  font: italic 900 1.65rem/1 var(--peds-font-display);
+  font: italic 800 1.65rem/1 var(--peds-font-display);
   letter-spacing: -.24em;
   padding-right: .3rem;
 }
 .home-live__heading h2 {
   margin: 0;
-  font: italic 850 clamp(1.6rem, 2.4vw, 2.6rem)/1 var(--peds-font-display);
+  font: italic 800 clamp(1.6rem, 2.4vw, 2.6rem)/1 var(--peds-font-display);
   letter-spacing: -.02em;
   color: #f4f0e8;
   text-transform: uppercase;
@@ -123,7 +123,7 @@
 .home-rc__identity h3 {
   margin: 1rem 0 .7rem;
   color: #f4f0e8;
-  font: italic 850 clamp(1.4rem, 2vw, 2.2rem)/1.02 var(--peds-font-display);
+  font: italic 800 clamp(1.4rem, 2vw, 2.2rem)/1.02 var(--peds-font-display);
   text-transform: uppercase;
   overflow-wrap: anywhere;
 }
@@ -152,7 +152,7 @@
   background: #050b12a8;
 }
 .home-rc__digits strong {
-  font: italic 800 clamp(1.65rem, 2.65vw, 3rem)/1 var(--peds-font-mono);
+  font: italic 600 clamp(1.65rem, 2.65vw, 3rem)/1 var(--peds-font-mono);
   font-variant-numeric: tabular-nums;
   letter-spacing: -.08em;
 }
@@ -185,7 +185,7 @@
 }
 .home-rc__result strong {
   margin-top: .4rem;
-  font: italic 900 clamp(3.8rem, 5.4vw, 6rem)/1 var(--peds-font-display);
+  font: italic 800 clamp(3.8rem, 5.4vw, 6rem)/1 var(--peds-font-display);
   color: #ff4a18;
   letter-spacing: -.045em;
 }
