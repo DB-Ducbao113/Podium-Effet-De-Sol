@@ -90,7 +90,7 @@ export function ChampionshipCalendar({ season }: { season: SeasonYear }) {
     (state) => state.setSelectedRaceRound,
   );
   const location = useLocation();
-  const [journeyMode, setJourneyMode] = useState(() => !new URLSearchParams(location.search).has('round'));
+  const [journeyMode, setJourneyMode] = useState(() => new URLSearchParams(location.search).get('journey') === '1');
   const navigate = useNavigate();
   const calendar = getCalendarBySeason(season);
   const [now, setNow] = useState(() => Date.now());
