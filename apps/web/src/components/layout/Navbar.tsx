@@ -7,6 +7,7 @@ import { isPrimaryPath, useMobileHub } from '../../hooks/useMobileHub';
 import { buttonClassName } from '../ui/buttonStyles';
 import { buildNavItems, type NavItem } from './navItems';
 import './navbarH1.css';
+import './navbarV4.css';
 
 export const Navbar = memo(function Navbar() {
   const { lang, setLang } = useNavigationStore();
@@ -121,7 +122,7 @@ export const Navbar = memo(function Navbar() {
   }, [menuOpen]);
 
   useEffect(() => {
-    const query = window.matchMedia('(min-width: 1024px)');
+    const query = window.matchMedia('(min-width: 1280px)');
     const onChange = () => {
       if (!query.matches) return;
       setMenuOpen(false);
@@ -186,8 +187,8 @@ export const Navbar = memo(function Navbar() {
   const mobileTarget = (item: NavItem) => item.id === 'overview' ? homeHref : item.to;
 
   return <>
-    <header aria-hidden={menuOpen || undefined} className={`h1-nav fixed inset-x-0 top-0 z-50 border-b border-white/10 ${scrolled ? 'h1-nav--scrolled' : ''}`}>
-      <div className="page-container h1-nav__bar flex h-16 items-center justify-between gap-3">
+    <header aria-hidden={menuOpen || undefined} className={`h1-nav h1-nav--v4 fixed inset-x-0 top-0 z-50 ${scrolled ? 'h1-nav--scrolled' : ''}`}>
+      <div className="page-container h1-nav__bar flex items-center justify-between gap-3">
         <Link
           to={homeHref}
           className="h1-nav__brand"
