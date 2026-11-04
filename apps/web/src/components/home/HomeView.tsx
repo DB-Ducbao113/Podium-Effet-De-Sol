@@ -11,6 +11,7 @@ import { PodiumBrandHero } from './PodiumBrandHero';
 import { HomeCinematicBackground } from './HomeCinematicBackground';
 import './homepageH1.css';
 import './homeLandingV3.css';
+import './homeV83Interactions.css';
 
 export function HomeView() {
   const [searchParams] = useSearchParams();
