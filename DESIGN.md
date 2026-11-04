@@ -12,13 +12,17 @@ Podium EDS uses an AERO / RACING EDITORIAL visual language: an operational race-
 
 The official raster logo and its original assets (`apps/web/public/logo/logo.png` and companions) must not be redrawn, retyped, recolored, recreated, cropped, distorted or deleted. Navigation may adjust only display height, padding and container; preserve the intrinsic aspect ratio and render the artwork without upscaling.
 
+## Homepage V8 owner override — AEROCORE (04/11/2026)
+
+The owner explicitly approved Concept C (Hybrid AEROCORE) on `feat/homepage-racing-motion-v1`. This overrides V7's **Homepage-specific CSS/SVG-only and track imagery requirements**, not the brand/asset locks. Keep the existing V7 HTML section layout, copy, navigation and controls. The Homepage background may use **one lazy, isolated WebGL Canvas** solely for original abstract carbon geometry, aerodynamic ribbons, programmable light and scroll camera. Never render a car, track, road, Model B, EDS-G01, showroom stage or licensed media in this background. Disable the optional WebGL experience for reduced motion, constrained mobile and unsupported browsers; keep an accessible CSS fallback. Never introduce Three.js into the initial Home UI shell. Do not modify Showroom or its assets.
+
 ## Asset locks (P4–P8 and all future work)
 
-**MODEL B — SHOWROOM ONLY (OWNER CLARIFICATION 04/11/2026).** Model B is the approved canonical 3D car, but belongs in Showroom, not on Homepage. Homepage must not import its loader, GLB, livery module, WebGL Canvas, duplicate 3D stage or EDS-G01. Keep original Model B bytes/hash and Showroom behavior unchanged.
+**MODEL B — SHOWROOM ONLY (OWNER CLARIFICATION 04/11/2026).** Model B is the approved canonical 3D car, but belongs in Showroom, not on Homepage. Homepage must not import Model B's loader, GLB, livery module, Showroom WebGL Canvas, duplicate car stage or EDS-G01. The separately isolated abstract AEROCORE V8 WebGL background is not a Model B scene. Keep original Model B bytes/hash and Showroom behavior unchanged.
 
 **EDS-G01 RETIRED.** EDS-G01 is no longer an active model. Never restore it to Showroom or Homepage, use it as a fallback, or derive artwork from it. Historical manifests and any legacy static paths are archival references; delete remaining files only after a dependency audit confirms zero active consumers.
 
-**HOMEPAGE VIDEO REMOVED — OWNER OVERRIDE 04/11/2026.** Tokyo Drift/H3.2 and its poster are not rendered or imported by Homepage. Original archived assets remain intact. The owner's V7 correction requires a cinematic, reactive racing background behind the **entire Homepage** (Hero, Race Control, Title Fight and Explore), not a 3D environment inside a Model B panel. Implement with original CSS/SVG paths, track perspective, dynamic light and viewport-safe effects; keep it usable without WebGL, external assets or animation.
+**HOMEPAGE VIDEO REMOVED — OWNER OVERRIDE 04/11/2026.** Tokyo Drift/H3.2 and its poster are not rendered or imported by Homepage. Original archived assets remain intact. The owner's V7 correction requires a cinematic, reactive racing background behind the **entire Homepage** (Hero, Race Control, Title Fight and Explore), not a 3D environment inside a Model B panel. The original V7 implementation used CSS/SVG track perspective. The owner's subsequent V8 AEROCORE override retires that road/track imagery in favor of an isolated, lazy-loaded abstract WebGL aerodynamic world, while preserving an attractive static CSS fallback without WebGL.
 
 **BRAND LOCK.** Never modify or replace the original PODIUM EDS logo or its companion raster assets. This extends the brand identity lock above and applies to every phase.
 
