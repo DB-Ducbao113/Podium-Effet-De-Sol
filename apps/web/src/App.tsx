@@ -202,6 +202,7 @@ export const App: React.FC = () => {
   const [scrollProgress, setScrollProgress] = useState<number>(0);
 
   useEffect(() => {
+    if (v9Preview) return;
     let ticking = false;
     const handleScroll = () => {
       if (!ticking) {
@@ -218,7 +219,7 @@ export const App: React.FC = () => {
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [location.pathname]);
+  }, [location.pathname, v9Preview]);
 
   useEffect(() => {
     if (mobileHub && isPrimaryPath(location.pathname)) return;
@@ -243,7 +244,7 @@ export const App: React.FC = () => {
       {!isInsideMachineTrial && <Navbar />}
 
       {/* ── D1. Scroll Progress Speed Strip ── */}
-      <div className="fixed top-0 left-0 right-0 h-[2.5px] z-[70] pointer-events-none bg-black/20 overflow-hidden">
+      {!v9Preview && <div className="fixed top-0 left-0 right-0 h-[2.5px] z-[70] pointer-events-none bg-black/20 overflow-hidden">
         <div
           style={{
             transform: `scaleX(${scrollProgress})`,
