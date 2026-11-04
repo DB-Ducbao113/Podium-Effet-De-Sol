@@ -1,0 +1,224 @@
+/* PEDS V4 / interactive vector vehicle — no raster/photo/video or WebGL dependency. */
+.launch-hud {
+  --hud-signal: #ff693b;
+  position: relative;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  height: 100%;
+  min-height: 0;
+  padding: clamp(12px,1.5vw,22px);
+  color: #dce7ed;
+  background:
+    radial-gradient(circle at 55% 46%, rgba(31,79,100,.22), transparent 50%),
+    linear-gradient(120deg,rgba(15,24,35,.96),rgba(6,12,20,.94));
+}
+.launch-hud__topline, .launch-hud__controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  position: relative;
+  z-index: 4;
+  font: 600 10px/1.3 var(--peds-font-mono);
+  letter-spacing: .12em;
+}
+.launch-hud__topline { color: #b2c4ce; }
+.launch-hud__signal { display: inline-flex; align-items: center; gap: 8px; }
+.launch-hud__signal i {
+  display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--hud-signal);
+  box-shadow: 0 0 10px var(--hud-signal);
+}
+.launch-hud__viewport {
+  position: relative;
+  min-height: 0;
+  isolation: isolate;
+  overflow: hidden;
+  mask-image: linear-gradient(180deg,transparent,black 5% 92%,transparent);
+}
+.launch-hud__viewport::before {
+  content: '';
+  position: absolute;
+  inset: 16% 0 10%;
+  z-index: 1;
+  pointer-events: none;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 51% 50%, rgba(255,74,24,.09), transparent 58%);
+}
+.launch-hud__vehicle {
+  position: relative;
+  z-index: 2;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transform: translateZ(0);
+}
+.launch-hud__rings { transform-origin: 50% 50%; }
+.launch-hud__car {
+  transform-origin: 50% 50%;
+  transform-box: view-box;
+  filter: drop-shadow(0 3px 6px rgba(0,0,0,.66));
+}
+.launch-hud__wheels rect {
+  fill: #080c12;
+  stroke: #59788b;
+  stroke-width: 3;
+}
+.launch-hud__wheel-detail {
+  stroke: #6c9dae;
+  stroke-width: 1;
+  opacity: .46;
+}
+.launch-hud__chassis {
+  stroke: #7da6b7;
+  stroke-width: 2.5;
+  fill: none;
+  transition: opacity 280ms ease;
+}
+.launch-hud__core {
+  fill: url(#hud-carbon);
+  stroke: #91b2c5;
+  stroke-width: 3;
+}
+.launch-hud__cockpit {
+  fill: #060b12;
+  stroke: #b8e1f1;
+  stroke-width: 3;
+}
+.launch-hud__halo { stroke: #e7f3f7; stroke-width: 7; opacity: .78; }
+.launch-hud__engine {
+  fill: #121c27; stroke: #6b9eb0; stroke-width: 2.5;
+  transition: fill 280ms ease, stroke 280ms ease;
+}
+.launch-hud__power-lines { stroke: #e5a16f; stroke-width: 2; opacity: .5; }
+.launch-hud__aero {
+  stroke: #ff724c;
+  stroke-width: 2.5;
+  fill: rgba(255,74,24,.19);
+  transition: opacity 280ms ease;
+}
+.launch-hud__aero > path:nth-child(even) { stroke: #ffbd96; stroke-width: 1.2; }
+.launch-hud__aero-streams {
+  stroke: #ff774f;
+  stroke-width: 1.5;
+  opacity: .85;
+  stroke-dasharray: 14 20 2 22;
+  transition: opacity 280ms ease;
+}
+.launch-hud__annotations { stroke: #adcad5; stroke-width: 1.2; opacity: .5; }
+.launch-hud__annotations circle { fill: #ff7849; stroke: none; }
+.launch-hud__svg-label {
+  font: 600 10px var(--peds-font-mono);
+  fill: #a4b5c0;
+  letter-spacing: 2.1px;
+}
+.launch-hud__svg-index {
+  font: 500 9px var(--peds-font-mono);
+  fill: #7e94a1;
+  letter-spacing: 1.2px;
+}
+.launch-hud__orbital {
+  position: absolute;
+  width: min(75%, 450px);
+  aspect-ratio: 1;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  border: 1px dashed rgba(185,222,237,.2);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.launch-hud__orbital::before, .launch-hud__orbital::after {
+  content: '';
+  position: absolute; inset: 10%;
+  border: 1px solid rgba(255,112,70,.13);
+  border-radius: 50%;
+}
+.launch-hud__orbital::after { inset: 24%; border-style: dashed; border-color: rgba(190,221,229,.2); }
+.launch-hud__scan {
+  position: absolute; inset: 2% auto 10% -30%;
+  width: 27%; z-index: 3; pointer-events: none;
+  transform: skewX(-22deg);
+  opacity: .42;
+  background: linear-gradient(90deg, transparent,rgba(118,225,246,.16),rgba(255,134,77,.3),transparent);
+}
+.launch-hud__reticle {
+  position: absolute;
+  z-index: 3;
+  width: 25px; height: 25px;
+  pointer-events: none;
+  border-color: rgba(255,107,62,.75);
+  border-style: solid;
+}
+.launch-hud__reticle--tl { top: 8%; left: 5%; border-width: 1px 0 0 1px; }
+.launch-hud__reticle--br { bottom: 10%; right: 6%; border-width: 0 1px 1px 0; }
+.launch-hud__controls {
+  border-top: 1px solid rgba(180,218,231,.17);
+  padding-top: clamp(10px,1.2vw,16px);
+}
+.launch-hud__control-caption { color: #8194a1; white-space: nowrap; }
+.launch-hud__mode-list {
+  display: flex; align-items: center; justify-content: center;
+  padding: 3px; gap: 2px; background: rgba(1,5,10,.5);
+  border: 1px solid rgba(170,205,221,.2);
+  border-radius: 7px;
+}
+.launch-hud__mode {
+  display: inline-flex; justify-content: center; align-items: center;
+  gap: 6px;
+  min-height: 36px; min-width: 82px; padding: 5px 9px;
+  color: #a9b7c0;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font: 600 10px/1.1 var(--peds-font-mono);
+  letter-spacing: .04em;
+  white-space: nowrap;
+  transition: background 220ms ease,color 220ms ease,border-color 220ms ease,transform 220ms ease;
+}
+.launch-hud__mode:hover { color: #fff; background: rgba(255,74,24,.12); }
+.launch-hud__mode:active { transform: scale(.97); }
+.launch-hud__mode[data-active='true'] {
+  background: rgba(255,74,24,.17);
+  border-color: rgba(255,115,66,.64);
+  color: #ffe0d0;
+  box-shadow: inset 0 -2px rgba(255,74,24,.8);
+}
+.launch-hud__mode:focus-visible { outline: 2px solid #ffb347; outline-offset: 3px; }
+.launch-hud__current { min-width: 100px; text-align: right; color: #ff986f; }
+.launch-hud[data-mode='chassis'] .launch-hud__aero { opacity: .22; }
+.launch-hud[data-mode='chassis'] .launch-hud__aero-streams { opacity: .1; }
+.launch-hud[data-mode='chassis'] .launch-hud__chassis { stroke: #b4eafc; filter: drop-shadow(0 0 7px rgba(91,195,241,.5)); }
+.launch-hud[data-mode='power'] .launch-hud__aero { opacity: .12; }
+.launch-hud[data-mode='power'] .launch-hud__aero-streams { opacity: .06; }
+.launch-hud[data-mode='power'] .launch-hud__engine { fill: rgba(255,85,35,.3); stroke: #ff9d60; }
+.launch-hud[data-mode='power'] .launch-hud__power-lines { stroke: #ffb77e; opacity: 1; stroke-width: 3.5; }
+.launch-hud[data-mode='power'] .launch-hud__chassis { stroke: #506d7d; }
+.launch-hud[data-mode='power'] .launch-hud__core { stroke: #6f99aa; }
+@keyframes hud-line-scan { to { stroke-dashoffset: -250; } }
+@keyframes hud-beam { from { left: -30%; } to { left: 110%; } }
+@keyframes hud-signal { 50% { opacity: .45; } }
+@media (prefers-reduced-motion: no-preference) {
+  .r1-cinema[data-visible='true'] .launch-hud__aero-streams path { animation: hud-line-scan 8s linear infinite; }
+  .r1-cinema[data-visible='true'] .launch-hud__aero-streams path:nth-child(even) { animation-direction: reverse; animation-duration: 12s; }
+  .r1-cinema[data-visible='true'] .launch-hud__scan { animation: hud-beam 6s cubic-bezier(.45,0,.5,1) infinite; }
+  .r1-cinema[data-visible='true'] .launch-hud__signal i { animation: hud-signal 3s ease-in-out infinite; }
+}
+@media (max-width: 1160px) {
+  .launch-hud__control-caption, .launch-hud__current { display: none; }
+  .launch-hud__controls { justify-content: center; }
+}
+@media (max-width: 650px) {
+  .launch-hud { padding: 10px; }
+  .launch-hud__topline { font-size: 9px; }
+  .launch-hud__controls { padding-top: 5px; }
+  .launch-hud__mode { min-height: 34px; min-width: 73px; padding: 4px 7px; font-size: 9px; }
+  .launch-hud__mode svg { width: 12px; height: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .launch-hud *, .launch-hud *::before, .launch-hud *::after { transition: none !important; animation: none !important; }
+}
+[data-text-zoom='400'] .launch-hud { min-height: 240px; }
+[data-text-zoom='400'] .launch-hud__controls { flex-wrap: wrap; justify-content: flex-start; }
+[data-text-zoom='400'] .launch-hud__mode-list { flex-wrap: wrap; }
+[data-text-zoom='400'] .launch-hud__mode { min-height: 44px; font-size: 14px; }
