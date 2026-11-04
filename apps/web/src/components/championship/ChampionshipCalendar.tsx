@@ -42,7 +42,7 @@ import { TimezoneSelector } from './TimezoneSelector';
 import { relevantRound } from '../../utils/relevantRace';
 import { resolveCalendarEntry } from './calendarNavigation';
 import './championshipC1.css';
-import { JourneyViewSwitch, RaceCalendarJourney } from './RaceCalendarJourney';
+import { BackToJourney, RaceCalendarJourney } from './RaceCalendarJourney';
 
 const ORDER: RaceSessionKey[] = [
   'fp1',
@@ -90,10 +90,8 @@ export function ChampionshipCalendar({ season }: { season: SeasonYear }) {
     (state) => state.setSelectedRaceRound,
   );
   const location = useLocation();
-  const [journeyMode, setJourneyMode] = useState(() => {
-    const params = new URLSearchParams(location.search);
-    return !params.has('round') && !['classic', 'completed', 'upcoming'].includes(params.get('view') ?? '');
-  });
+  const query = new URLSearchParams(location.search);
+  const journeyMode = !query.has('round') && !['classic', 'completed', 'upcoming'].includes(query.get('view') ?? '');
   const navigate = useNavigate();
   const calendar = getCalendarBySeason(season);
   const [now, setNow] = useState(() => Date.now());
@@ -136,9 +134,7 @@ export function ChampionshipCalendar({ season }: { season: SeasonYear }) {
 
   useEffect(() => {
     setExpandedRound(requestedRound);
-    const view = new URLSearchParams(location.search).get('view') ?? '';
-    setJourneyMode(requestedRound === null && !['classic', 'completed', 'upcoming'].includes(view));
-  }, [requestedRound, season, location.search]);
+  }, [requestedRound, season]);
 
   useEffect(() => {
     const scroller = roundsRef.current;
@@ -414,7 +410,7 @@ export function ChampionshipCalendar({ season }: { season: SeasonYear }) {
 
   return (
     <>
-      {!journeyMode && <JourneyViewSwitch mode='classic' onChange={(mode) => setJourneyMode(mode === 'journey')} />}
+      {!journeyMode && <BackToJourney season={season} tab="calendar" round={requestedRound} />}
       {journeyMode ? <RaceCalendarJourney season={season} /> : (
     <section
       ref={rootRef}
