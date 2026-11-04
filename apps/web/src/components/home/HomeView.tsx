@@ -12,6 +12,7 @@ import { HomeSeasonOverview } from './HomeSeasonOverview';
 import { HomeStoryLinks } from './HomeStoryLinks';
 import { PodiumBrandHero } from './PodiumBrandHero';
 import './homepageH1.css';
+import './homeMotionV2.css';
 
 export function HomeView() {
   const [searchParams] = useSearchParams();
