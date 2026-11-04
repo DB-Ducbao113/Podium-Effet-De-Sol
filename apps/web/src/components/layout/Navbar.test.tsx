@@ -10,7 +10,7 @@ const renderAt = (path = '/') =>
 
 const currentPages = (html: string) => (html.match(/aria-current="page"/g) ?? []).length;
 
-describe('P2 global navigation', () => {
+describe('V5 grouped global navigation', () => {
   it('renders one flat primary navigation with existing routes only', () => {
     const html = renderAt();
     for (const href of ['/', '/season/2026?tab=results', '/season/2026?tab=standings', '/drivers', '/teams', '/showroom', '/engineering']) {
@@ -22,6 +22,16 @@ describe('P2 global navigation', () => {
     }
     expect(html).not.toContain('/season/2026?tab=teams');
     expect(html).not.toContain('/season/2026?tab=drivers');
+  });
+
+  it('uses spacious grouped desktop destinations with all original routes accessible', () => {
+    const html = renderAt('/');
+    expect(html).toContain('Championship');
+    expect(html).toContain('The Grid');
+    expect(html).toContain('h1-nav-dropdown-championship');
+    expect(html).toContain('h1-nav-dropdown-grid');
+    expect(html).toContain('href="/teams"');
+    expect(html).toContain('href="/season/2026?tab=calendar"');
   });
 
   it('renders the official PODIUM EDS logo with an accessible home label', () => {
