@@ -72,7 +72,6 @@ export function JourneyWorldMap({
     })),
   [points]);
   const active = points.find((point) => point.race.round === activeRound) ?? points[0];
-  const activeIndex = points.findIndex((point) => point.race.round === activeRound);
   const selectedX = active ? active.x / WIDTH * 100 : 50;
   const selectedY = active ? active.y / HEIGHT * 100 : 50;
 
