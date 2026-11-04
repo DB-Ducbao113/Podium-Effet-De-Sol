@@ -9,7 +9,7 @@ const home = readFileSync(root + '/HomeView.tsx', 'utf8');
 const hero = readFileSync(root + '/PodiumBrandHero.tsx', 'utf8');
 const background = readFileSync(root + '/HomeCinematicBackground.tsx', 'utf8');
 
-describe('Homepage V8 — V7 DOM contract and AEROCORE rendering', () => {
+describe('Homepage V8.2 — V7 DOM contract and model-free F1 Hero', () => {
   it('keeps one full-page environment and all four content sections', () => {
     expect(home).toContain('<HomeCinematicBackground />');
     expect(home).toContain('<PodiumBrandHero />');
@@ -21,18 +21,19 @@ describe('Homepage V8 — V7 DOM contract and AEROCORE rendering', () => {
     expect(html).toContain('data-aerocore-mode="fallback"');
     expect(html).not.toMatch(/<canvas|<img|<video|<picture/i);
   });
-  it('uses an original aerial-energy HUD, without track or vehicle', () => {
+  it('displays an original 2.5D F1 illustration without road, track or WebGL', () => {
     const html = renderToStaticMarkup(<HomeRacePulseScene />);
-    expect(html).toContain('data-home-hero-visual="aerocore"');
-    expect(html).toContain('home-pulse__flow-labels');
-    expect(html).not.toMatch(/road|track|trajectory|kerb|<canvas|<img|<video/i);
+    expect(html).toContain('data-home-hero-visual="f1-2.5d"');
+    expect(html).toContain('f1hero__vehicle');
+    expect(html).not.toMatch(/road|track|trajectory|kerb|<canvas|<video/i);
+    expect(html).toContain('peds-aero01-car.webp');
     expect(hero).toContain('<HomeRacePulseScene />');
     expect(hero).toContain('r1-cinema--v7');
     expect(hero).toContain("navigate('/showroom')");
   });
-  it('isolates Three.js behind a dynamic import and respects reduced motion', () => {
-    expect(background).toContain("import('./aerocore/AeroCanvas')");
-    expect(background).toContain('prefers-reduced-motion: reduce');
+  it('does not mount a WebGL background or import Model B', () => {
+    expect(background).not.toContain("import('./aerocore/AeroCanvas')");
+    expect(background).toContain('static low-cost atmosphere');
     expect(background).not.toMatch(/from ['"](?:three|@react-three\/fiber|@react-three\/drei)['"]/);
     expect(home).not.toContain('ModelBShowroom');
   });
