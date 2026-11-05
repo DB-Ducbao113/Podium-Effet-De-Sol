@@ -10,6 +10,8 @@ import { loadModelB, disposeModelB } from '../commercial-b/modelBLoader';
 import { createLiveryRuntime } from './liveryRuntime';
 import { teamLiveries, type TeamLivery } from './teamLiveries';
 import { STANDARD_2026_REFERENCE_SETS } from './standard2026References';
+import type { PrecisionTeam } from './paintAtlas';
+import { ModelBPaintLayoutInspector } from './ModelBPaintLayoutInspector';
 import { badgeForTeam } from './officialArtwork';
 import { AuthorPanel } from './AuthorPanel';
 import '@fontsource/barlow-condensed/700.css';
@@ -42,7 +44,7 @@ function EnvironmentReflections() {
   return null;
 }
 
-function ModelB({ team, surface, reduced, onLoad, onFailure, onTeamReady, onAuthorReady }: { team: TeamLivery; surface: number; reduced: boolean; onLoad: (bytes: number) => void; onFailure: (message: string) => void; onTeamReady: (id: string) => void; onAuthorReady: (api: AuthorApi | null) => void }) {
+function ModelB({ team, surface, reduced, showBranding, onLoad, onFailure, onTeamReady, onAuthorReady }: { team: TeamLivery; surface: number; reduced: boolean; showBranding: boolean; onLoad: (bytes: number) => void; onFailure: (message: string) => void; onTeamReady: (id: string) => void; onAuthorReady: (api: AuthorApi | null) => void }) {
   const { scene, camera, gl } = useThree();
   const [model, setModel] = React.useState<THREE.Group | null>(null);
   const runtime = React.useRef<ReturnType<typeof createLiveryRuntime> | null>(null);
@@ -70,7 +72,12 @@ function ModelB({ team, surface, reduced, onLoad, onFailure, onTeamReady, onAuth
     }).catch((error: unknown) => { if (!controller.signal.aborted) onFailure(String(error)); });
     return () => { controller.abort(); runtime.current?.dispose(); runtime.current = null; if (authorMode) { onAuthorReady(null); delete (window as Window & { __P6_AUTHOR__?: unknown }).__P6_AUTHOR__; } if (owned) disposeModelB(owned); };
   }, [onLoad, onFailure, onTeamReady, onAuthorReady, scene]);
-  React.useEffect(() => { if (runtime.current) void runtime.current.setTeam(team, reduced).then((applied) => { if (applied) onTeamReady(team.id); }).catch((cause) => onFailure(`Livery artwork unavailable: ${String(cause)}`)); }, [team, reduced, model, onTeamReady, onFailure]);
+  React.useEffect(() => {
+    if (runtime.current) void runtime.current.setTeam(team, reduced)
+      .then((applied) => { if (applied) onTeamReady(team.id); })
+      .catch((cause) => onFailure(`Livery artwork unavailable: ${String(cause)}`));
+  }, [team, reduced, model, onTeamReady, onFailure]);
+  React.useEffect(() => { runtime.current?.setBrandingVisible(showBranding); }, [showBranding, model]);
   React.useEffect(() => {
     if (!authorMode || !model) return;
     const canvas = gl.domElement;
@@ -225,6 +232,7 @@ export function App({ embedded = false }: { embedded?: boolean }) {
   const [error, setError] = React.useState('');
   const [bytes, setBytes] = React.useState(0);
   const [readyTeam, setReadyTeam] = React.useState('');
+  const [showBranding, setShowBranding] = React.useState(false);
   const [placementSummary, setPlacementSummary] = React.useState<PlacementSummary | null>(null);
   const [authorApi, setAuthorApi] = React.useState<AuthorApi | null>(null);
   const [reduced, setReduced] = React.useState(matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -280,19 +288,25 @@ export function App({ embedded = false }: { embedded?: boolean }) {
       </dl>
       <p>Live browser estimate. Physical device performance still needs separate review.</p>
     </div>
-    <div className="advanced-group"><h3>Decal surface QA</h3>
+    <div className="advanced-group"><h3>Decal surface QA (not paint acceptance)</h3>
       {placementSummary && readyTeam === team.id
         ? <p>{placementSummary.provisional} fast preview · {placementSummary.placed} geometry passed · {placementSummary.adapted} adapted · {placementSummary.unplaced} unplaced · {placementSummary.blocked} blocked</p>
         : <p>Preparing sponsor preview…</p>}
       <p>Fast preview skips costly per-logo mesh scans. Optional DEV-only ?surfaceQa=1 enables detailed 25-point geometry checks; that mode can be slow. Preview placement is not visual or licensing approval.</p>
     </div>
+    <ModelBPaintLayoutInspector
+      teamId={team.id as PrecisionTeam}
+      showBranding={showBranding}
+      onShowBranding={setShowBranding}
+      onCamera={chooseCamera}
+    />
     <div className="advanced-group"><h3>Body surface</h3><label className="surface-control">Gloss response <output>{`${Math.round((1 - surface) * 100)}%`}</output><input type="range" min="0.18" max="0.72" step="0.01" value={surface} onChange={(event) => setSurface(Number(event.target.value))} /></label></div>
   </>;
   return <div className={`app ${panel ? `panel-${panel}` : ''}`} style={{ '--team-accent': team.accent, '--team-primary': team.primary } as React.CSSProperties}>
     {!embedded && <header className="topbar"><img src="/logo.png" alt="PODIUM EDS" /><nav aria-label="Prototype navigation"><span>OVERVIEW</span><span>RACES</span><span>STANDINGS</span><span>ENGINEERING</span><strong>3D SHOWROOM</strong></nav><div className="top-actions"><span>EN</span><button type="button" aria-label="Menu" disabled>☰</button></div></header>}
     <main className="layout"><section className="stage" aria-label="Interactive Model B 3D studio"><Canvas shadows dpr={[1, 1.6]} camera={{ position: [4.2, 2.1, -5.7], fov: 39, near: .05, far: 80 }} gl={{ antialias: true, powerPreference: 'high-performance' }} onCreated={({ gl }) => { gl.outputColorSpace = THREE.SRGBColorSpace; gl.toneMapping = THREE.ACESFilmicToneMapping; gl.toneMappingExposure = 1; }}>
       <Studio mode={light} team={team} reduced={reduced} />
-      <ModelB team={team} surface={surface} reduced={reduced} onLoad={onLoad} onFailure={onFailure} onTeamReady={onTeamReady} onAuthorReady={onAuthorReady} />
+      <ModelB team={team} surface={surface} reduced={reduced} showBranding={showBranding} onLoad={onLoad} onFailure={onFailure} onTeamReady={onTeamReady} onAuthorReady={onAuthorReady} />
       <StudioCameraController preset={camera} trigger={cameraTrigger} zoomTrigger={zoomTrigger} zoomDirection={zoomDirection} reduced={reduced} />
       <PerformanceProbe onMetrics={setMetrics} />
     </Canvas><div className="stage-ui"><div className="eyebrow">2026 TEAM LIVERY STUDY</div><h1>EXPLORE<br/>THE MACHINE.</h1><p>REAL AERODYNAMICS.<br/>REAL DETAILS.<br/>YOUR PERSPECTIVE.</p></div><div className="model-note"><strong>{team.name.toUpperCase()}</strong> · {team.car}<br/><small>2026 LIVERY RECREATION · MODEL B REFERENCE CHASSIS</small></div>{(!loaded || error) && <div className="load-status" role="status">{error || 'LOADING MODEL B…'}</div>}<div className="stage-index">01 <span>/ 05</span></div>
@@ -301,7 +315,7 @@ export function App({ embedded = false }: { embedded?: boolean }) {
       <div className="config-head"><h2>CONFIGURE</h2><span>MODEL B · LIVE 3D</span></div>
       <div className="config-tabs" role="tablist" aria-label="Configuration groups">{(['paint','advanced','lighting'] as const).map((item) => <button type="button" role="tab" aria-selected={tab === item} className={tab === item ? 'selected' : ''} key={item} onClick={() => setTab(item)}>{item === 'paint' ? 'TEAM LIVERY' : item.toUpperCase()}</button>)}</div>
       <div className="config-content" role="tabpanel">
-        {tab === 'paint' && <><div className="section-heading"><h3>2026 livery study</h3><span>{String(teamLiveries.indexOf(team) + 1).padStart(2, '0')} / 11</span></div><p>All eleven cars have multi-region paint studies and sourced team badges. Sponsor coverage and positions remain under visual review.</p>{swatches}<div className="selected-paint">{badgeForTeam[team.id] ? <img className="team-badge" src={badgeForTeam[team.id]} alt="" /> : <span style={{ background: `linear-gradient(135deg, ${team.primary} 50%, ${team.secondary} 50%)` }} />}<div><small>3D LIVERY STUDY · {team.finish.toUpperCase()}</small><strong>{team.name} · {team.car}</strong></div></div>{readyTeam !== team.id && <p className="artwork-progress" role="status">Applying sponsor artwork…</p>}<p className="team-description">{team.description}</p><a className="team-reference" href={STANDARD_2026_REFERENCE_SETS[team.id as keyof typeof STANDARD_2026_REFERENCE_SETS].galleryUrl} target="_blank" rel="noopener noreferrer">2026 multi-angle reference ↗</a></>}
+        {tab === 'paint' && <><div className="section-heading"><h3>2026 livery study</h3><span>{String(teamLiveries.indexOf(team) + 1).padStart(2, '0')} / 11</span></div><p>Paint-layout review is active. 30 part families / 54 physical surfaces are tracked per team; sponsor artwork is hidden by default until the color-block design is approved.</p>{swatches}<div className="selected-paint">{badgeForTeam[team.id] ? <img className="team-badge" src={badgeForTeam[team.id]} alt="" /> : <span style={{ background: `linear-gradient(135deg, ${team.primary} 50%, ${team.secondary} 50%)` }} />}<div><small>3D LIVERY STUDY · {team.finish.toUpperCase()}</small><strong>{team.name} · {team.car}</strong></div></div>{readyTeam !== team.id && <p className="artwork-progress" role="status">Applying sponsor artwork…</p>}<p className="team-description">{team.description}</p><a className="team-reference" href={STANDARD_2026_REFERENCE_SETS[team.id as keyof typeof STANDARD_2026_REFERENCE_SETS].galleryUrl} target="_blank" rel="noopener noreferrer">2026 multi-angle reference ↗</a></>}
         {tab === 'advanced' && <><div className="section-heading"><h3>Advanced</h3><span>LIVE</span></div>{advancedControls}</>}
         {tab === 'lighting' && <><div className="section-heading"><h3>Lighting</h3><span>LIVE</span></div><p>Choose a real studio light arrangement.</p>{lights}</>}
       </div>
