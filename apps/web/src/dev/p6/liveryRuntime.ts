@@ -237,8 +237,29 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
     for (const box of boxes) box.visible = brandingVisible;
   }
   function setBrandingVisible(visible: boolean) {
+    if (brandingVisible === visible) return;
     brandingVisible = visible;
-    applyBrandingVisibility();
+    if (!visible) {
+      // Paint-only mode must stop loading expensive sponsor atlases.
+      ++requestId;
+      clearDecals();
+      clearWheelDetails();
+      for (const [id, pending] of decalAtlases) {
+        void pending.then((atlas) => {
+          if (atlas !== activeAtlas) atlas.map.dispose();
+        }).catch(() => undefined);
+        decalAtlases.delete(id);
+      }
+      activeAtlas?.map.dispose();
+      activeAtlas = null;
+      return;
+    }
+    if (currentTeam) {
+      const request = ++requestId;
+      void loadBrandingForTeam(currentTeam, request).catch((error: unknown) => {
+        console.warn('[P6] Sponsor review artwork could not be loaded:', error);
+      });
+    }
   }
 
   function clearDecals() {
@@ -579,16 +600,45 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
     paintUniforms.uToMcLaren.value = paintToMcLaren;
   }
 
+  async function loadBrandingForTeam(teamId: string, request: number) {
+    const definition = liveryDefinitions[teamId as PrecisionTeam];
+    const keys = [...new Set(definition.decals.filter((entry) =>
+      !REVIEW_BLOCKED_ARTWORK.has(entry.artwork),
+    ).map((entry) => entry.artwork))];
+    const atlas = await getDecalAtlas(teamId, keys);
+    if (disposed || !brandingVisible || request !== requestId || currentTeam !== teamId) return false;
+    if (activeAtlas && activeAtlas !== atlas) activeAtlas.map.dispose();
+    activeAtlas = atlas;
+    if (!selectedDecalId || !definition.decals.some((entry) => entry.id === selectedDecalId)) {
+      selectedDecalId = definition.decals[0]?.id ?? null;
+    }
+    renderDecals({ id: teamId }, atlas);
+    // Experimental wheel rings are not part of the approved paint layout.
+    // Only show them in an explicit owner-review study, never by default.
+    if (teamId === 'mclaren' && authorMode &&
+        new URLSearchParams(location.search).get('wheelStudy') === '1') {
+      addMcLarenWheelDetails();
+      applyBrandingVisibility();
+    }
+    for (const [id, pending] of decalAtlases) if (id !== teamId) {
+      void pending.then((item) => { if (item !== activeAtlas) item.map.dispose(); })
+        .catch(() => undefined);
+      decalAtlases.delete(id);
+    }
+    for (const pending of textureCache.values()) void pending.then((item) => item.dispose())
+      .catch(() => undefined);
+    textureCache.clear();
+    return true;
+  }
+
   async function setTeam(team: TeamLivery, reduced: boolean) {
-    if (currentTeam === team.id) { requestId++; return true; }
+    if (currentTeam === team.id) return true;
     const request = ++requestId;
-    const definition = liveryDefinitions[team.id as PrecisionTeam];
     const precision = team.id as PrecisionTeam;
     beginPaintTransition(precision, reduced);
     currentTeam = team.id;
     clearDecals();
     clearWheelDetails();
-    if (precision === 'mclaren') addMcLarenWheelDetails();
     const color = new THREE.Color();
     const cache = new Map<string, THREE.Color>();
     for (let index = 0; index < positions.count; index++) {
@@ -604,17 +654,14 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
     if (first) { colors.set(target); attribute.needsUpdate = true; animating = false; first = false; }
     else animating = true;
     for (const accent of accents) accent.color.set(team.accent);
-    const keys = [...new Set(definition.decals.filter((entry) => !REVIEW_BLOCKED_ARTWORK.has(entry.artwork)).map((entry) => entry.artwork))];
-    const atlas = await getDecalAtlas(team.id, keys);
-    if (disposed || request !== requestId) return false;
-    if (activeAtlas && activeAtlas !== atlas) activeAtlas.map.dispose();
-    activeAtlas = atlas;
-    if (!selectedDecalId || !definition.decals.some((entry) => entry.id === selectedDecalId)) selectedDecalId = definition.decals[0]?.id ?? null;
-    renderDecals(team, atlas);
-    for (const [id, pending] of decalAtlases) if (id !== team.id) { void pending.then((item) => { if (item !== activeAtlas) item.map.dispose(); }); decalAtlases.delete(id); }
-    for (const pending of textureCache.values()) void pending.then((item) => item.dispose());
-    textureCache.clear();
-    return true;
+    if (!brandingVisible) {
+      // Paint-first QA should be interactive without downloading and rasterizing
+      // every sponsor artwork or building any decal meshes.
+      activeAtlas?.map.dispose();
+      activeAtlas = null;
+      return !disposed && request === requestId;
+    }
+    return loadBrandingForTeam(team.id, request);
   }
 
   function entries() { return currentTeam ? liveryDefinitions[currentTeam as PrecisionTeam].decals : []; }
