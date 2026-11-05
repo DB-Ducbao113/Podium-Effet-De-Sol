@@ -22,6 +22,8 @@ source-assets/
 docs/PODIUM_EDS_IGNITION_V2_Review_Patch/
 apps/web/src/dev/p6/reference-assets/
 apps/web/public/images/p5/
+apps/web/public/__p5-extra-2026/
+apps/web/public/__p5-seasonal/
 *.blend
 *.blend1
 *.mp4
