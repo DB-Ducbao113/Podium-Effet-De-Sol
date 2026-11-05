@@ -125,7 +125,7 @@ export function RaceCalendarJourney({ season }: { season: SeasonYear }) {
       );
       const index = Math.min(calendar.length - 1, Math.floor(amount));
       setActiveRound((previous) => previous === calendar[index].round ? previous : calendar[index].round);
-      setTravelProgress((previous) => Math.abs(previous - amount) > 0.005 ? amount : previous);
+      setTravelProgress((previous) => Math.abs(previous - amount) > 0.001 ? amount : previous);
     };
     const schedule = () => {
       if (!frame) frame = window.requestAnimationFrame(() => { frame = 0; measure(); });
