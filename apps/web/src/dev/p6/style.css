@@ -48,3 +48,24 @@
 .stage canvas{touch-action:none;cursor:grab}
 .stage canvas:active{cursor:grabbing}
 .model-note,.stage-index,.load-status,.stage-ui{pointer-events:none}
+
+/* Model B component-by-component paint QA: ordinary DOM; no WebGL picking or raycasts. */
+.component-review{display:grid;gap:10px;color:#e1e7e9}
+.component-review .component-review-disclaimer{font-size:11px;line-height:1.45;color:#b7c4c9;margin:0}
+.component-review-totals{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;font-size:11px}
+.component-review-totals span,.component-review-totals strong{background:#182228;border:1px solid #35434b;border-radius:5px;padding:8px;line-height:1.2}
+.component-review-totals strong{color:#ffc98c}
+.component-review-picker{display:grid;gap:6px;font-size:12px;font-weight:700}
+.component-review-picker select{width:100%;min-width:0;color:#eef4f4;background:#172329;border:1px solid #75848d;border-radius:5px;min-height:42px;padding:7px}
+.component-review-detail{background:#10191e;border-left:2px solid #ba8f52;padding:10px 12px;display:grid;gap:7px}
+.component-review-detail p{margin:0!important;font-size:11px;line-height:1.5}
+.component-review-heading{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.component-review-heading strong{font-size:12px}
+.component-review-heading small{font-size:9px;color:#ffc98c;letter-spacing:.06em}
+.component-review-detail a,.component-review-disclaimer a{color:#98d2de;text-underline-offset:3px}
+.component-review-cameras{display:flex;flex-wrap:wrap;gap:5px}
+.component-review-cameras button{flex:1;min-height:36px;min-width:47px;color:#e9eef0;background:#243039;border:1px solid #5a6d78;border-radius:5px;cursor:pointer;font-size:11px}
+.component-review-cameras button:hover{background:#334957}
+.component-review-branding{display:flex;align-items:center;gap:9px;font-size:12px;line-height:1.4;cursor:pointer}
+.component-review-branding input{width:17px;height:17px;accent-color:#db9a5b;flex:0 0 auto}
+@media(max-width:650px){.component-review{padding-bottom:12px}.component-review-cameras button{min-height:43px}}
