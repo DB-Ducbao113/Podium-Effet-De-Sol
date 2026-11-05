@@ -1,6 +1,6 @@
 # V9-01 / Visual Laboratory — Execution Contract
 
-**Branch:** \`feat/home-v9-living-machine\`, forked from the existing Homepage feature branch. This is an isolated, nonproduction lab. Do not merge into production or deploy without owner visual signoff.
+**Branch:** \`feat/homepage-racing-motion-v1\`, forked from the existing Homepage feature branch. This is an isolated, nonproduction lab. Do not merge into production or deploy without owner visual signoff.
 
 ## Design promise
 
