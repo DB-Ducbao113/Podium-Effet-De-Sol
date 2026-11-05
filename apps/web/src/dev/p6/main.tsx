@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import type { CameraPreset } from '../../components/showroom/CameraController';
 import { StudioCameraController } from './StudioCameraController';
+import { shouldStartDecalPlacement } from './authorPointerIntent';
 import { loadModelB, disposeModelB } from '../commercial-b/modelBLoader';
 import { createLiveryRuntime } from './liveryRuntime';
 import { teamLiveries, type TeamLivery } from './teamLiveries';
@@ -79,7 +80,7 @@ function ModelB({ team, surface, reduced, onLoad, onFailure, onTeamReady, onAuth
       const selected = api?.selected();
       // Shift is an explicit authoring gesture. Ordinary pointer drags must
       // reach OrbitControls, even when a logo is selected in DEV mode.
-      if (event.shiftKey && event.button === 0 && selected
+      if (shouldStartDecalPlacement(event) && selected
         && api?.placeAt(selected, event.clientX, event.clientY, camera, canvas)) {
         dragging = true;
         event.stopImmediatePropagation();
