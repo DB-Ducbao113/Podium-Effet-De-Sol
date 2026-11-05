@@ -355,8 +355,9 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
   function fittedWingMark(id: string, key: ArtworkKey, anchor: SurfaceAnchorMap, atlas: DecalAtlas, probe: SurfaceProbe) {
     const rect = atlas.rects[key];
     if (!rect || !probe.accepted || !probe.center) return;
-    // Apply a thin plate only after all 25 footprint samples proved near-planar.
-    // The position comes from the hit surface, never a hard-coded world X/Z.
+    // Detailed DEV mode checks the footprint; fast preview uses a single hit.
+    // The plate is provisional until visual geometry review is completed.
+    // Its centre comes from the hit surface, not a hard-coded world X/Z.
     const geometry = new THREE.PlaneGeometry(anchor.width, anchor.height);
     const uv = geometry.getAttribute('uv') as THREE.BufferAttribute;
     for (let index = 0; index < uv.count; index++) uv.setXY(index, rect.u + uv.getX(index) * rect.w, rect.v + uv.getY(index) * rect.h);
