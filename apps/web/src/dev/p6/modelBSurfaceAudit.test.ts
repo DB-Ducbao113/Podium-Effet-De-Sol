@@ -4,6 +4,7 @@ import {
   fitModelBSurface,
   probeModelBSurface,
   surfaceLimitsForArtwork,
+  shouldEnableDetailedSurfaceQa,
   WORDMARK_LIMITS,
 } from './modelBSurfaceAudit';
 import type { SurfaceAnchorMap } from './liveryDefinitions';
@@ -90,4 +91,13 @@ describe('Model B surface acceptance', () => {
       surfaceLimitsForArtwork('shell').maxNormalDegrees,
     );
   });
+  it('does not run costly mesh scans on normal Showroom or author-mode loads', () => {
+    expect(shouldEnableDetailedSurfaceQa(true, '')).toBe(false);
+    expect(shouldEnableDetailedSurfaceQa(true, '?author=1')).toBe(false);
+    expect(shouldEnableDetailedSurfaceQa(true, '?review=model-b')).toBe(false);
+    expect(shouldEnableDetailedSurfaceQa(false, '?surfaceQa=1')).toBe(false);
+    expect(shouldEnableDetailedSurfaceQa(true, '?surfaceQa=1')).toBe(true);
+    expect(shouldEnableDetailedSurfaceQa(true, '?author=1&surfaceQa=1')).toBe(true);
+  });
+
 });
