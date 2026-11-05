@@ -355,3 +355,17 @@
   .p5-gallery-page .p5-driver-card--directory:hover,
   .p5-gallery-page .p5-team-card--garage:hover { transform: none; }
 }
+
+/* Stronger than the site-wide Density-02 override; card anatomy stays stable. */
+@media (min-width: 1180px) {
+  html:not([data-text-zoom='200']):not([data-text-zoom='400'])
+  .p5-gallery-page .p5-driver-grid .p5-driver-card--directory {
+    aspect-ratio: auto;
+    border-radius: 11px;
+  }
+  html:not([data-text-zoom='200']):not([data-text-zoom='400'])
+  .p5-gallery-page .p5-team-grid .p5-team-card--garage {
+    min-height: 305px;
+    border-radius: 12px;
+  }
+}
