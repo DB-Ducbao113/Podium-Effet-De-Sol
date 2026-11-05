@@ -34,7 +34,7 @@ export function AuthorPanel({ api, team, onTeam, onCamera }: { api: AuthorApi | 
     <h2>3D DECAL AUTHORING <small>DEV ONLY</small></h2>
     <p>Drag on Model B to orbit at any time. Hold Shift while clicking/dragging to move the selected decal (DEV only).</p>
     <label>Team <select value={team.id} onChange={(event) => onTeam(event.target.value)}>{['mclaren','ferrari','mercedes','redbull','racingbulls','astonmartin','alpine','williams','haas','audi','cadillac'].map((id) => <option key={id} value={id}>{id}</option>)}</select></label>
-    {reference && <a href={team.reference} target="_blank" rel="noreferrer"><img className="author-reference" src={reference} alt={`Official 2026 ${team.name} right profile reference`} /></a>}
+    {reference && <a href={STANDARD_2026_REFERENCE_SETS[team.id as keyof typeof STANDARD_2026_REFERENCE_SETS].galleryUrl} target="_blank" rel="noreferrer"><img className="author-reference" src={reference} alt={`Official 2026 ${team.name} right profile reference`} /></a>}
     <p>Reference: 2026 F1 imagery. Photo is for alignment only.</p>
     <label>Mark <select value={selected ?? ''} onChange={(event) => { api?.select(event.target.value); refresh(); }}><option value="" disabled>Select decal</option>{entries.map((entry) => <option key={entry.id} value={entry.id}>{entry.id} · {entry.artwork}</option>)}</select></label>
     <div className="author-actions" aria-label="Authoring cameras">{(['front','side','rear','top','overview'] as const).map((view) => <button key={view} onClick={() => onCamera(view)}>{view === 'overview' ? 'Hero' : view}</button>)}</div>
