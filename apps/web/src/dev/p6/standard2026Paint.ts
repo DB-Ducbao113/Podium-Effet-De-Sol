@@ -49,7 +49,7 @@ export const STANDARD_2026_PAINT: Record<PrecisionTeam, Readonly<Standard2026Pai
   racingbulls: {
     primary: '#ecf0ee', secondary: '#1c4aa9', accent: '#d93439',
     ink: '#f7f9fb', side: '#ecf0ee', cover: '#ecf0ee',
-    nose: '#ecf0ee', wing: '#1c4aa9', finish: 'gloss',
+    nose: '#ecf0ee', wing: '#1c4aa9', finish: 'satin',
     dark: '#161a25', light: '#ecf0ee', detail: '#163f9b',
   },
   astonmartin: {
