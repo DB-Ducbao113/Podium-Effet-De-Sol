@@ -6,7 +6,13 @@ import { resolveCircuit } from './journeyCoordinates';
 import { JOURNEY_WORLD_LAND_PATH } from './journeyWorldAtlas';
 
 type Stop = { race: GrandPrixRound; vector: THREE.Vector3; latitude: number; longitude: number };
-type SceneProps = { stops: readonly Stop[]; travelProgress: number; onSelectRound: (round: number) => void; closeUp: boolean };
+type SceneProps = {
+  stops: readonly Stop[];
+  travelProgress: number;
+  onSelectRound: (round: number) => void;
+  closeUp: boolean;
+  lang: 'vi' | 'en';
+};
 const RADIUS = 1;
 const ARC_SEGMENTS = 72;
 const ARC_SIDES = 5;
@@ -164,10 +170,87 @@ function StopMarker({ stop, visited, active, onSelectRound }: {
   );
 }
 
-function SceneMotion({ stops, travelProgress, onSelectRound, closeUp }: SceneProps) {
+function SceneMotion({ stops, travelProgress, onSelectRound, closeUp, lang }: SceneProps) {
   const globe = useRef<THREE.Group>(null);
   const firstFrame = useRef(true);
-  const { invalidate } = useThree();
+  const dragOffset = useRef({ yaw: 0, pitch: 0 });
+  const lastTravel = useRef(travelProgress);
+  const { gl, invalidate } = useThree();
+
+  // Mouse / pen / horizontal touch gestures rotate the globe independently of page scroll.
+  // No OrbitControls or continuous render loop: use the existing demand-based renderer.
+  useEffect(() => {
+    const canvas = gl.domElement;
+    let pointer: number | null = null;
+    let lastX = 0;
+    let lastY = 0;
+    canvas.tabIndex = 0;
+    canvas.setAttribute('aria-label', lang === 'vi'
+      ? 'Kéo chuột để xoay địa cầu. Dùng phím mũi tên để xoay. Cuộn trang để đi qua các chặng.'
+      : 'Drag to rotate the globe. Arrow keys rotate it. Scroll the page to travel between rounds.');
+
+    const down = (event: PointerEvent) => {
+      if (pointer !== null || (event.pointerType === 'mouse' && event.button !== 0)) return;
+      pointer = event.pointerId;
+      lastX = event.clientX;
+      lastY = event.clientY;
+      canvas.setPointerCapture(event.pointerId);
+      canvas.dataset.dragging = 'true';
+    };
+    const move = (event: PointerEvent) => {
+      if (event.pointerId !== pointer) return;
+      const dx = event.clientX - lastX;
+      const dy = event.clientY - lastY;
+      lastX = event.clientX;
+      lastY = event.clientY;
+      if (dx === 0 && dy === 0) return;
+      dragOffset.current.yaw += dx * 0.005;
+      dragOffset.current.pitch = THREE.MathUtils.clamp(
+        dragOffset.current.pitch + dy * 0.0035, -1.15, 1.15,
+      );
+      invalidate();
+    };
+    const end = (event: PointerEvent) => {
+      if (event.pointerId !== pointer) return;
+      pointer = null;
+      delete canvas.dataset.dragging;
+      if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
+    };
+    const lost = () => {
+      pointer = null;
+      delete canvas.dataset.dragging;
+    };
+    const key = (event: KeyboardEvent) => {
+      const keys: Record<string, [number, number]> = {
+        ArrowLeft: [-0.15, 0], ArrowRight: [0.15, 0],
+        ArrowUp: [0, -0.12], ArrowDown: [0, 0.12],
+      };
+      const shift = keys[event.key];
+      if (!shift) return;
+      event.preventDefault();
+      dragOffset.current.yaw += shift[0];
+      dragOffset.current.pitch = THREE.MathUtils.clamp(
+        dragOffset.current.pitch + shift[1], -1.15, 1.15,
+      );
+      invalidate();
+    };
+
+    canvas.addEventListener('pointerdown', down);
+    canvas.addEventListener('pointermove', move);
+    canvas.addEventListener('pointerup', end);
+    canvas.addEventListener('pointercancel', end);
+    canvas.addEventListener('lostpointercapture', lost);
+    canvas.addEventListener('keydown', key);
+    return () => {
+      canvas.removeEventListener('pointerdown', down);
+      canvas.removeEventListener('pointermove', move);
+      canvas.removeEventListener('pointerup', end);
+      canvas.removeEventListener('pointercancel', end);
+      canvas.removeEventListener('lostpointercapture', lost);
+      canvas.removeEventListener('keydown', key);
+      delete canvas.dataset.dragging;
+    };
+  }, [gl, invalidate, lang]);
   const last = Math.max(0, stops.length - 1);
   const position = THREE.MathUtils.clamp(travelProgress, 0, last);
   const index = Math.min(last, Math.floor(position));
@@ -182,6 +265,12 @@ function SceneMotion({ stops, travelProgress, onSelectRound, closeUp }: ScenePro
   const distance = (closeUp ? 3.22 : 3.78) + Math.sin(fraction * Math.PI) * 0.15;
 
   useEffect(() => {
+    // The next wheel / page-scroll gesture resumes the guided Grand Prix camera path.
+    if (Math.abs(travelProgress - lastTravel.current) > 0.004) {
+      dragOffset.current.yaw = 0;
+      dragOffset.current.pitch = 0;
+    }
+    lastTravel.current = travelProgress;
     if (firstFrame.current && globe.current) {
       globe.current.rotation.set(desiredPitch, desiredYaw, 0, 'XYZ');
       firstFrame.current = false;
@@ -195,8 +284,10 @@ function SceneMotion({ stops, travelProgress, onSelectRound, closeUp }: ScenePro
     const smoothing = 1 - Math.exp(-Math.min(0.1, delta) * 3.6);
     const rotation = globe.current.rotation;
     // Shortest longitude path avoids the 360° snap at the international date line.
-    const yawDelta = Math.atan2(Math.sin(desiredYaw - rotation.y), Math.cos(desiredYaw - rotation.y));
-    const pitchDelta = desiredPitch - rotation.x;
+    const targetYaw = desiredYaw + dragOffset.current.yaw;
+    const targetPitch = THREE.MathUtils.clamp(desiredPitch + dragOffset.current.pitch, -1.38, 1.38);
+    const yawDelta = Math.atan2(Math.sin(targetYaw - rotation.y), Math.cos(targetYaw - rotation.y));
+    const pitchDelta = targetPitch - rotation.x;
     rotation.order = 'XYZ';
     rotation.y += yawDelta * smoothing;
     rotation.x += pitchDelta * smoothing;
@@ -250,9 +341,9 @@ export function JourneyGlobe3D({ season, calendar, travelProgress, onSelectRound
   }), [calendar]);
 
   return (
-    <div className="rcj-globe-stage" role="img" aria-label={lang === 'vi'
-      ? `Địa cầu 3D tương tác thể hiện ${stops.length} chặng F1 mùa ${season}`
-      : `Interactive 3D globe showing ${stops.length} F1 rounds in ${season}`}>
+    <div className="rcj-globe-stage" role="group" aria-label={lang === 'vi'
+      ? `Địa cầu 3D ${season} với ${stops.length} chặng. Kéo chuột để xoay, cuộn để di chuyển giữa các chặng.`
+      : `3D globe with ${stops.length} rounds in ${season}. Drag to rotate; scroll to travel between races.`}>
       <div className="rcj-globe-vignette" aria-hidden="true" />
       <Canvas
         frameloop="demand"
@@ -260,9 +351,9 @@ export function JourneyGlobe3D({ season, calendar, travelProgress, onSelectRound
         camera={{ position: [0, 0, 3.8], fov: 36, near: 0.1, far: 50 }}
         gl={{ antialias: true, alpha: true, powerPreference: 'low-power' }}>
         <SceneMotion stops={stops} travelProgress={travelProgress}
-          onSelectRound={onSelectRound} closeUp={closeUp} />
+          onSelectRound={onSelectRound} closeUp={closeUp} lang={lang} />
       </Canvas>
-      <span className="rcj-globe-caption">PODIUM EDS / GEOGRAPHIC RACING ATLAS</span>
+      <span className="rcj-globe-drag-hint" aria-hidden="true">{lang === 'vi' ? 'KÉO ĐỂ XOAY' : 'DRAG TO ROTATE'}</span>
     </div>
   );
 }
