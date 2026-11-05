@@ -28,7 +28,8 @@ export function AuthorPanel({ api, team, onTeam, onCamera }: { api: AuthorApi | 
     const link = document.createElement('a'); link.href = url; link.download = 'P6_2026_DECAL_PLACEMENTS.json'; document.body.append(link); link.click(); link.remove();
     setTimeout(() => URL.revokeObjectURL(url), 30000);
   };
-  const reference = team.id === 'cadillac' ? cadillacUpdated : images[`../reference-assets/${team.id}-2026-official-right.webp`];
+  // Do not substitute Cadillac's updated midseason artwork for the frozen debut.
+  const reference = images[`../reference-assets/${team.id}-2026-official-right.webp`];
   return <aside className="author-panel" aria-label="P6 decal authoring tool">
     <h2>3D DECAL AUTHORING <small>DEV ONLY</small></h2>
     <p>Drag on Model B to orbit at any time. Hold Shift while clicking/dragging to move the selected decal (DEV only).</p>
