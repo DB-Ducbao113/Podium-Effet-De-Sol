@@ -31,7 +31,7 @@ export function AuthorPanel({ api, team, onTeam, onCamera }: { api: AuthorApi | 
   const reference = team.id === 'cadillac' ? cadillacUpdated : images[`../reference-assets/${team.id}-2026-official-right.webp`];
   return <aside className="author-panel" aria-label="P6 decal authoring tool">
     <h2>3D DECAL AUTHORING <small>DEV ONLY</small></h2>
-    <p>Click or drag on Model B body paint to move the selected mark. Orbit with no mark selected.</p>
+    <p>Drag on Model B to orbit at any time. Hold Shift while clicking/dragging to move the selected decal (DEV only).</p>
     <label>Team <select value={team.id} onChange={(event) => onTeam(event.target.value)}>{['mclaren','ferrari','mercedes','redbull','racingbulls','astonmartin','alpine','williams','haas','audi','cadillac'].map((id) => <option key={id} value={id}>{id}</option>)}</select></label>
     {reference && <a href={team.reference} target="_blank" rel="noreferrer"><img className="author-reference" src={reference} alt={`Official 2026 ${team.name} right profile reference`} /></a>}
     <p>Reference: 2026 F1 imagery. Photo is for alignment only.</p>
