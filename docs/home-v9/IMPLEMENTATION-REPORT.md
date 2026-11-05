@@ -1,8 +1,10 @@
 # V9 Living Machine — Implementation Report
 
 **Status:** Prototype source committed. **Visual approval, real-device FPS and CI still need confirmation.**
-**Branch:** `feat/home-v9-living-machine`, separate from concurrently edited V8 branch.
-**Draft PR:** https://github.com/DB-Ducbao113/Podium-Effet-De-Sol/pull/3
+**Branch:** `feat/homepage-racing-motion-v1`, separate from concurrently edited V8 branch.
+**Homepage PR:** https://github.com/DB-Ducbao113/Podium-Effet-De-Sol/pull/1
+
+V9 was prototyped separately, then moved onto the owner's specified Homepage feature branch. The former PR #3 is superseded.
 
 ## Available developer previews
 
@@ -35,7 +37,7 @@ In PowerShell:
 ```powershell
 Set-Location 'E:\Formula 1'
 
-git clone --branch feat/home-v9-living-machine --single-branch 'https://github.com/DB-Ducbao113/Podium-Effet-De-Sol.git' 'Podium-EDS-V9-Preview'
+git clone --branch feat/homepage-racing-motion-v1 --single-branch 'https://github.com/DB-Ducbao113/Podium-Effet-De-Sol.git' 'Podium-EDS-V9-Preview'
 
 Set-Location 'E:\Formula 1\Podium-EDS-V9-Preview'
 
