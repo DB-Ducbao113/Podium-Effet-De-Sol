@@ -29,6 +29,11 @@ export interface SurfacePlacement {
   adapted: boolean;
 }
 
+/** Detailed mesh raycasts are a manual DEV diagnostic, never a default load dependency. */
+export function shouldEnableDetailedSurfaceQa(isDev: boolean, queryString: string): boolean {
+  return isDev && new URLSearchParams(queryString).get('surfaceQa') === '1';
+}
+
 export const WORDMARK_LIMITS: Readonly<SurfaceLimits> = Object.freeze({
   minCoverage: 0.90,
   maxNormalDegrees: 15,
