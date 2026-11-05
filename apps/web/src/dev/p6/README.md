@@ -51,3 +51,23 @@ The geometry preflight introduced in V2 was too expensive to run synchronously d
 - The test `modelBSurfaceAudit.test.ts` asserts the expensive flag is false for ordinary and author mode and never enabled in production.
 
 **Validation still required:** Checkout the feature branch locally, run typecheck/test/build, open the Showroom and measure load-to-interaction, frame p95 and team-switch latency on a weaker device. This hotfix was committed through the GitHub connector and does **not** claim measured performance or passing CI.
+
+## Interaction + 11-team paint consistency patch — 2026-11-05
+
+**Problem 1: 50–60 displayed FPS, but Model B will not orbit.** The P6 DEV `?author=1` code used a canvas capture-phase `pointerdown` handler to relocate an already-selected decal, consuming pointer events before Drei OrbitControls. This is independent of rendering FPS. Fix: **normal left drag always rotates the camera**; only `Shift + left drag` invokes decal placement. The author panel now says so; decorative labels and loading status are non-interactive, and the canvas uses `touch-action:none` to allow touch rotation. Studio orbit controls explicitly enable rotation and stop preset transitions as soon as the user drags.
+
+**Problem 2: inconsistent 2026 colors.** Previously `teamLiveries.ts`, `paintAtlas.ts` and the runtime's Cadillac fallback used conflicting hardcoded RGB values. This created mismatches between swatches, paint regions and quick transitions even before source-photo approval. Fix:
+- `standard2026Paint.ts` is the sole source of the 11 teams' paint-role swatches (primary, secondary, accent, side, cover, nose, wing, dark, light, detail and finish).
+- `teamLiveries.ts` spreads those values into each selectable team's runtime data; `paintAtlas.ts` consumes exactly the same source for all three projections. 109 individual atlas color literals were replaced.
+- `liveryRuntime.ts::zoneColor` does not inject independent Cadillac colors. Cadillac stays left-light / right-dark as in the February launch source; later revisions must remain separate.
+- Studio uses neutral key/fill lighting and white rim by default. Optional Team lighting is decorative and **not** color-reference accurate.
+- Existing body-mask geometry and sponsor anchors remain provisional; the shared palette stops conflicting *colors* but does not prove every polygon follows the source's real panel boundaries.
+
+**How to inspect:**
+- `/showroom`: drag to rotate; change all 11 teams; inspect both physical sides and top view.
+- `/showroom?author=1`: drag to rotate; `Shift+drag` to move selected decal. Use `window.__P6_VIEW__('left')` and `window.__P6_VIEW__('right')` to compare asymmetry.
+- `/showroom?review=model-b`: isolated older material-only DEV route for fallback and regression comparison.
+- Test targets: `authorPointerIntent.test.ts`, `standard2026Paint.test.ts`, `standard2026References.test.ts`, `modelBSurfaceAudit.test.ts`.
+- Suggested root commands in a full local checkout: `npm ci && npm run lint && npm run typecheck && npm run test && npm run build`. Actual browser interactivity, screenshot QA and real-device performance remain **unverified** until executed locally.
+
+The palette values are visually estimated colors matched to one 2026 launch design per constructor, **not manufacturer-certified paint codes**. The authoritative source registry stores official 2026 image galleries but still requires explicit per-image multi-angle/rights review. This patch does not merge, deploy, modify the frozen Model B GLB or update the commercial release route.
