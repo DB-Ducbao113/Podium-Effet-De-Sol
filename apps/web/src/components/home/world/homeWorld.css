@@ -1,0 +1,219 @@
+/* V9 / Living Machine Preview. A single fixed world behind Home and shared Footer. */
+.home-v9-world {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  isolation: isolate;
+  background: #050910;
+}
+.home-v9-world__poster {
+  position: absolute;
+  inset: -6%;
+  background:
+    radial-gradient(ellipse 55% 53% at 68% 45%, rgba(255, 92, 43, .19), transparent 79%),
+    radial-gradient(ellipse 60% 60% at 22% 63%, rgba(60, 153, 208, .18), transparent 80%),
+    linear-gradient(122deg, #060b14 6%, #101923 50%, #04070d 98%);
+}
+.home-v9-world__poster::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: .24;
+  background: repeating-linear-gradient(110deg, transparent 0 103px, rgba(115, 184, 208, .055) 104px 105px);
+}
+.home-v9-world__edge-light {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(90deg, rgba(3, 6, 12, .76), transparent 37% 76%, rgba(4, 7, 13, .30));
+}
+.home-v9-world .home-v9-canvas {
+  position: absolute !important;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  pointer-events: none !important;
+}
+.home-v9-world__fallback { position: absolute; inset: 0; }
+.home-v9-world__copyright {
+  position: absolute;
+  right: 16px;
+  bottom: 14px;
+  color: rgba(164, 200, 219, .38);
+  font: 600 8px/1.4 var(--peds-font-mono);
+  letter-spacing: .16em;
+  text-align: right;
+}
+/* App.tsx uses this opt-in attribute ONLY when route is Home and dev query v9=1. */
+.h25-home-route[data-home-v9='true'] {
+  background: #050910;
+  isolation: isolate;
+}
+.h25-home-route[data-home-v9='true'] > main,
+.h25-home-route[data-home-v9='true'] > .peds-footer {
+  position: relative;
+  z-index: 1;
+}
+.h25-home-route[data-home-v9='true'] .home-v3 {
+  background: transparent;
+  isolation: auto;
+}
+.h25-home-route[data-home-v9='true'] .home-v3 > .r1-cinema,
+.h25-home-route[data-home-v9='true'] .home-v3__content {
+  background: transparent;
+}
+.h25-home-route[data-home-v9='true'] .home-v3__content {
+  background:
+    linear-gradient(180deg, rgba(6, 10, 16, .52), rgba(5, 8, 14, .67) 65%, rgba(5, 8, 14, .48));
+}
+.h25-home-route[data-home-v9='true'] .home-v3 .home-rc__next,
+.h25-home-route[data-home-v9='true'] .home-v3 .home-rc__timing,
+.h25-home-route[data-home-v9='true'] .home-v3 .home-rc__result,
+.h25-home-route[data-home-v9='true'] .home-v3 .home-title-fight__panel {
+  background: linear-gradient(135deg, rgba(13, 21, 32, .83), rgba(7, 12, 21, .74));
+  backdrop-filter: blur(8px);
+}
+.h25-home-route[data-home-v9='true'] > .peds-footer {
+  background: rgba(5, 9, 15, .68);
+  backdrop-filter: blur(3px);
+}
+.h25-home-route[data-home-v9='true'] .peds-footer__feature {
+  border-color: rgba(141, 196, 219, .31);
+}
+
+/* V9 replaces the redundant V8 neon streamlines, but retains the real car,
+   silhouette-masked light and its pointer motion. The world handles the flow. */
+.h25-home-route[data-home-v9='true'] .f1hero__aero,
+.h25-home-route[data-home-v9='true'] .f1hero__hud,
+.h25-home-route[data-home-v9='true'] .f1hero__telemetry,
+.h25-home-route[data-home-v9='true'] .f1hero__launch-streak,
+.h25-home-route[data-home-v9='true'] .f1hero__shock,
+.h25-home-route[data-home-v9='true'] .f1hero__atmosphere {
+  display: none;
+}
+.h25-home-route[data-home-v9='true'] .home-v3__content::before { opacity: .12; }
+.h25-home-route[data-home-v9='true'] .peds-footer__aero-art { opacity: .63; }
+
+
+/* V9 Scene 05: asymmetric cinematic destinations, not four equal poster tiles.
+   Showroom and Engineering lead; the two racing-identity links recede. */
+@media (min-width: 1080px) {
+  .h25-home-route[data-home-v9='true'] .eds-explore__grid {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .h25-home-route[data-home-v9='true'] .eds-explore__card--showroom,
+  .h25-home-route[data-home-v9='true'] .eds-explore__card--engineering {
+    grid-column: span 6;
+    min-height: 255px;
+    aspect-ratio: 2.2;
+    clip-path: polygon(0 0, 100% 0, 100% 86%, 95% 100%, 0 100%);
+  }
+  .h25-home-route[data-home-v9='true'] .eds-explore__card--drivers,
+  .h25-home-route[data-home-v9='true'] .eds-explore__card--teams {
+    grid-column: span 6;
+    min-height: 138px;
+    aspect-ratio: 4.1;
+    clip-path: polygon(0 0, 98% 0, 100% 100%, 0 100%);
+  }
+  .h25-home-route[data-home-v9='true'] .eds-explore__card--drivers .eds-explore__art img,
+  .h25-home-route[data-home-v9='true'] .eds-explore__card--teams .eds-explore__art img {
+    object-position: center 28%;
+    opacity: .77;
+  }
+}
+
+/* Developer laboratory */
+.v9-lab {
+  position: relative;
+  min-height: calc(100svh - 64px);
+  color: #eef5f9;
+  isolation: isolate;
+  overflow: hidden;
+  background: #050910;
+}
+.v9-lab > .home-v9-world { position: absolute; }
+.v9-lab__layout {
+  position: relative;
+  z-index: 1;
+  width: min(1180px, calc(100% - 40px));
+  margin-inline: auto;
+  padding-block: clamp(42px, 8svh, 100px) 58px;
+}
+.v9-lab__eyebrow {
+  color: #ff9d73;
+  letter-spacing: .2em;
+  font: 700 11px/1.4 var(--peds-font-mono);
+}
+.v9-lab__title {
+  max-width: 830px;
+  margin: 18px 0 0;
+  font: italic 900 clamp(3.3rem, 7.2vw, 7.8rem)/.88 var(--peds-font-display);
+  letter-spacing: -.035em;
+}
+.v9-lab__title em { color: #ff713f; font-style: inherit; }
+.v9-lab__lead {
+  margin: 24px 0 0;
+  max-width: 59ch;
+  font-size: clamp(.92rem, 1.2vw, 1.1rem);
+  line-height: 1.68;
+  color: #bbd0dc;
+}
+.v9-lab__select {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: clamp(32px, 5vw, 60px) 0 0;
+}
+.v9-lab__select button {
+  min-height: 48px;
+  padding: 11px 16px;
+  border: 1px solid rgba(156, 200, 222, .35);
+  background: rgba(9, 18, 30, .78);
+  color: #dcecf2;
+  font: 700 11px/1.35 var(--peds-font-mono);
+  letter-spacing: .06em;
+  cursor: pointer;
+  transition: border-color 180ms, background-color 180ms, transform 180ms;
+}
+.v9-lab__select button:hover { border-color: #ff804b; transform: translateY(-2px); }
+.v9-lab__select button[aria-pressed='true'] {
+  border-color: #ff713f;
+  color: #fff;
+  background: rgba(255, 103, 49, .22);
+}
+.v9-lab__select button:focus-visible,
+.v9-lab__link:focus-visible {
+  outline: 3px solid #e9c387;
+  outline-offset: 4px;
+}
+.v9-lab__detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 18px;
+  max-width: 690px;
+  min-height: 115px;
+  margin-top: clamp(55px, 13svh, 160px);
+  padding: 18px 22px;
+  background: rgba(7, 15, 24, .84);
+  border-left: 2px solid #ff7842;
+  box-shadow: 0 16px 55px rgba(0, 0, 0, .35);
+}
+.v9-lab__detail p { margin-top: 8px; color: #bed3df; font-size: 13px; line-height: 1.6; }
+.v9-lab__detail small { color: #8ab0c6; font: 600 10px/1.4 var(--peds-font-mono); }
+.v9-lab__link { color: #ffb28c; font-size: 13px; font-weight: 700; white-space: nowrap; }
+@media (max-width: 850px) {
+  .home-v9-world__copyright { display: none; }
+  .h25-home-route[data-home-v9='true'] .home-v3 .home-rc__next,
+  .h25-home-route[data-home-v9='true'] .home-v3 .home-rc__timing,
+  .h25-home-route[data-home-v9='true'] .home-v3 .home-rc__result,
+  .h25-home-route[data-home-v9='true'] .home-v3 .home-title-fight__panel { backdrop-filter: none; }
+  .v9-lab__detail { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .v9-lab__select button { transition: none; }
+  .v9-lab__select button:hover { transform: none; }
+}
