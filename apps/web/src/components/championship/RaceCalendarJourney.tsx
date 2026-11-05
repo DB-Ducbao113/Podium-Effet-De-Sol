@@ -15,6 +15,7 @@ import {
   type ResultSessionKey,
 } from '../../results-engine/availability';
 import { JourneyWorldMap } from './JourneyWorldMap';
+import { getJourneyScrollProgress, getJourneyScrollTarget } from './journeyScrollMotion';
 import './raceCalendarJourney.css';
 
 // Heavy WebGL code is only fetched after the user opens the Journey on a capable device.
@@ -56,6 +57,8 @@ export function RaceCalendarJourney({ season }: { season: SeasonYear }) {
   const [preferredMap, setPreferredMap] = useState<'3d' | '2d' | null>(null);
   const [closeUp, setCloseUp] = useState(false);
   const sections = useRef(new Map<number, HTMLElement>());
+  const scrollEntryRef = useRef(0);
+  const pixelsPerRoundRef = useRef(1);
 
   const sources: ResultDataSources = useMemo(() => ({
     season,
@@ -107,62 +110,59 @@ export function RaceCalendarJourney({ season }: { season: SeasonYear }) {
     setTravelProgress(0);
   }, [calendar]);
 
-  // Return from details to the same Grand Prix without using round=N (reserved for detail mode).
-  useEffect(() => {
-    if (focusRound === null) return;
-    const frame = window.requestAnimationFrame(() => {
-      sections.current.get(focusRound)?.scrollIntoView({ block: 'start', behavior: 'auto' });
-    });
-    return () => window.cancelAnimationFrame(frame);
-  }, [season, focusRound]);
-
-  // Drive the traced route directly from the page's scroll position, not a decorative timer.
+  // Start moving on the FIRST wheel gesture after opening Results / Calendar.
+  // Previously R01 stayed frozen until its first invisible section crossed 55% of the viewport.
   useEffect(() => {
     if (!calendar.length) return;
+    const firstBeat = sections.current.get(calendar[0].round);
+    pixelsPerRoundRef.current = firstBeat?.getBoundingClientRect().height || window.innerHeight * 0.85;
+    scrollEntryRef.current = window.scrollY;
+
     let frame = 0;
     const measure = () => {
-      const guide = Math.min(window.innerHeight * 0.55, 580);
-      const tops = calendar.map((race) =>
-        sections.current.get(race.round)?.getBoundingClientRect().top ?? Number.POSITIVE_INFINITY
+      const amount = getJourneyScrollProgress(
+        window.scrollY, scrollEntryRef.current, pixelsPerRoundRef.current, calendar.length,
       );
-      if (!Number.isFinite(tops[0]) || tops[0] > guide) {
-        setActiveRound(calendar[0].round);
-        setTravelProgress(0);
-        return;
-      }
-      let index = 0;
-      for (let i = 1; i < tops.length; i++) {
-        if (tops[i] <= guide) index = i;
-        else break;
-      }
-      const next = tops[index + 1];
-      const span = next - tops[index];
-      const fraction = Number.isFinite(next) && span > 0
-        ? Math.max(0, Math.min(1, (guide - tops[index]) / span))
-        : 0;
+      const index = Math.min(calendar.length - 1, Math.floor(amount));
       setActiveRound((previous) => previous === calendar[index].round ? previous : calendar[index].round);
-      setTravelProgress((previous) =>
-        Math.abs(previous - (index + fraction)) > 0.008 ? index + fraction : previous
-      );
+      setTravelProgress((previous) => Math.abs(previous - amount) > 0.005 ? amount : previous);
     };
     const schedule = () => {
       if (!frame) frame = window.requestAnimationFrame(() => { frame = 0; measure(); });
     };
+    const onResize = () => {
+      pixelsPerRoundRef.current =
+        sections.current.get(calendar[0].round)?.getBoundingClientRect().height || window.innerHeight * 0.85;
+      schedule();
+    };
+
     schedule();
     window.addEventListener('scroll', schedule, { passive: true });
-    window.addEventListener('resize', schedule);
+    window.addEventListener('resize', onResize);
+
+    // Back to map &focus=N restores the saved round using the SAME scroll coordinate system.
+    if (focusRound !== null) {
+      const index = calendar.findIndex((race) => race.round === focusRound);
+      if (index >= 0) {
+        const target = getJourneyScrollTarget(scrollEntryRef.current, index, pixelsPerRoundRef.current);
+        window.requestAnimationFrame(() => window.scrollTo({ top: target, behavior: 'instant' }));
+      }
+    }
+
     return () => {
       if (frame) window.cancelAnimationFrame(frame);
       window.removeEventListener('scroll', schedule);
-      window.removeEventListener('resize', schedule);
+      window.removeEventListener('resize', onResize);
     };
-  }, [calendar]);
+  }, [calendar, focusRound]);
 
   const jump = (round: number) => {
+    const index = calendar.findIndex((race) => race.round === round);
+    if (index < 0) return;
     setActiveRound(round);
-    sections.current.get(round)?.scrollIntoView({
-      block: 'start',
-      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+    window.scrollTo({
+      top: getJourneyScrollTarget(scrollEntryRef.current, index, pixelsPerRoundRef.current),
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
     });
   };
 
