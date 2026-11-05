@@ -275,7 +275,7 @@ function SceneMotion({ stops, travelProgress, onSelectRound, closeUp, lang, stag
 
   useEffect(() => {
     // The next wheel / page-scroll gesture resumes the guided Grand Prix camera path.
-    if (Math.abs(travelProgress - lastTravel.current) > 0.004) {
+    if (Math.abs(travelProgress - lastTravel.current) > 0.0005) {
       dragOffset.current.yaw = 0;
       dragOffset.current.pitch = 0;
     }
