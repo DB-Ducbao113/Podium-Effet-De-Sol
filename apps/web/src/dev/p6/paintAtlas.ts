@@ -48,7 +48,7 @@ export function createPaintAtlas(team: PrecisionTeam): THREE.CanvasTexture {
     fill(ctx, 2, paint.secondary, [[-.82,-.19],[-.32,-.38],[.42,-.41],[.86,-.23],[.86,.23],[.42,.41],[-.32,.38],[-.82,.19]], true);
     fill(ctx, 2, paint.dark, [[-2.525, -1.1], [-1.94, -1.1], [-1.94, 1.1], [-2.525, 1.1]], true);
     fill(ctx, 2, paint.dark, [[1.95, -1.1], [2.525, -1.1], [2.525, 1.1], [1.95, 1.1]], true);
-    fill(ctx, 2, paint.detail, [[1.98,-.73],[2.525,-.73],[2.525,.73],[1.98,.73]], true);
+    fill(ctx, 2, paint.dark, [[1.98,-.73],[2.525,-.73],[2.525,.73],[1.98,.73]], true);
   } else if (team === 'mclaren') {
     ctx.fillStyle = paint.primary; ctx.fillRect(0, 0, canvas.width, panel);
     for (const column of sides) {
