@@ -25,10 +25,14 @@ import { MobileAllInOne } from './components/mobile/MobileAllInOne';
 import { Container } from './components/ui/Container';
 import { buttonClassName } from './components/ui/buttonStyles';
 import { StatePanel } from './components/ui/StatePanel';
+import { HomeWorldHost } from './components/home/world/HomeWorldHost';
 
 const HomeView = lazy(() =>
   import('./components/home/HomeView').then((m) => ({ default: m.HomeView })),
 );
+const V9VisualLab = import.meta.env.DEV
+  ? lazy(() => import('./components/home/world/V9VisualLab').then((m) => ({ default: m.V9VisualLab })))
+  : null;
 const ChampionshipView = lazy(() =>
   import('./components/championship/ChampionshipView').then((m) => ({
     default: m.ChampionshipView,
@@ -171,6 +175,8 @@ export const App: React.FC = () => {
   useTextZoomAttribute();
   const location = useLocation();
   const mobileHub = useMobileHub();
+  const v9Preview = import.meta.env.DEV && !mobileHub && location.pathname === '/' &&
+    new URLSearchParams(location.search).get('v9') === '1';
   const isHubRoute = mobileHub && isPrimaryPath(location.pathname);
   const isInsideMachineTrial = insideMachineTrialEnabled &&
     (location.pathname === '/engineering' || location.pathname === '/engineering/inside-the-machine');
@@ -196,6 +202,7 @@ export const App: React.FC = () => {
   const [scrollProgress, setScrollProgress] = useState<number>(0);
 
   useEffect(() => {
+    if (v9Preview) return;
     let ticking = false;
     const handleScroll = () => {
       if (!ticking) {
@@ -212,7 +219,7 @@ export const App: React.FC = () => {
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [location.pathname]);
+  }, [location.pathname, v9Preview]);
 
   useEffect(() => {
     if (mobileHub && isPrimaryPath(location.pathname)) return;
@@ -222,7 +229,7 @@ export const App: React.FC = () => {
 
 
   return (
-    <div className={`relative flex min-h-screen flex-col bg-peds-canvas font-sans text-peds-text selection:bg-peds-accent selection:text-white ${location.pathname === '/' ? 'h25-home-route' : ''}`}>
+    <div className={`relative flex min-h-screen flex-col bg-peds-canvas font-sans text-peds-text selection:bg-peds-accent selection:text-white ${location.pathname === '/' ? 'h25-home-route' : ''}`} data-home-v9={v9Preview ? 'true' : undefined}>
       {!isInsideMachineTrial && <RouteSeo />}
       {/* ── D2. Film Grain Overlay (Cinematic Texture) ── */}
       <div
@@ -233,10 +240,11 @@ export const App: React.FC = () => {
         }}
       />
 
+      {v9Preview && <HomeWorldHost />}
       {!isInsideMachineTrial && <Navbar />}
 
       {/* ── D1. Scroll Progress Speed Strip ── */}
-      <div className="fixed top-0 left-0 right-0 h-[2.5px] z-[70] pointer-events-none bg-black/20 overflow-hidden">
+      {!v9Preview && <div className="fixed top-0 left-0 right-0 h-[2.5px] z-[70] pointer-events-none bg-black/20 overflow-hidden">
         <div
           style={{
             transform: `scaleX(${scrollProgress})`,
@@ -244,7 +252,7 @@ export const App: React.FC = () => {
           }}
           className="w-full h-full bg-gradient-to-r from-f1red via-amber-400 to-yellow-300 transition-transform duration-75 ease-out"
         />
-      </div>
+      </div>}
 
       <main className={`flex-1 ${isInsideMachineTrial ? '' : 'pt-16 peds-header-offset'}`}>
         <F1PageTransition
@@ -261,8 +269,9 @@ export const App: React.FC = () => {
             <Routes>
               <Route
                 path="/"
-                element={mobileHub ? <MobileAllInOne season={2026} /> : <HomeView />}
+                element={mobileHub ? <MobileAllInOne season={2026} /> : <HomeView worldPreview={v9Preview} />}
               />
+              {V9VisualLab && <Route path="/__home-v9-lab" element={<V9VisualLab />} />}
               {['/live', '/archive', '/timing'].map((path) => (
                 <Route
                   key={path}
