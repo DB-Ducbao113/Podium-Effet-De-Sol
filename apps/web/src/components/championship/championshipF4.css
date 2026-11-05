@@ -49,6 +49,7 @@
 .f4-season-switcher button:focus-visible { outline: 2px solid #ff4a18; outline-offset: -2px; }
 .f4-season-row > :last-child { margin-inline-start: auto; }
 .f4-season-refresh { min-width: 44px; min-height: 44px; border-color: #46515f; background: transparent; }
+.f4-refresh-tooltip [role="tooltip"] { left: auto; right: 0; transform: none; }
 .peds-tabs-shell { position: relative; }
 .peds-tabs-shell::before,
 .peds-tabs-shell::after {

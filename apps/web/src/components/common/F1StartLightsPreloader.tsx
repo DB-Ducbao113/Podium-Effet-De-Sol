@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   getIntroTiming,
   getStartLightsFrame,
@@ -24,8 +24,11 @@ export const F1StartLightsPreloader: React.FC<F1StartLightsPreloaderProps> = ({
   const [frame, setFrame] = useState(() => getStartLightsFrame(0, timing));
   const [startedAt] = useState(() => performance.now());
   const [dismissed, setDismissed] = useState(false);
+  const completed = useRef(false);
 
   const dismiss = useCallback(() => {
+    if (completed.current) return;
+    completed.current = true;
     try {
       window.sessionStorage?.setItem(INTRO_SEEN_STORAGE_KEY, '1');
     } catch {
@@ -35,7 +38,7 @@ export const F1StartLightsPreloader: React.FC<F1StartLightsPreloaderProps> = ({
     onComplete?.();
   }, [onComplete]);
 
-  const visible = !dismissed && frame.phase !== 'complete';
+  const visible = !dismissed;
 
   useEffect(() => {
     try {
@@ -49,10 +52,8 @@ export const F1StartLightsPreloader: React.FC<F1StartLightsPreloaderProps> = ({
     if (!visible) return;
     const update = () => {
       const current = getStartLightsFrame(performance.now() - startedAt, timing);
-      setFrame(current);
-      if (current.phase === 'complete') {
-        onComplete?.();
-      }
+      setFrame((previous) => previous.phase === current.phase && previous.litColumns === current.litColumns
+        ? previous : current);
     };
 
     const deadlines = [
@@ -67,6 +68,9 @@ export const F1StartLightsPreloader: React.FC<F1StartLightsPreloaderProps> = ({
     const timers = deadlines.map((deadline) =>
       window.setTimeout(update, Math.max(0, deadline - (performance.now() - startedAt)) + 1),
     );
+    // Animation timing starts when React commits the launch phase. Waiting for
+    // its actual end avoids cutting the reveal short after a delayed render.
+    const watchdog = window.setTimeout(dismiss, Math.max(0, timing.totalMs + 2000 - (performance.now() - startedAt)));
 
     const onVisible = () => {
       if (!document.hidden) update();
@@ -81,22 +85,28 @@ export const F1StartLightsPreloader: React.FC<F1StartLightsPreloaderProps> = ({
     window.addEventListener('keydown', onKeyDown);
     return () => {
       timers.forEach(window.clearTimeout);
+      window.clearTimeout(watchdog);
       document.removeEventListener('visibilitychange', onVisible);
       window.removeEventListener('keydown', onKeyDown);
     };
-  }, [dismiss, visible, startedAt, timing, onComplete]);
+  }, [dismiss, visible, startedAt, timing]);
 
   useEffect(() => {
     if (!visible) return;
     const previousOverflow = document.body.style.overflow;
+    const previousIntroState = document.documentElement.dataset.introActive;
     document.body.style.overflow = 'hidden';
+    document.documentElement.dataset.introActive = 'true';
     return () => {
       document.body.style.overflow = previousOverflow;
+      if (previousIntroState === undefined) delete document.documentElement.dataset.introActive;
+      else document.documentElement.dataset.introActive = previousIntroState;
     };
   }, [visible]);
 
   if (!visible) return null;
-  const { phase, litColumns } = frame;
+  const phase = frame.phase === 'complete' ? 'launch' : frame.phase;
+  const { litColumns } = frame;
   const racing = phase === 'lights-out' || phase === 'launch';
 
   return (
@@ -106,9 +116,13 @@ export const F1StartLightsPreloader: React.FC<F1StartLightsPreloaderProps> = ({
       className="podium-intro"
       data-phase={phase}
       data-speed={activeSpeed}
+      style={{ '--intro-logo-hold': `${timing.logoHoldMs}ms` } as React.CSSProperties}
     >
       <div
         className="podium-intro__sheet"
+        onAnimationEnd={(event) => {
+          if (event.target === event.currentTarget && event.animationName === 'podiumLaunchReveal') dismiss();
+        }}
         style={
           {
             '--intro-logo-hold': `${timing.logoHoldMs}ms`,
@@ -143,7 +157,7 @@ export const F1StartLightsPreloader: React.FC<F1StartLightsPreloaderProps> = ({
                 aria-label={`${litColumns} of 5 red lights on`}
               >
                 {[1, 2, 3, 4, 5].map((column) => (
-                  <div className="podium-intro__column" key={column}>
+                  <div className="podium-intro__column" key={column} style={{ '--lamp-delay': `${timing.firstLightMs + (column - 1) * timing.lightIntervalMs}ms` } as React.CSSProperties}>
                     {[0, 1].map((lamp) => (
                       <span
                         key={lamp}

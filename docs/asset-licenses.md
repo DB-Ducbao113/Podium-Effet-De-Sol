@@ -52,14 +52,6 @@ Generation and conversion notes: sources are 16:9 because the image tool returne
 
 The artwork is illustrative. It is never captioned as an official circuit map, never used to imply real telemetry or results, and carries no driver, team or sponsor likeness. Provenance and byte/SHA-256 records: `docs/asset-manifests/p4-template-artwork.json`.
 
-## P4 imagery proposal — no asset integrated (01/11/2026)
-
-Stage C of the owner directive requested an imagery/provenance proposal with a preview before any new asset is integrated. The registered inventory contains no licensed candidate for Race Center or Calendar imagery: the only rasters are four project-authored Engineering social images, the PODIUM brand family and the approved Homepage poster; the 72 SVGs under `images/eds/**` are circuit schematics, abstract helmet graphics, EDS-G01 vehicle studies and engineering diagrams; Model B stays outside `public`; the EDS-G01 plates remain quarantined.
-
-No asset was added, moved or re-licensed in this stage. The proposal (schematic-only vs project-authored model-free vector art vs owner-licensed photography vs Model B, which is BLOCKED) is recorded in `docs/IGNITION_MASTER_PLAN.md` §13.29C. **G-2 remains PARTIAL** until the owner selects an option and its provenance record is written here before integration.
-
-> Superseded for P4 imagery by the owner-approved template-first implementation above. The proposal record is retained as history; the status conflict it describes no longer applies to `public/images/p4/template/**`.
-
 ## P5 Drivers hero photograph — local owner review
 
 `apps/web/public/images/p5/hero/lando-helmet-2024.jpg` is a 1,280 × 1,280 Wikimedia Commons thumbnail of Lando Norris's 2024 helmet, photographed on 18 April 2024 by Liauzh and published under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). The [source page](https://commons.wikimedia.org/wiki/File:Lando_Norris_Helmet_2024.jpg) identifies the subject and photographer. The source bytes are retained; the runtime applies CSS crop, reduced saturation and red/orange lighting. The hero labels the image as archival and links the source and license. Bytes and SHA-256 are in `docs/asset-manifests/p5-drivers-hero.json`. Commercial use and related trade dress remain subject to owner/legal review.

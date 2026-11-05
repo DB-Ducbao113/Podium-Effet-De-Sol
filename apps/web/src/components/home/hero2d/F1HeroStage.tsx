@@ -188,7 +188,7 @@ export function F1HeroStage() {
             width="1983"
             height="793"
             decoding="async"
-            fetchPriority="high"
+            {...{ fetchpriority: 'high' }}
             draggable={false}
             onError={(event) => {
               const image = event.currentTarget;

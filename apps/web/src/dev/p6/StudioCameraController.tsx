@@ -22,7 +22,7 @@ export function StudioCameraController({ preset, trigger, zoomTrigger, zoomDirec
   preset: CameraPreset; trigger: number; zoomTrigger: number;
   zoomDirection: 'in' | 'out' | null; reduced: boolean;
 }) {
-  const { camera, size } = useThree();
+  const { camera, size, invalidate } = useThree();
   const controls = React.useRef<OrbitControlsImpl>(null);
   const destination = React.useRef(new THREE.Vector3(3.6, 2, -4.9));
   const target = React.useRef(focus.clone());
@@ -36,15 +36,17 @@ export function StudioCameraController({ preset, trigger, zoomTrigger, zoomDirec
       camera.position.set(side === 'left' ? -6.9 : 6.9, 1.9, 0);
       controls.current?.target.copy(focus);
       controls.current?.update();
+      invalidate();
     };
     (window as Window & { __P6_CAMERA__?: () => number[] }).__P6_CAMERA__ = () => camera.position.toArray();
     return () => { delete (window as Window & { __P6_VIEW__?: unknown }).__P6_VIEW__; delete (window as Window & { __P6_CAMERA__?: unknown }).__P6_CAMERA__; };
-  }, [camera]);
+  }, [camera, invalidate]);
   React.useEffect(() => {
     if (camera instanceof THREE.PerspectiveCamera) {
       setCameraFov(camera, preset === 'top' ? (aspect < .75 ? 50 : 44) : (aspect < .75 ? (preset === 'overview' ? 42 : 58) : 39));
+      invalidate();
     }
-  }, [camera, aspect, preset]);
+  }, [camera, aspect, preset, invalidate]);
   React.useEffect(() => {
     const point = aspect < .75 && preset === 'overview' ? [1.5, 1.85, -7.4] as [number, number, number] : presets[preset as keyof typeof presets] ?? presets.overview;
     destination.current.set(...point).multiplyScalar(aspect < .75 && preset === 'overview' ? 1 : mobileScale);
@@ -55,8 +57,10 @@ export function StudioCameraController({ preset, trigger, zoomTrigger, zoomDirec
       controls.current?.target.copy(target.current);
       controls.current?.update();
       moving.current = false;
+      invalidate();
     }
-  }, [preset, trigger, mobileScale, aspect, reduced, camera]);
+    else invalidate();
+  }, [preset, trigger, mobileScale, aspect, reduced, camera, invalidate]);
   React.useEffect(() => {
     if (!zoomTrigger || !zoomDirection || !controls.current) return;
     const origin = controls.current.target;
@@ -66,7 +70,8 @@ export function StudioCameraController({ preset, trigger, zoomTrigger, zoomDirec
     destination.current.copy(camera.position);
     moving.current = false;
     controls.current.update();
-  }, [zoomTrigger, zoomDirection, camera]);
+    invalidate();
+  }, [zoomTrigger, zoomDirection, camera, invalidate]);
   useFrame((_, delta) => {
     if (!controls.current || !moving.current) return;
     const factor = reduced ? 1 : Math.min(delta * 3.8, 1);
@@ -74,6 +79,7 @@ export function StudioCameraController({ preset, trigger, zoomTrigger, zoomDirec
     controls.current.target.lerp(target.current, factor);
     controls.current.update();
     if (camera.position.distanceTo(destination.current) < .035) moving.current = false;
+    else invalidate();
   });
   return <OrbitControls
     ref={controls}

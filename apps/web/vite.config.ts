@@ -4,6 +4,7 @@ import crypto from "node:crypto";
 import path from "node:path";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 import { cloudflare } from "@cloudflare/vite-plugin";
 import itmAssetIdentity from "./src/dev/insideMachineI1/asset-identity.json";
 import p5SeasonalManifest from "./src/data/visualAssets/p5SeasonalManifest.json";
@@ -300,6 +301,7 @@ const commercialReviewAssetPlugin = {
 export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
+    tailwindcss(),
     commercialReviewAssetPlugin,
     insideMachineLocalAssetsPlugin,
     p5SeasonalLocalAssetsPlugin,

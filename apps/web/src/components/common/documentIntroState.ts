@@ -1,8 +1,13 @@
 import { INTRO_SEEN_STORAGE_KEY } from './F1StartLightsPreloader';
 import { isDocumentReload } from './documentReload';
 
+export const INTRO_COMPLETE_EVENT = 'peds:intro-complete';
+
 export function shouldShowDocumentIntro(): boolean {
   if (typeof window === 'undefined') return false;
+  // The start-lights sequence belongs to the Homepage. Deep links must open
+  // directly into their content so review and navigation are never covered.
+  if (window.location.pathname !== '/') return false;
 
   // 1. Respect prefers-reduced-motion
   if (window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches) {

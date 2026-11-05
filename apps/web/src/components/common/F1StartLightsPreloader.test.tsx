@@ -20,6 +20,12 @@ describe('F1StartLightsPreloader', () => {
     expect(html.match(/data-testid="start-light"/g)).toHaveLength(10);
   });
 
+  it('schedules each lamp with the selected timing profile', () => {
+    const html = renderToStaticMarkup(<F1StartLightsPreloader speed="3x" />);
+    const delays = [...html.matchAll(/--lamp-delay:(\d+)ms/g)].map((match) => Number(match[1]));
+    expect(delays).toEqual([200, 380, 560, 740, 920]);
+  });
+
   it.each([
     ['navigate', false],
     ['back_forward', false],

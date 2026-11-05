@@ -21,16 +21,19 @@ const sourceByVariant: Record<LogoVariant, string> = {
   mark: '/logo/icon-192.png',
 };
 
-/** Official raster artwork; PNG preserves the original metallic and glow treatment. */
+/** Keep the approved PNG as the fallback; modern browsers use a smaller derivative. */
 export const OfficialBrandLogo: React.FC<OfficialBrandLogoProps> = ({
   className = '',
   size = 'md',
   variant = 'full',
-}) => (
-  <img
+}) => {
+  const logo = <img
     src={sourceByVariant[variant]}
     alt={variant === 'mark' ? '' : variant === 'compact' ? 'EDS' : 'PODIUM — Effet de Sol'}
     aria-hidden={variant === 'mark' ? true : undefined}
     className={`${heightByVariant[variant][size]} ${variant === 'mark' ? 'aspect-square' : ''} w-auto max-w-full shrink-0 select-none object-contain transition-all duration-300 group-hover:brightness-110 ${className}`}
-  />
-);
+  />;
+  return variant === 'full'
+    ? <picture className="contents"><source srcSet="/logo/logo-optimized.webp" type="image/webp" />{logo}</picture>
+    : logo;
+};

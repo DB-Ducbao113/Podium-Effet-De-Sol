@@ -18,6 +18,11 @@
   clip-path: polygon(24vh 0, 100% 0, 100% 100%, 0 100%);
 }
 
+.podium-intro[data-phase='lights-out'] .podium-intro__sheet,
+.podium-intro[data-phase='launch'] .podium-intro__sheet {
+  will-change: transform;
+}
+
 .podium-intro__scene {
   position: absolute;
   inset: 0 0 0 24vh;
@@ -179,11 +184,17 @@
     0 0 60px #ff211725,
     inset 0 0 0 1px #ff8d81;
   opacity: 0;
-  transition: opacity 80ms linear;
+  animation: podiumLampIgnition 1ms step-end both;
+  animation-delay: var(--lamp-delay, 0ms);
 }
 
 .podium-intro__lamp.is-on::after {
   opacity: 1;
+}
+
+@keyframes podiumLampIgnition {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .podium-intro__status {
@@ -234,7 +245,6 @@
   100% {
     opacity: 0;
     transform: scale(2.4) translate3d(-14%, 0, 0);
-    filter: blur(6px);
   }
 }
 
@@ -310,10 +320,10 @@
 
 @keyframes podiumBrandSweep {
   0% {
-    clip-path: inset(0 0 0 100%);
+    transform: translate3d(100%, 0, 0);
   }
   100% {
-    clip-path: inset(0 0 0 0);
+    transform: translate3d(0, 0, 0);
   }
 }
 @keyframes podiumBrandIn {
@@ -327,9 +337,9 @@
   }
 }
 
-/* Speed streaks keep flowing through the launch so the transition never freezes. */
+/* One pass keeps the cue active without a full-screen repaint loop. */
 .podium-intro[data-phase='launch'] .podium-intro__speed i {
-  animation: podiumSpeedStreak 0.6s linear infinite;
+  animation: podiumSpeedStreak 0.6s linear both;
   animation-delay: calc(var(--line) * 60ms);
 }
 
@@ -399,6 +409,14 @@
 .podium-intro__skip:focus-visible {
   outline: 2px solid #fff;
   outline-offset: 4px;
+}
+
+.podium-intro[data-phase='launch'] .podium-intro__skip {
+  animation: podiumSkipExit 0.12s linear var(--intro-logo-hold) both;
+}
+
+@keyframes podiumSkipExit {
+  to { opacity: 0; visibility: hidden; }
 }
 
 .podium-intro__footer {

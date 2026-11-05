@@ -39,6 +39,7 @@ describe('V5 grouped global navigation', () => {
     expect(html).toContain('h1-nav__brand');
     expect(html).toContain('h1-nav__brand-logo');
     expect(html).toContain('src="/logo/logo.png"');
+    expect(html).toContain('srcSet="/logo/logo-optimized.webp"');
     expect(html).toContain('alt="PODIUM — Effet de Sol"');
     expect(html).not.toContain('h1-nav__wordmark');
     expect(html).toContain('aria-label="PODIUM EDS — Home"');

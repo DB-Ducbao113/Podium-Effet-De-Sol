@@ -45,7 +45,7 @@ function EnvironmentReflections() {
 }
 
 function ModelB({ team, surface, reduced, showBranding, onLoad, onFailure, onTeamReady, onAuthorReady }: { team: TeamLivery; surface: number; reduced: boolean; showBranding: boolean; onLoad: (bytes: number) => void; onFailure: (message: string) => void; onTeamReady: (id: string) => void; onAuthorReady: (api: AuthorApi | null) => void }) {
-  const { scene, camera, gl } = useThree();
+  const { scene, camera, gl, invalidate } = useThree();
   const [model, setModel] = React.useState<THREE.Group | null>(null);
   const runtime = React.useRef<ReturnType<typeof createLiveryRuntime> | null>(null);
   React.useEffect(() => {
@@ -74,10 +74,20 @@ function ModelB({ team, surface, reduced, showBranding, onLoad, onFailure, onTea
   }, [onLoad, onFailure, onTeamReady, onAuthorReady, scene]);
   React.useEffect(() => {
     if (runtime.current) void runtime.current.setTeam(team, reduced)
-      .then((applied) => { if (applied) onTeamReady(team.id); })
+      .then((applied) => { if (applied) { onTeamReady(team.id); invalidate(); } })
       .catch((cause) => onFailure(`Livery artwork unavailable: ${String(cause)}`));
-  }, [team, reduced, model, onTeamReady, onFailure]);
-  React.useEffect(() => { runtime.current?.setBrandingVisible(showBranding); }, [showBranding, model]);
+  }, [team, reduced, model, onTeamReady, onFailure, invalidate]);
+  React.useEffect(() => {
+    if (!runtime.current) return;
+    void runtime.current.setBrandingVisible(showBranding)
+      .then((applied) => {
+        if (applied) {
+          if (showBranding) onTeamReady(team.id);
+          invalidate();
+        }
+      })
+      .catch((cause: unknown) => onFailure(`Livery artwork unavailable: ${String(cause)}`));
+  }, [showBranding, model, onTeamReady, onFailure, invalidate, team.id]);
   React.useEffect(() => {
     if (!authorMode || !model) return;
     const canvas = gl.domElement;
@@ -99,7 +109,9 @@ function ModelB({ team, surface, reduced, showBranding, onLoad, onFailure, onTea
     canvas.addEventListener('pointerdown', down, true); window.addEventListener('pointermove', move, true); window.addEventListener('pointerup', up, true);
     return () => { canvas.removeEventListener('pointerdown', down, true); window.removeEventListener('pointermove', move, true); window.removeEventListener('pointerup', up, true); };
   }, [model, camera, gl]);
-  useFrame((_, delta) => { runtime.current?.frame(delta, surface, team, reduced); });
+  useFrame((_, delta) => {
+    if (runtime.current?.frame(delta, surface, team, reduced)) invalidate();
+  });
   return model ? <primitive object={model} /> : null;
 }
 
@@ -137,7 +149,8 @@ function Turntable() {
   </group>;
 }
 
-function Studio({ mode, team, reduced }: { mode: LightMode; team: TeamLivery; reduced: boolean }) {
+function Studio({ mode, team, reduced, lowPower }: { mode: LightMode; team: TeamLivery; reduced: boolean; lowPower: boolean }) {
+  const invalidate = useThree((state) => state.invalidate);
   const night = mode === 'Night';
   const presentation = mode === 'Presentation';
   const teamAccent = mode === 'Team';
@@ -154,13 +167,21 @@ function Studio({ mode, team, reduced }: { mode: LightMode; team: TeamLivery; re
     if (keyRef.current) keyRef.current.intensity = THREE.MathUtils.lerp(keyRef.current.intensity, night ? .85 : presentation ? 1.65 : teamAccent ? 1.42 : 1.30, factor);
     if (coolRef.current) coolRef.current.intensity = THREE.MathUtils.lerp(coolRef.current.intensity, cool, factor);
     if (rimRef.current) { rimRef.current.intensity = THREE.MathUtils.lerp(rimRef.current.intensity, rim, factor); rimRef.current.color.lerp(rimColor, factor); }
+    if (!reduced && (
+      Math.abs((keyRef.current?.intensity ?? 0) - (night ? .85 : presentation ? 1.65 : teamAccent ? 1.42 : 1.30)) > .003 ||
+      Math.abs((coolRef.current?.intensity ?? 0) - cool) > .003 ||
+      Math.abs((rimRef.current?.intensity ?? 0) - rim) > .003 ||
+      Math.abs((rimRef.current?.color.r ?? 0) - rimColor.r) > .003 ||
+      Math.abs((rimRef.current?.color.g ?? 0) - rimColor.g) > .003 ||
+      Math.abs((rimRef.current?.color.b ?? 0) - rimColor.b) > .003
+    )) invalidate();
   });
   return <>
-    <EnvironmentReflections />
+    {!lowPower && <EnvironmentReflections />}
     <color attach="background" args={['#080c10']} />
     <hemisphereLight intensity={night ? .38 : presentation ? 1 : .68} color="#dbe5eb" groundColor="#07090b" />
     <ambientLight intensity={.16} />
-    <directionalLight ref={keyRef} position={[-4, 9, -5]} intensity={1.30} color="#f6f7f5" castShadow shadow-mapSize={[2048, 2048]} shadow-bias={-.0003} shadow-normalBias={.012} shadow-camera-left={-7} shadow-camera-right={7} shadow-camera-top={7} shadow-camera-bottom={-7} />
+    <directionalLight ref={keyRef} position={[-4, 9, -5]} intensity={1.30} color="#f6f7f5" />
     <directionalLight ref={coolRef} position={[5, 5, 4]} intensity={.58} color="#e9edf0" />
     <directionalLight ref={rimRef} position={[-5, 3, 5]} intensity={.30} color="#e9edf0" />
     <spotLight position={[0, 6, -3.2]} angle={.65} penumbra={.85} intensity={1.25} distance={12} color="#e9edf0" />
@@ -169,7 +190,7 @@ function Studio({ mode, team, reduced }: { mode: LightMode; team: TeamLivery; re
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -.52, 0]} receiveShadow><planeGeometry args={[80, 80]} /><meshStandardMaterial color="#080d11" metalness={.24} roughness={.68} envMapIntensity={.35} /></mesh>
     {[4.35, 5.15, 6.45].map((radius) => <mesh key={radius} rotation={[-Math.PI / 2, 0, 0]} position={[0, -.5, 0]}><ringGeometry args={[radius, radius + .018, 96]} /><meshStandardMaterial color="#3e4b52" metalness={.75} roughness={.42} /></mesh>)}
     {Array.from({ length: 24 }, (_, index) => { const a = index * Math.PI / 12; return <mesh key={index} rotation={[-Math.PI / 2, 0, a]} position={[0, -.497, 0]}><planeGeometry args={[.012, 12]} /><meshStandardMaterial color="#253039" metalness={.74} roughness={.4} /></mesh>; })}
-    <ContactShadows position={[0, .014, 0]} opacity={.55} scale={6.9} blur={1.35} far={2.2} resolution={512} color="#040404" />
+    {!lowPower && <ContactShadows position={[0, .014, 0]} opacity={.55} scale={6.9} blur={1.35} far={2.2} frames={1} resolution={128} color="#040404" />}
     <mesh position={[0, 3.8, 0]}><cylinderGeometry args={[8.3, 8.3, 8, 72, 1, true]} /><meshStandardMaterial color="#0a1117" side={THREE.BackSide} metalness={.38} roughness={.62} /></mesh>
     <mesh position={[0, 7.75, 0]} rotation={[-Math.PI / 2, 0, 0]}><circleGeometry args={[8.3, 72]} /><meshStandardMaterial color="#0b1116" side={THREE.DoubleSide} /></mesh>
     {[5.8, 7.3, 8.1].map((radius) => <mesh key={radius} position={[0, 7.2, 0]} rotation={[-Math.PI / 2, 0, 0]}><torusGeometry args={[radius, .045, 8, 96]} /><meshStandardMaterial color="#57636b" metalness={.8} roughness={.32} /></mesh>)}
@@ -236,6 +257,9 @@ export function App({ embedded = false }: { embedded?: boolean }) {
   const [placementSummary, setPlacementSummary] = React.useState<PlacementSummary | null>(null);
   const [authorApi, setAuthorApi] = React.useState<AuthorApi | null>(null);
   const [reduced, setReduced] = React.useState(matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const [lowPower, setLowPower] = React.useState(false);
+  const [stageActive, setStageActive] = React.useState(document.visibilityState === 'visible');
+  const stageRef = React.useRef<HTMLElement>(null);
   const paintButton = React.useRef<HTMLButtonElement>(null);
   const mobileAdvancedButton = React.useRef<HTMLButtonElement>(null);
   const onLoad = React.useCallback((count: number) => { setBytes(count); setLoaded(true); }, []);
@@ -263,6 +287,22 @@ export function App({ embedded = false }: { embedded?: boolean }) {
     return () => media.removeEventListener('change', listener);
   }, []);
   React.useEffect(() => {
+    const stage = stageRef.current;
+    if (!stage) return;
+    let inViewport = true;
+    const update = () => setStageActive(inViewport && document.visibilityState === 'visible');
+    const observer = new IntersectionObserver(([entry]) => {
+      inViewport = entry.isIntersecting;
+      update();
+    });
+    observer.observe(stage);
+    document.addEventListener('visibilitychange', update);
+    return () => {
+      observer.disconnect();
+      document.removeEventListener('visibilitychange', update);
+    };
+  }, []);
+  React.useEffect(() => {
     if (!panel) return;
     const escape = (event: KeyboardEvent) => { if (event.key === 'Escape') { setPanel(null); (panel === 'paint' ? paintButton : mobileAdvancedButton).current?.focus(); } };
     document.addEventListener('keydown', escape);
@@ -272,8 +312,8 @@ export function App({ embedded = false }: { embedded?: boolean }) {
   const zoom = (direction: 'in' | 'out') => { setZoomDirection(direction); setZoomTrigger((value) => value + 1); };
   const reset = () => { setTeam(teamLiveries[0]); setSurface(.38); setLight('Studio'); chooseCamera('overview'); setPanel(null); };
   React.useEffect(() => {
-    (window as Window & { __P6_LIVE__?: unknown }).__P6_LIVE__ = { getState: () => ({ loaded, error, bytes, team: team.name, teamId: team.id, camera, light, panel, surface, reduced }), setTeam: (id: string) => { const next = teamLiveries.find((item) => item.id === id); if (next) setTeam(next); }, setCamera: chooseCamera, setLight };
-  }, [loaded, error, bytes, team, camera, light, panel, surface, reduced]);
+    (window as Window & { __P6_LIVE__?: unknown }).__P6_LIVE__ = { getState: () => ({ loaded, error, bytes, team: team.name, teamId: team.id, readyTeam, camera, light, panel, surface, reduced, lowPower }), setTeam: (id: string) => { const next = teamLiveries.find((item) => item.id === id); if (next) setTeam(next); }, setCamera: chooseCamera, setLight };
+  }, [loaded, error, bytes, team, readyTeam, camera, light, panel, surface, reduced, lowPower]);
   const swatches = <div className="swatches team-swatches">{teamLiveries.map((item) => <button key={item.id} type="button" className={`swatch ${item.id === team.id ? 'selected' : ''}`} style={{ '--swatch': item.primary, '--second': item.secondary } as React.CSSProperties} aria-label={`${item.name} 2026 livery`} aria-pressed={item.id === team.id} onClick={() => { setTeam(item); setSurface(item.finish === 'gloss' ? .27 : .41); }}><span className="swatch-color" /><span className="swatch-name">{item.name}</span></button>)}</div>;
   const lights = <div className="light-options">{(['Studio', 'Team', 'Presentation', 'Night'] as const).map((item) => <button key={item} type="button" className={light === item ? 'selected' : ''} aria-pressed={light === item} onClick={() => setLight(item)}><span className={`light-sample ${item.toLowerCase()}`} />{item}</button>)}</div>;
   const advancedControls = <>
@@ -306,8 +346,8 @@ export function App({ embedded = false }: { embedded?: boolean }) {
   </>;
   return <div className={`app ${panel ? `panel-${panel}` : ''}`} style={{ '--team-accent': team.accent, '--team-primary': team.primary } as React.CSSProperties}>
     {!embedded && <header className="topbar"><img src="/logo.png" alt="PODIUM EDS" /><nav aria-label="Prototype navigation"><span>OVERVIEW</span><span>RACES</span><span>STANDINGS</span><span>ENGINEERING</span><strong>3D SHOWROOM</strong></nav><div className="top-actions"><span>EN</span><button type="button" aria-label="Menu" disabled>☰</button></div></header>}
-    <main className="layout"><section className="stage" aria-label="Interactive Model B 3D studio"><Canvas shadows dpr={[1, 1.6]} camera={{ position: [4.2, 2.1, -5.7], fov: 39, near: .05, far: 80 }} gl={{ antialias: true, powerPreference: 'high-performance' }} onCreated={({ gl }) => { gl.outputColorSpace = THREE.SRGBColorSpace; gl.toneMapping = THREE.ACESFilmicToneMapping; gl.toneMappingExposure = 1; }}>
-      <Studio mode={light} team={team} reduced={reduced} />
+    <main className="layout"><section ref={stageRef} className="stage" aria-label="Interactive Model B 3D studio"><Canvas frameloop={stageActive && loaded ? 'demand' : 'never'} dpr={lowPower ? 0.65 : [1, 1.25]} camera={{ position: [4.2, 2.1, -5.7], fov: 39, near: .05, far: 80 }} gl={{ antialias: true, powerPreference: 'high-performance' }} onCreated={({ gl }) => { gl.outputColorSpace = THREE.SRGBColorSpace; gl.toneMapping = THREE.ACESFilmicToneMapping; gl.toneMappingExposure = 1; const context = gl.getContext(); const info = context.getExtension('WEBGL_debug_renderer_info'); const renderer = String(context.getParameter(info ? info.UNMASKED_RENDERER_WEBGL : context.RENDERER)); setLowPower(/swiftshader|llvmpipe|softpipe|software rasterizer/i.test(renderer)); }}>
+      <Studio mode={light} team={team} reduced={reduced} lowPower={lowPower} />
       <ModelB team={team} surface={surface} reduced={reduced} showBranding={showBranding} onLoad={onLoad} onFailure={onFailure} onTeamReady={onTeamReady} onAuthorReady={onAuthorReady} />
       <StudioCameraController preset={camera} trigger={cameraTrigger} zoomTrigger={zoomTrigger} zoomDirection={zoomDirection} reduced={reduced} />
       <PerformanceProbe onMetrics={setMetrics} />

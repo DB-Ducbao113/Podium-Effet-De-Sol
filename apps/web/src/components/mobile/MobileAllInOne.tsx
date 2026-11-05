@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect } from 'react';
+import { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useNavigationStore } from '../../store/useNavigationStore';
 import { SeasonYear } from '../../types';
@@ -47,6 +47,34 @@ export function MobileAllInOne({ season }: { season: SeasonYear }) {
         : 'home';
   const showHome = location.pathname === '/' || location.hash === '#home';
   const showShowroom = location.pathname === '/showroom' || location.hash === '#showroom';
+  const championshipRef = useRef<HTMLElement>(null);
+  const [loadChampionship, setLoadChampionship] = useState(() =>
+    location.pathname.startsWith('/season/') || location.hash === '#giai-dau');
+
+  useEffect(() => {
+    if (location.pathname.startsWith('/season/') || location.hash === '#giai-dau') {
+      setLoadChampionship(true);
+    }
+  }, [location.pathname, location.hash]);
+
+  useEffect(() => {
+    if (loadChampionship) return;
+    const section = championshipRef.current;
+    if (!section || !('IntersectionObserver' in window)) {
+      setLoadChampionship(true);
+      return;
+    }
+    const observer = new IntersectionObserver(([entry]) => {
+      // A direct Showroom jump leaves the previous section under the fixed
+      // header. Load Championship only when its content can actually be seen.
+      if (showHome && !document.getElementById('launch-control')) return;
+      if (entry.isIntersecting && entry.boundingClientRect.bottom > 120) {
+        setLoadChampionship(true);
+      }
+    }, { rootMargin: '-100px 0px 400px 0px' });
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, [loadChampionship, showHome]);
 
   useEffect(() => {
     const section = ids.find((id) => location.hash === `#${id}`) ?? defaultSection;
@@ -89,6 +117,7 @@ export function MobileAllInOne({ season }: { season: SeasonYear }) {
   }, [location.hash, location.pathname, location.state, defaultSection]);
 
   const goTo = (section: SectionId) => {
+    if (section === 'giai-dau') setLoadChampionship(true);
     const params = new URLSearchParams(location.search);
     if (section !== 'showroom') params.delete('hotspot');
     const search = params.size ? `?${params.toString()}` : '';
@@ -108,17 +137,18 @@ export function MobileAllInOne({ season }: { season: SeasonYear }) {
         )}
       </section>
       <section
+        ref={championshipRef}
         id="giai-dau"
         className="scroll-mt-16"
         aria-label={lang === 'vi' ? 'Giải đấu' : 'Championship'}
       >
-        <Suspense fallback={<div className="min-h-screen" />}>
+        {loadChampionship ? <Suspense fallback={<div className="min-h-[75svh]" />}>
           <ChampionshipView
             season={season}
             onSeasonChange={(next) => navigate(`/season/${next}${location.search}#giai-dau`)}
             headingLevel={showHome ? 'h2' : 'h1'}
           />
-        </Suspense>
+        </Suspense> : <div className="min-h-[75svh]" aria-hidden="true" />}
       </section>
       <section id="showroom" className="scroll-mt-16" aria-label="Model B Showroom">
         <VisibleShowroom load={showShowroom} onOpen={() => goTo('showroom')} />

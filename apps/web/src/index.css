@@ -1178,3 +1178,4 @@ canvas.r3f {
   padding-inline: 12px;
   white-space: normal;
 }
+html[data-intro-active='true'] .peds-film-grain { display: none; }

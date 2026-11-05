@@ -1,0 +1,13 @@
+{
+  "project": "Podium Effet De Sol",
+  "release": "V8.2-AERO-01-2.5D",
+  "asset": "peds-aero01-car.webp",
+  "image_kind": "owner-supplied transparent vehicle illustration",
+  "is_real_three_dimensional_model": false,
+  "width": 1983,
+  "height": 793,
+  "bytes": 368014,
+  "sha256": "9911abbb0a3f68fbff6d96affb81e8fdbe1f49063e2fab04ad4a2f527250b09a",
+  "usage": "decorative F1 2.5D Hero only",
+  "notes": "Downloaded replacement supplied by the owner on 2026-11-04. Source and commercial usage rights have not been independently verified. This is a 2.5D Hero illustration, not a GLB model."
+}

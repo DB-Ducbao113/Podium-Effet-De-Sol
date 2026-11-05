@@ -53,7 +53,6 @@ export function RaceCalendarJourney({ season }: { season: SeasonYear }) {
   const [activeRound, setActiveRound] = useState(calendar[0]?.round ?? 1);
   const [travelProgress, setTravelProgress] = useState(0);
   const [webglAvailable, setWebglAvailable] = useState(false);
-  const [auto3D, setAuto3D] = useState(false);
   const [preferredMap, setPreferredMap] = useState<'3d' | '2d' | null>(null);
   const [closeUp, setCloseUp] = useState(false);
   const sections = useRef(new Map<number, HTMLElement>());
@@ -86,7 +85,9 @@ export function RaceCalendarJourney({ season }: { season: SeasonYear }) {
   const focusParam = Number(new URLSearchParams(location.search).get('focus'));
   const focusRound = Number.isInteger(focusParam) && calendar.some((race) => race.round === focusParam)
     ? focusParam : null;
-  const show3D = webglAvailable && (preferredMap === '3d' || (preferredMap === null && auto3D));
+  // Keep the map ready without downloading the 3D renderer on every visit.
+  // The 3D control loads that scene only when the visitor asks for it.
+  const show3D = webglAvailable && preferredMap === '3d';
   const progress = calendar.length > 1 ? 100 * travelProgress / (calendar.length - 1) : 0;
 
   useEffect(() => {
@@ -99,10 +100,6 @@ export function RaceCalendarJourney({ season }: { season: SeasonYear }) {
       context?.getExtension('WEBGL_lose_context')?.loseContext();
     } catch { /* WebGL unavailable: retain the non-GPU 2D map. */ }
     setWebglAvailable(supported);
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const weak = typeof navigator !== 'undefined' &&
-      typeof navigator.hardwareConcurrency === 'number' && navigator.hardwareConcurrency <= 2;
-    setAuto3D(supported && !reduced && !weak && window.innerWidth >= 750);
   }, []);
 
   useEffect(() => {

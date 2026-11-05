@@ -25,6 +25,11 @@
   border-radius: 10px;
   background: rgba(10, 16, 25, .9);
 }
+.p5-gallery-page.p5-gallery-page-drivers .p5-controls {
+  position: static;
+  width: 100%;
+  margin: 14px 0 18px;
+}
 .p5-gallery-page .p5-controls :is(input,select) {
   min-height: 44px;
 }

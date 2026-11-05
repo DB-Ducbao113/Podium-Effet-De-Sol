@@ -237,11 +237,12 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
     for (const box of boxes) box.visible = brandingVisible;
   }
   function setBrandingVisible(visible: boolean) {
-    if (brandingVisible === visible) return;
+    if (brandingVisible === visible) return Promise.resolve(false);
     brandingVisible = visible;
     if (!visible) {
       // Paint-only mode must stop loading expensive sponsor atlases.
       ++requestId;
+      ++renderVersion;
       clearDecals();
       clearWheelDetails();
       for (const [id, pending] of decalAtlases) {
@@ -252,14 +253,13 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
       }
       activeAtlas?.map.dispose();
       activeAtlas = null;
-      return;
+      return Promise.resolve(true);
     }
     if (currentTeam) {
       const request = ++requestId;
-      void loadBrandingForTeam(currentTeam, request).catch((error: unknown) => {
-        console.warn('[P6] Sponsor review artwork could not be loaded:', error);
-      });
+      return loadBrandingForTeam(currentTeam, request);
     }
+    return Promise.resolve(true);
   }
 
   function clearDecals() {
@@ -452,10 +452,16 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
   }
 
   let activeAtlas: DecalAtlas | null = null;
-  function renderDecals(team: Pick<TeamLivery, 'id'>, atlas: DecalAtlas) {
+  let renderVersion = 0;
+  async function renderDecals(team: Pick<TeamLivery, 'id'>, atlas: DecalAtlas) {
+    const version = ++renderVersion;
     clearDecals();
     placementAudit = [];
     for (const entry of liveryDefinitions[team.id as PrecisionTeam].decals) {
+      // Each surface audit raycasts against the full body mesh. Yield between
+      // marks so switching liveries does not lock the controls or the page.
+      await new Promise<void>((resolve) => setTimeout(resolve, 0));
+      if (disposed || version !== renderVersion || currentTeam !== team.id) return false;
       const requested = authorOverrides.get(entry.id) ?? entry.anchor;
       if (requested.visible === false) {
         placementAudit.push({ id: entry.id, state: 'unplaced', reason: 'hidden-by-author' });
@@ -551,6 +557,7 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
       }
     }
     applyBrandingVisibility();
+    return true;
   }
 
   let requestId = 0;
@@ -612,7 +619,7 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
     if (!selectedDecalId || !definition.decals.some((entry) => entry.id === selectedDecalId)) {
       selectedDecalId = definition.decals[0]?.id ?? null;
     }
-    renderDecals({ id: teamId }, atlas);
+    if (!await renderDecals({ id: teamId }, atlas)) return false;
     // Experimental wheel rings are not part of the approved paint layout.
     // Only show them in an explicit owner-review study, never by default.
     if (teamId === 'mclaren' && authorMode &&
@@ -634,6 +641,7 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
   async function setTeam(team: TeamLivery, reduced: boolean) {
     if (currentTeam === team.id) return true;
     const request = ++requestId;
+    renderVersion++;
     const precision = team.id as PrecisionTeam;
     beginPaintTransition(precision, reduced);
     currentTeam = team.id;
@@ -641,9 +649,10 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
     clearWheelDetails();
     const color = new THREE.Color();
     const cache = new Map<string, THREE.Color>();
+    paintMesh.updateWorldMatrix(true, false);
+    const paintWorldMatrix = paintMesh.matrixWorld;
     for (let index = 0; index < positions.count; index++) {
-      vector.fromBufferAttribute(positions, index);
-      paintMesh.localToWorld(vector);
+      vector.fromBufferAttribute(positions, index).applyMatrix4(paintWorldMatrix);
       const hex = zoneColor(team, vector.x, vector.y, vector.z);
       const selected = cache.get(hex) ?? color.set(hex).clone();
       cache.set(hex, selected);
@@ -672,7 +681,7 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
     placementCache.clear();
     for (const [id, value] of Object.entries(JSON.parse(serialized) as Record<string, SurfaceAnchorMap>)) authorOverrides.set(id, value);
     localStorage.setItem(authorStorageKey, snapshot());
-    if (currentTeam && activeAtlas) renderDecals({ id: currentTeam }, activeAtlas);
+    if (currentTeam && activeAtlas) void renderDecals({ id: currentTeam }, activeAtlas);
   }
   function updateAnchor(id: string, patch: Partial<SurfaceAnchorMap>, record = true) {
     if (!authorMode) return false;
@@ -682,7 +691,7 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
     authorOverrides.set(id, { ...before, ...patch });
     placementCache.clear();
     localStorage.setItem(authorStorageKey, snapshot());
-    if (currentTeam && activeAtlas) renderDecals({ id: currentTeam }, activeAtlas);
+    if (currentTeam && activeAtlas) void renderDecals({ id: currentTeam }, activeAtlas);
     return true;
   }
   function placeAt(id: string, clientX: number, clientY: number, camera: THREE.Camera, element: HTMLElement, record = true) {
@@ -703,7 +712,7 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
   const author = {
     entries: () => entries().map((item) => ({ ...item, anchor: anchor(item.id) })),
     selected: () => selectedDecalId,
-    select: (id: string) => { if (!authorMode || !anchor(id)) return; selectedDecalId = id; if (currentTeam && activeAtlas) renderDecals({ id: currentTeam }, activeAtlas); },
+    select: (id: string) => { if (!authorMode || !anchor(id)) return; selectedDecalId = id; if (currentTeam && activeAtlas) void renderDecals({ id: currentTeam }, activeAtlas); },
     updateAnchor, placeAt, undo, redo,
     exportConfig: () => JSON.stringify({ version: 1, overrides: Object.fromEntries(authorOverrides) }, null, 2),
     importConfig: (input: string) => { const parsed = JSON.parse(input) as { version: number; overrides: Record<string, SurfaceAnchorMap> }; if (parsed.version !== 1 || !parsed.overrides) throw new Error('Invalid P6 authoring file'); undoStack.push(snapshot()); restore(JSON.stringify(parsed.overrides)); },
@@ -736,6 +745,7 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
     }
     paintMesh.material.roughness = THREE.MathUtils.lerp(paintMesh.material.roughness, surface, reduced ? 1 : 1 - Math.exp(-delta * 6));
     paintMesh.material.metalness = team.finish === 'gloss' ? .32 : .25;
+    return animating || (paintFrom !== paintTo) || Math.abs(paintMesh.material.roughness - surface) > .003;
   }
 
   return { setTeam, setBrandingVisible, frame, author, dispose: () => { disposed = true; placementCache.clear(); clearDecals(); clearWheelDetails(); for (const pending of textureCache.values()) void pending.then((item) => item.dispose()); for (const pending of decalAtlases.values()) void pending.then((item) => item.map.dispose()); paintFrom?.dispose(); if (paintTo !== paintFrom) paintTo?.dispose(); emptyPaintTexture.dispose(); textureCache.clear(); decalAtlases.clear(); }, getDebug: () => ({ team: currentTeam, brandingVisible, surfaceQaEnabled, placementAudit: [...placementAudit], decalCount: decals.length, decalIds: decals.map((item) => item.id), decalKeys: decals.map((item) => item.key), decalVertices: decals.map((item) => item.mesh.geometry.getAttribute('position').count), wheelDetails: wheelDetails.map((item) => item.name), bodyVertices: positions.count, paintAtlas: paintUniforms.uUsePaintAtlas.value === 1, paintBlend: paintUniforms.uPaintBlend.value, paintAtlasSize: paintUniforms.uUsePaintAtlas.value === 1 ? [1536, 512] : null }) };

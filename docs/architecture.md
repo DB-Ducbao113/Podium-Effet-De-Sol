@@ -1,5 +1,7 @@
 # Architecture
 
+This document records the current API and workspace boundaries. The next product and visual direction has not been defined.
+
 ## Dependency direction
 
 ```text
@@ -49,6 +51,6 @@ The two F1 synchronization sources remain independent and manually invoked. Thei
 
 ## Deployment compatibility
 
-One Cloudflare Worker serves `/api/openf1` and `/api/jolpica`; Cloudflare Static Assets serves the Vite client from `apps/web/dist/client`. `not_found_handling: single-page-application` supports direct SPA navigation, while `run_worker_first` is limited to `/api` and `/api/*`. Static security/cache policy lives in `apps/web/public/_headers`; Worker responses receive equivalent API-safe headers in code. No Node compatibility is required, and `no_nodejs_compat` is explicit.
+One Cloudflare Worker serves `/api/openf1`, `/api/jolpica`, and the allowlisted Model B asset under `/models/`; Cloudflare Static Assets serves the Vite client from `apps/web/dist/client`. `not_found_handling: single-page-application` supports direct SPA navigation, while `run_worker_first` covers `/api`, `/api/*`, and `/models/*`. Static security/cache policy lives in `apps/web/public/_headers`; Worker responses receive equivalent API-safe headers in code. No Node compatibility is required, and `no_nodejs_compat` is explicit.
 
 The top-level Wrangler environment is local development. `env.production` has a distinct Worker name, same-origin-only CORS by default, and no routes, domain, schedules, or cloud resource bindings. No deployment is configured or triggered.

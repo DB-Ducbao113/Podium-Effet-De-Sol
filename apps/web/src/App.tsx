@@ -18,6 +18,7 @@ import { RaceClassificationModal } from './components/championship/RaceClassific
 import { getCompleteRaceClassification } from './data/championship/raceClassificationHelper';
 
 import { F1PageTransition } from './components/common/F1PageTransition';
+import { INTRO_COMPLETE_EVENT } from './components/common/documentIntroState';
 import { RouteSeo } from './components/seo/RouteSeo';
 import { useMobileHub, isPrimaryPath } from './hooks/useMobileHub';
 import { useTextZoomAttribute } from './hooks/useTextZoomAttribute';
@@ -183,6 +184,9 @@ export const App: React.FC = () => {
   const syncSeasonData = useChampionshipStore((state) => state.syncSeasonData);
 
   useEffect(() => {
+    const onSeasonPage = location.pathname.startsWith('/season/') || location.hash === '#giai-dau';
+    const onHomepage = location.pathname === '/' && location.hash !== '#showroom';
+    if (!onSeasonPage && !onHomepage) return;
     const refreshIfDue = () => {
       if (document.visibilityState !== 'visible' || Date.now() - lastAutoRaceSyncAt < 15 * 60_000)
         return;
@@ -190,14 +194,27 @@ export const App: React.FC = () => {
       void syncSeasonData(2026);
     };
 
-    refreshIfDue();
+    // Let the Homepage paint and become interactive before reconciling race
+    // results. Season pages still start their refresh immediately.
+    let postIntro: number | null = null;
+    const afterIntro = () => { postIntro = window.setTimeout(refreshIfDue, 300); };
+    const startHomeRefresh = () => {
+      if (document.querySelector('.podium-intro')) {
+        window.addEventListener(INTRO_COMPLETE_EVENT, afterIntro, { once: true });
+      } else refreshIfDue();
+    };
+    const initial = onSeasonPage ? null : window.setTimeout(startHomeRefresh, 3000);
+    if (onSeasonPage) refreshIfDue();
     const interval = window.setInterval(refreshIfDue, 15 * 60_000);
     document.addEventListener('visibilitychange', refreshIfDue);
     return () => {
+      if (initial !== null) window.clearTimeout(initial);
+      if (postIntro !== null) window.clearTimeout(postIntro);
+      window.removeEventListener(INTRO_COMPLETE_EVENT, afterIntro);
       window.clearInterval(interval);
       document.removeEventListener('visibilitychange', refreshIfDue);
     };
-  }, [syncSeasonData]);
+  }, [syncSeasonData, location.pathname, location.hash]);
 
   const [scrollProgress, setScrollProgress] = useState<number>(0);
 
@@ -234,7 +251,7 @@ export const App: React.FC = () => {
       {/* ── D2. Film Grain Overlay (Cinematic Texture) ── */}
       <div
         aria-hidden="true"
-        className="fixed inset-0 pointer-events-none z-[45] opacity-[0.035] mix-blend-overlay"
+        className="peds-film-grain fixed inset-0 pointer-events-none z-[45] opacity-[0.035] mix-blend-overlay"
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
         }}

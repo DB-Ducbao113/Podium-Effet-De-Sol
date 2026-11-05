@@ -138,7 +138,7 @@ export const ChampionshipView: React.FC<ChampionshipViewProps> = ({
                 </button>
               ))}
             </div>
-            <Tooltip label={lang === 'vi' ? 'Làm mới dữ liệu kết quả' : 'Refresh season data'}>
+            <Tooltip className="f4-refresh-tooltip" label={lang === 'vi' ? 'Làm mới dữ liệu kết quả' : 'Refresh season data'}>
               <Button
                 data-championship-refresh
                 onClick={handleManualSync}
