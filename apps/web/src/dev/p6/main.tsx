@@ -133,27 +133,30 @@ function Studio({ mode, team, reduced }: { mode: LightMode; team: TeamLivery; re
   const night = mode === 'Night';
   const presentation = mode === 'Presentation';
   const teamAccent = mode === 'Team';
-  const rim = teamAccent ? 1.05 : night ? .82 : presentation ? .45 : .25;
-  const cool = presentation ? 2.7 : night ? .55 : teamAccent ? 1.1 : 1.5;
+  // Neutral Studio is the color-reference mode: warm/cyan theatrical lights
+  // must not recolor the paint while comparing 2026 source photographs.
+  const rim = teamAccent ? .90 : night ? .48 : presentation ? .52 : .30;
+  const cool = presentation ? .92 : night ? .34 : teamAccent ? .72 : .58;
+  const rimColor = React.useMemo(() => new THREE.Color(teamAccent ? team.accent : '#e9edf0'), [teamAccent, team.accent]);
   const keyRef = React.useRef<THREE.DirectionalLight>(null);
   const coolRef = React.useRef<THREE.DirectionalLight>(null);
   const rimRef = React.useRef<THREE.DirectionalLight>(null);
   useFrame((_, delta) => {
     const factor = reduced ? 1 : 1 - Math.exp(-delta * 5);
-    if (keyRef.current) keyRef.current.intensity = THREE.MathUtils.lerp(keyRef.current.intensity, night ? 1 : presentation ? 2.6 : 2.1, factor);
+    if (keyRef.current) keyRef.current.intensity = THREE.MathUtils.lerp(keyRef.current.intensity, night ? .85 : presentation ? 1.65 : teamAccent ? 1.42 : 1.30, factor);
     if (coolRef.current) coolRef.current.intensity = THREE.MathUtils.lerp(coolRef.current.intensity, cool, factor);
-    if (rimRef.current) { rimRef.current.intensity = THREE.MathUtils.lerp(rimRef.current.intensity, rim, factor); rimRef.current.color.lerp(new THREE.Color(team.accent), factor); }
+    if (rimRef.current) { rimRef.current.intensity = THREE.MathUtils.lerp(rimRef.current.intensity, rim, factor); rimRef.current.color.lerp(rimColor, factor); }
   });
   return <>
     <EnvironmentReflections />
     <color attach="background" args={['#080c10']} />
     <hemisphereLight intensity={night ? .38 : presentation ? 1 : .68} color="#dbe5eb" groundColor="#07090b" />
     <ambientLight intensity={.16} />
-    <directionalLight ref={keyRef} position={[-4, 9, -5]} intensity={2.1} color="#f6f7f5" castShadow shadow-mapSize={[2048, 2048]} shadow-bias={-.0003} shadow-normalBias={.012} shadow-camera-left={-7} shadow-camera-right={7} shadow-camera-top={7} shadow-camera-bottom={-7} />
-    <directionalLight ref={coolRef} position={[5, 5, 4]} intensity={1.5} color="#b9d2e1" />
-    <directionalLight ref={rimRef} position={[-5, 3, 5]} intensity={.75} color="#ff6534" />
-    <spotLight position={[0, 6, -3.2]} angle={.65} penumbra={.85} intensity={5} distance={12} color="#d9e5ec" />
-    <spotLight position={[4, 5, 2.8]} angle={.65} penumbra={.85} intensity={teamAccent ? 1.8 : night ? .2 : .5} distance={11} color={team.accent} />
+    <directionalLight ref={keyRef} position={[-4, 9, -5]} intensity={1.30} color="#f6f7f5" castShadow shadow-mapSize={[2048, 2048]} shadow-bias={-.0003} shadow-normalBias={.012} shadow-camera-left={-7} shadow-camera-right={7} shadow-camera-top={7} shadow-camera-bottom={-7} />
+    <directionalLight ref={coolRef} position={[5, 5, 4]} intensity={.58} color="#e9edf0" />
+    <directionalLight ref={rimRef} position={[-5, 3, 5]} intensity={.30} color="#e9edf0" />
+    <spotLight position={[0, 6, -3.2]} angle={.65} penumbra={.85} intensity={1.25} distance={12} color="#e9edf0" />
+    <spotLight position={[4, 5, 2.8]} angle={.65} penumbra={.85} intensity={teamAccent ? 1.05 : 0} distance={11} color={team.accent} />
     <Turntable />
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -.52, 0]} receiveShadow><planeGeometry args={[80, 80]} /><meshStandardMaterial color="#080d11" metalness={.24} roughness={.68} envMapIntensity={.35} /></mesh>
     {[4.35, 5.15, 6.45].map((radius) => <mesh key={radius} rotation={[-Math.PI / 2, 0, 0]} position={[0, -.5, 0]}><ringGeometry args={[radius, radius + .018, 96]} /><meshStandardMaterial color="#3e4b52" metalness={.75} roughness={.42} /></mesh>)}
@@ -286,7 +289,7 @@ export function App({ embedded = false }: { embedded?: boolean }) {
   </>;
   return <div className={`app ${panel ? `panel-${panel}` : ''}`} style={{ '--team-accent': team.accent, '--team-primary': team.primary } as React.CSSProperties}>
     {!embedded && <header className="topbar"><img src="/logo.png" alt="PODIUM EDS" /><nav aria-label="Prototype navigation"><span>OVERVIEW</span><span>RACES</span><span>STANDINGS</span><span>ENGINEERING</span><strong>3D SHOWROOM</strong></nav><div className="top-actions"><span>EN</span><button type="button" aria-label="Menu" disabled>☰</button></div></header>}
-    <main className="layout"><section className="stage" aria-label="Interactive Model B 3D studio"><Canvas shadows dpr={[1, 1.6]} camera={{ position: [4.2, 2.1, -5.7], fov: 39, near: .05, far: 80 }} gl={{ antialias: true, powerPreference: 'high-performance' }} onCreated={({ gl }) => { gl.outputColorSpace = THREE.SRGBColorSpace; gl.toneMapping = THREE.ACESFilmicToneMapping; gl.toneMappingExposure = 1.05; }}>
+    <main className="layout"><section className="stage" aria-label="Interactive Model B 3D studio"><Canvas shadows dpr={[1, 1.6]} camera={{ position: [4.2, 2.1, -5.7], fov: 39, near: .05, far: 80 }} gl={{ antialias: true, powerPreference: 'high-performance' }} onCreated={({ gl }) => { gl.outputColorSpace = THREE.SRGBColorSpace; gl.toneMapping = THREE.ACESFilmicToneMapping; gl.toneMappingExposure = 1; }}>
       <Studio mode={light} team={team} reduced={reduced} />
       <ModelB team={team} surface={surface} reduced={reduced} onLoad={onLoad} onFailure={onFailure} onTeamReady={onTeamReady} onAuthorReady={onAuthorReady} />
       <StudioCameraController preset={camera} trigger={cameraTrigger} zoomTrigger={zoomTrigger} zoomDirection={zoomDirection} reduced={reduced} />
