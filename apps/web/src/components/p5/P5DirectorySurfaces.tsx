@@ -250,7 +250,7 @@ export function P5TeamCard({
           sizes="(max-width: 760px) 30vw, 18vw"
         />
       ))}
-      {!lineup.length && <span className="p5-team-card-no-art">{team?.shortName ?? row.teamName}</span>}
+      {!lineup.length && <span className="p5-team-card-no-art">{team?.name ?? row.teamName}</span>}
     </span>
   );
 
