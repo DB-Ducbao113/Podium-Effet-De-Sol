@@ -40,7 +40,8 @@ export function createPaintAtlas(team: PrecisionTeam): THREE.CanvasTexture {
       fill(ctx, column, paint.secondary, [[.14, .85], [.33, .79], [1.48, .75], [1.72, .84], [1.72, 1.1], [.14, 1.1]]);
       fill(ctx, column, paint.dark, [[-2.525, 0], [-1.94, 0], [-1.94, 1.1], [-2.525, 1.1]]);
       fill(ctx, column, paint.dark, [[1.95, 0], [2.525, 0], [2.525, 1.1], [1.95, 1.1]]);
-      fill(ctx, column, paint.detail, [[1.98,.75],[2.525,.75],[2.525,1.1],[1.98,1.1]]);
+      // 2026 SF-26 launch uses dark rear wing surfaces, not a blue body band.
+      fill(ctx, column, paint.dark, [[1.98,.75],[2.525,.75],[2.525,1.1],[1.98,1.1]]);
     }
     // SF-26: white surrounds the cockpit; the rear engine-cover shoulders
     // return to rosso. The source top view does not show a white rear pod.
