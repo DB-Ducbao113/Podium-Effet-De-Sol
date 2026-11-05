@@ -40,15 +40,16 @@ export function HomeWorldHost({ mode = 'page', lab = null }: Props) {
       deviceMemory?: number;
     };
     const choose = () => {
-      let supported = false;
-      try {
-        const probe = document.createElement('canvas');
-        const context = probe.getContext('webgl2', { failIfMajorPerformanceCaveat: true });
-        supported = Boolean(context);
-        context?.getExtension('WEBGL_lose_context')?.loseContext();
-      } catch {
-        supported = false;
-      }
+      const supported = (() => {
+        try {
+          const probe = document.createElement('canvas');
+          const context = probe.getContext('webgl2', { failIfMajorPerformanceCaveat: true });
+          context?.getExtension('WEBGL_lose_context')?.loseContext();
+          return Boolean(context);
+        } catch {
+          return false;
+        }
+      })();
       setQuality(selectWorldQuality({
         reducedMotion: motion.matches, saveData: Boolean(nav.connection?.saveData),
         webgl2: supported, width: window.innerWidth, memoryGB: nav.deviceMemory,
