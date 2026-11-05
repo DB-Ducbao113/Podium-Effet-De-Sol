@@ -4,6 +4,7 @@
  * From repository root:
  *   node tools/p5-audit-local-assets.mjs
  *   node tools/p5-audit-local-assets.mjs --install
+ *   node tools/p5-audit-local-assets.mjs --install --source-root "E:\\Formula 1\\Podium-Effet-De-Sol"
  *
  * --install copies only checksum-verified owner assets to ignored public paths.
  * It never overwrites an existing file, deletes source files or publishes them.
@@ -13,6 +14,13 @@ import { resolve, dirname, join, relative, sep } from 'node:path';
 import { createHash } from 'node:crypto';
 
 const root = process.cwd();
+const sourceRootIndex = process.argv.indexOf('--source-root');
+const sourceRoot = sourceRootIndex >= 0
+  ? resolve(process.argv[sourceRootIndex + 1] ?? '')
+  : root;
+if (sourceRootIndex >= 0 && (!process.argv[sourceRootIndex + 1] || !existsSync(sourceRoot))) {
+  throw new Error('--source-root must point to an existing original repository directory.');
+}
 const manifest = JSON.parse(readFileSync(join(root, 'apps/web/src/data/visualAssets/p5Extended2026Manifest.json'), 'utf8'));
 const names = readFileSync(join(root, 'apps/web/src/utils/f1VisualAssets2026.ts'), 'utf8');
 const mode = process.argv.includes('--install') ? 'install' : 'audit';
@@ -44,7 +52,7 @@ function inspect(entry) {
   const publicPath = 'apps/web/public/' + groupFolder[entry.group] + '/' + entry.name;
   const sourcePath = entry.sourceFile;
   const destination = resolve(root, publicPath);
-  const source = resolve(root, sourcePath);
+  const source = resolve(sourceRoot, sourcePath);
   let status = 'missing';
   const destinationPresent = existsSync(destination);
   const sourcePresent = existsSync(source);
@@ -103,7 +111,7 @@ const conceptCars = Object.entries(teamPrefixes).map(([id, prefix]) => ({
   present: existsSync(join(root, 'apps/web/public/images/p5/concepts-2026/cars', prefix + '-car.webp')),
 }));
 const report = {
-  mode, generatedAt: new Date().toISOString(),
+  mode, sourceRoot, generatedAt: new Date().toISOString(),
   note: 'Local audit only; unapproved artwork remains ignored and never uploaded by this command.',
   expectedMainDrivers: Object.keys(driverAssets),
   expectedTeams: Object.keys(teamPrefixes),
