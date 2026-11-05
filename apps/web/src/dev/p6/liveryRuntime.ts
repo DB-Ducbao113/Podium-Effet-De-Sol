@@ -117,6 +117,8 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
   paintMesh.material.vertexColors = true;
   paintMesh.material.needsUpdate = true;
   const decals: Decal[] = [];
+  // Paint-layout approval precedes sponsors: local P6 preview starts paint-only.
+  let brandingVisible = false;
   let placementAudit: PlacementAudit[] = [];
   const placementCache = new Map<string, SurfacePlacement>();
   const wheelDetails: THREE.Mesh[] = [];
@@ -225,6 +227,18 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
     }).catch((error) => { decalAtlases.delete(teamId); throw error; });
     decalAtlases.set(teamId, pending);
     return pending;
+  }
+
+  function applyBrandingVisibility() {
+    for (const item of decals) item.mesh.visible = brandingVisible;
+    // McLaren wheel overlays are not paint-surface verified. Do not let the
+    // experimental wheel bands obscure tire/rim layout during paint review.
+    for (const mesh of wheelDetails) mesh.visible = brandingVisible;
+    for (const box of boxes) box.visible = brandingVisible;
+  }
+  function setBrandingVisible(visible: boolean) {
+    brandingVisible = visible;
+    applyBrandingVisibility();
   }
 
   function clearDecals() {
@@ -515,6 +529,7 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
         boxes.push(box);
       }
     }
+    applyBrandingVisibility();
   }
 
   let requestId = 0;
@@ -676,5 +691,5 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
     paintMesh.material.metalness = team.finish === 'gloss' ? .32 : .25;
   }
 
-  return { setTeam, frame, author, dispose: () => { disposed = true; placementCache.clear(); clearDecals(); clearWheelDetails(); for (const pending of textureCache.values()) void pending.then((item) => item.dispose()); for (const pending of decalAtlases.values()) void pending.then((item) => item.map.dispose()); paintFrom?.dispose(); if (paintTo !== paintFrom) paintTo?.dispose(); emptyPaintTexture.dispose(); textureCache.clear(); decalAtlases.clear(); }, getDebug: () => ({ team: currentTeam, surfaceQaEnabled, placementAudit: [...placementAudit], decalCount: decals.length, decalIds: decals.map((item) => item.id), decalKeys: decals.map((item) => item.key), decalVertices: decals.map((item) => item.mesh.geometry.getAttribute('position').count), wheelDetails: wheelDetails.map((item) => item.name), bodyVertices: positions.count, paintAtlas: paintUniforms.uUsePaintAtlas.value === 1, paintBlend: paintUniforms.uPaintBlend.value, paintAtlasSize: paintUniforms.uUsePaintAtlas.value === 1 ? [1536, 512] : null }) };
+  return { setTeam, setBrandingVisible, frame, author, dispose: () => { disposed = true; placementCache.clear(); clearDecals(); clearWheelDetails(); for (const pending of textureCache.values()) void pending.then((item) => item.dispose()); for (const pending of decalAtlases.values()) void pending.then((item) => item.map.dispose()); paintFrom?.dispose(); if (paintTo !== paintFrom) paintTo?.dispose(); emptyPaintTexture.dispose(); textureCache.clear(); decalAtlases.clear(); }, getDebug: () => ({ team: currentTeam, brandingVisible, surfaceQaEnabled, placementAudit: [...placementAudit], decalCount: decals.length, decalIds: decals.map((item) => item.id), decalKeys: decals.map((item) => item.key), decalVertices: decals.map((item) => item.mesh.geometry.getAttribute('position').count), wheelDetails: wheelDetails.map((item) => item.name), bodyVertices: positions.count, paintAtlas: paintUniforms.uUsePaintAtlas.value === 1, paintBlend: paintUniforms.uPaintBlend.value, paintAtlasSize: paintUniforms.uUsePaintAtlas.value === 1 ? [1536, 512] : null }) };
 }
