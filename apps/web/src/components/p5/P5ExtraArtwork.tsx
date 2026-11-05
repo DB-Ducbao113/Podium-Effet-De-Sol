@@ -9,12 +9,13 @@ export function P5ExtraArtwork({ artwork, className, alt = '', eager = false, si
   sizes?: string;
   fallback?: ReactNode;
 }) {
-  const [failed, setFailed] = useState(false);
-  if (!artwork || failed) return <>{fallback ?? null}</>;
+  // A failure belongs to the specific URL; changing season must retry the next image.
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
+  if (!artwork || failedSrc === artwork.src) return <>{fallback ?? null}</>;
   return (
-    <picture className={className} data-p5-review-image="ai-illustration">
+    <picture className={className} data-p5-review-image="ai-illustration" data-p5-image-source="owner-review">
       {artwork.mobileSrc && <source media="(max-width: 46em)" srcSet={artwork.mobileSrc} type="image/webp" sizes={sizes} />}
-      <img src={artwork.src} alt={alt} loading={eager ? 'eager' : 'lazy'} decoding="async" onError={() => setFailed(true)} />
+      <img src={artwork.src} key={artwork.src} alt={alt} loading={eager ? 'eager' : 'lazy'} decoding="async" onError={() => setFailedSrc(artwork.src)} />
     </picture>
   );
 }
