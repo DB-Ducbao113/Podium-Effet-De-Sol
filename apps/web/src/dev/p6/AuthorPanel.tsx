@@ -3,7 +3,7 @@ import type { createLiveryRuntime } from './liveryRuntime';
 import type { TeamLivery } from './teamLiveries';
 import type { SurfaceAnchorMap } from './liveryDefinitions';
 import type { CameraPreset } from '../../components/showroom/CameraController';
-import cadillacUpdated from './reference-assets/cadillac-updated-02.webp?url';
+import { STANDARD_2026_REFERENCE_SETS } from './standard2026References';
 import './author.css';
 
 type AuthorApi = ReturnType<typeof createLiveryRuntime>['author'];
