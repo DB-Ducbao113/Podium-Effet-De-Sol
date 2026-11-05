@@ -380,7 +380,10 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
     const rect = atlas.rects[key];
     if (!rect || (anchor.side !== 'left' && anchor.side !== 'right')) return;
     const sign = anchor.side === 'right' ? 1 : -1;
-    const columns = 24, rows = 8;
+    // Conforming decals are a preview, not an offline UV bake. 12x4 avoids
+    // 225 raycasts per mark on slower CPUs; the high-density grid is reserved
+    // for explicit (potentially expensive) surface QA.
+    const columns = surfaceQaEnabled ? 24 : 12, rows = surfaceQaEnabled ? 8 : 4;
     const points: number[] = [], uvs: number[] = [], valid: boolean[] = [], triangles: number[] = [];
     // Drape a regular logo UV grid over the outer paint triangles. Sampling
     // the actual mesh preserves letter continuity across Model B's body folds.
