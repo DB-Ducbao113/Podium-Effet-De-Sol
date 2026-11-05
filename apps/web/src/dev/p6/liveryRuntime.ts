@@ -21,11 +21,12 @@ const PLANAR_MARK_IDS = new Set([
 
 function zoneColor(team: TeamLivery, x: number, y: number, z: number): string {
   if (team.id === 'cadillac') {
-    // Debut livery test: white physical left, black physical right. Not the later 2026 look.
-    if (z < -1.88 || z > 1.96) return x < 0 ? '#e6e6e2' : '#121416';
-    if (x < -0.055) return y > 0.55 && z > 0.55 ? '#e6e6e2' : '#d4d7d5';
-    if (x > 0.055) return y > 0.55 && z > 0.55 ? '#16191b' : '#111315';
-    return '#929a9d';
+    // February launch: physical left light, right dark at every camera angle.
+    // The atlas uses the same canonical paint tokens.
+    if (z < -1.88 || z > 1.96) return x < 0 ? team.primary : team.secondary;
+    if (x < -0.055) return y > 0.55 && z > 0.55 ? team.primary : team.side;
+    if (x > 0.055) return team.secondary;
+    return team.accent;
   }
   if (team.id === 'mclaren' && z > 0.18 && z < 1.58 && y > .4) return team.secondary;
   if (z < -1.88 || z > 1.96) return team.wing;
