@@ -272,7 +272,7 @@ export function App({ embedded = false }: { embedded?: boolean }) {
     <div className="advanced-group"><h3>Decal surface QA</h3>
       {placementSummary && readyTeam === team.id
         ? <p>{placementSummary.provisional} fast preview · {placementSummary.placed} geometry passed · {placementSummary.adapted} adapted · {placementSummary.unplaced} unplaced · {placementSummary.blocked} blocked</p>
-        : <p>Waiting for geometry placement scan…</p>}
+        : <p>Preparing sponsor preview…</p>}
       <p>Fast preview skips costly per-logo mesh scans. Optional DEV-only ?surfaceQa=1 enables detailed 25-point geometry checks; that mode can be slow. Preview placement is not visual or licensing approval.</p>
     </div>
     <div className="advanced-group"><h3>Body surface</h3><label className="surface-control">Gloss response <output>{`${Math.round((1 - surface) * 100)}%`}</output><input type="range" min="0.18" max="0.72" step="0.01" value={surface} onChange={(event) => setSurface(Number(event.target.value))} /></label></div>
