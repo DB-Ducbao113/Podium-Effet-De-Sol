@@ -10,11 +10,12 @@ import { HomeStoryLinks } from './HomeStoryLinks';
 import { PodiumBrandHero } from './PodiumBrandHero';
 import { HomeCinematicBackground } from './HomeCinematicBackground';
 import { HomeJourneyMotion } from './journey/HomeJourneyMotion';
+import { HomeEngineeringReveal } from './engineering/HomeEngineeringReveal';
 import './homepageH1.css';
 import './homeLandingV3.css';
 import './homeV83Interactions.css';
 
-export function HomeView() {
+export function HomeView({ worldPreview = false }: { worldPreview?: boolean }) {
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const detailedResultsRaw = useChampionshipStore((state) => state.detailedResults?.[2026]);
@@ -54,8 +55,8 @@ export function HomeView() {
 
   return (
     <div className="r1-primary r1-home h1-home home-v3 min-h-screen bg-studio-100">
-      <HomeCinematicBackground />
-      <HomeJourneyMotion />
+      {!worldPreview && <HomeCinematicBackground />}
+      {!worldPreview && <HomeJourneyMotion />}
       <PodiumBrandHero />
       <div className="home-v3__content">
         <div id="r1-first-content" className="scroll-mt-20">
@@ -67,6 +68,7 @@ export function HomeView() {
           </section>
         )}
         <HomeSeasonOverview />
+        {worldPreview && <HomeEngineeringReveal />}
         <HomeStoryLinks />
         {showAdReview && (
           <section className="page-container h1-ad-band h1-ad-band--lower" aria-label="Advertising placement review">
