@@ -71,3 +71,16 @@ The geometry preflight introduced in V2 was too expensive to run synchronously d
 - Suggested root commands in a full local checkout: `npm ci && npm run lint && npm run typecheck && npm run test && npm run build`. Actual browser interactivity, screenshot QA and real-device performance remain **unverified** until executed locally.
 
 The palette values are visually estimated colors matched to one 2026 launch design per constructor, **not manufacturer-certified paint codes**. The authoritative source registry stores official 2026 image galleries but still requires explicit per-image multi-angle/rights review. This patch does not merge, deploy, modify the frozen Model B GLB or update the commercial release route.
+
+## Paint-layout V1: 30 groups / 54 independent surfaces (2026-11-05)
+
+**Now implemented:** `modelBComponentMap.ts`, `paintLayoutReview.ts`, `ModelBPaintLayoutInspector.tsx`, `modelBComponentMap.test.ts`; detailed implementation/report: `docs/qa/model-b-component-map-implementation-v1.md`.
+
+- 11 teams × 30 component review groups. **38 actionable findings; no visual approvals**. Every other group remains unverified, never silently passed.
+- Advanced → **Paint layout · component audit** opens the per-part selector, correct left/right/top/front/rear views, photo requirements, specific issues and source links.
+- P6 **starts paint-only**: the runtime skips sponsor atlas loading and decal geometry entirely until the explicit optional branding toggle is enabled. No per-frame geometry analysis was added.
+- Small special zones are first-class: nose side walls (purple highlight), sidepod intake lip (yellow highlight), upper/outer sidepod (cyan highlight), engine cover/airbox (pink highlight), plus four individual wheel-sidewall/cover/rim entries.
+- Initial verifiable layout/finish corrections: Ferrari rear wing dark instead of an unverified blue rear region in both side/top atlas; Racing Bulls white has satin/matte-inspired finish; updated Cadillac author reference no longer masquerades as debut.
+- These groups are **semantic review slots** (`geometryEvidence: 'semantic-only'`, `meshName: null`), not confirmed GLB mesh boundaries. Do not bake the wrong polygon from this early-stage map.
+
+**Recommended local validation:** `npm run typecheck --workspace=@peds/web`; `npm run test --workspace=@peds/web -- modelBComponentMap.test.ts`; then inspect `/showroom` with the Advanced part selector and neutral Studio lights. Full browser/GLB multi-angle visual QA remains to be done before sponsor placement.
