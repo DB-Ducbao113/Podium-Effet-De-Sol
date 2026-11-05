@@ -42,5 +42,6 @@ describe('Model B 2026 canonical paint contract', () => {
     expect(STANDARD_2026_PAINT.williams.side).toBe(STANDARD_2026_PAINT.williams.detail);
     expect(STANDARD_2026_PAINT.alpine.side).toBe(STANDARD_2026_PAINT.alpine.secondary);
     expect(STANDARD_2026_PAINT.cadillac.primary).not.toBe(STANDARD_2026_PAINT.cadillac.dark);
+    expect(STANDARD_2026_PAINT.racingbulls.finish).toBe('satin');
   });
 });
