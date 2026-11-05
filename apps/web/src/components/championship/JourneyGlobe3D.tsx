@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useId, useMemo, useRef } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import type { GrandPrixRound, SeasonYear } from '../../types';
@@ -12,6 +12,7 @@ type SceneProps = {
   onSelectRound: (round: number) => void;
   closeUp: boolean;
   lang: 'vi' | 'en';
+  stageId: string;
 };
 const RADIUS = 1;
 const ARC_SEGMENTS = 72;
@@ -170,17 +171,18 @@ function StopMarker({ stop, visited, active, onSelectRound }: {
   );
 }
 
-function SceneMotion({ stops, travelProgress, onSelectRound, closeUp, lang }: SceneProps) {
+function SceneMotion({ stops, travelProgress, onSelectRound, closeUp, lang, stageId }: SceneProps) {
   const globe = useRef<THREE.Group>(null);
   const firstFrame = useRef(true);
   const dragOffset = useRef({ yaw: 0, pitch: 0 });
   const lastTravel = useRef(travelProgress);
-  const { gl, invalidate } = useThree();
+  const { invalidate } = useThree();
 
   // Mouse / pen / horizontal touch gestures rotate the globe independently of page scroll.
   // No OrbitControls or continuous render loop: use the existing demand-based renderer.
   useEffect(() => {
-    const canvas = gl.domElement;
+    const canvas = document.getElementById(stageId)?.querySelector('canvas');
+    if (!canvas) return;
     let pointer: number | null = null;
     let lastX = 0;
     let lastY = 0;
@@ -250,7 +252,7 @@ function SceneMotion({ stops, travelProgress, onSelectRound, closeUp, lang }: Sc
       canvas.removeEventListener('keydown', key);
       delete canvas.dataset.dragging;
     };
-  }, [gl, invalidate, lang]);
+  }, [stageId, invalidate, lang]);
   const last = Math.max(0, stops.length - 1);
   const position = THREE.MathUtils.clamp(travelProgress, 0, last);
   const index = Math.min(last, Math.floor(position));
@@ -335,13 +337,14 @@ export function JourneyGlobe3D({ season, calendar, travelProgress, onSelectRound
   lang: 'vi' | 'en';
   closeUp: boolean;
 }) {
+  const stageId = useId();
   const stops = useMemo(() => calendar.flatMap((race) => {
     const geo = resolveCircuit(race);
     return geo ? [{ race, ...geo, vector: geoVector(geo.latitude, geo.longitude) }] : [];
   }), [calendar]);
 
   return (
-    <div className="rcj-globe-stage" role="group" aria-label={lang === 'vi'
+    <div id={stageId} className="rcj-globe-stage" role="group" aria-label={lang === 'vi'
       ? `Địa cầu 3D ${season} với ${stops.length} chặng. Kéo chuột để xoay, cuộn để di chuyển giữa các chặng.`
       : `3D globe with ${stops.length} rounds in ${season}. Drag to rotate; scroll to travel between races.`}>
       <div className="rcj-globe-vignette" aria-hidden="true" />
@@ -351,7 +354,7 @@ export function JourneyGlobe3D({ season, calendar, travelProgress, onSelectRound
         camera={{ position: [0, 0, 3.8], fov: 36, near: 0.1, far: 50 }}
         gl={{ antialias: true, alpha: true, powerPreference: 'low-power' }}>
         <SceneMotion stops={stops} travelProgress={travelProgress}
-          onSelectRound={onSelectRound} closeUp={closeUp} lang={lang} />
+          onSelectRound={onSelectRound} closeUp={closeUp} lang={lang} stageId={stageId} />
       </Canvas>
       <span className="rcj-globe-drag-hint" aria-hidden="true">{lang === 'vi' ? 'KÉO ĐỂ XOAY' : 'DRAG TO ROTATE'}</span>
     </div>
