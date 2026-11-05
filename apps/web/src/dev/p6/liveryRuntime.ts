@@ -4,7 +4,7 @@ import type { TeamLivery } from './teamLiveries';
 import { artwork, type ArtworkKey } from './officialArtwork';
 import { createPaintAtlas, type PrecisionTeam } from './paintAtlas';
 import { liveryDefinitions, type SurfaceAnchorMap } from './liveryDefinitions';
-import { fitModelBSurface, surfaceLimitsForArtwork, type SurfacePlacement, type SurfaceProbe } from './modelBSurfaceAudit';
+import { fitModelBSurface, shouldEnableDetailedSurfaceQa, surfaceLimitsForArtwork, type SurfacePlacement, type SurfaceProbe } from './modelBSurfaceAudit';
 
 type Decal = { mesh: THREE.Mesh; key: ArtworkKey; id: string };
 type AtlasRect = { u: number; v: number; w: number; h: number };
@@ -127,7 +127,7 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
   // HOTFIX: a full 25-point mesh scan plus up to 11 retries per logo stalls
   // the main thread on the large shared Model B paint mesh. Never run that
   // synchronous authoring diagnostic during ordinary team loading.
-  const surfaceQaEnabled = import.meta.env.DEV && new URLSearchParams(location.search).get('surfaceQa') === '1';
+  const surfaceQaEnabled = shouldEnableDetailedSurfaceQa(import.meta.env.DEV, location.search);
   let selectedDecalId: string | null = null;
   let boxes: THREE.BoxHelper[] = [];
   try { Object.entries(JSON.parse(localStorage.getItem(authorStorageKey) || '{}') as Record<string, SurfaceAnchorMap>).forEach(([id, anchor]) => authorOverrides.set(id, anchor)); } catch { /* isolated dev state */ }
