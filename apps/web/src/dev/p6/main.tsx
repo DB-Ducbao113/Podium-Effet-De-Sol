@@ -289,10 +289,12 @@ export function App({ embedded = false }: { embedded?: boolean }) {
       <p>Live browser estimate. Physical device performance still needs separate review.</p>
     </div>
     <div className="advanced-group"><h3>Decal surface QA (not paint acceptance)</h3>
-      {placementSummary && readyTeam === team.id
-        ? <p>{placementSummary.provisional} fast preview · {placementSummary.placed} geometry passed · {placementSummary.adapted} adapted · {placementSummary.unplaced} unplaced · {placementSummary.blocked} blocked</p>
-        : <p>Preparing sponsor preview…</p>}
-      <p>Fast preview skips costly per-logo mesh scans. Optional DEV-only ?surfaceQa=1 enables detailed 25-point geometry checks; that mode can be slow. Preview placement is not visual or licensing approval.</p>
+      {!showBranding
+        ? <p>Paint-only review: sponsor atlases are not loaded. Decal/placement approval is intentionally deferred.</p>
+        : placementSummary && readyTeam === team.id
+          ? <p>{placementSummary.provisional} fast preview · {placementSummary.placed} geometry passed · {placementSummary.adapted} adapted · {placementSummary.unplaced} unplaced · {placementSummary.blocked} blocked</p>
+          : <p>Loading optional sponsor preview…</p>}
+      <p>Detailed ?surfaceQa=1 is DEV-only and potentially expensive. Paint layout and decal placement are separate QA gates.</p>
     </div>
     <ModelBPaintLayoutInspector
       teamId={team.id as PrecisionTeam}
