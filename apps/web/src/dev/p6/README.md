@@ -35,3 +35,19 @@ Open `http://localhost:5173/showroom?author=1` in DEV, switch through all 11 tea
 **Environment limitation:** Repository CI only triggers on push to `main` / `migration/**` or a pull request. This feature branch's commits do **not** automatically run the repository's existing CI workflow. The tests above are committed but **have not been executed in this connector-only audit environment**. The P6 artwork `reference-assets` files are local owner-review resources and not present in the Git tree; do not treat a GitHub-only build as the complete local visual QA.
 
 **Release lock:** No production integration, GLB alteration, homepage motion change, branch merge, or deployment was performed.
+
+## Performance hotfix — default load must remain responsive (2026-11-05)
+
+The geometry preflight introduced in V2 was too expensive to run synchronously during every team load: 25 triangle raycasts per candidate, multiplied by up to 11 retry placements per logo, all on the main thread. On the large shared Model B mesh this can freeze the UI.
+
+**Hotfix contract:**
+
+- Ordinary `/showroom` and `/showroom?author=1` use the original fast anchored decal path; they **do not run the 25-point surface scan or automatic fitting**.
+- This is a temporary performance safeguard. Their decal status is `provisional`, not `placed`/geometry-certified.
+- A single targeted raycast locates each preview wing mark; extra detailed authoring checks are never implicit.
+- The conforming projection grid is 12 × 4 cells (65 sample rays) for ordinary preview, versus 24 × 8 (225 sample rays) in detailed review mode.
+- `/showroom?author=1&surfaceQa=1` explicitly opts into expensive detailed scans in DEV only. Avoid this query during routine UI testing. It is not suitable for production. Detailed QA should ultimately move into an offline build-time/exportable geometry audit rather than blocking WebGL rendering.
+- `/showroom?review=model-b` remains the color/material-only fallback in DEV, independent of the P6 geometry checks.
+- The test `modelBSurfaceAudit.test.ts` asserts the expensive flag is false for ordinary and author mode and never enabled in production.
+
+**Validation still required:** Checkout the feature branch locally, run typecheck/test/build, open the Showroom and measure load-to-interaction, frame p95 and team-switch latency on a weaker device. This hotfix was committed through the GitHub connector and does **not** claim measured performance or passing CI.
