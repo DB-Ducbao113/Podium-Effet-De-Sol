@@ -75,5 +75,18 @@ export function StudioCameraController({ preset, trigger, zoomTrigger, zoomDirec
     controls.current.update();
     if (camera.position.distanceTo(destination.current) < .035) moving.current = false;
   });
-  return <OrbitControls ref={controls} enableDamping dampingFactor={.06} enableZoom={false} minDistance={5.8} maxDistance={23} maxPolarAngle={Math.PI / 2 - .03} onStart={() => { moving.current = false; }} />;
+  return <OrbitControls
+    ref={controls}
+    makeDefault
+    enableRotate
+    enablePan={false}
+    rotateSpeed={0.8}
+    enableDamping
+    dampingFactor={.06}
+    enableZoom={false}
+    minDistance={5.8}
+    maxDistance={23}
+    maxPolarAngle={Math.PI / 2 - .03}
+    onStart={() => { moving.current = false; }}
+  />;
 }
