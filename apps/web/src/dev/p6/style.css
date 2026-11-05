@@ -43,3 +43,8 @@
 .light-sample.presentation{background:linear-gradient(90deg,#364654,#dfe8e9)}
 .light-sample.night{background:linear-gradient(90deg,#0d111a,#51637b)}
 @media(max-width:650px){.mobile-actions button:first-child{font-size:13px}.model-note strong{font-size:13px}.sheet .team-swatches{grid-template-columns:repeat(3,1fr)}.sheet .team-swatches .swatch{min-height:67px}.sheet .team-swatches .swatch-name{min-height:13px}}
+
+/* Model B interaction contract: decorations must never capture 3D orbit drags. */
+.stage canvas{touch-action:none;cursor:grab}
+.stage canvas:active{cursor:grabbing}
+.model-note,.stage-index,.load-status,.stage-ui{pointer-events:none}
