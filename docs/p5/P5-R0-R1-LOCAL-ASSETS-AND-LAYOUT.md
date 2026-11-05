@@ -34,6 +34,21 @@ Only files that match the manifest SHA-256 and size are copied to absent destina
 
 These public folders are ignored from Git and are therefore visible in your **local Vite environment only**, not production. Concept car images are from a different package and are only reported, not silently installed by this tool.
 
+## When the original local repository has unresolved Git conflicts
+
+Do NOT pull, reset, or clean the original folder to audit the photos. Clone the branch into a separate preview and point the audit script at the original image directory:
+
+    Set-Location 'E:\Formula 1'
+    git clone --branch feat/homepage-racing-motion-v1 --single-branch 'https://github.com/DB-Ducbao113/Podium-Effet-De-Sol.git' 'Podium-EDS-P5-Preview'
+    Set-Location 'E:\Formula 1\Podium-EDS-P5-Preview'
+    npm ci
+
+    node tools/p5-audit-local-assets.mjs --source-root 'E:\Formula 1\Podium-Effet-De-Sol'
+    node tools/p5-audit-local-assets.mjs --install --source-root 'E:\Formula 1\Podium-Effet-De-Sol'
+    npm run dev
+
+The original directory is read-only for this operation. Verified images are copied into the preview directory only. Open /drivers and /teams at the localhost port displayed by Vite. The audit JSON is written under the preview's ignored .local-assets/p5-r0 directory.
+
 ## Do not guess the missing driver
 
 Check the 2026 drivers/headshots entries in the local report. A missing image cannot be identified conclusively from GitHub alone. Do not insert reserve or test drivers into the ranked 22-driver standings.
