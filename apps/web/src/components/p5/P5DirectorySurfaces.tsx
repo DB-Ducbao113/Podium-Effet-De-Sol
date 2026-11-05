@@ -15,7 +15,6 @@ import { venueHeroFor, venueHeroSrcSet } from '../../utils/venueHeroes';
 import { P5Portrait } from './P5Portrait';
 import { teamConcept2026, teamConceptWidth2026 } from '../../utils/f1VisualAssets2026';
 import { extra2026DriverPoster, extra2026Hero, extra2026TeamPoster } from '../../utils/p5Extended2026Visuals';
-import { P5_SEASONAL_REVIEW_ENABLED } from '../../utils/p5SeasonalVisuals';
 import { P5ExtraArtwork } from './P5ExtraArtwork';
 import { P5LocalImage } from './P5LocalImage';
 
