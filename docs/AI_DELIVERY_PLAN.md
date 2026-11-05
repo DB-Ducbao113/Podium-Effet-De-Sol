@@ -86,3 +86,7 @@
 **Data path/storage/sync changed:** update pipeline diagram + sensitive ownership + data QA.  
 **Approved design changed:** update `DESIGN.md` first + this contract + page tests.  
 **New asset/provenance:** update licenses/manifests and security/asset checks.
+
+## Detailed frontend execution plan
+
+The microtask-level design and rollout sequence for the F1 UI is in [`docs/frontend/README.md`](frontend/README.md), with 16 phases covering layout, navigation, sidebar, loading/reload, error states, responsive, design system, motion, 3D, route experiences and final verification. This adds planning detail only; previous technical governance still applies. No visual direction is canonical until reviewed and recorded in `DESIGN.md`.

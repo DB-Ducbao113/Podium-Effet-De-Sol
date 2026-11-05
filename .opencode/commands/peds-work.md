@@ -11,3 +11,5 @@ Finally verify the current local branch, changes, unpushed commits, origin/rebui
 Return the required PEDS TASK QUALITY REPORT, not an unsupported “done”.
 ## Project map and scope requirements
 Read `docs/AI_PROJECT_BLUEPRINT.md`, `docs/AI_FEATURE_FILE_MAP.md`, `docs/AI_EDIT_POLICY.md` and `docs/AI_DESIGN_CONTRACT.md` before editing/reviewing. Trace the exact user-visible route through actual code. Record target DEV/production mode and mobile behavior, change allowlist, cross-cutting dependencies, protected-file decisions and related tests. Never replace the approved design with an unapproved retired roadmap. If files move or routes change, update the project map with the implementation.
+
+For frontend design/UI/3D work: consult `docs/frontend/README.md` and the matching atomic task ID + acceptance gate. Treat the roadmap as a plan, not owner approval for a full redesign. Maintain exact file allowlist and check the task board only after required verified evidence.

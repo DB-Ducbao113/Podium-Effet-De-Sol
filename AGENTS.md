@@ -39,3 +39,7 @@ Do not assume files in `src/dev` are disposable: production Showroom imports sha
 Do not treat DEV-only `/engineering`, P6 Showroom or V9 preview as the shipped production page. A style-only request must not change verified F1 results, global routing, security settings or locked assets.
 
 Before ANY edit, record precise route, target environment, impacted file allowlist, read-only dependencies and test plan. If touching an AMBER boundary not covered by the request, or ANY RED boundary, pause that expansion and obtain owner authorization. Use read-only OpenCode `/peds-map` to generate an impact plan when scope is unclear. After a permitted task, follow every applicable gate and final `rebuild` check.
+
+## Frontend visual-development roadmap (planning, not blanket authorization)
+
+For frontend design/animation/3D/navigation/UX tasks, read `docs/frontend/README.md`, `docs/frontend/00_FRONTEND_BRIEF.md`, the phase-specific `01_MICROTASKS_FOUNDATION.md` or `02_MICROTASKS_EXPERIENCE.md`, `03_ACCEPTANCE_PROTOCOL.md`, and `TASK_BOARD.md`. Pick a specific microtask ID; do not redesign the entire site from a vague request. Complete core shell/navigation/sidebar/loading/error/responsive behavior before introducing cross-page cinematic motion and new 3D. Keep pending new-design choices unapproved until owner reviews them. Existing 3D, intro and error components are baselines to audit, not mandatory rewrites. The task board tracks verified delivery only; this documentation work does not complete any UI task.
