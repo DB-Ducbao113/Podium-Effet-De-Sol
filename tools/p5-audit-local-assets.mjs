@@ -52,11 +52,18 @@ function inspect(entry) {
   const publicPath = 'apps/web/public/' + groupFolder[entry.group] + '/' + entry.name;
   const sourcePath = entry.sourceFile;
   const destination = resolve(root, publicPath);
-  const source = resolve(sourceRoot, sourcePath);
+  const expectedHash = entry.sha256.toLowerCase();
+  // Existing original-repo public copies can be the only remaining local source.
+  // Prefer a verified file over an earlier candidate that happens to be stale.
+  const candidates = [resolve(sourceRoot, sourcePath), resolve(sourceRoot, publicPath)];
+  const source = candidates.find((candidate) =>
+    existsSync(candidate) &&
+    checksum(candidate) === expectedHash &&
+    statSync(candidate).size === entry.bytes,
+  ) ?? candidates.find((candidate) => existsSync(candidate)) ?? candidates[0];
   let status = 'missing';
   const destinationPresent = existsSync(destination);
   const sourcePresent = existsSync(source);
-  const expectedHash = entry.sha256.toLowerCase();
   if (destinationPresent) {
     status = checksum(destination) === expectedHash ? 'ready' : 'hash-mismatch-public';
   } else if (sourcePresent) {
@@ -82,6 +89,7 @@ function inspect(entry) {
     group: entry.group, name: entry.name, driverId, teamId,
     publicPath: publicPath.split(sep).join('/'),
     sourcePath: sourcePath.split(sep).join('/'),
+    sourceUsed: sourcePresent ? relative(sourceRoot, source).split(sep).join('/') : null,
     destinationPresent, sourcePresent, status,
     expectedBytes: entry.bytes, expectedSha256: expectedHash,
     assetStatus: entry.assetStatus,
