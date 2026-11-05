@@ -271,9 +271,23 @@ export function P5TeamCard({
         </p>
         <div className="p5-team-card-lineup" aria-label={lang === 'vi' ? 'Đội hình' : 'Driver lineup'}>
           <small>{lang === 'vi' ? 'TAY ĐUA' : 'DRIVER LINEUP'}</small>
-          <strong>{lineup.length
-            ? lineup.map((driver) => driver.driverName).join(' / ')
-            : lang === 'vi' ? 'Chưa có đội hình' : 'No line-up'}</strong>
+          <span className="p5-team-card-lineup-detail">
+            <span className="p5-team-card-lineup-faces" aria-hidden="true">
+              {lineup.map((driver) => (
+                <P5Portrait
+                  key={driver.driverId}
+                  driverId={driver.driverId}
+                  season={season}
+                  alt=""
+                  number={getSeasonDriverNumber(season, driver.driverId)}
+                  sizes="48px"
+                />
+              ))}
+            </span>
+            <strong>{lineup.length
+              ? lineup.map((driver) => driver.driverName).join(' / ')
+              : lang === 'vi' ? 'Chưa có đội hình' : 'No line-up'}</strong>
+          </span>
         </div>
         <div className="p5-team-card-footer">
           <span>{lang === 'vi' ? 'KHÁM PHÁ ĐỘI ĐUA' : 'EXPLORE TEAM'} <span aria-hidden="true">↗</span></span>
