@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
@@ -8,7 +9,7 @@ import { P5DriverCard, P5TeamCard } from './P5DirectorySurfaces';
 import { P5Portrait } from './P5Portrait';
 import { P5ExtraArtwork } from './P5ExtraArtwork';
 
-const render = (ui: React.ReactNode) => renderToStaticMarkup(<MemoryRouter>{ui}</MemoryRouter>);
+const render = (ui: ReactNode) => renderToStaticMarkup(<MemoryRouter>{ui}</MemoryRouter>);
 
 describe('P5-R1 owner-local visual contracts', () => {
   it('maps exactly 22 concept drivers, 22 portrait files and 11 team posters for 2026', () => {
