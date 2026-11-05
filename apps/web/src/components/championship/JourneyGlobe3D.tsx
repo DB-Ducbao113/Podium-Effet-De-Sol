@@ -175,6 +175,7 @@ function SceneMotion({ stops, travelProgress, onSelectRound, closeUp, lang, stag
   const globe = useRef<THREE.Group>(null);
   const firstFrame = useRef(true);
   const dragOffset = useRef({ yaw: 0, pitch: 0 });
+  const draggedSinceDown = useRef(false);
   const lastTravel = useRef(travelProgress);
   const { invalidate } = useThree();
 
@@ -186,6 +187,8 @@ function SceneMotion({ stops, travelProgress, onSelectRound, closeUp, lang, stag
     let pointer: number | null = null;
     let lastX = 0;
     let lastY = 0;
+    let startX = 0;
+    let startY = 0;
     canvas.tabIndex = 0;
     canvas.setAttribute('aria-label', lang === 'vi'
       ? 'Kéo chuột để xoay địa cầu. Dùng phím mũi tên để xoay. Cuộn trang để đi qua các chặng.'
@@ -196,6 +199,9 @@ function SceneMotion({ stops, travelProgress, onSelectRound, closeUp, lang, stag
       pointer = event.pointerId;
       lastX = event.clientX;
       lastY = event.clientY;
+      startX = lastX;
+      startY = lastY;
+      draggedSinceDown.current = false;
       canvas.setPointerCapture(event.pointerId);
       canvas.dataset.dragging = 'true';
     };
@@ -205,6 +211,7 @@ function SceneMotion({ stops, travelProgress, onSelectRound, closeUp, lang, stag
       const dy = event.clientY - lastY;
       lastX = event.clientX;
       lastY = event.clientY;
+      if (Math.hypot(lastX - startX, lastY - startY) > 5) draggedSinceDown.current = true;
       if (dx === 0 && dy === 0) return;
       dragOffset.current.yaw += dx * 0.005;
       dragOffset.current.pitch = THREE.MathUtils.clamp(
@@ -319,7 +326,7 @@ function SceneMotion({ stops, travelProgress, onSelectRound, closeUp, lang, stag
         {stops.map((stop, i) => <StopMarker key={stop.race.round} stop={stop}
           visited={travelProgress >= i - 0.02}
           active={stop.race.round === stops[index]?.race.round}
-          onSelectRound={onSelectRound} />)}
+          onSelectRound={(round) => { if (!draggedSinceDown.current) onSelectRound(round); }} />)}
         {activeArc && <mesh position={activeArc.toArray()}>
           <sphereGeometry args={[0.018, 12, 10]}/>
           <meshBasicMaterial color="#fff3bc" toneMapped={false} />
