@@ -24,3 +24,18 @@ Read `docs/AI_DEVELOPMENT_WORKFLOW.md` before implementing changes. Read `DESIGN
 - Never run `npm audit fix --force`, rewrite lockfiles indiscriminately, or silently weaken CSP, lint, tests or TypeScript constraints.
 - `npm run verify` is NOT the entire gate: it omits coverage, dependency audit and formatting; use the full command matrix from the workflow.
 - Use optional OpenCode `/peds-finish` after any task as an explicit audit; these agent rules remain mandatory even without a slash command.
+
+## Required project understanding before modifying code
+
+For EVERY implementation, review or refactor request:
+1. `docs/AI_PROJECT_BLUEPRINT.md` — actual website, route/runtime and stack (separate DEV from production).
+2. `docs/AI_FEATURE_FILE_MAP.md` — locate the exact feature owner files, data dependency and related tests.
+3. `docs/AI_EDIT_POLICY.md` — form a minimal GREEN/AMBER/RED file allowlist, identify approval needs.
+4. `docs/AI_DESIGN_CONTRACT.md` plus `DESIGN.md` — preserve approved branding, product truth, design limits and withdrawn assets.
+5. `docs/AI_DEVELOPMENT_WORKFLOW.md` — post-task test/review/security/QA and rebuild verification.
+6. `docs/AI_DELIVERY_PLAN.md` — context for future technical phases, not permission to implement them.
+
+Do not assume files in `src/dev` are disposable: production Showroom imports shared runtime modules from `src/dev/commercial-b`.
+Do not treat DEV-only `/engineering`, P6 Showroom or V9 preview as the shipped production page. A style-only request must not change verified F1 results, global routing, security settings or locked assets.
+
+Before ANY edit, record precise route, target environment, impacted file allowlist, read-only dependencies and test plan. If touching an AMBER boundary not covered by the request, or ANY RED boundary, pause that expansion and obtain owner authorization. Use read-only OpenCode `/peds-map` to generate an impact plan when scope is unclear. After a permitted task, follow every applicable gate and final `rebuild` check.
