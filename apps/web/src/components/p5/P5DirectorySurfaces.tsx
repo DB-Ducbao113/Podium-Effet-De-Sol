@@ -14,9 +14,10 @@ import { getTeamTextColor } from '../../utils/teamColors';
 import { venueHeroFor, venueHeroSrcSet } from '../../utils/venueHeroes';
 import { P5Portrait } from './P5Portrait';
 import { teamConcept2026, teamConceptWidth2026 } from '../../utils/f1VisualAssets2026';
-import { extra2026DriverPoster, extra2026Hero } from '../../utils/p5Extended2026Visuals';
+import { extra2026DriverPoster, extra2026Hero, extra2026TeamPoster } from '../../utils/p5Extended2026Visuals';
 import { P5_SEASONAL_REVIEW_ENABLED } from '../../utils/p5SeasonalVisuals';
 import { P5ExtraArtwork } from './P5ExtraArtwork';
+import { P5LocalImage } from './P5LocalImage';
 
 type Lang = 'vi' | 'en';
 
@@ -145,9 +146,7 @@ function splitDriverName(name: string) {
 }
 
 export function P5DriverCard({
-  row,
-  season,
-  lang,
+  row, season, lang,
 }: {
   row: DriverStanding;
   season: SeasonYear;
@@ -157,65 +156,52 @@ export function P5DriverCard({
   const number = getSeasonDriverNumber(season, row.driverId) ?? driver?.number;
   const { first, last } = splitDriverName(row.driverName);
   const label = `P${row.rank} ${row.driverName}, ${row.teamName}, ${row.points} ${lang === 'vi' ? 'điểm' : 'points'}`;
-  const reviewPoster = extra2026DriverPoster(row.driverId, season);
-  if (reviewPoster || (season === 2026 && P5_SEASONAL_REVIEW_ENABLED)) {
-    return (
-      <article className="p5-driver-card p5-driver-card--poster" style={driverStyle(row.teamId)} data-rank={row.rank} data-p5-reveal>
-        <P5ExtraArtwork
-          artwork={reviewPoster}
-          className="p5-driver-card-poster"
-          alt={lang === 'vi' ? `Poster concept 2026 của ${row.driverName}` : `${row.driverName} 2026 concept poster`}
-          fallback={<P5Portrait driverId={row.driverId} season={season} alt={row.driverName} number={number} className="p5-driver-card-poster" />}
-        />
-        <div className="p5-driver-card-poster-info">
-          <span>P{row.rank}</span>
-          <strong>{row.driverName}</strong>
-          <span>{row.points} {lang === 'vi' ? 'điểm' : 'PTS'}</span>
-          {reviewPoster && <small>{lang === 'vi' ? 'Ảnh minh họa AI · xem trước local' : 'AI illustration · local preview'}</small>}
-        </div>
-        <Link className="p5-driver-card-link" to={`/drivers/${row.driverId}?season=${season}`} aria-label={label} />
-      </article>
-    );
-  }
+  const poster = extra2026DriverPoster(row.driverId, season);
+  const portrait = (
+    <P5Portrait
+      driverId={row.driverId} season={season}
+      alt={lang === 'vi' ? `Chân dung ${row.driverName}` : `Portrait of ${row.driverName}`}
+      number={number} className="p5-driver-card-visual-portrait"
+      sizes="(max-width: 560px) 47vw, (max-width: 1000px) 30vw, (max-width: 1500px) 23vw, 20vw"
+    />
+  );
   return (
     <article
-      className="p5-driver-card"
+      className="p5-driver-card p5-driver-card--directory"
       style={driverStyle(row.teamId)}
       data-rank={row.rank}
       data-p5-reveal
     >
       <span className="p5-driver-card-backdrop" aria-hidden="true" />
-      <P5Portrait
-        driverId={row.driverId}
-        season={season}
-        alt={lang === 'vi' ? `Chân dung ${row.driverName}` : `Portrait of ${row.driverName}`}
-        number={number}
-        className="p5-driver-card-portrait"
-        sizes="(max-width: 560px) 50vw, (max-width: 900px) 50vw, (max-width: 1180px) 33vw, 25vw"
-      />
-      <span className="p5-driver-card-tint" aria-hidden="true" />
+      <div className="p5-driver-card-visual">
+        <P5ExtraArtwork
+          artwork={poster}
+          className="p5-driver-card-visual-art"
+          alt={lang === 'vi'
+            ? `Ảnh minh họa ${row.driverName} mùa ${season}`
+            : `${row.driverName}, ${season} concept artwork`}
+          sizes="(max-width: 560px) 47vw, (max-width: 1000px) 30vw, 26vw"
+          fallback={portrait}
+        />
+      </div>
       <span className="p5-driver-card-number" aria-hidden="true">{number ?? '—'}</span>
       <span className="p5-driver-card-rank">P{row.rank}</span>
       <div className="p5-driver-card-body">
         <p className="p5-driver-card-team">{row.teamName}</p>
         <h2 aria-label={row.driverName}>
-          <span className="p5-driver-card-first">{first}</span>{' '}
+          <span className="p5-driver-card-first">{first}</span>
           <span className="p5-driver-card-last">{last || row.driverName}</span>
         </h2>
         <div className="p5-driver-card-meta">
-          <span>{row.countryFlag} {row.driverCode}{number ? ` · #${number}` : ''}</span>
+          <span>{row.countryFlag} {row.driverCode}{number != null ? ` · #${number}` : ''}</span>
           <span className="p5-driver-card-points">{row.points} <small>PTS</small></span>
         </div>
         <span className="p5-driver-card-action" aria-hidden="true">
-          <span>{lang === 'vi' ? 'Hồ sơ tay đua' : 'Driver profile'}</span>
+          {lang === 'vi' ? 'Hồ sơ tay đua' : 'Driver profile'}
           <span className="p5-driver-card-arrow">↗</span>
         </span>
       </div>
-      <Link
-        className="p5-driver-card-link"
-        to={`/drivers/${row.driverId}?season=${season}`}
-        aria-label={label}
-      />
+      <Link className="p5-driver-card-link" to={`/drivers/${row.driverId}?season=${season}`} aria-label={label} />
     </article>
   );
 }
@@ -242,10 +228,7 @@ export function P5DriverGrid({
 }
 
 export function P5TeamCard({
-  row,
-  season,
-  lang,
-  drivers,
+  row, season, lang, drivers,
 }: {
   row: ConstructorStanding;
   season: SeasonYear;
@@ -255,49 +238,63 @@ export function P5TeamCard({
   const team = TEAMS_DATA[row.teamId];
   const profile = getTeamSeasonProfile(row.teamId, season);
   const lineup = drivers.filter((driver) => driver.teamId === row.teamId).slice(0, 2);
+  const conceptCar = teamConcept2026(row.teamId, season);
+  const teamPoster = extra2026TeamPoster(row.teamId, season);
+  const duo = (
+    <span className="p5-team-card-media" aria-hidden="true">
+      {lineup.map((driver) => (
+        <P5Portrait
+          key={driver.driverId} driverId={driver.driverId}
+          season={season} alt=""
+          number={getSeasonDriverNumber(season, driver.driverId)}
+          sizes="(max-width: 760px) 30vw, 18vw"
+        />
+      ))}
+      {!lineup.length && <span className="p5-team-card-no-art">{team?.shortName ?? row.teamName}</span>}
+    </span>
+  );
+
   return (
     <Link
       to={`/teams/${row.teamId}?season=${season}`}
-      className="p5-team-card"
+      className="p5-team-card p5-team-card--garage"
       style={driverStyle(row.teamId)}
       data-p5-reveal
       aria-label={`P${row.rank} ${row.teamName}, ${row.points} ${lang === 'vi' ? 'điểm' : 'points'}`}
     >
-      {teamConcept2026(row.teamId, season) && <span className="p5-concept-car p5-concept-car--directory" aria-hidden="true"><img src={teamConcept2026(row.teamId, season)} alt="" width={teamConceptWidth2026(row.teamId)} height={235} loading="lazy" /></span>}
-      {lineup.length > 0 && (
-        <span className="p5-team-card-media" aria-hidden="true">
-          {lineup.map((driver) => (
-            <P5Portrait
-              key={driver.driverId}
-              driverId={driver.driverId}
-              season={season}
-              alt=""
-              number={DRIVERS_DATA[driver.driverId]?.number}
-              sizes="(max-width: 760px) 50vw, 18vw"
-            />
-          ))}
-        </span>
-      )}
-      <span className="p5-team-card-rank">P{row.rank}</span>
       <div className="p5-team-card-body">
-        <p className="p5-driver-card-team">
+        <span className="p5-team-card-rank">P{row.rank} / {season}</span>
+        <h2>{row.teamName}</h2>
+        <p className="p5-team-card-meta">
           {profile?.powerUnit
             ? `${lang === 'vi' ? 'Động cơ' : 'Power unit'} · ${profile.powerUnit}`
             : row.engine}
         </p>
-        <h2>{row.teamName}</h2>
-        <p className="p5-team-card-meta">{profile?.fullName || team?.fullName || row.teamName}</p>
-        <p className="p5-team-card-meta">{profile?.base || (lang === 'vi' ? 'Địa điểm chưa có dữ liệu' : 'Base unavailable')}</p>
-        <div className="p5-team-card-footer">
-          <span className="p5-team-card-lineup">
-            {lineup.length
-              ? lineup.map((driver) => driver.driverCode).join(' · ')
-              : lang === 'vi' ? 'Chưa có đội hình' : 'No line-up'}
-          </span>
-          <span className="p5-team-card-points">
-            {row.points}<small>PTS</small>
-          </span>
+        <div className="p5-team-card-lineup" aria-label={lang === 'vi' ? 'Đội hình' : 'Driver lineup'}>
+          <small>{lang === 'vi' ? 'TAY ĐUA' : 'DRIVER LINEUP'}</small>
+          <strong>{lineup.length
+            ? lineup.map((driver) => driver.driverName).join(' / ')
+            : lang === 'vi' ? 'Chưa có đội hình' : 'No line-up'}</strong>
         </div>
+        <div className="p5-team-card-footer">
+          <span>{lang === 'vi' ? 'KHÁM PHÁ ĐỘI ĐUA' : 'EXPLORE TEAM'} <span aria-hidden="true">↗</span></span>
+          <span className="p5-team-card-points">{row.points}<small>PTS</small></span>
+        </div>
+      </div>
+      <div className="p5-team-card-art" aria-hidden="true">
+        <P5ExtraArtwork
+          artwork={teamPoster}
+          className="p5-team-card-poster"
+          fallback={
+            <P5LocalImage
+              src={conceptCar}
+              className="p5-team-card-car"
+              width={teamConceptWidth2026(row.teamId)}
+              height={840}
+              fallback={duo}
+            />
+          }
+        />
       </div>
     </Link>
   );
