@@ -17,7 +17,7 @@ import '@fontsource-variable/manrope/index.css';
 type LightMode = 'Studio' | 'Team' | 'Presentation' | 'Night';
 type Panel = 'paint' | 'advanced' | null;
 type RenderMetrics = { fps: number; frameP95Ms: number; drawCalls: number; triangles: number; textures: number };
-type PlacementSummary = { placed: number; adapted: number; unplaced: number; blocked: number };
+type PlacementSummary = { placed: number; adapted: number; provisional: number; unplaced: number; blocked: number };
 const authorMode = new URLSearchParams(window.location.search).get('author') === '1';
 type AuthorApi = ReturnType<typeof createLiveryRuntime>['author'];
 function setSceneReflections(scene: THREE.Scene, texture: THREE.Texture | null) {
@@ -231,6 +231,7 @@ export function App({ embedded = false }: { embedded?: boolean }) {
     setPlacementSummary({
       placed: rows.filter((item) => item.state === 'placed').length,
       adapted: rows.filter((item) => item.state === 'adapted').length,
+      provisional: rows.filter((item) => item.state === 'provisional').length,
       unplaced: rows.filter((item) => item.state === 'unplaced').length,
       blocked: rows.filter((item) => item.state === 'blocked').length,
     });
@@ -270,9 +271,9 @@ export function App({ embedded = false }: { embedded?: boolean }) {
     </div>
     <div className="advanced-group"><h3>Decal surface QA</h3>
       {placementSummary && readyTeam === team.id
-        ? <p>{placementSummary.placed} direct · {placementSummary.adapted} resized/repositioned · {placementSummary.unplaced} unplaced · {placementSummary.blocked} blocked</p>
+        ? <p>{placementSummary.provisional} fast preview · {placementSummary.placed} geometry passed · {placementSummary.adapted} adapted · {placementSummary.unplaced} unplaced · {placementSummary.blocked} blocked</p>
         : <p>Waiting for geometry placement scan…</p>}
-      <p>25 samples per mark. Coverage, curvature and stretch are checked before drawing. A geometry pass does not replace visual or licensing approval.</p>
+      <p>Fast preview skips costly per-logo mesh scans. Optional DEV-only ?surfaceQa=1 enables detailed 25-point geometry checks; that mode can be slow. Preview placement is not visual or licensing approval.</p>
     </div>
     <div className="advanced-group"><h3>Body surface</h3><label className="surface-control">Gloss response <output>{`${Math.round((1 - surface) * 100)}%`}</output><input type="range" min="0.18" max="0.72" step="0.01" value={surface} onChange={(event) => setSurface(Number(event.target.value))} /></label></div>
   </>;
