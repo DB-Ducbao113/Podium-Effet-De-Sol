@@ -77,7 +77,14 @@ function ModelB({ team, surface, reduced, onLoad, onFailure, onTeamReady, onAuth
     const down = (event: PointerEvent) => {
       const api = runtime.current?.author;
       const selected = api?.selected();
-      if (selected && api?.placeAt(selected, event.clientX, event.clientY, camera, canvas)) { dragging = true; event.stopImmediatePropagation(); event.preventDefault(); }
+      // Shift is an explicit authoring gesture. Ordinary pointer drags must
+      // reach OrbitControls, even when a logo is selected in DEV mode.
+      if (event.shiftKey && event.button === 0 && selected
+        && api?.placeAt(selected, event.clientX, event.clientY, camera, canvas)) {
+        dragging = true;
+        event.stopImmediatePropagation();
+        event.preventDefault();
+      }
     };
     const move = (event: PointerEvent) => { if (dragging) { const api = runtime.current?.author; const selected = api?.selected(); if (selected) api?.placeAt(selected, event.clientX, event.clientY, camera, canvas, false); event.stopImmediatePropagation(); event.preventDefault(); } };
     const up = () => { dragging = false; };
