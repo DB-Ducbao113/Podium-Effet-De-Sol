@@ -107,6 +107,18 @@ const backdropLight = new THREE.Color('#eef3f5');
 const lineBlue = new THREE.Color('#304a5b');
 const lineHot = new THREE.Color('#ff5635');
 
+/** Mutate Three.js-owned GPU materials inside the render adapter, not React state. */
+function updatePilotOverlayMaterials(items: readonly Overlay[], blueprint: number, selected: string) {
+  for (const item of items) {
+    item.surface.opacity = blueprint * (item.partId ? 1 : 0.9);
+    if (item.edgeMaterial) {
+      item.edgeMaterial.opacity = blueprint * 0.92
+        + (item.partId === selected ? (1 - blueprint) * 0.55 : 0);
+      item.edgeMaterial.color.copy(item.partId === selected && blueprint < 0.8 ? lineHot : lineBlue);
+    }
+  }
+}
+
 function Vehicle({ model, frame, selected, quality }: {
   model: THREE.Group; frame: PilotFrame; selected: string; quality: QualityProfile;
 }) {
@@ -231,14 +243,7 @@ function Vehicle({ model, frame, selected, quality }: {
         item.object.quaternion.multiply(spin);
       }
     });
-    for (const item of overlays.current) {
-      item.surface.opacity = frame.blueprint * (item.partId ? 1 : 0.9);
-      if (item.edgeMaterial) {
-        item.edgeMaterial.opacity = frame.blueprint * 0.92
-          + (item.partId === selected ? (1 - frame.blueprint) * 0.55 : 0);
-        item.edgeMaterial.color.copy(item.partId === selected && frame.blueprint < 0.8 ? lineHot : lineBlue);
-      }
-    }
+    updatePilotOverlayMaterials(overlays.current, frame.blueprint, selected);
   });
 
   return <color attach="background" args={[`#${background}`]} />;
