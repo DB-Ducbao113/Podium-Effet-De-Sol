@@ -250,11 +250,18 @@ function CameraControl({ frame, orbit }: { frame: PilotFrame; orbit: boolean }) 
   return <OrbitControls enabled={orbit} makeDefault enablePan={false} minDistance={1.2} maxDistance={12} target={[...frame.cameraTarget]} />;
 }
 
-function FrameSampler({ onMetrics }: { onMetrics: (value: Metrics) => void }) {
+function FrameSampler({
+  onMetrics, onReady,
+}: { onMetrics: (value: Metrics) => void; onReady: (ready: boolean) => void }) {
   const { gl } = useThree();
   const count = useRef(0);
   const lastSample = useRef(0);
+  const firstFrameSent = useRef(false);
   useFrame((_, dt) => {
+    if (!firstFrameSent.current) {
+      firstFrameSent.current = true;
+      onReady(true);
+    }
     count.current += 1;
     const now = performance.now();
     if (now - lastSample.current < 900 || count.current < 4) return;
@@ -301,7 +308,6 @@ export default function P1WheelStage({
         }
         loaded = result;
         setAssets(result);
-        onReady(true);
       })
       .catch((error: unknown) => {
         if (!controller.signal.aborted) {
@@ -347,7 +353,7 @@ export default function P1WheelStage({
           <directionalLight color="#b3e6ff" intensity={2.6} position={[-4, 6, -8]} />
           <Vehicle model={assets.model} frame={frame} selected={selectedPart} quality={profile} />
           <CameraControl frame={frame} orbit={orbit} />
-          <FrameSampler onMetrics={onMetrics} />
+          <FrameSampler onMetrics={onMetrics} onReady={onReady} />
           <ContextGuard onContextLost={onContextLost} />
         </Canvas>
       )}
