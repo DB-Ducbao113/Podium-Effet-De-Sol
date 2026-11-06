@@ -4,6 +4,8 @@ import * as THREE from 'three';
 import { FRONT_LEFT_WHEEL_V2 } from '../design/frontLeftWheelV2';
 import type { QualityProfile } from '../types';
 
+const LIGHT_OFFSET = new THREE.Vector3(0.35, 0.55, -0.45);
+
 /**
  * Very restrained neutral catchlight for close mechanical inspection.
  * Only enables for the active semantic part and never casts shadows.
@@ -37,7 +39,7 @@ export default function P1MacroFocusLight({
     } else {
       bounds.getCenter(center);
     }
-    light.current.position.copy(center).add(new THREE.Vector3(0.35, 0.55, -0.45));
+    light.current.position.copy(center).add(LIGHT_OFFSET);
     light.current.intensity = 1.15;
   });
 
