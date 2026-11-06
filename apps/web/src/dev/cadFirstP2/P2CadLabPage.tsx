@@ -6,6 +6,7 @@ import { MeshoptDecoder } from 'meshoptimizer';
 import type { P2CadScene } from './P2CadViewer';
 import type { P2DisplayQuality } from './P2StudioEnvironment';
 import type { P2RenderMetrics } from './P2PerformanceTelemetry';
+import type { P27WishbonePose } from './P27WishboneRig';
 import sourceRegistry from './sourceRegistry.json';
 import { p2SteeringMate } from './P2SteeringMate';
 import { p2FilmFrame, P2_CINEMA_SHOTS, P2_CINEMA_DURATION_SECONDS } from './P2CinemaTimeline';
@@ -20,6 +21,7 @@ type VerifiedManifest = {
   profiles?: Record<string, { file: string; sha256: string; bytes: number; totalTriangles?: number }>;
   masterSTEP?: string;
   sourceSTEPsha256?: string;
+  poses?: P27WishbonePose[];
   mechanicalTruth?: Record<string, boolean>;
   totalCadSolids?: number;
   partIds?: string[];
@@ -152,6 +154,7 @@ export default function P2CadLabPage() {
   const [manifestSha, setManifestSha] = useState('');
   const [wheelAngleDeg, setWheelAngleDeg] = useState(0);
   const [steerAngleDeg, setSteerAngleDeg] = useState(0);
+  const [wishboneBumpMm, setWishboneBumpMm] = useState(0);
   const [steeringAudit, setSteeringAudit] = useState<P26SteeringAudit | null>(null);
   const [cinematic, setCinematic] = useState(false);
   const [filmProgress, setFilmProgress] = useState(0);
@@ -176,6 +179,7 @@ export default function P2CadLabPage() {
     setExplode(0);
     setWheelAngleDeg(0);
     setSteerAngleDeg(0);
+    setWishboneBumpMm(0);
     setSteeringAudit(null);
     setCinematic(false);
     setFilmPlaying(false);
@@ -258,6 +262,7 @@ export default function P2CadLabPage() {
       setIsolate(false);
       setSection(false);
       setSteerAngleDeg(0);
+      setWishboneBumpMm(0);
       setSteeringAudit(null);
       setManifest(candidate);
       setManifestName(file.name);
@@ -402,6 +407,15 @@ export default function P2CadLabPage() {
     }
   },[manifest,manifestSha]);
 
+  const canP27Wishbone = Boolean(
+    scene && manifest?.schema === 'podium-eds.p2.cad-first.wishbone.v1' &&
+    manifest.totalCadSolids === 8 && manifest.poses?.length === 31 &&
+    scene.meshCount === 8 &&
+    manifest.poses.every((pose,index)=>pose.lowerBumpMm===index-15)
+  );
+  const wishbonePose = canP27Wishbone ?
+    manifest?.poses?.[wishboneBumpMm+15] ?? null : null;
+
   const canSteerP26 = Boolean(
     scene && manifest?.schema === 'podium-eds.p2.cad-first.steer-machined.v1' &&
     manifest.parts?.length === 53 && scene.meshCount === 53
@@ -482,6 +496,7 @@ export default function P2CadLabPage() {
                 cinematic={cinematic} filmProgress={filmProgress} playing={filmPlaying}
                 cinemaFocusPart={cinemaFocusPart} reducedMotion={reducedMotion}
                 quality={sourceQuality}
+                wishbonePose={wishbonePose}
                 onMetrics={setRenderMetrics}
                 onContextLost={()=>{
                   setFilmPlaying(false);
@@ -558,7 +573,7 @@ export default function P2CadLabPage() {
         <aside className="p2-cad-lab__inspector">
           <div className="p2-cad-lab__eyebrow">01 / SOURCE IMPORT</div>
           <h2>CAD INTAKE</h2>
-          <p>Files stay in browser memory. For the project-authored P2.4/P2.6 front corner, load its manifest and any matching HIGH / BALANCED / PERFORMANCE GLB. The B-Rep master is the separate STEP file.</p>
+          <p>Files stay in browser memory. For the project-authored P2.4/P2.6 corner or the separate P2.7 eight-part wishbone study, load its manifest and matching HIGH / BALANCED / PERFORMANCE GLB. The B-Rep master is the separate STEP file.</p>
           <label className="p2-cad-lab__upload">
             LOAD SOURCE MANIFEST (.JSON)
             <input type="file" accept=".json,application/json" onChange={onManifest}/>
@@ -656,6 +671,19 @@ export default function P2CadLabPage() {
                 onChange={(event)=>setSteerAngleDeg(Number(event.target.value))}/>
               <p>Length-conserving one-DOF kingpin study. Rack Z: {steeringMate.rackTravelZMm.toFixed(2)} mm. Tie-rod residual: {steeringMate.tieLengthErrorMm.toExponential(1)} mm.</p>
               <small>Source steering-relief CAD only. No suspension bump/rebound, true tie joints, continuous sweep or manufacturing signoff.</small>
+            </div>
+          )}
+          {canP27Wishbone && (
+            <div className="p2-cad-lab__steer-control">
+              <label htmlFor="p27-bump">
+                <span>P2.7 / SOURCE A-ARM STUDY</span>
+                <strong>{wishboneBumpMm>0?'+':''}{wishboneBumpMm} mm</strong>
+              </label>
+              <input id="p27-bump" type="range" min={-15} max={15} step={1}
+                value={wishboneBumpMm}
+                onChange={(event)=>setWishboneBumpMm(Number(event.target.value))}/>
+              <p>31 constraint-solved hardpoint poses, source-specific A-arm rotations and separately translated joint studs. Each GLB contains eight actual B-Rep source solids.</p>
+              <small>SUBASSEMBLY ONLY. Not yet mated to the 53-solid P2.6 upright; no bump + steering coupled certification.</small>
             </div>
           )}
           <div className="p2-cad-lab__eyebrow">02 / REAL GEOMETRY</div>
