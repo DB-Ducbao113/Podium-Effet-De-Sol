@@ -85,6 +85,9 @@ const insideMachineTrialEnabled = import.meta.env.DEV;
 const InsideMachineTrialPage = insideMachineTrialEnabled
   ? lazy(() => import('./dev/insideMachineI1/InsideMachineTrialPage'))
   : null;
+const P1WheelLookdevPage = insideMachineTrialEnabled
+  ? lazy(() => import('./dev/insideMachineI1/p1/P1WheelLookdevPage'))
+  : null;
 
 let lastAutoRaceSyncAt = 0;
 
@@ -173,7 +176,9 @@ export const App: React.FC = () => {
   const mobileHub = useMobileHub();
   const isHubRoute = mobileHub && isPrimaryPath(location.pathname);
   const isInsideMachineTrial = insideMachineTrialEnabled &&
-    (location.pathname === '/engineering' || location.pathname === '/engineering/inside-the-machine');
+    (location.pathname === '/engineering' ||
+      location.pathname === '/engineering/inside-the-machine' ||
+      location.pathname === '/engineering/p1-front-left');
   const syncSeasonData = useChampionshipStore((state) => state.syncSeasonData);
 
   useEffect(() => {
@@ -287,6 +292,9 @@ export const App: React.FC = () => {
               <Route path="/about" element={<AboutPage />} />
               <Route path="/engineering" element={InsideMachineTrialPage ? <InsideMachineTrialPage /> : <EngineeringIndexPage />} />
               {InsideMachineTrialPage && <Route path="/engineering/insights" element={<EngineeringIndexPage />} />}
+              {P1WheelLookdevPage && (
+                <Route path="/engineering/p1-front-left" element={<P1WheelLookdevPage />} />
+              )}
               <Route path="/engineering/car-anatomy" element={<EngineeringAnatomyPage />} />
               {InsideMachineTrialPage && <Route path="/engineering/inside-the-machine" element={<InsideMachineTrialPage />} />}
               <Route path="/engineering/:slug" element={<EngineeringArticlePage />} />
