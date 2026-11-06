@@ -6,6 +6,7 @@ import type { QualityProfile } from '../types';
 import { clampProgress, pilotFrameAt, detachmentForScope, type WheelInspectionScope } from './pilotMotion';
 import type { P1SurfaceMode } from './pilotMaterials';
 import { materialStudyFor } from './P1SurfaceStudy';
+import { filmLookAt } from './P1FilmDirector';
 import './p1Wheel.css';
 
 const P1WheelStage = lazy(() => import('./P1WheelStage'));
@@ -20,12 +21,14 @@ type P1QAControl = {
   selectPart: (id: string) => void;
   setProfile: (profile: QualityProfile) => void;
   setMaterialMode: (mode: P1SurfaceMode) => void;
+  setCinemaMode: (enabled: boolean) => void;
   getUIState: () => {
     progress: number;
     scope: WheelInspectionScope;
     selectedPart: string;
     profile: QualityProfile;
     materialMode: P1SurfaceMode;
+    cinemaMode: boolean;
     orbit: boolean;
     focusPart: string | null;
     playing: boolean;
@@ -60,6 +63,7 @@ export default function P1WheelLookdevPage() {
   const [selectedPart, setSelectedPart] = useState<string>(FRONT_LEFT_WHEEL_V2[0].id);
   const [profile, setProfile] = useState<QualityProfile>('BALANCED');
   const [materialMode, setMaterialMode] = useState<P1SurfaceMode>('cinematic');
+  const [cinemaMode, setCinemaMode] = useState(false);
   const [orbit, setOrbit] = useState(false);
   const [focusPart, setFocusPart] = useState<string | null>(null);
   const [scope, setScope] = useState<WheelInspectionScope>('lock-wheel');
@@ -75,6 +79,7 @@ export default function P1WheelLookdevPage() {
   const selected = FRONT_LEFT_WHEEL_V2.find((part) => part.id === selectedPart) ?? FRONT_LEFT_WHEEL_V2[0];
   const shot = wheelShotAt(progress);
   const frame = useMemo(() => pilotFrameAt(progress), [progress]);
+  const look = useMemo(() => filmLookAt(progress), [progress]);
 
   useEffect(() => {
     if (!playing) return;
@@ -85,18 +90,19 @@ export default function P1WheelLookdevPage() {
         playback.current = requestAnimationFrame(loop);
         return;
       }
-      const delta = previous ? Math.min((now - previous) / 1000, 0.08) : 0;
+      // Keep the film tempo aligned with wall time on modest GPUs.
+      const delta = previous ? Math.min((now - previous) / 1000, 0.25) : 0;
       previous = now;
-      setProgress((current) => {
-        const next = clampProgress(current + delta / 24);
-        if (next >= 1) setPlaying(false);
-        return next;
-      });
+      setProgress((current) => clampProgress(current + delta / 24));
       playback.current = requestAnimationFrame(loop);
     };
     playback.current = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(playback.current);
   }, [playing]);
+
+  useEffect(() => {
+    if (playing && progress >= 1) setPlaying(false);
+  }, [playing, progress]);
 
   const onReady = useCallback((isReady: boolean) => setLoaded(isReady), []);
   const onError = useCallback((message: string) => { setError(message); setPlaying(false); }, []);
@@ -158,6 +164,11 @@ export default function P1WheelLookdevPage() {
       selectPart: (id) => {
         choosePart(id);
       },
+      setCinemaMode: (enabled) => {
+        setCinemaMode(Boolean(enabled));
+        setFocusPart(null);
+        setOrbit(false);
+      },
       setMaterialMode: (value) => {
         if (value !== 'source' && value !== 'cinematic') return;
         setMaterialMode(value);
@@ -172,29 +183,40 @@ export default function P1WheelLookdevPage() {
         setFocusPart(null);
       },
       getUIState: () => ({
-        progress, scope, selectedPart, profile, materialMode, orbit, focusPart, playing, loaded, error,
+        progress, scope, selectedPart, profile, materialMode, cinemaMode, orbit, focusPart, playing, loaded, error,
       }),
     };
     target.__PEDS_ITM_P1_CTRL__ = control;
     return () => {
       if (target.__PEDS_ITM_P1_CTRL__ === control) delete target.__PEDS_ITM_P1_CTRL__;
     };
-  }, [progress, scope, selectedPart, profile, materialMode, orbit, focusPart, playing, loaded, error, choosePart]);
+  }, [progress, scope, selectedPart, profile, materialMode, cinemaMode, orbit, focusPart, playing, loaded, error, choosePart]);
 
   return (
     <div
-      className={frame.blueprint > 0.54 ? 'itm-p1 itm-p1--blueprint' : 'itm-p1'}
+      className={['itm-p1', frame.blueprint > 0.54 && 'itm-p1--blueprint', cinemaMode && 'itm-p1--cinema'].filter(Boolean).join(' ')}
       data-testid="itm-p1-pilot"
       data-p1-scene={shot.id}
       data-p1-scope={scope}
       data-p1-focus={focusPart ?? 'film'}
       data-p1-material={materialMode}
+      data-p1-cinema={cinemaMode ? 'on' : 'off'}
       data-p1-blueprint={frame.blueprint.toFixed(3)}
     >
       <header className="itm-p1__header">
         <Link to="/engineering" className="itm-p1__home">PODIUM EDS <span>/</span> ENGINEERING</Link>
-        <div className="itm-p1__header-label">LAB P1.6 <span>·</span> SOURCE GLB / R4.5</div>
+        <div className="itm-p1__header-label">LAB P1.7 <span>·</span> SOURCE GLB / R4.5</div>
         <div className="itm-p1__header-actions">
+          <button
+            type="button"
+            className="itm-p1__cinema-toggle"
+            aria-pressed={cinemaMode}
+            onClick={() => {
+              setCinemaMode((current) => !current);
+              setFocusPart(null);
+              setOrbit(false);
+            }}
+          >{cinemaMode ? 'EXIT CINEMA' : 'CINEMA MODE'}</button>
           <button type="button" onClick={() => setLang((value) => value === 'vi' ? 'en' : 'vi')}>{lang === 'vi' ? 'EN' : 'VI'}</button>
           <Link to="/engineering">{lang === 'vi' ? 'Thoát phòng thử nghiệm' : 'Exit pilot'}</Link>
         </div>
@@ -216,6 +238,7 @@ export default function P1WheelLookdevPage() {
                     selectedPart={selectedPart}
                     profile={profile}
                     orbit={orbit}
+                    playing={playing}
                     focusPart={focusPart}
                     materialMode={materialMode}
                     scope={scope}
@@ -243,6 +266,7 @@ export default function P1WheelLookdevPage() {
             )}
             {contextLost && <div role="alert" className="itm-p1__lost">GPU context lost — scene paused</div>}
           </div>
+          <div className="itm-p1__cinema-vignette" style={{ opacity: look.vignette }} aria-hidden="true" />
           <div className="itm-p1__shot-label" aria-live="off">
             <small>{focusPart
               ? `COMPONENT / ${String(selected.order + 1).padStart(2, '0')} / 07`
