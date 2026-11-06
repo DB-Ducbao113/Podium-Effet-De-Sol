@@ -444,3 +444,59 @@
 @media(prefers-reduced-motion:reduce) {
   .itm-p1__annotation { filter: none; }
 }
+
+/* P1.4 six-shot film rail: readable, keyboard accessible, no oversized HUD. */
+.itm-p1__shot-rail {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 3px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid #273a4b;
+}
+.itm-p1__shot-rail button {
+  appearance: none;
+  display: flex;
+  gap: 6px;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 9px 7px 12px;
+  min-width: 0;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: #879eae;
+  text-align: left;
+}
+.itm-p1__shot-rail button span {
+  font: 700 10px 'IBM Plex Mono', monospace;
+  letter-spacing: .12em;
+}
+.itm-p1__shot-rail button strong {
+  font: 650 10px/1.25 'Space Grotesk', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: .035em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+}
+.itm-p1__shot-rail button:hover {
+  color: #fff;
+  background: #152331;
+}
+.itm-p1__shot-rail button[aria-current='step'] {
+  border-bottom-color: #ff5635;
+  background: #17212a;
+  color: #f5f8fa;
+}
+.itm-p1__shot-rail button[aria-current='step'] span { color: #ff7657; }
+@media(max-width:800px) {
+  .itm-p1__shot-rail {
+    display: flex;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+    scrollbar-color: #445b6b #101b25;
+  }
+  .itm-p1__shot-rail button { flex: 0 0 128px; }
+}
