@@ -438,3 +438,71 @@
 .p2-cad-lab__motion-evidence span { color: #badbe2; }
 .p2-cad-lab__motion-evidence small { color: #a6bfcf; }
 .p2-cad-lab__motion-pending { color: #ffbea8 !important; }
+
+/* P2.6 steering engineering review; source-mate constraints only. */
+.p2-cad-lab__steer-control {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  background: #142d36;
+  border: 1px solid #486572;
+}
+.p2-cad-lab__steer-control > label { display:flex; gap:8px; align-items:center; justify-content:space-between;
+  color:#d1edf1; font:700 10px/1.5 'IBM Plex Mono',monospace; }
+.p2-cad-lab__steer-control strong { color:#ffac8d; font-size:14px; font-variant-numeric:tabular-nums; }
+.p2-cad-lab__steer-control input[type='range'] { width:100%; accent-color:#ff6844; }
+.p2-cad-lab__steer-control input:disabled { opacity:.45; }
+.p2-cad-lab__steer-control p,.p2-cad-lab__steer-control small {margin:0;color:#aec4d2;font:500 10px/1.65 'IBM Plex Mono',monospace;}
+/* P3 CAD-only cinematic, reviewed separately from the source inspector. */
+.p2-cad-lab__launch-film {
+  color:#fff6ed;
+  padding:15px 12px;
+  min-height:48px;
+  border:1px solid #ff7657;
+  background:linear-gradient(114deg,#5f342b,#332024);
+  letter-spacing:.08em;
+  font:750 11px/1.35 'IBM Plex Mono',monospace;
+  text-align:left;
+  cursor:pointer;
+}
+.p2-cad-lab__launch-film:disabled {opacity:.40;cursor:not-allowed;}
+.p2-cad-lab__launch-film:hover:not(:disabled) {background:#704131;}
+.p2-cad-lab__viewport--cinema { min-height:min(78svh,880px); background:#080e17; }
+.p2-cad-lab__film { position:absolute;inset:0;pointer-events:none;display:flex;flex-direction:column;justify-content:space-between;z-index:3; }
+.p2-cad-lab__film-vignette { position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 75% 72% at 55% 48%,transparent 26%,rgba(2,6,15,.42) 78%,rgba(1,4,9,.85) 100%); }
+.p2-cad-lab__film-heading { position:relative;z-index:2;width:min(560px,65%);display:grid;gap:9px;padding:clamp(20px,3.8vw,48px); }
+.p2-cad-lab__film-heading > span {color:#ff927a;font:700 10px/1.4 'IBM Plex Mono',monospace;letter-spacing:.14em; }
+.p2-cad-lab__film-heading strong {font:850 clamp(42px,6vw,100px)/.87 'Barlow Condensed','Arial Narrow',sans-serif;
+  text-transform:uppercase;letter-spacing:-.015em;color:#f8fdff;text-shadow:0 2px 28px rgba(0,0,0,.65);}
+.p2-cad-lab__film-heading small {color:#bfd7e3;font:650 10px/1.6 'IBM Plex Mono',monospace;letter-spacing:.08em; }
+.p2-cad-lab__film-controls { position:relative;z-index:3;display:flex;align-items:center;gap:10px;
+  margin:0 16px 45px;padding:12px;background:rgba(7,15,24,.95);
+  border:1px solid #3e5869;pointer-events:auto; }
+.p2-cad-lab__film-controls button { border:1px solid #668394;background:#182b38;color:#fff;
+  font:700 10px 'IBM Plex Mono',monospace;padding:11px 13px;min-height:43px;cursor:pointer; }
+.p2-cad-lab__film-controls button:nth-child(2) {border-color:#ff7351;background:#452b25;}
+.p2-cad-lab__film-controls button:disabled {opacity:.45;cursor:not-allowed;}
+.p2-cad-lab__film-controls input {min-width:0;flex:1;accent-color:#ff7351;}
+.p2-cad-lab__film-controls span {white-space:nowrap;color:#c3d7e3;font:600 10px 'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;}
+.p2-cad-lab__film-chapters {position:absolute;bottom:122px;right:16px;z-index:4;display:flex;gap:4px;pointer-events:auto;}
+.p2-cad-lab__film-chapters button {background:rgba(10,21,30,.88);border:1px solid #688091;
+  color:#c9dbe4;min-width:36px;min-height:35px;cursor:pointer;
+  font:700 10px 'IBM Plex Mono',monospace;}
+.p2-cad-lab__film-chapters button[aria-pressed='true'] {border-color:#ff7752;color:#fff;background:#542b23;}
+@media(max-width:800px) {
+  .p2-cad-lab__viewport--cinema {height:68svh;min-height:420px;}
+  .p2-cad-lab__film-heading {width:min(360px,80%);}
+  .p2-cad-lab__film-heading strong {font-size:clamp(37px,8vw,68px);}
+  .p2-cad-lab__film-controls {margin:0 9px 38px;gap:6px;padding:7px;}
+  .p2-cad-lab__film-controls button {padding:10px 7px;font-size:9px;}
+  .p2-cad-lab__film-chapters {bottom:102px;right:9px;}
+}
+@media(max-width:440px) {
+  .p2-cad-lab__film-heading {padding:22px 12px;}
+  .p2-cad-lab__film-heading strong {font-size:clamp(32px,9vw,45px);}
+  .p2-cad-lab__film-controls span {display:none;}
+}
+@media(prefers-reduced-motion:reduce){
+  .p2-cad-lab__film * {animation:none!important;transition:none!important;}
+}
