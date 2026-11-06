@@ -1,10 +1,12 @@
-import { Suspense, lazy, useCallback, useRef, useState, type ChangeEvent } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { Link } from 'react-router-dom';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'meshoptimizer';
 import type { P2CadScene } from './P2CadViewer';
 import sourceRegistry from './sourceRegistry.json';
+import { p2SteeringMate } from './P2SteeringMate';
+import { p2FilmFrame, P2_CINEMA_SHOTS, P2_CINEMA_DURATION_SECONDS } from './P2CinemaTimeline';
 import './p2CadLab.css';
 
 const P2CadViewer = lazy(() => import('./P2CadViewer'));
@@ -17,6 +19,8 @@ type VerifiedManifest = {
   mechanicalTruth?: Record<string, boolean>;
   totalCadSolids?: number;
   partIds?: string[];
+  parts?: string[];
+  sourcePartCount?: number;
   geometryProof?: Record<string, number>;
   p23SourcePrecisionEvidence?: Record<string, number>;
   staticCollisionAudit?: {
@@ -124,6 +128,11 @@ export default function P2CadLabPage() {
   const [fitAuditSha, setFitAuditSha] = useState('');
   const [manifestSha, setManifestSha] = useState('');
   const [wheelAngleDeg, setWheelAngleDeg] = useState(0);
+  const [steerAngleDeg, setSteerAngleDeg] = useState(0);
+  const [cinematic, setCinematic] = useState(false);
+  const [filmProgress, setFilmProgress] = useState(0);
+  const [filmPlaying, setFilmPlaying] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
   const [dynamicAudit, setDynamicAudit] = useState<DynamicSpinEvidence | null>(null);
   const [dynamicAuditName, setDynamicAuditName] = useState('');
   const request = useRef(0);
@@ -139,6 +148,10 @@ export default function P2CadLabPage() {
     setIsolate(false);
     setExplode(0);
     setWheelAngleDeg(0);
+    setSteerAngleDeg(0);
+    setCinematic(false);
+    setFilmPlaying(false);
+    setFilmProgress(0);
     setSection(false);
     setSectionOffsetMm(0);
     setPartFilter('');
@@ -167,11 +180,12 @@ export default function P2CadLabPage() {
         return;
       }
       const inspected = inspectGlb(result.scene, file.name);
-      if (manifest?.partIds) {
-        const expected = new Set(manifest.partIds);
+      const sourceParts = manifest?.partIds ?? manifest?.parts;
+      if (sourceParts) {
+        const expected = new Set(sourceParts);
         const found = new Set(inspected.components.map((part) => part.name));
         if (expected.size !== found.size ||
-            inspected.components.length !== manifest.partIds.length ||
+            inspected.components.length !== sourceParts.length ||
             [...expected].some((part) => !found.has(part))) {
           throw new Error('P2.3 named CAD solid hierarchy mismatch. Refusing preview.');
         }
@@ -210,6 +224,10 @@ export default function P2CadLabPage() {
       setDynamicAudit(null);
       setDynamicAuditName('');
       setWheelAngleDeg(0);
+      setSteerAngleDeg(0);
+      setCinematic(false);
+      setFilmPlaying(false);
+      setFilmProgress(0);
       setLoadState('MANIFEST LOADED — RESELECT GLB TO VERIFY');
       setError('');
     } catch (caught) {
@@ -302,6 +320,41 @@ export default function P2CadLabPage() {
     scene && manifest?.schema === 'podium-eds.p2.cad-first.front-corner.fit.v1' &&
     manifest.partIds?.length === 53 && scene.meshCount === 53
   );
+  const canSteerP26 = Boolean(
+    scene && manifest?.schema === 'podium-eds.p2.cad-first.steer-machined.v1' &&
+    manifest.parts?.length === 53 && scene.meshCount === 53
+  );
+  const canCinematic = Boolean(scene && manifest &&
+    (canSpinP24 || canSteerP26) && !busy);
+
+  useEffect(() => {
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const set = () => { setReducedMotion(media.matches); if(media.matches) setFilmPlaying(false); };
+    set();
+    media.addEventListener('change', set);
+    return () => media.removeEventListener('change', set);
+  }, []);
+
+  useEffect(() => {
+    if(!filmPlaying || !cinematic || reducedMotion) return;
+    let raf=0;
+    let previous:number|null=null;
+    const tick=(now:number)=>{
+      const delta=previous===null?0:Math.min((now-previous)/1000,.10);
+      previous=now;
+      setFilmProgress((t)=>Math.min(1,t+delta/P2_CINEMA_DURATION_SECONDS));
+      raf=window.requestAnimationFrame(tick);
+    };
+    raf=window.requestAnimationFrame(tick);
+    return ()=>window.cancelAnimationFrame(raf);
+  },[filmPlaying,cinematic,reducedMotion]);
+
+  useEffect(()=>{
+    if(filmProgress>=1 && filmPlaying)setFilmPlaying(false);
+  },[filmProgress,filmPlaying]);
+
+  const filmFrame=p2FilmFrame(filmProgress);
+  const steeringMate=p2SteeringMate(steerAngleDeg);
   const precisionProof = manifest?.geometryProof ?? manifest?.p23SourcePrecisionEvidence;
 
   return (
@@ -323,16 +376,55 @@ export default function P2CadLabPage() {
       </section>
 
       <section className="p2-cad-lab__layout">
-        <div className="p2-cad-lab__viewport" aria-label="CAD source preview">
+        <div className={cinematic ? 'p2-cad-lab__viewport p2-cad-lab__viewport--cinema' : 'p2-cad-lab__viewport'} aria-label="CAD source preview">
           {scene ? (
             <Suspense fallback={<div className="p2-cad-lab__empty">INITIALIZING LOCAL CAD VIEWER</div>}>
-              <P2CadViewer key={scene.name} scene={scene} selectedPart={selectedPart} isolate={isolate} explode={explode} wheelAngleDeg={canSpinP24 ? wheelAngleDeg : 0} section={section} sectionOffsetMm={sectionOffsetMm}/>
+              <P2CadViewer
+                key={scene.name} scene={scene} selectedPart={cinematic ? null : selectedPart}
+                isolate={!cinematic && isolate} explode={cinematic ? 0 : explode}
+                wheelAngleDeg={!cinematic && canSpinP24 ? wheelAngleDeg : 0}
+                steerAngleDeg={!cinematic && canSteerP26 ? steerAngleDeg : 0}
+                cinematic={cinematic} filmProgress={filmProgress} playing={filmPlaying}
+                section={!cinematic && section} sectionOffsetMm={sectionOffsetMm}
+              />
             </Suspense>
           ) : (
             <div className="p2-cad-lab__empty">
               <span>NO MODEL B / NO FAKED CAD</span>
               <strong>OPEN REAL CAD GEOMETRY</strong>
               <p>STEP / B-Rep remains the engineering master. Only a generated GLB is rendered here.</p>
+            </div>
+          )}
+          {cinematic && scene && (
+            <div className="p2-cad-lab__film">
+              <div className="p2-cad-lab__film-vignette" style={{opacity:filmFrame.blueprint>.5?0:0.65}} aria-hidden="true"/>
+              <div className="p2-cad-lab__film-heading" aria-live="off">
+                <span>CAD-FIRST FILM / {Math.floor(filmProgress*100).toString().padStart(2,'0')}%</span>
+                <strong>{filmFrame.shot.title}</strong>
+                <small>{filmFrame.shot.detail}</small>
+              </div>
+              <div className="p2-cad-lab__film-controls">
+                <button type="button" onClick={()=>{setFilmPlaying(false);setCinematic(false);}}
+                  aria-label="Exit cinematic view">EXIT FILM</button>
+                <button type="button" onClick={()=>{
+                  if(filmProgress>=1)setFilmProgress(0);
+                  setFilmPlaying((value)=>!value);
+                }} disabled={reducedMotion} aria-label={filmPlaying?'Pause film':'Play film'}>
+                  {filmPlaying?'PAUSE':'PLAY'} 
+                </button>
+                <input aria-label="Cinematic timeline" type="range" min={0} max={1000}
+                  value={Math.round(filmProgress*1000)}
+                  onChange={(e)=>{setFilmPlaying(false);setFilmProgress(Number(e.target.value)/1000);}}/>
+                <span>{Math.round(filmProgress*P2_CINEMA_DURATION_SECONDS)}s / {P2_CINEMA_DURATION_SECONDS}s</span>
+              </div>
+              <div className="p2-cad-lab__film-chapters" aria-label="Cinema chapters">
+                {P2_CINEMA_SHOTS.slice(0,-1).map((shot,i)=>(
+                  <button type="button" key={shot.at} aria-pressed={filmFrame.shotIndex===i}
+                    onClick={()=>{setFilmPlaying(false);setFilmProgress(shot.at);}}>
+                    {String(i+1).padStart(2,'0')}
+                  </button>
+                ))}
+              </div>
             </div>
           )}
           <div className="p2-cad-lab__stage-tag">{loadState}</div>
@@ -352,6 +444,16 @@ export default function P2CadLabPage() {
             {busy ? 'IMPORTING…' : 'OPEN LOCAL CAD PREVIEW (.GLB)'}
             <input type="file" accept=".glb,model/gltf-binary" onChange={onModel} disabled={busy}/>
           </label>
+          <button type="button" className="p2-cad-lab__launch-film"
+            disabled={!canCinematic}
+            aria-pressed={cinematic}
+            onClick={()=>{
+              setCinematic(true);setFilmPlaying(false);setFilmProgress(0);
+              setSteerAngleDeg(0);setWheelAngleDeg(0);setExplode(0);
+              setSelectedPart(null);setIsolate(false);setSection(false);
+            }}>
+            CINEMATIC SOURCE FILM / P3
+          </button>
           <div className="p2-cad-lab__stats">
             <div><span>CAD OBJECTS</span><strong>{scene?.meshCount ?? '—'}</strong></div>
             <div><span>TRIANGLES</span><strong>{scene?.triangles.toLocaleString() ?? '—'}</strong></div>
@@ -406,6 +508,19 @@ export default function P2CadLabPage() {
               <p className="p2-cad-lab__motion-pending">No source-matched motion evidence loaded. Slider is a visual study, not a clearance PASS.</p>
             )}
           </div>
+          {canSteerP26 && (
+            <div className="p2-cad-lab__steer-control">
+              <label htmlFor="p2-steer-angle">
+                <span>P2.6 / STEERING LINKAGE</span>
+                <strong>{steerAngleDeg.toFixed(1)}°</strong>
+              </label>
+              <input id="p2-steer-angle" type="range" min={-8} max={8} step={0.5}
+                value={steerAngleDeg} disabled={explode!==0 || cinematic}
+                onChange={(event)=>setSteerAngleDeg(Number(event.target.value))}/>
+              <p>Length-conserving one-DOF kingpin study. Rack Z: {steeringMate.rackTravelZMm.toFixed(2)} mm. Tie-rod residual: {steeringMate.tieLengthErrorMm.toExponential(1)} mm.</p>
+              <small>Source steering-relief CAD only. No suspension bump/rebound, true tie joints, continuous sweep or manufacturing signoff.</small>
+            </div>
+          )}
           <div className="p2-cad-lab__eyebrow">02 / REAL GEOMETRY</div>
           <div className="p2-cad-lab__section-control">
             <button type="button" aria-pressed={section} disabled={!scene}
