@@ -4,6 +4,7 @@ import { FRONT_LEFT_WHEEL_V2 } from '../design/frontLeftWheelV2';
 import { FRONT_LEFT_WHEEL_SHOTS, wheelShotAt } from '../design/frontLeftWheelShots';
 import type { QualityProfile } from '../types';
 import { clampProgress, pilotFrameAt, detachmentForScope, type WheelInspectionScope } from './pilotMotion';
+import type { P1SurfaceMode } from './pilotMaterials';
 import './p1Wheel.css';
 
 const P1WheelStage = lazy(() => import('./P1WheelStage'));
@@ -17,11 +18,13 @@ type P1QAControl = {
   setScope: (value: WheelInspectionScope) => void;
   selectPart: (id: string) => void;
   setProfile: (profile: QualityProfile) => void;
+  setMaterialMode: (mode: P1SurfaceMode) => void;
   getUIState: () => {
     progress: number;
     scope: WheelInspectionScope;
     selectedPart: string;
     profile: QualityProfile;
+    materialMode: P1SurfaceMode;
     orbit: boolean;
     focusPart: string | null;
     playing: boolean;
@@ -55,6 +58,7 @@ export default function P1WheelLookdevPage() {
   const [progress, setProgress] = useState(0);
   const [selectedPart, setSelectedPart] = useState<string>(FRONT_LEFT_WHEEL_V2[0].id);
   const [profile, setProfile] = useState<QualityProfile>('BALANCED');
+  const [materialMode, setMaterialMode] = useState<P1SurfaceMode>('cinematic');
   const [orbit, setOrbit] = useState(false);
   const [focusPart, setFocusPart] = useState<string | null>(null);
   const [scope, setScope] = useState<WheelInspectionScope>('lock-wheel');
@@ -153,6 +157,11 @@ export default function P1WheelLookdevPage() {
       selectPart: (id) => {
         choosePart(id);
       },
+      setMaterialMode: (value) => {
+        if (value !== 'source' && value !== 'cinematic') return;
+        setMaterialMode(value);
+        setPlaying(false);
+      },
       setProfile: (value) => {
         if (!['HIGH', 'BALANCED', 'PERFORMANCE'].includes(value)) return;
         setProfile(value);
@@ -162,14 +171,14 @@ export default function P1WheelLookdevPage() {
         setFocusPart(null);
       },
       getUIState: () => ({
-        progress, scope, selectedPart, profile, orbit, focusPart, playing, loaded, error,
+        progress, scope, selectedPart, profile, materialMode, orbit, focusPart, playing, loaded, error,
       }),
     };
     target.__PEDS_ITM_P1_CTRL__ = control;
     return () => {
       if (target.__PEDS_ITM_P1_CTRL__ === control) delete target.__PEDS_ITM_P1_CTRL__;
     };
-  }, [progress, scope, selectedPart, profile, orbit, focusPart, playing, loaded, error, choosePart]);
+  }, [progress, scope, selectedPart, profile, materialMode, orbit, focusPart, playing, loaded, error, choosePart]);
 
   return (
     <div
@@ -178,11 +187,12 @@ export default function P1WheelLookdevPage() {
       data-p1-scene={shot.id}
       data-p1-scope={scope}
       data-p1-focus={focusPart ?? 'film'}
+      data-p1-material={materialMode}
       data-p1-blueprint={frame.blueprint.toFixed(3)}
     >
       <header className="itm-p1__header">
         <Link to="/engineering" className="itm-p1__home">PODIUM EDS <span>/</span> ENGINEERING</Link>
-        <div className="itm-p1__header-label">LAB P1.5 <span>·</span> SOURCE GLB / R4.5</div>
+        <div className="itm-p1__header-label">LAB P1.6 <span>·</span> SOURCE GLB / R4.5</div>
         <div className="itm-p1__header-actions">
           <button type="button" onClick={() => setLang((value) => value === 'vi' ? 'en' : 'vi')}>{lang === 'vi' ? 'EN' : 'VI'}</button>
           <Link to="/engineering">{lang === 'vi' ? 'Thoát phòng thử nghiệm' : 'Exit pilot'}</Link>
@@ -206,6 +216,7 @@ export default function P1WheelLookdevPage() {
                     profile={profile}
                     orbit={orbit}
                     focusPart={focusPart}
+                    materialMode={materialMode}
                     scope={scope}
                     onError={onError}
                     onReady={onReady}
@@ -338,6 +349,22 @@ export default function P1WheelLookdevPage() {
           style={{ background: `linear-gradient(90deg,#ff5635 ${progress * 100}%,#344657 ${progress * 100}%)` }}
         />
         <div className="itm-p1__actions">
+          <div className="itm-p1__action-group itm-p1__material-controls" aria-label="P1.6 material comparison">
+            <button
+              type="button"
+              aria-pressed={materialMode === 'source'}
+              onClick={() => { setMaterialMode('source'); setPlaying(false); }}
+            >
+              SOURCE MATERIALS
+            </button>
+            <button
+              type="button"
+              aria-pressed={materialMode === 'cinematic'}
+              onClick={() => { setMaterialMode('cinematic'); setPlaying(false); }}
+            >
+              P1.6 / CINEMATIC
+            </button>
+          </div>
           <div className="itm-p1__action-group itm-p1__scope-controls" aria-label="Inspection scope">
             <button type="button" aria-pressed={scope === 'lock-wheel'} onClick={() => { setScope('lock-wheel'); setPlaying(false); setFocusPart(null); }}>
               P1.2 / LOCK + WHEEL
@@ -379,7 +406,7 @@ export default function P1WheelLookdevPage() {
           </div>
         </div>
         <div className="itm-p1__footer">
-          <span>{scope === 'lock-wheel' ? 'LOCK + WHEEL' : 'FULL CORNER'} EXPLODED {Math.round(detachmentForScope(progress, scope) * 100)}% · BLUEPRINT {Math.round(frame.blueprint * 100)}%</span>
+          <span>{materialMode === 'cinematic' ? 'P1.6 LOOKDEV' : 'ORIGINAL GLB MATERIALS'} · {scope === 'lock-wheel' ? 'LOCK + WHEEL' : 'FULL CORNER'} EXPLODED {Math.round(detachmentForScope(progress, scope) * 100)}% · BLUEPRINT {Math.round(frame.blueprint * 100)}%</span>
           <span>{metrics ? `${metrics.drawCalls} DRAWS / ${metrics.triangles.toLocaleString()} TRIANGLES / R3F DELTA ${metrics.frameMs.toFixed(1)} MS (NOT GPU TIME)` : 'GPU METRICS PENDING'}</span>
           <span>LOOKDEV ONLY / NOT PRODUCTION READY</span>
         </div>
