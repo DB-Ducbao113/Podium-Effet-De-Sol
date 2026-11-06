@@ -5,12 +5,14 @@ import * as THREE from 'three';
 import { FRONT_LEFT_WHEEL_V2 } from '../design/frontLeftWheelV2';
 import type { PilotFrame } from './pilotMotion';
 import { macroLensFor } from './P1MacroLenses';
+import { filmLookAt } from './P1FilmDirector';
 
 interface Props {
   frame: PilotFrame;
   model: THREE.Group;
   orbit: boolean;
   focusPart: string | null;
+  playing: boolean;
 }
 
 const WORLD_UP = new THREE.Vector3(0, 1, 0);
@@ -29,7 +31,7 @@ function focusObject(model: THREE.Group, semanticId: string | null) {
  * Render-demand compatible: the rig explicitly invalidates until a camera
  * transition settles, including when the timeline is paused.
  */
-export default function P1CameraRig({ frame, model, orbit, focusPart }: Props) {
+export default function P1CameraRig({ frame, model, orbit, focusPart, playing }: Props) {
   const { camera, invalidate } = useThree();
   const initialized = useRef(false);
   const currentTarget = useRef(new THREE.Vector3(...frame.cameraTarget));
@@ -44,6 +46,7 @@ export default function P1CameraRig({ frame, model, orbit, focusPart }: Props) {
 
   const part = focusObject(model, focusPart);
   const lens = macroLensFor(focusPart);
+  const filmLook = filmLookAt(frame.progress);
 
   useEffect(() => {
     if (!orbit) invalidate();
@@ -51,6 +54,14 @@ export default function P1CameraRig({ frame, model, orbit, focusPart }: Props) {
 
   useFrame((_, delta) => {
     if (orbit) return;
+
+    if (camera instanceof THREE.PerspectiveCamera) {
+      const nextFov = focusPart ? 32.5 : filmLook.fov;
+      if (Math.abs(camera.fov - nextFov) > 0.0001) {
+        camera.fov = nextFov;
+        camera.updateProjectionMatrix();
+      }
+    }
 
     filmPosition.set(...frame.cameraPosition);
     desiredPosition.copy(filmPosition);
@@ -98,7 +109,7 @@ export default function P1CameraRig({ frame, model, orbit, focusPart }: Props) {
       const damping = typeof window !== 'undefined' &&
         window.matchMedia('(prefers-reduced-motion: reduce)').matches
         ? 1
-        : 1 - Math.exp(-7.5 * Math.min(delta, 0.05));
+        : 1 - Math.exp(-(playing ? 12.5 : 8.5) * Math.min(delta, 0.05));
 
       camera.position.lerp(desiredPosition, damping);
       currentTarget.current.lerp(desiredTarget, damping);
