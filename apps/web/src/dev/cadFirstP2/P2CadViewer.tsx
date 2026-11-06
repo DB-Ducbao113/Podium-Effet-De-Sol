@@ -59,12 +59,14 @@ function FrameCAD({ scene, selectedPart, explode }: {
 }
 
 export default function P2CadViewer({
-  scene, selectedPart, isolate, explode,
+  scene, selectedPart, isolate, explode, section, sectionOffsetMm,
 }: {
   scene: P2CadScene;
   selectedPart: string | null;
   isolate: boolean;
   explode: number;
+  section: boolean;
+  sectionOffsetMm: number;
 }) {
   useEffect(() => {
     // Reversible, strictly visual isolation: no vertex edits or CAD surgery.
@@ -79,6 +81,38 @@ export default function P2CadViewer({
       });
     };
   }, [scene, isolate, selectedPart]);
+
+  useEffect(() => {
+    if (!section) return;
+    // Cross-section is visual GPU clipping, not a new machined CAD section.
+    // Each material clone is restored and disposed when the mode changes.
+    const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -sectionOffsetMm / 1000);
+    const snapshots: Array<{
+      mesh: THREE.Mesh;
+      original: THREE.Material | THREE.Material[];
+      copies: THREE.Material[];
+    }> = [];
+    scene.model.traverse((node) => {
+      if (!(node instanceof THREE.Mesh)) return;
+      const original = node.material;
+      const sources = Array.isArray(original) ? original : [original];
+      const copies = sources.map((mat) => {
+        const copy = mat.clone();
+        copy.clippingPlanes = [plane];
+        copy.clipIntersection = false;
+        copy.needsUpdate = true;
+        return copy;
+      });
+      node.material = Array.isArray(original) ? copies : copies[0];
+      snapshots.push({ mesh: node, original, copies });
+    });
+    return () => {
+      snapshots.forEach(({ mesh, original, copies }) => {
+        mesh.material = original;
+        copies.forEach((copy) => copy.dispose());
+      });
+    };
+  }, [scene, section, sectionOffsetMm]);
 
   useEffect(() => {
     const model = scene.model;
@@ -103,6 +137,7 @@ export default function P2CadViewer({
       dpr={[1, 1.75]}
       gl={{ antialias: true, powerPreference: 'high-performance' }}
       onCreated={({ gl }) => {
+        gl.localClippingEnabled = true;
         gl.outputColorSpace = THREE.SRGBColorSpace;
         gl.toneMapping = THREE.ACESFilmicToneMapping;
         gl.toneMappingExposure = 1.12;
