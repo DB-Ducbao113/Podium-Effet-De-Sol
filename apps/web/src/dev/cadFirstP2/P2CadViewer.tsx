@@ -105,12 +105,13 @@ function P2CadClipping({
 }
 
 export default function P2CadViewer({
-  scene, selectedPart, isolate, explode, section, sectionOffsetMm,
+  scene, selectedPart, isolate, explode, wheelAngleDeg, section, sectionOffsetMm,
 }: {
   scene: P2CadScene;
   selectedPart: string | null;
   isolate: boolean;
   explode: number;
+  wheelAngleDeg: number;
   section: boolean;
   sectionOffsetMm: number;
 }) {
@@ -165,7 +166,7 @@ export default function P2CadViewer({
       <directionalLight position={[-2, 5, 4]} intensity={2.1} color="#aecfff" />
       <primitive object={scene.model} />
       <P2CadClipping model={scene.model} section={section} sectionOffsetMm={sectionOffsetMm} />
-      <P2ExplodeRig model={scene.model} progress={explode} />
+      <P2ExplodeRig model={scene.model} progress={explode} wheelAngleDeg={wheelAngleDeg} />
       <FrameCAD scene={scene} selectedPart={selectedPart} explode={explode} />
     </Canvas>
   );
