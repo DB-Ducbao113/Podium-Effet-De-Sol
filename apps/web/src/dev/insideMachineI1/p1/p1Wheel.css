@@ -709,3 +709,15 @@
   .itm-p1--cinema .itm-p1__shot-label,
   .itm-p1--cinema .itm-p1__shot-label h1 { transition: none !important; }
 }
+
+/* Film edits animate only editorial text: WebGL source geometry stays seekable. */
+@keyframes itm-p1-editorial-enter {
+  from { opacity: 0; transform: translate3d(0, 12px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+.itm-p1__shot-label {
+  animation: itm-p1-editorial-enter 420ms cubic-bezier(.22, 1, .36, 1) both;
+}
+@media(prefers-reduced-motion:reduce) {
+  .itm-p1__shot-label { animation: none !important; }
+}
