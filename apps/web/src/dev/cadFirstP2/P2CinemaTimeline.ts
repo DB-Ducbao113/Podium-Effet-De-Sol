@@ -37,8 +37,35 @@ export const P2_CINEMA_DURATION_SECONDS = 26;
 const saturate = (n:number):number => Math.max(0,Math.min(1,Number.isFinite(n)?n:0));
 const smooth = (x:number):number => {const t=saturate(x);return t*t*(3-2*t);};
 const mix = (a:number,b:number,t:number):number => a+(b-a)*t;
-function mix3(a:readonly number[],b:readonly number[],t:number):[number,number,number] {
-  return [mix(a[0],b[0],t),mix(a[1],b[1],t),mix(a[2],b[2],t)];
+/**
+ * Nonuniform Hermite across cinematic keyframes. Chapter anchors are exact,
+ * camera velocity remains continuous (C1), and reverse scrubbing is identical.
+ * Damped tangents reduce macro overshoot without stopping at every chapter.
+ */
+function cinemaHermite(
+  axis:'position'|'target',
+  segment:number,
+  progress:number,
+):[number,number,number] {
+  const left=P2_CINEMA_SHOTS[segment];
+  const right=P2_CINEMA_SHOTS[segment+1];
+  const duration=right.at-left.at;
+  const t=saturate((progress-left.at)/duration);
+  const t2=t*t,t3=t2*t;
+  const h00=2*t3-3*t2+1;
+  const h10=t3-2*t2+t;
+  const h01=-2*t3+3*t2;
+  const h11=t3-t2;
+  function tangent(index:number, component:number):number {
+    if(index===0||index===P2_CINEMA_SHOTS.length-1)return 0;
+    const before=P2_CINEMA_SHOTS[index-1];
+    const after=P2_CINEMA_SHOTS[index+1];
+    return .64*(after[axis][component]-before[axis][component])/(after.at-before.at);
+  }
+  return [0,1,2].map(k=>
+    h00*left[axis][k]+h10*duration*tangent(segment,k)+
+    h01*right[axis][k]+h11*duration*tangent(segment+1,k),
+  ) as [number,number,number];
 }
 export function p2FilmFrame(progress:number) {
   const p=saturate(progress);
@@ -56,8 +83,8 @@ export function p2FilmFrame(progress:number) {
   const left=P2_CINEMA_SHOTS[i],right=P2_CINEMA_SHOTS[i+1];
   const amount=smooth((p-left.at)/(right.at-left.at));
   return {
-    position:mix3(left.position,right.position,amount),
-    target:mix3(left.target,right.target,amount),
+    position:cinemaHermite('position',i,p),
+    target:cinemaHermite('target',i,p),
     fov:mix(left.fov,right.fov,amount),
     exposure:mix(left.exposure,right.exposure,amount),
     blueprint:mix(left.blueprint,right.blueprint,amount),
