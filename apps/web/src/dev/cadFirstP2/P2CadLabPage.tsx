@@ -435,6 +435,17 @@ export default function P2CadLabPage() {
     if(filmProgress>=1 && filmPlaying)setFilmPlaying(false);
   },[filmProgress,filmPlaying]);
 
+  useEffect(()=>{
+    if(!cinematic)return;
+    const handleEscape=(event:KeyboardEvent)=>{
+      if(event.key!=='Escape')return;
+      if(cinemaFocusPart){setCinemaFocusPart(null);}
+      else{setFilmPlaying(false);setCinematic(false);}
+    };
+    window.addEventListener('keydown',handleEscape);
+    return()=>window.removeEventListener('keydown',handleEscape);
+  },[cinematic,cinemaFocusPart]);
+
   const filmFrame=p2FilmFrame(filmProgress);
   const steeringMate=p2SteeringMate(steerAngleDeg);
   const precisionProof = manifest?.geometryProof ?? manifest?.p23SourcePrecisionEvidence;
