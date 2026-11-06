@@ -195,12 +195,15 @@ try {
           throw new Error(`Real model loading failed: ${error.message}. State: ${JSON.stringify(state)}`);
         });
 
-        await page.evaluate(value => window.__PEDS_ITM_P1_CTRL__.setProfile(value), profile);
-        await page.waitForFunction(p =>
-          window.__PEDS_ITM_P1_STAGE__?.getState().profile === p &&
-          window.__PEDS_ITM_P1_CTRL__?.getUIState().loaded,
-          profile, { timeout: 60000 },
-        );
+        const activeProfile = await page.evaluate(() => window.__PEDS_ITM_P1_CTRL__.getUIState().profile);
+        if (activeProfile !== profile) {
+          await page.evaluate(value => window.__PEDS_ITM_P1_CTRL__.setProfile(value), profile);
+          await page.waitForFunction(p =>
+            window.__PEDS_ITM_P1_STAGE__?.getState().profile === p &&
+            window.__PEDS_ITM_P1_CTRL__?.getUIState().loaded,
+            profile, { timeout: 60000 },
+          );
+        }
         await page.evaluate(() => window.__PEDS_ITM_P1_CTRL__.setScope('lock-wheel'));
 
         const timeline = {};
