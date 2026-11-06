@@ -323,3 +323,24 @@
 @media(prefers-reduced-motion:reduce) {
   .itm-p1 *, .itm-p1 *::before, .itm-p1 *::after { animation: none !important; transition: none !important; }
 }
+
+/* P1.2 two-part micro-review is the default; full 7-part explosion is opt-in. */
+.itm-p1__scope-controls {
+  border-right: 1px solid #35495b;
+  padding-right: 14px;
+  margin-right: 5px;
+}
+.itm-p1__scope-controls button[aria-pressed='true'] {
+  background: #352521;
+  border-color: #ff5635;
+  color: #ffe5de;
+  box-shadow: inset 2px 0 #ff5635;
+}
+@media(max-width:800px) {
+  .itm-p1__scope-controls {
+    border-right: 0;
+    width: 100%;
+    padding-right: 0;
+    padding-bottom: 11px;
+  }
+}
