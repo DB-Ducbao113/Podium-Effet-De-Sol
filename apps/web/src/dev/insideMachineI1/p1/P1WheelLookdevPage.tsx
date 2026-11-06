@@ -37,6 +37,7 @@ export default function P1WheelLookdevPage() {
   const [loaded, setLoaded] = useState(false);
   const [contextLost, setContextLost] = useState(false);
   const [error, setError] = useState('');
+  const [retryKey, setRetryKey] = useState(0);
   const [metrics, setMetrics] = useState<{ drawCalls: number; triangles: number; frameMs: number } | null>(null);
   const [lang, setLang] = useState<'vi' | 'en'>('vi');
   const [webglAvailable] = useState(hasWebGL2);
@@ -97,10 +98,11 @@ export default function P1WheelLookdevPage() {
             <span>{loaded ? 'SOURCE VERIFIED' : 'SOURCE PENDING'}</span>
           </div>
           <div className="itm-p1__canvas">
-            {webglAvailable && !error ? (
+            {webglAvailable ? (
               <PilotBoundary>
                 <Suspense fallback={<div className="itm-p1__loading">INITIALIZING THE P1.1 VIEWER</div>}>
                   <P1WheelStage
+                    key={retryKey}
                     progress={progress}
                     selectedPart={selectedPart}
                     profile={profile}
@@ -115,6 +117,16 @@ export default function P1WheelLookdevPage() {
             ) : (
               <div role="alert" className="itm-p1__loading">
                 {error || 'WebGL2 is not available on this device. The R4.5 review source was not modified.'}
+              </div>
+            )}
+            {error && (
+              <div role="alert" className="itm-p1__lost">
+                <p>{error}</p>
+                <button type="button" onClick={() => {
+                  setError('');
+                  setLoaded(false);
+                  setRetryKey((value) => value + 1);
+                }}>RETRY VERIFIED SOURCE</button>
               </div>
             )}
             {contextLost && <div role="alert" className="itm-p1__lost">GPU context lost — scene paused</div>}
