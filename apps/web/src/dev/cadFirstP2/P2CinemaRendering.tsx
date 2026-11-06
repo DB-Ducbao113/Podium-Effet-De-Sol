@@ -81,20 +81,68 @@ export function P2CinemaSurface({model, progress}: {model:THREE.Group;progress:n
   return null;
 }
 
-export function P2CinemaCamera({progress}: {progress:number}) {
-  const {camera,gl,invalidate}=useThree();
+export function P2CinemaCamera({
+  model, progress, focusPart, reducedMotion,
+}: {
+  model: THREE.Group;
+  progress: number;
+  focusPart: string | null;
+  reducedMotion: boolean;
+}) {
+  const {camera,gl,invalidate} = useThree();
   const look=useMemo(()=>new THREE.Vector3(),[]);
-  useEffect(()=>invalidate(),[progress,invalidate]);
-  useFrame(()=>{
-    const shot=p2FilmFrame(progress);
-    camera.position.set(...shot.position);
-    look.set(...shot.target);
+  const desiredPosition=useMemo(()=>new THREE.Vector3(),[]);
+  const focusCenter=useMemo(()=>new THREE.Vector3(),[]);
+  const direction=useMemo(()=>new THREE.Vector3(),[]);
+  const worldBounds=useMemo(()=>new THREE.Box3(),[]);
+  const worldSphere=useMemo(()=>new THREE.Sphere(),[]);
+  const lastFocus=useRef<string|null>(null);
+
+  useEffect(()=>invalidate(),[progress,focusPart,invalidate]);
+  useFrame((_,delta)=>{
+    const frame=p2FilmFrame(progress);
+    desiredPosition.set(...frame.position);
+    const targetFov=focusPart?30:frame.fov;
+    const part=focusPart?model.getObjectByName(focusPart):null;
+    if(part){
+      // Read ACTUAL current scene graph bounds after CAD explode transforms.
+      // Never invent a pivot or rely on a fixed, oversized macro distance.
+      model.updateWorldMatrix(true,true);
+      worldBounds.setFromObject(part,true);
+      if(!worldBounds.isEmpty()){
+        worldBounds.getBoundingSphere(worldSphere);
+        focusCenter.copy(worldSphere.center);
+        const vfov=THREE.MathUtils.degToRad(targetFov*.5);
+        const hFov=Math.atan(Math.tan(vfov)*Math.max(camera instanceof THREE.PerspectiveCamera?camera.aspect:1,.2));
+        const aperture=Math.max(.001,Math.min(Math.sin(vfov),Math.sin(hFov)));
+        const distance=Math.max(.016,worldSphere.radius/aperture*1.65);
+        direction.copy(desiredPosition).sub(new THREE.Vector3(...frame.target)).normalize();
+        desiredPosition.copy(focusCenter).addScaledVector(direction,distance);
+      }else{
+        focusCenter.set(...frame.target);
+      }
+    }else{
+      focusCenter.set(...frame.target);
+    }
+    // Demand renderer must continue until the short, source-bounded focus
+    // ease settles. Direct film scrubbing remains exact and instantaneous.
+    const changing=Boolean(part) || lastFocus.current!==null;
+    const alpha=changing && !reducedMotion?1-Math.exp(-9*Math.min(delta,.05)):1;
+    camera.position.lerp(desiredPosition,alpha);
+    look.lerp(focusCenter,alpha);
     camera.lookAt(look);
-    if(camera instanceof THREE.PerspectiveCamera && Math.abs(camera.fov-shot.fov)>.001){
-      camera.fov=shot.fov;
+    if(camera instanceof THREE.PerspectiveCamera &&
+       Math.abs(camera.fov-targetFov)>.001){
+      camera.fov=THREE.MathUtils.lerp(camera.fov,targetFov,alpha);
       camera.updateProjectionMatrix();
     }
-    gl.toneMappingExposure=shot.exposure;
+    if(changing && (
+      camera.position.distanceToSquared(desiredPosition)>0.00000002 ||
+      look.distanceToSquared(focusCenter)>0.00000002 ||
+      (camera instanceof THREE.PerspectiveCamera && Math.abs(camera.fov-targetFov)>.001)
+    )) invalidate();
+    lastFocus.current=focusPart;
+    gl.toneMappingExposure=frame.exposure;
   });
   return null;
 }
