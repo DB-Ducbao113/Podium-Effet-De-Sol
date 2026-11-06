@@ -101,6 +101,7 @@ function inspectGlb(model: THREE.Group, filename: string): P2CadScene {
 export default function P2CadLabPage() {
   const [scene, setScene] = useState<P2CadScene | null>(null);
   const [selectedPart, setSelectedPart] = useState<string | null>(null);
+  const [isolate, setIsolate] = useState(false);
   const [loadState, setLoadState] = useState('NO CAD LOADED');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -116,6 +117,7 @@ export default function P2CadLabPage() {
     setBusy(true);
     setScene(null);
     setSelectedPart(null);
+    setIsolate(false);
     setLoadState('READING SOURCE CAD MESH');
     try {
       if (!file.name.toLowerCase().endsWith('.glb')) {
@@ -191,7 +193,7 @@ export default function P2CadLabPage() {
         <div className="p2-cad-lab__viewport" aria-label="CAD source preview">
           {scene ? (
             <Suspense fallback={<div className="p2-cad-lab__empty">INITIALIZING LOCAL CAD VIEWER</div>}>
-              <P2CadViewer key={scene.name} scene={scene} selectedPart={selectedPart}/>
+              <P2CadViewer key={scene.name} scene={scene} selectedPart={selectedPart} isolate={isolate}/>
             </Suspense>
           ) : (
             <div className="p2-cad-lab__empty">
@@ -223,6 +225,15 @@ export default function P2CadLabPage() {
             <div><span>SOURCE RIGHTS</span><strong>NOT CLEARED</strong></div>
           </div>
           <div className="p2-cad-lab__eyebrow">02 / REAL GEOMETRY</div>
+          <button
+            type="button"
+            className="p2-cad-lab__isolate"
+            aria-pressed={isolate}
+            disabled={!scene || !selectedPart}
+            onClick={() => setIsolate((value) => !value)}
+          >
+            {isolate ? 'SHOW ALL CAD SOLIDS' : 'ISOLATE SELECTED SOLID'}
+          </button>
           <div className="p2-cad-lab__parts" role="group" aria-label="CAD part selection">
             <button type="button" aria-pressed={!selectedPart} onClick={() => setSelectedPart(null)}>
               ALL COMPONENTS
