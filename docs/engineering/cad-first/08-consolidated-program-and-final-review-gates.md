@@ -20,7 +20,7 @@ This document is an **honest scope ledger**, not a declaration that every future
 | P2.4 static mechanical fit | IMPLEMENTED/LOCAL CHECKED | 53 solids, 1,378 source pairs considered, 0 collisions >0.05 mm³ at one pose | Motion and minimum separation distances |
 | P2.5 sampled wheel spin | IMPLEMENTED/LOCAL CHECKED | 24 discrete angular poses, 3,036 exact B-Rep intersections, 0 over threshold | Continuously swept envelope, true bearing rolling physics |
 | P2.6 sampled steering | IMPLEMENTED/LOCAL CHECKED | 53 native valid solids, 769 faces; 17 length-conserving mate samples and nine collision samples | 4-wheel and suspension kinematics, unsampled angles |
-| P2.7 genuine double wishbone | **MATH PROPOSAL ONLY** | 31 sample poses preserving 5 hardpoint link lengths | Build actual A-arm B-Rep, chassis pivots, collision tests, steering + bump coupled |
+| P2.7 original double-wishbone subassembly | **SOURCE CAD + LOCAL SAMPLED AUDIT PASS** | 8 connected B-Rep solids, 31 hardpoint poses, 186 exact intersections without overlap >0.05 mm³ | Re-mate with P2.6 upright; full-corner coupled steering/bump remains OPEN |
 | P3.1 CAD cinematic | CODE IMPLEMENTED | 26-second seven-beat film, source-named exploded parts, macro camera, studio PBR/PMREM, Blueprint/rebuild | WebGL video/screenshot visual acceptance |
 | P3.2 hyperreal source geometry | **OPEN** | Defects and macro candidates identified | Tire bead/sidewall, valve, caliper hydraulic architecture, suspension joints, rotor cooling, sharp machined details |
 | P4 web quality | CODE IMPLEMENTED | Per-tier DPR/AA/PMREM budget, WebGL FPS/draw-call overlay, context-loss status | Actual browser GPU benchmarks on representative devices |
@@ -30,14 +30,14 @@ This document is an **honest scope ledger**, not a declaration that every future
 
 ## Mechanical completion scope
 
-### P2.7 source reauthoring (BLOCKER)
-- Author actual double-wishbone CAD with separate front/rear chassis pivots and outboard joint bodies; preserve transparent provenance and source STEP metadata.
-- Use the hardpoint solver `tools/cad-first/p2_7_wishbone_hardpoint_solver.py`, derived from original P2.6 dimensional coordinates, **as a mathematical feasibility proposal** only.
-- Replace P2.6's illustrative rods with B-Rep parts that reproduce the hardpoint geometry. Solve 31 positions across ±15 mm bump; then couple steering to upright posture.
-- Audit collision for all relevant moving/fixed groups in every sampled pose. No physical certification or claim of continuous collision-free behavior until justified.
-- If suspension cannot close or collides, fix CAD geometry, never animate a nonmated mesh and call it engineering accurate.
+### P2.8 full-corner source re-mating (CURRENT BLOCKER)
+- P2.7 now has real project-authored STEP geometry: upper/lower A-arm bodies, four chassis bushings and two outer joint studs, eight solids. Its independent 31-pose Boolean audit measured 186 exact cross-part operations and passed after physically remodeling the outer through-bore.
+- **Actual P2.8 neutral-pose preflight failed**: P2.7 new solids vs 51 retained P2.6 corner solids (after removing two obsolete links) = 408 considered cross-pairs; 10 exact B-Rep checks and four substantial upright interferences (about 3,033 to 12,714 mm³). This is recorded in the owner evidence pack and source audit tool `p2_8_full_corner_preflight.py`.
+- The old P2.6 upright must be reauthored with actual compatible joint boss/clevis interfaces and separate positive manufacturing clearances; do not simply hide new A-arm parts or ignore penetrations in WebGL.
+- Only after native source remodeling can the 59-solid intended combined assembly be audited at the neutral pose and across the 31 bump samples, then combine ±8° steering with bump and recheck safety envelopes.
+- The new A-arm subassembly remains a separate CAD Lab mode until the full 59-part integration gate is passed.
 
-### P2.8 hardware completion
+### P2.9 hardware completion
 - Bearing preload/retaining ring spacing, real axle interfaces, bolt shank/bore/fastener head seating, dust seals.
 - Caliper cylinder piston seal, pads, pins and bridge topology; brake disc hat and thermal expansion representation.
 - Rotor ventilation, tire bead seating and wheel valve geometry. These remain **original educational geometry**, not authenticated race manufacturer dimensions.
