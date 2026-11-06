@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
+import type { QualityProfile } from '../types';
 
 /**
  * P1.4: locally generated studio reflections, no external HDR files.
@@ -39,15 +40,18 @@ function installStudioReflections(
   };
 }
 
-export default function P1StudioEnvironment() {
+export default function P1StudioEnvironment({ profile }: { profile: QualityProfile }) {
   const { gl, scene, invalidate } = useThree();
   useEffect(() => {
+    // PMREM environment generation is entirely optional on weaker devices.
+    // Direct key/fill/rim lights remain for the PERFORMANCE profile.
+    if (profile === 'PERFORMANCE') return;
     const cleanup = installStudioReflections(gl, scene);
     invalidate();
     return () => {
       cleanup();
       invalidate();
     };
-  }, [gl, scene, invalidate]);
+  }, [gl, scene, invalidate, profile]);
   return null;
 }
