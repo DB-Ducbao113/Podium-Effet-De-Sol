@@ -500,3 +500,54 @@
   }
   .itm-p1__shot-rail button { flex: 0 0 128px; }
 }
+
+/* P1.5 — single-component macro focus, independent from story progress. */
+.itm-p1__focus-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+.itm-p1__focus-button {
+  min-height: 40px;
+  padding: 9px 11px;
+  border: 1px solid #d45c40;
+  border-left: 3px solid #ff5635;
+  color: #ffe6dd;
+  background: #291d20;
+  font: 750 10px/1.35 'IBM Plex Mono', monospace;
+  letter-spacing: .065em;
+  text-align: left;
+  transition: background .18s ease, border-color .18s ease;
+}
+.itm-p1__focus-button:hover:not(:disabled) {
+  border-color: #ff906c;
+  background: #432927;
+  color: #fff;
+}
+.itm-p1__focus-button:disabled { opacity: .38; cursor: not-allowed; }
+.itm-p1__focus-button[aria-pressed='true'] {
+  background: #182c34;
+  border-color: #69d5e6;
+  color: #c5f2fa;
+}
+.itm-p1__focus-hint {
+  font: 700 9px 'IBM Plex Mono', monospace;
+  letter-spacing: .04em;
+  color: #86a8b7;
+}
+.itm-p1[data-p1-focus]:not([data-p1-focus='film']) .itm-p1__shot-label {
+  opacity: .42;
+  transition: opacity .3s ease;
+}
+.itm-p1[data-p1-focus]:not([data-p1-focus='film']) .itm-p1__shot-label h1 {
+  font-size: clamp(32px, 4vw, 58px);
+}
+@media(max-width:800px) {
+  .itm-p1__focus-actions { gap: 7px; }
+  .itm-p1__focus-button { width: 100%; justify-content: center; text-align: center; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .itm-p1__focus-button, .itm-p1__shot-label { transition: none !important; }
+}
