@@ -721,3 +721,13 @@
 @media(prefers-reduced-motion:reduce) {
   .itm-p1__shot-label { animation: none !important; }
 }
+
+/* P1.7: keep all three header actions inside a 375px viewport. */
+.itm-p1__exit-short { display: none; }
+.itm-p1__header .itm-p1__exit span { color: inherit; }
+@media(max-width:520px) {
+  .itm-p1__header-actions { gap: 5px; flex-shrink: 0; }
+  .itm-p1__header .itm-p1__home { font-size: 8px; letter-spacing: 0; }
+  .itm-p1__exit-full { display: none; }
+  .itm-p1__exit-short { display: inline; }
+}
