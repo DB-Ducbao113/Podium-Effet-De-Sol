@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { OrbitControls } from '@react-three/drei';
 import { MeshoptDecoder } from 'meshoptimizer';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -13,6 +12,7 @@ import { createPilotMaterial } from './pilotMaterials';
 import P1EvidenceProbe from './P1EvidenceProbe';
 import P1StudioEnvironment from './P1StudioEnvironment';
 import P1PartAnnotations from './P1PartAnnotations';
+import P1CameraRig from './P1CameraRig';
 import { applyP1BlueprintSurfaces, snapshotP1Surface, type P1SurfaceSnapshot } from './P1BlueprintMaterials';
 
 type LoadedAssets = { model: THREE.Group; manifest: AssemblyManifest };
@@ -22,6 +22,7 @@ export interface StageProps {
   selectedPart: string;
   profile: QualityProfile;
   orbit: boolean;
+  focusPart: string | null;
   scope: WheelInspectionScope;
   onError: (message: string) => void;
   onReady: (loaded: boolean) => void;
@@ -297,22 +298,6 @@ function Vehicle({ model, frame, selected, quality, scope }: {
   return <color attach="background" args={[`#${background}`]} />;
 }
 
-function CameraControl({ frame, orbit }: { frame: PilotFrame; orbit: boolean }) {
-  const { camera, invalidate } = useThree();
-  useEffect(() => {
-    if (orbit) return;
-    camera.position.set(...frame.cameraPosition);
-    camera.lookAt(...frame.cameraTarget);
-    camera.updateProjectionMatrix();
-    invalidate();
-  }, [camera, frame, invalidate, orbit]);
-  // When the cinematic camera is guided, OrbitControls is unmounted.
-  // A disabled control can otherwise still overwrite lookAt during target updates.
-  return orbit
-    ? <OrbitControls makeDefault enablePan={false} minDistance={1.2} maxDistance={12} target={[...frame.cameraTarget]} />
-    : null;
-}
-
 /**
  * Story-driven three-point illumination. Changes are continuous, reversible
  * and restrained: warm engineering accent fades as technical blueprint rises.
@@ -387,7 +372,7 @@ function ContextGuard({ onContextLost }: { onContextLost: (lost: boolean) => voi
 }
 
 export default function P1WheelStage({
-  progress, selectedPart, profile, orbit, scope, onError, onReady, onMetrics, onContextLost,
+  progress, selectedPart, profile, orbit, focusPart, scope, onError, onReady, onMetrics, onContextLost,
 }: StageProps) {
   const [assets, setAssets] = useState<LoadedAssets | null>(null);
   const [version, setVersion] = useState(0);
@@ -445,11 +430,17 @@ export default function P1WheelStage({
           <P1StudioEnvironment />
           <CinematicLightRig frame={frame} />
           <Vehicle model={assets.model} frame={frame} selected={selectedPart} quality={profile} scope={scope} />
-          <CameraControl frame={frame} orbit={orbit} />
+          <P1CameraRig
+            frame={frame}
+            model={assets.model}
+            orbit={orbit}
+            focusPart={focusPart}
+          />
           <P1PartAnnotations
             model={assets.model}
             progress={progress}
             selected={selectedPart}
+            focusPart={focusPart}
           />
           {import.meta.env.DEV && (
             <P1EvidenceProbe
