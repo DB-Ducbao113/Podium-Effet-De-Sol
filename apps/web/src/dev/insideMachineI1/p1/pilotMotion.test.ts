@@ -9,6 +9,10 @@ import {
   pilotFrameAt,
   positionFromBaseline,
   sourceOffsetToYUp,
+  CENTER_LOCK_PRESENTATION_OFFSET_Z_UP,
+  P1_PART_MOTION_PHASES,
+  centerLockTurnAt,
+  presentationOffsetFor,
 } from './pilotMotion';
 
 describe('P1.1 cinematic wheel motion — reversible & source-correct', () => {
@@ -36,10 +40,50 @@ describe('P1.1 cinematic wheel motion — reversible & source-correct', () => {
   });
 
   it('separates parts in chronological order, all reaching 1 in the held phase', () => {
-    const phase = FRONT_LEFT_WHEEL_V2.map(({ order }) => partDetachmentAt(0.30, order));
+    const phase = FRONT_LEFT_WHEEL_V2.map(({ order }) => partDetachmentAt(0.39, order));
     expect(phase[0]).toBeGreaterThan(phase[1]);
     for (let i = 1; i < phase.length - 1; i++) expect(phase[i]).toBeGreaterThanOrEqual(phase[i + 1]);
     FRONT_LEFT_WHEEL_V2.forEach(({ order }) => expect(partDetachmentAt(0.69, order)).toBe(1));
+  });
+
+
+  it('turns the nut before extracting it and the wheel, without racing the wheel', () => {
+    expect(centerLockTurnAt(0.25)).toBe(0);
+    expect(centerLockTurnAt(0.30)).toBeGreaterThan(0.1);
+    expect(partDetachmentAt(0.30, 0)).toBe(0);
+    expect(partDetachmentAt(0.39, 0)).toBeGreaterThan(0.8);
+    expect(partDetachmentAt(0.39, 1)).toBe(0);
+    expect(partDetachmentAt(0.45, 0)).toBe(1);
+    expect(partDetachmentAt(0.45, 1)).toBeGreaterThan(0);
+    expect(centerLockTurnAt(0.54)).toBe(1);
+  });
+
+  it('seats the wheel before the lock, and only then retightens', () => {
+    expect(partDetachmentAt(0.93, 1)).toBeGreaterThan(0);
+    expect(partDetachmentAt(0.93, 0)).toBe(1);
+    expect(partDetachmentAt(0.955, 1)).toBe(0);
+    expect(partDetachmentAt(0.955, 0)).toBe(1);
+    expect(centerLockTurnAt(0.955)).toBe(1);
+    expect(partDetachmentAt(0.985, 0)).toBe(0);
+    expect(centerLockTurnAt(0.985)).toBeLessThan(1);
+    expect(centerLockTurnAt(1)).toBe(0);
+    expect(P1_PART_MOTION_PHASES).toHaveLength(7);
+  });
+
+  it('keeps manifest offsets immutable while clearing the front face of the outer wheel', () => {
+    const source = FRONT_LEFT_WHEEL_V2[0].authoredOffsetZUp;
+    expect(source).toEqual([0, 0.34, 0]);
+    const proposed = presentationOffsetFor(source, 0);
+    expect(proposed).toEqual(CENTER_LOCK_PRESENTATION_OFFSET_Z_UP);
+    expect(proposed).toEqual([0, 0.84, 0]);
+    expect(presentationOffsetFor(FRONT_LEFT_WHEEL_V2[1].authoredOffsetZUp, 1))
+      .toEqual([0, 0.66, 0]);
+    // Bounds from real BALANCED GLB / verified separately by offline geometry audit.
+    const nutInboardFace = -0.9744441956281663;
+    const tireOutboardFace = -1.031437873840332;
+    const clearance = (tireOutboardFace - 0.66) - (nutInboardFace - proposed[1]);
+    expect(clearance).toBeGreaterThan(0.12);
+    expect(clearance).toBeLessThan(0.15);
   });
 
   it('only uses blueprint in the technical chapter and returns to cinematic', () => {
