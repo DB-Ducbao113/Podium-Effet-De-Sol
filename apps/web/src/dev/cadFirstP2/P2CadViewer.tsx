@@ -58,6 +58,52 @@ function FrameCAD({ scene, selectedPart, explode }: {
   ) : null;
 }
 
+function P2CadClipping({
+  model, section, sectionOffsetMm,
+}: {
+  model: THREE.Group;
+  section: boolean;
+  sectionOffsetMm: number;
+}) {
+  const { invalidate } = useThree();
+  useEffect(() => {
+    if (!section) { invalidate(); return; }
+    // Cross-section is visual GPU clipping, not a new machined CAD section.
+    // Each material clone is restored and disposed when the mode changes.
+    const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -sectionOffsetMm / 1000);
+    const snapshots: Array<{
+      mesh: THREE.Mesh;
+      original: THREE.Material | THREE.Material[];
+      copies: THREE.Material[];
+    }> = [];
+    model.traverse((node) => {
+      if (!(node instanceof THREE.Mesh)) return;
+      const original = node.material;
+      const sources = Array.isArray(original) ? original : [original];
+      const copies = sources.map((mat) => {
+        const copy = mat.clone();
+        copy.clippingPlanes = [plane];
+        copy.clipIntersection = false;
+        copy.needsUpdate = true;
+        return copy;
+      });
+      node.material = Array.isArray(original) ? copies : copies[0];
+      snapshots.push({ mesh: node, original, copies });
+    });
+    invalidate();
+    return () => {
+      snapshots.forEach(({ mesh, original, copies }) => {
+        mesh.material = original;
+        copies.forEach((copy) => copy.dispose());
+      });
+      invalidate();
+    };
+  }, [model, section, sectionOffsetMm, invalidate]);
+
+
+  return null;
+}
+
 export default function P2CadViewer({
   scene, selectedPart, isolate, explode, section, sectionOffsetMm,
 }: {
@@ -81,38 +127,6 @@ export default function P2CadViewer({
       });
     };
   }, [scene, isolate, selectedPart]);
-
-  useEffect(() => {
-    if (!section) return;
-    // Cross-section is visual GPU clipping, not a new machined CAD section.
-    // Each material clone is restored and disposed when the mode changes.
-    const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -sectionOffsetMm / 1000);
-    const snapshots: Array<{
-      mesh: THREE.Mesh;
-      original: THREE.Material | THREE.Material[];
-      copies: THREE.Material[];
-    }> = [];
-    scene.model.traverse((node) => {
-      if (!(node instanceof THREE.Mesh)) return;
-      const original = node.material;
-      const sources = Array.isArray(original) ? original : [original];
-      const copies = sources.map((mat) => {
-        const copy = mat.clone();
-        copy.clippingPlanes = [plane];
-        copy.clipIntersection = false;
-        copy.needsUpdate = true;
-        return copy;
-      });
-      node.material = Array.isArray(original) ? copies : copies[0];
-      snapshots.push({ mesh: node, original, copies });
-    });
-    return () => {
-      snapshots.forEach(({ mesh, original, copies }) => {
-        mesh.material = original;
-        copies.forEach((copy) => copy.dispose());
-      });
-    };
-  }, [scene, section, sectionOffsetMm]);
 
   useEffect(() => {
     const model = scene.model;
@@ -150,6 +164,7 @@ export default function P2CadViewer({
       <directionalLight position={[-4, 2, -5]} intensity={2.2} color="#ffbb9e" />
       <directionalLight position={[-2, 5, 4]} intensity={2.1} color="#aecfff" />
       <primitive object={scene.model} />
+      <P2CadClipping model={scene.model} section={section} sectionOffsetMm={sectionOffsetMm} />
       <P2ExplodeRig model={scene.model} progress={explode} />
       <FrameCAD scene={scene} selectedPart={selectedPart} explode={explode} />
     </Canvas>
