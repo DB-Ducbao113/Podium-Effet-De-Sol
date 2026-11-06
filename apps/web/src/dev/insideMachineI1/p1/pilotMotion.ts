@@ -2,6 +2,7 @@ import { FRONT_LEFT_WHEEL_V2 } from '../design/frontLeftWheelV2';
 import { FRONT_LEFT_WHEEL_SHOTS } from '../design/frontLeftWheelShots';
 
 export type Vector3Tuple = readonly [number, number, number];
+export type WheelInspectionScope = 'lock-wheel' | 'full';
 
 export interface PilotFrame {
   /** Normalized single source of truth; reverse seeking is deterministic. */
@@ -120,12 +121,18 @@ export function partDetachmentAt(progress: number, order: number): number {
   return 0;
 }
 
-/** Measured 0→1→0 exposure across the seven real wheel components. */
+/** Measured 0→1→0 exposure across the active visible components. */
+export function detachmentForScope(
+  progress: number,
+  scope: WheelInspectionScope,
+): number {
+  const count = scope === 'lock-wheel' ? 2 : P1_PART_MOTION_PHASES.length;
+  let total = 0;
+  for (let index = 0; index < count; index++) total += partDetachmentAt(progress, index);
+  return total / count;
+}
 export function detachmentAt(progress: number): number {
-  return P1_PART_MOTION_PHASES.reduce(
-    (total, _, index) => total + partDetachmentAt(progress, index),
-    0,
-  ) / P1_PART_MOTION_PHASES.length;
+  return detachmentForScope(progress, 'full');
 }
 
 export function blueprintAt(progress: number): number {
@@ -142,9 +149,10 @@ export function positionFromBaseline(
   authoredZUp: Vector3Tuple,
   progress: number,
   order: number,
+  scope: WheelInspectionScope = 'full',
 ): Vector3Tuple {
   const [x, y, z] = sourceOffsetToYUp(presentationOffsetFor(authoredZUp, order));
-  const phase = partDetachmentAt(progress, order);
+  const phase = scope === 'lock-wheel' && order > 1 ? 0 : partDetachmentAt(progress, order);
   return [
     original[0] + x * phase,
     original[1] + y * phase,
