@@ -273,6 +273,39 @@ function CameraControl({ frame, orbit }: { frame: PilotFrame; orbit: boolean }) 
     : null;
 }
 
+/**
+ * Story-driven three-point illumination. Changes are continuous, reversible
+ * and restrained: warm engineering accent fades as technical blueprint rises.
+ * No invented volumetrics, particle glow or false scan-light telemetry.
+ */
+function CinematicLightRig({ frame }: { frame: PilotFrame }) {
+  const technical = frame.blueprint;
+  const reveal = frame.detachment;
+  return (
+    <>
+      <ambientLight intensity={1.08 + technical * 0.42} />
+      <hemisphereLight
+        args={['#d9e9fc', '#405468', 2.1 + technical * 0.3]}
+      />
+      <directionalLight
+        color="#f5f8ff"
+        intensity={3.7 - technical * 0.75 + reveal * 0.15}
+        position={[5, 9, -7]}
+      />
+      <directionalLight
+        color="#ff906c"
+        intensity={1.9 * (1 - technical * 0.82)}
+        position={[-5, 3, 5]}
+      />
+      <directionalLight
+        color="#b3e6ff"
+        intensity={2.55 - technical * 1.2}
+        position={[-4, 6, -8]}
+      />
+    </>
+  );
+}
+
 function FrameSampler({
   onMetrics, onReady,
 }: { onMetrics: (value: Metrics) => void; onReady: (ready: boolean) => void }) {
@@ -369,11 +402,7 @@ export default function P1WheelStage({
             gl.toneMappingExposure = 1.16;
           }}
         >
-          <ambientLight intensity={1.1} />
-          <hemisphereLight args={['#d9e9fc', '#405468', 2.2]} />
-          <directionalLight color="#f5f8ff" intensity={3.9} position={[5, 9, -7]} />
-          <directionalLight color="#ff906c" intensity={2.0} position={[-5, 3, 5]} />
-          <directionalLight color="#b3e6ff" intensity={2.6} position={[-4, 6, -8]} />
+          <CinematicLightRig frame={frame} />
           <Vehicle model={assets.model} frame={frame} selected={selectedPart} quality={profile} scope={scope} />
           <CameraControl frame={frame} orbit={orbit} />
           {import.meta.env.DEV && (
