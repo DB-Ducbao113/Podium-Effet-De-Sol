@@ -43,7 +43,7 @@ The QA script **fails rather than passes** if verified binary resources are miss
 - `P1_3_BROWSER_QA.json` — functional acceptance results and failure details.
 - `balanced-375x812/`, `balanced-768x1024/`, `balanced-1440x900/`, `balanced-1920x1080/` (and corresponding HIGH/PERFORMANCE folders).
 - Per-viewport screenshots: `hero.png`, `unlock.png`, `nut-extracted.png`, `wheel-extracted.png`, `blueprint.png`, `macro.png`, `reassembly.png`, `fully-assembled.png`, and `full-seven-part-explode.png`.
-- `video/` containing the viewport recording.
+- `video/` containing the viewport recording. The BALANCED 1440px case additionally runs **one uninterrupted 24-second PLAY CINEMATIC** walkthrough, measures wall-clock duration, and compares the final seven real transforms against the original pose. Seek-by-seek screenshots are not accepted as motion evidence.
 
 ### What gets checked numerically
 
