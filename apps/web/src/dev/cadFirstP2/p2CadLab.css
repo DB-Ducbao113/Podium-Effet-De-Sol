@@ -551,3 +551,34 @@
   .p2-cad-lab__macro-selector {max-height:90px;overflow-y:auto;align-content:flex-end;}
   .p2-cad-lab__macro-selector button {min-height:27px;}
 }
+
+/* Film mode owns the whole engineering stage, not a narrow side-by-side card. */
+.p2-cad-lab__layout--cinema {
+  grid-template-columns:minmax(0,1fr);
+}
+.p2-cad-lab__layout--cinema > .p2-cad-lab__inspector {display:none;}
+.p2-cad-lab__layout--cinema .p2-cad-lab__viewport {
+  min-height:min(84svh,980px);
+}
+.p2-cad-lab__viewport--blueprint .p2-cad-lab__film-heading strong {
+  color:#172d3a;
+  text-shadow:none;
+}
+.p2-cad-lab__viewport--blueprint .p2-cad-lab__film-heading small {
+  color:#345268;
+}
+.p2-cad-lab__viewport--blueprint .p2-cad-lab__film-heading span {
+  color:#a13d28;
+}
+@media(max-width:800px) {
+  .p2-cad-lab__layout--cinema .p2-cad-lab__viewport {
+    min-height:420px;
+    height:75svh;
+  }
+}
+@media(max-width:480px) {
+  .p2-cad-lab__layout--cinema .p2-cad-lab__viewport {
+    min-height:410px;
+    height:74svh;
+  }
+}
