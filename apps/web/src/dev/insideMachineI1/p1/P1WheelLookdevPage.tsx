@@ -232,11 +232,17 @@ export default function P1WheelLookdevPage() {
             {contextLost && <div role="alert" className="itm-p1__lost">GPU context lost — scene paused</div>}
           </div>
           <div className="itm-p1__shot-label" aria-live="off">
-            <small>0{FRONT_LEFT_WHEEL_SHOTS.indexOf(shot) + 1} / 06 — {shot.mood.toUpperCase()}</small>
-            <h1>{shot.title[lang]}</h1>
-            <p>{lang === 'vi'
-              ? 'Nghiên cứu ánh sáng, nhịp camera và lắp ráp cơ khí trên đúng geometry R4.5.'
-              : 'A source-matched study of lighting, camera choreography and real 3D component separation.'}</p>
+            <small>{focusPart
+              ? `COMPONENT / ${String(selected.order + 1).padStart(2, '0')} / 07`
+              : `0${FRONT_LEFT_WHEEL_SHOTS.indexOf(shot) + 1} / 06 — ${shot.mood.toUpperCase()}`}</small>
+            <h1>{focusPart
+              ? selected.id.split('.').at(-1)?.replaceAll('_', ' ')
+              : shot.title[lang]}</h1>
+            <p>{focusPart
+              ? selected.inspection
+              : lang === 'vi'
+                ? 'Nghiên cứu ánh sáng, nhịp camera và lắp ráp cơ khí trên đúng geometry R4.5.'
+                : 'A source-matched study of lighting, camera choreography and real 3D component separation.'}</p>
           </div>
           <div className="itm-p1__techline">
             <span>F1 MODEL B / FRONT LEFT CORNER</span>
