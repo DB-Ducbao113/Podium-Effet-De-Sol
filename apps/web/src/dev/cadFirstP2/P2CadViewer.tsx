@@ -2,6 +2,7 @@ import { useEffect, useMemo } from 'react';
 import { Canvas, useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
+import P2ExplodeRig from './P2ExplodeRig';
 
 export type P2CadScene = {
   model: THREE.Group;
@@ -11,9 +12,10 @@ export type P2CadScene = {
   components: readonly { id: string; name: string; triangles: number }[];
 };
 
-function FrameCAD({ scene, selectedPart }: {
+function FrameCAD({ scene, selectedPart, explode }: {
   scene: P2CadScene;
   selectedPart: string | null;
+  explode: number;
 }) {
   const { camera, invalidate } = useThree();
   const framing = useMemo(() => {
@@ -34,7 +36,7 @@ function FrameCAD({ scene, selectedPart }: {
     const halfFov = THREE.MathUtils.degToRad(camera.fov / 2);
     const horizontal = Math.atan(Math.tan(halfFov) * Math.max(camera.aspect, 0.2));
     const fit = Math.max(0.002, Math.min(Math.sin(halfFov), Math.sin(horizontal)));
-    const distance = Math.max(0.008, (framing.radius / fit) * 1.5);
+    const distance = Math.max(0.008, (framing.radius / fit) * 1.5) * (1 + explode * 1.2);
     camera.near = Math.max(0.00001, distance / 5000);
     camera.far = Math.max(10, distance * 100);
     camera.position.copy(framing.center).add(
@@ -43,7 +45,7 @@ function FrameCAD({ scene, selectedPart }: {
     camera.lookAt(framing.center);
     camera.updateProjectionMatrix();
     invalidate();
-  }, [framing, camera, invalidate]);
+  }, [framing, camera, invalidate, explode]);
 
   return framing ? (
     <OrbitControls
@@ -57,11 +59,12 @@ function FrameCAD({ scene, selectedPart }: {
 }
 
 export default function P2CadViewer({
-  scene, selectedPart, isolate,
+  scene, selectedPart, isolate, explode,
 }: {
   scene: P2CadScene;
   selectedPart: string | null;
   isolate: boolean;
+  explode: number;
 }) {
   useEffect(() => {
     // Reversible, strictly visual isolation: no vertex edits or CAD surgery.
@@ -112,7 +115,8 @@ export default function P2CadViewer({
       <directionalLight position={[-4, 2, -5]} intensity={2.2} color="#ffbb9e" />
       <directionalLight position={[-2, 5, 4]} intensity={2.1} color="#aecfff" />
       <primitive object={scene.model} />
-      <FrameCAD scene={scene} selectedPart={selectedPart} />
+      <P2ExplodeRig model={scene.model} progress={explode} />
+      <FrameCAD scene={scene} selectedPart={selectedPart} explode={explode} />
     </Canvas>
   );
 }
