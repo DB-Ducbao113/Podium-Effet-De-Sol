@@ -12,6 +12,7 @@ import { pilotFrameAt, positionFromBaseline, centerLockTurnAt, type PilotFrame, 
 import { createPilotMaterial } from './pilotMaterials';
 import P1EvidenceProbe from './P1EvidenceProbe';
 import P1StudioEnvironment from './P1StudioEnvironment';
+import P1PartAnnotations from './P1PartAnnotations';
 import { applyP1BlueprintSurfaces, snapshotP1Surface, type P1SurfaceSnapshot } from './P1BlueprintMaterials';
 
 type LoadedAssets = { model: THREE.Group; manifest: AssemblyManifest };
@@ -445,6 +446,11 @@ export default function P1WheelStage({
           <CinematicLightRig frame={frame} />
           <Vehicle model={assets.model} frame={frame} selected={selectedPart} quality={profile} scope={scope} />
           <CameraControl frame={frame} orbit={orbit} />
+          <P1PartAnnotations
+            model={assets.model}
+            progress={progress}
+            selected={selectedPart}
+          />
           {import.meta.env.DEV && (
             <P1EvidenceProbe
               model={assets.model}
