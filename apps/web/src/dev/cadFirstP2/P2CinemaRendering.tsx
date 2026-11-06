@@ -36,17 +36,17 @@ export function P2CinemaSurface({model, progress}: {model:THREE.Group;progress:n
         if(!(c instanceof THREE.MeshStandardMaterial))return;
         const studio=p2CinemaColor(node.name);
         const baselineRoughness =
-          node.name.includes('TYRE')?.96:
-          node.name.includes('BRAKE_ROTOR')?.84:
-          node.name.includes('CALIPER')?.41:
-          node.name.includes('RIM')?.31:
-          node.name.includes('BEARING')?.23:.43;
+          node.name.includes('TYRE') ? 0.96 :
+          node.name.includes('BRAKE_ROTOR') ? 0.84 :
+          node.name.includes('CALIPER') ? 0.41 :
+          node.name.includes('RIM') ? 0.31 :
+          node.name.includes('BEARING') ? 0.23 : 0.43;
         const baselineMetalness =
           node.name.includes('TYRE')?0:
-          node.name.includes('BRAKE_ROTOR')?.13:
-          node.name.includes('CALIPER')?.43:
-          node.name.includes('RIM')?.78:
-          node.name.includes('BEARING')?.84:.67;
+          node.name.includes('BRAKE_ROTOR') ? 0.13 :
+          node.name.includes('CALIPER') ? 0.43 :
+          node.name.includes('RIM') ? 0.78 :
+          node.name.includes('BEARING') ? 0.84 : 0.67;
         pbr.push({
           material:c,base:c.color.clone(),studio,
           roughness:baselineRoughness,metalness:baselineMetalness,
@@ -94,6 +94,7 @@ export function P2CinemaCamera({
   const desiredPosition=useMemo(()=>new THREE.Vector3(),[]);
   const focusCenter=useMemo(()=>new THREE.Vector3(),[]);
   const direction=useMemo(()=>new THREE.Vector3(),[]);
+  const filmTarget=useMemo(()=>new THREE.Vector3(),[]);
   const worldBounds=useMemo(()=>new THREE.Box3(),[]);
   const worldSphere=useMemo(()=>new THREE.Sphere(),[]);
   const lastFocus=useRef<string|null>(null);
@@ -116,7 +117,7 @@ export function P2CinemaCamera({
         const hFov=Math.atan(Math.tan(vfov)*Math.max(camera instanceof THREE.PerspectiveCamera?camera.aspect:1,.2));
         const aperture=Math.max(.001,Math.min(Math.sin(vfov),Math.sin(hFov)));
         const distance=Math.max(.016,worldSphere.radius/aperture*1.65);
-        direction.copy(desiredPosition).sub(new THREE.Vector3(...frame.target)).normalize();
+        direction.copy(desiredPosition).sub(filmTarget.set(...frame.target)).normalize();
         desiredPosition.copy(focusCenter).addScaledVector(direction,distance);
       }else{
         focusCenter.set(...frame.target);
