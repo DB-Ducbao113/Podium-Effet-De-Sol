@@ -20,7 +20,16 @@
       "rightsStatus": "CONDITIONAL — LEGAL / BRAND REVIEW",
       "rightsReason": "Requires visible Ludemann logo/link on pages, comparable sponsor attribution, possibly using Ludemann in project name if substantially derived, independent engineering verification, and share-alike for adapted material. Third-party branded components also need audit.",
       "commercialReady": false,
-      "mechanicalCertified": false
+      "mechanicalCertified": false,
+      "supportingSTEP": {
+        "file": "STEP/Suspension/FrontSuspension/PushRodF.STEP",
+        "bytes": 398131,
+        "shaGitBlob": "451953da61bf856b6151e4b91b92479ac3a837de",
+        "namedProducts": 10,
+        "manifoldSolidBrepEntities": 8,
+        "advancedFaceEntities": 123,
+        "validBrepImported": false
+      }
     },
     {
       "id": "nittany-nm26-front-l",
@@ -38,7 +47,22 @@
       "rightsStatus": "BLOCKED — AUTHOR PERMISSION REQUIRED",
       "rightsReason": "Public GitHub source without a license is not a general grant to publish converted STEP/GLB on a commercial website. Need written authorization specifying commercial display/derivatives/distribution.",
       "commercialReady": false,
-      "mechanicalCertified": false
+      "mechanicalCertified": false,
+      "frontLeftFiles": [
+        "mule/cad/parts/NM26-UPR-006_rim_13in_front_L.step",
+        "mule/cad/parts/NM26-UPR-007_lug_nuts_front_L.step",
+        "mule/cad/parts/NM26-UPR-008_hub_front_L.step",
+        "mule/cad/parts/NM26-UPR-009_rotor_drilled_front_L.step",
+        "mule/cad/parts/NM26-UPR-010_upright_front_L.step",
+        "mule/cad/parts/NM26-BRK-002_caliper_front_L.step",
+        "mule/cad/parts/NM26-WHL-002_tyre_front_L.step",
+        "mule/cad/parts/NM26-SUS-007_lower_a_arm_front_L.step",
+        "mule/cad/parts/NM26-SUS-008_upper_a_arm_front_L.step",
+        "mule/cad/parts/NM26-SUS-009_tie_rod_front_L.step",
+        "mule/cad/parts/NM26-SUS-010_pushrod_front_L.step",
+        "mule/cad/parts/NM26-SUS-011_rocker_plate_front_L.step",
+        "mule/cad/parts/NM26-SUS-012_coilover_shock_front_L.step"
+      ]
     },
     {
       "id": "grabcad-student-upright",
