@@ -9,7 +9,6 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "qa:itm-p1": "node scripts/p1-wheel-visual-qa.mjs",
     "build": "tsc --noEmit && vite build && node scripts/generate-seo-artifacts.mjs && node scripts/prerender-engineering.mjs && node scripts/prune-legacy-showroom-assets.mjs && node scripts/check-commercial-visual-isolation.mjs && node scripts/verify-cloudflare-build.mjs"
   },
   "dependencies": {
