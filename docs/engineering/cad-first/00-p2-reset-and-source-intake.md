@@ -86,10 +86,10 @@ py -m venv .venv-cad
 pip install -r tools/cad-first/requirements.txt
 python tools/cad-first/p2_fastener_reference.py --out .local-assets/cad-first/reference
 npm install
-npm run dev -- --host 127.0.0.1 --port 5184
+npm run dev --workspace=@peds/web -- --host 127.0.0.1 --port 5184
 ```
 
-Open `http://127.0.0.1:5184/engineering` (or `/engineering/cad-lab`). In the P2 page, select `P2_fastener_reference_manifest.json` first, then select any `P2_fastener_reference_*.glb` for local-only SHA-256 inspection and orbit.
+Open `http://127.0.0.1:5184/engineering` (or `/engineering/cad-lab`). In the P2 page, select `P2_fastener_reference_manifest.json` first, then select any `P2_fastener_reference_*.glb` for local-only SHA-256 inspection and orbit. Select `P2_STUD_HELICAL_THREAD` and press **ISOLATE SELECTED SOLID** to inspect the actual external helix without the nut and spacer hiding it.
 
 **STEP is an editable engineering master; the Three.js viewer takes converted GLB, not STEP directly.** The browser does not upload local files to any remote server.
 
