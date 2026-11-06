@@ -1,5 +1,6 @@
 import { FRONT_LEFT_WHEEL_V2 } from '../design/frontLeftWheelV2';
 import { FRONT_LEFT_WHEEL_SHOTS } from '../design/frontLeftWheelShots';
+import { continuousFilmPoint } from './P1FilmDirector';
 
 export type Vector3Tuple = readonly [number, number, number];
 export type WheelInspectionScope = 'lock-wheel' | 'full';
@@ -28,14 +29,6 @@ export function sourceOffsetToYUp([x, y, z]: Vector3Tuple): Vector3Tuple {
   return [x, z, -y];
 }
 
-function mix(a: number, b: number, t: number): number {
-  return a + (b - a) * t;
-}
-
-function mix3(a: Vector3Tuple, b: Vector3Tuple, t: number): Vector3Tuple {
-  return [mix(a[0], b[0], t), mix(a[1], b[1], t), mix(a[2], b[2], t)];
-}
-
 function cameraPositionAt(index: number): Vector3Tuple {
   const { camera } = FRONT_LEFT_WHEEL_SHOTS[index];
   const [dx, dy, dz] = camera.direction;
@@ -48,21 +41,24 @@ function cameraPositionAt(index: number): Vector3Tuple {
 }
 
 /**
- * All six cameras use source-anchored World Y-up positions. Interpolation
- * crosses all shot boundaries without hard jumps or drift.
+ * Nonuniform Hermite (C1) interpolation across source-grounded camera poses.
+ * Every anchor remains exact, but the camera no longer brakes to a dead stop
+ * at each chapter boundary; this matters for the uninterrupted film.
+ * Direct seeking still produces the same exact 3D shot, in either direction.
  */
+const FILM_CAMERA_ANCHORS = [0, 0.18, 0.37, 0.60, 0.77, 1] as const;
+const FILM_POSITIONS: readonly Vector3Tuple[] =
+  FRONT_LEFT_WHEEL_SHOTS.map((_, index) => cameraPositionAt(index));
+const FILM_TARGETS: readonly Vector3Tuple[] =
+  FRONT_LEFT_WHEEL_SHOTS.map(({ camera }) => camera.target);
+
 export function cameraFrameAt(progress: number): {
   position: Vector3Tuple;
   target: Vector3Tuple;
 } {
-  const p = clampProgress(progress);
-  const anchors = [0, 0.18, 0.37, 0.60, 0.77, 1] as const;
-  let i = 0;
-  while (i < anchors.length - 2 && p > anchors[i + 1]) i++;
-  const t = smoothProgress((p - anchors[i]) / (anchors[i + 1] - anchors[i]));
   return {
-    position: mix3(cameraPositionAt(i), cameraPositionAt(i + 1), t),
-    target: mix3(FRONT_LEFT_WHEEL_SHOTS[i].camera.target, FRONT_LEFT_WHEEL_SHOTS[i + 1].camera.target, t),
+    position: continuousFilmPoint(FILM_POSITIONS, FILM_CAMERA_ANCHORS, progress),
+    target: continuousFilmPoint(FILM_TARGETS, FILM_CAMERA_ANCHORS, progress),
   };
 }
 
