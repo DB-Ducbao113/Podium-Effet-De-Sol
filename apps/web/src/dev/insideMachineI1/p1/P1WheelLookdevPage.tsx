@@ -82,7 +82,13 @@ export default function P1WheelLookdevPage() {
   const jump = (value: number) => seek(value);
 
   return (
-    <div className="itm-p1" data-testid="itm-p1-pilot">
+    <div
+      className={frame.blueprint > 0.54 ? 'itm-p1 itm-p1--blueprint' : 'itm-p1'}
+      data-testid="itm-p1-pilot"
+      data-p1-scene={shot.id}
+      data-p1-scope={scope}
+      data-p1-blueprint={frame.blueprint.toFixed(3)}
+    >
       <header className="itm-p1__header">
         <Link to="/engineering" className="itm-p1__home">PODIUM EDS <span>/</span> ENGINEERING</Link>
         <div className="itm-p1__header-label">LAB P1.2 <span>·</span> SOURCE GLB / R4.5</div>
@@ -244,7 +250,7 @@ export default function P1WheelLookdevPage() {
         </div>
         <div className="itm-p1__footer">
           <span>{scope === 'lock-wheel' ? 'LOCK + WHEEL' : 'FULL CORNER'} EXPLODED {Math.round(detachmentForScope(progress, scope) * 100)}% · BLUEPRINT {Math.round(frame.blueprint * 100)}%</span>
-          <span>{metrics ? `${metrics.drawCalls} DRAWS / ${metrics.triangles.toLocaleString()} TRIANGLES / FRAME ${metrics.frameMs.toFixed(1)} MS` : 'GPU METRICS PENDING'}</span>
+          <span>{metrics ? `${metrics.drawCalls} DRAWS / ${metrics.triangles.toLocaleString()} TRIANGLES / R3F DELTA ${metrics.frameMs.toFixed(1)} MS (NOT GPU TIME)` : 'GPU METRICS PENDING'}</span>
           <span>LOOKDEV ONLY / NOT PRODUCTION READY</span>
         </div>
       </section>
