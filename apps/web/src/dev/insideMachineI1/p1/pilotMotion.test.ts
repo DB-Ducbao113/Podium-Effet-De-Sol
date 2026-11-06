@@ -13,6 +13,7 @@ import {
   P1_PART_MOTION_PHASES,
   centerLockTurnAt,
   presentationOffsetFor,
+  detachmentForScope,
 } from './pilotMotion';
 
 describe('P1.1 cinematic wheel motion — reversible & source-correct', () => {
@@ -84,6 +85,30 @@ describe('P1.1 cinematic wheel motion — reversible & source-correct', () => {
     const clearance = (tireOutboardFace - 0.66) - (nutInboardFace - proposed[1]);
     expect(clearance).toBeGreaterThan(0.12);
     expect(clearance).toBeLessThan(0.15);
+  });
+
+  it('isolates P1.2 microstep to nut and wheel without shifting other five parts', () => {
+    const original = [1.25, 0.37, -0.83] as const;
+    for (const p of [0, 0.39, 0.45, 0.54, 0.73, 0.92, 0.97, 1]) {
+      FRONT_LEFT_WHEEL_V2.slice(2).forEach((part) => {
+        expect(positionFromBaseline(original, part.authoredOffsetZUp, p, part.order, 'lock-wheel')).toEqual(original);
+      });
+    }
+    const nut = FRONT_LEFT_WHEEL_V2[0];
+    expect(positionFromBaseline(original, nut.authoredOffsetZUp, 0.54, 0, 'lock-wheel')).not.toEqual(original);
+    expect(detachmentForScope(0.54, 'lock-wheel')).toBe(1);
+    expect(detachmentForScope(1, 'lock-wheel')).toBe(0);
+    expect(detachmentForScope(0.54, 'full')).toBe(1);
+  });
+
+  it('enforces non-overlapping nut/wheel choreography endpoints', () => {
+    const [nut, wheel] = P1_PART_MOTION_PHASES;
+    expect(nut.out[1]).toBeLessThan(wheel.out[0]);
+    expect(wheel.back[1]).toBeLessThan(nut.back[0]);
+    expect(nut.back[1]).toBeLessThan(1);
+    expect(P1_PART_MOTION_PHASES.every(({ out, back }) =>
+      out[0] < out[1] && out[1] < back[0] && back[0] < back[1]
+    )).toBe(true);
   });
 
   it('only uses blueprint in the technical chapter and returns to cinematic', () => {
