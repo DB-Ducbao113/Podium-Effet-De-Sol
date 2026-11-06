@@ -367,3 +367,80 @@
 @media(max-width:520px) {
   .itm-p1--blueprint .itm-p1__shot-label { padding: 9px 12px; }
 }
+
+/* P1.4 — camera-attached annotations, never guessed screen coordinates. */
+.itm-p1__annotation {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  white-space: nowrap;
+  user-select: none;
+  color: #e9f7fe;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, .42));
+  transform: translateY(-50%);
+}
+.itm-p1__annotation-line {
+  display: inline-block;
+  width: clamp(20px, 3.8vw, 55px);
+  height: 1px;
+  background: #69d5e6;
+  box-shadow: 0 0 7px rgba(105, 213, 230, .4);
+}
+.itm-p1__annotation-content {
+  display: grid;
+  gap: 3px;
+  padding: 7px 11px;
+  border-left: 2px solid #69d5e6;
+  border-top: 1px solid rgba(116, 177, 207, .5);
+  background: rgba(9, 21, 31, .88);
+  backdrop-filter: blur(8px);
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: .08em;
+  font-variant-numeric: tabular-nums;
+}
+.itm-p1__annotation strong { color: inherit; font-size: 10px; font-weight: 750; }
+.itm-p1__annotation small { color: #86b7c9; font-size: 8px; font-weight: 650; }
+.itm-p1__annotation--active .itm-p1__annotation-line {
+  background: #ff6442;
+  box-shadow: 0 0 8px rgba(255, 100, 66, .36);
+}
+.itm-p1__annotation--active .itm-p1__annotation-content {
+  border-left-color: #ff6442;
+  border-top-color: rgba(255, 100, 66, .7);
+}
+.itm-p1__annotation--active strong { color: #fff; }
+.itm-p1--blueprint .itm-p1__annotation {
+  color: #183545;
+  filter: none;
+}
+.itm-p1--blueprint .itm-p1__annotation-line {
+  background: #345d73;
+  box-shadow: none;
+}
+.itm-p1--blueprint .itm-p1__annotation-content {
+  background: rgba(244, 249, 250, .95);
+  border-top-color: #7595a7;
+  border-left-color: #345d73;
+  backdrop-filter: none;
+}
+.itm-p1--blueprint .itm-p1__annotation strong { color: #213c4b; }
+.itm-p1--blueprint .itm-p1__annotation small { color: #557383; }
+.itm-p1--blueprint .itm-p1__annotation--active strong { color: #b6432b; }
+.itm-p1--blueprint .itm-p1__annotation--active .itm-p1__annotation-content {
+  border-left-color: #b6432b;
+}
+.itm-p1--blueprint .itm-p1__stage::before {
+  background-image:
+    linear-gradient(rgba(27, 65, 88, .055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(27, 65, 88, .055) 1px, transparent 1px);
+  opacity: .65;
+}
+@media(max-width:800px) {
+  .itm-p1__annotation-content { padding: 5px 7px; }
+  .itm-p1__annotation-line { width: 19px; }
+  .itm-p1__annotation strong { font-size: 8px; }
+  .itm-p1__annotation small { font-size: 7px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .itm-p1__annotation { filter: none; }
+}
