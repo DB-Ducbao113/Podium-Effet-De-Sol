@@ -370,3 +370,27 @@
   font-size: 10px;
   line-height: 1.65;
 }
+
+/* P2.4: verified local static source-collision report; never a production seal. */
+.p2-cad-lab__fit-audit {
+  display: grid;
+  gap: 10px;
+  padding: 13px;
+  border-left: 3px solid #8ecbd5;
+  background: #102936;
+  color: #dbeaf0;
+  font: 600 10px/1.6 'IBM Plex Mono', monospace;
+}
+.p2-cad-lab__fit-audit > strong {
+  color: #b5ebef;
+  font-size: 12px;
+  letter-spacing: .03em;
+}
+.p2-cad-lab__fit-audit > span { color: #c0dce9; }
+.p2-cad-lab__fit-audit > small,
+.p2-cad-lab__fit-audit > p {
+  margin: 0;
+  color: #a8b9c8;
+  font-size: 10px;
+  line-height: 1.65;
+}
