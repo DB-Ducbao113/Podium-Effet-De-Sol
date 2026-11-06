@@ -8,7 +8,8 @@ import assetIdentity from '../asset-identity.json';
 import type { AssemblyManifest, QualityProfile } from '../types';
 import { FRONT_LEFT_WHEEL_V2 } from '../design/frontLeftWheelV2';
 import { pilotFrameAt, positionFromBaseline, centerLockTurnAt, detachmentForScope, type PilotFrame, type WheelInspectionScope } from './pilotMotion';
-import { createPilotMaterial } from './pilotMaterials';
+import { createPilotMaterial, type P1SurfaceMode } from './pilotMaterials';
+import { createP1TextureKit } from './P1SurfaceTextures';
 import P1EvidenceProbe from './P1EvidenceProbe';
 import P1StudioEnvironment from './P1StudioEnvironment';
 import P1PartAnnotations from './P1PartAnnotations';
@@ -24,6 +25,7 @@ export interface StageProps {
   profile: QualityProfile;
   orbit: boolean;
   focusPart: string | null;
+  materialMode: P1SurfaceMode;
   scope: WheelInspectionScope;
   onError: (message: string) => void;
   onReady: (loaded: boolean) => void;
@@ -147,8 +149,9 @@ function updatePilotOverlayMaterials(items: readonly Overlay[], blueprint: numbe
   }
 }
 
-function Vehicle({ model, frame, selected, quality, scope }: {
-  model: THREE.Group; frame: PilotFrame; selected: string; quality: QualityProfile; scope: WheelInspectionScope;
+function Vehicle({ model, frame, selected, quality, scope, materialMode }: {
+  model: THREE.Group; frame: PilotFrame; selected: string; quality: QualityProfile;
+  scope: WheelInspectionScope; materialMode: P1SurfaceMode;
 }) {
   const { scene, invalidate } = useThree();
   const original = useMemo<MotionNode[]>(() => {
@@ -181,6 +184,7 @@ function Vehicle({ model, frame, selected, quality, scope }: {
       original: THREE.Material | THREE.Material[];
     }> = [];
     const materialCache = new Map<string, { material: THREE.Material; partId: string | null }>();
+    const textureKit = createP1TextureKit(quality);
     const allMeshes: THREE.Mesh[] = [];
     model.traverse((item) => {
       if (item instanceof THREE.Mesh) allMeshes.push(item);
@@ -200,10 +204,11 @@ function Vehicle({ model, frame, selected, quality, scope }: {
       // Shared original glTF material instances are never mutated.
       const originalMaterial = mesh.material;
       const acquire = (source: THREE.Material): THREE.Material => {
-        const key = `${source.uuid}:${partId ?? 'chassis'}`;
+        const hasUV = Boolean(mesh.geometry.getAttribute('uv'));
+        const key = `${source.uuid}:${partId ?? 'chassis'}:${hasUV ? 'uv' : 'no-uv'}`;
         const cached = materialCache.get(key);
         if (cached) return cached.material;
-        const copy = createPilotMaterial(source, partId);
+        const copy = createPilotMaterial(source, partId, materialMode, textureKit, hasUV);
         materialCache.set(key, { material: copy, partId });
         return copy;
       };
@@ -267,10 +272,11 @@ function Vehicle({ model, frame, selected, quality, scope }: {
       }
       assignments.forEach(({ mesh, original }) => { mesh.material = original; });
       materialCache.forEach(({ material }) => material.dispose());
+      textureKit.dispose();
       overlays.current = [];
       surfaces.current = [];
     };
-  }, [model, quality, scope, scene, invalidate]);
+  }, [model, quality, scope, materialMode, scene, invalidate]);
 
   const nutAxis = useMemo(() => new THREE.Vector3(0, 0, -1), []);
   const spin = useMemo(() => new THREE.Quaternion(), []);
@@ -373,7 +379,7 @@ function ContextGuard({ onContextLost }: { onContextLost: (lost: boolean) => voi
 }
 
 export default function P1WheelStage({
-  progress, selectedPart, profile, orbit, focusPart, scope, onError, onReady, onMetrics, onContextLost,
+  progress, selectedPart, profile, orbit, focusPart, materialMode, scope, onError, onReady, onMetrics, onContextLost,
 }: StageProps) {
   const [assets, setAssets] = useState<LoadedAssets | null>(null);
   const [version, setVersion] = useState(0);
@@ -430,7 +436,7 @@ export default function P1WheelStage({
         >
           <P1StudioEnvironment />
           <CinematicLightRig frame={frame} scope={scope} />
-          <Vehicle model={assets.model} frame={frame} selected={selectedPart} quality={profile} scope={scope} />
+          <Vehicle model={assets.model} frame={frame} selected={selectedPart} quality={profile} scope={scope} materialMode={materialMode} />
           <P1CameraRig
             frame={frame}
             model={assets.model}
