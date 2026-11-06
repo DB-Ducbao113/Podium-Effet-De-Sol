@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import P2ExplodeRig from './P2ExplodeRig';
 import { P2CinemaSurface, P2CinemaCamera, P2CinemaLightRig } from './P2CinemaRendering';
 import P2StudioEnvironment, { type P2DisplayQuality } from './P2StudioEnvironment';
+import P2PerformanceTelemetry, { type P2RenderMetrics } from './P2PerformanceTelemetry';
 import { p2FilmFrame } from './P2CinemaTimeline';
 
 export type P2CadScene = {
@@ -108,7 +109,7 @@ function P2CadClipping({
 }
 
 export default function P2CadViewer({
-  scene, selectedPart, isolate, explode, wheelAngleDeg, steerAngleDeg, cinematic, filmProgress, playing, cinemaFocusPart, reducedMotion, quality, section, sectionOffsetMm,
+  scene, selectedPart, isolate, explode, wheelAngleDeg, steerAngleDeg, cinematic, filmProgress, playing, cinemaFocusPart, reducedMotion, quality, onMetrics, onContextLost, section, sectionOffsetMm,
 }: {
   scene: P2CadScene;
   selectedPart: string | null;
@@ -122,6 +123,8 @@ export default function P2CadViewer({
   cinemaFocusPart: string | null;
   reducedMotion: boolean;
   quality: P2DisplayQuality;
+  onMetrics: (metrics:P2RenderMetrics)=>void;
+  onContextLost: ()=>void;
   section: boolean;
   sectionOffsetMm: number;
 }) {
@@ -180,6 +183,7 @@ export default function P2CadViewer({
         </>
       )}
       <primitive object={scene.model} />
+      <P2PerformanceTelemetry playing={cinematic && playing} onMetrics={onMetrics} onContextLost={onContextLost}/>
       {cinematic && <P2CinemaSurface model={scene.model} progress={filmProgress}/>}
       {!cinematic && <P2CadClipping model={scene.model} section={section} sectionOffsetMm={sectionOffsetMm}/>}
       <P2ExplodeRig
