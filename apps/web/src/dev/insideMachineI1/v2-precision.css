@@ -163,3 +163,26 @@
 @media(prefers-reduced-motion:reduce) {
   .itm-v2 *,.itm-v2 *::before,.itm-v2 *::after { transition: none !important; animation: none !important; }
 }
+
+/* P1.1 DEV-only entry from the Engineering advanced inspector. */
+.itm-v2 .itm-v2-pilot-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 46px;
+  margin: 8px 0 18px;
+  padding: 10px 12px;
+  border: 1px solid #bf4d3e;
+  background: #241a1b;
+  color: #ffd4c8;
+  text-decoration: none;
+  font: 700 11px/1.4 'IBM Plex Mono', monospace;
+  letter-spacing: .07em;
+}
+.itm-v2 .itm-v2-pilot-link:hover,
+.itm-v2 .itm-v2-pilot-link:focus-visible {
+  border-color: #ff5635;
+  background: #392423;
+  color: #fff;
+}
