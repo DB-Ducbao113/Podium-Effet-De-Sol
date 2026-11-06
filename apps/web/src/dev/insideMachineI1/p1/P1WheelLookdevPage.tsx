@@ -257,7 +257,7 @@ export default function P1WheelLookdevPage() {
             <span>07</span>
           </div>
           <div className="itm-p1__part-list">
-            {FRONT_LEFT_WHEEL_V2.map((part) => (
+            {FRONT_LEFT_WHEEL_V2.map((part, index) => (
               <button
                 type="button"
                 key={part.id}
