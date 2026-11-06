@@ -80,6 +80,8 @@ export default function P2CadLabPage() {
   const [scene, setScene] = useState<P2CadScene | null>(null);
   const [selectedPart, setSelectedPart] = useState<string | null>(null);
   const [isolate, setIsolate] = useState(false);
+  const [explode, setExplode] = useState(0);
+  const [partFilter, setPartFilter] = useState('');
   const [loadState, setLoadState] = useState('NO CAD LOADED');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -96,6 +98,8 @@ export default function P2CadLabPage() {
     setScene(null);
     setSelectedPart(null);
     setIsolate(false);
+    setExplode(0);
+    setPartFilter('');
     setLoadState('READING SOURCE CAD MESH');
     try {
       if (!file.name.toLowerCase().endsWith('.glb')) {
@@ -161,7 +165,7 @@ export default function P2CadLabPage() {
       </header>
 
       <section className="p2-cad-lab__intro">
-        <span className="p2-cad-lab__eyebrow">SOURCE QUALIFICATION / P2.1</span>
+        <span className="p2-cad-lab__eyebrow">ORIGINAL FRONT CORNER / P2.2</span>
         <h1>GEOMETRY FIRST<span>.</span></h1>
         <p>
           Replace low-poly cosmetic details with inspectable CAD bodies, mechanical
@@ -174,7 +178,7 @@ export default function P2CadLabPage() {
         <div className="p2-cad-lab__viewport" aria-label="CAD source preview">
           {scene ? (
             <Suspense fallback={<div className="p2-cad-lab__empty">INITIALIZING LOCAL CAD VIEWER</div>}>
-              <P2CadViewer key={scene.name} scene={scene} selectedPart={selectedPart} isolate={isolate}/>
+              <P2CadViewer key={scene.name} scene={scene} selectedPart={selectedPart} isolate={isolate} explode={explode}/>
             </Suspense>
           ) : (
             <div className="p2-cad-lab__empty">
@@ -190,7 +194,7 @@ export default function P2CadLabPage() {
         <aside className="p2-cad-lab__inspector">
           <div className="p2-cad-lab__eyebrow">01 / SOURCE IMPORT</div>
           <h2>CAD INTAKE</h2>
-          <p>Files stay in browser memory. Loading a model is not proof of rights to publish it.</p>
+          <p>Files stay in browser memory. For the project-authored P2.2 front corner, load its manifest and any matching HIGH / BALANCED / PERFORMANCE GLB. The B-Rep master is the separate STEP file.</p>
           <label className="p2-cad-lab__upload">
             LOAD SOURCE MANIFEST (.JSON)
             <input type="file" accept=".json,application/json" onChange={onManifest}/>
@@ -206,6 +210,28 @@ export default function P2CadLabPage() {
             <div><span>SOURCE RIGHTS</span><strong>NOT CLEARED</strong></div>
           </div>
           <div className="p2-cad-lab__eyebrow">02 / REAL GEOMETRY</div>
+          <div className="p2-cad-lab__explode-control">
+            <label htmlFor="p2-cad-explode">
+              <span>EXPLODED CAD STUDY</span>
+              <strong>{Math.round(explode * 100)}%</strong>
+            </label>
+            <input
+              id="p2-cad-explode"
+              type="range" min={0} max={100} step={1}
+              disabled={!scene}
+              value={Math.round(explode * 100)}
+              onChange={(event) => setExplode(Number(event.target.value) / 100)}
+            />
+            <p>Illustrative editorial separation of original CAD solids, not a verified servicing sequence.</p>
+          </div>
+          <label className="p2-cad-lab__search">
+            FILTER COMPONENTS
+            <input
+              type="search" value={partFilter}
+              placeholder="hub / brake / ball / fastener"
+              onChange={(event) => setPartFilter(event.target.value)}
+            />
+          </label>
           <button
             type="button"
             className="p2-cad-lab__isolate"
@@ -219,7 +245,7 @@ export default function P2CadLabPage() {
             <button type="button" aria-pressed={!selectedPart} onClick={() => setSelectedPart(null)}>
               ALL COMPONENTS
             </button>
-            {scene?.components.map((part) => (
+            {scene?.components.filter((part) => part.name.toLowerCase().includes(partFilter.toLowerCase())).map((part) => (
               <button type="button" key={part.id}
                 aria-pressed={selectedPart === part.id}
                 onClick={() => setSelectedPart(part.id)}>
@@ -251,9 +277,7 @@ export default function P2CadLabPage() {
           ))}
         </div>
         <p className="p2-cad-lab__disclaimer">
-          The local fastener demonstrator is independently authored educational CAD.
-          It does not reproduce a certified Formula 1 center lock, licensed team design,
-          manufacturing tolerance stack or verified wheel-bearing mechanism.
+          P2.2 now includes a project-authored 49-solid formula-style front-left wheel assembly with real B-Rep source geometry, a swept external thread, and drilled rotor geometry. It does not reproduce certified Formula 1 components, proven female-thread engagement, OEM dimensions, or a validated physical wheel-bearing mechanism.
         </p>
       </section>
     </main>
