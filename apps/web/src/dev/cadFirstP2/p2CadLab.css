@@ -506,3 +506,48 @@
 @media(prefers-reduced-motion:reduce){
   .p2-cad-lab__film * {animation:none!important;transition:none!important;}
 }
+
+/* Source-first P3 macro inspection. Buttons are outside the WebGL Canvas. */
+.p2-cad-lab__macro-selector {
+  position:absolute;
+  bottom:170px;
+  left:16px;
+  right:16px;
+  z-index:5;
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  gap:5px;
+  pointer-events:auto;
+}
+.p2-cad-lab__macro-selector button {
+  min-height:37px;
+  padding:9px 10px;
+  background:rgba(9,20,28,.92);
+  color:#d5e5ee;
+  border:1px solid #516b7c;
+  cursor:pointer;
+  font:700 9px/1.4 'IBM Plex Mono',monospace;
+  letter-spacing:.035em;
+  white-space:nowrap;
+}
+.p2-cad-lab__macro-selector button[aria-pressed='true'] {
+  color:#fff5ea;
+  background:#4d2b24;
+  border-color:#ff8c60;
+}
+.p2-cad-lab__macro-selector button:first-child {
+  border-color:#b5cad0;
+}
+.p2-cad-lab__macro-selector button:focus-visible {
+  outline:2px solid #b5e7fa;
+  outline-offset:2px;
+}
+@media(max-width:800px){
+  .p2-cad-lab__macro-selector {bottom:150px;left:8px;right:8px;gap:4px;}
+  .p2-cad-lab__macro-selector button {min-height:29px;padding:6px;font-size:8px;}
+}
+@media(max-width:520px){
+  .p2-cad-lab__macro-selector {max-height:90px;overflow-y:auto;align-content:flex-end;}
+  .p2-cad-lab__macro-selector button {min-height:27px;}
+}
