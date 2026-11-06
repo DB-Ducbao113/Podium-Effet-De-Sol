@@ -448,7 +448,11 @@ export default function P2CadLabPage() {
               type="range" min={0} max={100} step={1}
               disabled={!scene}
               value={Math.round(explode * 100)}
-              onChange={(event) => setExplode(Number(event.target.value) / 100)}
+              onChange={(event) => {
+                const next = Number(event.target.value) / 100;
+                setExplode(next);
+                if (next > 0) setWheelAngleDeg(0);
+              }}
             />
             <p>Illustrative editorial separation of original CAD solids, not a verified servicing sequence.</p>
           </div>
