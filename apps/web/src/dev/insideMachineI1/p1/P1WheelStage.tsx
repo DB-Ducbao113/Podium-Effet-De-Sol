@@ -13,6 +13,7 @@ import P1EvidenceProbe from './P1EvidenceProbe';
 import P1StudioEnvironment from './P1StudioEnvironment';
 import P1PartAnnotations from './P1PartAnnotations';
 import P1CameraRig from './P1CameraRig';
+import P1MacroFocusLight from './P1MacroFocusLight';
 import { applyP1BlueprintSurfaces, snapshotP1Surface, type P1SurfaceSnapshot } from './P1BlueprintMaterials';
 
 type LoadedAssets = { model: THREE.Group; manifest: AssemblyManifest };
@@ -435,6 +436,11 @@ export default function P1WheelStage({
             model={assets.model}
             orbit={orbit}
             focusPart={focusPart}
+          />
+          <P1MacroFocusLight
+            model={assets.model}
+            focusPart={focusPart}
+            profile={profile}
           />
           <P1PartAnnotations
             model={assets.model}
