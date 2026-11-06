@@ -108,7 +108,7 @@ export default function P1WheelLookdevPage() {
 
   // The seven source nodes remain the only source of part identity.
   // Focusing never writes over the story progress or model baseline.
-  const choosePart = (id: string) => {
+  const choosePart = useCallback((id: string) => {
     const part = FRONT_LEFT_WHEEL_V2.find((item) => item.id === id);
     if (!part) return;
     setSelectedPart(id);
@@ -117,7 +117,7 @@ export default function P1WheelLookdevPage() {
     setOrbit(false);
     if (part.order > 1) setScope('full');
     if (progress < 0.54 || progress >= 0.86) setProgress(0.54);
-  };
+  }, [progress]);
 
   useEffect(() => {
     if (!focusPart) return;
@@ -146,7 +146,7 @@ export default function P1WheelLookdevPage() {
         if (value !== 'lock-wheel' && value !== 'full') return;
         setScope(value);
         setPlaying(false);
-        if (value === 'lock-wheel' && FRONT_LEFT_WHEEL_V2.find((item) => item.id === selectedPart)?.order! > 1) {
+        if (value === 'lock-wheel' && (FRONT_LEFT_WHEEL_V2.find((item) => item.id === selectedPart)?.order ?? 0) > 1) {
           setFocusPart(null);
         }
       },
@@ -169,7 +169,7 @@ export default function P1WheelLookdevPage() {
     return () => {
       if (target.__PEDS_ITM_P1_CTRL__ === control) delete target.__PEDS_ITM_P1_CTRL__;
     };
-  }, [progress, scope, selectedPart, profile, orbit, focusPart, playing, loaded, error]);
+  }, [progress, scope, selectedPart, profile, orbit, focusPart, playing, loaded, error, choosePart]);
 
   return (
     <div
@@ -257,7 +257,7 @@ export default function P1WheelLookdevPage() {
             <span>07</span>
           </div>
           <div className="itm-p1__part-list">
-            {FRONT_LEFT_WHEEL_V2.map((part, index) => (
+            {FRONT_LEFT_WHEEL_V2.map((part) => (
               <button
                 type="button"
                 key={part.id}
