@@ -3,6 +3,8 @@ import { Canvas, useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 import P2ExplodeRig from './P2ExplodeRig';
+import { P2CinemaSurface, P2CinemaCamera, P2CinemaLightRig } from './P2CinemaRendering';
+import { p2FilmFrame } from './P2CinemaTimeline';
 
 export type P2CadScene = {
   model: THREE.Group;
@@ -105,13 +107,17 @@ function P2CadClipping({
 }
 
 export default function P2CadViewer({
-  scene, selectedPart, isolate, explode, wheelAngleDeg, section, sectionOffsetMm,
+  scene, selectedPart, isolate, explode, wheelAngleDeg, steerAngleDeg, cinematic, filmProgress, playing, section, sectionOffsetMm,
 }: {
   scene: P2CadScene;
   selectedPart: string | null;
   isolate: boolean;
   explode: number;
   wheelAngleDeg: number;
+  steerAngleDeg: number;
+  cinematic: boolean;
+  filmProgress: number;
+  playing: boolean;
   section: boolean;
   sectionOffsetMm: number;
 }) {
@@ -147,7 +153,7 @@ export default function P2CadViewer({
 
   return (
     <Canvas
-      frameloop="demand"
+      frameloop={cinematic && playing ? 'always' : 'demand'}
       camera={{ fov: 36, near: 0.00001, far: 100, position: [0.05, 0.05, 0.05] }}
       dpr={[1, 1.75]}
       gl={{ antialias: true, powerPreference: 'high-performance' }}
@@ -158,16 +164,30 @@ export default function P2CadViewer({
         gl.toneMappingExposure = 1.12;
       }}
     >
-      <color attach="background" args={['#101923']} />
-      <ambientLight intensity={1.25} />
-      <hemisphereLight args={['#e7f3ff', '#1a2939', 2.1]} />
-      <directionalLight position={[3, 6, 8]} intensity={3.5} color="#f6faff" />
-      <directionalLight position={[-4, 2, -5]} intensity={2.2} color="#ffbb9e" />
-      <directionalLight position={[-2, 5, 4]} intensity={2.1} color="#aecfff" />
+      <color attach="background" args={[cinematic && p2FilmFrame(filmProgress).blueprint > 0.45 ? '#eaf2f6' : '#101923']} />
+      {cinematic ? <P2CinemaLightRig progress={filmProgress} /> : (
+        <>
+          <ambientLight intensity={1.25} />
+          <hemisphereLight args={['#e7f3ff', '#1a2939', 2.1]} />
+          <directionalLight position={[3, 6, 8]} intensity={3.5} color="#f6faff" />
+          <directionalLight position={[-4, 2, -5]} intensity={2.2} color="#ffbb9e" />
+          <directionalLight position={[-2, 5, 4]} intensity={2.1} color="#aecfff" />
+        </>
+      )}
       <primitive object={scene.model} />
-      <P2CadClipping model={scene.model} section={section} sectionOffsetMm={sectionOffsetMm} />
-      <P2ExplodeRig model={scene.model} progress={explode} wheelAngleDeg={wheelAngleDeg} />
-      <FrameCAD scene={scene} selectedPart={selectedPart} explode={explode} />
+      {cinematic && <P2CinemaSurface model={scene.model} progress={filmProgress}/>}
+      {!cinematic && <P2CadClipping model={scene.model} section={section} sectionOffsetMm={sectionOffsetMm}/>}
+      <P2ExplodeRig
+        model={scene.model}
+        progress={cinematic ? 0 : explode}
+        wheelAngleDeg={cinematic ? 0 : wheelAngleDeg}
+        steerAngleDeg={cinematic ? 0 : steerAngleDeg}
+        cinematic={cinematic}
+        filmProgress={filmProgress}
+      />
+      {cinematic ? <P2CinemaCamera progress={filmProgress}/> :
+        <FrameCAD scene={scene} selectedPart={selectedPart} explode={explode}/>}
+
     </Canvas>
   );
 }
