@@ -582,3 +582,30 @@
     height:74svh;
   }
 }
+
+/* Actual WebGL telemetry only: FPS is never inferred from triangle counts. */
+.p2-cad-lab__film-metrics {
+  position:absolute;
+  right:17px;
+  top:15px;
+  z-index:7;
+  display:flex;
+  flex-wrap:wrap;
+  max-width:min(470px,55vw);
+  justify-content:flex-end;
+  gap:7px;
+  pointer-events:none;
+}
+.p2-cad-lab__film-metrics span {
+  padding:5px 7px;
+  border:1px solid rgba(107,138,152,.4);
+  background:rgba(4,13,20,.86);
+  color:#c1ecf1;
+  font:700 9px/1.5 'IBM Plex Mono',monospace;
+  letter-spacing:.035em;
+  font-variant-numeric:tabular-nums;
+}
+@media(max-width:800px) {
+  .p2-cad-lab__film-metrics {right:9px;top:8px;max-width:100%;}
+  .p2-cad-lab__film-metrics span {padding:4px;font-size:8px;}
+}
