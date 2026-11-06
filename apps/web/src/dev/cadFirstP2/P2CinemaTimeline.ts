@@ -42,6 +42,15 @@ function mix3(a:readonly number[],b:readonly number[],t:number):[number,number,n
 }
 export function p2FilmFrame(progress:number) {
   const p=saturate(progress);
+  if(p === 1) {
+    const last=P2_CINEMA_SHOTS[P2_CINEMA_SHOTS.length-1];
+    return {
+      position:[...last.position] as [number,number,number],
+      target:[...last.target] as [number,number,number],
+      fov:last.fov,exposure:last.exposure,blueprint:last.blueprint,
+      shotIndex:P2_CINEMA_SHOTS.length-1,shot:last,
+    };
+  }
   let i=0;
   while(i<P2_CINEMA_SHOTS.length-2&&p>P2_CINEMA_SHOTS[i+1].at)i++;
   const left=P2_CINEMA_SHOTS[i],right=P2_CINEMA_SHOTS[i+1];
