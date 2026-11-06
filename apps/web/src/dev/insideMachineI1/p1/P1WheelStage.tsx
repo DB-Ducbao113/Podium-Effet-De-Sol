@@ -7,7 +7,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { ASSET_URLS, MANIFEST_URL } from '../assetPaths';
 import type { AssemblyManifest, QualityProfile } from '../types';
 import { FRONT_LEFT_WHEEL_V2 } from '../design/frontLeftWheelV2';
-import { pilotFrameAt, positionFromBaseline, centerLockTurnAt, type PilotFrame } from './pilotMotion';
+import { pilotFrameAt, positionFromBaseline, centerLockTurnAt, type PilotFrame, type WheelInspectionScope } from './pilotMotion';
 import { createPilotMaterial } from './pilotMaterials';
 
 type LoadedAssets = { model: THREE.Group; manifest: AssemblyManifest };
@@ -17,6 +17,7 @@ export interface StageProps {
   selectedPart: string;
   profile: QualityProfile;
   orbit: boolean;
+  scope: WheelInspectionScope;
   onError: (message: string) => void;
   onReady: (loaded: boolean) => void;
   onMetrics: (metrics: Metrics) => void;
@@ -119,8 +120,8 @@ function updatePilotOverlayMaterials(items: readonly Overlay[], blueprint: numbe
   }
 }
 
-function Vehicle({ model, frame, selected, quality }: {
-  model: THREE.Group; frame: PilotFrame; selected: string; quality: QualityProfile;
+function Vehicle({ model, frame, selected, quality, scope }: {
+  model: THREE.Group; frame: PilotFrame; selected: string; quality: QualityProfile; scope: WheelInspectionScope;
 }) {
   const { scene, invalidate } = useThree();
   const original = useMemo<MotionNode[]>(() => {
@@ -234,7 +235,7 @@ function Vehicle({ model, frame, selected, quality }: {
   useEffect(() => { invalidate(); }, [frame, invalidate, selected]);
   useFrame(() => {
     original.forEach((item) => {
-      const position = positionFromBaseline(item.originalPosition, item.offset, frame.progress, item.order);
+      const position = positionFromBaseline(item.originalPosition, item.offset, frame.progress, item.order, scope);
       item.object.position.set(...position);
       item.object.quaternion.copy(item.originalQuaternion);
       if (item.order === 0) {
@@ -301,7 +302,7 @@ function ContextGuard({ onContextLost }: { onContextLost: (lost: boolean) => voi
 }
 
 export default function P1WheelStage({
-  progress, selectedPart, profile, orbit, onError, onReady, onMetrics, onContextLost,
+  progress, selectedPart, profile, orbit, scope, onError, onReady, onMetrics, onContextLost,
 }: StageProps) {
   const [assets, setAssets] = useState<LoadedAssets | null>(null);
   const [version, setVersion] = useState(0);
@@ -361,7 +362,7 @@ export default function P1WheelStage({
           <directionalLight color="#f5f8ff" intensity={3.9} position={[5, 9, -7]} />
           <directionalLight color="#ff906c" intensity={2.0} position={[-5, 3, 5]} />
           <directionalLight color="#b3e6ff" intensity={2.6} position={[-4, 6, -8]} />
-          <Vehicle model={assets.model} frame={frame} selected={selectedPart} quality={profile} />
+          <Vehicle model={assets.model} frame={frame} selected={selectedPart} quality={profile} scope={scope} />
           <CameraControl frame={frame} orbit={orbit} />
           <FrameSampler onMetrics={onMetrics} onReady={onReady} />
           <ContextGuard onContextLost={onContextLost} />
