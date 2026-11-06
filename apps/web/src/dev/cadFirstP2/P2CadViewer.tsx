@@ -57,11 +57,26 @@ function FrameCAD({ scene, selectedPart }: {
 }
 
 export default function P2CadViewer({
-  scene, selectedPart,
+  scene, selectedPart, isolate,
 }: {
   scene: P2CadScene;
   selectedPart: string | null;
+  isolate: boolean;
 }) {
+  useEffect(() => {
+    // Reversible, strictly visual isolation: no vertex edits or CAD surgery.
+    scene.model.traverse((node) => {
+      if (node instanceof THREE.Mesh) {
+        node.visible = !isolate || !selectedPart || node.name === selectedPart;
+      }
+    });
+    return () => {
+      scene.model.traverse((node) => {
+        if (node instanceof THREE.Mesh) node.visible = true;
+      });
+    };
+  }, [scene, isolate, selectedPart]);
+
   useEffect(() => {
     const model = scene.model;
     return () => {
