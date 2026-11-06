@@ -551,3 +551,70 @@
 @media(prefers-reduced-motion:reduce) {
   .itm-p1__focus-button, .itm-p1__shot-label { transition: none !important; }
 }
+
+/* P1.6: compact A/B material judge, no separate painted model or new livery. */
+.itm-p1__material-controls {
+  padding-right: 14px;
+  margin-right: 4px;
+  border-right: 1px solid #35495b;
+}
+.itm-p1__material-controls button {
+  white-space: nowrap;
+  min-height: 40px;
+}
+.itm-p1__material-controls button[aria-pressed='true'] {
+  background: #1d3438;
+  border-color: #73c4cc;
+  color: #d6f8f8;
+  box-shadow: inset 2px 0 #68d0db;
+}
+.itm-p1__material-controls button:last-child[aria-pressed='true'] {
+  color: #ffe3d9;
+  border-color: #ff6442;
+  box-shadow: inset 2px 0 #ff6442;
+  background: #302323;
+}
+.itm-p1__surface-study {
+  display: grid;
+  gap: 11px;
+  padding: 12px 0;
+  border-top: 1px solid #334657;
+}
+.itm-p1__surface-study-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: #a8c2d1;
+  font: 700 10px/1.3 'IBM Plex Mono', monospace;
+  letter-spacing: .10em;
+}
+.itm-p1__surface-study-heading span:last-child { color: #ff8266; }
+.itm-p1__surface-study-row {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  min-width: 0;
+}
+.itm-p1__surface-study-chip {
+  flex: 0 0 28px;
+  height: 28px;
+  border: 1px solid #536b7c;
+  border-radius: 2px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12);
+}
+.itm-p1__surface-study-row strong {
+  color: #d4e2eb;
+  font: 700 10px/1.5 'IBM Plex Mono', monospace;
+}
+.itm-p1__surface-study-row small {
+  color: #85a5b5;
+  font: 500 10px/1.5 'IBM Plex Mono', monospace;
+}
+.itm-p1__surface-study-caption {
+  color: #7394a7;
+  font: 400 10px/1.55 'Space Grotesk', sans-serif;
+}
+@media(max-width:800px) {
+  .itm-p1__material-controls { width: 100%; padding: 0 0 10px; border: 0; }
+  .itm-p1__material-controls button { flex: 1; }
+}
