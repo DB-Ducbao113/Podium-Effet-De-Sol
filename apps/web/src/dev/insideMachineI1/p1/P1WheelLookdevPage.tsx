@@ -23,6 +23,7 @@ type P1QAControl = {
     selectedPart: string;
     profile: QualityProfile;
     orbit: boolean;
+    focusPart: string | null;
     playing: boolean;
     loaded: boolean;
     error: string;
@@ -55,6 +56,7 @@ export default function P1WheelLookdevPage() {
   const [selectedPart, setSelectedPart] = useState<string>(FRONT_LEFT_WHEEL_V2[0].id);
   const [profile, setProfile] = useState<QualityProfile>('BALANCED');
   const [orbit, setOrbit] = useState(false);
+  const [focusPart, setFocusPart] = useState<string | null>(null);
   const [scope, setScope] = useState<WheelInspectionScope>('lock-wheel');
   const [playing, setPlaying] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -100,8 +102,33 @@ export default function P1WheelLookdevPage() {
     setProgress(clampProgress(value));
     setPlaying(false);
     setOrbit(false);
+    setFocusPart(null);
   };
   const jump = (value: number) => seek(value);
+
+  // The seven source nodes remain the only source of part identity.
+  // Focusing never writes over the story progress or model baseline.
+  const choosePart = (id: string) => {
+    const part = FRONT_LEFT_WHEEL_V2.find((item) => item.id === id);
+    if (!part) return;
+    setSelectedPart(id);
+    setFocusPart(id);
+    setPlaying(false);
+    setOrbit(false);
+    if (part.order > 1) setScope('full');
+    if (progress < 0.54 || progress >= 0.86) setProgress(0.54);
+  };
+
+  useEffect(() => {
+    if (!focusPart) return;
+    const leaveFocus = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      setFocusPart(null);
+      setOrbit(false);
+    };
+    window.addEventListener('keydown', leaveFocus);
+    return () => window.removeEventListener('keydown', leaveFocus);
+  }, [focusPart]);
 
   // Test-only control adapter. No production route, no hidden fallback
   // and no manufactured visual evidence: automation reads the live canvas.
@@ -113,18 +140,18 @@ export default function P1WheelLookdevPage() {
         setProgress(clampProgress(value));
         setPlaying(false);
         setOrbit(false);
+        setFocusPart(null);
       },
       setScope: (value) => {
         if (value !== 'lock-wheel' && value !== 'full') return;
         setScope(value);
         setPlaying(false);
+        if (value === 'lock-wheel' && FRONT_LEFT_WHEEL_V2.find((item) => item.id === selectedPart)?.order! > 1) {
+          setFocusPart(null);
+        }
       },
       selectPart: (id) => {
-        const part = FRONT_LEFT_WHEEL_V2.find((item) => item.id === id);
-        if (!part) return;
-        setSelectedPart(id);
-        if (part.order > 1) setScope('full');
-        setPlaying(false);
+        choosePart(id);
       },
       setProfile: (value) => {
         if (!['HIGH', 'BALANCED', 'PERFORMANCE'].includes(value)) return;
@@ -132,16 +159,17 @@ export default function P1WheelLookdevPage() {
         setLoaded(false);
         setError('');
         setPlaying(false);
+        setFocusPart(null);
       },
       getUIState: () => ({
-        progress, scope, selectedPart, profile, orbit, playing, loaded, error,
+        progress, scope, selectedPart, profile, orbit, focusPart, playing, loaded, error,
       }),
     };
     target.__PEDS_ITM_P1_CTRL__ = control;
     return () => {
       if (target.__PEDS_ITM_P1_CTRL__ === control) delete target.__PEDS_ITM_P1_CTRL__;
     };
-  }, [progress, scope, selectedPart, profile, orbit, playing, loaded, error]);
+  }, [progress, scope, selectedPart, profile, orbit, focusPart, playing, loaded, error]);
 
   return (
     <div
@@ -149,11 +177,12 @@ export default function P1WheelLookdevPage() {
       data-testid="itm-p1-pilot"
       data-p1-scene={shot.id}
       data-p1-scope={scope}
+      data-p1-focus={focusPart ?? 'film'}
       data-p1-blueprint={frame.blueprint.toFixed(3)}
     >
       <header className="itm-p1__header">
         <Link to="/engineering" className="itm-p1__home">PODIUM EDS <span>/</span> ENGINEERING</Link>
-        <div className="itm-p1__header-label">LAB P1.2 <span>·</span> SOURCE GLB / R4.5</div>
+        <div className="itm-p1__header-label">LAB P1.5 <span>·</span> SOURCE GLB / R4.5</div>
         <div className="itm-p1__header-actions">
           <button type="button" onClick={() => setLang((value) => value === 'vi' ? 'en' : 'vi')}>{lang === 'vi' ? 'EN' : 'VI'}</button>
           <Link to="/engineering">{lang === 'vi' ? 'Thoát phòng thử nghiệm' : 'Exit pilot'}</Link>
@@ -176,6 +205,7 @@ export default function P1WheelLookdevPage() {
                     selectedPart={selectedPart}
                     profile={profile}
                     orbit={orbit}
+                    focusPart={focusPart}
                     scope={scope}
                     onError={onError}
                     onReady={onReady}
@@ -233,11 +263,7 @@ export default function P1WheelLookdevPage() {
                 key={part.id}
                 className={selectedPart === part.id ? 'itm-p1__part itm-p1__part--active' : 'itm-p1__part'}
                 aria-pressed={selectedPart === part.id}
-                onClick={() => {
-                  setSelectedPart(part.id);
-                  if (index > 1) setScope('full');
-                  setPlaying(false);
-                }}
+                onClick={() => choosePart(part.id)}
               >
                 <small>{String(index + 1).padStart(2, '0')}</small>
                 <span>{part.id.split('.').at(-1)?.replaceAll('_', ' ')}</span>
@@ -249,6 +275,31 @@ export default function P1WheelLookdevPage() {
             <span className="itm-p1__eyebrow">MATERIAL / PART FOCUS</span>
             <strong>{selected.material.replaceAll('-', ' ').toUpperCase()}</strong>
             <p>{selected.inspection}</p>
+            <div className="itm-p1__focus-actions">
+              <button
+                type="button"
+                className="itm-p1__focus-button"
+                aria-pressed={focusPart === selectedPart}
+                disabled={!loaded}
+                onClick={() => {
+                  if (focusPart) {
+                    setFocusPart(null);
+                    setOrbit(false);
+                  } else {
+                    choosePart(selectedPart);
+                  }
+                }}
+              >
+                {focusPart
+                  ? (lang === 'vi' ? 'TRỞ LẠI GÓC PHIM' : 'RETURN TO FILM')
+                  : (lang === 'vi' ? 'XEM CẬN LINH KIỆN' : 'FOCUS SELECTED PART')}
+              </button>
+              {focusPart && (
+                <span className="itm-p1__focus-hint">
+                  {lang === 'vi' ? 'ESC để thoát' : 'ESC to exit'}
+                </span>
+              )}
+            </div>
           </div>
           <div className="itm-p1__source-note">
             MODEL B · ENGINEERING DEMONSTRATOR
@@ -282,7 +333,7 @@ export default function P1WheelLookdevPage() {
         />
         <div className="itm-p1__actions">
           <div className="itm-p1__action-group itm-p1__scope-controls" aria-label="Inspection scope">
-            <button type="button" aria-pressed={scope === 'lock-wheel'} onClick={() => { setScope('lock-wheel'); setPlaying(false); }}>
+            <button type="button" aria-pressed={scope === 'lock-wheel'} onClick={() => { setScope('lock-wheel'); setPlaying(false); setFocusPart(null); }}>
               P1.2 / LOCK + WHEEL
             </button>
             <button type="button" aria-pressed={scope === 'full'} onClick={() => { setScope('full'); setPlaying(false); }}>
@@ -294,6 +345,7 @@ export default function P1WheelLookdevPage() {
               if (progress >= 1) setProgress(0);
               setPlaying((value) => !value);
               setOrbit(false);
+              setFocusPart(null);
             }}>
               {playing ? 'PAUSE' : 'PLAY CINEMATIC'}
             </button>
