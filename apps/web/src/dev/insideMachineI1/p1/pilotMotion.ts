@@ -65,13 +65,67 @@ export function cameraFrameAt(progress: number): {
   };
 }
 
-/** 0% and 100% are assembled, with a deliberately held middle explosion. */
-export function detachmentAt(progress: number): number {
+/**
+ * Physically ordered stage ranges (normalized story timeline).
+ *
+ * The center lock finishes its release and axial extraction BEFORE
+ * the outer wheel begins moving. On reassembly the outer wheel seats
+ * before the center lock, which is tightened last.
+ *
+ * These are educational cinematic staging cues, not service instructions.
+ */
+export const P1_PART_MOTION_PHASES = [
+  { out: [0.318, 0.400], back: [0.955, 0.978] }, // center lock
+  { out: [0.412, 0.495], back: [0.920, 0.952] }, // wheel outer
+  { out: [0.455, 0.525], back: [0.910, 0.940] }, // wheel hub
+  { out: [0.468, 0.538], back: [0.895, 0.926] }, // brake disc
+  { out: [0.477, 0.540], back: [0.884, 0.915] }, // brake caliper
+  { out: [0.490, 0.540], back: [0.872, 0.900] }, // suspension links
+  { out: [0.500, 0.540], back: [0.860, 0.885] }, // hub interface
+] as const;
+
+/**
+ * The source R4.5 nut has only 0.34 m outward displacement while the
+ * outer wheel has 0.66 m. At full separation the tire hides the nut.
+ * P1.2 increases only the LOOKDEV displacement to 0.84 m (+Y Blender,
+ * i.e. -Z glTF), leaving the authored manifest and GLB untouched.
+ */
+export const CENTER_LOCK_PRESENTATION_OFFSET_Z_UP = [0, 0.84, 0] as const;
+
+export function presentationOffsetFor(
+  authoredOffset: Vector3Tuple,
+  order: number,
+): Vector3Tuple {
+  return order === 0 ? CENTER_LOCK_PRESENTATION_OFFSET_Z_UP : authoredOffset;
+}
+
+/** Two complete turns: release while seated, retighten only after reassembly. */
+export function centerLockTurnAt(progress: number): number {
   const p = clampProgress(progress);
-  if (p < 0.25) return 0;
-  if (p < 0.54) return smoothProgress((p - 0.25) / 0.29);
-  if (p <= 0.86) return 1;
-  return 1 - smoothProgress((p - 0.86) / 0.14);
+  if (p < 0.255) return 0;
+  if (p < 0.312) return smoothProgress((p - 0.255) / (0.312 - 0.255));
+  if (p < 0.978) return 1;
+  return 1 - smoothProgress((p - 0.978) / (1 - 0.978));
+}
+
+export function partDetachmentAt(progress: number, order: number): number {
+  const p = clampProgress(progress);
+  const phase = P1_PART_MOTION_PHASES[Math.min(Math.max(0, Math.trunc(order)), P1_PART_MOTION_PHASES.length - 1)];
+  const [outStart, outEnd] = phase.out;
+  const [backStart, backEnd] = phase.back;
+  if (p < outStart) return 0;
+  if (p < outEnd) return smoothProgress((p - outStart) / (outEnd - outStart));
+  if (p < backStart) return 1;
+  if (p < backEnd) return 1 - smoothProgress((p - backStart) / (backEnd - backStart));
+  return 0;
+}
+
+/** Measured 0→1→0 exposure across the seven real wheel components. */
+export function detachmentAt(progress: number): number {
+  return P1_PART_MOTION_PHASES.reduce(
+    (total, _, index) => total + partDetachmentAt(progress, index),
+    0,
+  ) / P1_PART_MOTION_PHASES.length;
 }
 
 export function blueprintAt(progress: number): number {
@@ -82,13 +136,6 @@ export function blueprintAt(progress: number): number {
   return 1 - smoothProgress((p - 0.86) / 0.14);
 }
 
-export function partDetachmentAt(progress: number, order: number): number {
-  const t = detachmentAt(progress);
-  const count = FRONT_LEFT_WHEEL_V2.length;
-  const start = (Math.min(Math.max(order, 0), count - 1) / count) * 0.53;
-  return smoothProgress((t - start) / (1 - start));
-}
-
 /** Always use the original object-local transform; do not accumulate deltas. */
 export function positionFromBaseline(
   original: Vector3Tuple,
@@ -96,7 +143,7 @@ export function positionFromBaseline(
   progress: number,
   order: number,
 ): Vector3Tuple {
-  const [x, y, z] = sourceOffsetToYUp(authoredZUp);
+  const [x, y, z] = sourceOffsetToYUp(presentationOffsetFor(authoredZUp, order));
   const phase = partDetachmentAt(progress, order);
   return [
     original[0] + x * phase,
