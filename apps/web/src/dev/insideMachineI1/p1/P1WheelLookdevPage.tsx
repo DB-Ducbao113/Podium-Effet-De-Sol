@@ -218,7 +218,10 @@ export default function P1WheelLookdevPage() {
             }}
           >{cinemaMode ? 'EXIT CINEMA' : 'CINEMA MODE'}</button>
           <button type="button" onClick={() => setLang((value) => value === 'vi' ? 'en' : 'vi')}>{lang === 'vi' ? 'EN' : 'VI'}</button>
-          <Link to="/engineering">{lang === 'vi' ? 'Thoát phòng thử nghiệm' : 'Exit pilot'}</Link>
+          <Link to="/engineering" className="itm-p1__exit">
+            <span className="itm-p1__exit-full">{lang === 'vi' ? 'Thoát phòng thử nghiệm' : 'Exit pilot'}</span>
+            <span className="itm-p1__exit-short">{lang === 'vi' ? 'THOÁT' : 'EXIT'}</span>
+          </Link>
         </div>
       </header>
 
