@@ -165,7 +165,11 @@ export default function P1WheelLookdevPage() {
                 key={part.id}
                 className={selectedPart === part.id ? 'itm-p1__part itm-p1__part--active' : 'itm-p1__part'}
                 aria-pressed={selectedPart === part.id}
-                onClick={() => { setSelectedPart(part.id); setPlaying(false); }}
+                onClick={() => {
+                  setSelectedPart(part.id);
+                  if (index > 1) setScope('full');
+                  setPlaying(false);
+                }}
               >
                 <small>{String(index + 1).padStart(2, '0')}</small>
                 <span>{part.id.split('.').at(-1)?.replaceAll('_', ' ')}</span>
