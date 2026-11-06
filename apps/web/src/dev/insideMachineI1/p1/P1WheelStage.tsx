@@ -162,6 +162,13 @@ function Vehicle({ model, frame, selected, quality, scope }: {
         }
         cursor = cursor.parent;
       }
+      // Never draw a transparent duplicate of the entire car. On weak GPUs
+      // that doubles draw calls even when opacity is zero. Limit lookdev
+      // layers to the actual inspected wheel (two parts in the P1.2 gate).
+      if (!partId || (scope === 'lock-wheel' && !(
+        partId === 'FRONT_LEFT_WHEEL.CENTER_LOCK_NUT' ||
+        partId === 'FRONT_LEFT_WHEEL.WHEEL_OUTER'
+      ))) continue;
       const originalMaterial = mesh.material;
       const pilotMaterial = partId
         ? Array.isArray(originalMaterial)
@@ -221,7 +228,7 @@ function Vehicle({ model, frame, selected, quality, scope }: {
       }
       overlays.current = [];
     };
-  }, [model, quality, scene, invalidate]);
+  }, [model, quality, scope, scene, invalidate]);
 
   const nutAxis = useMemo(() => new THREE.Vector3(0, 0, -1), []);
   const spin = useMemo(() => new THREE.Quaternion(), []);
