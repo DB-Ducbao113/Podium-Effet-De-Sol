@@ -140,11 +140,18 @@ const lineHot = new THREE.Color('#ff5635');
 /** Mutate Three.js-owned GPU materials inside the render adapter, not React state. */
 function updatePilotOverlayMaterials(items: readonly Overlay[], blueprint: number, selected: string) {
   for (const item of items) {
-    item.surface.opacity = blueprint * (item.partId ? 1 : 0.9);
-    if (item.edgeMaterial) {
-      item.edgeMaterial.opacity = blueprint * 0.92
-        + (item.partId === selected ? (1 - blueprint) * 0.55 : 0);
-      item.edgeMaterial.color.copy(item.partId === selected && blueprint < 0.8 ? lineHot : lineBlue);
+    const active = item.partId === selected;
+    const technicalVisible = blueprint > 0.02;
+    // The original source mesh already morphs its PBR colour in Blueprint.
+    // A full-opacity second surface would mask genuine source detail.
+    item.overlay.visible = technicalVisible;
+    item.surface.opacity = technicalVisible ? blueprint * (active ? 0.12 : 0.07) : 0;
+    if (item.edges && item.edgeMaterial) {
+      item.edges.visible = technicalVisible || active;
+      item.edgeMaterial.opacity = technicalVisible
+        ? blueprint * (active ? 0.98 : 0.76)
+        : (active ? 0.52 : 0);
+      item.edgeMaterial.color.copy(active && blueprint < 0.8 ? lineHot : lineBlue);
     }
   }
 }
@@ -233,6 +240,7 @@ function Vehicle({ model, frame, selected, quality, scope, materialMode }: {
       });
       const overlay = new THREE.Mesh(mesh.geometry, surface);
       overlay.renderOrder = 2;
+      overlay.visible = false;
       overlay.frustumCulled = mesh.frustumCulled;
       overlay.raycast = () => {};
       mesh.add(overlay);
@@ -252,6 +260,7 @@ function Vehicle({ model, frame, selected, quality, scope, materialMode }: {
         });
         edges = new THREE.LineSegments(edgeGeometry, edgeMaterial);
         edges.renderOrder = 3;
+        edges.visible = false;
         mesh.add(edges);
       }
       output.push({ mesh, originalMaterial, overlay, surface, edges, edgeMaterial, edgeGeometry, partId });
