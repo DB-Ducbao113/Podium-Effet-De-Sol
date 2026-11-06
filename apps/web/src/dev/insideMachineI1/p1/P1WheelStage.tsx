@@ -9,6 +9,7 @@ import type { AssemblyManifest, QualityProfile } from '../types';
 import { FRONT_LEFT_WHEEL_V2 } from '../design/frontLeftWheelV2';
 import { pilotFrameAt, positionFromBaseline, centerLockTurnAt, type PilotFrame, type WheelInspectionScope } from './pilotMotion';
 import { createPilotMaterial } from './pilotMaterials';
+import P1EvidenceProbe from './P1EvidenceProbe';
 
 type LoadedAssets = { model: THREE.Group; manifest: AssemblyManifest };
 type Metrics = { drawCalls: number; triangles: number; frameMs: number };
@@ -375,6 +376,15 @@ export default function P1WheelStage({
           <directionalLight color="#b3e6ff" intensity={2.6} position={[-4, 6, -8]} />
           <Vehicle model={assets.model} frame={frame} selected={selectedPart} quality={profile} scope={scope} />
           <CameraControl frame={frame} orbit={orbit} />
+          {import.meta.env.DEV && (
+            <P1EvidenceProbe
+              model={assets.model}
+              progress={progress}
+              selectedPart={selectedPart}
+              scope={scope}
+              profile={profile}
+            />
+          )}
           <FrameSampler onMetrics={onMetrics} onReady={onReady} />
           <ContextGuard onContextLost={onContextLost} />
         </Canvas>
