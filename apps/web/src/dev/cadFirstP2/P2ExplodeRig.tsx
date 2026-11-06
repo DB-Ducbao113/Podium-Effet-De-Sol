@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
+import { p2MotionFactor } from './P2MotionGroups';
 
 /**
  * Editable local study only, not verified racing wheel disassembly order.
@@ -22,17 +23,19 @@ function explodeOffset(id: string): [number, number, number] {
 }
 
 export default function P2ExplodeRig({
-  model, progress,
-}: { model: THREE.Group; progress: number }) {
+  model, progress, wheelAngleDeg = 0,
+}: { model: THREE.Group; progress: number; wheelAngleDeg?: number }) {
   const { invalidate } = useThree();
   const nodes = useMemo(() => {
-    const result: { node: THREE.Mesh; original: THREE.Vector3; offset: THREE.Vector3 }[] = [];
+    const result: { node: THREE.Mesh; original: THREE.Vector3; originalRotation: THREE.Quaternion; offset: THREE.Vector3; motion: number }[] = [];
     model.traverse((node) => {
       if (node instanceof THREE.Mesh) {
         result.push({
           node,
           original: node.position.clone(),
+          originalRotation: node.quaternion.clone(),
           offset: new THREE.Vector3(...explodeOffset(node.name)),
+          motion: p2MotionFactor(node.name),
         });
       }
     });
@@ -41,15 +44,25 @@ export default function P2ExplodeRig({
   useEffect(() => {
     invalidate();
     return () => {
-      nodes.forEach(({ node, original }) => node.position.copy(original));
+      nodes.forEach(({ node, original, originalRotation }) => {
+        node.position.copy(original);
+        node.quaternion.copy(originalRotation);
+      });
       invalidate();
     };
   }, [invalidate, nodes]);
   const amount = THREE.MathUtils.smoothstep(progress, 0, 1);
-  useEffect(() => { invalidate(); }, [amount, invalidate]);
+  useEffect(() => { invalidate(); }, [amount, wheelAngleDeg, invalidate]);
+  const axis = useMemo(() => new THREE.Vector3(0, 0, 1), []);
+  const spin = useMemo(() => new THREE.Quaternion(), []);
   useFrame(() => {
-    nodes.forEach(({ node, original, offset }) => {
-      node.position.copy(original).addScaledVector(offset, amount);
+    nodes.forEach(({ node, original, originalRotation, offset, motion }) => {
+      const rad = THREE.MathUtils.degToRad(wheelAngleDeg * motion);
+      // Source meshes store absolute CAD geometry in their own GLB meshes.
+      // Rotate about the shared axle in the authored GLB coordinate frame.
+      spin.setFromAxisAngle(axis, rad);
+      node.position.copy(original).applyQuaternion(spin).addScaledVector(offset, amount);
+      node.quaternion.copy(spin).multiply(originalRotation);
     });
   });
   return null;
