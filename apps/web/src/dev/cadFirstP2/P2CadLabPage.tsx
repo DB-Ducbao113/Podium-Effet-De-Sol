@@ -15,6 +15,9 @@ type VerifiedManifest = {
   profiles?: Record<string, { file: string; sha256: string; bytes: number; totalTriangles?: number }>;
   masterSTEP?: string;
   mechanicalTruth?: Record<string, boolean>;
+  totalCadSolids?: number;
+  partIds?: string[];
+  geometryProof?: Record<string, number>;
 };
 
 
@@ -81,6 +84,8 @@ export default function P2CadLabPage() {
   const [selectedPart, setSelectedPart] = useState<string | null>(null);
   const [isolate, setIsolate] = useState(false);
   const [explode, setExplode] = useState(0);
+  const [section, setSection] = useState(false);
+  const [sectionOffsetMm, setSectionOffsetMm] = useState(0);
   const [partFilter, setPartFilter] = useState('');
   const [loadState, setLoadState] = useState('NO CAD LOADED');
   const [busy, setBusy] = useState(false);
@@ -99,6 +104,8 @@ export default function P2CadLabPage() {
     setSelectedPart(null);
     setIsolate(false);
     setExplode(0);
+    setSection(false);
+    setSectionOffsetMm(0);
     setPartFilter('');
     setLoadState('READING SOURCE CAD MESH');
     try {
@@ -124,7 +131,17 @@ export default function P2CadLabPage() {
         });
         return;
       }
-      setScene(inspectGlb(result.scene, file.name));
+      const inspected = inspectGlb(result.scene, file.name);
+      if (manifest?.partIds) {
+        const expected = new Set(manifest.partIds);
+        const found = new Set(inspected.components.map((part) => part.name));
+        if (expected.size !== found.size ||
+            inspected.components.length !== manifest.partIds.length ||
+            [...expected].some((part) => !found.has(part))) {
+          throw new Error('P2.3 named CAD solid hierarchy mismatch. Refusing preview.');
+        }
+      }
+      setScene(inspected);
       setLoadState(identity);
     } catch (caught) {
       if (id === request.current) {
@@ -165,7 +182,7 @@ export default function P2CadLabPage() {
       </header>
 
       <section className="p2-cad-lab__intro">
-        <span className="p2-cad-lab__eyebrow">ORIGINAL FRONT CORNER / P2.2</span>
+        <span className="p2-cad-lab__eyebrow">ORIGINAL PRECISION CAD / P2.3</span>
         <h1>GEOMETRY FIRST<span>.</span></h1>
         <p>
           Replace low-poly cosmetic details with inspectable CAD bodies, mechanical
@@ -178,7 +195,7 @@ export default function P2CadLabPage() {
         <div className="p2-cad-lab__viewport" aria-label="CAD source preview">
           {scene ? (
             <Suspense fallback={<div className="p2-cad-lab__empty">INITIALIZING LOCAL CAD VIEWER</div>}>
-              <P2CadViewer key={scene.name} scene={scene} selectedPart={selectedPart} isolate={isolate} explode={explode}/>
+              <P2CadViewer key={scene.name} scene={scene} selectedPart={selectedPart} isolate={isolate} explode={explode} section={section} sectionOffsetMm={sectionOffsetMm}/>
             </Suspense>
           ) : (
             <div className="p2-cad-lab__empty">
@@ -210,6 +227,37 @@ export default function P2CadLabPage() {
             <div><span>SOURCE RIGHTS</span><strong>NOT CLEARED</strong></div>
           </div>
           <div className="p2-cad-lab__eyebrow">02 / REAL GEOMETRY</div>
+          <div className="p2-cad-lab__section-control">
+            <button type="button" aria-pressed={section} disabled={!scene}
+              onClick={() => setSection((current) => !current)}>
+              {section ? 'EXIT AXIAL SECTION VIEW' : 'INSPECT INTERNAL SECTION'}
+            </button>
+            {section && (
+              <label htmlFor="p2-cad-section-offset">
+                SECTION PLANE Y / {sectionOffsetMm} mm
+                <input id="p2-cad-section-offset" type="range" min={-100} max={100} step={1}
+                  value={sectionOffsetMm}
+                  onChange={(event) => setSectionOffsetMm(Number(event.target.value))}/>
+                <span>GPU clipping; not a filled CAD cross-section or a collision certificate.</span>
+              </label>
+            )}
+          </div>
+          {manifest?.geometryProof && (
+            <div className="p2-cad-lab__precision-evidence" aria-label="P2.3 CAD proof">
+              <strong>PRECISION B-REP / P2.3</strong>
+              <span>SOURCE SOLIDS: {manifest.totalCadSolids ?? '—'}</span>
+              <span>HELICAL GROOVE: {manifest.geometryProof.nutHelicalGrooveVolumeMm3?.toFixed(1) ?? '—'} mm³ REMOVED</span>
+              <span>BEARING BALL / GROOVE GAP: {manifest.geometryProof.nominalBearingBallGrooveClearanceMm ?? '—'} mm</span>
+              <span>PISTON / CYLINDER GAP: {manifest.geometryProof.pistonBoreRadialClearanceMm ?? '—'} mm</span>
+              <span>CHECKED PAIR MAX OVERLAP: {Math.max(
+                manifest.geometryProof.studNutIntersectionMm3 ?? 0,
+                manifest.geometryProof.maxBallRaceIntersectionMm3 ?? 0,
+                manifest.geometryProof.maxBallRetainerIntersectionMm3 ?? 0,
+                manifest.geometryProof.largestPistonHousingIntersectionMm3 ?? 0
+              ).toFixed(4)} mm³</span>
+              <small>Evidence comes from a selected local manifest. Not an independent browser CAD test; neither physical fit nor full assembly is certified.</small>
+            </div>
+          )}
           <div className="p2-cad-lab__explode-control">
             <label htmlFor="p2-cad-explode">
               <span>EXPLODED CAD STUDY</span>
