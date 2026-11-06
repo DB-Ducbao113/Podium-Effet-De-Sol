@@ -267,6 +267,33 @@ try {
         caseInfo.checks.push({ name: 'two-part-isolation', pass: unfocused.pass, unfocused });
         caseInfo.checks.push({ name: 'full-seven-part-regression', pass: fullMoved });
         caseInfo.checks.push({ name: 'source-geometry-canvas', pass: timeline.hero.stage.drawCalls > 0 });
+        if (profile === 'BALANCED' && viewport.width === 1440) {
+          await seek(page, 0);
+          const start = Date.now();
+          await page.getByRole('button', { name: 'PLAY CINEMATIC' }).click();
+          await page.waitForFunction(() =>
+            window.__PEDS_ITM_P1_CTRL__?.getUIState().playing === true,
+            undefined, { timeout: 5000 },
+          );
+          await page.waitForFunction(() => {
+            const state = window.__PEDS_ITM_P1_CTRL__?.getUIState();
+            return state && !state.playing && state.progress >= 0.999;
+          }, undefined, { timeout: 45000 });
+          const finished = await page.evaluate(() => ({
+            ui: window.__PEDS_ITM_P1_CTRL__.getUIState(),
+            stage: window.__PEDS_ITM_P1_STAGE__.getState(),
+            transforms: window.__PEDS_ITM_P1_STAGE__.getTransforms(),
+          }));
+          const timeMs = Date.now() - start;
+          caseInfo.checks.push({
+            name: 'continuous-uncut-cinematic-playback',
+            pass: timeMs >= 20000 && timeMs <= 45000 &&
+              comparison(atZero, finished.transforms).pass,
+            wallClockMs: timeMs,
+            renderedFrames: finished.stage.renderedFrames,
+            endpointProgress: finished.ui.progress,
+          });
+        }
         caseInfo.pass = caseInfo.errors.length === 0 &&
           caseInfo.checks.every(entry =>
             entry.structuralIssues ? entry.structuralIssues.length === 0 : entry.pass,
