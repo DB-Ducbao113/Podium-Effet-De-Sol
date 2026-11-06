@@ -226,6 +226,23 @@ try {
         const atOne = timeline['fully-assembled'].transforms;
         const reassembly = comparison(atZero, atOne);
 
+        const axialMove = (id, frame) => frame[id].position[2] - atZero[id].position[2];
+        const nutId = IDS[0];
+        const wheelId = IDS[1];
+        const nutAt40 = axialMove(nutId, timeline['nut-extracted'].transforms);
+        const wheelAt40 = axialMove(wheelId, timeline['nut-extracted'].transforms);
+        const nutAt54 = axialMove(nutId, timeline['wheel-extracted'].transforms);
+        const wheelAt54 = axialMove(wheelId, timeline['wheel-extracted'].transforms);
+        const stagedAxial = {
+          expectedNutZ: -0.84,
+          expectedWheelZ: -0.66,
+          nutAt40, wheelAt40, nutAt54, wheelAt54,
+          pass: Math.abs(nutAt40 + 0.84) <= 1e-4 &&
+            Math.abs(wheelAt40) <= 1e-4 &&
+            Math.abs(nutAt54 + 0.84) <= 1e-4 &&
+            Math.abs(wheelAt54 + 0.66) <= 1e-4,
+        };
+
         // Check the five inactive source nodes against the assembled baseline.
         const unfocused = comparison(atZero, timeline['wheel-extracted'].transforms, IDS.slice(2));
 
@@ -246,6 +263,7 @@ try {
           name: 'roundtrip-0-100-0', pass: reassembly.pass && backwards.pass,
           reassembly, backwards,
         });
+        caseInfo.checks.push({ name: 'actual-wheel-axis-motion', ...stagedAxial });
         caseInfo.checks.push({ name: 'two-part-isolation', pass: unfocused.pass, unfocused });
         caseInfo.checks.push({ name: 'full-seven-part-regression', pass: fullMoved });
         caseInfo.checks.push({ name: 'source-geometry-canvas', pass: timeline.hero.stage.drawCalls > 0 });
