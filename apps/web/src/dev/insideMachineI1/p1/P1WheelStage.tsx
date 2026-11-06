@@ -210,15 +210,24 @@ function Vehicle({ model, frame, selected, quality }: {
     };
   }, [model, quality, scene, invalidate]);
 
-  useEffect(() => {
+  const nutAxis = useMemo(() => new THREE.Vector3(0, 0, -1), []);
+  const spin = useMemo(() => new THREE.Quaternion(), []);
+  const background = useMemo(
+    () => backdropDark.clone().lerp(backdropLight, frame.blueprint).getHexString(),
+    [frame.blueprint],
+  );
+
+  // Invalidate on React state changes; all 3D mutations happen in R3F's
+  // renderer-owned frame callback, not in React effects or during render.
+  useEffect(() => { invalidate(); }, [frame, invalidate, selected]);
+  useFrame(() => {
     original.forEach((item) => {
       const position = positionFromBaseline(item.originalPosition, item.offset, frame.progress, item.order);
       item.object.position.set(...position);
       const phase = partDetachmentAt(frame.progress, item.order);
       item.object.quaternion.copy(item.originalQuaternion);
       if (item.order === 0) {
-        // 2 full turns along the negative glTF Z axle of the authored lock.
-        const spin = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, -1), Math.PI * 4 * phase);
+        spin.setFromAxisAngle(nutAxis, Math.PI * 4 * phase);
         item.object.quaternion.multiply(spin);
       }
     });
@@ -230,12 +239,9 @@ function Vehicle({ model, frame, selected, quality }: {
         item.edgeMaterial.color.copy(item.partId === selected && frame.blueprint < 0.8 ? lineHot : lineBlue);
       }
     }
-    // Retain exactly the same geometry and transforms during the blueprint morph.
-    scene.background = backdropDark.clone().lerp(backdropLight, frame.blueprint);
-    invalidate();
-  }, [frame, invalidate, original, scene, selected]);
+  });
 
-  return null;
+  return <color attach="background" args={[`#${background}`]} />;
 }
 
 function CameraControl({ frame, orbit }: { frame: PilotFrame; orbit: boolean }) {
