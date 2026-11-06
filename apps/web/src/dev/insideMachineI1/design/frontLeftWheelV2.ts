@@ -20,7 +20,8 @@ export type MaterialFamily =
   | 'rubber-metal'
   | 'gunmetal'
   | 'brake-carbon'
-  | 'carbon-composite';
+  | 'carbon-composite'
+  | 'crimson-caliper';
 
 export type MotionCue = 'lock-release' | 'axial-extract' | 'hub-release' | 'brake-reveal' | 'caliper-clearance' | 'link-relief' | 'mount-release';
 
@@ -90,7 +91,7 @@ export const FRONT_LEFT_WHEEL_V2: readonly PartDesignTicket[] = [
     node: 'PEDS_BRAKE_CALIPER',
     authoredOffsetZUp: [-0.1, 0.25, 0.1],
     order: 4,
-    material: 'gunmetal',
+    material: 'crimson-caliper',
     motion: 'caliper-clearance',
     inspection: 'Show caliper throat and its clearance to the disc',
     acceptance: 'No mesh intersection at full separation or in reverse',
@@ -103,6 +104,8 @@ export const FRONT_LEFT_WHEEL_V2: readonly PartDesignTicket[] = [
     order: 5,
     material: 'carbon-composite',
     motion: 'link-relief',
+    // Target treatment only: source mesh currently uses PEDS_NEW_TITANIUM.
+
     inspection: 'Expose fixed endpoints and metallic suspension joints',
     acceptance: 'Links must not stretch or deform during movement',
     engineeringConfidence: 'illustrative',
@@ -117,6 +120,7 @@ export const FRONT_LEFT_WHEEL_V2: readonly PartDesignTicket[] = [
     inspection: 'Show face of mounting interface only if geometry exists',
     acceptance: 'Flag unverified shaft–hub mechanical engagement in documentation',
     engineeringConfidence: 'unproven-fitment',
+    // Manifest records pivotWorld [0,0,0] for this element: do not focus camera here.
   },
 ] as const;
 
