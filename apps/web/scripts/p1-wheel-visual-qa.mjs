@@ -125,6 +125,14 @@ function validateFrame(label, frame, scope) {
   if (frame.horizontalOverflow) issues.push('horizontal overflow');
   if (Object.keys(frame.transforms).length !== 7) issues.push('incorrect transform count');
   for (const id of IDS) if (!frame.transforms[id]?.finite) issues.push(`nonfinite transform: ${id}`);
+  if (label === 'nut-extracted' && (!frame.nutBounds ||
+      frame.nutBounds.outside || frame.nutBounds.clipped)) {
+    issues.push('center lock not fully visible at 40% cinematic frame');
+  }
+  if (label === 'wheel-extracted' && (!frame.wheelBounds ||
+      frame.wheelBounds.outside || frame.wheelBounds.clipped)) {
+    issues.push('outer wheel not fully visible at 54% cinematic frame');
+  }
   if (label === 'blueprint') {
     if (frame.stage.blueprint < 0.99) issues.push('blueprint did not reach its held state');
     if (frame.blueprintColor !== 'rgb(23, 45, 58)') issues.push('Blueprint title lacks dark-on-light contrast');
