@@ -4,6 +4,7 @@ import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 import P2ExplodeRig from './P2ExplodeRig';
 import { P2CinemaSurface, P2CinemaCamera, P2CinemaLightRig } from './P2CinemaRendering';
+import P2StudioEnvironment, { type P2DisplayQuality } from './P2StudioEnvironment';
 import { p2FilmFrame } from './P2CinemaTimeline';
 
 export type P2CadScene = {
@@ -107,7 +108,7 @@ function P2CadClipping({
 }
 
 export default function P2CadViewer({
-  scene, selectedPart, isolate, explode, wheelAngleDeg, steerAngleDeg, cinematic, filmProgress, playing, section, sectionOffsetMm,
+  scene, selectedPart, isolate, explode, wheelAngleDeg, steerAngleDeg, cinematic, filmProgress, playing, quality, section, sectionOffsetMm,
 }: {
   scene: P2CadScene;
   selectedPart: string | null;
@@ -118,6 +119,7 @@ export default function P2CadViewer({
   cinematic: boolean;
   filmProgress: number;
   playing: boolean;
+  quality: P2DisplayQuality;
   section: boolean;
   sectionOffsetMm: number;
 }) {
@@ -155,8 +157,8 @@ export default function P2CadViewer({
     <Canvas
       frameloop={cinematic && playing ? 'always' : 'demand'}
       camera={{ fov: 36, near: 0.00001, far: 100, position: [0.05, 0.05, 0.05] }}
-      dpr={[1, 1.75]}
-      gl={{ antialias: true, powerPreference: 'high-performance' }}
+      dpr={[1, quality === 'HIGH' ? 2 : quality === 'BALANCED' ? 1.5 : 1]}
+      gl={{ antialias: quality !== 'PERFORMANCE', powerPreference: quality === 'PERFORMANCE' ? 'default' : 'high-performance' }}
       onCreated={({ gl }) => {
         gl.localClippingEnabled = true;
         gl.outputColorSpace = THREE.SRGBColorSpace;
@@ -165,6 +167,7 @@ export default function P2CadViewer({
       }}
     >
       <color attach="background" args={[cinematic && p2FilmFrame(filmProgress).blueprint > 0.45 ? '#eaf2f6' : '#101923']} />
+      {cinematic && <P2StudioEnvironment quality={quality} />}
       {cinematic ? <P2CinemaLightRig progress={filmProgress} /> : (
         <>
           <ambientLight intensity={1.25} />
