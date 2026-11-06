@@ -19,6 +19,7 @@ type VerifiedManifest = {
   schema: string;
   profiles?: Record<string, { file: string; sha256: string; bytes: number; totalTriangles?: number }>;
   masterSTEP?: string;
+  sourceSTEPsha256?: string;
   mechanicalTruth?: Record<string, boolean>;
   totalCadSolids?: number;
   partIds?: string[];
