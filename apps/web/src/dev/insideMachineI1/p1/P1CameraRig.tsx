@@ -4,6 +4,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { FRONT_LEFT_WHEEL_V2 } from '../design/frontLeftWheelV2';
 import type { PilotFrame } from './pilotMotion';
+import { macroLensFor } from './P1MacroLenses';
 
 interface Props {
   frame: PilotFrame;
@@ -12,11 +13,7 @@ interface Props {
   focusPart: string | null;
 }
 
-const FOCUS_DIRECTION = new THREE.Vector3(1.85, 1.02, -2.8).normalize();
 const WORLD_UP = new THREE.Vector3(0, 1, 0);
-const MIN_FOCUS_DISTANCE = 0.74;
-const MAX_FOCUS_DISTANCE = 4.5;
-const FOCUS_MARGIN = 1.65;
 
 function focusObject(model: THREE.Group, semanticId: string | null) {
   if (!semanticId) return null;
@@ -42,8 +39,11 @@ export default function P1CameraRig({ frame, model, orbit, focusPart }: Props) {
   const bounds = useMemo(() => new THREE.Box3(), []);
   const sphere = useMemo(() => new THREE.Sphere(), []);
   const filmPosition = useMemo(() => new THREE.Vector3(), []);
+  const focusDirection = useMemo(() => new THREE.Vector3(), []);
+  const cameraRight = useMemo(() => new THREE.Vector3(), []);
 
   const part = focusObject(model, focusPart);
+  const lens = macroLensFor(focusPart);
 
   useEffect(() => {
     if (!orbit) invalidate();
@@ -69,19 +69,20 @@ export default function P1CameraRig({ frame, model, orbit, focusPart }: Props) {
           : THREE.MathUtils.degToRad(35);
         const field = Math.max(0.2, Math.sin(fov / 2));
         const focusDistance = THREE.MathUtils.clamp(
-          radius * FOCUS_MARGIN / field,
-          MIN_FOCUS_DISTANCE,
-          MAX_FOCUS_DISTANCE,
+          radius * lens.margin / field,
+          lens.minDistance,
+          lens.maxDistance,
         );
 
+        focusDirection.set(...lens.direction).normalize();
         desiredTarget.copy(focusCenter);
-        desiredPosition.copy(focusCenter).addScaledVector(FOCUS_DIRECTION, focusDistance);
+        desiredPosition.copy(focusCenter).addScaledVector(focusDirection, focusDistance);
 
         // Give the part breathing space without hiding it behind the
         // surrounding chassis or the external inspection panel.
-        const side = new THREE.Vector3().crossVectors(FOCUS_DIRECTION, WORLD_UP).normalize();
-        desiredTarget.addScaledVector(side, Math.min(radius * 0.20, 0.075));
-        desiredPosition.addScaledVector(side, Math.min(radius * 0.20, 0.075));
+        cameraRight.crossVectors(focusDirection, WORLD_UP).normalize();
+        desiredTarget.addScaledVector(cameraRight, Math.min(radius * 0.20, 0.075));
+        desiredPosition.addScaledVector(cameraRight, Math.min(radius * 0.20, 0.075));
       }
     }
 
