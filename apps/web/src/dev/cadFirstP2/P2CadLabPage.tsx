@@ -18,6 +18,19 @@ type VerifiedManifest = {
   totalCadSolids?: number;
   partIds?: string[];
   geometryProof?: Record<string, number>;
+  p23SourcePrecisionEvidence?: Record<string, number>;
+  staticCollisionAudit?: {
+    file: string; sha256: string; totalPairs: number; candidatePairs: number;
+    unresolvedPairs: number; volumeThresholdMm3: number;
+  } | null;
+};
+
+type StaticFitEvidence = {
+  schema: string; sourcePartCount: number; sourceSTEPsha256: string;
+  roundtripCadSolids: number; roundtripCadFaces: number; totalPairs: number;
+  candidatePairs: number; broadphaseRejectedPairs: number;
+  unresolvedPairs: Array<{ a?: string; b?: string; error?: string }>;
+  volumeThresholdMm3: number; allStaticPairsPass: boolean;
 };
 
 
@@ -92,6 +105,8 @@ export default function P2CadLabPage() {
   const [error, setError] = useState('');
   const [manifest, setManifest] = useState<VerifiedManifest | null>(null);
   const [manifestName, setManifestName] = useState('');
+  const [fitAudit, setFitAudit] = useState<StaticFitEvidence | null>(null);
+  const [fitAuditName, setFitAuditName] = useState('');
   const request = useRef(0);
 
   const onModel = useCallback(async (event: ChangeEvent<HTMLInputElement>) => {
@@ -164,6 +179,8 @@ export default function P2CadLabPage() {
       }
       setManifest(candidate);
       setManifestName(file.name);
+      setFitAudit(null);
+      setFitAuditName('');
       setLoadState('MANIFEST LOADED — RESELECT GLB TO VERIFY');
       setError('');
     } catch (caught) {
@@ -172,6 +189,45 @@ export default function P2CadLabPage() {
       event.target.value = '';
     }
   }, []);
+
+  const onFitAudit = useCallback(async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setFitAudit(null);
+    setFitAuditName('');
+    try {
+      const expected = manifest?.staticCollisionAudit;
+      if (!expected) throw new Error('Select the P2.4 source manifest before loading its fit audit.');
+      if (file.name !== expected.file) throw new Error('Audit filename differs from the manifest.');
+      const bytes = await file.arrayBuffer();
+      const digest = await crypto.subtle.digest('SHA-256', bytes);
+      const actual = Array.from(new Uint8Array(digest), (x) => x.toString(16).padStart(2, '0')).join('');
+      if (actual !== expected.sha256.toLowerCase()) throw new Error('Static fit audit SHA-256 mismatch.');
+      const proof = JSON.parse(new TextDecoder().decode(bytes)) as StaticFitEvidence;
+      const n = manifest?.totalCadSolids ?? 0;
+      if (proof.schema !== 'podium-eds.p2.cad-first.static-fit-audit.v1' ||
+          proof.sourcePartCount !== n || proof.roundtripCadSolids !== n ||
+          proof.sourceSTEPsha256 !== manifest?.masterSTEPsha256 ||
+          proof.totalPairs !== n * (n - 1) / 2 ||
+          proof.totalPairs !== proof.candidatePairs + proof.broadphaseRejectedPairs ||
+          proof.totalPairs !== expected.totalPairs ||
+          proof.candidatePairs !== expected.candidatePairs ||
+          proof.volumeThresholdMm3 !== expected.volumeThresholdMm3 ||
+          proof.unresolvedPairs.length !== 0 || expected.unresolvedPairs !== 0 ||
+          !proof.allStaticPairsPass) {
+        throw new Error('Audit values are inconsistent with the selected CAD source.');
+      }
+      setFitAudit(proof);
+      setFitAuditName(file.name);
+      setError('');
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'Local static audit rejected.');
+    } finally {
+      event.target.value = '';
+    }
+  }, [manifest]);
+
+  const precisionProof = manifest?.geometryProof ?? manifest?.p23SourcePrecisionEvidence;
 
   return (
     <main className="p2-cad-lab">
@@ -182,7 +238,7 @@ export default function P2CadLabPage() {
       </header>
 
       <section className="p2-cad-lab__intro">
-        <span className="p2-cad-lab__eyebrow">ORIGINAL PRECISION CAD / P2.3</span>
+        <span className="p2-cad-lab__eyebrow">ORIGINAL STATIC FIT / P2.4</span>
         <h1>GEOMETRY FIRST<span>.</span></h1>
         <p>
           Replace low-poly cosmetic details with inspectable CAD bodies, mechanical
@@ -224,8 +280,27 @@ export default function P2CadLabPage() {
           <div className="p2-cad-lab__stats">
             <div><span>CAD OBJECTS</span><strong>{scene?.meshCount ?? '—'}</strong></div>
             <div><span>TRIANGLES</span><strong>{scene?.triangles.toLocaleString() ?? '—'}</strong></div>
-            <div><span>SOURCE RIGHTS</span><strong>NOT CLEARED</strong></div>
+            <div><span>SOURCE RIGHTS</span><strong>{manifest?.schema === 'podium-eds.p2.cad-first.front-corner.fit.v1' ? 'PROJECT-AUTHORED / RELEASE REVIEW' : 'NOT CLEARED'}</strong></div>
           </div>
+          {manifest?.staticCollisionAudit && (
+            <div className="p2-cad-lab__fit-audit" aria-label="P2.4 static collision evidence">
+              <div className="p2-cad-lab__eyebrow">P2.4 / STATIC ASSEMBLY FIT</div>
+              <label className="p2-cad-lab__upload">
+                VERIFY LOCAL STATIC AUDIT (.JSON)
+                <input type="file" accept=".json,application/json" onChange={onFitAudit}/>
+              </label>
+              {fitAudit ? (
+                <>
+                  <strong>{fitAudit.totalPairs.toLocaleString()} SOURCE PAIRS ACCOUNTED FOR</strong>
+                  <span>{fitAudit.candidatePairs} exact B-Rep intersections · {fitAudit.broadphaseRejectedPairs} AABB exclusions</span>
+                  <span>Zero unresolved overlap above {fitAudit.volumeThresholdMm3} mm³ at the neutral assembled pose</span>
+                  <small>{fitAuditName} · SHA-256 matched to local manifest. Dynamic clearance, tolerances and stresses are NOT certified.</small>
+                </>
+              ) : (
+                <p>Load the matching audit file to verify its SHA-256 and complete pair coverage. A manifest alone is not enough.</p>
+              )}
+            </div>
+          )}
           <div className="p2-cad-lab__eyebrow">02 / REAL GEOMETRY</div>
           <div className="p2-cad-lab__section-control">
             <button type="button" aria-pressed={section} disabled={!scene}
@@ -242,18 +317,18 @@ export default function P2CadLabPage() {
               </label>
             )}
           </div>
-          {manifest?.geometryProof && (
+          {precisionProof && (
             <div className="p2-cad-lab__precision-evidence" aria-label="P2.3 CAD proof">
               <strong>PRECISION B-REP / P2.3</strong>
               <span>SOURCE SOLIDS: {manifest.totalCadSolids ?? '—'}</span>
-              <span>HELICAL GROOVE: {manifest.geometryProof.nutHelicalGrooveVolumeMm3?.toFixed(1) ?? '—'} mm³ REMOVED</span>
-              <span>BEARING BALL / GROOVE GAP: {manifest.geometryProof.nominalBearingBallGrooveClearanceMm ?? '—'} mm</span>
-              <span>PISTON / CYLINDER GAP: {manifest.geometryProof.pistonBoreRadialClearanceMm ?? '—'} mm</span>
+              <span>HELICAL GROOVE: {precisionProof.nutHelicalGrooveVolumeMm3?.toFixed(1) ?? '—'} mm³ REMOVED</span>
+              <span>BEARING BALL / GROOVE GAP: {precisionProof.nominalBearingBallGrooveClearanceMm ?? '—'} mm</span>
+              <span>PISTON / CYLINDER GAP: {precisionProof.pistonBoreRadialClearanceMm ?? '—'} mm</span>
               <span>CHECKED PAIR MAX OVERLAP: {Math.max(
-                manifest.geometryProof.studNutIntersectionMm3 ?? 0,
-                manifest.geometryProof.maxBallRaceIntersectionMm3 ?? 0,
-                manifest.geometryProof.maxBallRetainerIntersectionMm3 ?? 0,
-                manifest.geometryProof.largestPistonHousingIntersectionMm3 ?? 0
+                precisionProof.studNutIntersectionMm3 ?? 0,
+                precisionProof.maxBallRaceIntersectionMm3 ?? 0,
+                precisionProof.maxBallRetainerIntersectionMm3 ?? 0,
+                precisionProof.largestPistonHousingIntersectionMm3 ?? 0
               ).toFixed(4)} mm³</span>
               <small>Evidence comes from a selected local manifest. Not an independent browser CAD test; neither physical fit nor full assembly is certified.</small>
             </div>
