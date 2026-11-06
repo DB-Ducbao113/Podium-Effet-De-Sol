@@ -46,6 +46,23 @@ type DynamicSpinEvidence = {
   poses: Array<{ wheelAngleDeg: number; collisionCount: number; booleanErrorCount?: number; status: string }>;
 };
 
+type P26SteeringAudit = {
+  schema: string;
+  sourceSTEPsha256: string;
+  sourceManifestSha256: string;
+  validCadSolids: number;
+  sampledSteeringPass: boolean;
+  thresholdMm3: number;
+  exactPairs: number;
+  poses: Array<{
+    steerDeg: number;
+    exactBrepPairs: number;
+    collisionCount: number;
+    booleanErrorCount: number;
+    status: string;
+  }>;
+};
+
 type StaticFitEvidence = {
   schema: string; sourcePartCount: number; sourceSTEPsha256: string;
   roundtripCadSolids: number; roundtripCadFaces: number; totalPairs: number;
@@ -134,6 +151,7 @@ export default function P2CadLabPage() {
   const [manifestSha, setManifestSha] = useState('');
   const [wheelAngleDeg, setWheelAngleDeg] = useState(0);
   const [steerAngleDeg, setSteerAngleDeg] = useState(0);
+  const [steeringAudit, setSteeringAudit] = useState<P26SteeringAudit | null>(null);
   const [cinematic, setCinematic] = useState(false);
   const [filmProgress, setFilmProgress] = useState(0);
   const [filmPlaying, setFilmPlaying] = useState(false);
@@ -157,6 +175,7 @@ export default function P2CadLabPage() {
     setExplode(0);
     setWheelAngleDeg(0);
     setSteerAngleDeg(0);
+    setSteeringAudit(null);
     setCinematic(false);
     setFilmPlaying(false);
     setFilmProgress(0);
@@ -238,6 +257,7 @@ export default function P2CadLabPage() {
       setIsolate(false);
       setSection(false);
       setSteerAngleDeg(0);
+      setSteeringAudit(null);
       setManifest(candidate);
       setManifestName(file.name);
       setManifestSha(hash);
@@ -344,6 +364,43 @@ export default function P2CadLabPage() {
     scene && manifest?.schema === 'podium-eds.p2.cad-first.front-corner.fit.v1' &&
     manifest.partIds?.length === 53 && scene.meshCount === 53
   );
+  const onP26Audit = useCallback(async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setSteeringAudit(null);
+    try {
+      if (manifest?.schema !== 'podium-eds.p2.cad-first.steer-machined.v1' ||
+          !manifestSha || !manifest.sourceSTEPsha256) {
+        throw new Error('Select the original P2.6 source manifest first.');
+      }
+      if (file.size > 2 * 1024 * 1024) throw new Error('P2.6 audit exceeds 2 MB.');
+      const audit = JSON.parse(await file.text()) as P26SteeringAudit;
+      const angles = [-8,-6,-4,-2,0,2,4,6,8];
+      if (audit.schema !== 'podium-eds.p2.cad-first.steering-audit.v1' ||
+          audit.sourceSTEPsha256 !== manifest.sourceSTEPsha256 ||
+          audit.sourceManifestSha256 !== manifestSha ||
+          audit.validCadSolids !== 53 ||
+          audit.poses?.length !== angles.length ||
+          !angles.every((angle,i) =>
+            audit.poses[i]?.steerDeg === angle &&
+            audit.poses[i].collisionCount === 0 &&
+            audit.poses[i].booleanErrorCount === 0 &&
+            audit.poses[i].exactBrepPairs >= 0
+          ) ||
+          audit.exactPairs !== audit.poses.reduce((sum,pose)=>sum+pose.exactBrepPairs,0) ||
+          !Number.isFinite(audit.exactPairs) || audit.exactPairs < 1 ||
+          !audit.sampledSteeringPass || audit.thresholdMm3 !== 0.05) {
+        throw new Error('P2.6 steering evidence is incomplete or mismatched with the source STEP.');
+      }
+      setSteeringAudit(audit);
+      setError('');
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'P2.6 audit rejected.');
+    } finally {
+      event.target.value = '';
+    }
+  },[manifest,manifestSha]);
+
   const canSteerP26 = Boolean(
     scene && manifest?.schema === 'podium-eds.p2.cad-first.steer-machined.v1' &&
     manifest.parts?.length === 53 && scene.meshCount === 53
@@ -565,6 +622,19 @@ export default function P2CadLabPage() {
           </div>
           {canSteerP26 && (
             <div className="p2-cad-lab__steer-control">
+              <label className="p2-cad-lab__upload">
+                LOAD P2.6 SOURCE-MATCHED STEERING AUDIT (.JSON)
+                <input type="file" accept=".json,application/json" onChange={onP26Audit}/>
+              </label>
+              {steeringAudit ? (
+                <div className="p2-cad-lab__motion-evidence" role="status">
+                  <strong>9 SAMPLED STEERING POSES — NO REPORTED OVERLAP</strong>
+                  <span>{steeringAudit.exactPairs} source B-Rep intersections · 53 original solids</span>
+                  <small>Source/master manifest hashes match. Only sampled link-to-corner pairs checked; not a continuous, loaded, or certified mechanism.</small>
+                </div>
+              ) : (
+                <small>Steering visualization is not a clearance certificate. Load its source-linked local audit to review sampled results.</small>
+              )}
               <label htmlFor="p2-steer-angle">
                 <span>P2.6 / STEERING LINKAGE</span>
                 <strong>{steerAngleDeg.toFixed(1)}°</strong>
