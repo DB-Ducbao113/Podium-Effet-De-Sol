@@ -394,3 +394,47 @@
   font-size: 10px;
   line-height: 1.65;
 }
+
+/* P2.5 wheel-angle sampler. Local B-Rep report is a separate review gate. */
+.p2-cad-lab__wheel-spin {
+  display: grid;
+  gap: 9px;
+  padding: 13px;
+  background: #142b36;
+  border: 1px solid #456477;
+}
+.p2-cad-lab__wheel-spin > label:first-child {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  font: 750 10px/1.5 'IBM Plex Mono', monospace;
+  letter-spacing: .06em;
+  color: #c6e4ee;
+}
+.p2-cad-lab__wheel-spin label strong { color: #ffab8c; font-size: 13px; }
+.p2-cad-lab__wheel-spin > input[type='range'] {
+  width: 100%;
+  min-height: 32px;
+  accent-color: #ff6844;
+}
+.p2-cad-lab__wheel-spin > input:disabled { opacity: .45; cursor: not-allowed; }
+.p2-cad-lab__wheel-spin > p,
+.p2-cad-lab__wheel-spin small {
+  margin: 0;
+  color: #a9c1cd;
+  font: 500 10px/1.7 'IBM Plex Mono', monospace;
+}
+.p2-cad-lab__motion-evidence {
+  display: grid;
+  gap: 7px;
+  padding: 12px;
+  background: #112d33;
+  border-left: 3px solid #88d1d4;
+  color: #d9f0f1;
+  font: 600 10px/1.55 'IBM Plex Mono', monospace;
+}
+.p2-cad-lab__motion-evidence strong { color: #c7f4ee; font-size: 12px; }
+.p2-cad-lab__motion-evidence span { color: #badbe2; }
+.p2-cad-lab__motion-evidence small { color: #a6bfcf; }
+.p2-cad-lab__motion-pending { color: #ffbea8 !important; }
