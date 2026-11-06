@@ -5,6 +5,7 @@ import { FRONT_LEFT_WHEEL_SHOTS, wheelShotAt } from '../design/frontLeftWheelSho
 import type { QualityProfile } from '../types';
 import { clampProgress, pilotFrameAt, detachmentForScope, type WheelInspectionScope } from './pilotMotion';
 import type { P1SurfaceMode } from './pilotMaterials';
+import { materialStudyFor } from './P1SurfaceStudy';
 import './p1Wheel.css';
 
 const P1WheelStage = lazy(() => import('./P1WheelStage'));
@@ -317,6 +318,38 @@ export default function P1WheelLookdevPage() {
                 </span>
               )}
             </div>
+          </div>
+          <div className="itm-p1__surface-study" aria-label="P1.6 surface materials">
+            <div className="itm-p1__surface-study-heading">
+              <span>SURFACE STUDY / P1.6</span>
+              <span>{materialMode === 'source' ? 'ORIGINAL' : 'CINEMATIC'}</span>
+            </div>
+            {materialStudyFor(selectedPart).map(({ sourceName, look }) => (
+              <div key={sourceName} className="itm-p1__surface-study-row">
+                <span
+                  className="itm-p1__surface-study-chip"
+                  style={{ background: materialMode === 'cinematic' && look
+                    ? `linear-gradient(130deg, ${look.color}, #0d1924)`
+                    : 'linear-gradient(130deg, #718292, #1a242e)' }}
+                  aria-hidden="true"
+                />
+                <div>
+                  <strong>{sourceName.replaceAll('PEDS_', '').replaceAll('_', ' ')}</strong>
+                  <div>
+                    <small>{materialMode === 'cinematic' && look
+                      ? `METAL ${look.metalness.toFixed(2)} / ROUGH ${look.roughness.toFixed(2)}`
+                      : 'SOURCE GLB / PBR UNCHANGED'}</small>
+                  </div>
+                </div>
+              </div>
+            ))}
+            <span className="itm-p1__surface-study-caption">
+              {materialMode === 'cinematic'
+                ? (profile === 'PERFORMANCE'
+                  ? 'Flat PBR only · procedural microfinish disabled'
+                  : 'Source UV · subtle roughness-only microfinish · no invented mesh detail')
+                : 'Original source material values; GLB geometry and paint remain unchanged'}
+            </span>
           </div>
           <div className="itm-p1__source-note">
             MODEL B · ENGINEERING DEMONSTRATOR
