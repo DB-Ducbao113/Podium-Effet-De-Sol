@@ -16,6 +16,7 @@ import P1PartAnnotations from './P1PartAnnotations';
 import P1CameraRig from './P1CameraRig';
 import P1MacroFocusLight from './P1MacroFocusLight';
 import { applyP1BlueprintSurfaces, snapshotP1Surface, type P1SurfaceSnapshot } from './P1BlueprintMaterials';
+import { filmLookAt, type P1FilmLook } from './P1FilmDirector';
 
 type LoadedAssets = { model: THREE.Group; manifest: AssemblyManifest };
 type Metrics = { drawCalls: number; triangles: number; frameMs: number };
@@ -24,6 +25,7 @@ export interface StageProps {
   selectedPart: string;
   profile: QualityProfile;
   orbit: boolean;
+  playing: boolean;
   focusPart: string | null;
   materialMode: P1SurfaceMode;
   scope: WheelInspectionScope;
@@ -319,32 +321,44 @@ function Vehicle({ model, frame, selected, quality, scope, materialMode }: {
  * and restrained: warm engineering accent fades as technical blueprint rises.
  * No invented volumetrics, particle glow or false scan-light telemetry.
  */
-function CinematicLightRig({ frame, scope }: { frame: PilotFrame; scope: WheelInspectionScope }) {
-  const technical = frame.blueprint;
+function CinematicLightRig({
+  frame, scope, look,
+}: { frame: PilotFrame; scope: WheelInspectionScope; look: P1FilmLook }) {
   const reveal = detachmentForScope(frame.progress, scope);
   return (
     <>
-      <ambientLight intensity={1.08 + technical * 0.42} />
-      <hemisphereLight
-        args={['#d9e9fc', '#405468', 2.1 + technical * 0.3]}
-      />
+      <ambientLight intensity={look.ambient} />
+      <hemisphereLight args={['#d9e9fc', '#405468', look.hemisphere]} />
       <directionalLight
         color="#f5f8ff"
-        intensity={3.7 - technical * 0.75 + reveal * 0.15}
+        intensity={look.key + reveal * 0.14}
         position={[5, 9, -7]}
       />
       <directionalLight
         color="#ff906c"
-        intensity={1.9 * (1 - technical * 0.82)}
+        intensity={look.warmRim}
         position={[-5, 3, 5]}
       />
       <directionalLight
         color="#b3e6ff"
-        intensity={2.55 - technical * 1.2}
+        intensity={look.coolRim}
         position={[-4, 6, -8]}
       />
     </>
   );
+}
+
+/** Film exposure follows timeline, never an unrelated animation clock. */
+function CinematicExposure({ exposure }: { exposure: number }) {
+  const { gl } = useThree();
+  useEffect(() => {
+    const original = gl.toneMappingExposure;
+    return () => { gl.toneMappingExposure = original; };
+  }, [gl]);
+  useFrame(() => {
+    gl.toneMappingExposure = exposure;
+  });
+  return null;
 }
 
 function FrameSampler({
@@ -388,7 +402,7 @@ function ContextGuard({ onContextLost }: { onContextLost: (lost: boolean) => voi
 }
 
 export default function P1WheelStage({
-  progress, selectedPart, profile, orbit, focusPart, materialMode, scope, onError, onReady, onMetrics, onContextLost,
+  progress, selectedPart, profile, orbit, playing, focusPart, materialMode, scope, onError, onReady, onMetrics, onContextLost,
 }: StageProps) {
   const [assets, setAssets] = useState<LoadedAssets | null>(null);
   const [version, setVersion] = useState(0);
@@ -419,6 +433,7 @@ export default function P1WheelStage({
   }, [profile, version, onError, onReady]);
 
   const frame = useMemo(() => pilotFrameAt(progress), [progress]);
+  const look = useMemo(() => filmLookAt(progress), [progress]);
   const dpr: [number, number] = profile === 'HIGH'
     ? [1, 2] : profile === 'BALANCED' ? [1, 1.5] : [0.85, 1];
 
@@ -443,14 +458,16 @@ export default function P1WheelStage({
             gl.toneMappingExposure = 1.16;
           }}
         >
-          <P1StudioEnvironment />
-          <CinematicLightRig frame={frame} scope={scope} />
+          <P1StudioEnvironment profile={profile} />
+          <CinematicLightRig frame={frame} scope={scope} look={look} />
+          <CinematicExposure exposure={look.exposure} />
           <Vehicle model={assets.model} frame={frame} selected={selectedPart} quality={profile} scope={scope} materialMode={materialMode} />
           <P1CameraRig
             frame={frame}
             model={assets.model}
             orbit={orbit}
             focusPart={focusPart}
+            playing={playing}
           />
           <P1MacroFocusLight
             model={assets.model}
