@@ -5,6 +5,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'meshoptimizer';
 import type { P2CadScene } from './P2CadViewer';
 import type { P2DisplayQuality } from './P2StudioEnvironment';
+import type { P2RenderMetrics } from './P2PerformanceTelemetry';
 import sourceRegistry from './sourceRegistry.json';
 import { p2SteeringMate } from './P2SteeringMate';
 import { p2FilmFrame, P2_CINEMA_SHOTS, P2_CINEMA_DURATION_SECONDS } from './P2CinemaTimeline';
@@ -115,6 +116,7 @@ function inspectGlb(model: THREE.Group, filename: string): P2CadScene {
 export default function P2CadLabPage() {
   const [scene, setScene] = useState<P2CadScene | null>(null);
   const [sourceQuality, setSourceQuality] = useState<P2DisplayQuality>('BALANCED');
+  const [renderMetrics, setRenderMetrics] = useState<P2RenderMetrics | null>(null);
   const [selectedPart, setSelectedPart] = useState<string | null>(null);
   const [isolate, setIsolate] = useState(false);
   const [explode, setExplode] = useState(0);
@@ -149,6 +151,7 @@ export default function P2CadLabPage() {
     setBusy(true);
     setScene(null);
     setSourceQuality('BALANCED');
+    setRenderMetrics(null);
     setSelectedPart(null);
     setIsolate(false);
     setExplode(0);
@@ -230,6 +233,7 @@ export default function P2CadLabPage() {
       setScene(null);
       setSelectedPart(null);
       setSourceQuality('BALANCED');
+      setRenderMetrics(null);
       setExplode(0);
       setIsolate(false);
       setSection(false);
@@ -409,6 +413,11 @@ export default function P2CadLabPage() {
                 cinematic={cinematic} filmProgress={filmProgress} playing={filmPlaying}
                 cinemaFocusPart={cinemaFocusPart} reducedMotion={reducedMotion}
                 quality={sourceQuality}
+                onMetrics={setRenderMetrics}
+                onContextLost={()=>{
+                  setFilmPlaying(false);
+                  setError('WebGL context lost. Graphics resources must be reloaded before further visual review.');
+                }}
                 section={!cinematic && section} sectionOffsetMm={sectionOffsetMm}
               />
             </Suspense>
@@ -454,6 +463,15 @@ export default function P2CadLabPage() {
                     }}>{part.label}</button>
                 ))}
               </div>
+              {filmPlaying && renderMetrics && (
+                <div className="p2-cad-lab__film-metrics" aria-label="Actual WebGL browser metrics">
+                  <span>LIVE / {sourceQuality}</span>
+                  <span>{renderMetrics.fps.toFixed(1)} FPS</span>
+                  <span>{renderMetrics.calls} DRAWS</span>
+                  <span>{renderMetrics.triangles.toLocaleString()} TRIS</span>
+                  <span>DPR {renderMetrics.dpr.toFixed(2)}</span>
+                </div>
+              )}
               <div className="p2-cad-lab__film-chapters" aria-label="Cinema chapters">
                 {P2_CINEMA_SHOTS.slice(0,-1).map((shot,i)=>(
                   <button type="button" key={shot.at} aria-pressed={filmFrame.shotIndex===i}
