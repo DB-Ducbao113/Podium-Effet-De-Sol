@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { FRONT_LEFT_WHEEL_V2 } from '../design/frontLeftWheelV2';
 import { FRONT_LEFT_WHEEL_SHOTS, wheelShotAt } from '../design/frontLeftWheelShots';
 import type { QualityProfile } from '../types';
-import { clampProgress, pilotFrameAt } from './pilotMotion';
+import { clampProgress, pilotFrameAt, detachmentForScope, type WheelInspectionScope } from './pilotMotion';
 import './p1Wheel.css';
 
 const P1WheelStage = lazy(() => import('./P1WheelStage'));
@@ -33,6 +33,7 @@ export default function P1WheelLookdevPage() {
   const [selectedPart, setSelectedPart] = useState<string>(FRONT_LEFT_WHEEL_V2[0].id);
   const [profile, setProfile] = useState<QualityProfile>('BALANCED');
   const [orbit, setOrbit] = useState(false);
+  const [scope, setScope] = useState<WheelInspectionScope>('lock-wheel');
   const [playing, setPlaying] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [contextLost, setContextLost] = useState(false);
@@ -84,7 +85,7 @@ export default function P1WheelLookdevPage() {
     <div className="itm-p1" data-testid="itm-p1-pilot">
       <header className="itm-p1__header">
         <Link to="/engineering" className="itm-p1__home">PODIUM EDS <span>/</span> ENGINEERING</Link>
-        <div className="itm-p1__header-label">LAB P1.1 <span>·</span> SOURCE GLB / R4.5</div>
+        <div className="itm-p1__header-label">LAB P1.2 <span>·</span> SOURCE GLB / R4.5</div>
         <div className="itm-p1__header-actions">
           <button type="button" onClick={() => setLang((value) => value === 'vi' ? 'en' : 'vi')}>{lang === 'vi' ? 'EN' : 'VI'}</button>
           <Link to="/engineering">{lang === 'vi' ? 'Thoát phòng thử nghiệm' : 'Exit pilot'}</Link>
@@ -107,6 +108,7 @@ export default function P1WheelLookdevPage() {
                     selectedPart={selectedPart}
                     profile={profile}
                     orbit={orbit}
+                    scope={scope}
                     onError={onError}
                     onReady={onReady}
                     onMetrics={onMetrics}
@@ -197,6 +199,14 @@ export default function P1WheelLookdevPage() {
           style={{ background: `linear-gradient(90deg,#ff5635 ${progress * 100}%,#344657 ${progress * 100}%)` }}
         />
         <div className="itm-p1__actions">
+          <div className="itm-p1__action-group itm-p1__scope-controls" aria-label="Inspection scope">
+            <button type="button" aria-pressed={scope === 'lock-wheel'} onClick={() => { setScope('lock-wheel'); setPlaying(false); }}>
+              P1.2 / LOCK + WHEEL
+            </button>
+            <button type="button" aria-pressed={scope === 'full'} onClick={() => { setScope('full'); setPlaying(false); }}>
+              ALL 7 PARTS
+            </button>
+          </div>
           <div className="itm-p1__action-group">
             <button type="button" className="itm-p1__primary" disabled={!loaded || !!error} onClick={() => {
               if (progress >= 1) setProgress(0);
@@ -206,7 +216,8 @@ export default function P1WheelLookdevPage() {
               {playing ? 'PAUSE' : 'PLAY CINEMATIC'}
             </button>
             <button type="button" onClick={() => jump(0)}>RESET</button>
-            <button type="button" onClick={() => jump(0.40)}>EXPLODE</button>
+            <button type="button" onClick={() => jump(0.40)}>LOCK OUT</button>
+            <button type="button" onClick={() => jump(0.54)}>FULL EXPLODE</button>
             <button type="button" onClick={() => jump(0.73)}>BLUEPRINT</button>
             <button type="button" onClick={() => jump(0.80)}>MACRO</button>
           </div>
@@ -228,7 +239,7 @@ export default function P1WheelLookdevPage() {
           </div>
         </div>
         <div className="itm-p1__footer">
-          <span>EXPLODED {Math.round(frame.detachment * 100)}% · BLUEPRINT {Math.round(frame.blueprint * 100)}%</span>
+          <span>{scope === 'lock-wheel' ? 'LOCK + WHEEL' : 'FULL CORNER'} EXPLODED {Math.round(detachmentForScope(progress, scope) * 100)}% · BLUEPRINT {Math.round(frame.blueprint * 100)}%</span>
           <span>{metrics ? `${metrics.drawCalls} DRAWS / ${metrics.triangles.toLocaleString()} TRIANGLES / FRAME ${metrics.frameMs.toFixed(1)} MS` : 'GPU METRICS PENDING'}</span>
           <span>LOOKDEV ONLY / NOT PRODUCTION READY</span>
         </div>
