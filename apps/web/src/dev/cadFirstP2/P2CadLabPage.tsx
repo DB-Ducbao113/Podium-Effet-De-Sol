@@ -384,8 +384,10 @@ export default function P2CadLabPage() {
         </p>
       </section>
 
-      <section className="p2-cad-lab__layout">
-        <div className={cinematic ? 'p2-cad-lab__viewport p2-cad-lab__viewport--cinema' : 'p2-cad-lab__viewport'} aria-label="CAD source preview">
+      <section className={cinematic ? 'p2-cad-lab__layout p2-cad-lab__layout--cinema' : 'p2-cad-lab__layout'}>
+        <div className={cinematic
+            ? ['p2-cad-lab__viewport','p2-cad-lab__viewport--cinema',filmFrame.blueprint>.5&&'p2-cad-lab__viewport--blueprint'].filter(Boolean).join(' ')
+            : 'p2-cad-lab__viewport'} aria-label="CAD source preview">
           {scene ? (
             <Suspense fallback={<div className="p2-cad-lab__empty">INITIALIZING LOCAL CAD VIEWER</div>}>
               <P2CadViewer
