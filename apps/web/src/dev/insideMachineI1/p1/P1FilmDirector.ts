@@ -1,4 +1,12 @@
-import { clampProgress, smoothProgress } from './pilotMotion';
+/** Isolated pure math: avoid import cycles with pilotMotion.ts. */
+function clampProgress(value: number): number {
+  return Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : 0;
+}
+
+function smoothProgress(value: number): number {
+  const t = clampProgress(value);
+  return t * t * (3 - 2 * t);
+}
 
 /**
  * P1.7 — one deterministic, reversible lighting / lens director.
