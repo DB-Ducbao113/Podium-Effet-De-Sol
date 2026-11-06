@@ -269,3 +269,46 @@
   color: #ffdccf;
 }
 .p2-cad-lab__isolate:disabled { opacity: .4; cursor: not-allowed; }
+
+/* P2.2 local CAD study — part visibility and exploded geometry controls. */
+.p2-cad-lab__explode-control {
+  display: grid;
+  gap: 8px;
+  border: 1px solid #3c5262;
+  padding: 13px 12px;
+  background: #182936;
+}
+.p2-cad-lab__explode-control > label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #d6e8f0;
+  font: 750 10px/1.4 'IBM Plex Mono', monospace;
+  letter-spacing: .06em;
+}
+.p2-cad-lab__explode-control strong { color: #ff977c; font-variant-numeric: tabular-nums; }
+.p2-cad-lab__explode-control input[type='range'] {
+  width: 100%;
+  accent-color: #ff6844;
+  min-height: 26px;
+  cursor: ew-resize;
+}
+.p2-cad-lab__explode-control input:disabled { cursor: not-allowed; }
+.p2-cad-lab__explode-control p {
+  margin: 0;
+  color: #96b2c4;
+  font: 10px/1.5 'IBM Plex Mono', monospace;
+}
+.p2-cad-lab__search { display: grid; gap: 8px; margin: 5px 0; color: #aac9d7;
+  font: 750 10px/1.4 'IBM Plex Mono', monospace; letter-spacing: .06em; }
+.p2-cad-lab__search input {
+  width: 100%;
+  min-width: 0;
+  padding: 11px;
+  background: #0b1722;
+  border: 1px solid #425b6b;
+  color: #e9f7fc;
+  font: 500 12px/1.5 'IBM Plex Mono', monospace;
+}
+.p2-cad-lab__search input::placeholder { color: #6c8b9c; }
