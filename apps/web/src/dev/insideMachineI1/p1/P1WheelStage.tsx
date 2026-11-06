@@ -351,10 +351,8 @@ function CinematicLightRig({
 /** Film exposure follows timeline, never an unrelated animation clock. */
 function CinematicExposure({ exposure }: { exposure: number }) {
   const { gl } = useThree();
-  useEffect(() => {
-    const original = gl.toneMappingExposure;
-    return () => { gl.toneMappingExposure = original; };
-  }, [gl]);
+  // This renderer belongs to the pilot Canvas and is disposed with it.
+  // Keep mutable GPU state in R3F's frame loop, outside React effects.
   useFrame(() => {
     gl.toneMappingExposure = exposure;
   });
