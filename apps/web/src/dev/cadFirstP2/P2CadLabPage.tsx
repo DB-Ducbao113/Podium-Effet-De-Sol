@@ -8,6 +8,7 @@ import type { P2DisplayQuality } from './P2StudioEnvironment';
 import sourceRegistry from './sourceRegistry.json';
 import { p2SteeringMate } from './P2SteeringMate';
 import { p2FilmFrame, P2_CINEMA_SHOTS, P2_CINEMA_DURATION_SECONDS } from './P2CinemaTimeline';
+import { P2_MACRO_PARTS } from './P2MacroTargets';
 import './p2CadLab.css';
 
 const P2CadViewer = lazy(() => import('./P2CadViewer'));
@@ -134,6 +135,7 @@ export default function P2CadLabPage() {
   const [cinematic, setCinematic] = useState(false);
   const [filmProgress, setFilmProgress] = useState(0);
   const [filmPlaying, setFilmPlaying] = useState(false);
+  const [cinemaFocusPart, setCinemaFocusPart] = useState<string | null>(null);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [dynamicAudit, setDynamicAudit] = useState<DynamicSpinEvidence | null>(null);
   const [dynamicAuditName, setDynamicAuditName] = useState('');
@@ -155,6 +157,7 @@ export default function P2CadLabPage() {
     setCinematic(false);
     setFilmPlaying(false);
     setFilmProgress(0);
+    setCinemaFocusPart(null);
     setSection(false);
     setSectionOffsetMm(0);
     setPartFilter('');
@@ -233,6 +236,7 @@ export default function P2CadLabPage() {
       setCinematic(false);
       setFilmPlaying(false);
       setFilmProgress(0);
+      setCinemaFocusPart(null);
       setLoadState('MANIFEST LOADED — RESELECT GLB TO VERIFY');
       setError('');
     } catch (caught) {
@@ -390,6 +394,7 @@ export default function P2CadLabPage() {
                 wheelAngleDeg={!cinematic && canSpinP24 ? wheelAngleDeg : 0}
                 steerAngleDeg={!cinematic && canSteerP26 ? steerAngleDeg : 0}
                 cinematic={cinematic} filmProgress={filmProgress} playing={filmPlaying}
+                cinemaFocusPart={cinemaFocusPart} reducedMotion={reducedMotion}
                 quality={sourceQuality}
                 section={!cinematic && section} sectionOffsetMm={sectionOffsetMm}
               />
@@ -406,27 +411,40 @@ export default function P2CadLabPage() {
               <div className="p2-cad-lab__film-vignette" style={{opacity:filmFrame.blueprint>.5?0:0.65}} aria-hidden="true"/>
               <div className="p2-cad-lab__film-heading" aria-live="off">
                 <span>CAD-FIRST FILM / {Math.floor(filmProgress*100).toString().padStart(2,'0')}%</span>
-                <strong>{filmFrame.shot.title}</strong>
-                <small>{filmFrame.shot.detail}</small>
+                <strong>{cinemaFocusPart ? P2_MACRO_PARTS.find((x)=>x.id===cinemaFocusPart)?.label ?? 'CAD MACRO' : filmFrame.shot.title}</strong>
+                <small>{cinemaFocusPart ? P2_MACRO_PARTS.find((x)=>x.id===cinemaFocusPart)?.detail ?? 'SOURCE MESH' : filmFrame.shot.detail}</small>
               </div>
               <div className="p2-cad-lab__film-controls">
-                <button type="button" onClick={()=>{setFilmPlaying(false);setCinematic(false);}}
+                <button type="button" onClick={()=>{setFilmPlaying(false);setCinemaFocusPart(null);setCinematic(false);}}
                   aria-label="Exit cinematic view">EXIT FILM</button>
                 <button type="button" onClick={()=>{
                   if(filmProgress>=1)setFilmProgress(0);
+                  setCinemaFocusPart(null);
                   setFilmPlaying((value)=>!value);
                 }} disabled={reducedMotion} aria-label={filmPlaying?'Pause film':'Play film'}>
                   {filmPlaying?'PAUSE':'PLAY'} 
                 </button>
                 <input aria-label="Cinematic timeline" type="range" min={0} max={1000}
                   value={Math.round(filmProgress*1000)}
-                  onChange={(e)=>{setFilmPlaying(false);setFilmProgress(Number(e.target.value)/1000);}}/>
+                  onChange={(e)=>{setFilmPlaying(false);setCinemaFocusPart(null);setFilmProgress(Number(e.target.value)/1000);}}/>
                 <span>{Math.round(filmProgress*P2_CINEMA_DURATION_SECONDS)}s / {P2_CINEMA_DURATION_SECONDS}s</span>
+              </div>
+              <div className="p2-cad-lab__macro-selector" role="group" aria-label="Inspect genuine CAD components">
+                <button type="button" aria-pressed={cinemaFocusPart === null}
+                  onClick={()=>setCinemaFocusPart(null)}>RETURN TO FILM</button>
+                {P2_MACRO_PARTS.filter((part)=>scene.components.some((mesh)=>mesh.name===part.id)).map((part)=>(
+                  <button type="button" key={part.id} aria-pressed={cinemaFocusPart===part.id}
+                    title={part.detail} onClick={()=>{
+                      setFilmPlaying(false);
+                      setFilmProgress((p)=>Math.max(p,.51));
+                      setCinemaFocusPart(part.id);
+                    }}>{part.label}</button>
+                ))}
               </div>
               <div className="p2-cad-lab__film-chapters" aria-label="Cinema chapters">
                 {P2_CINEMA_SHOTS.slice(0,-1).map((shot,i)=>(
                   <button type="button" key={shot.at} aria-pressed={filmFrame.shotIndex===i}
-                    onClick={()=>{setFilmPlaying(false);setFilmProgress(shot.at);}}>
+                    onClick={()=>{setFilmPlaying(false);setCinemaFocusPart(null);setFilmProgress(shot.at);}}>
                     {String(i+1).padStart(2,'0')}
                   </button>
                 ))}
@@ -454,7 +472,7 @@ export default function P2CadLabPage() {
             disabled={!canCinematic}
             aria-pressed={cinematic}
             onClick={()=>{
-              setCinematic(true);setFilmPlaying(false);setFilmProgress(0);
+              setCinematic(true);setFilmPlaying(false);setFilmProgress(0);setCinemaFocusPart(null);
               setSteerAngleDeg(0);setWheelAngleDeg(0);setExplode(0);
               setSelectedPart(null);setIsolate(false);setSection(false);
             }}>
