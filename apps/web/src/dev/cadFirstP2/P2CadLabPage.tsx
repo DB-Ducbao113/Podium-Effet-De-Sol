@@ -25,6 +25,20 @@ type VerifiedManifest = {
   } | null;
 };
 
+type DynamicSpinEvidence = {
+  schema: string;
+  sourceSTEPsha256: string;
+  sourceManifestSha256: string;
+  baselineAuditSha256: string;
+  wheelDegrees: number[];
+  passedSampledWheelSpin: boolean;
+  totalExactBrepOperations: number;
+  intersectionThresholdMm3: number;
+  unresolvedCollisions: Array<{ angle?: number; a?: string; b?: string; volumeMm3?: number }>;
+  booleanErrors: Array<{ angle?: number; a?: string; b?: string; error?: string }>;
+  poses: Array<{ wheelAngleDeg: number; collisionCount: number; booleanErrorCount?: number; status: string }>;
+};
+
 type StaticFitEvidence = {
   schema: string; sourcePartCount: number; sourceSTEPsha256: string;
   roundtripCadSolids: number; roundtripCadFaces: number; totalPairs: number;
@@ -107,6 +121,11 @@ export default function P2CadLabPage() {
   const [manifestName, setManifestName] = useState('');
   const [fitAudit, setFitAudit] = useState<StaticFitEvidence | null>(null);
   const [fitAuditName, setFitAuditName] = useState('');
+  const [fitAuditSha, setFitAuditSha] = useState('');
+  const [manifestSha, setManifestSha] = useState('');
+  const [wheelAngleDeg, setWheelAngleDeg] = useState(0);
+  const [dynamicAudit, setDynamicAudit] = useState<DynamicSpinEvidence | null>(null);
+  const [dynamicAuditName, setDynamicAuditName] = useState('');
   const request = useRef(0);
 
   const onModel = useCallback(async (event: ChangeEvent<HTMLInputElement>) => {
@@ -119,6 +138,7 @@ export default function P2CadLabPage() {
     setSelectedPart(null);
     setIsolate(false);
     setExplode(0);
+    setWheelAngleDeg(0);
     setSection(false);
     setSectionOffsetMm(0);
     setPartFilter('');
@@ -173,14 +193,23 @@ export default function P2CadLabPage() {
     const file = event.target.files?.[0];
     if (!file) return;
     try {
-      const candidate = JSON.parse(await file.text()) as VerifiedManifest;
+      const bytes = await file.arrayBuffer();
+      if (bytes.byteLength > 5 * 1024 * 1024) throw new Error('Manifest is too large.');
+      const digest = await crypto.subtle.digest('SHA-256', bytes);
+      const hash = Array.from(new Uint8Array(digest), (v) => v.toString(16).padStart(2, '0')).join('');
+      const candidate = JSON.parse(new TextDecoder().decode(bytes)) as VerifiedManifest;
       if (!candidate.schema?.startsWith('podium-eds.p2.cad-first.')) {
         throw new Error('Manifest is not a recognized P2 CAD-first source record.');
       }
       setManifest(candidate);
       setManifestName(file.name);
+      setManifestSha(hash);
       setFitAudit(null);
       setFitAuditName('');
+      setFitAuditSha('');
+      setDynamicAudit(null);
+      setDynamicAuditName('');
+      setWheelAngleDeg(0);
       setLoadState('MANIFEST LOADED — RESELECT GLB TO VERIFY');
       setError('');
     } catch (caught) {
@@ -195,6 +224,9 @@ export default function P2CadLabPage() {
     if (!file) return;
     setFitAudit(null);
     setFitAuditName('');
+    setFitAuditSha('');
+    setDynamicAudit(null);
+    setDynamicAuditName('');
     try {
       const expected = manifest?.staticCollisionAudit;
       if (!expected) throw new Error('Select the P2.4 source manifest before loading its fit audit.');
@@ -219,6 +251,7 @@ export default function P2CadLabPage() {
       }
       setFitAudit(proof);
       setFitAuditName(file.name);
+      setFitAuditSha(actual);
       setError('');
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Local static audit rejected.');
@@ -227,6 +260,48 @@ export default function P2CadLabPage() {
     }
   }, [manifest]);
 
+  const onDynamicAudit = useCallback(async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setDynamicAudit(null);
+    setDynamicAuditName('');
+    try {
+      if (!manifestSha || !fitAuditSha || !fitAudit) {
+        throw new Error('Verify the P2.4 manifest and static audit before loading P2.5 motion evidence.');
+      }
+      if (file.size > 2 * 1024 * 1024) throw new Error('Dynamic audit exceeds 2 MB.');
+      const proof = JSON.parse(await file.text()) as DynamicSpinEvidence;
+      const angles = proof.wheelDegrees;
+      if (proof.schema !== 'podium-eds.p2.cad-first.dynamic-spin.v1' ||
+          proof.sourceSTEPsha256 !== manifest?.masterSTEPsha256 ||
+          proof.sourceManifestSha256 !== manifestSha ||
+          proof.baselineAuditSha256 !== fitAuditSha ||
+          !Array.isArray(angles) || !Array.isArray(proof.poses) ||
+          angles.length < 2 || angles.length > 360 ||
+          proof.poses.length !== angles.length ||
+          new Set(angles).size !== angles.length ||
+          angles.some((a) => !Number.isInteger(a) || a < 0 || a >= 360) ||
+          !angles.every((a, index) => proof.poses[index].wheelAngleDeg === a) ||
+          !Number.isFinite(proof.totalExactBrepOperations) ||
+          proof.totalExactBrepOperations < 1 ||
+          !Array.isArray(proof.unresolvedCollisions) ||
+          !Array.isArray(proof.booleanErrors)) {
+        throw new Error('Dynamic CAD report does not match the selected STEP/manifest/static audit.');
+      }
+      setDynamicAudit(proof);
+      setDynamicAuditName(file.name);
+      setError('');
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'Dynamic CAD report rejected.');
+    } finally {
+      event.target.value = '';
+    }
+  }, [manifest, manifestSha, fitAuditSha, fitAudit]);
+
+  const canSpinP24 = Boolean(
+    scene && manifest?.schema === 'podium-eds.p2.cad-first.front-corner.fit.v1' &&
+    manifest.partIds?.length === 53 && scene.meshCount === 53
+  );
   const precisionProof = manifest?.geometryProof ?? manifest?.p23SourcePrecisionEvidence;
 
   return (
@@ -251,7 +326,7 @@ export default function P2CadLabPage() {
         <div className="p2-cad-lab__viewport" aria-label="CAD source preview">
           {scene ? (
             <Suspense fallback={<div className="p2-cad-lab__empty">INITIALIZING LOCAL CAD VIEWER</div>}>
-              <P2CadViewer key={scene.name} scene={scene} selectedPart={selectedPart} isolate={isolate} explode={explode} section={section} sectionOffsetMm={sectionOffsetMm}/>
+              <P2CadViewer key={scene.name} scene={scene} selectedPart={selectedPart} isolate={isolate} explode={explode} wheelAngleDeg={canSpinP24 ? wheelAngleDeg : 0} section={section} sectionOffsetMm={sectionOffsetMm}/>
             </Suspense>
           ) : (
             <div className="p2-cad-lab__empty">
@@ -301,6 +376,36 @@ export default function P2CadLabPage() {
               )}
             </div>
           )}
+          <div className="p2-cad-lab__wheel-spin">
+            <label htmlFor="p2-wheel-angle">
+              <span>P2.5 / SAMPLED WHEEL SPIN</span>
+              <strong>{wheelAngleDeg}°</strong>
+            </label>
+            <input id="p2-wheel-angle" type="range" min={0} max={359} step={1}
+              value={wheelAngleDeg}
+              disabled={!canSpinP24 || explode !== 0}
+              onChange={(event) => setWheelAngleDeg(Number(event.target.value))}/>
+            <p>Rotate the rigid wheel/rotor/fastener source solids about +Z. Bearing balls and cage use an illustrative half-angle orbit. Exploded view must be at 0% for this study.</p>
+            <label className="p2-cad-lab__upload">
+              LOAD P2.5 SAMPLED MOTION AUDIT (.JSON)
+              <input type="file" accept=".json,application/json" onChange={onDynamicAudit}
+                disabled={!fitAudit || !canSpinP24}/>
+            </label>
+            {dynamicAudit ? (
+              <div className="p2-cad-lab__motion-evidence">
+                <strong>{dynamicAudit.passedSampledWheelSpin &&
+                  dynamicAudit.unresolvedCollisions.length === 0 &&
+                  dynamicAudit.booleanErrors.length === 0
+                    ? 'SAMPLED SPIN: PASS'
+                    : 'SAMPLED SPIN: COLLISION / FAILURE'}</strong>
+                <span>{dynamicAudit.wheelDegrees.length} discrete angular poses · {dynamicAudit.totalExactBrepOperations} exact B-Rep checks</span>
+                <span>{dynamicAudit.unresolvedCollisions.length} reported collisions · {dynamicAudit.booleanErrors.length} Boolean errors</span>
+                <small>{dynamicAuditName} · exact original manifest/static audit linked by SHA-256. Continuous motion, steer and suspension NOT certified.</small>
+              </div>
+            ) : (
+              <p className="p2-cad-lab__motion-pending">No source-matched motion evidence loaded. Slider is a visual study, not a clearance PASS.</p>
+            )}
+          </div>
           <div className="p2-cad-lab__eyebrow">02 / REAL GEOMETRY</div>
           <div className="p2-cad-lab__section-control">
             <button type="button" aria-pressed={section} disabled={!scene}
