@@ -265,7 +265,11 @@ function CameraControl({ frame, orbit }: { frame: PilotFrame; orbit: boolean }) 
     camera.updateProjectionMatrix();
     invalidate();
   }, [camera, frame, invalidate, orbit]);
-  return <OrbitControls enabled={orbit} makeDefault enablePan={false} minDistance={1.2} maxDistance={12} target={[...frame.cameraTarget]} />;
+  // When the cinematic camera is guided, OrbitControls is unmounted.
+  // A disabled control can otherwise still overwrite lookAt during target updates.
+  return orbit
+    ? <OrbitControls makeDefault enablePan={false} minDistance={1.2} maxDistance={12} target={[...frame.cameraTarget]} />
+    : null;
 }
 
 function FrameSampler({
