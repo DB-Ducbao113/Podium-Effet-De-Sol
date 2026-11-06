@@ -1,4 +1,4 @@
-# V2-W01 — Front-left wheel: first visual-quality proof
+> **Binding visual gate (mandatory):** [Anime.js cinematic reference and review contract](./02-animejs-cinematic-acceptance.md). No component may be marked PASS on functional QA alone. A captured motion walkthrough, macro/blueprint/hero stills and a minimum 4/5 score in every visual category are required.\n\n# V2-W01 — Front-left wheel: first visual-quality proof
 
 **Location:** `Podium-Effet-De-Sol/apps/web/src/dev/insideMachineI1`  
 **Implementation branch:** `feat/engineering-inside-machine-v2`  
