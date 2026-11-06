@@ -5,6 +5,7 @@ import { MeshoptDecoder } from 'meshoptimizer';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { ASSET_URLS, MANIFEST_URL } from '../assetPaths';
+import assetIdentity from '../asset-identity.json';
 import type { AssemblyManifest, QualityProfile } from '../types';
 import { FRONT_LEFT_WHEEL_V2 } from '../design/frontLeftWheelV2';
 import { pilotFrameAt, positionFromBaseline, centerLockTurnAt, type PilotFrame, type WheelInspectionScope } from './pilotMotion';
@@ -39,6 +40,17 @@ function disposeAsset(group: THREE.Group) {
   materials.forEach((material) => material.dispose());
 }
 
+async function verifySourceDigest(bytes: ArrayBuffer, expectedHex: string, label: string) {
+  if (!crypto.subtle) throw new Error('Secure-context SHA-256 unavailable for verified 3D source');
+  const digest = await crypto.subtle.digest('SHA-256', bytes);
+  const actual = Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0'))
+    .join('')
+    .toLowerCase();
+  if (actual !== expectedHex.toLowerCase()) {
+    throw new Error(`P1 source identity mismatch: ${label}. Refusing unverified geometry.`);
+  }
+}
+
 async function loadAssets(profile: QualityProfile, signal: AbortSignal): Promise<LoadedAssets> {
   const [manifestResponse, modelResponse] = await Promise.all([
     fetch(MANIFEST_URL, { signal, cache: 'no-store' }),
@@ -47,11 +59,21 @@ async function loadAssets(profile: QualityProfile, signal: AbortSignal): Promise
   if (!manifestResponse.ok || !modelResponse.ok) {
     throw new Error('Verified R4.5 local assets unavailable; do not substitute a different car.');
   }
-  const [manifest, binary] = await Promise.all([
-    manifestResponse.json() as Promise<AssemblyManifest>,
+  const [manifestBytes, binary] = await Promise.all([
+    manifestResponse.arrayBuffer(),
     modelResponse.arrayBuffer(),
   ]);
   if (signal.aborted) throw new DOMException('Aborted', 'AbortError');
+  if (manifestBytes.byteLength !== assetIdentity.assets.manifest.bytes ||
+      binary.byteLength !== assetIdentity.assets[profile].bytes) {
+    throw new Error('P1 model source byte-length mismatch. Refusing unverified 3D assets.');
+  }
+  await Promise.all([
+    verifySourceDigest(manifestBytes, assetIdentity.assets.manifest.sha256, 'manifest'),
+    verifySourceDigest(binary, assetIdentity.assets[profile].sha256, profile),
+  ]);
+  if (signal.aborted) throw new DOMException('Aborted', 'AbortError');
+  const manifest = JSON.parse(new TextDecoder().decode(manifestBytes)) as AssemblyManifest;
   const header = new DataView(binary);
   if (binary.byteLength < 20 || header.getUint32(0, true) !== 0x46546c67) {
     throw new Error('Invalid GLB source. Local model identity check required.');
