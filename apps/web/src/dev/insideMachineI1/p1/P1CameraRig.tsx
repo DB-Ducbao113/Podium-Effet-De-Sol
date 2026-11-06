@@ -67,7 +67,9 @@ export default function P1CameraRig({ frame, model, orbit, focusPart }: Props) {
         const fov = camera instanceof THREE.PerspectiveCamera
           ? THREE.MathUtils.degToRad(camera.fov)
           : THREE.MathUtils.degToRad(35);
-        const field = Math.max(0.2, Math.sin(fov / 2));
+        const aspect = camera instanceof THREE.PerspectiveCamera ? camera.aspect : 1;
+        const halfHorizontalFov = Math.atan(Math.tan(fov / 2) * Math.max(0.4, aspect));
+        const field = Math.max(0.12, Math.min(Math.sin(fov / 2), Math.sin(halfHorizontalFov)));
         const focusDistance = THREE.MathUtils.clamp(
           radius * lens.margin / field,
           lens.minDistance,
