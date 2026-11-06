@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'meshoptimizer';
 import type { P2CadScene } from './P2CadViewer';
+import sourceRegistry from './sourceRegistry.json';
 import './p2CadLab.css';
 
 const P2CadViewer = lazy(() => import('./P2CadViewer'));
@@ -16,29 +17,6 @@ type VerifiedManifest = {
   mechanicalTruth?: Record<string, boolean>;
 };
 
-const candidates = [
-  {
-    name: 'Nittany Motorsports NM26',
-    type: 'Formula SAE / STEP assembly',
-    status: 'LICENSE PENDING',
-    detail: 'Detailed multi-part STEP vehicle source; no repository LICENSE was found.',
-    url: 'https://github.com/udayjain2102/nittanymotorsports',
-  },
-  {
-    name: 'GrabCAD Formula Student Upright',
-    type: 'Formula Student / community CAD',
-    status: 'COMMERCIAL PERMISSION REQUIRED',
-    detail: 'GrabCAD requires explicit author permission for commercial use.',
-    url: 'https://grabcad.com/library/formula-student-front-upright-1',
-  },
-  {
-    name: 'OpenArm Hardware',
-    type: 'Open hardware STEP / training only',
-    status: 'CERN-OHL-S LICENSE REVIEW',
-    detail: 'Mechanical-detail benchmark only; it is not a Formula 1 part.',
-    url: 'https://github.com/enactic/openarm_hardware',
-  },
-] as const;
 
 function assertSelfContainedGLB(bytes: ArrayBuffer) {
   if (bytes.byteLength < 20) throw new Error('GLB file too short.');
@@ -127,6 +105,9 @@ export default function P2CadLabPage() {
       const bytes = await file.arrayBuffer();
       assertSelfContainedGLB(bytes);
       const identity = await verifyLocalManifest(file, bytes, manifest);
+      if (manifest && identity !== 'SHA-256 MATCH — LICENSING SEPARATE') {
+        throw new Error(`${identity}. Refusing unverified CAD preview.`);
+      }
       await MeshoptDecoder.ready;
       const loader = new GLTFLoader();
       loader.setMeshoptDecoder(MeshoptDecoder);
@@ -180,7 +161,7 @@ export default function P2CadLabPage() {
       </header>
 
       <section className="p2-cad-lab__intro">
-        <span className="p2-cad-lab__eyebrow">NEW MECHANICAL FOUNDATION / P2.0</span>
+        <span className="p2-cad-lab__eyebrow">SOURCE QUALIFICATION / P2.1</span>
         <h1>GEOMETRY FIRST<span>.</span></h1>
         <p>
           Replace low-poly cosmetic details with inspectable CAD bodies, mechanical
@@ -253,16 +234,19 @@ export default function P2CadLabPage() {
         <div>
           <span className="p2-cad-lab__eyebrow">03 / CANDIDATE SOURCE REGISTRY</span>
           <h2>REAL CAD. VERIFIED RIGHTS.</h2>
-          <p>Current search results are not approved for commercial publication.</p>
+          <p>Registry reviewed 06 Nov 2026. CAD existence, part detail and publication rights are separate gates. None of these external models is approved for public use.</p>
         </div>
         <div className="p2-cad-lab__candidate-grid">
-          {candidates.map((candidate) => (
-            <article key={candidate.url}>
+          {sourceRegistry.candidates.map((candidate) => (
+            <article key={candidate.id}>
               <small>{candidate.type}</small>
               <h3>{candidate.name}</h3>
-              <strong>{candidate.status}</strong>
-              <p>{candidate.detail}</p>
-              <a href={candidate.url} target="_blank" rel="noopener noreferrer">SOURCE DETAILS</a>
+              <strong>{candidate.rightsStatus}</strong>
+              <p>{candidate.geometryStatus}</p>
+              <p>{candidate.geometryEvidence}</p>
+              <p>{candidate.rightsReason}</p>
+              <a href={candidate.source} target="_blank" rel="noopener noreferrer">SOURCE / CAD REPOSITORY</a>
+              <a href={candidate.licenseUrl} target="_blank" rel="noopener noreferrer">SOURCE LICENSING</a>
             </article>
           ))}
         </div>
