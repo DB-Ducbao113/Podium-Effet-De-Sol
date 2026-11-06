@@ -1,4 +1,4 @@
-# Inside the Machine V2 — Component-by-component execution backlog
+> **Binding visual gate (mandatory):** [Anime.js cinematic reference and review contract](./02-animejs-cinematic-acceptance.md). No component may be marked PASS on functional QA alone. A captured motion walkthrough, macro/blueprint/hero stills and a minimum 4/5 score in every visual category are required.\n\n# Inside the Machine V2 — Component-by-component execution backlog
 
 Repository: `DB-Ducbao113/Podium-Effet-De-Sol`  
 Base: `migration/clean-architecture`  
