@@ -267,7 +267,7 @@ export default function P1WheelLookdevPage() {
             {contextLost && <div role="alert" className="itm-p1__lost">GPU context lost — scene paused</div>}
           </div>
           <div className="itm-p1__cinema-vignette" style={{ opacity: look.vignette }} aria-hidden="true" />
-          <div className="itm-p1__shot-label" aria-live="off">
+          <div className="itm-p1__shot-label" key={focusPart ?? shot.id} aria-live="off">
             <small>{focusPart
               ? `COMPONENT / ${String(selected.order + 1).padStart(2, '0')} / 07`
               : `0${FRONT_LEFT_WHEEL_SHOTS.indexOf(shot) + 1} / 06 — ${shot.mood.toUpperCase()}`}</small>
