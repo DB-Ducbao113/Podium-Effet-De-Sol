@@ -344,3 +344,26 @@
     padding-bottom: 11px;
   }
 }
+
+/* P1.3 visual QA: switch the *entire UI legibility contract* together
+ * with the rendered Blueprint background. Never show pale HUD on pale CAD. */
+.itm-p1--blueprint .itm-p1__shot-label {
+  background: rgba(242, 247, 249, .92);
+  border-left: 3px solid #d24e33;
+  padding: 14px 17px;
+  text-shadow: none;
+  box-shadow: 0 12px 36px rgba(25, 48, 61, .1);
+}
+.itm-p1--blueprint .itm-p1__shot-label h1 { color: #172d3a; text-shadow: none; }
+.itm-p1--blueprint .itm-p1__shot-label p { color: #385367; text-shadow: none; }
+.itm-p1--blueprint .itm-p1__shot-label small { color: #b33e29; }
+.itm-p1--blueprint .itm-p1__stage-top { color: #172c3a; text-shadow: 0 1px 6px #eef3f5; }
+.itm-p1--blueprint .itm-p1__stage-top i { box-shadow: none; }
+.itm-p1--blueprint .itm-p1__techline {
+  border-top-color: rgba(56, 86, 109, .43);
+  color: #304b5d;
+  text-shadow: 0 1px 6px #eef3f5;
+}
+@media(max-width:520px) {
+  .itm-p1--blueprint .itm-p1__shot-label { padding: 9px 12px; }
+}
