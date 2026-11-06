@@ -7,7 +7,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { ASSET_URLS, MANIFEST_URL } from '../assetPaths';
 import type { AssemblyManifest, QualityProfile } from '../types';
 import { FRONT_LEFT_WHEEL_V2 } from '../design/frontLeftWheelV2';
-import { pilotFrameAt, positionFromBaseline, partDetachmentAt, type PilotFrame } from './pilotMotion';
+import { pilotFrameAt, positionFromBaseline, centerLockTurnAt, type PilotFrame } from './pilotMotion';
 import { createPilotMaterial } from './pilotMaterials';
 
 type LoadedAssets = { model: THREE.Group; manifest: AssemblyManifest };
@@ -236,10 +236,9 @@ function Vehicle({ model, frame, selected, quality }: {
     original.forEach((item) => {
       const position = positionFromBaseline(item.originalPosition, item.offset, frame.progress, item.order);
       item.object.position.set(...position);
-      const phase = partDetachmentAt(frame.progress, item.order);
       item.object.quaternion.copy(item.originalQuaternion);
       if (item.order === 0) {
-        spin.setFromAxisAngle(nutAxis, Math.PI * 4 * phase);
+        spin.setFromAxisAngle(nutAxis, Math.PI * 4 * centerLockTurnAt(frame.progress));
         item.object.quaternion.multiply(spin);
       }
     });
