@@ -251,3 +251,21 @@
 @media(prefers-reduced-motion:reduce) {
   .p2-cad-lab * { transition: none !important; animation: none !important; }
 }
+
+.p2-cad-lab__isolate {
+  background: #222f38;
+  color: #cce4ef;
+  border: 1px solid #55768b;
+  border-left: 3px solid #8bd6e3;
+  padding: 11px 12px;
+  cursor: pointer;
+  text-align: left;
+  font: 700 10px/1.4 'IBM Plex Mono', monospace;
+  letter-spacing: .05em;
+}
+.p2-cad-lab__isolate[aria-pressed='true'] {
+  background: #332622;
+  border-color: #ff6844;
+  color: #ffdccf;
+}
+.p2-cad-lab__isolate:disabled { opacity: .4; cursor: not-allowed; }
