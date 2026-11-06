@@ -7,7 +7,7 @@ import { ASSET_URLS, MANIFEST_URL } from '../assetPaths';
 import assetIdentity from '../asset-identity.json';
 import type { AssemblyManifest, QualityProfile } from '../types';
 import { FRONT_LEFT_WHEEL_V2 } from '../design/frontLeftWheelV2';
-import { pilotFrameAt, positionFromBaseline, centerLockTurnAt, type PilotFrame, type WheelInspectionScope } from './pilotMotion';
+import { pilotFrameAt, positionFromBaseline, centerLockTurnAt, detachmentForScope, type PilotFrame, type WheelInspectionScope } from './pilotMotion';
 import { createPilotMaterial } from './pilotMaterials';
 import P1EvidenceProbe from './P1EvidenceProbe';
 import P1StudioEnvironment from './P1StudioEnvironment';
@@ -304,9 +304,9 @@ function Vehicle({ model, frame, selected, quality, scope }: {
  * and restrained: warm engineering accent fades as technical blueprint rises.
  * No invented volumetrics, particle glow or false scan-light telemetry.
  */
-function CinematicLightRig({ frame }: { frame: PilotFrame }) {
+function CinematicLightRig({ frame, scope }: { frame: PilotFrame; scope: WheelInspectionScope }) {
   const technical = frame.blueprint;
-  const reveal = frame.detachment;
+  const reveal = detachmentForScope(frame.progress, scope);
   return (
     <>
       <ambientLight intensity={1.08 + technical * 0.42} />
@@ -429,7 +429,7 @@ export default function P1WheelStage({
           }}
         >
           <P1StudioEnvironment />
-          <CinematicLightRig frame={frame} />
+          <CinematicLightRig frame={frame} scope={scope} />
           <Vehicle model={assets.model} frame={frame} selected={selectedPart} quality={profile} scope={scope} />
           <P1CameraRig
             frame={frame}
