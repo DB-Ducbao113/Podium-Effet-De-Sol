@@ -618,3 +618,94 @@
   .itm-p1__material-controls { width: 100%; padding: 0 0 10px; border: 0; }
   .itm-p1__material-controls button { flex: 1; }
 }
+
+/* P1.7 — film-first presentation. No postprocessing or fake speed particles. */
+.itm-p1__cinema-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: radial-gradient(
+    ellipse 74% 72% at 59% 42%,
+    transparent 31%,
+    rgba(2, 8, 14, .48) 75%,
+    rgba(0, 3, 8, .86) 100%
+  );
+  pointer-events: none;
+  will-change: opacity;
+}
+.itm-p1__cinema-toggle {
+  border-color: #ba604f !important;
+  background: #241d20 !important;
+  color: #fbd8d1 !important;
+}
+.itm-p1__cinema-toggle:hover,
+.itm-p1__cinema-toggle[aria-pressed='true'] {
+  background: #412923 !important;
+  color: #fff !important;
+  border-color: #ff674a !important;
+}
+.itm-p1--cinema .itm-p1__workspace {
+  grid-template-columns: minmax(0, 1fr);
+}
+.itm-p1--cinema .itm-p1__panel { display: none; }
+.itm-p1--cinema .itm-p1__stage {
+  min-height: min(79svh, 980px);
+  background: radial-gradient(
+    ellipse at 57% 43%,
+    #233a4e 0%,
+    #0c1725 59%,
+    #060a11 100%
+  );
+}
+.itm-p1--cinema .itm-p1__stage::after {
+  content: '';
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  border-top: 8px solid rgba(4, 8, 13, .58);
+  border-bottom: 8px solid rgba(4, 8, 13, .58);
+  pointer-events: none;
+}
+.itm-p1--cinema .itm-p1__shot-label { width: min(410px, 31vw); }
+.itm-p1--cinema .itm-p1__shot-label h1 {
+  font-size: clamp(48px, 7vw, 106px);
+  letter-spacing: -.025em;
+}
+.itm-p1--cinema .itm-p1__techline { opacity: .78; }
+.itm-p1--blueprint .itm-p1__cinema-vignette { mix-blend-mode: multiply; }
+.itm-p1--blueprint.itm-p1--cinema .itm-p1__stage {
+  background: #eef3f5;
+}
+@media(max-width:800px) {
+  .itm-p1--cinema .itm-p1__stage {
+    min-height: max(460px, 72svh);
+    height: 72svh;
+  }
+  .itm-p1--cinema .itm-p1__shot-label {
+    width: min(330px, 56vw);
+  }
+  .itm-p1--cinema .itm-p1__shot-label h1 {
+    font-size: clamp(41px, 8vw, 70px);
+  }
+}
+@media(max-width:520px) {
+  .itm-p1__header-actions { flex-wrap: nowrap; }
+  .itm-p1__cinema-toggle {
+    font-size: 8px !important;
+    padding: 7px 6px !important;
+  }
+  .itm-p1--cinema .itm-p1__stage {
+    min-height: 390px;
+    height: 66svh;
+  }
+  .itm-p1--cinema .itm-p1__shot-label { width: min(280px, 64vw); }
+  .itm-p1--cinema .itm-p1__shot-label h1 {
+    font-size: clamp(35px, 10vw, 55px);
+  }
+  .itm-p1--cinema .itm-p1__techline span:last-child { display: none; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .itm-p1__cinema-vignette { will-change: auto; }
+  .itm-p1--cinema .itm-p1__shot-label,
+  .itm-p1--cinema .itm-p1__shot-label h1 { transition: none !important; }
+}
