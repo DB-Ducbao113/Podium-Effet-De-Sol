@@ -108,7 +108,7 @@ function P2CadClipping({
 }
 
 export default function P2CadViewer({
-  scene, selectedPart, isolate, explode, wheelAngleDeg, steerAngleDeg, cinematic, filmProgress, playing, quality, section, sectionOffsetMm,
+  scene, selectedPart, isolate, explode, wheelAngleDeg, steerAngleDeg, cinematic, filmProgress, playing, cinemaFocusPart, reducedMotion, quality, section, sectionOffsetMm,
 }: {
   scene: P2CadScene;
   selectedPart: string | null;
@@ -119,6 +119,8 @@ export default function P2CadViewer({
   cinematic: boolean;
   filmProgress: number;
   playing: boolean;
+  cinemaFocusPart: string | null;
+  reducedMotion: boolean;
   quality: P2DisplayQuality;
   section: boolean;
   sectionOffsetMm: number;
@@ -188,7 +190,7 @@ export default function P2CadViewer({
         cinematic={cinematic}
         filmProgress={filmProgress}
       />
-      {cinematic ? <P2CinemaCamera progress={filmProgress}/> :
+      {cinematic ? <P2CinemaCamera model={scene.model} progress={filmProgress} focusPart={cinemaFocusPart} reducedMotion={reducedMotion}/> :
         <FrameCAD scene={scene} selectedPart={selectedPart} explode={explode}/>}
 
     </Canvas>
