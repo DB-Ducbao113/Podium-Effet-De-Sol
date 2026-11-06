@@ -43,7 +43,6 @@ describe('P1.3 — truthful browser evidence and technical contrast boundary', (
     for (const key of ['hero','nut-extracted','wheel-extracted','blueprint','macro','fully-assembled']) {
       expect(script).toContain(`'${key}'`);
     }
-    expect(script).toContain('report.ownerVisualApproval = false').toBe(false);
     expect(script).toContain('ownerVisualApproval: false');
     expect(script).toContain('report.releaseApproved = false');
     expect(script).toContain('P1_3_BROWSER_QA.json');
