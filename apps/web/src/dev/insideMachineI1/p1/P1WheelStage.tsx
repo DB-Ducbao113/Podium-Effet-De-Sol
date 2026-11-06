@@ -11,6 +11,8 @@ import { FRONT_LEFT_WHEEL_V2 } from '../design/frontLeftWheelV2';
 import { pilotFrameAt, positionFromBaseline, centerLockTurnAt, type PilotFrame, type WheelInspectionScope } from './pilotMotion';
 import { createPilotMaterial } from './pilotMaterials';
 import P1EvidenceProbe from './P1EvidenceProbe';
+import P1StudioEnvironment from './P1StudioEnvironment';
+import { applyP1BlueprintSurfaces, snapshotP1Surface, type P1SurfaceSnapshot } from './P1BlueprintMaterials';
 
 type LoadedAssets = { model: THREE.Group; manifest: AssemblyManifest };
 type Metrics = { drawCalls: number; triangles: number; frameMs: number };
@@ -117,7 +119,6 @@ type MotionNode = {
 type Overlay = {
   mesh: THREE.Mesh;
   originalMaterial: THREE.Material | THREE.Material[];
-  pilotMaterial: THREE.Material | THREE.Material[] | null;
   overlay: THREE.Mesh;
   surface: THREE.MeshBasicMaterial;
   edges: THREE.LineSegments | null;
@@ -163,6 +164,7 @@ function Vehicle({ model, frame, selected, quality, scope }: {
   }, [model]);
 
   const overlays = useRef<Overlay[]>([]);
+  const surfaces = useRef<P1SurfaceSnapshot[]>([]);
 
   // StrictMode-safe: scene mutations and GPU resource allocations happen in an
   // effect, never inside useMemo or React render.
@@ -171,6 +173,11 @@ function Vehicle({ model, frame, selected, quality, scope }: {
       FRONT_LEFT_WHEEL_V2.map((part) => [model.getObjectByName(part.node), part.id]),
     );
     const output: Overlay[] = [];
+    const assignments: Array<{
+      mesh: THREE.Mesh;
+      original: THREE.Material | THREE.Material[];
+    }> = [];
+    const materialCache = new Map<string, { material: THREE.Material; partId: string | null }>();
     const allMeshes: THREE.Mesh[] = [];
     model.traverse((item) => {
       if (item instanceof THREE.Mesh) allMeshes.push(item);
@@ -185,20 +192,29 @@ function Vehicle({ model, frame, selected, quality, scope }: {
         }
         cursor = cursor.parent;
       }
-      // Never draw a transparent duplicate of the entire car. On weak GPUs
-      // that doubles draw calls even when opacity is zero. Limit lookdev
-      // layers to the actual inspected wheel (two parts in the P1.2 gate).
+      // Every *material* transitions to Blueprint on its original mesh.
+      // Only the inspected wheel gets extra feature-edge annotations.
+      // Shared original glTF material instances are never mutated.
+      const originalMaterial = mesh.material;
+      const acquire = (source: THREE.Material): THREE.Material => {
+        const key = `${source.uuid}:${partId ?? 'chassis'}`;
+        const cached = materialCache.get(key);
+        if (cached) return cached.material;
+        const copy = createPilotMaterial(source, partId);
+        materialCache.set(key, { material: copy, partId });
+        return copy;
+      };
+      mesh.material = Array.isArray(originalMaterial)
+        ? originalMaterial.map(acquire)
+        : acquire(originalMaterial);
+      assignments.push({ mesh, original: originalMaterial });
+
+      // Do not add transparent duplicate geometry for all bodywork.
       if (!partId || (scope === 'lock-wheel' && !(
         partId === 'FRONT_LEFT_WHEEL.CENTER_LOCK_NUT' ||
         partId === 'FRONT_LEFT_WHEEL.WHEEL_OUTER'
       ))) continue;
-      const originalMaterial = mesh.material;
-      const pilotMaterial = partId
-        ? Array.isArray(originalMaterial)
-          ? originalMaterial.map((material) => createPilotMaterial(material, partId))
-          : createPilotMaterial(originalMaterial, partId)
-        : null;
-      if (pilotMaterial) mesh.material = pilotMaterial;
+
       const surface = new THREE.MeshBasicMaterial({
         color: partId ? '#dce6eb' : '#d5e1e8',
         transparent: true,
@@ -230,9 +246,10 @@ function Vehicle({ model, frame, selected, quality, scope }: {
         edges.renderOrder = 3;
         mesh.add(edges);
       }
-      output.push({ mesh, originalMaterial, pilotMaterial, overlay, surface, edges, edgeMaterial, edgeGeometry, partId });
+      output.push({ mesh, originalMaterial, overlay, surface, edges, edgeMaterial, edgeGeometry, partId });
     }
     overlays.current = output;
+    surfaces.current = [...materialCache.values()].map(({ material, partId }) => snapshotP1Surface(material, partId));
     scene.add(model);
     invalidate();
     return () => {
@@ -243,13 +260,12 @@ function Vehicle({ model, frame, selected, quality, scope }: {
         item.edgeGeometry?.dispose();
         item.edgeMaterial?.dispose();
         item.surface.dispose();
-        if (item.pilotMaterial) {
-          item.mesh.material = item.originalMaterial;
-          const copies = Array.isArray(item.pilotMaterial) ? item.pilotMaterial : [item.pilotMaterial];
-          copies.forEach((material) => material.dispose());
-        }
+
       }
+      assignments.forEach(({ mesh, original }) => { mesh.material = original; });
+      materialCache.forEach(({ material }) => material.dispose());
       overlays.current = [];
+      surfaces.current = [];
     };
   }, [model, quality, scope, scene, invalidate]);
 
@@ -274,6 +290,7 @@ function Vehicle({ model, frame, selected, quality, scope }: {
       }
     });
     updatePilotOverlayMaterials(overlays.current, frame.blueprint, selected);
+    applyP1BlueprintSurfaces(surfaces.current, frame.blueprint);
   });
 
   return <color attach="background" args={[`#${background}`]} />;
@@ -424,6 +441,7 @@ export default function P1WheelStage({
             gl.toneMappingExposure = 1.16;
           }}
         >
+          <P1StudioEnvironment />
           <CinematicLightRig frame={frame} />
           <Vehicle model={assets.model} frame={frame} selected={selectedPart} quality={profile} scope={scope} />
           <CameraControl frame={frame} orbit={orbit} />
