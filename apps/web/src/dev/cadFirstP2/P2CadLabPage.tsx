@@ -223,6 +223,17 @@ export default function P2CadLabPage() {
       if (!candidate.schema?.startsWith('podium-eds.p2.cad-first.')) {
         throw new Error('Manifest is not a recognized P2 CAD-first source record.');
       }
+      // A newly selected manifest invalidates the previous source preview,
+      // even when both CAD sources happen to contain exactly 53 meshes.
+      request.current += 1;
+      setBusy(false);
+      setScene(null);
+      setSelectedPart(null);
+      setSourceQuality('BALANCED');
+      setExplode(0);
+      setIsolate(false);
+      setSection(false);
+      setSteerAngleDeg(0);
       setManifest(candidate);
       setManifestName(file.name);
       setManifestSha(hash);
@@ -460,7 +471,7 @@ export default function P2CadLabPage() {
         <aside className="p2-cad-lab__inspector">
           <div className="p2-cad-lab__eyebrow">01 / SOURCE IMPORT</div>
           <h2>CAD INTAKE</h2>
-          <p>Files stay in browser memory. For the project-authored P2.2 front corner, load its manifest and any matching HIGH / BALANCED / PERFORMANCE GLB. The B-Rep master is the separate STEP file.</p>
+          <p>Files stay in browser memory. For the project-authored P2.4/P2.6 front corner, load its manifest and any matching HIGH / BALANCED / PERFORMANCE GLB. The B-Rep master is the separate STEP file.</p>
           <label className="p2-cad-lab__upload">
             LOAD SOURCE MANIFEST (.JSON)
             <input type="file" accept=".json,application/json" onChange={onManifest}/>
@@ -483,7 +494,7 @@ export default function P2CadLabPage() {
           <div className="p2-cad-lab__stats">
             <div><span>CAD OBJECTS</span><strong>{scene?.meshCount ?? '—'}</strong></div>
             <div><span>TRIANGLES</span><strong>{scene?.triangles.toLocaleString() ?? '—'}</strong></div>
-            <div><span>SOURCE RIGHTS</span><strong>{manifest?.schema === 'podium-eds.p2.cad-first.front-corner.fit.v1' ? 'PROJECT-AUTHORED / RELEASE REVIEW' : 'NOT CLEARED'}</strong></div>
+            <div><span>SOURCE RIGHTS</span><strong>{(manifest?.schema === 'podium-eds.p2.cad-first.front-corner.fit.v1' || manifest?.schema === 'podium-eds.p2.cad-first.steer-machined.v1') ? 'PROJECT-AUTHORED / RELEASE REVIEW' : 'NOT CLEARED'}</strong></div>
           </div>
           {manifest?.staticCollisionAudit && (
             <div className="p2-cad-lab__fit-audit" aria-label="P2.4 static collision evidence">
