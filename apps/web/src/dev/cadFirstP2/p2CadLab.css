@@ -1,0 +1,253 @@
+/* P2 CAD-first isolated DEV lab. No production global styles or legacy V1 UI. */
+.p2-cad-lab {
+  --p2-bg: #091018;
+  --p2-panel: #111e2a;
+  --p2-line: #314657;
+  --p2-ink: #eef4f7;
+  --p2-muted: #a2b7c6;
+  --p2-hot: #ff6844;
+  min-height: 100svh;
+  background: var(--p2-bg);
+  color: var(--p2-ink);
+  font-family: 'Space Grotesk', 'Manrope', sans-serif;
+  overflow-x: clip;
+}
+.p2-cad-lab *, .p2-cad-lab *::before, .p2-cad-lab *::after { box-sizing: border-box; }
+.p2-cad-lab button, .p2-cad-lab input { font: inherit; }
+.p2-cad-lab a { color: inherit; }
+.p2-cad-lab a:focus-visible, .p2-cad-lab button:focus-visible,
+.p2-cad-lab input:focus-visible { outline: 2px solid #8de3f3; outline-offset: 3px; }
+.p2-cad-lab__header {
+  min-height: 62px;
+  padding: 15px clamp(15px, 3vw, 42px);
+  border-bottom: 1px solid var(--p2-line);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: #070d14;
+  font: 700 10px/1.4 'IBM Plex Mono', monospace;
+  letter-spacing: .11em;
+}
+.p2-cad-lab__header a { color: #fff; text-decoration: none; }
+.p2-cad-lab__header span:last-child { color: var(--p2-hot); }
+.p2-cad-lab__intro { max-width: 1150px; padding: 54px clamp(15px, 4vw, 64px) 43px; }
+.p2-cad-lab__eyebrow {
+  color: var(--p2-hot);
+  font: 750 10px/1.5 'IBM Plex Mono', monospace;
+  letter-spacing: .12em;
+}
+.p2-cad-lab__intro h1 {
+  margin: 17px 0 12px;
+  font: 850 clamp(54px, 9vw, 132px)/.83 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  letter-spacing: -.018em;
+}
+.p2-cad-lab__intro h1 span { color: var(--p2-hot); }
+.p2-cad-lab__intro p {
+  margin: 25px 0 0;
+  max-width: 65ch;
+  color: #b3c8d7;
+  font-size: clamp(13px, 1.4vw, 16px);
+  line-height: 1.65;
+}
+.p2-cad-lab__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
+  border-top: 1px solid var(--p2-line);
+  border-bottom: 1px solid var(--p2-line);
+  min-height: min(67svh, 740px);
+}
+.p2-cad-lab__viewport {
+  min-width: 0;
+  min-height: 520px;
+  position: relative;
+  background: radial-gradient(ellipse at 49% 35%, #1f3545 0%, #0b1520 65%, #080f17 100%);
+}
+.p2-cad-lab__viewport canvas { width: 100% !important; height: 100% !important; }
+.p2-cad-lab__empty {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  height: 100%;
+  text-align: center;
+  padding: 28px;
+  gap: 15px;
+}
+.p2-cad-lab__empty span {
+  font: 700 10px/1.4 'IBM Plex Mono', monospace;
+  letter-spacing: .16em;
+  color: #e96c53;
+}
+.p2-cad-lab__empty strong {
+  font: 850 clamp(35px, 4vw, 72px)/.94 'Barlow Condensed', sans-serif;
+  letter-spacing: .04em;
+}
+.p2-cad-lab__empty p { color: var(--p2-muted); max-width: 40ch; line-height: 1.65; }
+.p2-cad-lab__stage-tag {
+  position: absolute;
+  top: 17px;
+  left: 19px;
+  max-width: calc(100% - 38px);
+  color: #c9e7ef;
+  font: 650 10px/1.5 'IBM Plex Mono', monospace;
+  letter-spacing: .08em;
+  pointer-events: none;
+}
+.p2-cad-lab__error {
+  position: absolute;
+  bottom: 15px;
+  left: 15px;
+  right: 15px;
+  padding: 14px;
+  border-left: 3px solid #ff6844;
+  background: rgba(29, 14, 18, .96);
+  font: 12px/1.5 'IBM Plex Mono', monospace;
+}
+.p2-cad-lab__inspector {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  background: #0e1a26;
+  border-left: 1px solid var(--p2-line);
+  padding: 27px 22px;
+}
+.p2-cad-lab__inspector h2,
+.p2-cad-lab__candidates h2 {
+  margin: 0;
+  font: 800 clamp(32px, 3vw, 48px)/.93 'Barlow Condensed', sans-serif;
+}
+.p2-cad-lab__inspector > p,
+.p2-cad-lab__candidates > div:first-child > p {
+  color: var(--p2-muted);
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 0 0 12px;
+}
+.p2-cad-lab__upload {
+  padding: 15px;
+  border: 1px solid #4b6376;
+  color: #dfedf4;
+  background: #1a2b39;
+  cursor: pointer;
+  font: 750 10px/1.55 'IBM Plex Mono', monospace;
+  letter-spacing: .07em;
+  text-align: center;
+}
+.p2-cad-lab__upload:hover { border-color: #92cadf; }
+.p2-cad-lab__upload--primary {
+  border-color: #ff6844;
+  background: #352520;
+  color: #fff;
+}
+.p2-cad-lab__upload input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.p2-cad-lab__filename { color: #819cb0; font: 10px/1.5 'IBM Plex Mono', monospace; }
+.p2-cad-lab__stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+  margin: 14px 0;
+}
+.p2-cad-lab__stats > div {
+  padding: 12px;
+  min-width: 0;
+  background: #182a38;
+  border: 1px solid #2c4254;
+  display: grid;
+  gap: 7px;
+}
+.p2-cad-lab__stats > div:last-child { grid-column: span 2; }
+.p2-cad-lab__stats span {
+  color: #89acbc;
+  font: 650 9px 'IBM Plex Mono', monospace;
+}
+.p2-cad-lab__stats strong {
+  font: 750 17px 'IBM Plex Mono', monospace;
+  color: #f2fbff;
+}
+.p2-cad-lab__stats > div:last-child strong { font-size: 12px; color: #ff9a80; }
+.p2-cad-lab__parts {
+  display: grid;
+  gap: 1px;
+  max-height: 300px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.p2-cad-lab__parts button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+  padding: 10px;
+  min-width: 0;
+  background: #142432;
+  border: 0;
+  border-bottom: 1px solid #2a4050;
+  color: #c3d6df;
+  cursor: pointer;
+  text-align: left;
+  font: 650 10px/1.4 'IBM Plex Mono', monospace;
+}
+.p2-cad-lab__parts button[aria-pressed='true'] {
+  background: #253337;
+  box-shadow: inset 2px 0 #ff6844;
+  color: #fff;
+}
+.p2-cad-lab__parts button span { overflow: hidden; text-overflow: ellipsis; }
+.p2-cad-lab__parts button small { color: #89aabb; white-space: nowrap; }
+.p2-cad-lab__candidates {
+  padding: 55px clamp(15px, 4vw, 64px) 70px;
+}
+.p2-cad-lab__candidates h2 { margin: 13px 0 10px; }
+.p2-cad-lab__candidate-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 13px;
+  margin: 27px 0 16px;
+}
+.p2-cad-lab__candidate-grid article {
+  min-width: 0;
+  border: 1px solid #334b5d;
+  background: #111f2c;
+  padding: 21px;
+}
+.p2-cad-lab__candidate-grid article small {
+  color: #a1c0ce;
+  font: 700 9px 'IBM Plex Mono', monospace;
+}
+.p2-cad-lab__candidate-grid article h3 { margin: 12px 0; font-size: 18px; }
+.p2-cad-lab__candidate-grid article strong {
+  display: block;
+  color: #ff987e;
+  font: 700 10px/1.6 'IBM Plex Mono', monospace;
+}
+.p2-cad-lab__candidate-grid article p {
+  color: #a1b4c0;
+  font-size: 12px;
+  line-height: 1.7;
+  min-height: 5em;
+}
+.p2-cad-lab__candidate-grid article a {
+  font: 700 10px 'IBM Plex Mono', monospace;
+  color: #8ee2ef;
+}
+.p2-cad-lab__disclaimer {
+  color: #91aebd;
+  font: 11px/1.7 'IBM Plex Mono', monospace;
+}
+@media(max-width:950px) {
+  .p2-cad-lab__layout { grid-template-columns: minmax(0, 1fr); }
+  .p2-cad-lab__viewport { min-height: 490px; height: 58svh; }
+  .p2-cad-lab__inspector { border-left: 0; border-top: 1px solid var(--p2-line); }
+}
+@media(max-width:700px) {
+  .p2-cad-lab__candidate-grid { grid-template-columns: minmax(0, 1fr); }
+  .p2-cad-lab__viewport { min-height: 355px; height: 52svh; }
+  .p2-cad-lab__intro { padding-top: 42px; }
+  .p2-cad-lab__header { font-size: 9px; }
+  .p2-cad-lab__candidate-grid article p { min-height: 0; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .p2-cad-lab * { transition: none !important; animation: none !important; }
+}
