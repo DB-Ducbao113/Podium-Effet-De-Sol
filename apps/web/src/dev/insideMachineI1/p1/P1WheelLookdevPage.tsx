@@ -8,6 +8,24 @@ import './p1Wheel.css';
 
 const P1WheelStage = lazy(() => import('./P1WheelStage'));
 
+type P1QAControl = {
+  setProgress: (value: number) => void;
+  setScope: (value: WheelInspectionScope) => void;
+  selectPart: (id: string) => void;
+  setProfile: (profile: QualityProfile) => void;
+  getUIState: () => {
+    progress: number;
+    scope: WheelInspectionScope;
+    selectedPart: string;
+    profile: QualityProfile;
+    orbit: boolean;
+    playing: boolean;
+    loaded: boolean;
+    error: string;
+  };
+};
+type P1ControlWindow = Window & { __PEDS_ITM_P1_CTRL__?: P1QAControl };
+
 class PilotBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
   state = { failed: false };
   static getDerivedStateFromError() { return { failed: true }; }
@@ -80,6 +98,46 @@ export default function P1WheelLookdevPage() {
     setOrbit(false);
   };
   const jump = (value: number) => seek(value);
+
+  // Test-only control adapter. No production route, no hidden fallback
+  // and no manufactured visual evidence: automation reads the live canvas.
+  useEffect(() => {
+    if (!import.meta.env.DEV) return;
+    const target = window as P1ControlWindow;
+    const control: P1QAControl = {
+      setProgress: (value) => {
+        setProgress(clampProgress(value));
+        setPlaying(false);
+        setOrbit(false);
+      },
+      setScope: (value) => {
+        if (value !== 'lock-wheel' && value !== 'full') return;
+        setScope(value);
+        setPlaying(false);
+      },
+      selectPart: (id) => {
+        const part = FRONT_LEFT_WHEEL_V2.find((item) => item.id === id);
+        if (!part) return;
+        setSelectedPart(id);
+        if (part.order > 1) setScope('full');
+        setPlaying(false);
+      },
+      setProfile: (value) => {
+        if (!['HIGH', 'BALANCED', 'PERFORMANCE'].includes(value)) return;
+        setProfile(value);
+        setLoaded(false);
+        setError('');
+        setPlaying(false);
+      },
+      getUIState: () => ({
+        progress, scope, selectedPart, profile, orbit, playing, loaded, error,
+      }),
+    };
+    target.__PEDS_ITM_P1_CTRL__ = control;
+    return () => {
+      if (target.__PEDS_ITM_P1_CTRL__ === control) delete target.__PEDS_ITM_P1_CTRL__;
+    };
+  }, [progress, scope, selectedPart, profile, orbit, playing, loaded, error]);
 
   return (
     <div
