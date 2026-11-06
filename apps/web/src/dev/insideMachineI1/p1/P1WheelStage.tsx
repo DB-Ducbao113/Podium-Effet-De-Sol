@@ -8,6 +8,7 @@ import { ASSET_URLS, MANIFEST_URL } from '../assetPaths';
 import type { AssemblyManifest, QualityProfile } from '../types';
 import { FRONT_LEFT_WHEEL_V2 } from '../design/frontLeftWheelV2';
 import { pilotFrameAt, positionFromBaseline, partDetachmentAt, type PilotFrame } from './pilotMotion';
+import { createPilotMaterial } from './pilotMaterials';
 
 type LoadedAssets = { model: THREE.Group; manifest: AssemblyManifest };
 type Metrics = { drawCalls: number; triangles: number; frameMs: number };
@@ -90,6 +91,9 @@ type MotionNode = {
 };
 
 type Overlay = {
+  mesh: THREE.Mesh;
+  originalMaterial: THREE.Material | THREE.Material[];
+  pilotMaterial: THREE.Material | THREE.Material[] | null;
   overlay: THREE.Mesh;
   surface: THREE.MeshBasicMaterial;
   edges: THREE.LineSegments | null;
@@ -141,6 +145,13 @@ function Vehicle({ model, frame, selected, quality }: {
         }
         cursor = cursor.parent;
       }
+      const originalMaterial = mesh.material;
+      const pilotMaterial = partId
+        ? Array.isArray(originalMaterial)
+          ? originalMaterial.map((material) => createPilotMaterial(material, partId))
+          : createPilotMaterial(originalMaterial, partId)
+        : null;
+      if (pilotMaterial) mesh.material = pilotMaterial;
       const surface = new THREE.MeshBasicMaterial({
         color: partId ? '#dce6eb' : '#d5e1e8',
         transparent: true,
@@ -172,7 +183,7 @@ function Vehicle({ model, frame, selected, quality }: {
         edges.renderOrder = 3;
         mesh.add(edges);
       }
-      output.push({ overlay, surface, edges, edgeMaterial, edgeGeometry, partId });
+      output.push({ mesh, originalMaterial, pilotMaterial, overlay, surface, edges, edgeMaterial, edgeGeometry, partId });
     }
     return output;
   }, [model, quality]);
@@ -187,6 +198,11 @@ function Vehicle({ model, frame, selected, quality }: {
         item.edgeGeometry?.dispose();
         item.edgeMaterial?.dispose();
         item.surface.dispose();
+        if (item.pilotMaterial) {
+          item.mesh.material = item.originalMaterial;
+          const copies = Array.isArray(item.pilotMaterial) ? item.pilotMaterial : [item.pilotMaterial];
+          copies.forEach((material) => material.dispose());
+        }
       }
     };
   }, [model, overlays, scene]);
