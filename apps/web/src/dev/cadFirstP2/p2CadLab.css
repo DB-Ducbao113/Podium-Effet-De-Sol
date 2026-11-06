@@ -312,3 +312,61 @@
   font: 500 12px/1.5 'IBM Plex Mono', monospace;
 }
 .p2-cad-lab__search input::placeholder { color: #6c8b9c; }
+
+/* P2.3 analytic CAD precision review — GPU-only section and manifest evidence. */
+.p2-cad-lab__section-control {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #3b5669;
+  background: #132737;
+}
+.p2-cad-lab__section-control > button {
+  min-height: 42px;
+  text-align: left;
+  padding: 10px 12px;
+  border: 1px solid #5c8298;
+  color: #e0f1f5;
+  background: #1e3547;
+  cursor: pointer;
+  font: 700 10px/1.5 'IBM Plex Mono', monospace;
+  letter-spacing: .05em;
+}
+.p2-cad-lab__section-control button[aria-pressed='true'] {
+  border-color: #ff7857;
+  background: #392822;
+  color: #ffe7da;
+}
+.p2-cad-lab__section-control button:disabled { opacity: .4; cursor: not-allowed; }
+.p2-cad-lab__section-control > label {
+  display: grid;
+  gap: 9px;
+  font: 700 10px/1.5 'IBM Plex Mono', monospace;
+  color: #9fd4e1;
+}
+.p2-cad-lab__section-control input[type='range'] {
+  width: 100%;
+  accent-color: #ff6844;
+}
+.p2-cad-lab__section-control label > span {
+  color: #a5bcca;
+  font: 500 10px/1.5 'IBM Plex Mono', monospace;
+}
+.p2-cad-lab__precision-evidence {
+  display: grid;
+  gap: 10px;
+  padding: 14px 12px;
+  border-left: 3px solid #69bbcf;
+  background: #152c37;
+  color: #dceff4;
+  font: 650 10px/1.5 'IBM Plex Mono', monospace;
+}
+.p2-cad-lab__precision-evidence > strong {
+  color: #a7e9f0;
+  font-size: 12px;
+}
+.p2-cad-lab__precision-evidence > small {
+  color: #a6baca;
+  font-size: 10px;
+  line-height: 1.65;
+}
