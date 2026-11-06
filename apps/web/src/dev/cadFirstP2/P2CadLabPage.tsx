@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'meshoptimizer';
 import type { P2CadScene } from './P2CadViewer';
+import type { P2DisplayQuality } from './P2StudioEnvironment';
 import sourceRegistry from './sourceRegistry.json';
 import { p2SteeringMate } from './P2SteeringMate';
 import { p2FilmFrame, P2_CINEMA_SHOTS, P2_CINEMA_DURATION_SECONDS } from './P2CinemaTimeline';
@@ -112,6 +113,7 @@ function inspectGlb(model: THREE.Group, filename: string): P2CadScene {
 
 export default function P2CadLabPage() {
   const [scene, setScene] = useState<P2CadScene | null>(null);
+  const [sourceQuality, setSourceQuality] = useState<P2DisplayQuality>('BALANCED');
   const [selectedPart, setSelectedPart] = useState<string | null>(null);
   const [isolate, setIsolate] = useState(false);
   const [explode, setExplode] = useState(0);
@@ -144,6 +146,7 @@ export default function P2CadLabPage() {
     setError('');
     setBusy(true);
     setScene(null);
+    setSourceQuality('BALANCED');
     setSelectedPart(null);
     setIsolate(false);
     setExplode(0);
@@ -190,6 +193,8 @@ export default function P2CadLabPage() {
           throw new Error('P2.3 named CAD solid hierarchy mismatch. Refusing preview.');
         }
       }
+      const tier = Object.entries(manifest?.profiles ?? {}).find(([, entry]) => entry.file === file.name)?.[0];
+      setSourceQuality(tier === 'HIGH' || tier === 'BALANCED' || tier === 'PERFORMANCE' ? tier : 'BALANCED');
       setScene(inspected);
       setLoadState(identity);
     } catch (caught) {
@@ -385,6 +390,7 @@ export default function P2CadLabPage() {
                 wheelAngleDeg={!cinematic && canSpinP24 ? wheelAngleDeg : 0}
                 steerAngleDeg={!cinematic && canSteerP26 ? steerAngleDeg : 0}
                 cinematic={cinematic} filmProgress={filmProgress} playing={filmPlaying}
+                quality={sourceQuality}
                 section={!cinematic && section} sectionOffsetMm={sectionOffsetMm}
               />
             </Suspense>
