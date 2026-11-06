@@ -126,7 +126,11 @@ function Vehicle({ model, frame, selected, quality }: {
     });
   }, [model]);
 
-  const overlays = useMemo<Overlay[]>(() => {
+  const overlays = useRef<Overlay[]>([]);
+
+  // StrictMode-safe: scene mutations and GPU resource allocations happen in an
+  // effect, never inside useMemo or React render.
+  useEffect(() => {
     const selectedNodes = new Map(
       FRONT_LEFT_WHEEL_V2.map((part) => [model.getObjectByName(part.node), part.id]),
     );
@@ -185,14 +189,12 @@ function Vehicle({ model, frame, selected, quality }: {
       }
       output.push({ mesh, originalMaterial, pilotMaterial, overlay, surface, edges, edgeMaterial, edgeGeometry, partId });
     }
-    return output;
-  }, [model, quality]);
-
-  useEffect(() => {
+    overlays.current = output;
     scene.add(model);
+    invalidate();
     return () => {
       scene.remove(model);
-      for (const item of overlays) {
+      for (const item of output) {
         item.overlay.removeFromParent();
         item.edges?.removeFromParent();
         item.edgeGeometry?.dispose();
@@ -204,8 +206,9 @@ function Vehicle({ model, frame, selected, quality }: {
           copies.forEach((material) => material.dispose());
         }
       }
+      overlays.current = [];
     };
-  }, [model, overlays, scene]);
+  }, [model, quality, scene, invalidate]);
 
   useEffect(() => {
     original.forEach((item) => {
@@ -219,7 +222,7 @@ function Vehicle({ model, frame, selected, quality }: {
         item.object.quaternion.multiply(spin);
       }
     });
-    for (const item of overlays) {
+    for (const item of overlays.current) {
       item.surface.opacity = frame.blueprint * (item.partId ? 1 : 0.9);
       if (item.edgeMaterial) {
         item.edgeMaterial.opacity = frame.blueprint * 0.92
@@ -230,7 +233,7 @@ function Vehicle({ model, frame, selected, quality }: {
     // Retain exactly the same geometry and transforms during the blueprint morph.
     scene.background = backdropDark.clone().lerp(backdropLight, frame.blueprint);
     invalidate();
-  }, [frame, invalidate, original, overlays, scene, selected]);
+  }, [frame, invalidate, original, scene, selected]);
 
   return null;
 }
