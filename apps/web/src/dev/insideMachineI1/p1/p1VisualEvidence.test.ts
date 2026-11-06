@@ -16,6 +16,14 @@ describe('P1.3 — truthful browser evidence and technical contrast boundary', (
     expect(page).toContain('__PEDS_ITM_P1_CTRL__');
   });
 
+  it('rejects wrong R4.5 binary and manifest hashes instead of silently substituting models', () => {
+    expect(stage).toContain("import assetIdentity from '../asset-identity.json'");
+    expect(stage).toContain("crypto.subtle.digest('SHA-256', bytes)");
+    expect(stage).toContain('assetIdentity.assets[profile].sha256');
+    expect(stage).toContain('assetIdentity.assets.manifest.sha256');
+    expect(stage).toContain('Refusing unverified geometry');
+  });
+
   it('records actual 7-part Three.js transforms and camera state', () => {
     expect(probe).toContain('node.getWorldPosition(world)');
     expect(probe).toContain('node.quaternion.toArray()');
