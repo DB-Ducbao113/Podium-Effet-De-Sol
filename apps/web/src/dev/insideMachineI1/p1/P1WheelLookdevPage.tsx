@@ -8,6 +8,10 @@ import './p1Wheel.css';
 
 const P1WheelStage = lazy(() => import('./P1WheelStage'));
 
+// Story navigation is editorial; it does not replace the single motion
+// timeline, so every shot remains fully reversible with the same slider.
+const SHOT_ENTRY_PROGRESS = [0, 0.18, 0.42, 0.73, 0.80, 0.93] as const;
+
 type P1QAControl = {
   setProgress: (value: number) => void;
   setScope: (value: WheelInspectionScope) => void;
@@ -256,9 +260,19 @@ export default function P1WheelLookdevPage() {
       </div>
 
       <section className="itm-p1__transport" aria-label="Cinematic timeline and scene controls">
-        <div className="itm-p1__transport-head">
-          <span>00 / REVEAL</span><span>01 / DISASSEMBLE</span><span>02 / BLUEPRINT</span><span>03 / REBUILD</span>
-        </div>
+        <nav className="itm-p1__shot-rail" aria-label="Cinematic scene navigation">
+          {FRONT_LEFT_WHEEL_SHOTS.map((entry, index) => (
+            <button
+              key={entry.id}
+              type="button"
+              aria-current={shot.id === entry.id ? 'step' : undefined}
+              onClick={() => jump(SHOT_ENTRY_PROGRESS[index])}
+            >
+              <span>{String(index + 1).padStart(2, '0')}</span>
+              <strong>{entry.title[lang]}</strong>
+            </button>
+          ))}
+        </nav>
         <input
           aria-label={lang === 'vi' ? 'Tiến trình cinematic' : 'Cinematic sequence progress'}
           type="range" min="0" max="1" step="0.001"
