@@ -2,6 +2,7 @@ import { useEffect, useMemo } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { p2MotionFactor } from './P2MotionGroups';
+import { p2FilmPartSeparation } from './P2CinemaTimeline';
 import { P2_KINGPIN, P2_TIE_OUTER, P2_RACK_REST, p2SteeringMate, p2SteeringRigidGroup } from './P2SteeringMate';
 
 /**
@@ -24,8 +25,8 @@ function explodeOffset(id: string): [number, number, number] {
 }
 
 export default function P2ExplodeRig({
-  model, progress, wheelAngleDeg = 0, steerAngleDeg = 0,
-}: { model: THREE.Group; progress: number; wheelAngleDeg?: number; steerAngleDeg?: number }) {
+  model, progress, wheelAngleDeg = 0, steerAngleDeg = 0, cinematic = false, filmProgress = 0,
+}: { model: THREE.Group; progress: number; wheelAngleDeg?: number; steerAngleDeg?: number; cinematic?: boolean; filmProgress?: number }) {
   const { invalidate } = useThree();
   const nodes = useMemo(() => {
     const result: { node: THREE.Mesh; original: THREE.Vector3; originalRotation: THREE.Quaternion; offset: THREE.Vector3; motion: number }[] = [];
@@ -53,7 +54,7 @@ export default function P2ExplodeRig({
     };
   }, [invalidate, nodes]);
   const amount = THREE.MathUtils.smoothstep(progress, 0, 1);
-  useEffect(() => { invalidate(); }, [amount, wheelAngleDeg, steerAngleDeg, invalidate]);
+  useEffect(() => { invalidate(); }, [amount, wheelAngleDeg, steerAngleDeg, cinematic, filmProgress, invalidate]);
   const axle = useMemo(() => new THREE.Vector3(0, 0, 1), []);
   const kingpin = useMemo(() => new THREE.Vector3(0, 1, 0), []);
   const pivot = useMemo(() => new THREE.Vector3(...P2_KINGPIN).multiplyScalar(0.001), []);
@@ -90,8 +91,9 @@ export default function P2ExplodeRig({
         qCompose.copy(qSteer).multiply(qWheel);
         translation.copy(pivot).sub(scratch.copy(pivot).applyQuaternion(qSteer));
       }
+      const separation = cinematic ? p2FilmPartSeparation(node.name, filmProgress) : amount;
       node.position.copy(original).applyQuaternion(qCompose)
-        .add(translation).addScaledVector(offset, amount);
+        .add(translation).addScaledVector(offset, separation);
       node.quaternion.copy(qCompose).multiply(originalRotation);
     });
   });
