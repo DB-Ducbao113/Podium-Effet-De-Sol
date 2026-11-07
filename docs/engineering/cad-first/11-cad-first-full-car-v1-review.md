@@ -1,3 +1,9 @@
+> **OWNER VISUAL REVIEW — REJECTED (2026-11-07).** Full Car V1 does not meet recognisable Formula 1 silhouette or engineering-detail quality. Native CAD validity (176/176 solids) and watertight GLBs are mathematical format checks, NOT visual acceptance. This concept must not be treated as an approved whole-car source or base for P3–P5 hyperreal/cinematic production. It is retained only for audit/history.
+>
+> **Observed defects:** flat rectangular front/rear wing elements, polygonal slab-like chassis/underfloor, rough sidepod/cockpit/halo proportions, simplified rod-based suspension, and weak wheel-to-body proportions. Source generator relies primarily on box(), prism(), cylinder() and rod().
+>
+> **Corrective gate:** Lock authentic full-car orthographic front/side/top/rear silhouettes and section envelopes before generating new CAD. Preserve the original project-authored P2.8 front-corner source as a separately reviewed subassembly; do not imply this V1 has mechanically integrated it. Require owner visual sign-off on clay silhouette from at least six matched angles before detailing, PBR, exploded scroll or video.
+
 # PEDS — CAD-FIRST FULL CAR V1 / SOURCE REVIEW
 
 Date: 2026-11-07
