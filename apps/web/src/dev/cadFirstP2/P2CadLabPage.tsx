@@ -29,6 +29,19 @@ type VerifiedManifest = {
   sourcePartCount?: number;
   geometryProof?: Record<string, number>;
   p23SourcePrecisionEvidence?: Record<string, number>;
+  staticAuditFile?: string;
+  staticAuditSha256?: string;
+  staticFit?: {
+    totalPairs: number;
+    aabbExcluded: number;
+    exactBrepPairs: number;
+    unresolvedPairs: Array<{a:string;b:string;volumeMm3?:number}>;
+    booleanErrors: Array<{a:string;b:string;reason?:string}>;
+    thresholdMm3: number;
+    sampledBumpOrSteerPassed: boolean;
+  };
+  roundtripSolids?: number;
+  allRoundtripValid?: boolean;
   staticCollisionAudit?: {
     file: string; sha256: string; totalPairs: number; candidatePairs: number;
     unresolvedPairs: number; volumeThresholdMm3: number;
@@ -150,6 +163,7 @@ export default function P2CadLabPage() {
   const [manifestName, setManifestName] = useState('');
   const [fitAudit, setFitAudit] = useState<StaticFitEvidence | null>(null);
   const [fitAuditName, setFitAuditName] = useState('');
+  const [p28StaticVerified, setP28StaticVerified] = useState(false);
   const [fitAuditSha, setFitAuditSha] = useState('');
   const [manifestSha, setManifestSha] = useState('');
   const [wheelAngleDeg, setWheelAngleDeg] = useState(0);
@@ -269,6 +283,7 @@ export default function P2CadLabPage() {
       setManifestSha(hash);
       setFitAudit(null);
       setFitAuditName('');
+      setP28StaticVerified(false);
       setFitAuditSha('');
       setDynamicAudit(null);
       setDynamicAuditName('');
@@ -292,6 +307,7 @@ export default function P2CadLabPage() {
     if (!file) return;
     setFitAudit(null);
     setFitAuditName('');
+    setP28StaticVerified(false);
     setFitAuditSha('');
     setDynamicAudit(null);
     setDynamicAuditName('');
@@ -406,6 +422,49 @@ export default function P2CadLabPage() {
       event.target.value = '';
     }
   },[manifest,manifestSha]);
+
+  const onP28Static = useCallback(async (event:ChangeEvent<HTMLInputElement>)=>{
+    const file=event.target.files?.[0];
+    if(!file)return;
+    setP28StaticVerified(false);
+    try {
+      if(manifest?.schema!=='podium-eds.p2.cad-first.full-corner.remate.v1' ||
+         !manifest.staticAuditFile || !manifest.staticAuditSha256 ||
+         file.name!==manifest.staticAuditFile) {
+        throw new Error('P2.8 static evidence does not match selected source manifest.');
+      }
+      if(file.size>1000000)throw new Error('P2.8 static audit is unexpectedly large.');
+      const bytes=await file.arrayBuffer();
+      const digest=await crypto.subtle.digest('SHA-256',bytes);
+      const actual=Array.from(new Uint8Array(digest),v=>v.toString(16).padStart(2,'0')).join('');
+      if(actual!==manifest.staticAuditSha256.toLowerCase()) {
+        throw new Error('P2.8 source static audit SHA-256 mismatch.');
+      }
+      const audit=JSON.parse(new TextDecoder().decode(bytes)) as NonNullable<VerifiedManifest['staticFit']>;
+      const inline=manifest.staticFit;
+      if(!inline || audit.totalPairs!==1711 || audit.totalPairs!==inline.totalPairs ||
+         audit.exactBrepPairs!==inline.exactBrepPairs ||
+         audit.aabbExcluded!==inline.aabbExcluded ||
+         audit.exactBrepPairs+audit.aabbExcluded!==audit.totalPairs ||
+         !Array.isArray(audit.unresolvedPairs)||audit.unresolvedPairs.length!==0 ||
+         !Array.isArray(audit.booleanErrors)||audit.booleanErrors.length!==0 ||
+         audit.thresholdMm3!==0.05 ||
+         !manifest.allRoundtripValid || manifest.roundtripSolids!==59) {
+        throw new Error('P2.8 neutral-pose B-Rep evidence invalid or incomplete.');
+      }
+      setP28StaticVerified(true);
+      setError('');
+    } catch(caught) {
+      setError(caught instanceof Error?caught.message:'P2.8 static review rejected.');
+    } finally {
+      event.target.value='';
+    }
+  },[manifest]);
+
+  const canP28Static = Boolean(
+    scene && manifest?.schema==='podium-eds.p2.cad-first.full-corner.remate.v1' &&
+    scene.meshCount===59 && manifest.partIds?.length===59
+  );
 
   const canP27Wishbone = Boolean(
     scene && manifest?.schema === 'podium-eds.p2.cad-first.wishbone.v1' &&
@@ -573,7 +632,7 @@ export default function P2CadLabPage() {
         <aside className="p2-cad-lab__inspector">
           <div className="p2-cad-lab__eyebrow">01 / SOURCE IMPORT</div>
           <h2>CAD INTAKE</h2>
-          <p>Files stay in browser memory. For the project-authored P2.4/P2.6 corner or the separate P2.7 eight-part wishbone study, load its manifest and matching HIGH / BALANCED / PERFORMANCE GLB. The B-Rep master is the separate STEP file.</p>
+          <p>Files stay in browser memory. For P2.8, load the matched 59-solid STEP-derived GLB and static audit. P2.6 corner and standalone P2.7 wishbone remain separately selectable for their specific motion studies. The B-Rep master is the separate STEP file.</p>
           <label className="p2-cad-lab__upload">
             LOAD SOURCE MANIFEST (.JSON)
             <input type="file" accept=".json,application/json" onChange={onManifest}/>
@@ -684,6 +743,26 @@ export default function P2CadLabPage() {
                 onChange={(event)=>setWishboneBumpMm(Number(event.target.value))}/>
               <p>31 constraint-solved hardpoint poses, source-specific A-arm rotations and separately translated joint studs. Each GLB contains eight actual B-Rep source solids.</p>
               <small>SUBASSEMBLY ONLY. Not yet mated to the 53-solid P2.6 upright; no bump + steering coupled certification.</small>
+            </div>
+          )}
+          {canP28Static && (
+            <div className="p2-cad-lab__fit-audit">
+              <div className="p2-cad-lab__eyebrow">P2.8 / 59-SOLID STATIC ASSEMBLY</div>
+              <label className="p2-cad-lab__upload">
+                VERIFY P2.8 SOURCE COLLISION REPORT (.JSON)
+                <input type="file" accept=".json,application/json" onChange={onP28Static}/>
+              </label>
+              {p28StaticVerified ? (
+                <>
+                  <strong>1,711 SOURCE PAIRS / STATIC CHECK COMPLETE</strong>
+                  <span>256 exact native B-Rep checks. Zero reported overlaps above 0.05 mm³.</span>
+                  <small>Verified local report digest matches manifest; only ONE stationary pose.
+                    Four unsupported material fragments were removed from upright.
+                    No load-bearing joint, coupled bump/steering or photoreal approval.</small>
+                </>
+              ) : (
+                <small>59 original CAD solids preview. Static PASS is not shown until its local audit file matches the manifest SHA-256.</small>
+              )}
             </div>
           )}
           <div className="p2-cad-lab__eyebrow">02 / REAL GEOMETRY</div>
