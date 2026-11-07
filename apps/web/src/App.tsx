@@ -87,6 +87,11 @@ const P2CadLabPage = cadFirstLabEnabled
   ? lazy(() => import('./dev/cadFirstP2/P2CadLabPage'))
   : null;
 
+// Development-only vehicle walkthrough. Never included in production routes.
+const FullCarScrollReview = import.meta.env.DEV
+  ? lazy(() => import('./dev/fullCarScrollV5/FullCarScrollReview'))
+  : null;
+
 let lastAutoRaceSyncAt = 0;
 
 const validSeason = (value?: string): value is `${SeasonYear}` => isSeasonYear(value);
@@ -176,7 +181,8 @@ export const App: React.FC = () => {
   const isCadFirstLab = cadFirstLabEnabled &&
     (location.pathname === '/engineering' ||
       location.pathname === '/engineering/cad-lab' ||
-      location.pathname === '/engineering/inside-the-machine');
+      location.pathname === '/engineering/inside-the-machine' ||
+      location.pathname === '/engineering/cinematic-rebuild');
   const syncSeasonData = useChampionshipStore((state) => state.syncSeasonData);
 
   useEffect(() => {
@@ -293,6 +299,7 @@ export const App: React.FC = () => {
               {P2CadLabPage && <Route path="/engineering/insights" element={<EngineeringIndexPage />} />}
               <Route path="/engineering/car-anatomy" element={<EngineeringAnatomyPage />} />
               {P2CadLabPage && <Route path="/engineering/inside-the-machine" element={<P2CadLabPage />} />}
+              {FullCarScrollReview && <Route path="/engineering/cinematic-rebuild" element={<FullCarScrollReview />} />}
               <Route path="/engineering/:slug" element={<EngineeringArticlePage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
