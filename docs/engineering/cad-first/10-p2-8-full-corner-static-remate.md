@@ -43,13 +43,30 @@ The generated source master digest is `bd35288c0a624a3cece51fc0b324005e12fd194b6
 - `P28_static_audit.json` — all-pair B-Rep collision result;
 - reproduction Python source and upstream generator scripts.
 
-**No P2.8 GLB exports are marked complete.** Initial export attempt exceeded the local execution limit; no partial output is presented as a valid HIGH, BALANCED or PERFORMANCE GLB. P2.6 and P2.7 old GLBs cannot be overlaid as a substitute: their source upright is not the freshly machined P2.8 geometry.
+### Source-derived GLB exports — now generated and verified
+
+The first attempted full B-Rep export hit a local time limit. A second **source-linked composed export** succeeded, using unchanged per-tier P2.6 + P2.7 source GLB meshes (both SHA-verified) and **newly tessellating only the rewritten upright from P2.8 native STEP**.
+
+| Tier | All named parts | Triangles | Bytes |
+|---|---:|---:|---:|
+| HIGH | 59 | 308,580 | 5,216,096 |
+| BALANCED | 59 | 93,936 | 1,935,200 |
+| PERFORMANCE | 59 | 64,195 | 1,324,468 |
+
+Source integrity and method are stored in `P28_remate_manifest.json` and reproducible `tools/cad-first/p2_8_source_glb_composition.py`. All 59 scene node IDs survive GLB roundtrip. **These are CAD-derived composed preview LODs, not a complete fresh re-tessellation of 59 B-Rep bodies at each tier.** The STEP-re-tessellated upright's triangle mesh failed the strict watertightness test; this may arise at CAD face seams and must be reviewed and fixed for photoreal macro. The STEP B-Rep itself round-tripped as 59 valid solids.
+
+The CAD Lab now supports the 59-part P2.8 static preview and checks the exact SHA-256 of the attached native static audit, without enabling unverified P2.8 wheel-spin, suspension or cinematic motion.
+
+### Render evidence
+
+Two offline VTK views were generated from the real P2.8 BALANCED GLB and combined in `P28_STATIC_SOURCE_REVIEW_BOARD.png`. They are **not screenshots from a WebGL browser** and not photoreal owner acceptance. Existing tyres and wheel surfaces remain visibly polygonal; cinematic quality is NOT achieved.
+
 
 ## Remaining execution gates
 
 - **P2.8A:** author genuine upright outer-joint bearing/boss/retainer geometry that keeps a structurally connected load path. A model with no volumetric overlap but no retaining connection is inadequate.
 - **P2.8B:** test the *whole 59-body assembly* during -15..+15 mm suspension bump and +/-8° steering using coherent transforms, rather than inheriting separate P2.6 and P2.7 test results. Interpolate/sample the actual coupled kinematic solution; report failures honestly.
-- **P2.8C:** regenerate HIGH/BALANCED/PERFORMANCE GLBs from this exact new master, retain all 59 source IDs, SHA-256 manifest and inspect macro normals/edge fidelity in real WebGL.
+- **P2.8C:** composed HIGH/BALANCED/PERFORMANCE preview GLBs now exist; still require repairing the upright tessellation's watertightness, an independently re-tessellated HIGH/LOW source audit if demanded, and real WebGL macro and framerate verification.
 - **P2.9:** source-first hydraulic and bearing detail, load-bearing suspension joints, authentic machining/toolmarks as geometry/normal information where supported; no fabrication or OEM F1 claims.
 - **P3–P5:** actual WebGL browser visual/cinematic and performance review against the owner reference, accessibility and local QA. No GitHub CI.
 - **Owner gate:** Draft/HOLD, no merge or production deploy.
