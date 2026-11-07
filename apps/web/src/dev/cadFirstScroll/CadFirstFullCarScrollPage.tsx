@@ -82,7 +82,7 @@ export default function CadFirstFullCarScrollPage() {
   const handleStageReady = useCallback(() => setGlbReady(true), []);
   const handleStageError = useCallback((message: string) => setStageError(message), []);
   const canView=Boolean(source);
-  const subtitle=source?.scope==='full-car'?'VERIFIED WHOLE-CAR CAD-FIRST':'59-SOLID FRONT CORNER · WHOLE CAR NOT BUILT';
+  const subtitle=source?.scope==='full-car'?'WHOLE-CAR CAD METADATA · AUDIT REQUIRED':'59-SOLID FRONT CORNER · WHOLE CAR PENDING';
   return <div className="cadscroll">
     <a href="#cadscroll-end" className="cadscroll-skip">Skip CAD scroll</a>
     <section className="cadscroll-track" ref={track} style={{height:(canView?Math.max(24,beats.length*0.72):4)*100+'svh'}}>

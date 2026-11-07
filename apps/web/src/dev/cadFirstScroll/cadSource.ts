@@ -12,6 +12,9 @@ export type CadManifest = {
   parts?: CadPart[];
   staticAuditFile?: string;
   staticAuditSha256?: string;
+  masterSTEPsha256?: string;
+  totalCadSolids?: number;
+  allRoundtripValid?: boolean;
 };
 export type CadSource = {
   scope: 'front-corner' | 'full-car';
@@ -54,6 +57,12 @@ export function readManifest(value: unknown): { manifest: CadManifest; scope: 'f
   if (data.schema === 'podium-eds.cad-first.full-car.v1') {
     if (!Array.isArray(data.parts) || !data.parts.length || !data.parts.every(checkPart))
       throw Error('Whole-car CAD requires an explicit semantic parts list');
+    // A list of 13 named meshes is not proof of a vehicle. Require CAD B-Rep
+    // roundtrip evidence and the referenced source STEP digest as well.
+    if (!/^[a-f0-9]{64}$/i.test(data.masterSTEPsha256 ?? '') ||
+        data.totalCadSolids !== data.parts.length || data.allRoundtripValid !== true ||
+        !data.staticAuditFile || !/^[a-f0-9]{64}$/i.test(data.staticAuditSha256 ?? ''))
+      throw Error('Whole-car source requires STEP and native static-audit provenance');
     const names = new Set(data.parts.map(part => part.node));
     if (names.size !== data.parts.length) throw Error('Duplicate CAD node mapping');
     const covered = new Set(data.parts.map(part => part.system));
