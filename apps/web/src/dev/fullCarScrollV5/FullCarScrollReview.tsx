@@ -123,8 +123,8 @@ export default function FullCarScrollReview() {
         <div className="peds-fullcar-v5__model" aria-label="R4.5 full Formula car">
           {stageReady ? <Suspense fallback={<img src={POSTER_URL} alt="Model B loading" />}>
             <ThreeStage modelUrl={ASSET_URLS[quality]} manifest={manifest} scrollProgress={0}
-              cutaway={false} selectedAssembly={overview ? firstAssembly : step.assembly}
-              selectedComponent={overview ? firstComponent : step.component}
+              cutaway={false} selectedAssembly={overview ? firstAssembly : (step?.assembly ?? firstAssembly)}
+              selectedComponent={overview ? firstComponent : (step?.component ?? firstComponent)}
               isolation={!overview} isolationScope={step?.component ? 'component' : 'assembly'}
               ghost storyFocusStrength={0} attachmentCue={false}
               cameraPose={poseAt(overview && groupIndex === GROUPS.length - 1 ? 1 : 0).camera}
