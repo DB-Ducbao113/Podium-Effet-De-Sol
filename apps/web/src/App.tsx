@@ -81,15 +81,15 @@ const EngineeringArticlePage = lazy(() =>
   })),
 );
 const EngineeringAnatomyPage = lazy(() => import('./components/engineering/EngineeringAnatomyPage'));
+// CAD-first standalone scroll. No R4.5/Model B dependencies.
+const CadFirstFullCarScrollPage = import.meta.env.DEV
+  ? lazy(() => import('./dev/cadFirstScroll/CadFirstFullCarScrollPage'))
+  : null;
+
 // P2 replaces the Model B lookdev pilot on DEV. No production route changes.
 const cadFirstLabEnabled = import.meta.env.DEV;
 const P2CadLabPage = cadFirstLabEnabled
   ? lazy(() => import('./dev/cadFirstP2/P2CadLabPage'))
-  : null;
-
-// Development-only vehicle walkthrough. Never included in production routes.
-const FullCarScrollReview = import.meta.env.DEV
-  ? lazy(() => import('./dev/fullCarScrollV5/FullCarScrollReview'))
   : null;
 
 let lastAutoRaceSyncAt = 0;
@@ -299,7 +299,7 @@ export const App: React.FC = () => {
               {P2CadLabPage && <Route path="/engineering/insights" element={<EngineeringIndexPage />} />}
               <Route path="/engineering/car-anatomy" element={<EngineeringAnatomyPage />} />
               {P2CadLabPage && <Route path="/engineering/inside-the-machine" element={<P2CadLabPage />} />}
-              {FullCarScrollReview && <Route path="/engineering/cinematic-rebuild" element={<FullCarScrollReview />} />}
+              {CadFirstFullCarScrollPage && <Route path="/engineering/cinematic-rebuild" element={<CadFirstFullCarScrollPage />} />}
               <Route path="/engineering/:slug" element={<EngineeringArticlePage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
