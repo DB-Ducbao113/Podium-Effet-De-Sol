@@ -79,6 +79,8 @@ export default function CadFirstFullCarScrollPage() {
     const top=scrollY+el.getBoundingClientRect().top;
     scrollTo({top:top+(n/beats.length)*Math.max(1,el.offsetHeight-innerHeight),behavior:reducedMotion?'instant':'smooth'});
   },[beats.length,reducedMotion]);
+  const handleStageReady = useCallback(() => setGlbReady(true), []);
+  const handleStageError = useCallback((message: string) => setStageError(message), []);
   const canView=Boolean(source);
   const subtitle=source?.scope==='full-car'?'VERIFIED WHOLE-CAR CAD-FIRST':'59-SOLID FRONT CORNER · WHOLE CAR NOT BUILT';
   return <div className="cadscroll">
@@ -87,7 +89,7 @@ export default function CadFirstFullCarScrollPage() {
       <div className="cadscroll-sticky">
         <div className="cadscroll-canvas">
           {source ? <Suspense fallback={<div className="cadscroll-state">LOADING CAD...</div>}>
-            <Stage key={source.fileName+quality} source={source} focus={beat?.id??null} onReady={()=>setGlbReady(true)} onError={setStageError} />
+            <Stage key={source.fileName+quality} source={source} focus={beat?.id??null} onReady={handleStageReady} onError={handleStageError} />
           </Suspense> : <div className="cadscroll-state"><strong>CAD-FIRST / P1–P5</strong>
             <span>LOAD SOURCE GLB, NOT MODEL B OR R4.5</span>
           </div>}

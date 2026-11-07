@@ -68,6 +68,7 @@ function Parts({model,focus}:{model:THREE.Group;focus:string|null}){
 }
 export default function CadFirstScrollStage({source,focus,onReady,onError}:Props){
   const [scene,setScene]=useState<THREE.Group|null>(null);
+  const liveModel=useRef<THREE.Group|null>(null);
   useEffect(()=>{
     let alive=true;
     const loader=new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
@@ -83,9 +84,28 @@ export default function CadFirstScrollStage({source,focus,onReady,onError}:Props
         onError('CAD node manifest mismatch: '+matched.length+'/'+source.parts.length+' names, '+count+' meshes');
         return;
       }
-      setScene(model);onReady();
+      liveModel.current=model;setScene(model);onReady();
     },(error)=>{if(alive)onError(String(error));});
-    return()=>{alive=false;};
+    return()=> {
+      alive=false;
+      const model=liveModel.current;liveModel.current=null;
+      if(model){
+        const geometries=new Set<THREE.BufferGeometry>();
+        const materials=new Set<THREE.Material>();
+        const textures=new Set<THREE.Texture>();
+        model.traverse(obj=>{
+          if(!(obj instanceof THREE.Mesh))return;
+          geometries.add(obj.geometry);
+          for(const material of Array.isArray(obj.material)?obj.material:[obj.material]){
+            materials.add(material);
+            for(const value of Object.values(material)) if(value instanceof THREE.Texture) textures.add(value);
+          }
+        });
+        geometries.forEach(value=>value.dispose());
+        materials.forEach(value=>value.dispose());
+        textures.forEach(value=>value.dispose());
+      }
+    };
   },[source,onError,onReady]);
   return <Canvas frameloop="demand" dpr={[1,1.5]} camera={{fov:36,position:[2,2,3],near:.00001,far:250}}
     gl={{antialias:true,powerPreference:'high-performance'}}
