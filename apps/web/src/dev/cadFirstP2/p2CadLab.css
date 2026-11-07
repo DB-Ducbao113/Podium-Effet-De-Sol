@@ -1,0 +1,611 @@
+/* P2 CAD-first isolated DEV lab. No production global styles or legacy V1 UI. */
+.p2-cad-lab {
+  --p2-bg: #091018;
+  --p2-panel: #111e2a;
+  --p2-line: #314657;
+  --p2-ink: #eef4f7;
+  --p2-muted: #a2b7c6;
+  --p2-hot: #ff6844;
+  min-height: 100svh;
+  background: var(--p2-bg);
+  color: var(--p2-ink);
+  font-family: 'Space Grotesk', 'Manrope', sans-serif;
+  overflow-x: clip;
+}
+.p2-cad-lab *, .p2-cad-lab *::before, .p2-cad-lab *::after { box-sizing: border-box; }
+.p2-cad-lab button, .p2-cad-lab input { font: inherit; }
+.p2-cad-lab a { color: inherit; }
+.p2-cad-lab a:focus-visible, .p2-cad-lab button:focus-visible,
+.p2-cad-lab input:focus-visible { outline: 2px solid #8de3f3; outline-offset: 3px; }
+.p2-cad-lab__header {
+  min-height: 62px;
+  padding: 15px clamp(15px, 3vw, 42px);
+  border-bottom: 1px solid var(--p2-line);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: #070d14;
+  font: 700 10px/1.4 'IBM Plex Mono', monospace;
+  letter-spacing: .11em;
+}
+.p2-cad-lab__header a { color: #fff; text-decoration: none; }
+.p2-cad-lab__header span:last-child { color: var(--p2-hot); }
+.p2-cad-lab__intro { max-width: 1150px; padding: 54px clamp(15px, 4vw, 64px) 43px; }
+.p2-cad-lab__eyebrow {
+  color: var(--p2-hot);
+  font: 750 10px/1.5 'IBM Plex Mono', monospace;
+  letter-spacing: .12em;
+}
+.p2-cad-lab__intro h1 {
+  margin: 17px 0 12px;
+  font: 850 clamp(54px, 9vw, 132px)/.83 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  letter-spacing: -.018em;
+}
+.p2-cad-lab__intro h1 span { color: var(--p2-hot); }
+.p2-cad-lab__intro p {
+  margin: 25px 0 0;
+  max-width: 65ch;
+  color: #b3c8d7;
+  font-size: clamp(13px, 1.4vw, 16px);
+  line-height: 1.65;
+}
+.p2-cad-lab__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
+  border-top: 1px solid var(--p2-line);
+  border-bottom: 1px solid var(--p2-line);
+  min-height: min(67svh, 740px);
+}
+.p2-cad-lab__viewport {
+  min-width: 0;
+  min-height: 520px;
+  position: relative;
+  background: radial-gradient(ellipse at 49% 35%, #1f3545 0%, #0b1520 65%, #080f17 100%);
+}
+.p2-cad-lab__viewport canvas { width: 100% !important; height: 100% !important; }
+.p2-cad-lab__empty {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  height: 100%;
+  text-align: center;
+  padding: 28px;
+  gap: 15px;
+}
+.p2-cad-lab__empty span {
+  font: 700 10px/1.4 'IBM Plex Mono', monospace;
+  letter-spacing: .16em;
+  color: #e96c53;
+}
+.p2-cad-lab__empty strong {
+  font: 850 clamp(35px, 4vw, 72px)/.94 'Barlow Condensed', sans-serif;
+  letter-spacing: .04em;
+}
+.p2-cad-lab__empty p { color: var(--p2-muted); max-width: 40ch; line-height: 1.65; }
+.p2-cad-lab__stage-tag {
+  position: absolute;
+  top: 17px;
+  left: 19px;
+  max-width: calc(100% - 38px);
+  color: #c9e7ef;
+  font: 650 10px/1.5 'IBM Plex Mono', monospace;
+  letter-spacing: .08em;
+  pointer-events: none;
+}
+.p2-cad-lab__error {
+  position: absolute;
+  bottom: 15px;
+  left: 15px;
+  right: 15px;
+  padding: 14px;
+  border-left: 3px solid #ff6844;
+  background: rgba(29, 14, 18, .96);
+  font: 12px/1.5 'IBM Plex Mono', monospace;
+}
+.p2-cad-lab__inspector {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  background: #0e1a26;
+  border-left: 1px solid var(--p2-line);
+  padding: 27px 22px;
+}
+.p2-cad-lab__inspector h2,
+.p2-cad-lab__candidates h2 {
+  margin: 0;
+  font: 800 clamp(32px, 3vw, 48px)/.93 'Barlow Condensed', sans-serif;
+}
+.p2-cad-lab__inspector > p,
+.p2-cad-lab__candidates > div:first-child > p {
+  color: var(--p2-muted);
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 0 0 12px;
+}
+.p2-cad-lab__upload {
+  padding: 15px;
+  border: 1px solid #4b6376;
+  color: #dfedf4;
+  background: #1a2b39;
+  cursor: pointer;
+  font: 750 10px/1.55 'IBM Plex Mono', monospace;
+  letter-spacing: .07em;
+  text-align: center;
+}
+.p2-cad-lab__upload:hover { border-color: #92cadf; }
+.p2-cad-lab__upload--primary {
+  border-color: #ff6844;
+  background: #352520;
+  color: #fff;
+}
+.p2-cad-lab__upload input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.p2-cad-lab__filename { color: #819cb0; font: 10px/1.5 'IBM Plex Mono', monospace; }
+.p2-cad-lab__stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+  margin: 14px 0;
+}
+.p2-cad-lab__stats > div {
+  padding: 12px;
+  min-width: 0;
+  background: #182a38;
+  border: 1px solid #2c4254;
+  display: grid;
+  gap: 7px;
+}
+.p2-cad-lab__stats > div:last-child { grid-column: span 2; }
+.p2-cad-lab__stats span {
+  color: #89acbc;
+  font: 650 9px 'IBM Plex Mono', monospace;
+}
+.p2-cad-lab__stats strong {
+  font: 750 17px 'IBM Plex Mono', monospace;
+  color: #f2fbff;
+}
+.p2-cad-lab__stats > div:last-child strong { font-size: 12px; color: #ff9a80; }
+.p2-cad-lab__parts {
+  display: grid;
+  gap: 1px;
+  max-height: 300px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.p2-cad-lab__parts button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+  padding: 10px;
+  min-width: 0;
+  background: #142432;
+  border: 0;
+  border-bottom: 1px solid #2a4050;
+  color: #c3d6df;
+  cursor: pointer;
+  text-align: left;
+  font: 650 10px/1.4 'IBM Plex Mono', monospace;
+}
+.p2-cad-lab__parts button[aria-pressed='true'] {
+  background: #253337;
+  box-shadow: inset 2px 0 #ff6844;
+  color: #fff;
+}
+.p2-cad-lab__parts button span { overflow: hidden; text-overflow: ellipsis; }
+.p2-cad-lab__parts button small { color: #89aabb; white-space: nowrap; }
+.p2-cad-lab__candidates {
+  padding: 55px clamp(15px, 4vw, 64px) 70px;
+}
+.p2-cad-lab__candidates h2 { margin: 13px 0 10px; }
+.p2-cad-lab__candidate-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 13px;
+  margin: 27px 0 16px;
+}
+.p2-cad-lab__candidate-grid article {
+  min-width: 0;
+  border: 1px solid #334b5d;
+  background: #111f2c;
+  padding: 21px;
+}
+.p2-cad-lab__candidate-grid article small {
+  color: #a1c0ce;
+  font: 700 9px 'IBM Plex Mono', monospace;
+}
+.p2-cad-lab__candidate-grid article h3 { margin: 12px 0; font-size: 18px; }
+.p2-cad-lab__candidate-grid article strong {
+  display: block;
+  color: #ff987e;
+  font: 700 10px/1.6 'IBM Plex Mono', monospace;
+}
+.p2-cad-lab__candidate-grid article p {
+  color: #a1b4c0;
+  font-size: 12px;
+  line-height: 1.7;
+  min-height: 5em;
+}
+.p2-cad-lab__candidate-grid article a {
+  font: 700 10px 'IBM Plex Mono', monospace;
+  color: #8ee2ef;
+}
+.p2-cad-lab__disclaimer {
+  color: #91aebd;
+  font: 11px/1.7 'IBM Plex Mono', monospace;
+}
+@media(max-width:950px) {
+  .p2-cad-lab__layout { grid-template-columns: minmax(0, 1fr); }
+  .p2-cad-lab__viewport { min-height: 490px; height: 58svh; }
+  .p2-cad-lab__inspector { border-left: 0; border-top: 1px solid var(--p2-line); }
+}
+@media(max-width:700px) {
+  .p2-cad-lab__candidate-grid { grid-template-columns: minmax(0, 1fr); }
+  .p2-cad-lab__viewport { min-height: 355px; height: 52svh; }
+  .p2-cad-lab__intro { padding-top: 42px; }
+  .p2-cad-lab__header { font-size: 9px; }
+  .p2-cad-lab__candidate-grid article p { min-height: 0; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .p2-cad-lab * { transition: none !important; animation: none !important; }
+}
+
+.p2-cad-lab__isolate {
+  background: #222f38;
+  color: #cce4ef;
+  border: 1px solid #55768b;
+  border-left: 3px solid #8bd6e3;
+  padding: 11px 12px;
+  cursor: pointer;
+  text-align: left;
+  font: 700 10px/1.4 'IBM Plex Mono', monospace;
+  letter-spacing: .05em;
+}
+.p2-cad-lab__isolate[aria-pressed='true'] {
+  background: #332622;
+  border-color: #ff6844;
+  color: #ffdccf;
+}
+.p2-cad-lab__isolate:disabled { opacity: .4; cursor: not-allowed; }
+
+/* P2.2 local CAD study — part visibility and exploded geometry controls. */
+.p2-cad-lab__explode-control {
+  display: grid;
+  gap: 8px;
+  border: 1px solid #3c5262;
+  padding: 13px 12px;
+  background: #182936;
+}
+.p2-cad-lab__explode-control > label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #d6e8f0;
+  font: 750 10px/1.4 'IBM Plex Mono', monospace;
+  letter-spacing: .06em;
+}
+.p2-cad-lab__explode-control strong { color: #ff977c; font-variant-numeric: tabular-nums; }
+.p2-cad-lab__explode-control input[type='range'] {
+  width: 100%;
+  accent-color: #ff6844;
+  min-height: 26px;
+  cursor: ew-resize;
+}
+.p2-cad-lab__explode-control input:disabled { cursor: not-allowed; }
+.p2-cad-lab__explode-control p {
+  margin: 0;
+  color: #96b2c4;
+  font: 10px/1.5 'IBM Plex Mono', monospace;
+}
+.p2-cad-lab__search { display: grid; gap: 8px; margin: 5px 0; color: #aac9d7;
+  font: 750 10px/1.4 'IBM Plex Mono', monospace; letter-spacing: .06em; }
+.p2-cad-lab__search input {
+  width: 100%;
+  min-width: 0;
+  padding: 11px;
+  background: #0b1722;
+  border: 1px solid #425b6b;
+  color: #e9f7fc;
+  font: 500 12px/1.5 'IBM Plex Mono', monospace;
+}
+.p2-cad-lab__search input::placeholder { color: #6c8b9c; }
+
+/* P2.3 analytic CAD precision review — GPU-only section and manifest evidence. */
+.p2-cad-lab__section-control {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #3b5669;
+  background: #132737;
+}
+.p2-cad-lab__section-control > button {
+  min-height: 42px;
+  text-align: left;
+  padding: 10px 12px;
+  border: 1px solid #5c8298;
+  color: #e0f1f5;
+  background: #1e3547;
+  cursor: pointer;
+  font: 700 10px/1.5 'IBM Plex Mono', monospace;
+  letter-spacing: .05em;
+}
+.p2-cad-lab__section-control button[aria-pressed='true'] {
+  border-color: #ff7857;
+  background: #392822;
+  color: #ffe7da;
+}
+.p2-cad-lab__section-control button:disabled { opacity: .4; cursor: not-allowed; }
+.p2-cad-lab__section-control > label {
+  display: grid;
+  gap: 9px;
+  font: 700 10px/1.5 'IBM Plex Mono', monospace;
+  color: #9fd4e1;
+}
+.p2-cad-lab__section-control input[type='range'] {
+  width: 100%;
+  accent-color: #ff6844;
+}
+.p2-cad-lab__section-control label > span {
+  color: #a5bcca;
+  font: 500 10px/1.5 'IBM Plex Mono', monospace;
+}
+.p2-cad-lab__precision-evidence {
+  display: grid;
+  gap: 10px;
+  padding: 14px 12px;
+  border-left: 3px solid #69bbcf;
+  background: #152c37;
+  color: #dceff4;
+  font: 650 10px/1.5 'IBM Plex Mono', monospace;
+}
+.p2-cad-lab__precision-evidence > strong {
+  color: #a7e9f0;
+  font-size: 12px;
+}
+.p2-cad-lab__precision-evidence > small {
+  color: #a6baca;
+  font-size: 10px;
+  line-height: 1.65;
+}
+
+/* P2.4: verified local static source-collision report; never a production seal. */
+.p2-cad-lab__fit-audit {
+  display: grid;
+  gap: 10px;
+  padding: 13px;
+  border-left: 3px solid #8ecbd5;
+  background: #102936;
+  color: #dbeaf0;
+  font: 600 10px/1.6 'IBM Plex Mono', monospace;
+}
+.p2-cad-lab__fit-audit > strong {
+  color: #b5ebef;
+  font-size: 12px;
+  letter-spacing: .03em;
+}
+.p2-cad-lab__fit-audit > span { color: #c0dce9; }
+.p2-cad-lab__fit-audit > small,
+.p2-cad-lab__fit-audit > p {
+  margin: 0;
+  color: #a8b9c8;
+  font-size: 10px;
+  line-height: 1.65;
+}
+
+/* P2.5 wheel-angle sampler. Local B-Rep report is a separate review gate. */
+.p2-cad-lab__wheel-spin {
+  display: grid;
+  gap: 9px;
+  padding: 13px;
+  background: #142b36;
+  border: 1px solid #456477;
+}
+.p2-cad-lab__wheel-spin > label:first-child {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  font: 750 10px/1.5 'IBM Plex Mono', monospace;
+  letter-spacing: .06em;
+  color: #c6e4ee;
+}
+.p2-cad-lab__wheel-spin label strong { color: #ffab8c; font-size: 13px; }
+.p2-cad-lab__wheel-spin > input[type='range'] {
+  width: 100%;
+  min-height: 32px;
+  accent-color: #ff6844;
+}
+.p2-cad-lab__wheel-spin > input:disabled { opacity: .45; cursor: not-allowed; }
+.p2-cad-lab__wheel-spin > p,
+.p2-cad-lab__wheel-spin small {
+  margin: 0;
+  color: #a9c1cd;
+  font: 500 10px/1.7 'IBM Plex Mono', monospace;
+}
+.p2-cad-lab__motion-evidence {
+  display: grid;
+  gap: 7px;
+  padding: 12px;
+  background: #112d33;
+  border-left: 3px solid #88d1d4;
+  color: #d9f0f1;
+  font: 600 10px/1.55 'IBM Plex Mono', monospace;
+}
+.p2-cad-lab__motion-evidence strong { color: #c7f4ee; font-size: 12px; }
+.p2-cad-lab__motion-evidence span { color: #badbe2; }
+.p2-cad-lab__motion-evidence small { color: #a6bfcf; }
+.p2-cad-lab__motion-pending { color: #ffbea8 !important; }
+
+/* P2.6 steering engineering review; source-mate constraints only. */
+.p2-cad-lab__steer-control {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  background: #142d36;
+  border: 1px solid #486572;
+}
+.p2-cad-lab__steer-control > label { display:flex; gap:8px; align-items:center; justify-content:space-between;
+  color:#d1edf1; font:700 10px/1.5 'IBM Plex Mono',monospace; }
+.p2-cad-lab__steer-control strong { color:#ffac8d; font-size:14px; font-variant-numeric:tabular-nums; }
+.p2-cad-lab__steer-control input[type='range'] { width:100%; accent-color:#ff6844; }
+.p2-cad-lab__steer-control input:disabled { opacity:.45; }
+.p2-cad-lab__steer-control p,.p2-cad-lab__steer-control small {margin:0;color:#aec4d2;font:500 10px/1.65 'IBM Plex Mono',monospace;}
+/* P3 CAD-only cinematic, reviewed separately from the source inspector. */
+.p2-cad-lab__launch-film {
+  color:#fff6ed;
+  padding:15px 12px;
+  min-height:48px;
+  border:1px solid #ff7657;
+  background:linear-gradient(114deg,#5f342b,#332024);
+  letter-spacing:.08em;
+  font:750 11px/1.35 'IBM Plex Mono',monospace;
+  text-align:left;
+  cursor:pointer;
+}
+.p2-cad-lab__launch-film:disabled {opacity:.40;cursor:not-allowed;}
+.p2-cad-lab__launch-film:hover:not(:disabled) {background:#704131;}
+.p2-cad-lab__viewport--cinema { min-height:min(78svh,880px); background:#080e17; }
+.p2-cad-lab__film { position:absolute;inset:0;pointer-events:none;display:flex;flex-direction:column;justify-content:space-between;z-index:3; }
+.p2-cad-lab__film-vignette { position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 75% 72% at 55% 48%,transparent 26%,rgba(2,6,15,.42) 78%,rgba(1,4,9,.85) 100%); }
+.p2-cad-lab__film-heading { position:relative;z-index:2;width:min(560px,65%);display:grid;gap:9px;padding:clamp(20px,3.8vw,48px); }
+.p2-cad-lab__film-heading > span {color:#ff927a;font:700 10px/1.4 'IBM Plex Mono',monospace;letter-spacing:.14em; }
+.p2-cad-lab__film-heading strong {font:850 clamp(42px,6vw,100px)/.87 'Barlow Condensed','Arial Narrow',sans-serif;
+  text-transform:uppercase;letter-spacing:-.015em;color:#f8fdff;text-shadow:0 2px 28px rgba(0,0,0,.65);}
+.p2-cad-lab__film-heading small {color:#bfd7e3;font:650 10px/1.6 'IBM Plex Mono',monospace;letter-spacing:.08em; }
+.p2-cad-lab__film-controls { position:relative;z-index:3;display:flex;align-items:center;gap:10px;
+  margin:0 16px 45px;padding:12px;background:rgba(7,15,24,.95);
+  border:1px solid #3e5869;pointer-events:auto; }
+.p2-cad-lab__film-controls button { border:1px solid #668394;background:#182b38;color:#fff;
+  font:700 10px 'IBM Plex Mono',monospace;padding:11px 13px;min-height:43px;cursor:pointer; }
+.p2-cad-lab__film-controls button:nth-child(2) {border-color:#ff7351;background:#452b25;}
+.p2-cad-lab__film-controls button:disabled {opacity:.45;cursor:not-allowed;}
+.p2-cad-lab__film-controls input {min-width:0;flex:1;accent-color:#ff7351;}
+.p2-cad-lab__film-controls span {white-space:nowrap;color:#c3d7e3;font:600 10px 'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;}
+.p2-cad-lab__film-chapters {position:absolute;bottom:122px;right:16px;z-index:4;display:flex;gap:4px;pointer-events:auto;}
+.p2-cad-lab__film-chapters button {background:rgba(10,21,30,.88);border:1px solid #688091;
+  color:#c9dbe4;min-width:36px;min-height:35px;cursor:pointer;
+  font:700 10px 'IBM Plex Mono',monospace;}
+.p2-cad-lab__film-chapters button[aria-pressed='true'] {border-color:#ff7752;color:#fff;background:#542b23;}
+@media(max-width:800px) {
+  .p2-cad-lab__viewport--cinema {height:68svh;min-height:420px;}
+  .p2-cad-lab__film-heading {width:min(360px,80%);}
+  .p2-cad-lab__film-heading strong {font-size:clamp(37px,8vw,68px);}
+  .p2-cad-lab__film-controls {margin:0 9px 38px;gap:6px;padding:7px;}
+  .p2-cad-lab__film-controls button {padding:10px 7px;font-size:9px;}
+  .p2-cad-lab__film-chapters {bottom:102px;right:9px;}
+}
+@media(max-width:440px) {
+  .p2-cad-lab__film-heading {padding:22px 12px;}
+  .p2-cad-lab__film-heading strong {font-size:clamp(32px,9vw,45px);}
+  .p2-cad-lab__film-controls span {display:none;}
+}
+@media(prefers-reduced-motion:reduce){
+  .p2-cad-lab__film * {animation:none!important;transition:none!important;}
+}
+
+/* Source-first P3 macro inspection. Buttons are outside the WebGL Canvas. */
+.p2-cad-lab__macro-selector {
+  position:absolute;
+  bottom:170px;
+  left:16px;
+  right:16px;
+  z-index:5;
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  gap:5px;
+  pointer-events:auto;
+}
+.p2-cad-lab__macro-selector button {
+  min-height:37px;
+  padding:9px 10px;
+  background:rgba(9,20,28,.92);
+  color:#d5e5ee;
+  border:1px solid #516b7c;
+  cursor:pointer;
+  font:700 9px/1.4 'IBM Plex Mono',monospace;
+  letter-spacing:.035em;
+  white-space:nowrap;
+}
+.p2-cad-lab__macro-selector button[aria-pressed='true'] {
+  color:#fff5ea;
+  background:#4d2b24;
+  border-color:#ff8c60;
+}
+.p2-cad-lab__macro-selector button:first-child {
+  border-color:#b5cad0;
+}
+.p2-cad-lab__macro-selector button:focus-visible {
+  outline:2px solid #b5e7fa;
+  outline-offset:2px;
+}
+@media(max-width:800px){
+  .p2-cad-lab__macro-selector {bottom:150px;left:8px;right:8px;gap:4px;}
+  .p2-cad-lab__macro-selector button {min-height:29px;padding:6px;font-size:8px;}
+}
+@media(max-width:520px){
+  .p2-cad-lab__macro-selector {max-height:90px;overflow-y:auto;align-content:flex-end;}
+  .p2-cad-lab__macro-selector button {min-height:27px;}
+}
+
+/* Film mode owns the whole engineering stage, not a narrow side-by-side card. */
+.p2-cad-lab__layout--cinema {
+  grid-template-columns:minmax(0,1fr);
+}
+.p2-cad-lab__layout--cinema > .p2-cad-lab__inspector {display:none;}
+.p2-cad-lab__layout--cinema .p2-cad-lab__viewport {
+  min-height:min(84svh,980px);
+}
+.p2-cad-lab__viewport--blueprint .p2-cad-lab__film-heading strong {
+  color:#172d3a;
+  text-shadow:none;
+}
+.p2-cad-lab__viewport--blueprint .p2-cad-lab__film-heading small {
+  color:#345268;
+}
+.p2-cad-lab__viewport--blueprint .p2-cad-lab__film-heading span {
+  color:#a13d28;
+}
+@media(max-width:800px) {
+  .p2-cad-lab__layout--cinema .p2-cad-lab__viewport {
+    min-height:420px;
+    height:75svh;
+  }
+}
+@media(max-width:480px) {
+  .p2-cad-lab__layout--cinema .p2-cad-lab__viewport {
+    min-height:410px;
+    height:74svh;
+  }
+}
+
+/* Actual WebGL telemetry only: FPS is never inferred from triangle counts. */
+.p2-cad-lab__film-metrics {
+  position:absolute;
+  right:17px;
+  top:15px;
+  z-index:7;
+  display:flex;
+  flex-wrap:wrap;
+  max-width:min(470px,55vw);
+  justify-content:flex-end;
+  gap:7px;
+  pointer-events:none;
+}
+.p2-cad-lab__film-metrics span {
+  padding:5px 7px;
+  border:1px solid rgba(107,138,152,.4);
+  background:rgba(4,13,20,.86);
+  color:#c1ecf1;
+  font:700 9px/1.5 'IBM Plex Mono',monospace;
+  letter-spacing:.035em;
+  font-variant-numeric:tabular-nums;
+}
+@media(max-width:800px) {
+  .p2-cad-lab__film-metrics {right:9px;top:8px;max-width:100%;}
+  .p2-cad-lab__film-metrics span {padding:4px;font-size:8px;}
+}
