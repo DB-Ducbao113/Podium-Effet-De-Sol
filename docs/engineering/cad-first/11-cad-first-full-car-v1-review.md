@@ -32,11 +32,13 @@ Owner review media: delivered in the current project conversation, not added to 
 | Mechanically verified static-fit, dynamic steering/bump, load paths | **FAIL/HOLD / NOT DONE** |
 | Hyperreal browser or macOS GPU FPS | **NOT VERIFIED** |
 
-STEP master SHA-256: `f75af94427608211928dec283b5fc7f004115a57f6b7f51df3fa5f44e8cf9e86`
-HIGH GLB SHA-256: `bc81b6f17d1ff51b43de7eeb0bca4ca37d9a80c2affd61ca63da4c6827817454`
-BALANCED GLB SHA-256: `a1022176939825249f135d76a8ef1a04fb482e714656cf9dbcdb2f65b89514a6`
-PERFORMANCE GLB SHA-256: `67ba4ae16a767497a14b8cda12a55f11d97f4d7dd67f911b0077249b2d03b513`
-Partial collision preflight SHA-256: `dfdacd94e3c8589155a9bb818b9330bf581044d5399a0083d3297786ca6343eb`
+Watertight mesh proof: **176/176 in HIGH, BALANCED, PERFORMANCE**, with consistent winding after tessellation boundary welding at 1 µm. This checks triangulated surfaces only, not static CAD fit.
+
+STEP master SHA-256: `ce07d12f731c44302bf2499bef400116e184c41330889ec9846632b5778c652f`
+HIGH GLB SHA-256: `4c2d6c79ee5faa2389fb58ecd764b96c68cd1fb9e9eeb5673893476ef76b7602`
+BALANCED GLB SHA-256: `5a5a74b7bbf385a8ddefc8398d944c61438271cba4f76d39444f06146862bbde`
+PERFORMANCE GLB SHA-256: `2ff5abeca947803276a5671b4e9dad96c1941c90be2c5095b0bf240da664b243`
+Partial collision preflight SHA-256: `4d0d391cfc9ed18c6f2ff3b70916cdcbaf77a61d91ec2679d323af2b9dc7271e`
 
 ## Review media / source
 
