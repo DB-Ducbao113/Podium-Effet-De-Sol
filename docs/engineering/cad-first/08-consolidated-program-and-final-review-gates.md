@@ -21,6 +21,7 @@ This document is an **honest scope ledger**, not a declaration that every future
 | P2.5 sampled wheel spin | IMPLEMENTED/LOCAL CHECKED | 24 discrete angular poses, 3,036 exact B-Rep intersections, 0 over threshold | Continuously swept envelope, true bearing rolling physics |
 | P2.6 sampled steering | IMPLEMENTED/LOCAL CHECKED | 53 native valid solids, 769 faces; 17 length-conserving mate samples and nine collision samples | 4-wheel and suspension kinematics, unsampled angles |
 | P2.7 original double-wishbone subassembly | **SOURCE CAD + LOCAL SAMPLED AUDIT PASS** | 8 connected B-Rep solids, 31 hardpoint poses, 186 exact intersections without overlap >0.05 mm³ | Re-mate with P2.6 upright; full-corner coupled steering/bump remains OPEN |
+| P2.8 integrated 59-solid neutral assembly | **STATIC B-REP PASS / DYNAMIC HOLD** | 59/59 valid STEP solids, 870 faces, 1,711 source pairs, 256 exact Booleans, 0 overlaps >0.05 mm³ | Upright retained joint/boss load path incomplete; 4 disconnected fragments removed; no GLB P2.8 or coupled bump/steering clearance yet |
 | P3.1 CAD cinematic | CODE IMPLEMENTED | 26-second seven-beat film, source-named exploded parts, macro camera, studio PBR/PMREM, Blueprint/rebuild | WebGL video/screenshot visual acceptance |
 | P3.2 hyperreal source geometry | **OPEN** | Defects and macro candidates identified | Tire bead/sidewall, valve, caliper hydraulic architecture, suspension joints, rotor cooling, sharp machined details |
 | P4 web quality | CODE IMPLEMENTED | Per-tier DPR/AA/PMREM budget, WebGL FPS/draw-call overlay, context-loss status | Actual browser GPU benchmarks on representative devices |
@@ -30,11 +31,11 @@ This document is an **honest scope ledger**, not a declaration that every future
 
 ## Mechanical completion scope
 
-### P2.8 full-corner source re-mating (CURRENT BLOCKER)
+### P2.8 full-corner source re-mating (STATIC COMPLETE, MECHANICAL BLOCKER REMAINS)
 - P2.7 now has real project-authored STEP geometry: upper/lower A-arm bodies, four chassis bushings and two outer joint studs, eight solids. Its independent 31-pose Boolean audit measured 186 exact cross-part operations and passed after physically remodeling the outer through-bore.
 - **Actual P2.8 neutral-pose preflight failed**: P2.7 new solids vs 51 retained P2.6 corner solids (after removing two obsolete links) = 408 considered cross-pairs; 10 exact B-Rep checks and four substantial upright interferences (about 3,033 to 12,714 mm³). This is recorded in the owner evidence pack and source audit tool `p2_8_full_corner_preflight.py`.
-- The old P2.6 upright must be reauthored with actual compatible joint boss/clevis interfaces and separate positive manufacturing clearances; do not simply hide new A-arm parts or ignore penetrations in WebGL.
-- Only after native source remodeling can the 59-solid intended combined assembly be audited at the neutral pose and across the 31 bump samples, then combine ±8° steering with bump and recheck safety envelopes.
+- A new 59-solid P2.8 STEP master has now been authored by B-Rep subtraction and static-pair checked: 1,711 pairs / 256 exact B-Rep intersections / zero overlaps over 0.05 mm³. Four tiny disconnected fragments were removed from the revised upright, meaning the design still **lacks an independently validated structural retained joint interface**. Explicitly reauthor kingpin joint bosses/clevis and demonstrate their load path; do not equate Boolean zero volume with a workable suspension.
+- Neutral-pose audit is complete, but 31 bump poses and combined ±8° steering must still be tested on the revised full assembly. P2.8 GLB tiers were not successfully exported; no visual approval is claimed.
 - The new A-arm subassembly remains a separate CAD Lab mode until the full 59-part integration gate is passed.
 
 ### P2.9 hardware completion
