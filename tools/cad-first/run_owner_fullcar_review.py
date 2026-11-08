@@ -89,18 +89,19 @@ def run(args):
                  "--p28-dir",p28,"--quality",args.quality,
                  "--out",out/"source-preflight.json"],timeout=180)
         record("MODEL_B_P28_SOURCE_AND_NATIVE_STEP","PASS")
-        if not shutil.which("npm"):raise RuntimeError("npm unavailable")
-        execute(["npm","run","typecheck","--workspace=@peds/web"],timeout=600)
+        npm_exe=shutil.which("npm")
+        if not npm_exe:raise RuntimeError("npm unavailable")
+        execute([npm_exe,"run","typecheck","--workspace=@peds/web"],timeout=600)
         record("WEB_TYPESCRIPT","PASS")
-        execute(["npm","test","--workspace=@peds/web","--",
+        execute([npm_exe,"test","--workspace=@peds/web","--",
                  "src/dev/assemblyPreview/assemblyPlacement.test.ts",
                  "src/dev/assemblyPreview/assemblyRegistration.test.ts",
                  "src/dev/cadFirstScroll/cadSource.test.ts"],timeout=450)
         record("WEB_SOURCE_TESTS","PASS")
-        execute(["npm","run","build","--workspace=@peds/web"],timeout=900)
+        execute([npm_exe,"run","build","--workspace=@peds/web"],timeout=900)
         record("WEB_PRODUCTION_BUILD_ISOLATION","PASS")
         # Vite is started only after CAD/TypeScript/unit preflights pass.
-        server=subprocess.Popen(["npm","run","dev","--workspace=@peds/web","--",
+        server=subprocess.Popen([npm_exe,"run","dev","--workspace=@peds/web","--",
                                 "--host","127.0.0.1","--port","5184","--strictPort"],
                                cwd=ROOT,stdout=(out/"dev-server.log").open("wb"),
                                stderr=subprocess.STDOUT,start_new_session=(os.name!="nt"))
