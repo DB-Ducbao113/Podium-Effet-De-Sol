@@ -70,7 +70,7 @@ export default function AssemblyPreviewPage(){
       if(verified.scope!=='front-corner'||verified.parts.length!==59)throw Error('Not P2.8');
       setSource(verified);
       setPlacement(INITIAL_PLACEMENT);
-      setInfo('SOURCE VERIFIED · STAGING OUTSIDE CAR · NO MECHANICAL MATE');
+      setInfo('GLB HASH MATCHES OWNER MANIFEST · NO INDEPENDENT CAD MATE');
     }catch(err){setError(String(err));}finally{setBusy(false);event.target.value='';}
   };
   const importLandmarks=async(event:ChangeEvent<HTMLInputElement>)=>{
@@ -176,7 +176,7 @@ export default function AssemblyPreviewPage(){
         </div>
       </section>
       <aside className="peds-assembly-controls">
-        <h1>Original parts. One car.</h1>
+        <h1>Original parts. Assembly review.</h1>
         <p>Keep the existing Showroom Model B as the visual shell. Import only the exact P2.8 CAD-derived GLB with its SHA-verified source manifest. No car-body reconstruction.</p>
         <div className="peds-assembly-controls-section">
           <h2>01 / Original CAD data</h2>
@@ -184,7 +184,7 @@ export default function AssemblyPreviewPage(){
             onChange={e=>{void importManifest(e);}}/></label>
           <label>P2.8 source GLB (.glb)<input type="file" accept=".glb,model/gltf-binary"
             disabled={!manifest||busy} onChange={e=>{void importGLB(e);}}/></label>
-          <small>Owner-only P28_remate_manifest.json + P28_integrated_balanced.glb (or another SHA-matching tier). Files stay local in the browser.</small>
+          <small>Owner-only P28_remate_manifest.json + P28_integrated_balanced.glb (or another SHA-matching tier). Files stay local in the browser. SHA-matching an owner-supplied manifest does not independently certify CAD authenticity.</small>
         </div>
         <div className="peds-assembly-controls-section">
           <h2>02 / Geometry inspection</h2>
