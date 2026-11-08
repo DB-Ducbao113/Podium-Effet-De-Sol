@@ -87,3 +87,28 @@ Run source-protection unit tests as `python tools/cad-first/test_rebuild_owner_p
 - Implemented in feature branch: source preservation, P2.8 recovery orchestration, no-scale landmark registration, DEV-only source-linked viewer, source guard tests, real browser recorder.
 - Missing **actual run evidence**: owner STEP/GLB binaries, original Model B fetched as a browser-resolvable file, matched wheel/hardpoint landmarks, visual gap/interference results, WebGL test capture, complete browser build.
 - G2 and final release gates remain **HOLD**. **No final video exists in this execution session.**
+
+
+## Continuation — actual source pick/mask + fail-closed local end-to-end runner
+
+New DEV controls on `/engineering/assembly-preview`:
+
+- Three.js raycast picks a **P2.8 original mesh point** and a **Model B original mesh point**. Each hit is transformed from world coordinates back into unchanged root-local GLB metres. At least three manually paired noncollinear corresponding landmarks and a provenance note are needed for an attempted rigid fit.
+- No automatic pair inference: arbitrary visual points on different surfaces do not prove hardpoint identity. The registration still rejects pair length/residual mismatch greater than provisional 5 mm, holds G2 and does not scale originals.
+- Selectively hide exact Model B mesh indices using an original-node list to avoid **visual** wheel duplication. Hiding is reversible and does not edit, export or delete the source geometry. It is not a mechanical subtraction of Model B wheel B-Rep.
+- Original P2.8 manifest now must include native 59-solid STEP source SHA, original P2.6/P2.7 lineage, all-roundtrip-valid flag and original 1711-pair static gate pass. A mere fabricated list of 59 node names is rejected.
+- Unit tests for the stricter P2.8 manifest were extended. Their code is committed, but browser/node tests have **not** actually been executed in this connector-only session.
+
+**Single owner-machine QA and browser-video command** (run only in a local clone with original model assets, npm dependencies, Python/CadQuery, Playwright Chromium, and optionally FFmpeg):
+
+~~~powershell
+cd "E:\Formula 1\Podium-Effet-De-Sol"
+.\.venv-cad\Scripts\Activate.ps1
+python tools\cad-first\run_owner_fullcar_review.py --p28-dir ".local-assets\cad-first\recovered-p28" --out ".local-assets\cad-first\owner-fullcar-review" --allow-rebuild
+~~~
+
+The runner checks local Model B, recovers original P2.8 if absent (only in a new empty directory), validates the 59-solid source, runs targeted TypeScript/Vitest checks, starts DEV Vite on 5184, and triggers **actual** Chromium WebGL screenshot/video capture. MP4 is encoded if FFmpeg is installed. It aborts on missing sources or failed QA instead of inventing geometry or recording a substitute.
+
+The resulting video, when actually generated, demonstrates **staging preview only**, not the owner's requested 18-scene final scroll 0→100→0. No final production-grade full-car film or verified installed four-corner mechanism exists at this checkpoint.
+
+**Current gate: HOLD.** No local owner model source, browser render, final MP4 or all-gates PASS can be claimed by a GitHub source edit alone.
