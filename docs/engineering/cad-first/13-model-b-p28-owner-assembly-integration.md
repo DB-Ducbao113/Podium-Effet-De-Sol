@@ -64,3 +64,26 @@ python tools\cad-first\assembly_modelb_p28_preflight.py --p28-dir ".local-assets
 The DEV viewer additionally accepts a locally sourced `podium-eds.modelb-p28.landmarks.v1` JSON. It requires at least three unique physically identified 3D point pairs, both measured in GLB metres with their provenance. Alignment uses an orientation-preserving rigid transform only (translation + quaternion), **never auto-scales CAD**. A 5 mm geometry mismatch triggers a preview HOLD as a provisional visualization diagnostic, not an FIA tolerance. Even accepted numeric correspondences remain **mechanical G2 HOLD**, especially because Model B is polygon exterior, not an engineering B-Rep master.
 
 Any missing or unmeasured landmarks must stay null/unavailable. Do not invent axle/hardpoint values from a bounding-box centroid.
+
+
+## Genuine browser evidence / video capture
+
+A real Chromium capture script was added at `tools/cad-first/record_modelb_p28_browser.py`. It refuses to run without the original P2.8 59-part manifest and SHA-matching GLB. It opens the current repo's DEV route, imports the exact owner source, waits for both Model B and P2.8 to load, tests separate display, unverified centre overlay, semitransparent shell, optional real fastener isolation, and camera orbit, then records actual WebGL frames via Playwright to WebM. Screenshots and a JSON runtime error log are also produced.
+
+~~~powershell
+cd "E:\Formula 1\Podium-Effet-De-Sol"
+python -m pip install playwright
+python -m playwright install chromium
+# In a separate terminal: npm run dev --workspace=@peds/web -- --host 127.0.0.1 --port 5184
+python tools\cad-first\record_modelb_p28_browser.py --p28-dir ".local-assets\cad-first\recovered-p28\p28" --out ".local-assets\cad-first\browser-review" --quality BALANCED
+~~~
+
+This is **not a claimed finished video**. The script and renderer must be executed on a machine with both source assets and a functioning WebGL browser; the repo's GitHub text connector alone cannot provide a source-linked browser recording. A successful video is still only staging evidence, not final 18-chapter full-car choreography, native mechanical G2 signoff, or permission to deploy.
+
+Run source-protection unit tests as `python tools/cad-first/test_rebuild_owner_p28.py`; Vitest source tests as `npm test --workspace=@peds/web -- --run src/dev/assemblyPreview/assemblyPlacement.test.ts src/dev/assemblyPreview/assemblyRegistration.test.ts`. Neither command has been executed in this source-only session.
+
+### Final status, 2026-11-08
+
+- Implemented in feature branch: source preservation, P2.8 recovery orchestration, no-scale landmark registration, DEV-only source-linked viewer, source guard tests, real browser recorder.
+- Missing **actual run evidence**: owner STEP/GLB binaries, original Model B fetched as a browser-resolvable file, matched wheel/hardpoint landmarks, visual gap/interference results, WebGL test capture, complete browser build.
+- G2 and final release gates remain **HOLD**. **No final video exists in this execution session.**
