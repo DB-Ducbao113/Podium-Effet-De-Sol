@@ -73,6 +73,8 @@ export function P2CinemaSurface({model, progress}: {model:THREE.Group;progress:n
     for(const {pbr} of saved.current) {
       for(const {material,base,studio,roughness,metalness} of pbr) {
         material.color.copy(base).lerp(studio,.85).lerp(pale,blueprint);
+        // Imperative frame update applies only to disposable Three.js material clones.
+        // eslint-disable-next-line react-hooks/immutability
         material.roughness=THREE.MathUtils.lerp(roughness,.91,blueprint);
         material.metalness=THREE.MathUtils.lerp(metalness,.03,blueprint);
       }
@@ -100,6 +102,8 @@ export function P2CinemaCamera({
   const lastFocus=useRef<string|null>(null);
 
   useEffect(()=>invalidate(),[progress,focusPart,invalidate]);
+  // Three.js camera and renderer must be animated imperatively inside the R3F frame loop.
+  // eslint-disable-next-line react-hooks/immutability
   useFrame((_,delta)=>{
     const frame=p2FilmFrame(progress);
     desiredPosition.set(...frame.position);
@@ -134,6 +138,7 @@ export function P2CinemaCamera({
     camera.lookAt(look);
     if(camera instanceof THREE.PerspectiveCamera &&
        Math.abs(camera.fov-targetFov)>.001){
+      // eslint-disable-next-line react-hooks/immutability
       camera.fov=THREE.MathUtils.lerp(camera.fov,targetFov,alpha);
       camera.updateProjectionMatrix();
     }
@@ -143,6 +148,7 @@ export function P2CinemaCamera({
       (camera instanceof THREE.PerspectiveCamera && Math.abs(camera.fov-targetFov)>.001)
     )) invalidate();
     lastFocus.current=focusPart;
+    // eslint-disable-next-line react-hooks/immutability
     gl.toneMappingExposure=frame.exposure;
   });
   return null;
