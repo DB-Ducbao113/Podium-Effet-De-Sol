@@ -155,7 +155,7 @@ function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPre
         metalness:preset.metalness,
         roughness:selected?Math.max(.28,preset.roughness-.12):preset.roughness,
         emissive:new THREE.Color(preset.color),
-        emissiveIntensity:preset.metalness>.6?.18:.3,
+        emissiveIntensity:preset.metalness > 0.6 ? 0.18 : 0.3,
         envMapIntensity:1.55,
         side:THREE.DoubleSide,
       });
