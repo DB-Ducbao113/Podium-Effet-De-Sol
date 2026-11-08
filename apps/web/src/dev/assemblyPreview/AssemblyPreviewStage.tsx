@@ -6,12 +6,14 @@ import { MeshoptDecoder } from 'meshoptimizer';
 import * as THREE from 'three';
 import type { CadSource } from '../cadFirstScroll/cadSource';
 import { centerOffset, initialStagingPosition, type Placement } from './assemblyPlacement';
+import type { RegistrationResult } from './assemblyRegistration';
 
 type Props = {
   source: CadSource | null;
   placement: Placement;
   shellOpacity: number;
   selectedPart: string | null;
+  registration: RegistrationResult | null;
   onError: (message: string) => void;
   onInfo: (info: string) => void;
 };
@@ -33,7 +35,7 @@ function disposeTree(root: THREE.Object3D) {
   textures.forEach(x=>x.dispose());
 }
 
-function Scene({source,placement,shellOpacity,selectedPart,onError,onInfo}:Props) {
+function Scene({source,placement,shellOpacity,selectedPart,registration,onError,onInfo}:Props) {
   const {camera,invalidate} = useThree();
   const [body,setBody] = useState<THREE.Group | null>(null);
   const [corner,setCorner] = useState<THREE.Group | null>(null);
@@ -108,6 +110,7 @@ function Scene({source,placement,shellOpacity,selectedPart,onError,onInfo}:Props
     return()=>{corner.traverse(o=>{if(o instanceof THREE.Mesh)o.visible=true;});};
   },[corner,selectedPart,invalidate]);
   const transform=useMemo(()=>{
+    if(registration)return new THREE.Vector3(...registration.translationM).add(new THREE.Vector3(...placement.translationM));
     if(!bodyBounds||!cornerBounds)return new THREE.Vector3();
     const bodyMin=bodyBounds.min.toArray() as [number,number,number];
     const bodyMax=bodyBounds.max.toArray() as [number,number,number];
@@ -117,8 +120,14 @@ function Scene({source,placement,shellOpacity,selectedPart,onError,onInfo}:Props
           cornerBounds.getCenter(new THREE.Vector3()).toArray() as [number,number,number])
       : initialStagingPosition(bodyMin,bodyMax,cornerMin);
     return new THREE.Vector3(...base).add(new THREE.Vector3(...placement.translationM));
-  },[bodyBounds,cornerBounds,placement]);
-  const rotation=placement.rotationDeg.map(x=>THREE.MathUtils.degToRad(x)) as [number,number,number];
+  },[bodyBounds,cornerBounds,placement,registration]);
+  const rotation=useMemo(()=>{
+    const euler=new THREE.Euler(...(placement.rotationDeg.map(x=>THREE.MathUtils.degToRad(x)) as [number,number,number]));
+    const manual=new THREE.Quaternion().setFromEuler(euler);
+    if(!registration)return manual;
+    const q=new THREE.Quaternion(...registration.rotationQuaternion);
+    return q.multiply(manual);
+  },[placement.rotationDeg,registration]);
   useEffect(()=>invalidate(),[transform,placement,selectedPart,invalidate]);
   return <>
     <color attach="background" args={['#0a111b']}/>
@@ -126,7 +135,7 @@ function Scene({source,placement,shellOpacity,selectedPart,onError,onInfo}:Props
     <directionalLight position={[5,8,6]} intensity={3.2}/>
     <directionalLight position={[-4,4,-3]} intensity={2} color="#ff9d84"/>
     {body&&<primitive object={body}/>}
-    {corner&&<group position={transform.toArray()} rotation={rotation} scale={1}>
+    {corner&&<group position={transform.toArray()} quaternion={rotation} scale={1}>
        <primitive object={corner}/>
     </group>}
     <OrbitControls makeDefault target={frame.target.toArray()} enableDamping dampingFactor={.08}/>
