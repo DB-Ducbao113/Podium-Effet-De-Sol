@@ -88,7 +88,8 @@ def main()->None:
             invoke(npm,"test","--workspace=@peds/web","--",
                    "src/dev/assemblyPreview/fourCornerLayout.test.ts",
                    "src/dev/assemblyPreview/cadPresentation.test.ts",
-                   "src/dev/assemblyPreview/ownerMeasuredFit.test.ts",timeout=300)
+                   "src/dev/assemblyPreview/ownerMeasuredFit.test.ts",
+                   "src/dev/assemblyPreview/showroomWheelMask.test.ts",timeout=300)
             invoke(npm,"run","build","--workspace=@peds/web",timeout=900)
             gate("LOCAL_WEB_LINT_TYPES_TESTS_BUILD","PASS")
         job=subprocess.Popen([
