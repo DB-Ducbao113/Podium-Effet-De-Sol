@@ -15,6 +15,25 @@ def sha(path:Path)->str:
         for chunk in iter(lambda:stream.read(1024*1024),b''):d.update(chunk)
     return d.hexdigest()
 
+def read_glb_header(path:Path)->dict:
+    """Validate original GLB header and JSON without claiming unsupported mesh decompression."""
+    import struct
+    with path.open('rb') as handle:
+        head=handle.read(20)
+        if len(head)!=20:raise ValueError('Original Model B GLB header truncated')
+        magic,version,total,chunk_bytes,chunk_type=struct.unpack('<5I',head)
+        if magic!=0x46546c67 or version!=2 or total!=path.stat().st_size or chunk_type!=0x4e4f534a:
+            raise ValueError('Original Model B GLB is not a complete glTF 2.0 binary')
+        payload=handle.read(chunk_bytes)
+        if len(payload)!=chunk_bytes:raise ValueError('Original Model B GLB JSON incomplete')
+        doc=json.loads(payload.decode('utf8').rstrip(' \\x00'))
+    if not isinstance(doc.get('meshes'),list) or not doc['meshes']:
+        raise ValueError('Original Model B has no authored mesh metadata')
+    return {'meshes':len(doc['meshes']),'nodes':len(doc.get('nodes',[])),
+            'buffers':len(doc.get('buffers',[])),
+            'extensionsRequired':doc.get('extensionsRequired',[]),
+            'extensionsUsed':doc.get('extensionsUsed',[])}
+
 def check(modelb:Path, p28dir:Path, quality:str)->dict:
     import trimesh
     manifest_path=p28dir/'P28_remate_manifest.json'
@@ -33,7 +52,7 @@ def check(modelb:Path, p28dir:Path, quality:str)->dict:
     step=p28dir/m.get('masterSTEP','')
     if not step.is_file() or sha(step)!=m.get('masterSTEPsha256'):
         raise ValueError('P2.8 editable STEP source not found or SHA-256 mismatch')
-    external=trimesh.load(modelb,force='scene')
+    external_metadata=read_glb_header(modelb)
     internal=trimesh.load(glb,force='scene')
     found=set(internal.graph.nodes_geometry)
     if found!=set(ids):raise ValueError(f'P2.8 GLB part ID mismatch: missing={sorted(set(ids)-found)} extra={sorted(found-set(ids))}')
@@ -47,7 +66,8 @@ def check(modelb:Path, p28dir:Path, quality:str)->dict:
     return {
         'status':'SOURCE_FILES_VERIFIED_PLACEMENT_UNVERIFIED',
         'model_b':{'file':modelb.name,'bytes':modelb.stat().st_size,'sha256':sha(modelb),
-                   'mesh_nodes':len(external.graph.nodes_geometry),'bounds_m':external.bounds.tolist()},
+                   'mesh_nodes':external_metadata['meshes'],'bounds_m':None,
+                   'gltf_metadata':external_metadata,'modelb_mesh_decompression':'DEFER_TO_REAL_THREEJS_BROWSER'},
         'p28':{'file':glb.name,'sha256':sha(glb),'part_count':59,
                 'step_sha256':sha(step),'valid_step_solids':len(solids),
                 'bounds_m':internal.bounds.tolist(),'quality':quality,
