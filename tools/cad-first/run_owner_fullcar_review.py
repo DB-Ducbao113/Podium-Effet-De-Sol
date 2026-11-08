@@ -119,7 +119,10 @@ def run(args):
                  "--modelb",MODEL_B,"--p28-dir",p28,
                  "--placement",placement,"--quality",args.quality,
                  "--out",out/"visual-overlap-aabb.json"],timeout=180)
-        record("VISUAL_MESH_BROADPHASE","PASS_DIAGNOSTIC_ONLY_G2_HOLD")
+        mesh_report=json.loads((out/"visual-overlap-aabb.json").read_text(encoding="utf8"))
+        record("VISUAL_MESH_BROADPHASE",
+               "PASS_DIAGNOSTIC_ONLY_G2_HOLD" if mesh_report["model_b_aabb_available"]
+               else "NOT_AVAILABLE_NATIVE_DECODER_G2_HOLD")
         video=out/"browser"/"modelb-p28-browser-real.webm"
         if not video.is_file() or video.stat().st_size<1024:
             raise RuntimeError("Browser video file missing or empty")
