@@ -57,6 +57,9 @@ jobs:
         with:
           node-version: 22
           cache: npm
+      - name: Fail fast on Python CAD and recorder syntax
+        run: |
+          python -m compileall -q tools/cad-first/rebuild_owner_p28.py tools/cad-first/locate_owner_p28.py tools/cad-first/run_owner_fullcar_review.py tools/cad-first/record_modelb_p28_browser.py tools/cad-first/assembly_modelb_p28_preflight.py tools/cad-first/audit_assembly_mesh.py tools/cad-first/test_rebuild_owner_p28.py tools/cad-first/test_audit_assembly_mesh.py tools/cad-first/p2_6_steering_relief.py tools/cad-first/p2_7_wishbone_cad.py tools/cad-first/p2_8_upright_remate.py tools/cad-first/p2_8_source_glb_composition.py
       - name: Verify original Model B and install genuine CAD/video dependencies
         run: |
           test -s apps/web/public/models/model-b-eds-optimized-v1.glb
