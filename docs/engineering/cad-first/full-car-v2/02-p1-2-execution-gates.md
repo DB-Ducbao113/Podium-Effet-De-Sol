@@ -16,11 +16,13 @@ R2 **Seams / topology:** original CAD face continuity and valid B-Reps first, tr
 
 R3 **Architecture:** only after G1: 13 named systems and explicit parent-child joints, STEP per part plus full STEP assembly, ID/parent/pivot/source-rights tags. The P2.8 59-piece source is ONE front corner; do not relabel it whole-car or auto-fit it by scaling.
 
-R4 **Mechanical integration:** validate actual P2.8 hardpoints before mating; original/hypothetical compatibility documented. Use full OpenCascade B-Rep audit on EVERY broad-phase candidate pair, intentional-contact registry, static gaps, and coupled bump/steer/wheel/active wing samples. Unresolved intersections and load paths HOLD.
+R4 **Mechanical integration:** mate the actual P2.8 front corner only after source-hash and hardpoint/dimension checks. Build source-named rear suspension, front/rear brakes, gearbox and retained mechanical joints. Do not scale incompatible donor geometry into place. Source CAD, not GLB, remains truth.
 
-R5 **Macro:** source-backed rotor vents, hub/bearing, fasteners/retainers, caliper and brake duct, suspension pivots and gearbox/PU packaging. Unknown OEM details must be labelled illustrative. No fake bolts placed only for marketing realism.
+R5 **Mechanical QA:** validate actual P2.8 hardpoints before mating; original/hypothetical compatibility documented. Use full OpenCascade B-Rep audit on EVERY broad-phase candidate pair, intentional-contact registry, static gaps, and coupled bump/steer/wheel/active wing samples. Unresolved intersections and load paths HOLD.
 
-R6 **PBR:** after geometry is accepted, neutral clay → carbon/steel/aluminium/rubber/ceramic physical materials. Same geometry identity, material LUT, HDR exposure, normal/gap validation in 8 matched cameras.
+R6 **Macro and PBR:** source-backed rotor vents, hub/bearing, fasteners/retainers, caliper and brake duct, suspension pivots and gearbox/PU packaging. Unknown OEM details must be labelled illustrative. No fake bolts placed only for marketing realism.
+
+Within R6, **PBR:** after geometry is accepted, neutral clay → carbon/steel/aluminium/rubber/ceramic physical materials. Same geometry identity, material LUT, HDR exposure, normal/gap validation in 8 matched cameras.
 
 R7 **Scroll:** one persistent Three.js Canvas and deterministic 0→1→0 progress; 18 chapters from full car, blueprint, nose/front aero, wheel, brakes, suspension, steering, cockpit, monocoque, sidepod, cooling, PU, transmission, floor, rear suspension, rear wing, whole-car exploded and reassembled. Each scene looks up REAL source part nodes and bounds; no guessed pivots, double explode, invisible fallback cars or fake subparts. Scoped rebuild visual language, minimal text, accessibility/reduced motion.
 
