@@ -26,6 +26,8 @@ export default function AssemblyPreviewPage(){
   const [placement,setPlacement]=useState<Placement>(INITIAL_PLACEMENT);
   const [opacity,setOpacity]=useState(1);
   const [part,setPart]=useState<string|null>(null);
+  const [cameraFocus,setCameraFocus]=useState<'whole-car'|'wheel-macro'|'fastener-macro'>('whole-car');
+  const [cornerPresentation,setCornerPresentation]=useState<'assembled'|'tyre-hidden'|'exploded'>('assembled');
   const [registration,setRegistration]=useState<RegistrationResult|null>(null);
   const [registrationEvidence,setRegistrationEvidence]=useState('');
   const [busy,setBusy]=useState(false);
@@ -185,6 +187,8 @@ export default function AssemblyPreviewPage(){
       ownerSourceWheelCalibration:calibration.fit,
       originalModelBGeometryModified:false,
       p28OriginalCadScale:1,
+      currentCameraFocus:cameraFocus,
+      reviewPresentation:cornerPresentation,
       landmarkRegistration:registration,
       landmarkEvidence:registrationEvidence,
       measuredPointPairs:draftLandmarks,
@@ -212,6 +216,7 @@ export default function AssemblyPreviewPage(){
       <section className="peds-assembly-view" aria-label="Live 3D visual assembly staging">
         <Suspense fallback={<p>Loading Three.js preview…</p>}>
           <Stage source={source} placement={placement} shellOpacity={opacity} selectedPart={part}
+            cameraFocus={cameraFocus} cornerPresentation={cornerPresentation}
             registration={registration} measuredFit={calibration.fit} measuredOverlayEnabled={measuredOverlayEnabled}
             pickMode={pickMode} onPointPick={onPointPick}
             onError={showError} onInfo={showInfo}
@@ -274,6 +279,29 @@ export default function AssemblyPreviewPage(){
               {source?.parts.map(p=><option key={p.id} value={p.node}>{p.label}</option>)}
             </select>
           </label>
+        </div>
+        <div className="peds-assembly-controls-section" aria-label="Original P2.8 macro inspection">
+          <h2>02A / Real 59-part macro inspection</h2>
+          <p>Camera zoom and cutaway affect the review renderer only. Original CAD
+            surfaces, source file, dimensions and part identities stay unchanged.</p>
+          <label>Review camera
+            <select aria-label="Review camera" value={cameraFocus}
+              disabled={!source} onChange={e=>setCameraFocus(e.target.value as typeof cameraFocus)}>
+              <option value="whole-car">Whole car</option>
+              <option value="wheel-macro">Front wheel close-up</option>
+              <option value="fastener-macro">Fasteners / bearing close-up</option>
+            </select>
+          </label>
+          <label>CAD assembly presentation
+            <select aria-label="CAD assembly presentation" value={cornerPresentation}
+              disabled={!source} onChange={e=>setCornerPresentation(e.target.value as typeof cornerPresentation)}>
+              <option value="assembled">Original assembled source pose</option>
+              <option value="tyre-hidden">Remove tyre from VIEW only</option>
+              <option value="exploded">Temporary exploded review offsets</option>
+            </select>
+          </label>
+          <small>Exploded offsets are for visualization only, not manufacturing mating transforms.
+            Returning to assembled fully restores every original source part position.</small>
         </div>
         <div className="peds-assembly-controls-section">
           <h2>02B / Model B original wheel-mesh duplication mask</h2>
