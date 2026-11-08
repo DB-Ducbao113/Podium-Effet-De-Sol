@@ -132,6 +132,32 @@ def main():
                 page.mouse.up()
             page.wait_for_timeout(1200)
             page.screenshot(path=str(out/"04-assembled-front-wheel-orbit.png"),full_page=True)
+            # Macro film: never manufacture new hardware. Each visible bolt,
+            # brake, bearing, rim and wishbone comes from the 59 source parts.
+            page.get_by_label("Review camera").select_option("wheel-macro")
+            page.wait_for_timeout(850)
+            page.screenshot(path=str(out/"05-original-front-wheel-macro.png"),full_page=False)
+            page.get_by_label("CAD assembly presentation").select_option("tyre-hidden")
+            page.wait_for_timeout(800)
+            page.screenshot(path=str(out/"06-real-brakes-bearings-no-tyre.png"),full_page=False)
+            page.get_by_label("CAD assembly presentation").select_option("exploded")
+            page.wait_for_timeout(800)
+            page.screenshot(path=str(out/"07-original-cad-59-part-exploded.png"),full_page=False)
+            page.get_by_label("Review camera").select_option("fastener-macro")
+            page.get_by_label("Source part isolation").select_option("P2_BRAKE_ROTOR_DRILLED_CARBON")
+            page.wait_for_timeout(850)
+            page.screenshot(path=str(out/"08-real-brake-rotor-macro.png"),full_page=False)
+            page.get_by_label("Source part isolation").select_option("P2_CENTER_LOCK_NUT_BORE")
+            page.wait_for_timeout(800)
+            page.screenshot(path=str(out/"09-real-center-lock-nut-macro.png"),full_page=False)
+            page.get_by_label("Source part isolation").select_option("")
+            page.get_by_label("CAD assembly presentation").select_option("assembled")
+            page.get_by_label("Review camera").select_option("whole-car")
+            page.wait_for_timeout(700)
+            page.screenshot(path=str(out/"10-restored-original-assembly.png"),full_page=False)
+            runtime["macro_source_parts_reviewed"]=[
+                "P2_BRAKE_ROTOR_DRILLED_CARBON","P2_CENTER_LOCK_NUT_BORE"]
+            runtime["all_source_part_positions_restored"]=True
             runtime["responsive_views"]=[]
             for width,height in ((390,844),(768,1024),(1440,900),(1920,1080)):
                 page.set_viewport_size({"width":width,"height":height})
