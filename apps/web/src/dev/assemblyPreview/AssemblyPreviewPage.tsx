@@ -9,6 +9,8 @@ import { layoutFourCorners, wheelLayoutReport, type WheelId } from './fourCorner
 import type { CornerPresentation } from './cadPresentation';
 import { readRearUprightManifest, verifyRearUprightSource,
   type RearUprightManifest, type RearUprightSource } from './rearUprightSource';
+import { readRearSuspensionManifest, verifyRearSuspensionSource,
+  type RearSuspensionManifest, type RearSuspensionSource } from './rearSuspensionSource';
 import './assemblyPreview.css';
 
 const Stage=lazy(()=>import('./AssemblyPreviewStage'));
@@ -28,6 +30,9 @@ export default function AssemblyPreviewPage(){
   const [rearManifest,setRearManifest]=useState<RearUprightManifest|null>(null);
   const [rearUprightSource,setRearUprightSource]=useState<RearUprightSource|null>(null);
   const [rearBusy,setRearBusy]=useState(false);
+  const [rearSuspensionManifest,setRearSuspensionManifest]=useState<RearSuspensionManifest|null>(null);
+  const [rearSuspensionSource,setRearSuspensionSource]=useState<RearSuspensionSource|null>(null);
+  const [rearSuspensionBusy,setRearSuspensionBusy]=useState(false);
   const [error,setError]=useState('');
   const [info,setInfo]=useState('MODEL B EXTERIOR · P2.8 SOURCE NOT LOADED');
   const [placement,setPlacement]=useState<Placement>(INITIAL_PLACEMENT);
@@ -107,7 +112,7 @@ export default function AssemblyPreviewPage(){
   };
   const importManifest=async(event:ChangeEvent<HTMLInputElement>)=>{
     const file=event.target.files?.[0];if(!file)return;
-    setError('');setManifest(null);setSource(null);setRearUprightSource(null);setPart(null);setCornerProbe(null);setRegistration(null);setResolvedTransform(null);setDraftLandmarks([]);setPickedBody(null);setPickedCorner(null);setPickMode('off');
+    setError('');setManifest(null);setSource(null);setRearUprightSource(null);setRearSuspensionSource(null);setPart(null);setCornerProbe(null);setRegistration(null);setResolvedTransform(null);setDraftLandmarks([]);setPickedBody(null);setPickedCorner(null);setPickMode('off');
     try{
       if(file.size>MAX_MANIFEST)throw Error('Source manifest exceeds 5 MB');
       const data=JSON.parse(await file.text()) as unknown;
@@ -120,7 +125,7 @@ export default function AssemblyPreviewPage(){
   };
   const importGLB=async(event:ChangeEvent<HTMLInputElement>)=>{
     const file=event.target.files?.[0];if(!file)return;
-    setError('');setSource(null);setRearUprightSource(null);setPart(null);setCornerProbe(null);setRegistration(null);setDraftLandmarks([]);setPickedBody(null);setPickedCorner(null);setPickMode('off');setBusy(true);
+    setError('');setSource(null);setRearUprightSource(null);setRearSuspensionSource(null);setPart(null);setCornerProbe(null);setRegistration(null);setDraftLandmarks([]);setPickedBody(null);setPickedCorner(null);setPickMode('off');setBusy(true);
     try {
       if(!manifest)throw Error('Load P2.8 manifest first');
       // Reuse the existing byte-length, embedded-resource and cryptographic SHA gate.
@@ -153,6 +158,29 @@ export default function AssemblyPreviewPage(){
       setMeasuredOverlayEnabled(true);
       setInfo('P2.9 REAR UPRIGHT SOURCE VERIFIED · TWO REAR GRAPHIC PLACEMENTS · G2 HOLD');
     }catch(err){setError(String(err));}finally{setRearBusy(false);event.target.value='';}
+  };
+  const importRearSuspensionManifest=async(event:ChangeEvent<HTMLInputElement>)=>{
+    const file=event.target.files?.[0];if(!file)return;
+    setError('');setRearSuspensionManifest(null);setRearSuspensionSource(null);
+    try{
+      if(file.size>MAX_MANIFEST)throw Error('P2.10 manifest too large');
+      const sourceManifest=readRearSuspensionManifest(JSON.parse(await file.text()) as unknown);
+      setRearSuspensionManifest(sourceManifest);
+      setInfo('P210 REAR DOUBLE WISHBONE SOURCE MANIFEST VERIFIED / G2 HOLD');
+    }catch(err){setError(String(err));}finally{event.target.value='';}
+  };
+  const importRearSuspensionGLB=async(event:ChangeEvent<HTMLInputElement>)=>{
+    const file=event.target.files?.[0];if(!file)return;
+    setError('');setRearSuspensionSource(null);setRearSuspensionBusy(true);
+    try{
+      if(!source||!calibration.fit||!rearSuspensionManifest)
+        throw Error('P2.8 owner source + P2.10 original manifest required before import');
+      const verified=await verifyRearSuspensionSource(rearSuspensionManifest,file);
+      setRearSuspensionSource(verified);
+      setAllFourWheelsEnabled(true);
+      setMeasuredOverlayEnabled(true);
+      setInfo('P210 REAR DOUBLE WISHBONE HASH VERIFIED / WAITING FOR 11 MESHES / G2 HOLD');
+    }catch(err){setError(String(err));}finally{setRearSuspensionBusy(false);event.target.value='';}
   };
   const importLandmarks=async(event:ChangeEvent<HTMLInputElement>)=>{
     const file=event.target.files?.[0];if(!file)return;
@@ -224,6 +252,18 @@ export default function AssemblyPreviewPage(){
       originalModelBGeometryModified:false,
       p28OriginalCadScale:1,
       fourWheelPreviewEnabled:allFourWheelsEnabled,
+      rearSuspensionProposal:rearSuspensionSource?{
+        schema:rearSuspensionSource.manifest.schema,
+        parentP29SourcePartId:rearSuspensionSource.manifest.parentP29SourcePartId,
+        fileName:rearSuspensionSource.fileName,
+        profile:rearSuspensionSource.profile,
+        sourceSha256:rearSuspensionSource.manifest.profiles[rearSuspensionSource.profile].sha256,
+        nativeStaticPairCount:rearSuspensionSource.manifest.nativeStaticAudit.pairCount,
+        totalCadSolids:11,
+        rearChassisHardpointsMeasured:false,
+        mechanicalMatingCertified:false,
+        dynamicSuspensionCertified:false,
+      }:null,
       rearUprightProposal:rearUprightSource?{
         schema:rearUprightSource.manifest.schema,
         partId:rearUprightSource.manifest.partId,
@@ -265,7 +305,8 @@ export default function AssemblyPreviewPage(){
     <main className="peds-assembly-main">
       <section className="peds-assembly-view" aria-label="Live 3D visual assembly staging">
         <Suspense fallback={<p>Loading Three.js preview…</p>}>
-          <Stage source={source} rearUprightSource={rearUprightSource} placement={placement} shellOpacity={opacity} selectedPart={part}
+          <Stage source={source} rearUprightSource={rearUprightSource}
+            rearSuspensionSource={rearSuspensionSource} placement={placement} shellOpacity={opacity} selectedPart={part}
             cameraFocus={cameraFocus} cornerPresentation={cornerPresentation}
             technicalMaterials={technicalMaterials}
             allFourWheelsEnabled={allFourWheelsEnabled} activeWheelId={activeWheelId}
@@ -316,6 +357,30 @@ export default function AssemblyPreviewPage(){
           <small><strong>ENGINEERING HOLD:</strong> Rear chassis pickup coordinates are
             unmeasured; wishbones, driveshaft/CV and structural joints are not
             independently designed or certified. This is a STEP-derived proposal.</small>
+        </div>
+        <div className="peds-assembly-controls-section" aria-label="P2.10 original rear double wishbone source">
+          <h2>01C / P2.10 original rear upper + lower A-arms</h2>
+          <p>Real original CAD, not the front P2.7 suspension reflected to the rear.
+            Source includes the P2.9 upright and 10 new separate solids:
+            forged upper/lower A-arms, four pivot bushings, two outer bearings
+            and two joint pins. Replaces P2.9-only visual when loaded.</p>
+          <label>P2.10 rear suspension manifest (.json)
+            <input type="file" accept=".json,application/json"
+              onChange={e=>{void importRearSuspensionManifest(e);}}/>
+          </label>
+          <label>P2.10 rear suspension GLB (.glb)
+            <input type="file" accept=".glb,model/gltf-binary"
+              disabled={!rearSuspensionManifest||!source||!calibration.fit||rearSuspensionBusy}
+              onChange={e=>{void importRearSuspensionGLB(e);}}/>
+          </label>
+          <small>{rearSuspensionSource?
+            'P2.10 SOURCE VERIFIED / '+rearSuspensionSource.profile+
+            ' / 11 ORIGINAL CAD NODES · TWO REAR STATIONS':
+            'P2.10 not loaded — only the existing rear stage is shown.'}</small>
+          <small><strong>STATIC CAD ONLY:</strong> The 55 pair native B-Rep audit
+            covers this authored 11-solid rear subassembly. Owner chassis
+            hardpoints, live kinematics, joint retention, tyre/brake mating and
+            gearbox/driveshaft interfaces remain unverified. G2 HOLD.</small>
         </div>
         <div className="peds-assembly-controls-section">
           <h2>02 / Geometry inspection</h2>
