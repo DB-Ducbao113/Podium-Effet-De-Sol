@@ -66,9 +66,13 @@ function EngineeringStudioEnvironment() {
     const studio=new RoomEnvironment();
     const env=pmrem.fromScene(studio,0.05).texture;
     const previous=scene.environment;
+    // Three.js scene illumination is intentionally set imperatively after commit.
+    // eslint-disable-next-line react-hooks/immutability
     scene.environment=env;
     invalidate();
     return()=>{
+      // Restore the previous Three.js environment on teardown.
+      // eslint-disable-next-line react-hooks/immutability
       scene.environment=previous;
       env.dispose();
       pmrem.dispose();
