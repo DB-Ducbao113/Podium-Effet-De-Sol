@@ -20,6 +20,7 @@ type VerifiedManifest = {
   schema: string;
   profiles?: Record<string, { file: string; sha256: string; bytes: number; totalTriangles?: number }>;
   masterSTEP?: string;
+  masterSTEPsha256?: string;
   sourceSTEPsha256?: string;
   poses?: P27WishbonePose[];
   mechanicalTruth?: Record<string, boolean>;
@@ -787,7 +788,7 @@ export default function P2CadLabPage() {
           {precisionProof && (
             <div className="p2-cad-lab__precision-evidence" aria-label="P2.3 CAD proof">
               <strong>PRECISION B-REP / P2.3</strong>
-              <span>SOURCE SOLIDS: {manifest.totalCadSolids ?? '—'}</span>
+              <span>SOURCE SOLIDS: {manifest?.totalCadSolids ?? '—'}</span>
               <span>HELICAL GROOVE: {precisionProof.nutHelicalGrooveVolumeMm3?.toFixed(1) ?? '—'} mm³ REMOVED</span>
               <span>BEARING BALL / GROOVE GAP: {precisionProof.nominalBearingBallGrooveClearanceMm ?? '—'} mm</span>
               <span>PISTON / CYLINDER GAP: {precisionProof.pistonBoreRadialClearanceMm ?? '—'} mm</span>
