@@ -118,7 +118,7 @@ def capture(url:str,p28:Path,out:Path,quality:str,p29:Path|None=None)->dict:
                     raise RuntimeError("P2.9 rear upright GLB source hash mismatch")
                 page.get_by_label("P2.9 rear upright manifest (.json)").set_input_files(str(manifest29))
                 page.get_by_label("P2.9 rear upright GLB (.glb)").set_input_files(str(glb29))
-                page.get_by_text("P2.9 REAR UPRIGHT LOADED",exact=False).first.wait_for(timeout=45000)
+                page.get_by_text("P29 REAR UPRIGHT RENDERED",exact=False).first.wait_for(timeout=45000)
                 runtime["p29_step_source_sha256"]=source29["masterSTEPsha256"]
                 runtime["p29_source_glb_sha256"]=glb_entry["sha256"]
             with page.expect_download(timeout=15000) as download_info:
