@@ -126,7 +126,7 @@ def main():
             main_video.save_as(str(out/"modelb-p28-browser-real.webm"))
             runtime["video"]="modelb-p28-browser-real.webm"
             (out/"main-review-evidence.json").write_text(
-                json.dumps(runtime,indent=2)+"\\n",encoding="utf8"
+                json.dumps(runtime,indent=2)+"\n",encoding="utf8"
             )
             # A second context is needed for deterministic source-scroll capture;
             # 8 checkpoints each way bounds the CPU/SwiftShader load on CI.
@@ -134,7 +134,8 @@ def main():
                 record_video_dir=str(out),
                 record_video_size={"width":1280,"height":720})
             scroll=scroll_context.new_page()
-            scroll.on("pageerror",lambda e:errors.append("SCROLL PAGEERROR "+str(e)))
+            scroll_errors=[]
+            scroll.on("pageerror",lambda e:scroll_errors.append(str(e)))
             try:
                 scroll_url=a.url.replace("/engineering/assembly-preview",
                                          "/engineering/cinematic-rebuild")
@@ -161,6 +162,8 @@ def main():
                 scroll.screenshot(path=str(out/"08-source-scroll-reverse.png"),full_page=False)
                 scroll_video=scroll.video
                 scroll_context.close()
+                if scroll_errors:
+                    runtime["source_scroll_errors"]=scroll_errors
                 if scroll_video:
                     scroll_video.save_as(str(out/"p28-source-scroll-0-100-0.webm"))
                     runtime["source_scroll_video"]="p28-source-scroll-0-100-0.webm"
