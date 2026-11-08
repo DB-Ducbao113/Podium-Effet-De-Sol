@@ -27,6 +27,9 @@ export default function AssemblyPreviewPage(){
   const [registration,setRegistration]=useState<RegistrationResult|null>(null);
   const [registrationEvidence,setRegistrationEvidence]=useState('');
   const [busy,setBusy]=useState(false);
+  const [bodyPartNames,setBodyPartNames]=useState<string[]>([]);
+  const [hiddenBodyMeshes,setHiddenBodyMeshes]=useState<number[]>([]);
+  const [bodyMeshFilter,setBodyMeshFilter]=useState('');
   const [pickMode,setPickMode]=useState<'off'|'modelb'|'p28'>('off');
   const [pickedBody,setPickedBody]=useState<[number,number,number]|null>(null);
   const [pickedCorner,setPickedCorner]=useState<[number,number,number]|null>(null);
@@ -34,6 +37,7 @@ export default function AssemblyPreviewPage(){
   const [landmarkEvidence,setLandmarkEvidence]=useState('');
   const showError=useCallback((message:string)=>setError(message),[]);
   const showInfo=useCallback((message:string)=>setInfo(message),[]);
+  const recordBodyParts=useCallback((names:string[])=>setBodyPartNames(names),[]);
   const onPointPick=useCallback((target:'modelb'|'p28',point:[number,number,number],mesh:string)=>{
     if(target==='modelb')setPickedBody(point);
     else setPickedCorner(point);
@@ -137,6 +141,8 @@ export default function AssemblyPreviewPage(){
       landmarkRegistration:registration,
       landmarkEvidence:registrationEvidence,
       measuredPointPairs:draftLandmarks,
+      hiddenBodyMeshIndices: hiddenBodyMeshes,
+      bodyMeshIdentityNames: hiddenBodyMeshes.map(i=>bodyPartNames[i]??'UNKNOWN'),
       ownerHardpointMeasurements:null,
       coordinateMappingVerified:false,
       staticBrepInterferenceTestedAgainstModelB:false,
@@ -160,7 +166,8 @@ export default function AssemblyPreviewPage(){
         <Suspense fallback={<p>Loading Three.js preview…</p>}>
           <Stage source={source} placement={placement} shellOpacity={opacity} selectedPart={part}
             registration={registration} pickMode={pickMode} onPointPick={onPointPick}
-            onError={showError} onInfo={showInfo}/>
+            onError={showError} onInfo={showInfo}
+            onBodyPartNames={recordBodyParts} hiddenBodyMeshes={hiddenBodyMeshes}/>
         </Suspense>
         <div className="peds-assembly-caption">
           <strong>ORIGINAL MODEL B EXTERIOR</strong>
@@ -190,6 +197,29 @@ export default function AssemblyPreviewPage(){
               {source?.parts.map(p=><option key={p.id} value={p.node}>{p.label}</option>)}
             </select>
           </label>
+        </div>
+        <div className="peds-assembly-controls-section">
+          <h2>02B / Model B original wheel-mesh duplication mask</h2>
+          <p>Only hide the exact owner-selected exterior mesh nodes that visually duplicate
+            original P2.8 parts. No geometry is destroyed; no automatic wheel guessing.</p>
+          <label>Filter original Model B nodes
+            <input type="search" placeholder="wheel / tire / tyre / rim"
+              value={bodyMeshFilter} onChange={e=>setBodyMeshFilter(e.target.value)}/>
+          </label>
+          <small>{bodyPartNames.length} original exterior mesh nodes; {hiddenBodyMeshes.length} temporarily hidden.</small>
+          <div className="peds-assembly-body-meshes">
+            {bodyPartNames.map((name,i)=>({name,i}))
+              .filter(({name,i})=>name.toLowerCase().includes(bodyMeshFilter.toLowerCase()) ||
+                String(i).includes(bodyMeshFilter))
+              .slice(0,100).map(({name,i})=><label key={i}>
+                <input type="checkbox" checked={hiddenBodyMeshes.includes(i)}
+                  onChange={e=>setHiddenBodyMeshes(old=>e.target.checked?
+                    [...old,i]:old.filter(index=>index!==i))}/>
+                <span>{i}: {name}</span>
+              </label>)}
+          </div>
+          <button type="button" onClick={()=>setHiddenBodyMeshes([])}
+            disabled={!hiddenBodyMeshes.length}>RESTORE ALL ORIGINAL BODY MESHES</button>
         </div>
         <div className="peds-assembly-controls-section">
           <h2>03 / Placement (not mechanical mating)</h2>
@@ -246,7 +276,7 @@ export default function AssemblyPreviewPage(){
               value={placement.rotationDeg[i]} onChange={v=>updateAxis('rotationDeg',i,v)}/>)}
           </div>
           <div className="peds-assembly-actions">
-            <button type="button" onClick={()=>{setPlacement(INITIAL_PLACEMENT);setPart(null);setOpacity(1);setRegistration(null);setRegistrationEvidence('');}}>RESET</button>
+            <button type="button" onClick={()=>{setPlacement(INITIAL_PLACEMENT);setPart(null);setOpacity(1);setHiddenBodyMeshes([]);setRegistration(null);setRegistrationEvidence('');}}>RESET</button>
             <button type="button" onClick={exportPlacement} disabled={!source}>EXPORT PLACEMENT JSON</button>
           </div>
         </div>
