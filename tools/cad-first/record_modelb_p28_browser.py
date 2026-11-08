@@ -80,29 +80,45 @@ def main():
             page.wait_for_timeout(1800)
             if not 200 in model_b_responses:
                 raise RuntimeError("Original Model B asset was not loaded successfully; refusing fake video")
-            page.screenshot(path=str(out/"01-original-separate.png"),full_page=True)
-            page.get_by_label("Display mode").select_option("center")
-            page.wait_for_timeout(1200)
-            page.screenshot(path=str(out/"02-unverified-centre-overlay.png"),full_page=True)
+            # Default is now a measured wheel-circle match with Model B
+            # showroom units normalized uniformly; P2.8 native CAD is scale 1.
+            page.get_by_text("Showroom uniform display scale:",exact=False).wait_for(timeout=20000)
+            measured=page.get_by_label("Mate P2.8 at measured front +Z wheel",exact=False)
+            if not measured.is_checked():
+                raise RuntimeError("Source wheel-envelope calibration was not activated")
+            page.wait_for_timeout(800)
+            page.screenshot(path=str(out/"01-measured-wheel-assembly.png"),full_page=True)
             with page.expect_download(timeout=15000) as event:
                 page.get_by_role("button",name="EXPORT PLACEMENT JSON").click()
             event.value.save_as(str(out/"visual-placement-audit.json"))
             exported=json.loads((out/"visual-placement-audit.json").read_text(encoding="utf8"))
-            if not isinstance(exported.get("resolvedOriginalRootTransform"),dict):
-                raise RuntimeError("Real browser did not export original-root 3D transform")
+            actual=exported.get("resolvedOriginalRootTransform")
+            fit=exported.get("ownerSourceWheelCalibration")
+            if not isinstance(actual,dict) or actual.get("stagingBasis")!="measured_wheel":
+                raise RuntimeError("Video must show actual measured wheel placement, not car-centre staging")
+            if actual.get("scale")!=1 or not .14<float(actual.get("modelBShellUnitScale",0))<.21:
+                raise RuntimeError("Original P2.8 CAD scale or shell unit normalization inconsistent")
+            if not isinstance(fit,dict) or fit.get("mechanicalFitCertified") is not False:
+                raise RuntimeError("Original fitted source evidence missing visual-only gate")
             runtime["resolved_transform_record"]="visual-placement-audit.json"
+            runtime["measured_calibration"]={
+                "showroom_units_to_m":fit.get("normalizedShellScale"),
+                "front_wheel_center_m":fit.get("frontPositiveZCenterM"),
+                "axle_spacing_preview_m":fit.get("axleSpacingPreviewM"),
+                "p28_source_scale":actual["scale"],"G2":"HOLD",
+            }
             slider=page.locator('input[type="range"]').first
             slider.focus()
             slider.press("Home")
-            for _ in range(7):slider.press("ArrowRight")
-            page.wait_for_timeout(1200)
-            page.screenshot(path=str(out/"03-transparent-shell.png"),full_page=True)
+            for _ in range(5):slider.press("ArrowRight")
+            page.wait_for_timeout(700)
+            page.screenshot(path=str(out/"02-wheel-cutaway-transparent-shell.png"),full_page=True)
             source_parts=data["partIds"]
             bolt=next((x for x in source_parts if "LOCK" in x or "STUD" in x or "BOLT" in x),None)
             if bolt:
                 page.get_by_label("Source part isolation").select_option(bolt)
                 page.wait_for_timeout(1200)
-                page.screenshot(path=str(out/"04-existing-fastener-isolated.png"),full_page=True)
+                page.screenshot(path=str(out/"03-existing-fastener-at-wheel.png"),full_page=True)
                 page.get_by_label("Source part isolation").select_option("")
             canvas=page.locator("canvas").first
             canvas.scroll_into_view_if_needed()
@@ -115,7 +131,7 @@ def main():
                     page.mouse.move(x+(j/39)*165,y+(j/39)*65,steps=2)
                 page.mouse.up()
             page.wait_for_timeout(1200)
-            page.screenshot(path=str(out/"05-orbit-review.png"),full_page=True)
+            page.screenshot(path=str(out/"04-assembled-front-wheel-orbit.png"),full_page=True)
             runtime["responsive_views"]=[]
             for width,height in ((390,844),(768,1024),(1440,900),(1920,1080)):
                 page.set_viewport_size({"width":width,"height":height})
