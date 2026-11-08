@@ -38,3 +38,29 @@ Gate: G2 HOLD — no validated mechanical mating.
 **Production: NO MERGE, NO DEPLOY.**
 
 Next engineering validation requires original P2.8 owner-only source archive on the same local machine as Model B, followed by native coordinate/hardpoint mapping and actual overlap/collision audit. Zero overlap inside P2.8 itself does not prove a fit against Model B.
+
+
+## Source-recovery workflow (new)
+
+Reconstruct **the existing, original project-authored P2.8**, not a new approximate substitute, using the chain:
+
+`P2.6` STEP + three mesh tiers → `P2.7` 8-body original wishbones → `P2.8` 59-solid static remate STEP → `P2.8` three composed GLBs.
+
+A new orchestration script `tools/cad-first/rebuild_owner_p28.py` runs the original project source scripts as separate processes, preserves each SHA-linked profile and refuses to overwrite a nonempty output directory. Its HIGH/BALANCED/PERFORMANCE generation depends on VTK (in addition to `tools/cad-first/requirements.txt`), so the authoring environment must include `vtk`.
+
+~~~powershell
+cd "E:\Formula 1\Podium-Effet-De-Sol"
+.\.venv-cad\Scripts\Activate.ps1
+python -m pip install -r tools\cad-first\requirements.txt
+python -m pip install vtk
+python tools\cad-first\rebuild_owner_p28.py --out ".local-assets\cad-first\recovered-p28"
+python tools\cad-first\assembly_modelb_p28_preflight.py --p28-dir ".local-assets\cad-first\recovered-p28\p28" --quality BALANCED --out ".local-assets\cad-first\recovered-p28\modelb-p28-preflight.json"
+~~~
+
+**No source recovery was executed in this connector-only session.** A local clone and the private owner STEP/GLB package were not mounted. The script is code delivered for deterministic recovery, not evidence of completed reconstruction.
+
+## Rigid correspondence mode
+
+The DEV viewer additionally accepts a locally sourced `podium-eds.modelb-p28.landmarks.v1` JSON. It requires at least three unique physically identified 3D point pairs, both measured in GLB metres with their provenance. Alignment uses an orientation-preserving rigid transform only (translation + quaternion), **never auto-scales CAD**. A 5 mm geometry mismatch triggers a preview HOLD as a provisional visualization diagnostic, not an FIA tolerance. Even accepted numeric correspondences remain **mechanical G2 HOLD**, especially because Model B is polygon exterior, not an engineering B-Rep master.
+
+Any missing or unmeasured landmarks must stay null/unavailable. Do not invent axle/hardpoint values from a bounding-box centroid.
