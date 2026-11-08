@@ -67,6 +67,13 @@ def main():
             page.get_by_label("Display mode").select_option("center")
             page.wait_for_timeout(1200)
             page.screenshot(path=str(out/"02-unverified-centre-overlay.png"),full_page=True)
+            with page.expect_download(timeout=15000) as event:
+                page.get_by_role("button",name="EXPORT PLACEMENT JSON").click()
+            event.value.save_as(str(out/"visual-placement-audit.json"))
+            exported=json.loads((out/"visual-placement-audit.json").read_text(encoding="utf8"))
+            if not isinstance(exported.get("resolvedOriginalRootTransform"),dict):
+                raise RuntimeError("Real browser did not export original-root 3D transform")
+            runtime["resolved_transform_record"]="visual-placement-audit.json"
             slider=page.locator('input[type="range"]').first
             slider.focus()
             slider.press("Home")
