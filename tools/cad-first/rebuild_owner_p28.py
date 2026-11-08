@@ -32,7 +32,7 @@ def complete(folder):
             item=data["profiles"][tier];path=folder/item["file"]
             if not path.is_file() or sha256(path.read_bytes()).hexdigest()!=item["sha256"]:return False
         from hashlib import sha256
-        step=folder/data["masterSTEP"]]
+        step=folder/data["masterSTEP"]
         return step.is_file() and sha256(step.read_bytes()).hexdigest()==data["masterSTEPsha256"]
     except (ValueError,KeyError,TypeError,IOError):return False
 
