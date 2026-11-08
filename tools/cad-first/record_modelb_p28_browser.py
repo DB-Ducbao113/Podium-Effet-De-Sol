@@ -139,7 +139,10 @@ def main():
             page.screenshot(path=str(out/"05-original-front-wheel-macro.png"),full_page=False)
             page.get_by_label("CAD assembly presentation").select_option("tyre-hidden")
             page.wait_for_timeout(800)
-            page.screenshot(path=str(out/"06-real-brakes-bearings-no-tyre.png"),full_page=False)
+            page.screenshot(path=str(out/"06-original-tyre-hidden.png"),full_page=False)
+            page.get_by_label("CAD assembly presentation").select_option("mechanism-core")
+            page.wait_for_timeout(900)
+            page.screenshot(path=str(out/"06b-original-brake-bearing-and-caliper-core.png"),full_page=False)
             page.get_by_label("CAD assembly presentation").select_option("exploded")
             page.wait_for_timeout(800)
             page.screenshot(path=str(out/"07-original-cad-59-part-exploded.png"),full_page=False)
@@ -150,13 +153,25 @@ def main():
             page.get_by_label("Source part isolation").select_option("P2_CENTER_LOCK_NUT_BORE")
             page.wait_for_timeout(800)
             page.screenshot(path=str(out/"09-real-center-lock-nut-macro.png"),full_page=False)
+            page.get_by_label("Source part isolation").select_option("P2_BEARING_INNER_RACE")
+            page.wait_for_timeout(750)
+            page.screenshot(path=str(out/"09b-original-steel-bearing-inner-race.png"),full_page=False)
+            page.get_by_label("Source part isolation").select_option("P2_CALIPER_OUTBOARD_CASTING")
+            page.wait_for_timeout(750)
+            page.screenshot(path=str(out/"09c-original-caliper-casting.png"),full_page=False)
             page.get_by_label("Source part isolation").select_option("")
             page.get_by_label("CAD assembly presentation").select_option("assembled")
             page.get_by_label("Review camera").select_option("whole-car")
             page.wait_for_timeout(700)
             page.screenshot(path=str(out/"10-restored-original-assembly.png"),full_page=False)
             runtime["macro_source_parts_reviewed"]=[
-                "P2_BRAKE_ROTOR_DRILLED_CARBON","P2_CENTER_LOCK_NUT_BORE"]
+                "P2_BRAKE_ROTOR_DRILLED_CARBON",
+                "P2_CENTER_LOCK_NUT_BORE",
+                "P2_BEARING_INNER_RACE",
+                "P2_CALIPER_OUTBOARD_CASTING",
+            ]
+            runtime["mechanical_core_review"]="ORIGINAL_SOURCE_TYRE_AND_RIM_MASKED_FOR_DISPLAY_ONLY"
+            runtime["exploded_review"]="ORIGINAL_59_SOURCE_NODES_DISPLAY_ONLY_OFFSETS"
             runtime["all_source_part_positions_restored"]=True
             runtime["responsive_views"]=[]
             for width,height in ((390,844),(768,1024),(1440,900),(1920,1080)):
