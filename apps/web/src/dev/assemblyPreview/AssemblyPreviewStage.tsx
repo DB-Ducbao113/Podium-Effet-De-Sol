@@ -20,6 +20,10 @@ type Props = {
   onPointPick: (target: 'modelb' | 'p28', point: [number, number, number], mesh: string) => void;
   onBodyPartNames: (parts: string[]) => void;
   hiddenBodyMeshes: number[];
+  onResolvedTransform: (value: {
+    translationM: [number,number,number]; rotationQuaternion: [number,number,number,number];
+    stagingBasis: 'separate' | 'graphic_center' | 'landmarks'; scale: 1;
+  }) => void;
 };
 
 function disposeTree(root: THREE.Object3D) {
@@ -39,7 +43,7 @@ function disposeTree(root: THREE.Object3D) {
   textures.forEach(x=>x.dispose());
 }
 
-function Scene({source,placement,shellOpacity,selectedPart,registration,onError,onInfo,pickMode,onPointPick,onBodyPartNames,hiddenBodyMeshes}:Props) {
+function Scene({source,placement,shellOpacity,selectedPart,registration,onError,onInfo,pickMode,onPointPick,onBodyPartNames,hiddenBodyMeshes,onResolvedTransform}:Props) {
   const {camera,invalidate} = useThree();
   const [body,setBody] = useState<THREE.Group | null>(null);
   const [corner,setCorner] = useState<THREE.Group | null>(null);
@@ -161,6 +165,16 @@ function Scene({source,placement,shellOpacity,selectedPart,registration,onError,
     const q=new THREE.Quaternion(...registration.rotationQuaternion);
     return q.multiply(manual);
   },[placement.rotationDeg,registration]);
+  useEffect(()=>{
+    if(!bodyBounds||!cornerBounds||!corner)return;
+    onResolvedTransform({
+      translationM:transform.toArray() as [number,number,number],
+      rotationQuaternion:[rotation.x,rotation.y,rotation.z,rotation.w],
+      stagingBasis:registration?'landmarks':
+        placement.displayedAtBodyCenter?'graphic_center':'separate',
+      scale:1,
+    });
+  },[bodyBounds,cornerBounds,corner,transform,rotation,registration,placement.displayedAtBodyCenter,onResolvedTransform]);
   useEffect(()=>invalidate(),[transform,placement,selectedPart,invalidate]);
   return <>
     <color attach="background" args={['#0a111b']}/>
