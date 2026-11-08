@@ -28,8 +28,10 @@ export default function P2PerformanceTelemetry({
   const frames = useRef(0);
   const callback = useRef(onMetrics);
   const context = useRef(onContextLost);
-  callback.current = onMetrics;
-  context.current = onContextLost;
+  useEffect(() => {
+    callback.current = onMetrics;
+    context.current = onContextLost;
+  }, [onMetrics, onContextLost]);
 
   useEffect(() => {
     const canvas=gl.domElement;
