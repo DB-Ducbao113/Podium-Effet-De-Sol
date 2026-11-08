@@ -29,12 +29,14 @@ describe('CAD-first source identity, NOT R4.5',()=>{
   });
   it('does not accept incomplete whole-car evidence',()=>{
     expect(()=>readManifest({schema:'podium-eds.cad-first.full-car.v1',profiles,
-      parts:[{id:'a',node:'A',system:'FRONT_WING',label:'wing'}]})).toThrow(/incomplete/);
+      parts:[{id:'a',node:'A',system:'FRONT_WING',label:'wing'}],
+      ...wholeProof,totalCadSolids:1})).toThrow(/incomplete/);
   });
   it('requires unique semantic nodes across whole-car systems',()=>{
     const parts=FULL_CAR_SYSTEMS.map((system,i)=>({id:'id'+i,node:'node'+i,system,label:system}));
     expect(readManifest({schema:'podium-eds.cad-first.full-car.v1',profiles,...wholeProof,parts}).scope).toBe('full-car');
-    expect(()=>readManifest({schema:'podium-eds.cad-first.full-car.v1',profiles,...wholeProof,parts:[...parts,{...parts[0],id:'duplicate'}]})).toThrow(/Duplicate/);
+    expect(()=>readManifest({schema:'podium-eds.cad-first.full-car.v1',profiles,...wholeProof,totalCadSolids:parts.length+1,
+      parts:[...parts,{...parts[0],id:'duplicate'}]})).toThrow(/Duplicate/);
   });
   it('rejects whole-car metadata without STEP and B-Rep audit provenance',()=>{
     const parts=FULL_CAR_SYSTEMS.map((system,i)=>({id:'id'+i,node:'node'+i,system,label:system}));
