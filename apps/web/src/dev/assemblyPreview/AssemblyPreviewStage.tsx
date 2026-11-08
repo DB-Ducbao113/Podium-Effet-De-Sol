@@ -160,9 +160,9 @@ function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPre
     if(cameraFocus==='fastener-macro'){
       const isLock=selectedPart?.includes('LOCK')||selectedPart?.includes('STUD')||selectedPart?.includes('FASTENER');
       const zOffset=cornerPresentation==='exploded'
-        ? (isLock?.43:.12) : .07;
+        ? (isLock ? .43 : .12) : .07;
       return {target:center.clone().add(new THREE.Vector3(0,0,zOffset)),
-        distance:isLock?.42:1.10};
+        distance:isLock ? .42 : 1.10};
     }
     return {target:center,distance:2.05};
   },[cameraFocus,frame,measuredFit,measuredOverlayEnabled,selectedPart,cornerPresentation]);
