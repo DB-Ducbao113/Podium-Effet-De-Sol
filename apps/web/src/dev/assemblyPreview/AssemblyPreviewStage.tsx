@@ -12,11 +12,14 @@ import type { OwnerMeasuredFit } from './ownerMeasuredFit';
 import { probeOriginalGeometry, type SourceGeometryProbe } from './geometryProbe';
 import { classifyP28Part, materialForP28Part, presentationForP28Part, type CornerPresentation } from './cadPresentation';
 import FourCornerInstances from './FourCornerInstances';
+import RearUprightInstances from './RearUprightInstances';
+import type { RearUprightSource } from './rearUprightSource';
 import { layoutFourCorners, type WheelId } from './fourCornerLayout';
 import { addReversibleWheelWindow } from './showroomWheelMask';
 
 type Props = {
   source: CadSource | null;
+  rearUprightSource: RearUprightSource | null;
   placement: Placement;
   shellOpacity: number;
   selectedPart: string | null;
@@ -104,7 +107,7 @@ function needsRecomputedSourceNormals(geometry:THREE.BufferGeometry):boolean {
   return checked>0 && invalid/checked>.05;
 }
 
-function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPresentation,technicalMaterials,
+function Scene({source,rearUprightSource,placement,shellOpacity,selectedPart,cameraFocus,cornerPresentation,technicalMaterials,
   allFourWheelsEnabled,activeWheelId,showroomWheelWindowsEnabled,registration,measuredFit,measuredOverlayEnabled,onError,onInfo,
   pickMode,onPointPick,onBodyPartNames,hiddenBodyMeshes,onResolvedTransform,onGeometryProbe,p28GeometryProfile}:Props) {
   const {camera,invalidate} = useThree();
@@ -366,6 +369,9 @@ function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPre
       <FourCornerInstances originalFrontCorner={pristineCorner} fit={measuredFit}
         activeWheelId={activeWheelId} selectedPart={selectedPart}
         presentation={cornerPresentation} technicalMaterials={technicalMaterials}/>}
+    {rearUprightSource&&source&&measuredFit&&fourMounts&&measuredOverlayEnabled&&
+      <RearUprightInstances source={rearUprightSource} fit={measuredFit} onError={onError}/>}
+
 
     <OrbitControls makeDefault target={focus.target.toArray()} enableDamping dampingFactor={.08}/>
   </>;
