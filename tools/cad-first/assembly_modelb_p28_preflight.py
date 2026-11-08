@@ -26,7 +26,7 @@ def read_glb_header(path:Path)->dict:
             raise ValueError('Original Model B GLB is not a complete glTF 2.0 binary')
         payload=handle.read(chunk_bytes)
         if len(payload)!=chunk_bytes:raise ValueError('Original Model B GLB JSON incomplete')
-        doc=json.loads(payload.decode('utf8').rstrip(' \\x00'))
+        doc=json.loads(payload.decode('utf8').rstrip(' \x00'))
     if not isinstance(doc.get('meshes'),list) or not doc['meshes']:
         raise ValueError('Original Model B has no authored mesh metadata')
     return {'meshes':len(doc['meshes']),'nodes':len(doc.get('nodes',[])),
