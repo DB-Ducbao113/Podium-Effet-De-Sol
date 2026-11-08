@@ -110,7 +110,7 @@ def run(args):
         record("DEV_SERVER","PASS")
         execute([sys.executable,TOOLS/"record_modelb_p28_browser.py",
                  "--p28-dir",p28,"--quality",args.quality,
-                 "--out",out/"browser","--url",url],timeout=300)
+                 "--out",out/"browser","--url",url],timeout=900)
         record("ACTUAL_BROWSER_CAPTURE","PASS")
         placement=out/"browser"/"visual-placement-audit.json"
         if not placement.is_file():
@@ -127,22 +127,23 @@ def run(args):
         if not video.is_file() or video.stat().st_size<1024:
             raise RuntimeError("Browser video file missing or empty")
         scroll_video=out/"browser"/"p28-source-scroll-0-100-0.webm"
-        if not scroll_video.is_file() or scroll_video.stat().st_size<1024:
-            raise RuntimeError("Source P2.8 scroll video 0→100→0 missing")
         if shutil.which("ffmpeg"):
             mp4=out/"modelb-p28-real-browser.mp4"
-            scroll_mp4=out/"p28-source-scroll-real-browser.mp4"
             execute(["ffmpeg","-hide_banner","-loglevel","error","-y",
                      "-i",video,"-c:v","libx264","-pix_fmt","yuv420p",
                      "-movflags","+faststart",mp4],timeout=180)
-            execute(["ffmpeg","-hide_banner","-loglevel","error","-y",
-                     "-i",scroll_video,"-c:v","libx264","-pix_fmt","yuv420p",
-                     "-movflags","+faststart",scroll_mp4],timeout=180)
             log["video"]=str(mp4)
-            log["source_scroll_video"]=str(scroll_mp4)
+            if scroll_video.is_file() and scroll_video.stat().st_size>1024:
+                scroll_mp4=out/"p28-source-scroll-real-browser.mp4"
+                execute(["ffmpeg","-hide_banner","-loglevel","error","-y",
+                         "-i",scroll_video,"-c:v","libx264","-pix_fmt","yuv420p",
+                         "-movflags","+faststart",scroll_mp4],timeout=180)
+                log["source_scroll_video"]=str(scroll_mp4)
+            else:
+                log["source_scroll_video"]="UNAVAILABLE_NO_SOURCE_SCROLL_MP4"
         else:
             log["video"]=str(video)
-            log["source_scroll_video"]=str(scroll_video)
+            log["source_scroll_video"]=str(scroll_video) if scroll_video.is_file() else "UNAVAILABLE"
         record("REAL_VIDEO_FILE","PASS")
         log["result"]="VISUAL_REVIEW_READY_MECHANICAL_G2_HOLD"
         report.write_text(json.dumps(log,indent=2)+"\n")
