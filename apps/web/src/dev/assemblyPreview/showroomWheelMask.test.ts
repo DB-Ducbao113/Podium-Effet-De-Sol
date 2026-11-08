@@ -10,13 +10,17 @@ const measured = {
     { centerSourceUnits: [-11.23671, -1.10873, 5.740865], outerRadiusSourceUnits: 1.93834 },
     { centerSourceUnits: [-11.453, -1.12272, -5.325905], outerRadiusSourceUnits: 1.89511 },
   ],
-} as OwnerMeasuredFit;
+} as unknown as OwnerMeasuredFit;
 
 function shaderStub() {
   return {
     uniforms: {} as Record<string, { value: unknown }>,
-    vertexShader: 'void main(){\\n#include <begin_vertex>\\n}',
-    fragmentShader: 'void main(){\\n#include <clipping_planes_fragment>\\n}',
+    vertexShader: `void main(){
+#include <begin_vertex>
+}`,
+    fragmentShader: `void main(){
+#include <clipping_planes_fragment>
+}`,
   };
 }
 
@@ -41,7 +45,7 @@ describe('reversible original Model B wheel window', () => {
     expect(shader.vertexShader).toContain('pedsWheelRootTransform*vec4(position,1.0)');
     expect(shader.fragmentShader).toContain('for (int wheel=0;wheel<4;wheel++)');
     expect(shader.fragmentShader).toContain('discard;');
-    expect(material.needsUpdate).not.toBe(false); // Material version increases for recompilation.
+    expect(material.version).toBeGreaterThan(0); // Recompile the modified shader.
   });
 
   it('fails closed rather than silently rendering duplicates with an unknown shader', () => {
