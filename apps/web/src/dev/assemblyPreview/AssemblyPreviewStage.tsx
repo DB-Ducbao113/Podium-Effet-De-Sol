@@ -17,6 +17,7 @@ type Props = {
   selectedPart: string | null;
   cameraFocus: 'whole-car' | 'wheel-macro' | 'fastener-macro';
   cornerPresentation: 'assembled' | 'tyre-hidden' | 'exploded';
+  technicalMaterials: boolean;
   registration: RegistrationResult | null;
   measuredFit: OwnerMeasuredFit | null;
   measuredOverlayEnabled: boolean;
@@ -51,7 +52,7 @@ function disposeTree(root: THREE.Object3D) {
   textures.forEach(x=>x.dispose());
 }
 
-function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPresentation,registration,measuredFit,measuredOverlayEnabled,onError,onInfo,pickMode,onPointPick,onBodyPartNames,hiddenBodyMeshes,onResolvedTransform,onGeometryProbe}:Props) {
+function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPresentation,technicalMaterials,registration,measuredFit,measuredOverlayEnabled,onError,onInfo,pickMode,onPointPick,onBodyPartNames,hiddenBodyMeshes,onResolvedTransform,onGeometryProbe}:Props) {
   const {camera,invalidate} = useThree();
   const [body,setBody] = useState<THREE.Group | null>(null);
   const [corner,setCorner] = useState<THREE.Group | null>(null);
@@ -98,6 +99,38 @@ function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPre
   // A uniform display-only normalization uses measured tyre radii; the original
   // GLB remains byte-for-byte identical, and original P2.8 CAD scale stays 1.
   const shellScale=measuredFit?.normalizedShellScale??1;
+  useEffect(()=>{
+    if(!corner||!technicalMaterials)return;
+    const original=new Map<THREE.Mesh,THREE.Material|THREE.Material[]>();
+    const clones:THREE.Material[]=[];
+    corner.traverse(o=>{
+      if(!(o instanceof THREE.Mesh))return;
+      let material:THREE.Material|null=null;
+      if(o.name==='P2_TYRE_SLICK_BODY'){
+        material=new THREE.MeshStandardMaterial({
+          color:'#20242b',metalness:0,roughness:.93,side:THREE.DoubleSide
+        });
+      }else if(o.name==='P2_RIM_FORGED_BARREL'){
+        material=new THREE.MeshStandardMaterial({
+          color:'#a8aeb7',metalness:.88,roughness:.28,side:THREE.DoubleSide
+        });
+      }else if(o.name==='P2_BRAKE_ROTOR_DRILLED_CARBON'){
+        material=new THREE.MeshStandardMaterial({
+          color:'#363a40',metalness:.18,roughness:.72,side:THREE.DoubleSide
+        });
+      }
+      if(!material)return;
+      original.set(o,o.material);
+      clones.push(material);
+      o.material=material;
+    });
+    invalidate();
+    return()=>{
+      original.forEach((material,mesh)=>mesh.material=material);
+      clones.forEach(m=>m.dispose());
+      invalidate();
+    };
+  },[corner,technicalMaterials,invalidate]);
   const bodyBounds=useMemo(()=>{
     if(!body)return null;
     if(measuredFit){
