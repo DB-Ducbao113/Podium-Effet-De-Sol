@@ -13,6 +13,7 @@ type Props = {
   source: RearUprightSource;
   fit: OwnerMeasuredFit;
   onError: (message: string) => void;
+  onLoaded: (message: string) => void;
 };
 
 function disposeSource(scene: THREE.Group) {
@@ -33,7 +34,7 @@ function disposeSource(scene: THREE.Group) {
  * wheel centres. No front-upright reflection, fake rear wishbones, or mesh-scale.
  * Geometry is local and SHA-verified; mechanical mating remains HOLD.
  */
-export default function RearUprightInstances({ source, fit, onError }: Props) {
+export default function RearUprightInstances({ source, fit, onError, onLoaded }: Props) {
   const [scene, setScene] = useState<THREE.Group | null>(null);
   useEffect(() => {
     let live = true;
@@ -58,6 +59,7 @@ export default function RearUprightInstances({ source, fit, onError }: Props) {
         return;
       }
       setScene(owned);
+      onLoaded('P29 REAR UPRIGHT RENDERED / BOTH REAR STATIONS / MECHANICAL G2 HOLD');
     }).catch(error => {
       if (live) onError('P2.9 source GLB parse failed: ' + String(error));
     });
@@ -66,7 +68,7 @@ export default function RearUprightInstances({ source, fit, onError }: Props) {
       setScene(null);
       if (owned) disposeSource(owned);
     };
-  }, [source, onError]);
+  }, [source, onError, onLoaded]);
 
   const mounts = useMemo(
     () => layoutFourCorners(fit).filter(mount => mount.station === 'rear'),
