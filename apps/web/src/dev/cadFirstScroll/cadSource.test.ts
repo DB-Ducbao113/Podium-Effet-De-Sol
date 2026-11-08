@@ -4,14 +4,28 @@ const profiles={HIGH:{file:'p28-high.glb',bytes:123,sha256:'a'.repeat(64)}};
 const wholeProof={masterSTEPsha256:'f'.repeat(64),totalCadSolids:FULL_CAR_SYSTEMS.length,allRoundtripValid:true,
   staticAuditFile:'whole-car-audit.json',staticAuditSha256:'b'.repeat(64)};
 const ids=Array.from({length:59},(_,i)=>'CAD_SOLID_'+String(i).padStart(2,'0'));
+const cornerProof={
+  source:'Project-authored P2.6/P2.7 original B-Rep',
+  masterSTEPsha256:'c'.repeat(64),
+  totalCadSolids:59,
+  allRoundtripValid:true,
+  staticFit:{totalPairs:1711,singleStaticPosePass:true,steeringTravelAndBumpValidated:false},
+};
 describe('CAD-first source identity, NOT R4.5',()=>{
   it('classifies 59 P2.8 solids as front-corner, never whole-car',()=>{
-    const result=readManifest({schema:'podium-eds.p2.cad-first.full-corner.remate.v1',profiles,partIds:ids});
+    const result=readManifest({schema:'podium-eds.p2.cad-first.full-corner.remate.v1',profiles,partIds:ids,...cornerProof});
     expect(result.scope).toBe('front-corner');expect(result.parts).toHaveLength(59);
   });
   it('rejects incomplete P2.8 or duplicate part IDs',()=>{
-    expect(()=>readManifest({schema:'podium-eds.p2.cad-first.full-corner.remate.v1',profiles,partIds:ids.slice(0,58)})).toThrow();
-    expect(()=>readManifest({schema:'podium-eds.p2.cad-first.full-corner.remate.v1',profiles,partIds:[...ids.slice(0,58),ids[0]]})).toThrow();
+    expect(()=>readManifest({schema:'podium-eds.p2.cad-first.full-corner.remate.v1',profiles,partIds:ids.slice(0,58),...cornerProof})).toThrow();
+    expect(()=>readManifest({schema:'podium-eds.p2.cad-first.full-corner.remate.v1',profiles,partIds:[...ids.slice(0,58),ids[0]],...cornerProof})).toThrow();
+  });
+  it('rejects 59 arbitrarily named meshes without real P2.8 CAD provenance',()=>{
+    expect(()=>readManifest({schema:'podium-eds.p2.cad-first.full-corner.remate.v1',profiles,partIds:ids}))
+      .toThrow(/provenance/);
+    expect(()=>readManifest({schema:'podium-eds.p2.cad-first.full-corner.remate.v1',
+      profiles,partIds:ids,...cornerProof,staticFit:{totalPairs:1711,singleStaticPosePass:false}}))
+      .toThrow(/provenance/);
   });
   it('does not accept incomplete whole-car evidence',()=>{
     expect(()=>readManifest({schema:'podium-eds.cad-first.full-car.v1',profiles,
