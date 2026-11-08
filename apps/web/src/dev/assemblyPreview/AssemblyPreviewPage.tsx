@@ -2,7 +2,7 @@ import { lazy, Suspense, useCallback, useState, type ChangeEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { type CadSource, readManifest, verifyCadSource } from '../cadFirstScroll/cadSource';
 import { checkedPlacement, INITIAL_PLACEMENT, type Placement } from './assemblyPlacement';
-import {registerOwnerLandmarks,type RegistrationInput,type RegistrationResult} from './assemblyRegistration';
+import {registerOwnerLandmarks,type Landmark,type RegistrationInput,type RegistrationResult} from './assemblyRegistration';
 import './assemblyPreview.css';
 
 const Stage=lazy(()=>import('./AssemblyPreviewStage'));
@@ -27,14 +27,25 @@ export default function AssemblyPreviewPage(){
   const [registration,setRegistration]=useState<RegistrationResult|null>(null);
   const [registrationEvidence,setRegistrationEvidence]=useState('');
   const [busy,setBusy]=useState(false);
+  const [pickMode,setPickMode]=useState<'off'|'modelb'|'p28'>('off');
+  const [pickedBody,setPickedBody]=useState<[number,number,number]|null>(null);
+  const [pickedCorner,setPickedCorner]=useState<[number,number,number]|null>(null);
+  const [draftLandmarks,setDraftLandmarks]=useState<Landmark[]>([]);
+  const [landmarkEvidence,setLandmarkEvidence]=useState('');
   const showError=useCallback((message:string)=>setError(message),[]);
   const showInfo=useCallback((message:string)=>setInfo(message),[]);
+  const onPointPick=useCallback((target:'modelb'|'p28',point:[number,number,number],mesh:string)=>{
+    if(target==='modelb')setPickedBody(point);
+    else setPickedCorner(point);
+    setPickMode('off');
+    setInfo(`SELECTED ${target.toUpperCase()} / ${mesh} · local metres`);
+  },[]);
   const updateAxis=(kind:'translationM'|'rotationDeg',i:number,v:number)=>{
     setPlacement(p=>checkedPlacement({...p,[kind]:p[kind].map((x,j)=>j===i?v:x)} as Placement));
   };
   const importManifest=async(event:ChangeEvent<HTMLInputElement>)=>{
     const file=event.target.files?.[0];if(!file)return;
-    setError('');setManifest(null);setSource(null);setPart(null);setRegistration(null);
+    setError('');setManifest(null);setSource(null);setPart(null);setRegistration(null);setDraftLandmarks([]);setPickedBody(null);setPickedCorner(null);setPickMode('off');
     try{
       if(file.size>MAX_MANIFEST)throw Error('Source manifest exceeds 5 MB');
       const data=JSON.parse(await file.text()) as unknown;
@@ -47,7 +58,7 @@ export default function AssemblyPreviewPage(){
   };
   const importGLB=async(event:ChangeEvent<HTMLInputElement>)=>{
     const file=event.target.files?.[0];if(!file)return;
-    setError('');setSource(null);setPart(null);setRegistration(null);setBusy(true);
+    setError('');setSource(null);setPart(null);setRegistration(null);setDraftLandmarks([]);setPickedBody(null);setPickedCorner(null);setPickMode('off');setBusy(true);
     try {
       if(!manifest)throw Error('Load P2.8 manifest first');
       // Reuse the existing byte-length, embedded-resource and cryptographic SHA gate.
@@ -76,6 +87,40 @@ export default function AssemblyPreviewPage(){
       setInfo('LANDMARK-ALIGNED GRAPHICS · MECHANICAL FIT STILL HOLD');
     }catch(err){setError(String(err));}finally{event.target.value='';}
   };
+  const addLandmarkPair=()=>{
+    if(!pickedBody||!pickedCorner)return;
+    const id='OWNER_PAIR_'+String(draftLandmarks.length+1).padStart(2,'0');
+    setDraftLandmarks(items=>[...items,{id,modelBM:pickedBody,p28M:pickedCorner}]);
+    setPickedBody(null);setPickedCorner(null);setRegistration(null);
+    setInfo('OWNER PICKED PAIR RECORDED · PHYSICAL CORRESPONDENCE NOT CERTIFIED');
+  };
+  const registerPickedPairs=()=>{
+    setError('');
+    try{
+      if(!source)throw Error('P2.8 source is missing');
+      const data:RegistrationInput={
+        schema:'podium-eds.modelb-p28.landmarks.v1',
+        sourceUnits:'m',targetUnits:'m',sourceScale:1,
+        landmarks:draftLandmarks,evidence:landmarkEvidence.trim()
+      };
+      const result=registerOwnerLandmarks(data);
+      if(result.maxResidualM>.005||result.lengthMismatchM>.005)
+        throw Error('Picked points differ by >5mm; correct the physical correspondences, never scale CAD');
+      setRegistration(result);
+      setRegistrationEvidence(data.evidence);
+      setPlacement({...INITIAL_PLACEMENT,displayedAtBodyCenter:true});
+      setInfo('PICKED LANDMARK REGISTRATION · VISUAL FIT ONLY · MECHANICAL G2 HOLD');
+    }catch(e){setError(e instanceof Error?e.message:String(e));}
+  };
+  const exportPickedPairs=()=>{
+    if(draftLandmarks.length===0)return;
+    const data:RegistrationInput={schema:'podium-eds.modelb-p28.landmarks.v1',
+      sourceUnits:'m',targetUnits:'m',sourceScale:1,
+      landmarks:draftLandmarks,evidence:landmarkEvidence||'UNVERIFIED_SURFACE_PICK'};
+    const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)+'\n'],{type:'application/json'}));
+    const a=document.createElement('a');a.href=url;a.download='peds-owner-measured-landmarks.json';a.click();
+    window.setTimeout(()=>URL.revokeObjectURL(url),1000);
+  };
   const exportPlacement=()=>{
     if(!source)return;
     const record={
@@ -91,6 +136,7 @@ export default function AssemblyPreviewPage(){
       placement:checkedPlacement(placement),
       landmarkRegistration:registration,
       landmarkEvidence:registrationEvidence,
+      measuredPointPairs:draftLandmarks,
       ownerHardpointMeasurements:null,
       coordinateMappingVerified:false,
       staticBrepInterferenceTestedAgainstModelB:false,
@@ -113,7 +159,7 @@ export default function AssemblyPreviewPage(){
       <section className="peds-assembly-view" aria-label="Live 3D visual assembly staging">
         <Suspense fallback={<p>Loading Three.js preview…</p>}>
           <Stage source={source} placement={placement} shellOpacity={opacity} selectedPart={part}
-            registration={registration}
+            registration={registration} pickMode={pickMode} onPointPick={onPointPick}
             onError={showError} onInfo={showInfo}/>
         </Suspense>
         <div className="peds-assembly-caption">
@@ -147,6 +193,36 @@ export default function AssemblyPreviewPage(){
         </div>
         <div className="peds-assembly-controls-section">
           <h2>03 / Placement (not mechanical mating)</h2>
+          <div className="peds-assembly-picker" aria-label="Measure source points on original geometries">
+            <p>Pick corresponding points on the REAL mesh surfaces. These are manual
+              graphics annotations, not automatically identified mechanical hardpoints.</p>
+            <div className="peds-assembly-actions">
+              <button type="button" disabled={!source}
+                aria-pressed={pickMode==='p28'}
+                onClick={()=>setPickMode('p28')}>PICK P2.8 POINT</button>
+              <button type="button" disabled={!source}
+                aria-pressed={pickMode==='modelb'}
+                onClick={()=>setPickMode('modelb')}>PICK MODEL B POINT</button>
+            </div>
+            <small>{pickMode==='off'?'Selection idle':`CLICK ON ${pickMode.toUpperCase()} MESH IN THE 3D VIEW`}</small>
+            <small>P2.8 local: {pickedCorner?.map(v=>v.toFixed(4)).join(', ')??'not picked'} m</small>
+            <small>Model B local: {pickedBody?.map(v=>v.toFixed(4)).join(', ')??'not picked'} m</small>
+            <button type="button" disabled={!pickedBody||!pickedCorner} onClick={addLandmarkPair}>ADD CORRESPONDING PAIR</button>
+            <small>{draftLandmarks.length} point pairs (minimum 3 non-collinear)</small>
+            <label>Measurement provenance / feature identification
+              <input type="text" value={landmarkEvidence} onChange={e=>setLandmarkEvidence(e.target.value)}
+                placeholder="Identify each corresponding mechanical landmark"/>
+            </label>
+            <div className="peds-assembly-actions">
+              <button type="button" disabled={draftLandmarks.length<3||!landmarkEvidence.trim()}
+                onClick={registerPickedPairs}>RIGID FIT / NO SCALE</button>
+              <button type="button" disabled={!draftLandmarks.length}
+                onClick={exportPickedPairs}>EXPORT POINT PAIRS</button>
+            </div>
+            <button type="button" disabled={!draftLandmarks.length}
+              onClick={()=>{setDraftLandmarks([]);setPickedBody(null);setPickedCorner(null);setRegistration(null);}}>
+              CLEAR MEASURED PAIRS</button>
+          </div>
           <label>Measured source / target landmarks (.json)
             <input type="file" accept=".json,application/json" disabled={!source}
               onChange={e=>{void importLandmarks(e);}}/>
