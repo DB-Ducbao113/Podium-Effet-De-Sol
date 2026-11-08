@@ -5,6 +5,7 @@ import argparse, hashlib, json, math
 from pathlib import Path
 import numpy as np
 import trimesh
+from assembly_modelb_p28_preflight import read_glb_header
 
 def digest(path: Path) -> str:
     h = hashlib.sha256()
@@ -76,19 +77,35 @@ def inspect(modelb: Path, p28dir: Path, placement: Path, tier='BALANCED') -> dic
     if not isinstance(registration, dict):
         raise ValueError('No resolved 3D placement was exported from browser')
     matrix = rigid_transform(registration)
-    shell = trimesh.load(modelb, force='scene')
+    body_metadata=read_glb_header(modelb)
     corner = trimesh.load(glb, force='scene')
     if set(corner.graph.nodes_geometry) != set(ids):
         raise ValueError('Unexpected source identities in original corner GLB')
-    body_bounds = mesh_boxes(shell)
     corner_bounds = mesh_boxes(corner, matrix)
-    candidates = intersection_candidates(body_bounds, corner_bounds)
-    return {'gate': 'G2_HOLD', 'scope': 'VISUAL_AABB_PREFLIGHT_ONLY',
+    try:
+        shell = trimesh.load(modelb, force='scene')
+        body_bounds = mesh_boxes(shell)
+        candidates = intersection_candidates(body_bounds, corner_bounds)
+        body_aabb_available=True
+        model_b_bounds=shell.bounds.tolist()
+    except (IndexError, ValueError, KeyError, TypeError) as exc:
+        # This original optimized GLB cannot be decoded by native trimesh.
+        # Do not invent bounding boxes or claim no collision.
+        body_bounds={}
+        candidates=[]
+        body_aabb_available=False
+        model_b_bounds=None
+        unsupported_decoder=type(exc).__name__ + ': ' + str(exc)[:300]
+    return {'gate': 'G2_HOLD', 'scope': 'VISUAL_AABB_PREFLIGHT_ONLY' if body_aabb_available else 'BROWSER_ONLY_SHELL_AABB_UNAVAILABLE',
             'model_b_sha256': digest(modelb), 'p28_sha256': digest(glb),
             'p28_step_sha256': digest(source_step),
-            'model_b_mesh_nodes': len(body_bounds), 'p28_mesh_nodes': len(corner_bounds),
-            'candidate_aabb_pairs': len(candidates), 'largest_50_candidates': candidates[:50],
-            'placement': registration, 'body_bounds_m': shell.bounds.tolist(),
+            'model_b_mesh_nodes': len(body_bounds) if body_aabb_available else body_metadata['meshes'],
+            'p28_mesh_nodes': len(corner_bounds),
+            'model_b_aabb_available':body_aabb_available,
+            'model_b_trimesh_error':None if body_aabb_available else unsupported_decoder,
+            'candidate_aabb_pairs':len(candidates) if body_aabb_available else None,
+            'largest_50_candidates': candidates[:50] if body_aabb_available else None,
+            'placement': registration, 'body_bounds_m': model_b_bounds,
             'source_corner_bounds_m': corner.bounds.tolist(),
             'limitations': ['AABB overlaps are not exact polygon intersections',
                 'Model B is a showroom polygon asset, not a B-Rep chassis',
