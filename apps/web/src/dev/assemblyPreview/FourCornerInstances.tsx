@@ -53,7 +53,7 @@ export default function FourCornerInstances({
         if(technicalMaterials){
           const preset=materialForP28Part(classifyP28Part(object.name));
           const selected=selectedPart===object.name && activeWheelId===mount.id;
-          const material=new THREE.MeshStandardMaterial({
+          newMaterials=old.map(()=>new THREE.MeshStandardMaterial({
             color:selected?'#e2e9ef':preset.color,
             metalness:preset.metalness,
             roughness:preset.roughness,
@@ -61,8 +61,7 @@ export default function FourCornerInstances({
             emissive:new THREE.Color(preset.color),
             emissiveIntensity:preset.metalness>0.6?0.18:0.3,
             side:THREE.DoubleSide,
-          });
-          newMaterials=[material];
+          }));
         }else{
           newMaterials=old.map(material=>material.clone());
         }
