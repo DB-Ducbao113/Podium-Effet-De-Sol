@@ -13,6 +13,7 @@ import socket
 import subprocess
 import sys
 import time
+from locate_owner_p28 import candidates, archive_candidates, safe_extract, owner_roots
 from urllib.request import urlopen
 
 ROOT=Path(__file__).resolve().parents[2]
@@ -55,8 +56,28 @@ def run(args):
         record("MODEL_B_FILE","PASS")
         p28=choose_source(args.p28_dir.resolve())
         if p28 is None:
+            roots=[args.p28_dir.resolve(), *owner_roots(ROOT)]
+            found=next(candidates(roots),None)
+            if found is not None:
+                p28=found
+                record("AUTO_DISCOVER_OWNER_SOURCE","FOUND_PRIVATE_CANDIDATE",str(found))
+        if p28 is None:
+            roots=[args.p28_dir.resolve(), *owner_roots(ROOT)]
+            for archive in archive_candidates(roots):
+                restore=out/"restored-owner-p28"
+                try:
+                    safe_extract(archive,restore)
+                    found=next(candidates([restore]),None)
+                    if found is not None:
+                        p28=found
+                        record("RESTORE_OWNER_ARCHIVE","FOUND_PRIVATE_CANDIDATE",str(archive))
+                    break
+                except (OSError,ValueError,RuntimeError) as exc:
+                    record("RESTORE_OWNER_ARCHIVE","REJECTED",str(exc))
+                    if restore.exists():break
+        if p28 is None:
             if not args.allow_rebuild:
-                raise RuntimeError("Original P2.8 owner pack missing. Use --allow-rebuild to reproduce it in a NEW folder.")
+                raise RuntimeError("Original P2.8 source not found. Pass --allow-rebuild to reconstruct it in an EMPTY private directory.")
             execute([sys.executable,TOOLS/"rebuild_owner_p28.py","--out",args.p28_dir],timeout=2400)
             p28=choose_source(args.p28_dir.resolve())
         if p28 is None:raise RuntimeError("P2.8 recovery produced no original manifest")
