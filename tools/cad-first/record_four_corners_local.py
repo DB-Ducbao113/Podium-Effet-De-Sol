@@ -57,6 +57,8 @@ def capture(url:str,p28:Path,out:Path,quality:str)->dict:
         "scope":"visual review of genuine CAD-derived front source at four measured wheels",
         "screenshots":[],
         "javascript_errors":[],
+        "webgl_shader_errors":[],
+        "mask_comparison":None,
         "recorded_video":None,
     }
     model_statuses=[]
@@ -68,6 +70,11 @@ def capture(url:str,p28:Path,out:Path,quality:str)->dict:
             accept_downloads=True)
         page=context.new_page()
         page.on("pageerror",lambda e:runtime["javascript_errors"].append(str(e)))
+        page.on("console",lambda m:runtime["webgl_shader_errors"].append(m.text)
+                if m.type=="error" and
+                any(word in m.text.lower() for word in
+                    ("webgl", "shader error", "validate_status", "gl_invalid_operation"))
+                else None)
         page.on("response",lambda r:model_statuses.append(r.status)
             if "model-b-eds-optimized-v1.glb" in r.url else None)
         try:
@@ -109,6 +116,28 @@ def capture(url:str,p28:Path,out:Path,quality:str)->dict:
                 runtime["screenshots"].append(name)
             shot("01-whole-car-four-source-wheelends.png",800)
             page.get_by_label("Review camera").select_option("wheel-macro")
+            selector.select_option("front-positive-z")
+            mask=page.get_by_label(
+                "Mask original Model B wheel volumes (reversible shader-only view)"
+            )
+            if not mask.is_checked():
+                raise RuntimeError("Original Model B wheel duplication mask is not enabled")
+            page.wait_for_timeout(900)
+            masked=page.locator("canvas").first.screenshot(path=str(out/"mask-enabled-canvas.png"))
+            mask.uncheck()
+            page.wait_for_timeout(900)
+            unmasked=page.locator("canvas").first.screenshot(path=str(out/"mask-disabled-canvas.png"))
+            changed=hashlib.sha256(masked).digest()!=hashlib.sha256(unmasked).digest()
+            runtime["mask_comparison"]={
+                "original_model_b_glb_modified":False,
+                "mask_only_changes_canvas_pixels":changed,
+                "mask_enabled_png_sha256":hashlib.sha256(masked).hexdigest(),
+                "mask_disabled_png_sha256":hashlib.sha256(unmasked).hexdigest(),
+            }
+            if not changed:
+                raise RuntimeError("Four-wheel shader mask produced no visible canvas change")
+            mask.check()
+            page.wait_for_timeout(400)
             for i,(wheel_id,label) in enumerate(WHEELS,start=2):
                 selector.select_option(wheel_id)
                 shot(str(i).zfill(2)+"-"+wheel_id+".png",800)
@@ -138,6 +167,9 @@ def capture(url:str,p28:Path,out:Path,quality:str)->dict:
                     raise RuntimeError("Four-wheel Canvas responsive regression at "+str(width))
             if runtime["javascript_errors"]:
                 raise RuntimeError("Browser runtime errors: "+str(runtime["javascript_errors"]))
+            if runtime["webgl_shader_errors"]:
+                raise RuntimeError("WebGL/shader compilation errors: "+
+                                   str(runtime["webgl_shader_errors"]))
         finally:
             video=page.video
             context.close()
