@@ -18,6 +18,8 @@ type Props = {
   onInfo: (info: string) => void;
   pickMode: 'off' | 'modelb' | 'p28';
   onPointPick: (target: 'modelb' | 'p28', point: [number, number, number], mesh: string) => void;
+  onBodyPartNames: (parts: string[]) => void;
+  hiddenBodyMeshes: number[];
 };
 
 function disposeTree(root: THREE.Object3D) {
@@ -37,7 +39,7 @@ function disposeTree(root: THREE.Object3D) {
   textures.forEach(x=>x.dispose());
 }
 
-function Scene({source,placement,shellOpacity,selectedPart,registration,onError,onInfo,pickMode,onPointPick}:Props) {
+function Scene({source,placement,shellOpacity,selectedPart,registration,onError,onInfo,pickMode,onPointPick,onBodyPartNames,hiddenBodyMeshes}:Props) {
   const {camera,invalidate} = useThree();
   const [body,setBody] = useState<THREE.Group | null>(null);
   const [corner,setCorner] = useState<THREE.Group | null>(null);
@@ -48,10 +50,13 @@ function Scene({source,placement,shellOpacity,selectedPart,registration,onError,
     loader.load(import.meta.env.BASE_URL+'models/model-b-eds-optimized-v1.glb',gltf=>{
       model=gltf.scene;
       if(!live){disposeTree(model);return;}
+      const named:string[]=[];
+      model.traverse(obj=>{if(obj instanceof THREE.Mesh)named.push(obj.name||'UNNAMED_MESH');});
+      onBodyPartNames(named);
       setBody(model);
     },undefined,e=>{if(live)onError('Model B could not load: '+String(e));});
     return()=>{live=false;setBody(null);if(model)disposeTree(model);};
-  },[onError]);
+  },[onError,onBodyPartNames]);
   useEffect(()=>{
     let live=true,model:THREE.Group|null=null;
     setCorner(null);
@@ -89,6 +94,19 @@ function Scene({source,placement,shellOpacity,selectedPart,registration,onError,
     }
     invalidate();
   },[frame,camera,invalidate]);
+  useEffect(()=>{
+    if(!body)return;
+    const hidden=new Set(hiddenBodyMeshes);
+    let index=0;
+    body.traverse(obj=>{
+      if(obj instanceof THREE.Mesh){obj.visible=!hidden.has(index);index++;}
+    });
+    invalidate();
+    return()=>{
+      body.traverse(obj=>{if(obj instanceof THREE.Mesh)obj.visible=true;});
+      invalidate();
+    };
+  },[body,hiddenBodyMeshes,invalidate]);
   useEffect(()=>{if(!body)return;
     const original=new Map<THREE.Mesh,THREE.Material|THREE.Material[]>(),clones:THREE.Material[]=[];
     body.traverse(o=>{
