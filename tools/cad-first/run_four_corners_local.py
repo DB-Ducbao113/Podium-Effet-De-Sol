@@ -43,6 +43,7 @@ def main()->None:
       "original_p28_scale":1,
       "g2_mechanical_mating":"HOLD",
       "genuine_rear_suspension_available":False,
+      "independent_p29_rear_upright_proposal":False,
       "all_four_wheel_review":"NOT_RUN",
       "steps":[],
       "final_video":None,
@@ -73,6 +74,7 @@ def main()->None:
         if source is None:
             raise RuntimeError("Exact project-authored 59-part P2.8 source was not regenerated")
         gate("ORIGINAL_59_PART_P28_PRESENT","PASS")
+        invoke(sys.executable,TOOLS/"test_p2_9_rear_upright.py",timeout=150)
         invoke(sys.executable,TOOLS/"test_rebuild_owner_p28.py",timeout=150)
         invoke(sys.executable,TOOLS/"test_audit_assembly_mesh.py",timeout=150)
         gate("LOCAL_SOURCE_PROVENANCE_UNIT_TESTS","PASS")
@@ -80,6 +82,30 @@ def main()->None:
                "--modelb",MODEL_B,"--p28-dir",source,
                "--quality",a.quality,"--out",out/"source-preflight.json",timeout=900)
         gate("NATIVE_STEP_AND_GLB_INTEGRITY","PASS")
+        p29_dir=out/"p29-rear-upright-source"
+        if not p29_dir.is_dir():
+            invoke(sys.executable,TOOLS/"p2_9_rear_upright.py",
+                   "--out",p29_dir,timeout=600)
+        p29_manifest=p29_dir/"P29_rear_upright_manifest.json"
+        if not p29_manifest.is_file():
+            raise RuntimeError("Original rear upright CAD proposal not generated")
+        p29=json.loads(p29_manifest.read_text(encoding="utf8"))
+        if (p29.get("schema")!="podium-eds.p2.cad-first.rear-upright-proposal.v1" or
+            p29.get("mechanicalMatingCertified") is not False or
+            p29.get("actualRearChassisHardpointsMeasured") is not False):
+            raise RuntimeError("P2.9 source incorrectly certified or manifest missing")
+        from hashlib import sha256
+        if (sha256((p29_dir/p29["masterSTEP"]).read_bytes()).hexdigest() !=
+            p29["masterSTEPsha256"]):
+            raise RuntimeError("P2.9 native STEP source hash mismatch")
+        for tier,entry in p29["profiles"].items():
+            file=p29_dir/entry["file"]
+            if (not file.is_file() or
+                sha256(file.read_bytes()).hexdigest()!=entry["sha256"] or
+                entry["tessellationWatertight"] is not True):
+                raise RuntimeError("P2.9 source LOD integrity failed: "+tier)
+        status["independent_p29_rear_upright_proposal"]=True
+        gate("INDEPENDENT_P29_REAR_UPRIGHT_STEP_AND_GLB_PROPOSAL","PASS")
         npm=shutil.which("npm")
         if npm is None:raise RuntimeError("Node/npm missing")
         if not a.skip_web_qa:
@@ -89,7 +115,8 @@ def main()->None:
                    "src/dev/assemblyPreview/fourCornerLayout.test.ts",
                    "src/dev/assemblyPreview/cadPresentation.test.ts",
                    "src/dev/assemblyPreview/ownerMeasuredFit.test.ts",
-                   "src/dev/assemblyPreview/showroomWheelMask.test.ts",timeout=300)
+                   "src/dev/assemblyPreview/showroomWheelMask.test.ts",
+                   "src/dev/assemblyPreview/rearUprightSource.test.ts",timeout=300)
             invoke(npm,"run","build","--workspace=@peds/web",timeout=900)
             gate("LOCAL_WEB_LINT_TYPES_TESTS_BUILD","PASS")
         job=subprocess.Popen([
@@ -102,11 +129,14 @@ def main()->None:
         gate("LOCAL_VITE_WEBGL_ROUTE","PASS")
         invoke(sys.executable,TOOLS/"record_four_corners_local.py",
                "--p28-dir",source,"--out",out/"browser",
-               "--quality",a.quality,"--url",url,timeout=1100)
+               "--quality",a.quality,"--url",url,
+               "--p29-dir",p29_dir,timeout=1100)
         detail=json.loads((out/"browser/four-wheel-browser-evidence.json")
                           .read_text(encoding="utf8"))
         if not detail.get("all_four_original_modelb_wheel_positions"):
             raise RuntimeError("Four distinct original Model B measured wheel positions not rendered")
+        if not detail.get("real_p29_rear_upright_loaded"):
+            raise RuntimeError("The STEP-derived P2.9 upright was not loaded on both rear wheel stations")
         movie=detail.get("recorded_video")
         if not movie or not Path(movie).is_file() or Path(movie).stat().st_size<1024:
             raise RuntimeError("No genuine WebGL four-wheel video created")
