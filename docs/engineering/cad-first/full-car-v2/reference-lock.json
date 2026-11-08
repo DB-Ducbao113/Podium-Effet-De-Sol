@@ -1,0 +1,124 @@
+{
+  "schema": "podium-eds.cad-first.reference-lock.v1",
+  "status": "P0_IN_PROGRESS_NOT_APPROVED",
+  "generation": "2026",
+  "sourceOfTruth": {
+    "regulations": {
+      "publisher": "FIA",
+      "section": "C",
+      "issue": 21,
+      "date": "2026-10-19",
+      "url": "https://www.fia.com/regulation/category/2182",
+      "status": "latest-listed-2026-11-08"
+    },
+    "visual": {
+      "publisher": "Formula 1",
+      "published": "2025-12-17",
+      "url": "https://www.formula1.com/en/latest/article/gallery-new-look-new-tech-new-rules-f1-reveals-renders-of-the-innovative.4DYoUzwNaKhW9aQeeVXJMv",
+      "usage": "research-only",
+      "licensedForSite": false
+    }
+  },
+  "coordinates": {
+    "units": "mm",
+    "axis": {
+      "X": "front-to-rear positive",
+      "Y": "vehicle-left positive",
+      "Z": "up positive"
+    },
+    "origin": "front axle center, ground projection",
+    "frontAxleX": 0,
+    "rearAxleX": 3400,
+    "vehicleCenterlineY": 0
+  },
+  "constraints": [
+    {
+      "id": "C2.3.3",
+      "name": "wheelbase",
+      "operator": "<=",
+      "value": 3400,
+      "units": "mm",
+      "verification": "FIA issue 21 article recheck before G0 freeze"
+    },
+    {
+      "id": "C2.3.1",
+      "name": "body_half_width",
+      "operator": "<=",
+      "value": 950,
+      "units": "mm",
+      "verification": "excluding regulatory exceptions, refer to full FIA clause"
+    }
+  ],
+  "proposedDesignParameters": {
+    "wheelbaseMm": 3350,
+    "bodyHalfWidthMaximumMm": 940,
+    "frontTrackMm": null,
+    "rearTrackMm": null,
+    "tyreEnvelope": null,
+    "bodyLengthMm": null,
+    "frontOverhangMm": null,
+    "rearOverhangMm": null
+  },
+  "views": [
+    {
+      "id": "front",
+      "type": "orthographic",
+      "status": "source-reference-pending"
+    },
+    {
+      "id": "rear",
+      "type": "orthographic",
+      "status": "source-reference-pending"
+    },
+    {
+      "id": "left",
+      "type": "orthographic",
+      "status": "source-reference-pending"
+    },
+    {
+      "id": "right",
+      "type": "orthographic",
+      "status": "source-reference-pending"
+    },
+    {
+      "id": "top",
+      "type": "orthographic",
+      "status": "source-reference-pending"
+    },
+    {
+      "id": "underside",
+      "type": "orthographic",
+      "status": "source-reference-pending"
+    },
+    {
+      "id": "front-three-quarter",
+      "type": "perspective",
+      "status": "source-reference-pending"
+    },
+    {
+      "id": "rear-three-quarter",
+      "type": "perspective",
+      "status": "source-reference-pending"
+    },
+    {
+      "id": "cockpit",
+      "type": "macro",
+      "status": "source-reference-pending"
+    },
+    {
+      "id": "front-wing",
+      "type": "macro",
+      "status": "source-reference-pending"
+    }
+  ],
+  "designGate": {
+    "G0": "HOLD until verified view assignments, dimension constraints and provenance completed",
+    "G1": "HOLD until original CAD clay surfaces compared in eight aligned views and owner accepts silhouette",
+    "veto": [
+      "reuse rejected FullCar V1 geometry",
+      "reuse R4.5 or Model B as car source",
+      "unverified OEM internals described as genuine",
+      "PBR before silhouette PASS"
+    ]
+  }
+}
