@@ -1,13 +1,13 @@
 # PEDS original Model B + P2.8 — LOCAL owner preview, never deploy.
-# Run from Windows PowerShell 7+:
-#   pwsh -File scripts/review-original-fullcar.ps1
+# Run from Windows PowerShell:
+#   powershell -ExecutionPolicy Bypass -File scripts/review-original-fullcar.ps1
 # The script returns non-zero if missing real CAD/model assets or any QA fails.
 [CmdletBinding()]
 param(
   [ValidateSet('HIGH','BALANCED','PERFORMANCE')]
   [string]$Quality = 'BALANCED',
   [switch]$SkipInstall,
-  [switch]$AllowRebuild
+  [switch]$NoRebuild
 )
 $ErrorActionPreference = 'Stop'
 $project = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
@@ -45,7 +45,7 @@ $arguments = @(
  '--out', $destination,
  '--quality', $Quality
 )
-if ($AllowRebuild) { $arguments += '--allow-rebuild' }
+if (!$NoRebuild) { $arguments += '--allow-rebuild' }
 Write-Host 'Original source-only engineering review. No merging or production deployment.'
 & $python @arguments
 if ($LASTEXITCODE -ne 0) {
