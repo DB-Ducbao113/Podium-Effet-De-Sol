@@ -1,0 +1,24 @@
+.peds-assembly{min-height:100svh;background:#070e16;color:#f0f4f7;font-family:var(--peds-font-ui,Arial,sans-serif)}
+.peds-assembly *{box-sizing:border-box}
+.peds-assembly-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:15px 24px;background:#101b27;border-bottom:1px solid #455164;font:700 11px var(--peds-font-mono,monospace);letter-spacing:.08em}
+.peds-assembly-top a{color:#fff;text-decoration:none}.peds-assembly-top span{color:#ff996f}
+.peds-assembly-main{display:grid;grid-template-columns:minmax(0,1fr) minmax(315px,370px);min-height:calc(100svh - 50px)}
+.peds-assembly-view{position:relative;min-height:70vh;background:radial-gradient(ellipse at 50% 40%,#223344,#080f17 78%)}
+.peds-assembly-view canvas{width:100%!important;height:100%!important}
+.peds-assembly-caption{position:absolute;pointer-events:none;bottom:16px;left:20px;right:20px;background:#07101cd9;border:1px solid #526174;padding:12px;display:grid;gap:4px;font:700 11px var(--peds-font-mono,monospace)}
+.peds-assembly-caption span{font-size:10px;color:#a9bdd3}.peds-assembly-caption p{color:#ff967c;margin:2px 0}
+.peds-assembly-controls{background:#111c28;max-height:calc(100svh - 50px);overflow-y:auto;padding:22px}
+.peds-assembly-controls h1{font:900 clamp(25px,2vw,38px)/1 var(--peds-font-display,Arial,sans-serif);text-transform:uppercase}
+.peds-assembly-controls h2{font:800 12px var(--peds-font-mono,monospace);letter-spacing:.07em;color:#ff997a;margin:0 0 12px}
+.peds-assembly-controls p{font-size:13px;line-height:1.6;color:#b5c3d2}
+.peds-assembly-controls small{font-size:11px;line-height:1.6;color:#9aabc1;display:block}
+.peds-assembly-controls-section{border-top:1px solid #48566b;padding:19px 0}
+.peds-assembly-controls label{display:grid;gap:7px;color:#d2dce7;font-size:11px;margin:10px 0}
+.peds-assembly-controls input,.peds-assembly-controls select,.peds-assembly-controls button{font:inherit;color:#f4f7fa;background:#07121d;border:1px solid #51657a;border-radius:2px;min-width:0;padding:9px;width:100%}
+.peds-assembly-controls input[type=range]{padding:0}.peds-assembly-controls input[type=file]{padding:6px}
+.peds-assembly-controls button{cursor:pointer;font-weight:800}.peds-assembly-controls button:disabled{opacity:.45;cursor:default}
+.peds-assembly-axes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.peds-assembly-actions{display:grid;grid-template-columns:1fr 1.5fr;gap:8px;margin-top:12px}
+.peds-assembly-warning{border:1px solid #a25b46;background:#302019;padding:13px!important;color:#f0d6cb!important}
+.peds-assembly :focus-visible{outline:2px solid #ffbc87;outline-offset:2px}
+@media(max-width:850px){.peds-assembly-main{display:flex;flex-direction:column}.peds-assembly-view{height:56svh;min-height:340px}.peds-assembly-controls{max-height:none;overflow:visible}.peds-assembly-caption{font-size:10px;bottom:10px;left:10px;right:10px}}
