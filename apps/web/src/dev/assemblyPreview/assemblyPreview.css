@@ -22,3 +22,10 @@
 .peds-assembly-warning{border:1px solid #a25b46;background:#302019;padding:13px!important;color:#f0d6cb!important}
 .peds-assembly :focus-visible{outline:2px solid #ffbc87;outline-offset:2px}
 @media(max-width:850px){.peds-assembly-main{display:flex;flex-direction:column}.peds-assembly-view{height:56svh;min-height:340px}.peds-assembly-controls{max-height:none;overflow:visible}.peds-assembly-caption{font-size:10px;bottom:10px;left:10px;right:10px}}
+
+.peds-assembly-picker{border:1px solid #56687d;border-radius:3px;background:#0b1520;padding:12px;margin:12px 0}
+.peds-assembly-picker p{margin:0 0 10px}
+.peds-assembly-picker small{margin:8px 0}
+.peds-assembly-picker button[aria-pressed="true"]{border-color:#ff6b3f;background:#6a2a20;color:#fff}
+.peds-assembly-picker button:disabled{cursor:not-allowed}
+.peds-assembly-view canvas{touch-action:none}
