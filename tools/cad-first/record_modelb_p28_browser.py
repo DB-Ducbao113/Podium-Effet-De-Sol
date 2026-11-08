@@ -166,7 +166,7 @@ def main():
                     runtime["source_scroll_video"]="p28-source-scroll-0-100-0.webm"
             except Exception as exc:
                 runtime["source_scroll_error"]=str(exc)
-                errors.append("OPTIONAL_SOURCE_SCROLL "+str(exc))
+                runtime["source_scroll_status"]="UNAVAILABLE_DO_NOT_CLAIM_COMPLETE"
                 try:
                     scroll_context.close()
                 except Exception:
