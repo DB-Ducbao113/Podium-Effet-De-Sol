@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { type CadSource, readManifest, verifyCadSource } from '../cadFirstScroll/cadSource';
 import { checkedPlacement, INITIAL_PLACEMENT, type Placement } from './assemblyPlacement';
 import {registerOwnerLandmarks,type Landmark,type RegistrationInput,type RegistrationResult} from './assemblyRegistration';
+import type { SourceGeometryProbe } from './geometryProbe';
 import './assemblyPreview.css';
 
 const Stage=lazy(()=>import('./AssemblyPreviewStage'));
@@ -28,6 +29,8 @@ export default function AssemblyPreviewPage(){
   const [registrationEvidence,setRegistrationEvidence]=useState('');
   const [busy,setBusy]=useState(false);
   const [bodyPartNames,setBodyPartNames]=useState<string[]>([]);
+  const [bodyProbe,setBodyProbe]=useState<SourceGeometryProbe|null>(null);
+  const [cornerProbe,setCornerProbe]=useState<SourceGeometryProbe|null>(null);
   const [hiddenBodyMeshes,setHiddenBodyMeshes]=useState<number[]>([]);
   const [bodyMeshFilter,setBodyMeshFilter]=useState('');
   const [resolvedTransform,setResolvedTransform]=useState<{
@@ -44,6 +47,9 @@ export default function AssemblyPreviewPage(){
   const showError=useCallback((message:string)=>setError(message),[]);
   const showInfo=useCallback((message:string)=>setInfo(message),[]);
   const recordBodyParts=useCallback((names:string[])=>setBodyPartNames(names),[]);
+  const onGeometryProbe=useCallback((profile:SourceGeometryProbe)=>{
+    if(profile.source==='model-b')setBodyProbe(profile);else setCornerProbe(profile);
+  },[]);
   const onResolvedTransform=useCallback((transform:{
     translationM:[number,number,number];
     rotationQuaternion:[number,number,number,number];
@@ -59,9 +65,22 @@ export default function AssemblyPreviewPage(){
   const updateAxis=(kind:'translationM'|'rotationDeg',i:number,v:number)=>{
     setPlacement(p=>checkedPlacement({...p,[kind]:p[kind].map((x,j)=>j===i?v:x)} as Placement));
   };
+  const exportGeometryProbe=()=>{
+    if(!bodyProbe||!cornerProbe)return;
+    const bytes=JSON.stringify({
+      schema:'podium-eds.owner-source.geometry-dual-profile.v1',
+      modelB:bodyProbe,p28:cornerProbe,
+      physicalMateCertified:false,
+      diagnostic:'Decoded original vertices, NOT an engineering mating certificate',
+    });
+    const url=URL.createObjectURL(new Blob([bytes+'\n'],{type:'application/json'}));
+    const a=document.createElement('a');a.download='peds-modelb-p28-real-geometry.json';
+    a.href=url;a.click();
+    window.setTimeout(()=>URL.revokeObjectURL(url),1000);
+  };
   const importManifest=async(event:ChangeEvent<HTMLInputElement>)=>{
     const file=event.target.files?.[0];if(!file)return;
-    setError('');setManifest(null);setSource(null);setPart(null);setRegistration(null);setResolvedTransform(null);setDraftLandmarks([]);setPickedBody(null);setPickedCorner(null);setPickMode('off');
+    setError('');setManifest(null);setSource(null);setPart(null);setCornerProbe(null);setRegistration(null);setResolvedTransform(null);setDraftLandmarks([]);setPickedBody(null);setPickedCorner(null);setPickMode('off');
     try{
       if(file.size>MAX_MANIFEST)throw Error('Source manifest exceeds 5 MB');
       const data=JSON.parse(await file.text()) as unknown;
@@ -74,7 +93,7 @@ export default function AssemblyPreviewPage(){
   };
   const importGLB=async(event:ChangeEvent<HTMLInputElement>)=>{
     const file=event.target.files?.[0];if(!file)return;
-    setError('');setSource(null);setPart(null);setRegistration(null);setDraftLandmarks([]);setPickedBody(null);setPickedCorner(null);setPickMode('off');setBusy(true);
+    setError('');setSource(null);setPart(null);setCornerProbe(null);setRegistration(null);setDraftLandmarks([]);setPickedBody(null);setPickedCorner(null);setPickMode('off');setBusy(true);
     try {
       if(!manifest)throw Error('Load P2.8 manifest first');
       // Reuse the existing byte-length, embedded-resource and cryptographic SHA gate.
@@ -181,6 +200,7 @@ export default function AssemblyPreviewPage(){
             registration={registration} pickMode={pickMode} onPointPick={onPointPick}
             onError={showError} onInfo={showInfo}
             onBodyPartNames={recordBodyParts} hiddenBodyMeshes={hiddenBodyMeshes}
+            onGeometryProbe={onGeometryProbe}
             onResolvedTransform={onResolvedTransform}/>
         </Suspense>
         <div className="peds-assembly-caption">
@@ -202,6 +222,17 @@ export default function AssemblyPreviewPage(){
         </div>
         <div className="peds-assembly-controls-section">
           <h2>02 / Geometry inspection</h2>
+          <p>Verified decoded geometry, before any placement:</p>
+          <small>Model B: {bodyProbe?.vertexCount.toLocaleString()??'loading'} vertices,
+            {bodyProbe?.meshCount??'—'} mesh; raw bounds {bodyProbe?.sourceBoundsM.map(a=>a.map(v=>v.toFixed(3)).join(',')).join(' → ')??'—'} m</small>
+          <small>P2.8: {cornerProbe?.vertexCount.toLocaleString()??'not imported'} vertices,
+            {cornerProbe?.meshCount??'—'} mesh; tyre bounds {
+              cornerProbe?.subassemblies['P2_TYRE_SLICK_BODY']?.sourceBoundsM.map(a=>a.map(v=>v.toFixed(3)).join(',')).join(' → ')??'—'
+            } m</small>
+          <button type="button" disabled={!bodyProbe||!cornerProbe}
+            onClick={exportGeometryProbe}>EXPORT DECODED SOURCE MEASUREMENTS</button>
+          <small>Diagnostic only. No geometry is altered, no automatic source scale is applied.</small>
+
           <label>Original exterior opacity · {Math.round(opacity*100)}%
             <input type="range" min="0" max="1" step=".05" value={opacity}
               onChange={e=>setOpacity(Number(e.target.value))}/></label>
