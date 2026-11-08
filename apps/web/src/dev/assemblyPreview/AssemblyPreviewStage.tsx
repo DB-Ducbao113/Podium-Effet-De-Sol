@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Canvas, useThree } from '@react-three/fiber';
+import { Canvas, useThree, type ThreeEvent } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'meshoptimizer';
@@ -16,6 +16,8 @@ type Props = {
   registration: RegistrationResult | null;
   onError: (message: string) => void;
   onInfo: (info: string) => void;
+  pickMode: 'off' | 'modelb' | 'p28';
+  onPointPick: (target: 'modelb' | 'p28', point: [number, number, number], mesh: string) => void;
 };
 
 function disposeTree(root: THREE.Object3D) {
@@ -35,7 +37,7 @@ function disposeTree(root: THREE.Object3D) {
   textures.forEach(x=>x.dispose());
 }
 
-function Scene({source,placement,shellOpacity,selectedPart,registration,onError,onInfo}:Props) {
+function Scene({source,placement,shellOpacity,selectedPart,registration,onError,onInfo,pickMode,onPointPick}:Props) {
   const {camera,invalidate} = useThree();
   const [body,setBody] = useState<THREE.Group | null>(null);
   const [corner,setCorner] = useState<THREE.Group | null>(null);
@@ -122,6 +124,18 @@ function Scene({source,placement,shellOpacity,selectedPart,registration,onError,
       : initialStagingPosition(bodyMin,bodyMax,cornerMin);
     return new THREE.Vector3(...base).add(new THREE.Vector3(...placement.translationM));
   },[bodyBounds,cornerBounds,placement,registration]);
+  const pickSurface=(target:'modelb'|'p28',event:ThreeEvent<PointerEvent>)=>{
+    if(pickMode!==target)return;
+    const root=target==='modelb'?body:corner;
+    if(!root)return;
+    event.stopPropagation();
+    // Raycast point is world-space. Convert to the unchanged original GLB root.
+    // Never store a point in the temporary translated/rotated display frame.
+    root.updateWorldMatrix(true,false);
+    const local=root.worldToLocal(event.point.clone());
+    const xyz=local.toArray() as [number,number,number];
+    if(xyz.every(Number.isFinite))onPointPick(target,xyz,event.object.name||'unnamed-mesh');
+  };
   const rotation=useMemo(()=>{
     const euler=new THREE.Euler(...(placement.rotationDeg.map(x=>THREE.MathUtils.degToRad(x)) as [number,number,number]));
     const manual=new THREE.Quaternion().setFromEuler(euler);
@@ -135,8 +149,9 @@ function Scene({source,placement,shellOpacity,selectedPart,registration,onError,
     <ambientLight intensity={1.5}/><hemisphereLight args={['#eff5ff','#1a2a3d',2]}/>
     <directionalLight position={[5,8,6]} intensity={3.2}/>
     <directionalLight position={[-4,4,-3]} intensity={2} color="#ff9d84"/>
-    {body&&<primitive object={body}/>}
-    {corner&&<group position={transform.toArray()} quaternion={rotation} scale={1}>
+    {body&&<group onPointerDown={event=>pickSurface('modelb',event)}><primitive object={body}/></group>}
+    {corner&&<group position={transform.toArray()} quaternion={rotation} scale={1}
+      onPointerDown={event=>pickSurface("p28",event)}>
        <primitive object={corner}/>
     </group>}
     <OrbitControls makeDefault target={frame.target.toArray()} enableDamping dampingFactor={.08}/>
