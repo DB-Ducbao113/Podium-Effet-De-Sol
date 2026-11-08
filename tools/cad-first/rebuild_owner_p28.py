@@ -38,8 +38,9 @@ def complete(folder):
 
 def rebuild(out:Path,replace=False):
     out=out.resolve()
-    if complete(out) and not replace:
-        print("Existing owner P2.8 package verified; leaving it unchanged:",out)
+    existing = out if complete(out) else out / 'p28'
+    if complete(existing) and not replace:
+        print("Existing owner P2.8 package verified; leaving it unchanged:",existing)
         return
     if out.exists() and any(out.iterdir()):
         raise SystemExit("Refusing to overwrite a non-empty owner CAD directory. Choose a NEW --out folder.")
