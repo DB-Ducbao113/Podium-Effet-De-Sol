@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 from pathlib import Path
 import shutil
 import subprocess
@@ -108,6 +109,44 @@ def capture(url:str,p28:Path,out:Path,quality:str)->dict:
                 raise RuntimeError("Native P2.8 CAD was altered or falsely certified")
             if layout.get("genuineRearAssemblyAvailable") is not False or layout.get("mechanicalG2")!="HOLD":
                 raise RuntimeError("Rear wheel visual proxy incorrectly marked authentic")
+            fit=placement.get("ownerSourceWheelCalibration") or {}
+            src=fit.get("originalP28WheelCenterM")
+            measured=fit.get("wheels") or []
+            if not isinstance(src,list) or len(src)!=3 or not all(
+                    isinstance(v,(int,float)) and math.isfinite(v) for v in src):
+                raise RuntimeError("Original source P2.8 wheel center missing")
+            if len(measured)!=4:
+                raise RuntimeError("Four actual measured source wheel envelopes missing")
+            mounts={x["id"]:x for x in corners}
+            expected_status={
+                "front-positive-z":"ORIGINAL_FRONT_P28",
+                "front-negative-z":"ROTATED_FRONT_P28_VISUAL",
+                "rear-positive-z":"FRONT_WHEEL_END_PROXY_FOR_REAR",
+                "rear-negative-z":"FRONT_WHEEL_END_PROXY_FOR_REAR",
+            }
+            max_error=0.0
+            for wheel in measured:
+                ident=(wheel["station"]+"-"+("positive" if wheel["side"]==1
+                    else "negative")+"-z")
+                mount=mounts.get(ident)
+                if mount is None or mount.get("sourceStatus")!=expected_status[ident]:
+                    raise RuntimeError("Incorrect original source identity for "+ident)
+                theta=mount["rotationYRad"]
+                dx,dy,dz=mount["translationM"]
+                if not all(math.isfinite(v) for v in (theta,dx,dy,dz)):
+                    raise RuntimeError("Nonfinite four-corner transform for "+ident)
+                expected_theta=0 if wheel["side"]==1 else math.pi
+                if abs(theta-expected_theta)>1e-7:
+                    raise RuntimeError("Wheel mount has incorrect orientation or chirality: "+ident)
+                x=math.cos(theta)*src[0]+math.sin(theta)*src[2]+dx
+                y=src[1]+dy
+                z=-math.sin(theta)*src[0]+math.cos(theta)*src[2]+dz
+                actual_center=wheel["centerM"]
+                error=math.dist((x,y,z),actual_center)
+                max_error=max(max_error,error)
+                if error>.0005:
+                    raise RuntimeError("CAD-to-Model B wheel center residual >0.5 mm: "+ident)
+            runtime["max_wheel_center_residual_m"]=max_error
             runtime["all_four_original_modelb_wheel_positions"]=True
             runtime["four_corner_mounts"]=corners
             def shot(name:str,delay:int=650)->None:
