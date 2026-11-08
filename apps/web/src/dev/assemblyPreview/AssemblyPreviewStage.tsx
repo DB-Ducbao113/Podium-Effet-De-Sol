@@ -59,9 +59,10 @@ function Scene({source,placement,shellOpacity,selectedPart,registration,onError,
       model=gltf.scene;
       if(!live){disposeTree(model);return;}
       const found=new Set<string>();
-      model.traverse(o=>{if(o instanceof THREE.Mesh)found.add(o.name);});
+      let meshCount=0;
+      model.traverse(o=>{if(o instanceof THREE.Mesh){meshCount++;found.add(o.name);}});
       if(source.scope!=='front-corner' || source.parts.length!==59 ||
-         source.parts.some(p=>!model?.getObjectByName(p.node)) || found.size!==59){
+         source.parts.some(p=>!model?.getObjectByName(p.node)) || found.size!==59 || meshCount!==59){
         onError('P2.8 part identity mismatch; must contain exactly 59 source CAD meshes.');
         disposeTree(model);model=null;return;
       }
