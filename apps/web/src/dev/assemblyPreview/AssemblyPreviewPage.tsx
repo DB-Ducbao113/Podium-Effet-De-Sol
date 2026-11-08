@@ -1,9 +1,10 @@
-import { lazy, Suspense, useCallback, useState, type ChangeEvent } from 'react';
+import { lazy, Suspense, useCallback, useMemo, useEffect, useState, type ChangeEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { type CadSource, readManifest, verifyCadSource } from '../cadFirstScroll/cadSource';
 import { checkedPlacement, INITIAL_PLACEMENT, type Placement } from './assemblyPlacement';
 import {registerOwnerLandmarks,type Landmark,type RegistrationInput,type RegistrationResult} from './assemblyRegistration';
 import type { SourceGeometryProbe } from './geometryProbe';
+import {fitOwnerShellToOriginalP28} from './ownerMeasuredFit';
 import './assemblyPreview.css';
 
 const Stage=lazy(()=>import('./AssemblyPreviewStage'));
@@ -30,20 +31,31 @@ export default function AssemblyPreviewPage(){
   const [busy,setBusy]=useState(false);
   const [bodyPartNames,setBodyPartNames]=useState<string[]>([]);
   const [bodyProbe,setBodyProbe]=useState<SourceGeometryProbe|null>(null);
+  const [measuredOverlayEnabled,setMeasuredOverlayEnabled]=useState(true);
   const [cornerProbe,setCornerProbe]=useState<SourceGeometryProbe|null>(null);
   const [hiddenBodyMeshes,setHiddenBodyMeshes]=useState<number[]>([]);
   const [bodyMeshFilter,setBodyMeshFilter]=useState('');
   const [resolvedTransform,setResolvedTransform]=useState<{
     translationM:[number,number,number];
     rotationQuaternion:[number,number,number,number];
-    stagingBasis:'separate'|'graphic_center'|'landmarks';
-    scale:1;
+    stagingBasis:'separate'|'graphic_center'|'landmarks'|'measured_wheel';
+    scale:1;modelBShellUnitScale:number;
   }|null>(null);
   const [pickMode,setPickMode]=useState<'off'|'modelb'|'p28'>('off');
   const [pickedBody,setPickedBody]=useState<[number,number,number]|null>(null);
   const [pickedCorner,setPickedCorner]=useState<[number,number,number]|null>(null);
   const [draftLandmarks,setDraftLandmarks]=useState<Landmark[]>([]);
   const [landmarkEvidence,setLandmarkEvidence]=useState('');
+  const calibration=useMemo(()=>{
+    if(!bodyProbe||!cornerProbe)return {fit:null,error:''};
+    try{return {fit:fitOwnerShellToOriginalP28(bodyProbe,cornerProbe),error:''};}
+    catch(err){return {fit:null,error:err instanceof Error?err.message:String(err)};}
+  },[bodyProbe,cornerProbe]);
+  useEffect(()=>{
+    if(calibration.fit && measuredOverlayEnabled){
+      setOpacity(.27); // See original P2.8 fasteners underneath the semi-transparent source shell.
+    }
+  },[calibration.fit,measuredOverlayEnabled]);
   const showError=useCallback((message:string)=>setError(message),[]);
   const showInfo=useCallback((message:string)=>setInfo(message),[]);
   const recordBodyParts=useCallback((names:string[])=>setBodyPartNames(names),[]);
@@ -53,8 +65,8 @@ export default function AssemblyPreviewPage(){
   const onResolvedTransform=useCallback((transform:{
     translationM:[number,number,number];
     rotationQuaternion:[number,number,number,number];
-    stagingBasis:'separate'|'graphic_center'|'landmarks';
-    scale:1;
+    stagingBasis:'separate'|'graphic_center'|'landmarks'|'measured_wheel';
+    scale:1;modelBShellUnitScale:number;
   })=>setResolvedTransform(transform),[]);
   const onPointPick=useCallback((target:'modelb'|'p28',point:[number,number,number],mesh:string)=>{
     if(target==='modelb')setPickedBody(point);
@@ -170,6 +182,9 @@ export default function AssemblyPreviewPage(){
       unit:'metres',scale:1,
       placement:checkedPlacement(placement),
       resolvedOriginalRootTransform:resolvedTransform,
+      ownerSourceWheelCalibration:calibration.fit,
+      originalModelBGeometryModified:false,
+      p28OriginalCadScale:1,
       landmarkRegistration:registration,
       landmarkEvidence:registrationEvidence,
       measuredPointPairs:draftLandmarks,
@@ -197,7 +212,8 @@ export default function AssemblyPreviewPage(){
       <section className="peds-assembly-view" aria-label="Live 3D visual assembly staging">
         <Suspense fallback={<p>Loading Three.js preview…</p>}>
           <Stage source={source} placement={placement} shellOpacity={opacity} selectedPart={part}
-            registration={registration} pickMode={pickMode} onPointPick={onPointPick}
+            registration={registration} measuredFit={calibration.fit} measuredOverlayEnabled={measuredOverlayEnabled}
+            pickMode={pickMode} onPointPick={onPointPick}
             onError={showError} onInfo={showInfo}
             onBodyPartNames={recordBodyParts} hiddenBodyMeshes={hiddenBodyMeshes}
             onGeometryProbe={onGeometryProbe}
@@ -222,6 +238,22 @@ export default function AssemblyPreviewPage(){
         </div>
         <div className="peds-assembly-controls-section">
           <h2>02 / Geometry inspection</h2>
+          <div className="peds-assembly-picker" aria-label="Measured source wheel placement">
+            <strong>OWNER SOURCE WHEEL MATCH / NO SCALE TO CAD</strong>
+            <p>Model B is in nonmetric showroom units. Normalize only the showroom shell
+              using its four measured tyre circles; original P2.8 remains 1:1 metres.</p>
+            {calibration.fit?<>
+              <small>Showroom uniform display scale: {calibration.fit.normalizedShellScale.toFixed(6)} m/source-unit</small>
+              <small>Wheelbase (visual estimate): {calibration.fit.axleSpacingPreviewM.toFixed(3)} m</small>
+              <small>Front +Z axle center: {calibration.fit.frontPositiveZCenterM.map(x=>x.toFixed(3)).join(', ')} m</small>
+              <small>Four source wheel radius spread: {(calibration.fit.radiusSpreadFraction*100).toFixed(2)}%</small>
+              <label><input type="checkbox" checked={measuredOverlayEnabled}
+                onChange={e=>setMeasuredOverlayEnabled(e.target.checked)}/>
+                Mate P2.8 at measured front +Z wheel (visual only)</label>
+            </>:<small role="status">WHEEL MATCH NOT AVAILABLE: {calibration.error||'Original source profiles still loading'}</small>}
+            <small><strong>G2 HOLD.</strong> A wheel circle is NOT a chassis hardpoint, side-specific
+              suspension interface, 2026 homologation, or physical collision clearance.</small>
+          </div>
           <p>Verified decoded geometry, before any placement:</p>
           <small>Model B: {bodyProbe?.vertexCount.toLocaleString()??'loading'} vertices,
             {bodyProbe?.meshCount??'—'} mesh; raw bounds {bodyProbe?.sourceBoundsM.map(a=>a.map(v=>v.toFixed(3)).join(',')).join(' → ')??'—'} m</small>
@@ -306,7 +338,7 @@ export default function AssemblyPreviewPage(){
           {registration&&<p>Visual registration: max residual {(registration.maxResidualM*1000).toFixed(2)} mm; source length mismatch {(registration.lengthMismatchM*1000).toFixed(2)} mm. Mechanical review remains HOLD.</p>}
           <label>Display mode
             <select value={placement.displayedAtBodyCenter?'center':'staging'}
-              onChange={e=>{setRegistration(null);setRegistrationEvidence('');setPlacement(p=>({...p,displayedAtBodyCenter:e.target.value==='center'}));}} disabled={!source}>
+              onChange={e=>{setRegistration(null);setRegistrationEvidence('');setMeasuredOverlayEnabled(false);setPlacement(p=>({...p,displayedAtBodyCenter:e.target.value==='center'}));}} disabled={!source}>
               <option value="staging">Separate P2.8 beside Model B (safe default)</option>
               <option value="center">Overlay at graphical center — unverified</option>
             </select>
@@ -321,7 +353,7 @@ export default function AssemblyPreviewPage(){
               value={placement.rotationDeg[i]} onChange={v=>updateAxis('rotationDeg',i,v)}/>)}
           </div>
           <div className="peds-assembly-actions">
-            <button type="button" onClick={()=>{setPlacement(INITIAL_PLACEMENT);setPart(null);setOpacity(1);setHiddenBodyMeshes([]);setRegistration(null);setRegistrationEvidence('');}}>RESET</button>
+            <button type="button" onClick={()=>{setPlacement(INITIAL_PLACEMENT);setPart(null);setOpacity(1);setMeasuredOverlayEnabled(false);setHiddenBodyMeshes([]);setRegistration(null);setRegistrationEvidence('');}}>RESET</button>
             <button type="button" onClick={exportPlacement} disabled={!source}>EXPORT PLACEMENT JSON</button>
           </div>
         </div>
