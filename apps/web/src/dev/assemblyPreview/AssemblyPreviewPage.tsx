@@ -5,6 +5,7 @@ import { checkedPlacement, INITIAL_PLACEMENT, type Placement } from './assemblyP
 import {registerOwnerLandmarks,type Landmark,type RegistrationInput,type RegistrationResult} from './assemblyRegistration';
 import type { SourceGeometryProbe } from './geometryProbe';
 import {fitOwnerShellToOriginalP28} from './ownerMeasuredFit';
+import { layoutFourCorners, wheelLayoutReport, type WheelId } from './fourCornerLayout';
 import type { CornerPresentation } from './cadPresentation';
 import './assemblyPreview.css';
 
@@ -30,6 +31,8 @@ export default function AssemblyPreviewPage(){
   const [cameraFocus,setCameraFocus]=useState<'whole-car'|'wheel-macro'|'fastener-macro'>('whole-car');
   const [cornerPresentation,setCornerPresentation]=useState<CornerPresentation>('assembled');
   const [technicalMaterials,setTechnicalMaterials]=useState(true);
+  const [allFourWheelsEnabled,setAllFourWheelsEnabled]=useState(true);
+  const [activeWheelId,setActiveWheelId]=useState<WheelId>('front-positive-z');
   const [registration,setRegistration]=useState<RegistrationResult|null>(null);
   const [registrationEvidence,setRegistrationEvidence]=useState('');
   const [busy,setBusy]=useState(false);
@@ -55,6 +58,8 @@ export default function AssemblyPreviewPage(){
     try{return {fit:fitOwnerShellToOriginalP28(bodyProbe,cornerProbe),error:''};}
     catch(err){return {fit:null,error:err instanceof Error?err.message:String(err)};}
   },[bodyProbe,cornerProbe]);
+  const wheelMounts=useMemo(()=>calibration.fit?layoutFourCorners(calibration.fit):[],
+    [calibration.fit]);
   useEffect(()=>{
     if(calibration.fit && measuredOverlayEnabled){
       setOpacity(.27); // See original P2.8 fasteners underneath the semi-transparent source shell.
@@ -189,6 +194,9 @@ export default function AssemblyPreviewPage(){
       ownerSourceWheelCalibration:calibration.fit,
       originalModelBGeometryModified:false,
       p28OriginalCadScale:1,
+      fourWheelPreviewEnabled:allFourWheelsEnabled,
+      selectedWheelId:activeWheelId,
+      fourWheelLayout:calibration.fit?wheelLayoutReport(calibration.fit):null,
       currentCameraFocus:cameraFocus,
       reviewPresentation:cornerPresentation,
       technicalLookdev:technicalMaterials,
@@ -221,6 +229,7 @@ export default function AssemblyPreviewPage(){
           <Stage source={source} placement={placement} shellOpacity={opacity} selectedPart={part}
             cameraFocus={cameraFocus} cornerPresentation={cornerPresentation}
             technicalMaterials={technicalMaterials}
+            allFourWheelsEnabled={allFourWheelsEnabled} activeWheelId={activeWheelId}
             registration={registration} measuredFit={calibration.fit} measuredOverlayEnabled={measuredOverlayEnabled}
             pickMode={pickMode} onPointPick={onPointPick}
             onError={showError} onInfo={showInfo}
@@ -247,6 +256,44 @@ export default function AssemblyPreviewPage(){
         </div>
         <div className="peds-assembly-controls-section">
           <h2>02 / Geometry inspection</h2>
+          <div className="peds-assembly-picker" aria-label="Four actual Model B wheel positions">
+            <strong>ALL FOUR WHEEL POSITIONS / OWNER CAD SOURCE</strong>
+            <label>
+              <input type="checkbox" checked={allFourWheelsEnabled}
+                disabled={!calibration.fit||!source}
+                onChange={e=>{
+                  setAllFourWheelsEnabled(e.target.checked);
+                  setMeasuredOverlayEnabled(true);
+                  setRegistration(null);
+                  setPlacement(INITIAL_PLACEMENT);
+                  setActiveWheelId('front-positive-z');
+                }}/>
+              Show four original-source wheel-end placements
+            </label>
+            <label>Inspect wheel
+              <select aria-label="Inspect wheel" disabled={!source||!calibration.fit||!allFourWheelsEnabled}
+                value={activeWheelId}
+                onChange={e=>{
+                  setActiveWheelId(e.target.value as WheelId);
+                  setCameraFocus('wheel-macro');
+                  setPart(null);
+                }}>
+                <option value="front-positive-z">Front / +Z — P2.8 original</option>
+                <option value="front-negative-z">Front / −Z — rotated P2.8</option>
+                <option value="rear-positive-z">Rear / +Z — wheel-end preview only</option>
+                <option value="rear-negative-z">Rear / −Z — wheel-end preview only</option>
+              </select>
+            </label>
+            {wheelMounts.map(w=><small key={w.id}>
+              {w.id}: {w.centerM.map(v=>v.toFixed(3)).join(' / ')} m
+              · {w.sourceStatus.replaceAll('_',' ')}
+            </small>)}
+            <small><strong>G2 HOLD:</strong> 59 original P2.8 CAD parts are preserved.
+              Opposite side uses a rigid rotation (not a mirror that reverses threads).
+              Rear uses original front-source wheel-end components as a visual reference
+              only. Genuine rear upright, wishbones, driveshaft interfaces and chassis
+              mates have not been authored or validated.</small>
+          </div>
           <div className="peds-assembly-picker" aria-label="Measured source wheel placement">
             <strong>OWNER SOURCE WHEEL MATCH / NO SCALE TO CAD</strong>
             <p>Model B is in nonmetric showroom units. Normalize only the showroom shell
@@ -258,7 +305,7 @@ export default function AssemblyPreviewPage(){
               <small>Four source wheel radius spread: {(calibration.fit.radiusSpreadFraction*100).toFixed(2)}%</small>
               <label><input type="checkbox" checked={measuredOverlayEnabled}
                 onChange={e=>setMeasuredOverlayEnabled(e.target.checked)}/>
-                Mate P2.8 at measured front +Z wheel (visual only)</label>
+                Use measured P2.8 wheel position (visual only)</label>
             </>:<small role="status">WHEEL MATCH NOT AVAILABLE: {calibration.error||'Original source profiles still loading'}</small>}
             <small><strong>G2 HOLD.</strong> A wheel circle is NOT a chassis hardpoint, side-specific
               suspension interface, 2026 homologation, or physical collision clearance.</small>
@@ -285,14 +332,14 @@ export default function AssemblyPreviewPage(){
           </label>
         </div>
         <div className="peds-assembly-controls-section" aria-label="Original P2.8 macro inspection">
-          <h2>02A / Real 59-part macro inspection</h2>
+          <h2>02A / Source CAD macro inspection</h2>
           <p>Camera zoom and cutaway affect the review renderer only. Original CAD
             surfaces, source file, dimensions and part identities stay unchanged.</p>
           <label>Review camera
             <select aria-label="Review camera" value={cameraFocus}
               disabled={!source} onChange={e=>setCameraFocus(e.target.value as typeof cameraFocus)}>
               <option value="whole-car">Whole car</option>
-              <option value="wheel-macro">Front wheel close-up</option>
+              <option value="wheel-macro">Selected wheel close-up</option>
               <option value="fastener-macro">Fasteners / bearing close-up</option>
             </select>
           </label>
