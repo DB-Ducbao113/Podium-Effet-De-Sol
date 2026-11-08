@@ -32,6 +32,7 @@ export default function AssemblyPreviewPage(){
   const [cornerPresentation,setCornerPresentation]=useState<CornerPresentation>('assembled');
   const [technicalMaterials,setTechnicalMaterials]=useState(true);
   const [allFourWheelsEnabled,setAllFourWheelsEnabled]=useState(true);
+  const [showroomWheelWindowsEnabled,setShowroomWheelWindowsEnabled]=useState(true);
   const [activeWheelId,setActiveWheelId]=useState<WheelId>('front-positive-z');
   const [registration,setRegistration]=useState<RegistrationResult|null>(null);
   const [registrationEvidence,setRegistrationEvidence]=useState('');
@@ -230,6 +231,7 @@ export default function AssemblyPreviewPage(){
             cameraFocus={cameraFocus} cornerPresentation={cornerPresentation}
             technicalMaterials={technicalMaterials}
             allFourWheelsEnabled={allFourWheelsEnabled} activeWheelId={activeWheelId}
+            showroomWheelWindowsEnabled={showroomWheelWindowsEnabled && measuredOverlayEnabled}
             registration={registration} measuredFit={calibration.fit} measuredOverlayEnabled={measuredOverlayEnabled}
             pickMode={pickMode} onPointPick={onPointPick}
             onError={showError} onInfo={showInfo}
@@ -288,6 +290,15 @@ export default function AssemblyPreviewPage(){
               {w.id}: {w.centerM.map(v=>v.toFixed(3)).join(' / ')} m
               · {w.sourceStatus.replaceAll('_',' ')}
             </small>)}
+            <label>
+              <input type="checkbox" checked={showroomWheelWindowsEnabled}
+                disabled={!source||!calibration.fit||!allFourWheelsEnabled||!measuredOverlayEnabled}
+                onChange={e=>setShowroomWheelWindowsEnabled(e.target.checked)}/>
+              Mask original Model B wheel volumes (reversible shader-only view)
+            </label>
+            <small>The mask is restricted to the four measured wheel envelopes. It does not
+              delete source geometry or prove a mechanical clearance. Disable to compare
+              the existing Model B wheels with the source-derived CAD wheel ends.</small>
             <small><strong>G2 HOLD:</strong> 59 original P2.8 CAD parts are preserved.
               Opposite side uses a rigid rotation (not a mirror that reverses threads).
               Rear uses original front-source wheel-end components as a visual reference
