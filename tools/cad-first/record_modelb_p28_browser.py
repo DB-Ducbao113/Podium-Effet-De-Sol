@@ -60,6 +60,14 @@ def main():
             page.locator('input[type="file"]').nth(1).set_input_files(str(glb))
             page.get_by_text("GLB HASH MATCHES OWNER MANIFEST",exact=False).first.wait_for(timeout=45000)
             page.get_by_text("MODEL B + VERIFIED P2.8 LOADED",exact=False).wait_for(timeout=60000)
+            page.get_by_role("button",name="EXPORT DECODED SOURCE MEASUREMENTS").wait_for(timeout=45000)
+            with page.expect_download(timeout=30000) as profile_event:
+                page.get_by_role("button",name="EXPORT DECODED SOURCE MEASUREMENTS").click()
+            profile_event.value.save_as(str(out/"peds-modelb-p28-real-geometry.json"))
+            geometric=json.loads((out/"peds-modelb-p28-real-geometry.json").read_text(encoding="utf8"))
+            if geometric.get("modelB",{}).get("meshCount",0)<1 or geometric.get("p28",{}).get("meshCount")!=59:
+                raise RuntimeError("Decoded owner geometry profile missing real Model B or 59 P2.8 parts")
+            runtime["decoded_geometry_profile"]="peds-modelb-p28-real-geometry.json"
             page.wait_for_timeout(1800)
             if not 200 in model_b_responses:
                 raise RuntimeError("Original Model B asset was not loaded successfully; refusing fake video")
