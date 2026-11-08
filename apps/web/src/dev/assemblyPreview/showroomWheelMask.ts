@@ -16,6 +16,10 @@ export function addReversibleWheelWindow(
   fit:OwnerMeasuredFit,
 ):void{
   if(fit.wheels.length!==4)throw Error('Four original source wheel positions required');
+  if(fit.wheels.some(w=>w.centerSourceUnits.length!==3 ||
+      w.centerSourceUnits.some(v=>!Number.isFinite(v)) ||
+      !Number.isFinite(w.outerRadiusSourceUnits) || w.outerRadiusSourceUnits<=0))
+    throw Error('Invalid original source wheel position or radius');
   const positions=fit.wheels.map(w=>new THREE.Vector3(...w.centerSourceUnits));
   const radii=fit.wheels.map(w=>w.outerRadiusSourceUnits*1.12);
   const original=material.onBeforeCompile.bind(material);
