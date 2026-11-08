@@ -12,7 +12,10 @@ class GateContractTests(unittest.TestCase):
         self.assertIn("front_three_quarter",module.REQUIRED)
     def test_required_lods(self):
         self.assertEqual(module.TIERS,("high","balanced","performance"))
-    def test_no_release_flag_when_checking_silhouette(self):
-        self.assertFalse("approved" in module.inspect.__doc__ if module.inspect.__doc__ else False)
+    def test_missing_reference_fails_closed(self):
+        from tempfile import TemporaryDirectory
+        with TemporaryDirectory() as d:
+            with self.assertRaises(FileNotFoundError):
+                module.inspect(Path(d), Path(d) / "missing.json")
 if __name__=="__main__":
     unittest.main()
