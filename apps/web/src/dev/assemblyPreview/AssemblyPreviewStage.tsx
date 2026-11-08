@@ -15,6 +15,8 @@ type Props = {
   placement: Placement;
   shellOpacity: number;
   selectedPart: string | null;
+  cameraFocus: 'whole-car' | 'wheel-macro' | 'fastener-macro';
+  cornerPresentation: 'assembled' | 'tyre-hidden' | 'exploded';
   registration: RegistrationResult | null;
   measuredFit: OwnerMeasuredFit | null;
   measuredOverlayEnabled: boolean;
@@ -49,7 +51,7 @@ function disposeTree(root: THREE.Object3D) {
   textures.forEach(x=>x.dispose());
 }
 
-function Scene({source,placement,shellOpacity,selectedPart,registration,measuredFit,measuredOverlayEnabled,onError,onInfo,pickMode,onPointPick,onBodyPartNames,hiddenBodyMeshes,onResolvedTransform,onGeometryProbe}:Props) {
+function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPresentation,registration,measuredFit,measuredOverlayEnabled,onError,onInfo,pickMode,onPointPick,onBodyPartNames,hiddenBodyMeshes,onResolvedTransform,onGeometryProbe}:Props) {
   const {camera,invalidate} = useThree();
   const [body,setBody] = useState<THREE.Group | null>(null);
   const [corner,setCorner] = useState<THREE.Group | null>(null);
@@ -112,14 +114,21 @@ function Scene({source,placement,shellOpacity,selectedPart,registration,measured
     return {target:bodyBounds.getCenter(new THREE.Vector3()),
       distance:Math.max(2,size.length()*1.4)};
   },[bodyBounds]);
+  const focus=useMemo(()=>{
+    if(cameraFocus==='whole-car'||!measuredFit||!measuredOverlayEnabled)
+      return {target:frame.target,distance:frame.distance};
+    const center=new THREE.Vector3(...measuredFit.frontPositiveZCenterM);
+    if(cameraFocus==='fastener-macro')
+      return {target:center.clone().add(new THREE.Vector3(0,0,.07)),distance:.92};
+    return {target:center,distance:2.05};
+  },[cameraFocus,frame,measuredFit,measuredOverlayEnabled]);
   useEffect(()=>{
-    camera.position.copy(frame.target).add(new THREE.Vector3(.85,.45,1).normalize().multiplyScalar(frame.distance));
-    camera.lookAt(frame.target);
-    if (camera instanceof THREE.PerspectiveCamera || camera instanceof THREE.OrthographicCamera) {
+    camera.position.copy(focus.target).add(new THREE.Vector3(.75,.4,1.55).normalize().multiplyScalar(focus.distance));
+    camera.lookAt(focus.target);
+    if(camera instanceof THREE.PerspectiveCamera||camera instanceof THREE.OrthographicCamera)
       camera.updateProjectionMatrix();
-    }
     invalidate();
-  },[frame,camera,invalidate]);
+  },[focus,camera,invalidate]);
   useEffect(()=>{
     if(!body)return;
     const hidden=new Set(hiddenBodyMeshes);
@@ -151,11 +160,32 @@ function Scene({source,placement,shellOpacity,selectedPart,registration,measured
     invalidate();
     return()=>{original.forEach((mat,mesh)=>mesh.material=mat);clones.forEach(c=>c.dispose());invalidate()};
   },[body,shellOpacity,invalidate]);
-  useEffect(()=>{if(!corner)return;
-    corner.traverse(o=>{if(o instanceof THREE.Mesh)o.visible=!selectedPart||o.name===selectedPart;});
+  useEffect(()=>{
+    if(!corner)return;
+    const originals=new Map<THREE.Mesh,{visible:boolean;position:THREE.Vector3}>();
+    corner.traverse(o=>{
+      if(!(o instanceof THREE.Mesh))return;
+      originals.set(o,{visible:o.visible,position:o.position.clone()});
+      const tyre=o.name==='P2_TYRE_SLICK_BODY';
+      o.visible=(!selectedPart||o.name===selectedPart)&&
+        !(cornerPresentation==='tyre-hidden'&&tyre);
+      if(cornerPresentation==='exploded'){
+        let displacement=0;
+        if(tyre)displacement=.52;
+        else if(o.name.includes('RIM_'))displacement=.27;
+        else if(o.name.includes('CENTER_'))displacement=.4;
+        else if(o.name.includes('ROTOR_')||o.name.includes('BRAKE_'))displacement=.12;
+        else if(o.name.includes('BEARING_'))displacement=.21;
+        else if(o.name.includes('P27_'))displacement=-.23;
+        o.position.z+=displacement;
+      }
+    });
     invalidate();
-    return()=>{corner.traverse(o=>{if(o instanceof THREE.Mesh)o.visible=true;});};
-  },[corner,selectedPart,invalidate]);
+    return()=>{
+      originals.forEach((v,o)=>{o.visible=v.visible;o.position.copy(v.position);});
+      invalidate();
+    };
+  },[corner,selectedPart,cornerPresentation,invalidate]);
   const transform=useMemo(()=>{
     if(registration)return new THREE.Vector3(...registration.translationM).add(new THREE.Vector3(...placement.translationM));
     if(measuredFit && measuredOverlayEnabled){
@@ -214,7 +244,7 @@ function Scene({source,placement,shellOpacity,selectedPart,registration,measured
       onPointerDown={event=>pickSurface("p28",event)}>
        <primitive object={corner}/>
     </group>}
-    <OrbitControls makeDefault target={frame.target.toArray()} enableDamping dampingFactor={.08}/>
+    <OrbitControls makeDefault target={focus.target.toArray()} enableDamping dampingFactor={.08}/>
   </>;
 }
 export default function AssemblyPreviewStage(props:Props) {
