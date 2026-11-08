@@ -103,6 +103,7 @@ jobs:
             .local-assets/cad-first/owner-fullcar-review/browser/modelb-p28-browser-real.webm
             .local-assets/cad-first/owner-fullcar-review/browser/p28-source-scroll-0-100-0.webm
             .local-assets/cad-first/owner-fullcar-review/browser/main-review-evidence.json
+            .local-assets/cad-first/owner-fullcar-review/browser/peds-modelb-p28-real-geometry.json
             .local-assets/cad-first/owner-fullcar-review/p28-source-scroll-real-browser.mp4
             .local-assets/cad-first/owner-fullcar-review/browser/browser-evidence.json
             .local-assets/cad-first/owner-fullcar-review/browser/*.png
