@@ -95,6 +95,8 @@ def run(args):
                  "src/dev/assemblyPreview/assemblyRegistration.test.ts",
                  "src/dev/cadFirstScroll/cadSource.test.ts"],timeout=450)
         record("WEB_SOURCE_TESTS","PASS")
+        execute(["npm","run","build","--workspace=@peds/web"],timeout=900)
+        record("WEB_PRODUCTION_BUILD_ISOLATION","PASS")
         # Vite is started only after CAD/TypeScript/unit preflights pass.
         server=subprocess.Popen(["npm","run","dev","--workspace=@peds/web","--",
                                 "--host","127.0.0.1","--port","5184","--strictPort"],
