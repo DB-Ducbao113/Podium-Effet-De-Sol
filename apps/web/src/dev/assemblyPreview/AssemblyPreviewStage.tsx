@@ -7,6 +7,7 @@ import * as THREE from 'three';
 import type { CadSource } from '../cadFirstScroll/cadSource';
 import { centerOffset, initialStagingPosition, type Placement } from './assemblyPlacement';
 import type { RegistrationResult } from './assemblyRegistration';
+import { probeOriginalGeometry, type SourceGeometryProbe } from './geometryProbe';
 
 type Props = {
   source: CadSource | null;
@@ -20,6 +21,7 @@ type Props = {
   onPointPick: (target: 'modelb' | 'p28', point: [number, number, number], mesh: string) => void;
   onBodyPartNames: (parts: string[]) => void;
   hiddenBodyMeshes: number[];
+  onGeometryProbe: (data: SourceGeometryProbe) => void;
   onResolvedTransform: (value: {
     translationM: [number,number,number]; rotationQuaternion: [number,number,number,number];
     stagingBasis: 'separate' | 'graphic_center' | 'landmarks'; scale: 1;
@@ -43,7 +45,7 @@ function disposeTree(root: THREE.Object3D) {
   textures.forEach(x=>x.dispose());
 }
 
-function Scene({source,placement,shellOpacity,selectedPart,registration,onError,onInfo,pickMode,onPointPick,onBodyPartNames,hiddenBodyMeshes,onResolvedTransform}:Props) {
+function Scene({source,placement,shellOpacity,selectedPart,registration,onError,onInfo,pickMode,onPointPick,onBodyPartNames,hiddenBodyMeshes,onResolvedTransform,onGeometryProbe}:Props) {
   const {camera,invalidate} = useThree();
   const [body,setBody] = useState<THREE.Group | null>(null);
   const [corner,setCorner] = useState<THREE.Group | null>(null);
@@ -57,10 +59,12 @@ function Scene({source,placement,shellOpacity,selectedPart,registration,onError,
       const named:string[]=[];
       model.traverse(obj=>{if(obj instanceof THREE.Mesh)named.push(obj.name||'UNNAMED_MESH');});
       onBodyPartNames(named);
+      try { onGeometryProbe(probeOriginalGeometry(model,'model-b')); }
+      catch(err) { onError('Model B geometry profile failed: '+String(err)); }
       setBody(model);
     },undefined,e=>{if(live)onError('Model B could not load: '+String(e));});
     return()=>{live=false;setBody(null);if(model)disposeTree(model);};
-  },[onError,onBodyPartNames]);
+  },[onError,onBodyPartNames,onGeometryProbe]);
   useEffect(()=>{
     let live=true,model:THREE.Group|null=null;
     setCorner(null);
@@ -77,11 +81,13 @@ function Scene({source,placement,shellOpacity,selectedPart,registration,onError,
         onError('P2.8 part identity mismatch; must contain exactly 59 source CAD meshes.');
         disposeTree(model);model=null;return;
       }
+      try { onGeometryProbe(probeOriginalGeometry(model,'p28')); }
+      catch(err) { onError('P2.8 geometry profile failed: '+String(err)); }
       setCorner(model);
       onInfo('MODEL B + VERIFIED P2.8 LOADED · NOT MECHANICALLY MATED');
     }).catch(e=>{if(live)onError('P2.8 GLB could not load: '+String(e));});
     return()=>{live=false;setCorner(null);if(model)disposeTree(model);};
-  },[source,onError,onInfo]);
+  },[source,onError,onInfo,onGeometryProbe]);
   const bodyBounds=useMemo(()=>body?new THREE.Box3().setFromObject(body):null,[body]);
   const cornerBounds=useMemo(()=>corner?new THREE.Box3().setFromObject(corner):null,[corner]);
   const frame=useMemo(()=>{
