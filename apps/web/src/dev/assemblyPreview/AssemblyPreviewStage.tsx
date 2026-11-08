@@ -9,6 +9,7 @@ import { centerOffset, initialStagingPosition, type Placement } from './assembly
 import type { RegistrationResult } from './assemblyRegistration';
 import type { OwnerMeasuredFit } from './ownerMeasuredFit';
 import { probeOriginalGeometry, type SourceGeometryProbe } from './geometryProbe';
+import { classifyP28Part, materialForP28Part, presentationForP28Part, type CornerPresentation } from './cadPresentation';
 
 type Props = {
   source: CadSource | null;
@@ -16,7 +17,7 @@ type Props = {
   shellOpacity: number;
   selectedPart: string | null;
   cameraFocus: 'whole-car' | 'wheel-macro' | 'fastener-macro';
-  cornerPresentation: 'assembled' | 'tyre-hidden' | 'exploded';
+  cornerPresentation: CornerPresentation;
   technicalMaterials: boolean;
   registration: RegistrationResult | null;
   measuredFit: OwnerMeasuredFit | null;
@@ -105,26 +106,14 @@ function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPre
     const clones:THREE.Material[]=[];
     corner.traverse(o=>{
       if(!(o instanceof THREE.Mesh))return;
-      let material:THREE.Material|null=null;
-      if(o.name==='P2_TYRE_SLICK_BODY'){
-        material=new THREE.MeshStandardMaterial({
-          color:'#20242b',metalness:0,roughness:.93,side:THREE.DoubleSide
-        });
-      }else if(o.name==='P2_RIM_FORGED_BARREL'){
-        material=new THREE.MeshStandardMaterial({
-          color:'#a8aeb7',metalness:.88,roughness:.28,side:THREE.DoubleSide
-        });
-      }else if(o.name==='P2_BRAKE_ROTOR_DRILLED_CARBON'){
-        material=new THREE.MeshStandardMaterial({
-          color:selectedPart==='P2_BRAKE_ROTOR_DRILLED_CARBON'?'#b2bac4':'#66727c',
-          metalness:.35,roughness:.62,side:THREE.DoubleSide
-        });
-      }
-      if(!material && selectedPart===o.name){
-        material=new THREE.MeshStandardMaterial({
-          color:'#d3dde6',metalness:.75,roughness:.28,side:THREE.DoubleSide
-        });
-      }
+      const preset=materialForP28Part(classifyP28Part(o.name));
+      const selected=selectedPart===o.name;
+      const material=new THREE.MeshStandardMaterial({
+        color:selected?'#e2e9ef':preset.color,
+        metalness:preset.metalness,
+        roughness:selected?Math.max(.28,preset.roughness-.12):preset.roughness,
+        side:THREE.DoubleSide,
+      });
       if(!material)return;
       original.set(o,o.material);
       clones.push(material);
@@ -158,14 +147,24 @@ function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPre
       return {target:frame.target,distance:frame.distance};
     const center=new THREE.Vector3(...measuredFit.frontPositiveZCenterM);
     if(cameraFocus==='fastener-macro'){
-      const isLock=selectedPart?.includes('LOCK')||selectedPart?.includes('STUD')||selectedPart?.includes('FASTENER');
-      const zOffset=cornerPresentation==='exploded'
-        ? (isLock ? .43 : .12) : .07;
-      return {target:center.clone().add(new THREE.Vector3(0,0,zOffset)),
-        distance:isLock ? .42 : 1.10};
+      // Isolated original parts are framed at THEIR own native mesh bounds.
+      const isolated=selectedPart&&corner?.getObjectByName(selectedPart);
+      if(isolated && corner) {
+        const bounds=new THREE.Box3().setFromObject(isolated);
+        const position=bounds.getCenter(new THREE.Vector3())
+          .sub(new THREE.Vector3(...measuredFit.originalP28WheelCenterM))
+          .add(new THREE.Vector3(...presentationForP28Part(selectedPart,cornerPresentation).offsetM));
+        const distance=Math.max(.58,Math.min(1.9,bounds.getSize(new THREE.Vector3()).length()*3.2));
+        return {target:center.clone().add(position),distance};
+      }
+      return {target:center,distance:1.28};
     }
+    if(cornerPresentation==='exploded')
+      return {target:center.clone().add(new THREE.Vector3(-.15,.19,0)),distance:3.1};
+    if(cornerPresentation==='mechanism-core')
+      return {target:center,distance:1.75};
     return {target:center,distance:2.05};
-  },[cameraFocus,frame,measuredFit,measuredOverlayEnabled,selectedPart,cornerPresentation]);
+  },[cameraFocus,frame,measuredFit,measuredOverlayEnabled,selectedPart,cornerPresentation,corner]);
   useEffect(()=>{
     camera.position.copy(focus.target).add(new THREE.Vector3(.75,.4,1.55).normalize().multiplyScalar(focus.distance));
     camera.lookAt(focus.target);
@@ -211,19 +210,9 @@ function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPre
     corner.traverse(o=>{
       if(!(o instanceof THREE.Mesh))return;
       originals.set(o,{visible:o.visible,position:o.position.clone()});
-      const tyre=o.name==='P2_TYRE_SLICK_BODY';
-      o.visible=(!selectedPart||o.name===selectedPart)&&
-        !(cornerPresentation!=='assembled'&&tyre);
-      if(cornerPresentation==='exploded'){
-        let displacement=0;
-        if(tyre)displacement=0; // tyre hidden during exploded engineering inspection
-        else if(o.name.includes('RIM_'))displacement=.27;
-        else if(o.name.includes('CENTER_'))displacement=.4;
-        else if(o.name.includes('ROTOR_')||o.name.includes('BRAKE_'))displacement=.12;
-        else if(o.name.includes('BEARING_'))displacement=.21;
-        else if(o.name.includes('P27_'))displacement=-.23;
-        o.position.z+=displacement;
-      }
+      const presentation=presentationForP28Part(o.name,cornerPresentation);
+      o.visible=(!selectedPart||o.name===selectedPart)&&presentation.visible;
+      o.position.add(new THREE.Vector3(...presentation.offsetM));
     });
     invalidate();
     return()=>{
