@@ -42,6 +42,8 @@ function FrameCAD({ scene, selectedPart, explode }: {
     const horizontal = Math.atan(Math.tan(halfFov) * Math.max(camera.aspect, 0.2));
     const fit = Math.max(0.002, Math.min(Math.sin(halfFov), Math.sin(horizontal)));
     const distance = Math.max(0.008, (framing.radius / fit) * 1.5) * (1 + explode * 1.2);
+    // Three.js camera is a mutable rendering object; this runs after React commit.
+    // eslint-disable-next-line react-hooks/immutability
     camera.near = Math.max(0.00001, distance / 5000);
     camera.far = Math.max(10, distance * 100);
     camera.position.copy(framing.center).add(
