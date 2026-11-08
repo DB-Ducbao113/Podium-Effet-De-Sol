@@ -50,3 +50,17 @@ Open \`http://127.0.0.1:5184/engineering/assembly-preview\`. Select the owner P2
 ## Attribution and access
 
 Model B license provenance stays governed by \`apps/web/public/models/README.md\` and project asset registry. P2.8 geometry is project-authored CAD. This package does not publish private owner models or third-party photos.
+
+
+## Continuation: P2.8 recovery and measured source registration
+
+- Regenerate **original P2.8** only when the owner pack cannot be found: `python tools/cad-first/rebuild_owner_p28.py --out ".local-assets/cad-first/recovered-p28"` (must be an empty directory; never overwrites an existing verified owner source). Requires `vtk` in addition to `tools/cad-first/requirements.txt`.
+- Output: `.local-assets/cad-first/recovered-p28/p28/P28_integrated_59_solid_master.step`, `P28_remate_manifest.json`, three exact source-linked GLBs, and static audit. Script authored; not executed in this GitHub-only session.
+- Source-register against the Model B exterior with optional measured `podium-eds.modelb-p28.landmarks.v1` JSON. Include at least three distinct noncollinear corresponding points in **GLB local metres** plus evidence. The rigid fit uses translation + quaternion, no scale. Provisional 5 mm residual/length-mismatch guard rejects inconsistent geometry, not a certified mechanical clearance.
+- Remain at G2 HOLD until a real owner-source STEP/GLB run, front wheel center and mounting hardpoint verification, body-wheel duplication analysis and independent runtime/browser QA. Preserve original P2.2–P2.8 screw and bearing geometry.
+
+### Local source-only guard tests
+
+`python -m unittest tools/cad-first/test_rebuild_owner_p28.py` (may require adding tools/cad-first to PYTHONPATH depending on Python invocation).
+
+`cd apps/web && npx vitest run src/dev/assemblyPreview/assemblyPlacement.test.ts src/dev/assemblyPreview/assemblyRegistration.test.ts` after installing existing app dependencies.
