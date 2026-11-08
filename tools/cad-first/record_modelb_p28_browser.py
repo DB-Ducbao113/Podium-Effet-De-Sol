@@ -115,6 +115,7 @@ def main():
                 scroll.evaluate("(p)=>window.scrollTo(0,(document.documentElement.scrollHeight-innerHeight)*p)",index/20)
                 scroll.wait_for_timeout(140)
             scroll.screenshot(path=str(out/"08-source-scroll-reverse.png"),full_page=False)
+            scroll_video=scroll.video
             scroll.close()
             # The Playwright context video contains actual application frames.
             video=page.video
@@ -122,6 +123,9 @@ def main():
             if video:
                 video.save_as(str(out/"modelb-p28-browser-real.webm"))
                 runtime["video"]="modelb-p28-browser-real.webm"
+            if scroll_video:
+                scroll_video.save_as(str(out/"p28-source-scroll-0-100-0.webm"))
+                runtime["source_scroll_video"]="p28-source-scroll-0-100-0.webm"
         finally:
             browser.close()
     runtime["js_errors"]=errors
