@@ -57,7 +57,7 @@ export function readManifest(value: unknown): { manifest: CadManifest; scope: 'f
     };
     if (!/^[a-f0-9]{64}$/i.test(corner.masterSTEPsha256 ?? '') ||
         corner.totalCadSolids !== 59 || corner.allRoundtripValid !== true ||
-        corner.staticFit?.totalPairs !== 1711 || corner.staticFit.singleStaticPosePass !== true ||
+        corner.staticFit?.totalPairs !== 1711 || corner.staticFit?.singleStaticPosePass !== true ||
         corner.source !== 'Project-authored P2.6/P2.7 original B-Rep') {
       throw Error('P2.8 requires original STEP lineage and 59-solid native static audit provenance');
     }
