@@ -7,6 +7,8 @@ import type { SourceGeometryProbe } from './geometryProbe';
 import {fitOwnerShellToOriginalP28} from './ownerMeasuredFit';
 import { layoutFourCorners, wheelLayoutReport, type WheelId } from './fourCornerLayout';
 import type { CornerPresentation } from './cadPresentation';
+import { readRearUprightManifest, verifyRearUprightSource,
+  type RearUprightManifest, type RearUprightSource } from './rearUprightSource';
 import './assemblyPreview.css';
 
 const Stage=lazy(()=>import('./AssemblyPreviewStage'));
@@ -23,6 +25,9 @@ function NumericAxis({name,value,onChange,step=.01}:{
 export default function AssemblyPreviewPage(){
   const [manifest,setManifest]=useState<SourceManifest>(null);
   const [source,setSource]=useState<CadSource|null>(null);
+  const [rearManifest,setRearManifest]=useState<RearUprightManifest|null>(null);
+  const [rearUprightSource,setRearUprightSource]=useState<RearUprightSource|null>(null);
+  const [rearBusy,setRearBusy]=useState(false);
   const [error,setError]=useState('');
   const [info,setInfo]=useState('MODEL B EXTERIOR · P2.8 SOURCE NOT LOADED');
   const [placement,setPlacement]=useState<Placement>(INITIAL_PLACEMENT);
@@ -102,7 +107,7 @@ export default function AssemblyPreviewPage(){
   };
   const importManifest=async(event:ChangeEvent<HTMLInputElement>)=>{
     const file=event.target.files?.[0];if(!file)return;
-    setError('');setManifest(null);setSource(null);setPart(null);setCornerProbe(null);setRegistration(null);setResolvedTransform(null);setDraftLandmarks([]);setPickedBody(null);setPickedCorner(null);setPickMode('off');
+    setError('');setManifest(null);setSource(null);setRearUprightSource(null);setPart(null);setCornerProbe(null);setRegistration(null);setResolvedTransform(null);setDraftLandmarks([]);setPickedBody(null);setPickedCorner(null);setPickMode('off');
     try{
       if(file.size>MAX_MANIFEST)throw Error('Source manifest exceeds 5 MB');
       const data=JSON.parse(await file.text()) as unknown;
@@ -115,7 +120,7 @@ export default function AssemblyPreviewPage(){
   };
   const importGLB=async(event:ChangeEvent<HTMLInputElement>)=>{
     const file=event.target.files?.[0];if(!file)return;
-    setError('');setSource(null);setPart(null);setCornerProbe(null);setRegistration(null);setDraftLandmarks([]);setPickedBody(null);setPickedCorner(null);setPickMode('off');setBusy(true);
+    setError('');setSource(null);setRearUprightSource(null);setPart(null);setCornerProbe(null);setRegistration(null);setDraftLandmarks([]);setPickedBody(null);setPickedCorner(null);setPickMode('off');setBusy(true);
     try {
       if(!manifest)throw Error('Load P2.8 manifest first');
       // Reuse the existing byte-length, embedded-resource and cryptographic SHA gate.
@@ -125,6 +130,29 @@ export default function AssemblyPreviewPage(){
       setPlacement(INITIAL_PLACEMENT);
       setInfo('GLB HASH MATCHES OWNER MANIFEST · NO INDEPENDENT CAD MATE');
     }catch(err){setError(String(err));}finally{setBusy(false);event.target.value='';}
+  };
+  const importRearManifest=async(event:ChangeEvent<HTMLInputElement>)=>{
+    const file=event.target.files?.[0];if(!file)return;
+    setError('');setRearManifest(null);setRearUprightSource(null);
+    try{
+      if(file.size>MAX_MANIFEST)throw Error('P2.9 manifest too large');
+      const parsed=readRearUprightManifest(JSON.parse(await file.text()) as unknown);
+      setRearManifest(parsed);
+      setInfo('P2.9 ORIGINAL REAR UPRIGHT SOURCE MANIFEST READY · MECHANICAL G2 HOLD');
+    }catch(err){setError(String(err));}finally{event.target.value='';}
+  };
+  const importRearGLB=async(event:ChangeEvent<HTMLInputElement>)=>{
+    const file=event.target.files?.[0];if(!file)return;
+    setError('');setRearUprightSource(null);setRearBusy(true);
+    try {
+      if(!source||!calibration.fit||!rearManifest)
+        throw Error('Load the original P2.8 source and P2.9 manifest first');
+      const verified=await verifyRearUprightSource(rearManifest,file);
+      setRearUprightSource(verified);
+      setAllFourWheelsEnabled(true);
+      setMeasuredOverlayEnabled(true);
+      setInfo('P2.9 REAR UPRIGHT SOURCE VERIFIED · TWO REAR GRAPHIC PLACEMENTS · G2 HOLD');
+    }catch(err){setError(String(err));}finally{setRearBusy(false);event.target.value='';}
   };
   const importLandmarks=async(event:ChangeEvent<HTMLInputElement>)=>{
     const file=event.target.files?.[0];if(!file)return;
@@ -196,6 +224,16 @@ export default function AssemblyPreviewPage(){
       originalModelBGeometryModified:false,
       p28OriginalCadScale:1,
       fourWheelPreviewEnabled:allFourWheelsEnabled,
+      rearUprightProposal:rearUprightSource?{
+        schema:rearUprightSource.manifest.schema,
+        partId:rearUprightSource.manifest.partId,
+        fileName:rearUprightSource.fileName,
+        profile:rearUprightSource.profile,
+        sourceSha256:rearUprightSource.manifest.profiles[rearUprightSource.profile].sha256,
+        rearChassisHardpointsMeasured:false,
+        structuralRearAssemblyCertified:false,
+        mechanicalMatingCertified:false,
+      }:null,
       selectedWheelId:activeWheelId,
       fourWheelLayout:calibration.fit?wheelLayoutReport(calibration.fit):null,
       currentCameraFocus:cameraFocus,
@@ -227,7 +265,7 @@ export default function AssemblyPreviewPage(){
     <main className="peds-assembly-main">
       <section className="peds-assembly-view" aria-label="Live 3D visual assembly staging">
         <Suspense fallback={<p>Loading Three.js preview…</p>}>
-          <Stage source={source} placement={placement} shellOpacity={opacity} selectedPart={part}
+          <Stage source={source} rearUprightSource={rearUprightSource} placement={placement} shellOpacity={opacity} selectedPart={part}
             cameraFocus={cameraFocus} cornerPresentation={cornerPresentation}
             technicalMaterials={technicalMaterials}
             allFourWheelsEnabled={allFourWheelsEnabled} activeWheelId={activeWheelId}
@@ -255,6 +293,29 @@ export default function AssemblyPreviewPage(){
           <label>P2.8 source GLB (.glb)<input type="file" accept=".glb,model/gltf-binary"
             disabled={!manifest||busy} onChange={e=>{void importGLB(e);}}/></label>
           <small>Owner-only P28_remate_manifest.json + P28_integrated_balanced.glb (or another SHA-matching tier). Files stay local in the browser. SHA-matching an owner-supplied manifest does not independently certify CAD authenticity.</small>
+        </div>
+        <div className="peds-assembly-controls-section" aria-label="P2.9 proposed rear upright source">
+          <h2>01B / Original P2.9 rear upright CAD proposal</h2>
+          <p>Independent rear bearing carrier and bored upper/lower/toe lugs.
+            Generated by the project CAD source, never a reflected front upright.
+            Import the generated manifest and SHA-matched GLB to show the carrier
+            at both measured rear wheel stations.</p>
+          <label>P2.9 rear upright manifest (.json)
+            <input type="file" accept=".json,application/json"
+              onChange={e=>{void importRearManifest(e);}}/>
+          </label>
+          <label>P2.9 rear upright GLB (.glb)
+            <input type="file" accept=".glb,model/gltf-binary"
+              disabled={!rearManifest||!source||!calibration.fit||rearBusy}
+              onChange={e=>{void importRearGLB(e);}}/>
+          </label>
+          <small>{rearUprightSource?
+            'P2.9 REAR UPRIGHT LOADED / '+rearUprightSource.profile+
+            ' / '+rearUprightSource.manifest.partId:
+            'P2.9 source not loaded — existing rear wheel-end visual proxy unchanged.'}</small>
+          <small><strong>ENGINEERING HOLD:</strong> Rear chassis pickup coordinates are
+            unmeasured; wishbones, driveshaft/CV and structural joints are not
+            independently designed or certified. This is a STEP-derived proposal.</small>
         </div>
         <div className="peds-assembly-controls-section">
           <h2>02 / Geometry inspection</h2>
