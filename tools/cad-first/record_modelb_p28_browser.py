@@ -117,44 +117,60 @@ def main():
                 page.screenshot(path=str(out/f"responsive-{width}.png"),full_page=False)
             page.set_viewport_size({"width":1440,"height":900})
             page.wait_for_timeout(300)
-            # Separate source-only scroll QA. This does NOT show Model B as a
-            # mechanically completed whole car; label footage precisely.
-            scroll_url=a.url.replace("/engineering/assembly-preview",
-                                     "/engineering/cinematic-rebuild")
-            scroll= context.new_page()
-            scroll.on("pageerror",lambda e:errors.append("SCROLL PAGEERROR "+str(e)))
-            scroll_response=scroll.goto(scroll_url,wait_until="domcontentloaded",timeout=60000)
-            if scroll_response is None or scroll_response.status>=400:
-                raise RuntimeError("Original source scroll DEV route missing")
-            scroll.locator('input[type="file"]').nth(0).set_input_files(str(manifest))
-            scroll.wait_for_function("""() => {
-              const fields=document.querySelectorAll('input[type=file]');
-              return fields.length>=2 && !fields[1].disabled;
-            }""",timeout=20000)
-            scroll.locator('input[type="file"]').nth(1).set_input_files(str(glb))
-            scroll.get_by_text("59-SOLID FRONT CORNER",exact=False).first.wait_for(timeout=60000)
-            scroll.get_by_text("DECODING VERIFIED CAD",exact=False).wait_for(state="hidden",timeout=60000)
-            scroll.wait_for_timeout(900)
-            scroll.screenshot(path=str(out/"06-source-scroll-start.png"),full_page=False)
-            for index in range(1,21):
-                scroll.evaluate("(p)=>window.scrollTo(0,(document.documentElement.scrollHeight-innerHeight)*p)",index/20)
-                scroll.wait_for_timeout(140)
-            scroll.screenshot(path=str(out/"07-source-scroll-end.png"),full_page=False)
-            for index in range(19,-1,-1):
-                scroll.evaluate("(p)=>window.scrollTo(0,(document.documentElement.scrollHeight-innerHeight)*p)",index/20)
-                scroll.wait_for_timeout(140)
-            scroll.screenshot(path=str(out/"08-source-scroll-reverse.png"),full_page=False)
-            scroll_video=scroll.video
-            scroll.close()
-            # The Playwright context video contains actual application frames.
-            video=page.video
+            # Close the MAIN owner Model B + P2.8 context FIRST so that an
+            # expensive separate scroll study cannot erase the actual review video.
+            main_video=page.video
             context.close()
-            if video:
-                video.save_as(str(out/"modelb-p28-browser-real.webm"))
-                runtime["video"]="modelb-p28-browser-real.webm"
-            if scroll_video:
-                scroll_video.save_as(str(out/"p28-source-scroll-0-100-0.webm"))
-                runtime["source_scroll_video"]="p28-source-scroll-0-100-0.webm"
+            if not main_video:
+                raise RuntimeError("Main Model B + P2.8 WebGL capture missing")
+            main_video.save_as(str(out/"modelb-p28-browser-real.webm"))
+            runtime["video"]="modelb-p28-browser-real.webm"
+            (out/"main-review-evidence.json").write_text(
+                json.dumps(runtime,indent=2)+"\\n",encoding="utf8"
+            )
+            # A second context is needed for deterministic source-scroll capture;
+            # 8 checkpoints each way bounds the CPU/SwiftShader load on CI.
+            scroll_context=browser.new_context(viewport={"width":1280,"height":720},
+                record_video_dir=str(out),
+                record_video_size={"width":1280,"height":720})
+            scroll=scroll_context.new_page()
+            scroll.on("pageerror",lambda e:errors.append("SCROLL PAGEERROR "+str(e)))
+            try:
+                scroll_url=a.url.replace("/engineering/assembly-preview",
+                                         "/engineering/cinematic-rebuild")
+                scroll_response=scroll.goto(scroll_url,wait_until="domcontentloaded",timeout=45000)
+                if scroll_response is None or scroll_response.status>=400:
+                    raise RuntimeError("Original source scroll DEV route missing")
+                scroll.locator('input[type="file"]').nth(0).set_input_files(str(manifest))
+                scroll.wait_for_function("""() => {
+                  const fields=document.querySelectorAll('input[type=file]');
+                  return fields.length>=2 && !fields[1].disabled;
+                }""",timeout=20000)
+                scroll.locator('input[type="file"]').nth(1).set_input_files(str(glb))
+                scroll.get_by_text("59-SOLID FRONT CORNER",exact=False).first.wait_for(timeout=45000)
+                scroll.get_by_text("DECODING VERIFIED CAD",exact=False).wait_for(state="hidden",timeout=45000)
+                scroll.wait_for_timeout(350)
+                scroll.screenshot(path=str(out/"06-source-scroll-start.png"),full_page=False)
+                for index in range(1,9):
+                    scroll.evaluate("(p)=>window.scrollTo(0,(document.documentElement.scrollHeight-innerHeight)*p)",index/8)
+                    scroll.wait_for_timeout(100)
+                scroll.screenshot(path=str(out/"07-source-scroll-end.png"),full_page=False)
+                for index in range(7,-1,-1):
+                    scroll.evaluate("(p)=>window.scrollTo(0,(document.documentElement.scrollHeight-innerHeight)*p)",index/8)
+                    scroll.wait_for_timeout(100)
+                scroll.screenshot(path=str(out/"08-source-scroll-reverse.png"),full_page=False)
+                scroll_video=scroll.video
+                scroll_context.close()
+                if scroll_video:
+                    scroll_video.save_as(str(out/"p28-source-scroll-0-100-0.webm"))
+                    runtime["source_scroll_video"]="p28-source-scroll-0-100-0.webm"
+            except Exception as exc:
+                runtime["source_scroll_error"]=str(exc)
+                errors.append("OPTIONAL_SOURCE_SCROLL "+str(exc))
+                try:
+                    scroll_context.close()
+                except Exception:
+                    pass
         finally:
             browser.close()
     runtime["js_errors"]=errors
