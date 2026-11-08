@@ -44,6 +44,7 @@ def main()->None:
       "g2_mechanical_mating":"HOLD",
       "genuine_rear_suspension_available":False,
       "independent_p29_rear_upright_proposal":False,
+      "independent_p210_rear_wishbone_static_cad":False,
       "all_four_wheel_review":"NOT_RUN",
       "steps":[],
       "final_video":None,
@@ -75,6 +76,7 @@ def main()->None:
             raise RuntimeError("Exact project-authored 59-part P2.8 source was not regenerated")
         gate("ORIGINAL_59_PART_P28_PRESENT","PASS")
         invoke(sys.executable,TOOLS/"test_p2_9_rear_upright.py",timeout=150)
+        invoke(sys.executable,TOOLS/"test_p2_10_rear_wishbone.py",timeout=180)
         invoke(sys.executable,TOOLS/"test_rebuild_owner_p28.py",timeout=150)
         invoke(sys.executable,TOOLS/"test_audit_assembly_mesh.py",timeout=150)
         gate("LOCAL_SOURCE_PROVENANCE_UNIT_TESTS","PASS")
@@ -106,6 +108,35 @@ def main()->None:
                 raise RuntimeError("P2.9 source LOD integrity failed: "+tier)
         status["independent_p29_rear_upright_proposal"]=True
         gate("INDEPENDENT_P29_REAR_UPRIGHT_STEP_AND_GLB_PROPOSAL","PASS")
+        p210_dir=out/"p210-rear-wishbone-source"
+        if not p210_dir.is_dir():
+            invoke(sys.executable,TOOLS/"p2_10_rear_wishbone.py",
+                   "--out",p210_dir,timeout=600)
+        p210_manifest=p210_dir/"P210_rear_suspension_manifest.json"
+        if not p210_manifest.is_file():
+            raise RuntimeError("Original independent rear wishbone STEP source absent")
+        p210=json.loads(p210_manifest.read_text(encoding="utf8"))
+        a210=p210.get("nativeStaticAudit",{})
+        if (p210.get("schema")!="podium-eds.p2.cad-first.rear-double-wishbone-proposal.v1"
+            or p210.get("totalCadSolids")!=11 or p210.get("newSolids")!=10
+            or p210.get("mechanicalMateCertified") is not False
+            or p210.get("chassisHardpointsMeasured") is not False
+            or p210.get("dynamicSuspensionCertified") is not False
+            or a210.get("pairCount")!=55 or a210.get("passStatic") is not True
+            or a210.get("unresolvedCollisions") or a210.get("booleanErrors")):
+            raise RuntimeError("P2.10 native 11-solid static source incomplete")
+        if (sha256((p210_dir/p210["masterSTEP"]).read_bytes()).hexdigest() !=
+            p210["masterSTEPsha256"]):
+            raise RuntimeError("P2.10 STEP SHA mismatch")
+        for tier,entry in p210["profiles"].items():
+            candidate=p210_dir/entry["file"]
+            if (not candidate.is_file() or
+                sha256(candidate.read_bytes()).hexdigest()!=entry["sha256"] or
+                entry.get("allNodesWatertight") is not True or
+                len(entry.get("perPartTriangles",{})) != 11):
+                raise RuntimeError("P2.10 source GLB/mesh integrity failed at "+tier)
+        status["independent_p210_rear_wishbone_static_cad"]=True
+        gate("INDEPENDENT_P210_REAR_WISHBONES_NATIVE_55_PAIR_STATIC","PASS")
         npm=shutil.which("npm")
         if npm is None:raise RuntimeError("Node/npm missing")
         if not a.skip_web_qa:
@@ -116,7 +147,8 @@ def main()->None:
                    "src/dev/assemblyPreview/cadPresentation.test.ts",
                    "src/dev/assemblyPreview/ownerMeasuredFit.test.ts",
                    "src/dev/assemblyPreview/showroomWheelMask.test.ts",
-                   "src/dev/assemblyPreview/rearUprightSource.test.ts",timeout=300)
+                   "src/dev/assemblyPreview/rearUprightSource.test.ts",
+                   "src/dev/assemblyPreview/rearSuspensionSource.test.ts",timeout=300)
             invoke(npm,"run","build","--workspace=@peds/web",timeout=900)
             gate("LOCAL_WEB_LINT_TYPES_TESTS_BUILD","PASS")
         job=subprocess.Popen([
@@ -130,13 +162,16 @@ def main()->None:
         invoke(sys.executable,TOOLS/"record_four_corners_local.py",
                "--p28-dir",source,"--out",out/"browser",
                "--quality",a.quality,"--url",url,
-               "--p29-dir",p29_dir,timeout=1100)
+               "--p29-dir",p29_dir,
+               "--p210-dir",p210_dir,timeout=1100)
         detail=json.loads((out/"browser/four-wheel-browser-evidence.json")
                           .read_text(encoding="utf8"))
         if not detail.get("all_four_original_modelb_wheel_positions"):
             raise RuntimeError("Four distinct original Model B measured wheel positions not rendered")
         if not detail.get("real_p29_rear_upright_loaded"):
             raise RuntimeError("The STEP-derived P2.9 upright was not loaded on both rear wheel stations")
+        if not detail.get("real_p210_rear_wishbone_loaded"):
+            raise RuntimeError("P2.10 11-mesh rear wishbone source was not loaded on both rear stations")
         movie=detail.get("recorded_video")
         if not movie or not Path(movie).is_file() or Path(movie).stat().st_size<1024:
             raise RuntimeError("No genuine WebGL four-wheel video created")
