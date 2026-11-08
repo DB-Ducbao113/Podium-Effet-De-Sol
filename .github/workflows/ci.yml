@@ -59,7 +59,7 @@ jobs:
           cache: npm
       - name: Fail fast on Python CAD and recorder syntax
         run: |
-          python -m compileall -q tools/cad-first/rebuild_owner_p28.py tools/cad-first/locate_owner_p28.py tools/cad-first/run_owner_fullcar_review.py tools/cad-first/record_modelb_p28_browser.py tools/cad-first/assembly_modelb_p28_preflight.py tools/cad-first/audit_assembly_mesh.py tools/cad-first/test_rebuild_owner_p28.py tools/cad-first/test_audit_assembly_mesh.py tools/cad-first/p2_6_steering_relief.py tools/cad-first/p2_7_wishbone_cad.py tools/cad-first/p2_8_upright_remate.py tools/cad-first/p2_8_source_glb_composition.py
+          python -m compileall -q tools/cad-first/rebuild_owner_p28.py tools/cad-first/locate_owner_p28.py tools/cad-first/run_owner_fullcar_review.py tools/cad-first/record_modelb_p28_browser.py tools/cad-first/assembly_modelb_p28_preflight.py tools/cad-first/audit_assembly_mesh.py tools/cad-first/audit_measured_wheel_fit.py tools/cad-first/test_rebuild_owner_p28.py tools/cad-first/test_audit_assembly_mesh.py tools/cad-first/p2_6_steering_relief.py tools/cad-first/p2_7_wishbone_cad.py tools/cad-first/p2_8_upright_remate.py tools/cad-first/p2_8_source_glb_composition.py
       - name: Verify original Model B and install genuine CAD/video dependencies
         run: |
           test -s apps/web/public/models/model-b-eds-optimized-v1.glb
@@ -98,6 +98,7 @@ jobs:
             .local-assets/cad-first/owner-fullcar-review/review-gates.json
             .local-assets/cad-first/owner-fullcar-review/source-preflight.json
             .local-assets/cad-first/owner-fullcar-review/visual-overlap-aabb.json
+            .local-assets/cad-first/owner-fullcar-review/measured-original-wheel-fit.json
             .local-assets/cad-first/owner-fullcar-review/dev-server.log
             .local-assets/cad-first/owner-fullcar-review/modelb-p28-real-browser.mp4
             .local-assets/cad-first/owner-fullcar-review/browser/modelb-p28-browser-real.webm
