@@ -14,7 +14,10 @@ describe('Inside the Machine V2 visual isolation', () => {
   });
 
   it('keeps the original Engineering route DEV-only', () => {
-    expect(app).toContain('const insideMachineTrialEnabled = import.meta.env.DEV');
+    expect(app).toContain('const cadFirstLabEnabled = import.meta.env.DEV;');
+    expect(app).toContain('const AssemblyPreviewPage = import.meta.env.DEV');
+    expect(app).toContain('const CadFirstFullCarScrollPage = import.meta.env.DEV');
+    expect(app).toContain('{AssemblyPreviewPage && <Route path="/engineering/assembly-preview"');
     expect(app).toContain('path="/engineering/car-anatomy"');
     expect(app).toContain('path="/engineering/:slug"');
   });
