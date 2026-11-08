@@ -7,6 +7,7 @@ import * as THREE from 'three';
 import type { CadSource } from '../cadFirstScroll/cadSource';
 import { centerOffset, initialStagingPosition, type Placement } from './assemblyPlacement';
 import type { RegistrationResult } from './assemblyRegistration';
+import type { OwnerMeasuredFit } from './ownerMeasuredFit';
 import { probeOriginalGeometry, type SourceGeometryProbe } from './geometryProbe';
 
 type Props = {
@@ -15,6 +16,8 @@ type Props = {
   shellOpacity: number;
   selectedPart: string | null;
   registration: RegistrationResult | null;
+  measuredFit: OwnerMeasuredFit | null;
+  measuredOverlayEnabled: boolean;
   onError: (message: string) => void;
   onInfo: (info: string) => void;
   pickMode: 'off' | 'modelb' | 'p28';
@@ -24,7 +27,8 @@ type Props = {
   onGeometryProbe: (data: SourceGeometryProbe) => void;
   onResolvedTransform: (value: {
     translationM: [number,number,number]; rotationQuaternion: [number,number,number,number];
-    stagingBasis: 'separate' | 'graphic_center' | 'landmarks'; scale: 1;
+    stagingBasis: 'separate' | 'graphic_center' | 'landmarks' | 'measured_wheel'; scale: 1;
+    modelBShellUnitScale: number;
   }) => void;
 };
 
@@ -45,7 +49,7 @@ function disposeTree(root: THREE.Object3D) {
   textures.forEach(x=>x.dispose());
 }
 
-function Scene({source,placement,shellOpacity,selectedPart,registration,onError,onInfo,pickMode,onPointPick,onBodyPartNames,hiddenBodyMeshes,onResolvedTransform,onGeometryProbe}:Props) {
+function Scene({source,placement,shellOpacity,selectedPart,registration,measuredFit,measuredOverlayEnabled,onError,onInfo,pickMode,onPointPick,onBodyPartNames,hiddenBodyMeshes,onResolvedTransform,onGeometryProbe}:Props) {
   const {camera,invalidate} = useThree();
   const [body,setBody] = useState<THREE.Group | null>(null);
   const [corner,setCorner] = useState<THREE.Group | null>(null);
@@ -88,7 +92,19 @@ function Scene({source,placement,shellOpacity,selectedPart,registration,onError,
     }).catch(e=>{if(live)onError('P2.8 GLB could not load: '+String(e));});
     return()=>{live=false;setCorner(null);if(model)disposeTree(model);};
   },[source,onError,onInfo,onGeometryProbe]);
-  const bodyBounds=useMemo(()=>body?new THREE.Box3().setFromObject(body):null,[body]);
+  // Model B GLB is authored in non-metric showroom units (27.79 source-unit long).
+  // A uniform display-only normalization uses measured tyre radii; the original
+  // GLB remains byte-for-byte identical, and original P2.8 CAD scale stays 1.
+  const shellScale=measuredFit?.normalizedShellScale??1;
+  const bodyBounds=useMemo(()=>{
+    if(!body)return null;
+    if(measuredFit){
+      const [low,high]=measuredFit.bodyBoundsRaw;
+      return new THREE.Box3(new THREE.Vector3(...low).multiplyScalar(shellScale),
+                            new THREE.Vector3(...high).multiplyScalar(shellScale));
+    }
+    return new THREE.Box3().setFromObject(body);
+  },[body,measuredFit,shellScale]);
   const cornerBounds=useMemo(()=>corner?new THREE.Box3().setFromObject(corner):null,[corner]);
   const frame=useMemo(()=>{
     if(!bodyBounds)return {target:new THREE.Vector3(),distance:6};
@@ -142,6 +158,11 @@ function Scene({source,placement,shellOpacity,selectedPart,registration,onError,
   },[corner,selectedPart,invalidate]);
   const transform=useMemo(()=>{
     if(registration)return new THREE.Vector3(...registration.translationM).add(new THREE.Vector3(...placement.translationM));
+    if(measuredFit && measuredOverlayEnabled){
+      return new THREE.Vector3(...measuredFit.frontPositiveZCenterM)
+        .sub(new THREE.Vector3(...measuredFit.originalP28WheelCenterM))
+        .add(new THREE.Vector3(...placement.translationM));
+    }
     if(!bodyBounds||!cornerBounds)return new THREE.Vector3();
     const bodyMin=bodyBounds.min.toArray() as [number,number,number];
     const bodyMax=bodyBounds.max.toArray() as [number,number,number];
@@ -151,7 +172,7 @@ function Scene({source,placement,shellOpacity,selectedPart,registration,onError,
           cornerBounds.getCenter(new THREE.Vector3()).toArray() as [number,number,number])
       : initialStagingPosition(bodyMin,bodyMax,cornerMin);
     return new THREE.Vector3(...base).add(new THREE.Vector3(...placement.translationM));
-  },[bodyBounds,cornerBounds,placement,registration]);
+  },[bodyBounds,cornerBounds,placement,registration,measuredFit,measuredOverlayEnabled]);
   const pickSurface=(target:'modelb'|'p28',event:ThreeEvent<PointerEvent>)=>{
     if(pickMode!==target)return;
     const root=target==='modelb'?body:corner;
@@ -177,17 +198,18 @@ function Scene({source,placement,shellOpacity,selectedPart,registration,onError,
       translationM:transform.toArray() as [number,number,number],
       rotationQuaternion:[rotation.x,rotation.y,rotation.z,rotation.w],
       stagingBasis:registration?'landmarks':
+        measuredFit&&measuredOverlayEnabled?'measured_wheel':
         placement.displayedAtBodyCenter?'graphic_center':'separate',
-      scale:1,
+      scale:1,modelBShellUnitScale:shellScale,
     });
-  },[bodyBounds,cornerBounds,corner,transform,rotation,registration,placement.displayedAtBodyCenter,onResolvedTransform]);
+  },[bodyBounds,cornerBounds,corner,transform,rotation,registration,measuredFit,measuredOverlayEnabled,shellScale,placement.displayedAtBodyCenter,onResolvedTransform]);
   useEffect(()=>invalidate(),[transform,placement,selectedPart,invalidate]);
   return <>
     <color attach="background" args={['#0a111b']}/>
     <ambientLight intensity={1.5}/><hemisphereLight args={['#eff5ff','#1a2a3d',2]}/>
     <directionalLight position={[5,8,6]} intensity={3.2}/>
     <directionalLight position={[-4,4,-3]} intensity={2} color="#ff9d84"/>
-    {body&&<group onPointerDown={event=>pickSurface('modelb',event)}><primitive object={body}/></group>}
+    {body&&<group scale={shellScale} onPointerDown={event=>pickSurface('modelb',event)}><primitive object={body}/></group>}
     {corner&&<group position={transform.toArray()} quaternion={rotation} scale={1}
       onPointerDown={event=>pickSurface("p28",event)}>
        <primitive object={corner}/>
