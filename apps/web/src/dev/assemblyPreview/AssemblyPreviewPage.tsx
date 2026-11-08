@@ -30,6 +30,12 @@ export default function AssemblyPreviewPage(){
   const [bodyPartNames,setBodyPartNames]=useState<string[]>([]);
   const [hiddenBodyMeshes,setHiddenBodyMeshes]=useState<number[]>([]);
   const [bodyMeshFilter,setBodyMeshFilter]=useState('');
+  const [resolvedTransform,setResolvedTransform]=useState<{
+    translationM:[number,number,number];
+    rotationQuaternion:[number,number,number,number];
+    stagingBasis:'separate'|'graphic_center'|'landmarks';
+    scale:1;
+  }|null>(null);
   const [pickMode,setPickMode]=useState<'off'|'modelb'|'p28'>('off');
   const [pickedBody,setPickedBody]=useState<[number,number,number]|null>(null);
   const [pickedCorner,setPickedCorner]=useState<[number,number,number]|null>(null);
@@ -38,6 +44,12 @@ export default function AssemblyPreviewPage(){
   const showError=useCallback((message:string)=>setError(message),[]);
   const showInfo=useCallback((message:string)=>setInfo(message),[]);
   const recordBodyParts=useCallback((names:string[])=>setBodyPartNames(names),[]);
+  const onResolvedTransform=useCallback((transform:{
+    translationM:[number,number,number];
+    rotationQuaternion:[number,number,number,number];
+    stagingBasis:'separate'|'graphic_center'|'landmarks';
+    scale:1;
+  })=>setResolvedTransform(transform),[]);
   const onPointPick=useCallback((target:'modelb'|'p28',point:[number,number,number],mesh:string)=>{
     if(target==='modelb')setPickedBody(point);
     else setPickedCorner(point);
@@ -49,7 +61,7 @@ export default function AssemblyPreviewPage(){
   };
   const importManifest=async(event:ChangeEvent<HTMLInputElement>)=>{
     const file=event.target.files?.[0];if(!file)return;
-    setError('');setManifest(null);setSource(null);setPart(null);setRegistration(null);setDraftLandmarks([]);setPickedBody(null);setPickedCorner(null);setPickMode('off');
+    setError('');setManifest(null);setSource(null);setPart(null);setRegistration(null);setResolvedTransform(null);setDraftLandmarks([]);setPickedBody(null);setPickedCorner(null);setPickMode('off');
     try{
       if(file.size>MAX_MANIFEST)throw Error('Source manifest exceeds 5 MB');
       const data=JSON.parse(await file.text()) as unknown;
@@ -138,6 +150,7 @@ export default function AssemblyPreviewPage(){
       p28PartCount:source.parts.length,
       unit:'metres',scale:1,
       placement:checkedPlacement(placement),
+      resolvedOriginalRootTransform:resolvedTransform,
       landmarkRegistration:registration,
       landmarkEvidence:registrationEvidence,
       measuredPointPairs:draftLandmarks,
@@ -167,7 +180,8 @@ export default function AssemblyPreviewPage(){
           <Stage source={source} placement={placement} shellOpacity={opacity} selectedPart={part}
             registration={registration} pickMode={pickMode} onPointPick={onPointPick}
             onError={showError} onInfo={showInfo}
-            onBodyPartNames={recordBodyParts} hiddenBodyMeshes={hiddenBodyMeshes}/>
+            onBodyPartNames={recordBodyParts} hiddenBodyMeshes={hiddenBodyMeshes}
+            onResolvedTransform={onResolvedTransform}/>
         </Suspense>
         <div className="peds-assembly-caption">
           <strong>ORIGINAL MODEL B EXTERIOR</strong>
