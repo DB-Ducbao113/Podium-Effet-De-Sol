@@ -370,7 +370,7 @@ function Scene({source,rearUprightSource,placement,shellOpacity,selectedPart,cam
         activeWheelId={activeWheelId} selectedPart={selectedPart}
         presentation={cornerPresentation} technicalMaterials={technicalMaterials}/>}
     {rearUprightSource&&source&&measuredFit&&fourMounts&&measuredOverlayEnabled&&
-      <RearUprightInstances source={rearUprightSource} fit={measuredFit} onError={onError}/>}
+      <RearUprightInstances source={rearUprightSource} fit={measuredFit} onError={onError} onLoaded={onInfo}/>}
 
 
     <OrbitControls makeDefault target={focus.target.toArray()} enableDamping dampingFactor={.08}/>
