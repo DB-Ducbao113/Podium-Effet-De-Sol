@@ -29,6 +29,7 @@ type Props = {
   onBodyPartNames: (parts: string[]) => void;
   hiddenBodyMeshes: number[];
   onGeometryProbe: (data: SourceGeometryProbe) => void;
+  p28GeometryProfile: SourceGeometryProbe | null;
   onResolvedTransform: (value: {
     translationM: [number,number,number]; rotationQuaternion: [number,number,number,number];
     stagingBasis: 'separate' | 'graphic_center' | 'landmarks' | 'measured_wheel'; scale: 1;
@@ -53,7 +54,7 @@ function disposeTree(root: THREE.Object3D) {
   textures.forEach(x=>x.dispose());
 }
 
-function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPresentation,technicalMaterials,registration,measuredFit,measuredOverlayEnabled,onError,onInfo,pickMode,onPointPick,onBodyPartNames,hiddenBodyMeshes,onResolvedTransform,onGeometryProbe}:Props) {
+function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPresentation,technicalMaterials,registration,measuredFit,measuredOverlayEnabled,onError,onInfo,pickMode,onPointPick,onBodyPartNames,hiddenBodyMeshes,onResolvedTransform,onGeometryProbe,p28GeometryProfile}:Props) {
   const {camera,invalidate} = useThree();
   const [body,setBody] = useState<THREE.Group | null>(null);
   const [corner,setCorner] = useState<THREE.Group | null>(null);
@@ -148,9 +149,12 @@ function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPre
     const center=new THREE.Vector3(...measuredFit.frontPositiveZCenterM);
     if(cameraFocus==='fastener-macro'){
       // Isolated original parts are framed at THEIR own native mesh bounds.
-      const isolated=selectedPart&&corner?.getObjectByName(selectedPart);
-      if(isolated && corner) {
-        const bounds=new THREE.Box3().setFromObject(isolated);
+      const partBounds=selectedPart&&p28GeometryProfile?.subassemblies[selectedPart]?.sourceBoundsM;
+      if(partBounds&&selectedPart){
+        // The recorded geometry profile is P2.8 ROOT-LOCAL, captured before
+        // any R3F scene placement or visual explosion. No double transforms.
+        const bounds=new THREE.Box3(new THREE.Vector3(...partBounds[0]),
+                                   new THREE.Vector3(...partBounds[1]));
         const position=bounds.getCenter(new THREE.Vector3())
           .sub(new THREE.Vector3(...measuredFit.originalP28WheelCenterM))
           .add(new THREE.Vector3(...presentationForP28Part(selectedPart,cornerPresentation).offsetM));
@@ -164,7 +168,7 @@ function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPre
     if(cornerPresentation==='mechanism-core')
       return {target:center,distance:1.75};
     return {target:center,distance:2.05};
-  },[cameraFocus,frame,measuredFit,measuredOverlayEnabled,selectedPart,cornerPresentation,corner]);
+  },[cameraFocus,frame,measuredFit,measuredOverlayEnabled,selectedPart,cornerPresentation,p28GeometryProfile]);
   useEffect(()=>{
     camera.position.copy(focus.target).add(new THREE.Vector3(.75,.4,1.55).normalize().multiplyScalar(focus.distance));
     camera.lookAt(focus.target);
