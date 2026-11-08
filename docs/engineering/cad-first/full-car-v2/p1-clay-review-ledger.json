@@ -1,0 +1,40 @@
+{
+  "schema": "podium-eds.cad-first.full-car.p1-clay.review-ledger.v1",
+  "source": "CAD FIRST ORIGINAL SOURCE / 2026 PARAMETRIC CLAY",
+  "status": "G1_HOLD",
+  "reviewed_at": "2026-11-08",
+  "source_is_not": [
+    "Full Car V1",
+    "Model B",
+    "R4.5",
+    "P2.8 front-corner master"
+  ],
+  "wheelbase_study_mm": 3350,
+  "cad_brep_valid_solids": 63,
+  "local_step_sha256": "LOCAL OWNER REVIEW / SEE PRIVATE MANIFEST",
+  "three_lods": {
+    "HIGH": {
+      "triangles": 204588,
+      "bytes": 3668128,
+      "open_meshes": 3
+    },
+    "BALANCED": {
+      "triangles": 57336,
+      "bytes": 1039664,
+      "open_meshes": 3
+    },
+    "PERFORMANCE": {
+      "triangles": 24415,
+      "bytes": 455956,
+      "open_meshes": 2
+    }
+  },
+  "measured_envelope_m": [
+    5.514,
+    1.8457,
+    1.1476
+  ],
+  "owner_decision": "PENDING",
+  "commit_scope": "metadata only; native STEP/GLB and source kept outside GitHub until owner gate",
+  "release": "HOLD"
+}
