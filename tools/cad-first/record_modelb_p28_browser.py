@@ -92,6 +92,30 @@ def main():
                 page.mouse.up()
             page.wait_for_timeout(1200)
             page.screenshot(path=str(out/"05-orbit-review.png"),full_page=True)
+            # Separate source-only scroll QA. This does NOT show Model B as a
+            # mechanically completed whole car; label footage precisely.
+            scroll_url=a.url.replace("/engineering/assembly-preview",
+                                     "/engineering/cinematic-rebuild")
+            scroll= context.new_page()
+            scroll.on("pageerror",lambda e:errors.append("SCROLL PAGEERROR "+str(e)))
+            scroll_response=scroll.goto(scroll_url,wait_until="domcontentloaded",timeout=60000)
+            if scroll_response is None or scroll_response.status>=400:
+                raise RuntimeError("Original source scroll DEV route missing")
+            scroll.locator('input[type="file"]').nth(0).set_input_files(str(manifest))
+            scroll.locator('input[type="file"]').nth(1).set_input_files(str(glb))
+            scroll.get_by_text("59-SOLID FRONT CORNER",exact=False).first.wait_for(timeout=60000)
+            scroll.get_by_text("DECODING VERIFIED CAD",exact=False).wait_for(state="hidden",timeout=60000)
+            scroll.wait_for_timeout(900)
+            scroll.screenshot(path=str(out/"06-source-scroll-start.png"),full_page=False)
+            for index in range(1,21):
+                scroll.evaluate("(p)=>window.scrollTo(0,(document.documentElement.scrollHeight-innerHeight)*p)",index/20)
+                scroll.wait_for_timeout(140)
+            scroll.screenshot(path=str(out/"07-source-scroll-end.png"),full_page=False)
+            for index in range(19,-1,-1):
+                scroll.evaluate("(p)=>window.scrollTo(0,(document.documentElement.scrollHeight-innerHeight)*p)",index/20)
+                scroll.wait_for_timeout(140)
+            scroll.screenshot(path=str(out/"08-source-scroll-reverse.png"),full_page=False)
+            scroll.close()
             # The Playwright context video contains actual application frames.
             video=page.video
             context.close()
