@@ -127,6 +127,10 @@ def main():
             if scroll_response is None or scroll_response.status>=400:
                 raise RuntimeError("Original source scroll DEV route missing")
             scroll.locator('input[type="file"]').nth(0).set_input_files(str(manifest))
+            scroll.wait_for_function("""() => {
+              const fields=document.querySelectorAll('input[type=file]');
+              return fields.length>=2 && !fields[1].disabled;
+            }""",timeout=20000)
             scroll.locator('input[type="file"]').nth(1).set_input_files(str(glb))
             scroll.get_by_text("59-SOLID FRONT CORNER",exact=False).first.wait_for(timeout=60000)
             scroll.get_by_text("DECODING VERIFIED CAD",exact=False).wait_for(state="hidden",timeout=60000)
