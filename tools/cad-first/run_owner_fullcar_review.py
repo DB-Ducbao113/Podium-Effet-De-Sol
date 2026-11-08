@@ -112,6 +112,11 @@ def run(args):
                  "--p28-dir",p28,"--quality",args.quality,
                  "--out",out/"browser","--url",url],timeout=900)
         record("ACTUAL_BROWSER_CAPTURE","PASS")
+        execute([sys.executable,TOOLS/"audit_measured_wheel_fit.py",
+                 "--probe",out/"browser"/"peds-modelb-p28-real-geometry.json",
+                 "--placement",out/"browser"/"visual-placement-audit.json",
+                 "--out",out/"measured-original-wheel-fit.json"],timeout=75)
+        record("MEASURED_ORIGINAL_WHEEL_FIT","PASS_VISUAL_ONLY_MECHANICAL_G2_HOLD")
         placement=out/"browser"/"visual-placement-audit.json"
         if not placement.is_file():
             raise RuntimeError("Original-root transform not exported by WebGL viewer")
