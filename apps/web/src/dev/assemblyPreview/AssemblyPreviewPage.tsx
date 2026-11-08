@@ -5,6 +5,7 @@ import { checkedPlacement, INITIAL_PLACEMENT, type Placement } from './assemblyP
 import {registerOwnerLandmarks,type Landmark,type RegistrationInput,type RegistrationResult} from './assemblyRegistration';
 import type { SourceGeometryProbe } from './geometryProbe';
 import {fitOwnerShellToOriginalP28} from './ownerMeasuredFit';
+import type { CornerPresentation } from './cadPresentation';
 import './assemblyPreview.css';
 
 const Stage=lazy(()=>import('./AssemblyPreviewStage'));
@@ -27,7 +28,7 @@ export default function AssemblyPreviewPage(){
   const [opacity,setOpacity]=useState(1);
   const [part,setPart]=useState<string|null>(null);
   const [cameraFocus,setCameraFocus]=useState<'whole-car'|'wheel-macro'|'fastener-macro'>('whole-car');
-  const [cornerPresentation,setCornerPresentation]=useState<'assembled'|'tyre-hidden'|'exploded'>('assembled');
+  const [cornerPresentation,setCornerPresentation]=useState<CornerPresentation>('assembled');
   const [technicalMaterials,setTechnicalMaterials]=useState(true);
   const [registration,setRegistration]=useState<RegistrationResult|null>(null);
   const [registrationEvidence,setRegistrationEvidence]=useState('');
@@ -224,7 +225,7 @@ export default function AssemblyPreviewPage(){
             pickMode={pickMode} onPointPick={onPointPick}
             onError={showError} onInfo={showInfo}
             onBodyPartNames={recordBodyParts} hiddenBodyMeshes={hiddenBodyMeshes}
-            onGeometryProbe={onGeometryProbe}
+            onGeometryProbe={onGeometryProbe} p28GeometryProfile={cornerProbe}
             onResolvedTransform={onResolvedTransform}/>
         </Suspense>
         <div className="peds-assembly-caption">
@@ -300,6 +301,7 @@ export default function AssemblyPreviewPage(){
               disabled={!source} onChange={e=>setCornerPresentation(e.target.value as typeof cornerPresentation)}>
               <option value="assembled">Original assembled source pose</option>
               <option value="tyre-hidden">Remove tyre from VIEW only</option>
+              <option value="mechanism-core">Brake + hub core (hide tyre and rim visually)</option>
               <option value="exploded">Temporary exploded review offsets</option>
             </select>
           </label>
