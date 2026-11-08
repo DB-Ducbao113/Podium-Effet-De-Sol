@@ -37,6 +37,7 @@ def main():
     except ImportError as e:
         raise SystemExit("Install Playwright: python -m pip install playwright") from e
     errors=[]
+    model_b_responses=[]
     runtime={"url":a.url,"source":"original SHA-verified P2.8 + repo Model B",
         "quality":a.quality,"model_b_source":"apps/web/public/models/model-b-eds-optimized-v1.glb",
         "p28_source_sha256":profile["sha256"],"browser":"chromium",
@@ -49,6 +50,7 @@ def main():
                 device_scale_factor=1,record_video_dir=str(out),
                 record_video_size={"width":1440,"height":900})
             page=context.new_page()
+            page.on("response",lambda r:model_b_responses.append(r.status) if "model-b-eds-optimized-v1.glb" in r.url else None)
             page.on("pageerror",lambda e:errors.append("PAGEERROR "+str(e)))
             page.on("console",lambda m:errors.append("CONSOLE "+m.text) if m.type=="error" else None)
             response=page.goto(a.url,wait_until="domcontentloaded",timeout=60000)
@@ -59,6 +61,8 @@ def main():
             page.get_by_text("SOURCE VERIFIED",exact=False).first.wait_for(timeout=45000)
             page.get_by_text("MODEL B + VERIFIED P2.8 LOADED",exact=False).wait_for(timeout=60000)
             page.wait_for_timeout(1800)
+            if not 200 in model_b_responses:
+                raise RuntimeError("Original Model B asset was not loaded successfully; refusing fake video")
             page.screenshot(path=str(out/"01-original-separate.png"),full_page=True)
             page.get_by_label("Display mode").select_option("center")
             page.wait_for_timeout(1200)
