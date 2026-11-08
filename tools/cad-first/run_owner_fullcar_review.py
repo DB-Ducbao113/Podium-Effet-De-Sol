@@ -109,6 +109,14 @@ def run(args):
                  "--p28-dir",p28,"--quality",args.quality,
                  "--out",out/"browser","--url",url],timeout=300)
         record("ACTUAL_BROWSER_CAPTURE","PASS")
+        placement=out/"browser"/"visual-placement-audit.json"
+        if not placement.is_file():
+            raise RuntimeError("Original-root transform not exported by WebGL viewer")
+        execute([sys.executable,TOOLS/"audit_assembly_mesh.py",
+                 "--modelb",MODEL_B,"--p28-dir",p28,
+                 "--placement",placement,"--quality",args.quality,
+                 "--out",out/"visual-overlap-aabb.json"],timeout=180)
+        record("VISUAL_MESH_BROADPHASE","PASS_DIAGNOSTIC_ONLY_G2_HOLD")
         video=out/"browser"/"modelb-p28-browser-real.webm"
         if not video.is_file() or video.stat().st_size<1024:
             raise RuntimeError("Browser video file missing or empty")
