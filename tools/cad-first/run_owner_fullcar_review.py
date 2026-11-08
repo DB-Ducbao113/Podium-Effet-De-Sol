@@ -83,6 +83,8 @@ def run(args):
         if p28 is None:raise RuntimeError("P2.8 recovery produced no original manifest")
         execute([sys.executable,TOOLS/"test_rebuild_owner_p28.py"],timeout=45)
         record("OWNER_SOURCE_PROTECTION_UNIT_TESTS","PASS")
+        execute([sys.executable,TOOLS/"test_audit_assembly_mesh.py"],timeout=120)
+        record("VISUAL_AABB_UNIT_TESTS_SYNTHETIC","PASS")
         execute([sys.executable,TOOLS/"assembly_modelb_p28_preflight.py",
                  "--p28-dir",p28,"--quality",args.quality,
                  "--out",out/"source-preflight.json"],timeout=180)
