@@ -50,7 +50,17 @@ export function readManifest(value: unknown): { manifest: CadManifest; scope: 'f
   if (!data.profiles || typeof data.profiles !== 'object') throw Error('No CAD profile evidence');
   if (data.schema === 'podium-eds.p2.cad-first.full-corner.remate.v1') {
     if (!Array.isArray(data.partIds) || data.partIds.length !== 59 || new Set(data.partIds).size !== 59)
-      throw Error('P2.8 requires 59 distinct verified front-corner part IDs');
+      throw Error('P2.8 requires 59 distinct original source part IDs');
+    const corner = data as CadManifest & {
+      source?: string; staticFit?: { totalPairs?: number; singleStaticPosePass?: boolean;
+        steeringTravelAndBumpValidated?: boolean };
+    };
+    if (!/^[a-f0-9]{64}$/i.test(corner.masterSTEPsha256 ?? '') ||
+        corner.totalCadSolids !== 59 || corner.allRoundtripValid !== true ||
+        corner.staticFit?.totalPairs !== 1711 || corner.staticFit.singleStaticPosePass !== true ||
+        corner.source !== 'Project-authored P2.6/P2.7 original B-Rep') {
+      throw Error('P2.8 requires original STEP lineage and 59-solid native static audit provenance');
+    }
     return { manifest: data as CadManifest, scope: 'front-corner',
       parts: data.partIds.map(id => ({ id, node: id, system: frontCornerSystem(id), label: id.replaceAll('_',' ') })) };
   }
