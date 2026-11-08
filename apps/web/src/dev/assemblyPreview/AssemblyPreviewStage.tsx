@@ -116,7 +116,13 @@ function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPre
         });
       }else if(o.name==='P2_BRAKE_ROTOR_DRILLED_CARBON'){
         material=new THREE.MeshStandardMaterial({
-          color:'#363a40',metalness:.18,roughness:.72,side:THREE.DoubleSide
+          color:selectedPart==='P2_BRAKE_ROTOR_DRILLED_CARBON'?'#b2bac4':'#66727c',
+          metalness:.35,roughness:.62,side:THREE.DoubleSide
+        });
+      }
+      if(!material && selectedPart===o.name){
+        material=new THREE.MeshStandardMaterial({
+          color:'#d3dde6',metalness:.75,roughness:.28,side:THREE.DoubleSide
         });
       }
       if(!material)return;
@@ -130,7 +136,7 @@ function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPre
       clones.forEach(m=>m.dispose());
       invalidate();
     };
-  },[corner,technicalMaterials,invalidate]);
+  },[corner,technicalMaterials,selectedPart,invalidate]);
   const bodyBounds=useMemo(()=>{
     if(!body)return null;
     if(measuredFit){
@@ -151,10 +157,15 @@ function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPre
     if(cameraFocus==='whole-car'||!measuredFit||!measuredOverlayEnabled)
       return {target:frame.target,distance:frame.distance};
     const center=new THREE.Vector3(...measuredFit.frontPositiveZCenterM);
-    if(cameraFocus==='fastener-macro')
-      return {target:center.clone().add(new THREE.Vector3(0,0,.07)),distance:.92};
+    if(cameraFocus==='fastener-macro'){
+      const isLock=selectedPart?.includes('LOCK')||selectedPart?.includes('STUD')||selectedPart?.includes('FASTENER');
+      const zOffset=cornerPresentation==='exploded'
+        ? (isLock?.43:.12) : .07;
+      return {target:center.clone().add(new THREE.Vector3(0,0,zOffset)),
+        distance:isLock?.42:1.10};
+    }
     return {target:center,distance:2.05};
-  },[cameraFocus,frame,measuredFit,measuredOverlayEnabled]);
+  },[cameraFocus,frame,measuredFit,measuredOverlayEnabled,selectedPart,cornerPresentation]);
   useEffect(()=>{
     camera.position.copy(focus.target).add(new THREE.Vector3(.75,.4,1.55).normalize().multiplyScalar(focus.distance));
     camera.lookAt(focus.target);
@@ -183,16 +194,17 @@ function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPre
       const sourceMaterials=Array.isArray(o.material)?o.material:[o.material];
       const modified=sourceMaterials.map(m=>{
         const copy=m.clone();clones.push(copy);
-        copy.transparent=shellOpacity<.999||m.transparent;
-        copy.opacity=m.opacity*shellOpacity;
-        copy.depthWrite=shellOpacity>=.999;
+        const effectiveOpacity=cameraFocus==='whole-car'?shellOpacity:Math.min(shellOpacity,.055);
+        copy.transparent=effectiveOpacity<.999||m.transparent;
+        copy.opacity=m.opacity*effectiveOpacity;
+        copy.depthWrite=effectiveOpacity>=.999;
         return copy;
       });
       o.material=Array.isArray(o.material)?modified:modified[0];
     });
     invalidate();
     return()=>{original.forEach((mat,mesh)=>mesh.material=mat);clones.forEach(c=>c.dispose());invalidate()};
-  },[body,shellOpacity,invalidate]);
+  },[body,shellOpacity,cameraFocus,invalidate]);
   useEffect(()=>{
     if(!corner)return;
     const originals=new Map<THREE.Mesh,{visible:boolean;position:THREE.Vector3}>();
@@ -201,10 +213,10 @@ function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPre
       originals.set(o,{visible:o.visible,position:o.position.clone()});
       const tyre=o.name==='P2_TYRE_SLICK_BODY';
       o.visible=(!selectedPart||o.name===selectedPart)&&
-        !(cornerPresentation==='tyre-hidden'&&tyre);
+        !(cornerPresentation!=='assembled'&&tyre);
       if(cornerPresentation==='exploded'){
         let displacement=0;
-        if(tyre)displacement=.52;
+        if(tyre)displacement=0; // tyre hidden during exploded engineering inspection
         else if(o.name.includes('RIM_'))displacement=.27;
         else if(o.name.includes('CENTER_'))displacement=.4;
         else if(o.name.includes('ROTOR_')||o.name.includes('BRAKE_'))displacement=.12;
@@ -268,7 +280,7 @@ function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPre
   },[bodyBounds,cornerBounds,corner,transform,rotation,registration,measuredFit,measuredOverlayEnabled,shellScale,placement.displayedAtBodyCenter,onResolvedTransform]);
   useEffect(()=>invalidate(),[transform,placement,selectedPart,invalidate]);
   return <>
-    <color attach="background" args={['#0a111b']}/>
+    <color attach="background" args={[cameraFocus==='whole-car'?'#0a111b':'#1c2835']}/>
     <ambientLight intensity={1.5}/><hemisphereLight args={['#eff5ff','#1a2a3d',2]}/>
     <directionalLight position={[5,8,6]} intensity={3.2}/>
     <directionalLight position={[-4,4,-3]} intensity={2} color="#ff9d84"/>
