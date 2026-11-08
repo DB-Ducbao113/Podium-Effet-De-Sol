@@ -40,7 +40,7 @@ def verify(p28:Path,quality:str)->tuple[Path,Path,dict]:
     if h!=profile["sha256"]:raise RuntimeError("P2.8 original GLB SHA mismatch")
     return manifest,glb,record
 
-def capture(url:str,p28:Path,out:Path,quality:str)->dict:
+def capture(url:str,p28:Path,out:Path,quality:str,p29:Path|None=None)->dict:
     try:
         from playwright.sync_api import sync_playwright
     except ImportError as exc:
@@ -51,6 +51,8 @@ def capture(url:str,p28:Path,out:Path,quality:str)->dict:
         "schema":"podium-eds.four-wheel.chromium-owner-review.v1",
         "original_p28_sha256":record["profiles"][quality]["sha256"],
         "source_part_count":59,
+        "real_p29_rear_upright_loaded":False,
+        "p29_step_source_sha256":None,
         "native_cad_scale":1,
         "all_four_original_modelb_wheel_positions":False,
         "real_rear_chassis_cad_approved":False,
@@ -95,6 +97,30 @@ def capture(url:str,p28:Path,out:Path,quality:str)->dict:
             selector=page.get_by_label("Inspect wheel")
             if not selector.is_enabled():
                 raise RuntimeError("Four-wheel visual mode disabled or original source fit failed")
+            if p29 is not None:
+                manifest29=p29/"P29_rear_upright_manifest.json"
+                if not manifest29.is_file():
+                    raise RuntimeError("Missing independently authored P2.9 rear upright manifest")
+                source29=json.loads(manifest29.read_text(encoding="utf8"))
+                if (source29.get("schema") !=
+                    "podium-eds.p2.cad-first.rear-upright-proposal.v1" or
+                    source29.get("mechanicalMatingCertified") is not False):
+                    raise RuntimeError("Unverified rear upright design")
+                step29=p29/source29["masterSTEP"]
+                if (not step29.is_file() or
+                    hashlib.sha256(step29.read_bytes()).hexdigest() !=
+                    source29["masterSTEPsha256"]):
+                    raise RuntimeError("P2.9 rear upright STEP source mismatch")
+                glb_entry=source29["profiles"][quality]
+                glb29=p29/glb_entry["file"]
+                if (not glb29.is_file() or
+                    hashlib.sha256(glb29.read_bytes()).hexdigest()!=glb_entry["sha256"]):
+                    raise RuntimeError("P2.9 rear upright GLB source hash mismatch")
+                page.get_by_label("P2.9 rear upright manifest (.json)").set_input_files(str(manifest29))
+                page.get_by_label("P2.9 rear upright GLB (.glb)").set_input_files(str(glb29))
+                page.get_by_text("P2.9 REAR UPRIGHT LOADED",exact=False).first.wait_for(timeout=45000)
+                runtime["p29_step_source_sha256"]=source29["masterSTEPsha256"]
+                runtime["p29_source_glb_sha256"]=glb_entry["sha256"]
             with page.expect_download(timeout=15000) as download_info:
                 page.get_by_role("button",name="EXPORT PLACEMENT JSON").click()
             audit_file=out/"four-corner-original-source-placement.json"
@@ -104,6 +130,15 @@ def capture(url:str,p28:Path,out:Path,quality:str)->dict:
             corners=layout.get("corners",[])
             if len(corners)!=4 or {x.get("id") for x in corners}!={x[0] for x in WHEELS}:
                 raise RuntimeError("Browser did NOT place exactly four measured wheels")
+            if p29 is not None:
+                rear=placement.get("rearUprightProposal")
+                if (not isinstance(rear,dict) or
+                    rear.get("partId") != "P29_REAR_UPRIGHT_BEARING_CARRIER_PROPOSAL" or
+                    rear.get("sourceSha256") != runtime["p29_source_glb_sha256"] or
+                    rear.get("mechanicalMatingCertified") is not False or
+                    rear.get("rearChassisHardpointsMeasured") is not False):
+                    raise RuntimeError("P2.9 source was not verified and exported from the real browser")
+                runtime["real_p29_rear_upright_loaded"]=True
             if any(x.get("p28Scale")!=1 or x.get("mechanicalMateCertified") is not False
                    for x in corners):
                 raise RuntimeError("Native P2.8 CAD was altered or falsely certified")
@@ -232,10 +267,12 @@ def main():
     parser=argparse.ArgumentParser()
     parser.add_argument("--url",default="http://127.0.0.1:5184/engineering/assembly-preview")
     parser.add_argument("--p28-dir",type=Path,required=True)
+    parser.add_argument("--p29-dir",type=Path,default=None)
     parser.add_argument("--out",type=Path,required=True)
     parser.add_argument("--quality",choices=["HIGH","BALANCED","PERFORMANCE"],default="BALANCED")
     args=parser.parse_args()
-    result=capture(args.url,args.p28_dir.resolve(),args.out.resolve(),args.quality)
+    result=capture(args.url,args.p28_dir.resolve(),args.out.resolve(),args.quality,
+                   args.p29_dir.resolve() if args.p29_dir else None)
     print("LOCAL four-wheel browser review recorded:",result["recorded_video"])
     print("G2 HOLD: rear is front source wheel-end proxy, NOT rear suspension CAD.")
 
