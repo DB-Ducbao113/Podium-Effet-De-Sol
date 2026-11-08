@@ -92,6 +92,24 @@ def main():
                 page.mouse.up()
             page.wait_for_timeout(1200)
             page.screenshot(path=str(out/"05-orbit-review.png"),full_page=True)
+            runtime["responsive_views"]=[]
+            for width,height in ((390,844),(768,1024),(1440,900),(1920,1080)):
+                page.set_viewport_size({"width":width,"height":height})
+                page.wait_for_timeout(250)
+                geometry=page.evaluate("""() => ({
+                    viewport: document.documentElement.clientWidth,
+                    scrollWidth: document.documentElement.scrollWidth,
+                    canvasWidth: document.querySelector('canvas')?.getBoundingClientRect().width || 0,
+                    canvasHeight: document.querySelector('canvas')?.getBoundingClientRect().height || 0
+                })""")
+                overflow=geometry["scrollWidth"]-geometry["viewport"]
+                geometry["horizontal_overflow_px"]=overflow
+                runtime["responsive_views"].append({"width":width,"height":height,**geometry})
+                if overflow>2 or geometry["canvasWidth"]<=0 or geometry["canvasHeight"]<=0:
+                    errors.append(f"Responsive WebGL layout failure at {width}x{height}: {geometry}")
+                page.screenshot(path=str(out/f"responsive-{width}.png"),full_page=False)
+            page.set_viewport_size({"width":1440,"height":900})
+            page.wait_for_timeout(300)
             # Separate source-only scroll QA. This does NOT show Model B as a
             # mechanically completed whole car; label footage precisely.
             scroll_url=a.url.replace("/engineering/assembly-preview",
