@@ -3,6 +3,7 @@ import { Canvas, useThree, type ThreeEvent } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'meshoptimizer';
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import * as THREE from 'three';
 import type { CadSource } from '../cadFirstScroll/cadSource';
 import { centerOffset, initialStagingPosition, type Placement } from './assemblyPlacement';
@@ -54,6 +55,45 @@ function disposeTree(root: THREE.Object3D) {
   textures.forEach(x=>x.dispose());
 }
 
+
+// Local procedural softbox reflections, no CDN/HDR downloads and no changes to
+// original P2.8 GLB or Model B materials. Metallic CAD is nearly black without
+// an environment reflection; the room provides that energy in real-time.
+function EngineeringStudioEnvironment() {
+  const {gl,scene,invalidate}=useThree();
+  useEffect(()=>{
+    const pmrem=new THREE.PMREMGenerator(gl);
+    const studio=new RoomEnvironment();
+    const env=pmrem.fromScene(studio,0.05).texture;
+    const previous=scene.environment;
+    scene.environment=env;
+    invalidate();
+    return()=>{
+      scene.environment=previous;
+      env.dispose();
+      pmrem.dispose();
+      disposeTree(studio);
+      invalidate();
+    };
+  },[gl,scene,invalidate]);
+  return null;
+}
+
+function needsRecomputedSourceNormals(geometry:THREE.BufferGeometry):boolean {
+  const normal=geometry.getAttribute('normal');
+  const position=geometry.getAttribute('position');
+  if(!normal||!position||normal.count!==position.count)return true;
+  const stride=Math.max(1,Math.floor(normal.count/80));
+  let checked=0,invalid=0;
+  for(let i=0;i<normal.count;i+=stride){
+    const x=normal.getX(i),y=normal.getY(i),z=normal.getZ(i);
+    const lengthSquared=x*x+y*y+z*z;
+    checked++;
+    if(!Number.isFinite(lengthSquared)||lengthSquared<.5||lengthSquared>1.5)invalid++;
+  }
+  return checked>0 && invalid/checked>.05;
+}
+
 function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPresentation,technicalMaterials,registration,measuredFit,measuredOverlayEnabled,onError,onInfo,pickMode,onPointPick,onBodyPartNames,hiddenBodyMeshes,onResolvedTransform,onGeometryProbe,p28GeometryProfile}:Props) {
   const {camera,invalidate} = useThree();
   const [body,setBody] = useState<THREE.Group | null>(null);
@@ -103,8 +143,9 @@ function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPre
   const shellScale=measuredFit?.normalizedShellScale??1;
   useEffect(()=>{
     if(!corner||!technicalMaterials)return;
-    const original=new Map<THREE.Mesh,THREE.Material|THREE.Material[]>();
-    const clones:THREE.Material[]=[];
+    const original=new Map<THREE.Mesh,{material:THREE.Material|THREE.Material[];geometry:THREE.BufferGeometry}>();
+    const clonedMaterials:THREE.Material[]=[];
+    const clonedGeometry:THREE.BufferGeometry[]=[];
     corner.traverse(o=>{
       if(!(o instanceof THREE.Mesh))return;
       const preset=materialForP28Part(classifyP28Part(o.name));
@@ -113,17 +154,27 @@ function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPre
         color:selected?'#e2e9ef':preset.color,
         metalness:preset.metalness,
         roughness:selected?Math.max(.28,preset.roughness-.12):preset.roughness,
+        emissive:new THREE.Color(preset.color),
+        emissiveIntensity:preset.metalness>.6?.18:.3,
+        envMapIntensity:1.55,
         side:THREE.DoubleSide,
       });
       if(!material)return;
-      original.set(o,o.material);
-      clones.push(material);
+      original.set(o,{material:o.material,geometry:o.geometry});
+      if(needsRecomputedSourceNormals(o.geometry)){
+        const copy=o.geometry.clone();
+        copy.computeVertexNormals();
+        o.geometry=copy;
+        clonedGeometry.push(copy);
+      }
+      clonedMaterials.push(material);
       o.material=material;
     });
     invalidate();
     return()=>{
-      original.forEach((material,mesh)=>mesh.material=material);
-      clones.forEach(m=>m.dispose());
+      original.forEach((prior,mesh)=>{mesh.material=prior.material;mesh.geometry=prior.geometry;});
+      clonedGeometry.forEach(g=>g.dispose());
+      clonedMaterials.forEach(m=>m.dispose());
       invalidate();
     };
   },[corner,technicalMaterials,selectedPart,invalidate]);
@@ -288,7 +339,12 @@ function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPre
 export default function AssemblyPreviewStage(props:Props) {
   return <Canvas frameloop="demand" dpr={[1,1.5]} camera={{fov:38,near:.001,far:500,position:[5,3,8]}}
     gl={{antialias:true,powerPreference:'high-performance'}}
-    onCreated={({gl})=>{gl.outputColorSpace=THREE.SRGBColorSpace;gl.toneMapping=THREE.ACESFilmicToneMapping}}>
+    onCreated={({gl})=>{
+      gl.outputColorSpace=THREE.SRGBColorSpace;
+      gl.toneMapping=THREE.ACESFilmicToneMapping;
+      gl.toneMappingExposure=1.35;
+    }}>
+    <EngineeringStudioEnvironment/>
     <Scene {...props}/>
   </Canvas>;
 }
