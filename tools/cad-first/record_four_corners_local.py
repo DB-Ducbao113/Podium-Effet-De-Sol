@@ -40,7 +40,8 @@ def verify(p28:Path,quality:str)->tuple[Path,Path,dict]:
     if h!=profile["sha256"]:raise RuntimeError("P2.8 original GLB SHA mismatch")
     return manifest,glb,record
 
-def capture(url:str,p28:Path,out:Path,quality:str,p29:Path|None=None)->dict:
+def capture(url:str,p28:Path,out:Path,quality:str,p29:Path|None=None,
+            p210:Path|None=None)->dict:
     try:
         from playwright.sync_api import sync_playwright
     except ImportError as exc:
@@ -52,6 +53,8 @@ def capture(url:str,p28:Path,out:Path,quality:str,p29:Path|None=None)->dict:
         "original_p28_sha256":record["profiles"][quality]["sha256"],
         "source_part_count":59,
         "real_p29_rear_upright_loaded":False,
+        "real_p210_rear_wishbone_loaded":False,
+        "p210_step_source_sha256":None,
         "p29_step_source_sha256":None,
         "native_cad_scale":1,
         "all_four_original_modelb_wheel_positions":False,
@@ -121,6 +124,38 @@ def capture(url:str,p28:Path,out:Path,quality:str,p29:Path|None=None)->dict:
                 page.get_by_text("P29 REAR UPRIGHT RENDERED",exact=False).first.wait_for(timeout=45000)
                 runtime["p29_step_source_sha256"]=source29["masterSTEPsha256"]
                 runtime["p29_source_glb_sha256"]=glb_entry["sha256"]
+            if p210 is not None:
+                p210_manifest=p210/"P210_rear_suspension_manifest.json"
+                if not p210_manifest.is_file():
+                    raise RuntimeError("Missing independently authored P2.10 source manifest")
+                source210=json.loads(p210_manifest.read_text(encoding="utf8"))
+                pair_audit=source210.get("nativeStaticAudit",{})
+                if (source210.get("schema") !=
+                    "podium-eds.p2.cad-first.rear-double-wishbone-proposal.v1" or
+                    source210.get("totalCadSolids")!=11 or
+                    source210.get("newSolids")!=10 or
+                    source210.get("chassisHardpointsMeasured") is not False or
+                    source210.get("mechanicalMateCertified") is not False or
+                    pair_audit.get("pairCount")!=55 or
+                    pair_audit.get("passStatic") is not True or
+                    pair_audit.get("unresolvedCollisions") or
+                    pair_audit.get("booleanErrors")):
+                    raise RuntimeError("P2.10 source rear suspension is not a valid static 11-solid proposal")
+                step210=p210/source210["masterSTEP"]
+                if (not step210.is_file() or
+                    hashlib.sha256(step210.read_bytes()).hexdigest() !=
+                    source210["masterSTEPsha256"]):
+                    raise RuntimeError("P2.10 STEP digest mismatch")
+                profile210=source210["profiles"][quality]
+                glb210=p210/profile210["file"]
+                if (not glb210.is_file() or
+                    hashlib.sha256(glb210.read_bytes()).hexdigest()!=profile210["sha256"]):
+                    raise RuntimeError("P2.10 11-part GLB digest mismatch")
+                page.get_by_label("P2.10 rear suspension manifest (.json)").set_input_files(str(p210_manifest))
+                page.get_by_label("P2.10 rear suspension GLB (.glb)").set_input_files(str(glb210))
+                page.get_by_text("P210 REAR SUSPENSION MESHES PARSED",exact=False).first.wait_for(timeout=60000)
+                runtime["p210_step_source_sha256"]=source210["masterSTEPsha256"]
+                runtime["p210_source_glb_sha256"]=profile210["sha256"]
             with page.expect_download(timeout=15000) as download_info:
                 page.get_by_role("button",name="EXPORT PLACEMENT JSON").click()
             audit_file=out/"four-corner-original-source-placement.json"
@@ -130,6 +165,17 @@ def capture(url:str,p28:Path,out:Path,quality:str,p29:Path|None=None)->dict:
             corners=layout.get("corners",[])
             if len(corners)!=4 or {x.get("id") for x in corners}!={x[0] for x in WHEELS}:
                 raise RuntimeError("Browser did NOT place exactly four measured wheels")
+            if p210 is not None:
+                rear_susp=placement.get("rearSuspensionProposal")
+                if (not isinstance(rear_susp,dict) or
+                    rear_susp.get("totalCadSolids")!=11 or
+                    rear_susp.get("nativeStaticPairCount")!=55 or
+                    rear_susp.get("sourceSha256")!=runtime["p210_source_glb_sha256"] or
+                    rear_susp.get("mechanicalMatingCertified") is not False or
+                    rear_susp.get("rearChassisHardpointsMeasured") is not False or
+                    rear_susp.get("dynamicSuspensionCertified") is not False):
+                    raise RuntimeError("P2.10 real WebGL export missing original source evidence")
+                runtime["real_p210_rear_wishbone_loaded"]=True
             if p29 is not None:
                 rear=placement.get("rearUprightProposal")
                 if (not isinstance(rear,dict) or
@@ -268,11 +314,13 @@ def main():
     parser.add_argument("--url",default="http://127.0.0.1:5184/engineering/assembly-preview")
     parser.add_argument("--p28-dir",type=Path,required=True)
     parser.add_argument("--p29-dir",type=Path,default=None)
+    parser.add_argument("--p210-dir",type=Path,default=None)
     parser.add_argument("--out",type=Path,required=True)
     parser.add_argument("--quality",choices=["HIGH","BALANCED","PERFORMANCE"],default="BALANCED")
     args=parser.parse_args()
     result=capture(args.url,args.p28_dir.resolve(),args.out.resolve(),args.quality,
-                   args.p29_dir.resolve() if args.p29_dir else None)
+                   args.p29_dir.resolve() if args.p29_dir else None,
+                   args.p210_dir.resolve() if args.p210_dir else None)
     print("LOCAL four-wheel browser review recorded:",result["recorded_video"])
     print("G2 HOLD: rear is front source wheel-end proxy, NOT rear suspension CAD.")
 
