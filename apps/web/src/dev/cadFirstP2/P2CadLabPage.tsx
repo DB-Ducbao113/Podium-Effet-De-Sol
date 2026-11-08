@@ -534,6 +534,9 @@ export default function P2CadLabPage() {
       <section className="p2-cad-lab__intro">
         <span className="p2-cad-lab__eyebrow">ORIGINAL STATIC FIT / P2.4</span>
         <h1>GEOMETRY FIRST<span>.</span></h1>
+        <p><Link to="/engineering/assembly-preview" style={{color:'#ffad88',textDecoration:'underline',fontWeight:800}}>
+          OPEN MODEL B + ORIGINAL P2.8 ASSEMBLY PREVIEW (DEV)
+        </Link></p>
         <p>
           Replace low-poly cosmetic details with inspectable CAD bodies, mechanical
           part hierarchy and controlled levels of detail. Import a local GLB generated
