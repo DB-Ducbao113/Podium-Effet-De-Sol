@@ -79,7 +79,9 @@ function Scene({source,placement,shellOpacity,selectedPart,onError,onInfo}:Props
   useEffect(()=>{
     camera.position.copy(frame.target).add(new THREE.Vector3(.85,.45,1).normalize().multiplyScalar(frame.distance));
     camera.lookAt(frame.target);
-    camera.updateProjectionMatrix();
+    if (camera instanceof THREE.PerspectiveCamera || camera instanceof THREE.OrthographicCamera) {
+      camera.updateProjectionMatrix();
+    }
     invalidate();
   },[frame,camera,invalidate]);
   useEffect(()=>{if(!body)return;
