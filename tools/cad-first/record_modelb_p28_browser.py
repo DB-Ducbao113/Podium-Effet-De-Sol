@@ -58,8 +58,17 @@ def main():
             page.locator('input[type="file"]').nth(0).set_input_files(str(manifest))
             page.get_by_text("P2.8 MANIFEST READY",exact=False).wait_for(timeout=20000)
             page.locator('input[type="file"]').nth(1).set_input_files(str(glb))
-            page.get_by_text("GLB HASH MATCHES OWNER MANIFEST",exact=False).first.wait_for(timeout=45000)
-            page.get_by_text("MODEL B + VERIFIED P2.8 LOADED",exact=False).wait_for(timeout=60000)
+            # The intermediate SHA banner can be replaced within the same
+            # browser turn when Three.js resolves fast. Wait for terminal state.
+            try:
+                page.get_by_text("MODEL B + VERIFIED P2.8 LOADED",exact=False).wait_for(timeout=90000)
+            except Exception:
+                page.screenshot(path=str(out/"load-failure-debug.png"),full_page=True)
+                (out/"load-failure-debug.txt").write_text(
+                    page.locator("body").inner_text()[:12000]+"\n\n"+str(errors),
+                    encoding="utf8"
+                )
+                raise
             page.get_by_role("button",name="EXPORT DECODED SOURCE MEASUREMENTS").wait_for(timeout=45000)
             with page.expect_download(timeout=30000) as profile_event:
                 page.get_by_role("button",name="EXPORT DECODED SOURCE MEASUREMENTS").click()
