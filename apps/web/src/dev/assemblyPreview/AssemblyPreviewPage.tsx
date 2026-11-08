@@ -28,6 +28,7 @@ export default function AssemblyPreviewPage(){
   const [part,setPart]=useState<string|null>(null);
   const [cameraFocus,setCameraFocus]=useState<'whole-car'|'wheel-macro'|'fastener-macro'>('whole-car');
   const [cornerPresentation,setCornerPresentation]=useState<'assembled'|'tyre-hidden'|'exploded'>('assembled');
+  const [technicalMaterials,setTechnicalMaterials]=useState(true);
   const [registration,setRegistration]=useState<RegistrationResult|null>(null);
   const [registrationEvidence,setRegistrationEvidence]=useState('');
   const [busy,setBusy]=useState(false);
@@ -189,6 +190,7 @@ export default function AssemblyPreviewPage(){
       p28OriginalCadScale:1,
       currentCameraFocus:cameraFocus,
       reviewPresentation:cornerPresentation,
+      technicalLookdev:technicalMaterials,
       landmarkRegistration:registration,
       landmarkEvidence:registrationEvidence,
       measuredPointPairs:draftLandmarks,
@@ -217,6 +219,7 @@ export default function AssemblyPreviewPage(){
         <Suspense fallback={<p>Loading Three.js preview…</p>}>
           <Stage source={source} placement={placement} shellOpacity={opacity} selectedPart={part}
             cameraFocus={cameraFocus} cornerPresentation={cornerPresentation}
+            technicalMaterials={technicalMaterials}
             registration={registration} measuredFit={calibration.fit} measuredOverlayEnabled={measuredOverlayEnabled}
             pickMode={pickMode} onPointPick={onPointPick}
             onError={showError} onInfo={showInfo}
@@ -300,6 +303,13 @@ export default function AssemblyPreviewPage(){
               <option value="exploded">Temporary exploded review offsets</option>
             </select>
           </label>
+          <label>
+            <input type="checkbox" checked={technicalMaterials}
+              onChange={e=>setTechnicalMaterials(e.target.checked)}/>
+            Engineering PBR lookdev (rubber tyre, forged rim, carbon rotor)
+          </label>
+          <small>Lookdev is shader-only and reversible. Original GLB materials, CAD
+            B-Rep geometry and mesh part IDs are not overwritten.</small>
           <small>Exploded offsets are for visualization only, not manufacturing mating transforms.
             Returning to assembled fully restores every original source part position.</small>
         </div>
