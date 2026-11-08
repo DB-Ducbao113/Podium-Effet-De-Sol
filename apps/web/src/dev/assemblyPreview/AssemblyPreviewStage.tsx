@@ -13,6 +13,7 @@ import { probeOriginalGeometry, type SourceGeometryProbe } from './geometryProbe
 import { classifyP28Part, materialForP28Part, presentationForP28Part, type CornerPresentation } from './cadPresentation';
 import FourCornerInstances from './FourCornerInstances';
 import { layoutFourCorners, type WheelId } from './fourCornerLayout';
+import { addReversibleWheelWindow } from './showroomWheelMask';
 
 type Props = {
   source: CadSource | null;
@@ -24,6 +25,7 @@ type Props = {
   technicalMaterials: boolean;
   allFourWheelsEnabled: boolean;
   activeWheelId: WheelId;
+  showroomWheelWindowsEnabled: boolean;
   registration: RegistrationResult | null;
   measuredFit: OwnerMeasuredFit | null;
   measuredOverlayEnabled: boolean;
@@ -103,7 +105,7 @@ function needsRecomputedSourceNormals(geometry:THREE.BufferGeometry):boolean {
 }
 
 function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPresentation,technicalMaterials,
-  allFourWheelsEnabled,activeWheelId,registration,measuredFit,measuredOverlayEnabled,onError,onInfo,
+  allFourWheelsEnabled,activeWheelId,showroomWheelWindowsEnabled,registration,measuredFit,measuredOverlayEnabled,onError,onInfo,
   pickMode,onPointPick,onBodyPartNames,hiddenBodyMeshes,onResolvedTransform,onGeometryProbe,p28GeometryProfile}:Props) {
   const {camera,invalidate} = useThree();
   const [body,setBody] = useState<THREE.Group | null>(null);
@@ -261,6 +263,8 @@ function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPre
   },[body,hiddenBodyMeshes,invalidate]);
   useEffect(()=>{if(!body)return;
     const original=new Map<THREE.Mesh,THREE.Material|THREE.Material[]>(),clones:THREE.Material[]=[];
+    body.updateWorldMatrix(true,true);
+    const sourceInverse=body.matrixWorld.clone().invert();
     body.traverse(o=>{
       if(!(o instanceof THREE.Mesh))return;
       original.set(o,o.material);
@@ -271,13 +275,18 @@ function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPre
         copy.transparent=effectiveOpacity<.999||m.transparent;
         copy.opacity=m.opacity*effectiveOpacity;
         copy.depthWrite=effectiveOpacity>=.999;
+        if(allFourWheelsEnabled&&showroomWheelWindowsEnabled&&measuredFit){
+          const sourceRootFromMesh=new THREE.Matrix4()
+            .multiplyMatrices(sourceInverse,o.matrixWorld);
+          addReversibleWheelWindow(copy,sourceRootFromMesh,measuredFit);
+        }
         return copy;
       });
       o.material=Array.isArray(o.material)?modified:modified[0];
     });
     invalidate();
     return()=>{original.forEach((mat,mesh)=>mesh.material=mat);clones.forEach(c=>c.dispose());invalidate()};
-  },[body,shellOpacity,cameraFocus,invalidate]);
+  },[body,shellOpacity,cameraFocus,allFourWheelsEnabled,showroomWheelWindowsEnabled,measuredFit,invalidate]);
   useEffect(()=>{
     if(!corner)return;
     const originals=new Map<THREE.Mesh,{visible:boolean;position:THREE.Vector3}>();
