@@ -18,7 +18,7 @@ from pathlib import Path
 import cadquery as cq
 from OCP.gp import gp_GTrsf, gp_Mat, gp_XYZ
 from OCP.BRepBuilderAPI import BRepBuilderAPI_GTransform
-from p2_6_steering_relief import build_machined
+from p2_6_steering_relief import make_steering_parts
 from p2_7_wishbone_cad import build_parts
 
 LEGACY={"P2_UPPER_WISHBONE_LINK","P2_LOWER_WISHBONE_LINK"}
@@ -44,7 +44,7 @@ def approximate_inflation(shape,half_width_mm=.3):
     return cq.Shape(BRepBuilderAPI_GTransform(shape.wrapped,tr,True).Shape())
 
 def author():
-    p26,_=build_machined()
+    p26,_=make_steering_parts()
     p27=build_parts()
     retained={key:part for key,part in p26.items() if key not in LEGACY}
     if len(retained)!=51 or len(p27)!=8:
