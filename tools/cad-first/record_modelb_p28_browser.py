@@ -63,7 +63,10 @@ def main():
             page.get_by_label("Display mode").select_option("center")
             page.wait_for_timeout(1200)
             page.screenshot(path=str(out/"02-unverified-centre-overlay.png"),full_page=True)
-            page.locator('input[type="range"]').first.fill("0.35")
+            slider=page.locator('input[type="range"]').first
+            slider.focus()
+            slider.press("Home")
+            for _ in range(7):slider.press("ArrowRight")
             page.wait_for_timeout(1200)
             page.screenshot(path=str(out/"03-transparent-shell.png"),full_page=True)
             source_parts=data["partIds"]
