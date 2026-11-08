@@ -11,6 +11,8 @@ import type { RegistrationResult } from './assemblyRegistration';
 import type { OwnerMeasuredFit } from './ownerMeasuredFit';
 import { probeOriginalGeometry, type SourceGeometryProbe } from './geometryProbe';
 import { classifyP28Part, materialForP28Part, presentationForP28Part, type CornerPresentation } from './cadPresentation';
+import FourCornerInstances from './FourCornerInstances';
+import { layoutFourCorners, type WheelId } from './fourCornerLayout';
 
 type Props = {
   source: CadSource | null;
@@ -20,6 +22,8 @@ type Props = {
   cameraFocus: 'whole-car' | 'wheel-macro' | 'fastener-macro';
   cornerPresentation: CornerPresentation;
   technicalMaterials: boolean;
+  allFourWheelsEnabled: boolean;
+  activeWheelId: WheelId;
   registration: RegistrationResult | null;
   measuredFit: OwnerMeasuredFit | null;
   measuredOverlayEnabled: boolean;
@@ -98,7 +102,9 @@ function needsRecomputedSourceNormals(geometry:THREE.BufferGeometry):boolean {
   return checked>0 && invalid/checked>.05;
 }
 
-function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPresentation,technicalMaterials,registration,measuredFit,measuredOverlayEnabled,onError,onInfo,pickMode,onPointPick,onBodyPartNames,hiddenBodyMeshes,onResolvedTransform,onGeometryProbe,p28GeometryProfile}:Props) {
+function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPresentation,technicalMaterials,
+  allFourWheelsEnabled,activeWheelId,registration,measuredFit,measuredOverlayEnabled,onError,onInfo,
+  pickMode,onPointPick,onBodyPartNames,hiddenBodyMeshes,onResolvedTransform,onGeometryProbe,p28GeometryProfile}:Props) {
   const {camera,invalidate} = useThree();
   const [body,setBody] = useState<THREE.Group | null>(null);
   const [corner,setCorner] = useState<THREE.Group | null>(null);
@@ -145,6 +151,11 @@ function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPre
   // A uniform display-only normalization uses measured tyre radii; the original
   // GLB remains byte-for-byte identical, and original P2.8 CAD scale stays 1.
   const shellScale=measuredFit?.normalizedShellScale??1;
+  const fourMounts=useMemo(()=>(
+    allFourWheelsEnabled&&measuredFit ? layoutFourCorners(measuredFit):null
+  ),[allFourWheelsEnabled,measuredFit]);
+  const activeMount=useMemo(()=>fourMounts?.find(x=>x.id===activeWheelId),
+    [fourMounts,activeWheelId]);
   useEffect(()=>{
     if(!corner||!technicalMaterials)return;
     const original=new Map<THREE.Mesh,{material:THREE.Material|THREE.Material[];geometry:THREE.BufferGeometry}>();
@@ -201,7 +212,7 @@ function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPre
   const focus=useMemo(()=>{
     if(cameraFocus==='whole-car'||!measuredFit||!measuredOverlayEnabled)
       return {target:frame.target,distance:frame.distance};
-    const center=new THREE.Vector3(...measuredFit.frontPositiveZCenterM);
+    const center=new THREE.Vector3(...(activeMount?.centerM??measuredFit.frontPositiveZCenterM));
     if(cameraFocus==='fastener-macro'){
       // Isolated original parts are framed at THEIR own native mesh bounds.
       const partBounds=selectedPart&&p28GeometryProfile?.subassemblies[selectedPart]?.sourceBoundsM;
@@ -212,7 +223,8 @@ function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPre
                                    new THREE.Vector3(...partBounds[1]));
         const position=bounds.getCenter(new THREE.Vector3())
           .sub(new THREE.Vector3(...measuredFit.originalP28WheelCenterM))
-          .add(new THREE.Vector3(...presentationForP28Part(selectedPart,cornerPresentation).offsetM));
+          .add(new THREE.Vector3(...presentationForP28Part(selectedPart,cornerPresentation).offsetM))
+          .applyAxisAngle(new THREE.Vector3(0,1,0),activeMount?.rotationYRad??0);
         const distance=Math.max(.58,Math.min(1.9,bounds.getSize(new THREE.Vector3()).length()*3.2));
         return {target:center.clone().add(position),distance};
       }
@@ -223,7 +235,7 @@ function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPre
     if(cornerPresentation==='mechanism-core')
       return {target:center,distance:1.75};
     return {target:center,distance:2.05};
-  },[cameraFocus,frame,measuredFit,measuredOverlayEnabled,selectedPart,cornerPresentation,p28GeometryProfile]);
+  },[cameraFocus,frame,measuredFit,measuredOverlayEnabled,selectedPart,cornerPresentation,p28GeometryProfile,activeMount]);
   useEffect(()=>{
     camera.position.copy(focus.target).add(new THREE.Vector3(.75,.4,1.55).normalize().multiplyScalar(focus.distance));
     camera.lookAt(focus.target);
@@ -270,7 +282,8 @@ function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPre
       if(!(o instanceof THREE.Mesh))return;
       originals.set(o,{visible:o.visible,position:o.position.clone()});
       const presentation=presentationForP28Part(o.name,cornerPresentation);
-      o.visible=(!selectedPart||o.name===selectedPart)&&presentation.visible;
+      const isolateHere=!allFourWheelsEnabled||activeWheelId==='front-positive-z';
+      o.visible=(!isolateHere||!selectedPart||o.name===selectedPart)&&presentation.visible;
       o.position.add(new THREE.Vector3(...presentation.offsetM));
     });
     invalidate();
@@ -278,7 +291,7 @@ function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPre
       originals.forEach((v,o)=>{o.visible=v.visible;o.position.copy(v.position);});
       invalidate();
     };
-  },[corner,selectedPart,cornerPresentation,invalidate]);
+  },[corner,selectedPart,cornerPresentation,allFourWheelsEnabled,activeWheelId,invalidate]);
   const transform=useMemo(()=>{
     if(registration)return new THREE.Vector3(...registration.translationM).add(new THREE.Vector3(...placement.translationM));
     if(measuredFit && measuredOverlayEnabled){
@@ -337,6 +350,11 @@ function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPre
       onPointerDown={event=>pickSurface("p28",event)}>
        <primitive object={corner}/>
     </group>}
+    {corner&&measuredFit&&fourMounts&&measuredOverlayEnabled&&
+      <FourCornerInstances originalFrontCorner={corner} fit={measuredFit}
+        activeWheelId={activeWheelId} selectedPart={selectedPart}
+        presentation={cornerPresentation} technicalMaterials={technicalMaterials}/>}
+
     <OrbitControls makeDefault target={focus.target.toArray()} enableDamping dampingFactor={.08}/>
   </>;
 }
