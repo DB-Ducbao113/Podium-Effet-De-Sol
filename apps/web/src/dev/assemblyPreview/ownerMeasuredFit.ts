@@ -36,7 +36,7 @@ const quantile=(v:number[],q:number):number=>{
   if(!v.length)throw Error('Empty source geometry sample');
   const a=[...v].sort((x,y)=>x-y);
   const f=(a.length-1)*q,lo=Math.floor(f),hi=Math.ceil(f);
-  return a[lo]*(hi-f)+a[hi]*(f-lo);
+  return lo===hi?a[lo]:a[lo]*(hi-f)+a[hi]*(f-lo);
 };
 
 /**
