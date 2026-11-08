@@ -29,3 +29,8 @@
 .peds-assembly-picker button[aria-pressed="true"]{border-color:#ff6b3f;background:#6a2a20;color:#fff}
 .peds-assembly-picker button:disabled{cursor:not-allowed}
 .peds-assembly-view canvas{touch-action:none}
+
+.peds-assembly-body-meshes{max-height:190px;overflow-y:auto;background:#081321;border:1px solid #3b5268;padding:8px}
+.peds-assembly-body-meshes label{display:flex;align-items:center;gap:9px;overflow-wrap:anywhere}
+.peds-assembly-body-meshes input[type=checkbox]{width:16px;height:16px;flex:none;accent-color:#ff6234}
+.peds-assembly-body-meshes span{font:11px var(--peds-font-mono,monospace)}
