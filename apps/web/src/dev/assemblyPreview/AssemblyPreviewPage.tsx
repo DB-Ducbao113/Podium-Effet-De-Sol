@@ -2,6 +2,7 @@ import { lazy, Suspense, useCallback, useState, type ChangeEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { type CadSource, readManifest, verifyCadSource } from '../cadFirstScroll/cadSource';
 import { checkedPlacement, INITIAL_PLACEMENT, type Placement } from './assemblyPlacement';
+import {registerOwnerLandmarks,type RegistrationInput,type RegistrationResult} from './assemblyRegistration';
 import './assemblyPreview.css';
 
 const Stage=lazy(()=>import('./AssemblyPreviewStage'));
@@ -23,6 +24,8 @@ export default function AssemblyPreviewPage(){
   const [placement,setPlacement]=useState<Placement>(INITIAL_PLACEMENT);
   const [opacity,setOpacity]=useState(1);
   const [part,setPart]=useState<string|null>(null);
+  const [registration,setRegistration]=useState<RegistrationResult|null>(null);
+  const [registrationEvidence,setRegistrationEvidence]=useState('');
   const [busy,setBusy]=useState(false);
   const showError=useCallback((message:string)=>setError(message),[]);
   const showInfo=useCallback((message:string)=>setInfo(message),[]);
@@ -31,7 +34,7 @@ export default function AssemblyPreviewPage(){
   };
   const importManifest=async(event:ChangeEvent<HTMLInputElement>)=>{
     const file=event.target.files?.[0];if(!file)return;
-    setError('');setManifest(null);setSource(null);setPart(null);
+    setError('');setManifest(null);setSource(null);setPart(null);setRegistration(null);
     try{
       if(file.size>MAX_MANIFEST)throw Error('Source manifest exceeds 5 MB');
       const data=JSON.parse(await file.text()) as unknown;
@@ -44,7 +47,7 @@ export default function AssemblyPreviewPage(){
   };
   const importGLB=async(event:ChangeEvent<HTMLInputElement>)=>{
     const file=event.target.files?.[0];if(!file)return;
-    setError('');setSource(null);setPart(null);setBusy(true);
+    setError('');setSource(null);setPart(null);setRegistration(null);setBusy(true);
     try {
       if(!manifest)throw Error('Load P2.8 manifest first');
       // Reuse the existing byte-length, embedded-resource and cryptographic SHA gate.
@@ -54,6 +57,24 @@ export default function AssemblyPreviewPage(){
       setPlacement(INITIAL_PLACEMENT);
       setInfo('SOURCE VERIFIED · STAGING OUTSIDE CAR · NO MECHANICAL MATE');
     }catch(err){setError(String(err));}finally{setBusy(false);event.target.value='';}
+  };
+  const importLandmarks=async(event:ChangeEvent<HTMLInputElement>)=>{
+    const file=event.target.files?.[0];if(!file)return;
+    setError('');setRegistration(null);
+    try{
+      if(!source)throw Error('Load original P2.8 before registration');
+      if(file.size>1024*1024)throw Error('Landmark file too large');
+      const data=JSON.parse(await file.text()) as RegistrationInput;
+      const result=registerOwnerLandmarks(data);
+      // Project preview tolerance, NOT a validated manufacturing allowance.
+      if(result.lengthMismatchM>.005||result.maxResidualM>.005){
+        throw Error('Rigid fit mismatch exceeds 5 mm review threshold; refusing to scale the original CAD');
+      }
+      setRegistration(result);
+      setRegistrationEvidence(data.evidence);
+      setPlacement({...INITIAL_PLACEMENT,displayedAtBodyCenter:true});
+      setInfo('LANDMARK-ALIGNED GRAPHICS · MECHANICAL FIT STILL HOLD');
+    }catch(err){setError(String(err));}finally{event.target.value='';}
   };
   const exportPlacement=()=>{
     if(!source)return;
@@ -68,6 +89,8 @@ export default function AssemblyPreviewPage(){
       p28PartCount:source.parts.length,
       unit:'metres',scale:1,
       placement:checkedPlacement(placement),
+      landmarkRegistration:registration,
+      landmarkEvidence:registrationEvidence,
       ownerHardpointMeasurements:null,
       coordinateMappingVerified:false,
       staticBrepInterferenceTestedAgainstModelB:false,
@@ -90,6 +113,7 @@ export default function AssemblyPreviewPage(){
       <section className="peds-assembly-view" aria-label="Live 3D visual assembly staging">
         <Suspense fallback={<p>Loading Three.js preview…</p>}>
           <Stage source={source} placement={placement} shellOpacity={opacity} selectedPart={part}
+            registration={registration}
             onError={showError} onInfo={showInfo}/>
         </Suspense>
         <div className="peds-assembly-caption">
@@ -123,9 +147,15 @@ export default function AssemblyPreviewPage(){
         </div>
         <div className="peds-assembly-controls-section">
           <h2>03 / Placement (not mechanical mating)</h2>
+          <label>Measured source / target landmarks (.json)
+            <input type="file" accept=".json,application/json" disabled={!source}
+              onChange={e=>{void importLandmarks(e);}}/>
+          </label>
+          <small>Optional measured rigid placement: 3+ unique 3D point pairs in metres (P2.8 GLB-local → Model B-local). Rejects scale mismatch over 5 mm. No hardpoints are invented.</small>
+          {registration&&<p>Visual registration: max residual {(registration.maxResidualM*1000).toFixed(2)} mm; source length mismatch {(registration.lengthMismatchM*1000).toFixed(2)} mm. Mechanical review remains HOLD.</p>}
           <label>Display mode
             <select value={placement.displayedAtBodyCenter?'center':'staging'}
-              onChange={e=>setPlacement(p=>({...p,displayedAtBodyCenter:e.target.value==='center'}))} disabled={!source}>
+              onChange={e=>{setRegistration(null);setRegistrationEvidence('');setPlacement(p=>({...p,displayedAtBodyCenter:e.target.value==='center'}));}} disabled={!source}>
               <option value="staging">Separate P2.8 beside Model B (safe default)</option>
               <option value="center">Overlay at graphical center — unverified</option>
             </select>
@@ -140,7 +170,7 @@ export default function AssemblyPreviewPage(){
               value={placement.rotationDeg[i]} onChange={v=>updateAxis('rotationDeg',i,v)}/>)}
           </div>
           <div className="peds-assembly-actions">
-            <button type="button" onClick={()=>{setPlacement(INITIAL_PLACEMENT);setPart(null);setOpacity(1);}}>RESET</button>
+            <button type="button" onClick={()=>{setPlacement(INITIAL_PLACEMENT);setPart(null);setOpacity(1);setRegistration(null);setRegistrationEvidence('');}}>RESET</button>
             <button type="button" onClick={exportPlacement} disabled={!source}>EXPORT PLACEMENT JSON</button>
           </div>
         </div>
