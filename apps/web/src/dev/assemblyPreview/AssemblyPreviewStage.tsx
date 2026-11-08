@@ -108,6 +108,7 @@ function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPre
   const {camera,invalidate} = useThree();
   const [body,setBody] = useState<THREE.Group | null>(null);
   const [corner,setCorner] = useState<THREE.Group | null>(null);
+  const [pristineCorner,setPristineCorner]=useState<THREE.Group|null>(null);
   useEffect(()=>{
     let live=true,model:THREE.Group|null=null;
     const loader=new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
@@ -127,6 +128,7 @@ function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPre
   useEffect(()=>{
     let live=true,model:THREE.Group|null=null;
     setCorner(null);
+    setPristineCorner(null);
     if(!source)return;
     const loader=new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
     void MeshoptDecoder.ready.then(()=>loader.parseAsync(source.glbBytes.slice(0),'')).then(gltf=>{
@@ -142,10 +144,11 @@ function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPre
       }
       try { onGeometryProbe(probeOriginalGeometry(model,'p28')); }
       catch(err) { onError('P2.8 geometry profile failed: '+String(err)); }
+      setPristineCorner(model.clone(true));
       setCorner(model);
       onInfo('MODEL B + VERIFIED P2.8 LOADED · NOT MECHANICALLY MATED');
     }).catch(e=>{if(live)onError('P2.8 GLB could not load: '+String(e));});
-    return()=>{live=false;setCorner(null);if(model)disposeTree(model);};
+    return()=>{live=false;setCorner(null);setPristineCorner(null);if(model)disposeTree(model);};
   },[source,onError,onInfo,onGeometryProbe]);
   // Model B GLB is authored in non-metric showroom units (27.79 source-unit long).
   // A uniform display-only normalization uses measured tyre radii; the original
@@ -350,8 +353,8 @@ function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPre
       onPointerDown={event=>pickSurface("p28",event)}>
        <primitive object={corner}/>
     </group>}
-    {corner&&measuredFit&&fourMounts&&measuredOverlayEnabled&&
-      <FourCornerInstances originalFrontCorner={corner} fit={measuredFit}
+    {pristineCorner&&measuredFit&&fourMounts&&measuredOverlayEnabled&&
+      <FourCornerInstances originalFrontCorner={pristineCorner} fit={measuredFit}
         activeWheelId={activeWheelId} selectedPart={selectedPart}
         presentation={cornerPresentation} technicalMaterials={technicalMaterials}/>}
 
