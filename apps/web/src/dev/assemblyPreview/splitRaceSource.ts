@@ -19,6 +19,7 @@ export type SplitRaceManifest={
  replacesSourceBearingProxies:Record<string,string>;replacesP213SourceParts:true;
  newPartNames:string[];newNativeSolidCount:16;previousP213Solids:8;
  candidateCombinedSourceSolids:31;upstreamCadSourceSha256:Record<string,string>;
+ ownCadSourceSha256:string;
  step:string;stepSha256:string;stepRoundtripSolids:16;
  openingFeasibility:{
   originalOnePieceAxialInsertionPossible:false;
@@ -75,6 +76,7 @@ export function readSplitRaceManifest(v:unknown):SplitRaceManifest{
    !names(m.newPartNames,P214_PARTS)||
    !m.replacesSourceBearingProxies||Object.keys(m.replacesSourceBearingProxies).length!==4||
    !STATIONS.every(k=>m.replacesSourceBearingProxies?.[k]===proxies[k])||
+   !validHash(m.ownCadSourceSha256)||
    !m.upstreamCadSourceSha256||Object.keys(m.upstreamCadSourceSha256).length!==6||
    !SOURCES.every(k=>validHash(m.upstreamCadSourceSha256?.[k]))||
    m.axialRetentionCertified!==false||
