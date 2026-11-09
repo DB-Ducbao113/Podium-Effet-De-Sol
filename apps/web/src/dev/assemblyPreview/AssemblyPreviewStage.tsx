@@ -14,6 +14,8 @@ import { classifyP28Part, materialForP28Part, presentationForP28Part, type Corne
 import FourCornerInstances from './FourCornerInstances';
 import RearUprightInstances from './RearUprightInstances';
 import RearSuspensionInstances from './RearSuspensionInstances';
+import RearToeInstances from './RearToeInstances';
+import type { RearToeSource } from './rearToeSource';
 import type { RearSuspensionSource } from './rearSuspensionSource';
 import type { RearUprightSource } from './rearUprightSource';
 import { layoutFourCorners, type WheelId } from './fourCornerLayout';
@@ -23,6 +25,7 @@ type Props = {
   source: CadSource | null;
   rearUprightSource: RearUprightSource | null;
   rearSuspensionSource: RearSuspensionSource | null;
+  rearToeSource: RearToeSource | null;
   placement: Placement;
   shellOpacity: number;
   selectedPart: string | null;
@@ -110,7 +113,7 @@ function needsRecomputedSourceNormals(geometry:THREE.BufferGeometry):boolean {
   return checked>0 && invalid/checked>.05;
 }
 
-function Scene({source,rearUprightSource,rearSuspensionSource,placement,shellOpacity,selectedPart,cameraFocus,cornerPresentation,technicalMaterials,
+function Scene({source,rearUprightSource,rearSuspensionSource,rearToeSource,placement,shellOpacity,selectedPart,cameraFocus,cornerPresentation,technicalMaterials,
   allFourWheelsEnabled,activeWheelId,showroomWheelWindowsEnabled,registration,measuredFit,measuredOverlayEnabled,onError,onInfo,
   pickMode,onPointPick,onBodyPartNames,hiddenBodyMeshes,onResolvedTransform,onGeometryProbe,p28GeometryProfile}:Props) {
   const {camera,invalidate} = useThree();
@@ -372,10 +375,13 @@ function Scene({source,rearUprightSource,rearSuspensionSource,placement,shellOpa
       <FourCornerInstances originalFrontCorner={pristineCorner} fit={measuredFit}
         activeWheelId={activeWheelId} selectedPart={selectedPart}
         presentation={cornerPresentation} technicalMaterials={technicalMaterials}/>}
-    {rearUprightSource&&!rearSuspensionSource&&source&&measuredFit&&fourMounts&&allFourWheelsEnabled&&measuredOverlayEnabled&&
+    {rearUprightSource&&!rearSuspensionSource&&!rearToeSource&&source&&measuredFit&&fourMounts&&allFourWheelsEnabled&&measuredOverlayEnabled&&
       <RearUprightInstances source={rearUprightSource} fit={measuredFit} onError={onError} onLoaded={onInfo}/>}
-    {rearSuspensionSource&&source&&measuredFit&&fourMounts&&allFourWheelsEnabled&&measuredOverlayEnabled&&
+    {rearSuspensionSource&&!rearToeSource&&source&&measuredFit&&fourMounts&&allFourWheelsEnabled&&measuredOverlayEnabled&&
       <RearSuspensionInstances source={rearSuspensionSource} fit={measuredFit} onError={onError} onLoaded={onInfo}/>}
+    {rearToeSource&&source&&measuredFit&&fourMounts&&allFourWheelsEnabled&&measuredOverlayEnabled&&
+      <RearToeInstances source={rearToeSource} fit={measuredFit} onError={onError} onLoaded={onInfo}/>}
+
 
 
 
