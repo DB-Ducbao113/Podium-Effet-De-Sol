@@ -118,6 +118,50 @@ python tools/cad-first/stage_model_b_scroll_assets.py --p28-dir ".local-assets/c
 full combined native review runner already knows the real resolved source
 folders and stages them automatically.
 
+## Strengthened CAD-truth scroll animation and gates
+
+**Individual original screw movement:** The new \`sourcePartPivot.ts\`
+wraps each project-authored P2.8 screw, bolt or nut mesh in a clone-only
+pivot at its native geometry centroid. During scroll the true source mesh
+rotates around its visual elongated axis while moving into place. At the
+end of the chapter its entire original world matrix is restored,
+including rotation, nonuniform scale and handedness (no mirror).
+\`sourcePartPivot.test.ts\` verifies exact final mesh matrices.
+This remains *visual art direction*, not certified screw tightening or
+thread mechanics.
+
+**31 authentic rear CAD meshes per wheel station:** \`rearVisualComposite.ts\`
+validates the exact P2.12 and P2.14 named CAD part sets. When both are
+loaded, the visible rear source set is **19 − 4 + 16 = 31**, suppressing
+exactly four old P2.12 bearing proxies. The independent test rejects
+duplicate/fabricated meshes or a false mechanical approval.
+The Chrome recorder checks that the actual WebGL scene reported
+31 source solids and four hidden proxies at **each rear station**.
+
+**Source-measured wheel registration is mandatory for video:** The browser
+recorder now waits for four original Model B wheel positions to have
+been measured by \`fitOwnerShellToOriginalP28\`, P2.8 original CAD
+scale exactly 1, and no claimed mechanical mating. Merely decoding
+a 59-mesh source manifest is no longer sufficient.
+
+**Source staging is fail-closed and replaces assets atomically:**
+\`stage_model_b_scroll_assets.py\` validates P2.8 native STEP lineage
+and 1711-pair audit, P2.12 native 171-pair threaded source, and P2.14
+31-body/144-pair assembly proposal; checks their GLB 2.0 binary
+headers, exact 59/19/16 glTF mesh-node names, local source filenames
+and source SHA-256. Source assets are assembled in a temporary folder
+beneath Git-ignored \`.local-assets\`; only a completely verified bundle
+can replace the prior one. A corrupted or missing source leaves the
+last good bundle intact. Dedicated local Python unit tests use
+**synthetic test fixtures** to test the staging mechanism; those
+fixtures are not real car CAD.
+
+Independent native inspection of the locally archived P2.12 and P2.14
+BALANCED GLBs confirmed 19 and 16 unique names, respectively,
+matching source-manifest lists and SHA-256. The original P2.8 source
+GLB was not present in this container session, so complete real-car
+Vite/Chromium validation and the MP4 still have **NOT RUN** status.
+
 ## Local owner browser testing
 
 From a repository checkout with npm and Python/Playwright/FFmpeg installed:
