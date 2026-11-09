@@ -154,6 +154,13 @@ def record(url:str,out:Path,frames:int=96,fps:int=16,
                     shown=page.locator('.mb-build-content h1').inner_text().strip()
                     if shown!=title:
                         raise RuntimeError(f'Chapter {i}: expected {title!r}, got {shown!r}')
+                    if page.locator(
+                        '.mb-build-source-wrap[data-model-b-scene-truth="SOURCE_ONLY_CAMERA"]'
+                    ).count()!=1:
+                        raise RuntimeError('Original showroom step falsely claimed mounted P2.8 components')
+                    description=page.locator('.mb-build-copy').inner_text()
+                    if len(description)<40:
+                        raise RuntimeError('Original showroom source-only scope not disclosed')
                     screenshot=out/f'original-model-b-chapter-{i:02d}.png'
                     canvas.screenshot(path=str(screenshot))
                     digest=sha(screenshot)
