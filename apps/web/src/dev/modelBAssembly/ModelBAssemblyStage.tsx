@@ -395,7 +395,24 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
    {original&&<group name="model-b-owner-exterior" scale={shellScale}>
      <primitive object={original.model}/>
    </group>}
-   {visual&&<primitive object={visual.root}/>}
+   {visual&&<primitive object={visual.root}
+     onClick={(event:ThreeEvent<MouseEvent>)=>{
+       const hit=event.object;
+       if(!(hit instanceof THREE.Mesh)||!hit.visible)return;
+       const {pedsCadOrigin,pedsWheelStation,pedsCadPartId}=hit.userData;
+       if(typeof pedsCadOrigin!=='string'||
+          typeof pedsWheelStation!=='string'||
+          typeof pedsCadPartId!=='string')return;
+       try{
+         const part=inspectOriginalCadMesh(
+           pedsCadPartId,pedsWheelStation as WheelId,
+           pedsCadOrigin as 'p28'|'rear-toe'|'joint',originalPartNames);
+         event.stopPropagation();
+         onInspect(part);
+       }catch(error){
+         onError('Model B CAD raycast provenance rejected: '+String(error));
+       }
+     }/>}
  </>;
 }
 /** Browser-native WebGL source viewer: original Model B is auto-loaded;
