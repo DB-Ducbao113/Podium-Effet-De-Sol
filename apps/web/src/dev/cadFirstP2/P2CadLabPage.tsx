@@ -535,6 +535,9 @@ export default function P2CadLabPage() {
       <section className="p2-cad-lab__intro">
         <span className="p2-cad-lab__eyebrow">ORIGINAL STATIC FIT / P2.4</span>
         <h1>GEOMETRY FIRST<span>.</span></h1>
+        <p><Link to="/engineering/model-b-build" style={{color:'#ffad88',textDecoration:'underline',fontWeight:800}}>
+          OPEN MODEL B / SCROLL ASSEMBLY EXPERIENCE (DEV)
+        </Link></p>
         <p><Link to="/engineering/assembly-preview" style={{color:'#ffad88',textDecoration:'underline',fontWeight:800}}>
           OPEN MODEL B + ORIGINAL P2.8 ASSEMBLY PREVIEW (DEV)
         </Link></p>
