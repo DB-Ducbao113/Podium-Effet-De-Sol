@@ -99,7 +99,7 @@ class ModelBOriginalCadStagingTests(unittest.TestCase):
   old_index=(self.stage/'index.json').read_bytes()
   old_source=(self.stage/'p214/source.glb').read_bytes()
   (self.dirs['p214']/'p214_balanced.glb').write_bytes(b'corrupted-user-CAD')
-  with self.assertRaisesRegex(RuntimeError,'size mismatch|SHA|modified'):
+  with self.assertRaisesRegex(RuntimeError,'size mismatch|byte length|SHA|modified'):
    self.run_stage()
   self.assertEqual((self.stage/'index.json').read_bytes(),old_index)
   self.assertEqual((self.stage/'p214/source.glb').read_bytes(),old_source)
