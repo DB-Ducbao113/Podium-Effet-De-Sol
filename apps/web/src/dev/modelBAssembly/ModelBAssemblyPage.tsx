@@ -28,6 +28,9 @@ type StageId='model-b'|'p28'|'rear-toe'|'p214';
 type SourceName='front'|'toe'|'split';
 
 export default function ModelBAssemblyPage(){
+ const sourceOnlyProof=import.meta.env.DEV&&
+   typeof window!=='undefined'&&
+   new URLSearchParams(window.location.search).get('sourceOnly')==='1';
  const track=useRef<HTMLElement|null>(null);
  const manualChosen=useRef(false);
  const titleRef=useRef<HTMLHeadingElement|null>(null);
@@ -74,6 +77,7 @@ export default function ModelBAssemblyPage(){
      return new File([bytes],record.originalGlbFileName,{type:'model/gltf-binary'});
    };
    const load=async()=>{
+     if(sourceOnlyProof)return; // immutable Model B source-only Chromium gate
      try{
        const response=await fetch(base+'/index.json',{cache:'no-store'});
        if(response.status===404)return; // manual manifest and GLB import still works
@@ -118,7 +122,7 @@ export default function ModelBAssemblyPage(){
    };
    void load();
    return()=>{active=false;};
- },[]);
+ },[sourceOnlyProof]);
  useEffect(()=>{
    let frame=0;
    const update=()=>{
@@ -350,6 +354,7 @@ export default function ModelBAssemblyPage(){
          data-rear-mechanical-mate-certified="false"
          data-original-p28-scale={measuredFit?.p28Scale??'unknown'}
          data-original-mechanical-mate-certified={measuredFit?.mechanicalFitCertified?'true':'false'}
+         data-model-b-source-only-review={sourceOnlyProof?'true':'false'}
          data-p28-cad-ready={cadLoaded?'true':'false'}
          data-p212-cad-ready={ready['rear-toe']===19&&!!rearToe?'true':'false'}
          data-p214-cad-ready={ready.p214===16&&!!splitRace?'true':'false'}>
