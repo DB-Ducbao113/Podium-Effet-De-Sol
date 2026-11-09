@@ -476,7 +476,8 @@ def main()->None:
                    "src/dev/assemblyPreview/rearUprightSource.test.ts",
                    "src/dev/assemblyPreview/rearSuspensionSource.test.ts",
                    "src/dev/assemblyPreview/rearToeSource.test.ts",
-                   "src/dev/assemblyPreview/rearToeAdjusterSource.test.ts",timeout=300)
+                   "src/dev/assemblyPreview/rearToeAdjusterSource.test.ts",
+                   "src/dev/assemblyPreview/rearJointSource.test.ts",timeout=300)
             invoke(npm,"run","build","--workspace=@peds/web",timeout=900)
             gate("LOCAL_WEB_LINT_TYPES_TESTS_BUILD","PASS")
         job=subprocess.Popen([
@@ -493,7 +494,8 @@ def main()->None:
                "--p29-dir",p29_dir,
                "--p210-dir",p210_dir,
                "--p211-dir",p211_dir,
-               "--p212-dir",p212_dir,timeout=1100)
+               "--p212-dir",p212_dir,
+               "--p213-dir",p213_dir,timeout=1100)
         detail=json.loads((out/"browser/four-wheel-browser-evidence.json")
                           .read_text(encoding="utf8"))
         if not detail.get("all_four_original_modelb_wheel_positions"):
@@ -506,6 +508,8 @@ def main()->None:
             raise RuntimeError("P2.11 15-mesh rear toe source was not loaded on both rear stations")
         if not detail.get("real_p212_toe_adjuster_loaded"):
             raise RuntimeError("P2.12 19-mesh rear toe adjuster was not parsed on both rear stations")
+        if not detail.get("real_p213_spherical_joint_cad_loaded"):
+            raise RuntimeError("P2.13 eight-piece original spherical joint CAD was not parsed on two rear stations")
         movie=detail.get("recorded_video")
         if not movie or not Path(movie).is_file() or Path(movie).stat().st_size<1024:
             raise RuntimeError("No genuine WebGL four-wheel video created")
