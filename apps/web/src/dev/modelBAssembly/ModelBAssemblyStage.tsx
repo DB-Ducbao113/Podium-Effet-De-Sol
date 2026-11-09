@@ -12,6 +12,9 @@ import {probeOriginalGeometry,type SourceGeometryProbe} from '../assemblyPreview
 import {fitOwnerShellToOriginalP28,type OwnerMeasuredFit} from '../assemblyPreview/ownerMeasuredFit';
 import {layoutFourCorners,visibleInFourCornerPreview} from '../assemblyPreview/fourCornerLayout';
 import {addReversibleWheelWindow} from '../assemblyPreview/showroomWheelMask';
+import {classifyP28Part} from '../assemblyPreview/cadPresentation';
+import {pivotSourceMeshAtCentroid,applyVisualScrewSpin,
+ type CadAnimatedPivot} from './sourcePartPivot';
 import {
  clamp01,exteriorSeparation,originalPartAssembly,rearSourceAssembly,
  visualShellOpacity,wheelOffset,stablePartOffset,
@@ -31,6 +34,8 @@ type Props={
 type Decoded={model:THREE.Group;probe?:SourceGeometryProbe};
 type AnimatedMesh={
  mesh:THREE.Mesh;
+ target:THREE.Object3D;
+ spin:CadAnimatedPivot|null;
  originalPosition:THREE.Vector3;
  offset:THREE.Vector3;
  name:string;
@@ -155,9 +160,13 @@ function createWheelVisual(
  const ownedMaterials:THREE.Material[]=[];
  function bindMesh(mesh:THREE.Mesh,kind:AnimatedMesh['kind'],
      offset:THREE.Vector3){
+   const animatedScrew=kind==='p28'&&classifyP28Part(mesh.name)==='hardware'
+     ?pivotSourceMeshAtCentroid(mesh):null;
+   const target=animatedScrew?.root??mesh;
    const materials=copyMaterials(mesh,ownedMaterials);
-   meshes.push({mesh,originalPosition:mesh.position.clone(),
-    offset,name:mesh.name,kind,materials});
+   meshes.push({mesh,target,spin:animatedScrew,
+     originalPosition:target.position.clone(),
+     offset,name:mesh.name,kind,materials});
  }
  for(const mount of layoutFourCorners(fit)){
    const carrier=new THREE.Group();
@@ -165,15 +174,21 @@ function createWheelVisual(
    carrier.position.set(...mount.translationM);
    carrier.rotation.y=mount.rotationYRad;
    const partRoot=p28.clone(true);
+   const originalMeshNodes:THREE.Mesh[]=[];
    partRoot.traverse(o=>{
-     if(!(o instanceof THREE.Mesh))return;
+     if(o instanceof THREE.Mesh)originalMeshNodes.push(o);
+   });
+   // Do not edit a Three.js scene's children while traversing it: adding
+   // screw-centre pivot groups during traversal could recurse indefinitely.
+   for(const o of originalMeshNodes){
      if(!visibleInFourCornerPreview(o.name,mount.station)){
-       o.visible=false;return;
+       o.visible=false;continue;
      }
      const [x,y,z]=wheelOffset(o.name,mount.station);
-     // Every original fastener is independently keyed to its real mesh name.
+     // Native hardware rotates about its measured local geometry centroid.
+     // The pivot has an exactly identical final world matrix to the source.
      bindMesh(o,'p28',new THREE.Vector3(x,y,z));
-   });
+   }
    carrier.add(partRoot);
    root.add(carrier);
  }
@@ -321,8 +336,9 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
        const fraction=item.kind==='p28'?
          originalPartAssembly(item.name,p):
          rearSourceAssembly(p,item.kind==='rear-toe'?'toe':'joint',item.name);
-       item.mesh.position.copy(item.originalPosition)
+       item.target.position.copy(item.originalPosition)
          .addScaledVector(item.offset,1-fraction);
+       if(item.spin)applyVisualScrewSpin(item.spin,fraction,1.5);
        for(const m of item.materials){
          m.opacity=Math.max(.055,fraction);
          m.depthWrite=fraction>.92;
