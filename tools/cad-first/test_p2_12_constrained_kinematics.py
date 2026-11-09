@@ -69,6 +69,10 @@ class ConstrainedSourceKinematicsTests(unittest.TestCase):
             self.assertFalse(m['vehicleKinematicsCertified'])
             self.assertLess(m['maximumConstraintResidualMm'],LENGTH_TOLERANCE_MM)
             self.assertGreater(m['maximumBoreAxisMismatchDeg'],1.)
+            self.assertEqual(len(m['inputCadSourceSha256']),4)
+            for source_name,digest in m['inputCadSourceSha256'].items():
+                self.assertEqual(digest,hashlib.sha256(
+                    Path(__file__).with_name(source_name).read_bytes()).hexdigest())
             self.assertEqual(m['cadSourceSha256'],hashlib.sha256(
                 Path(__file__).with_name('p2_12_toe_adjuster.py').read_bytes()).hexdigest())
             with self.assertRaises(FileExistsError):run_report(path)
