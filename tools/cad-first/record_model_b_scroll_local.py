@@ -159,13 +159,17 @@ def capture(url:str,out:Path,p28:Path,quality:str='BALANCED',
             audit['originalP28CadScale']=attributes['p28Scale']
             audit['rearMechanicalMateCertified']=False
             if rear:
+                expected_parts=31 if split else 19
+                expected_hidden=4 if split else 0
+                page.locator(
+                    '.mb-build-source-wrap[data-rear-composite-cad-parts="'
+                    +str(expected_parts)+'"][data-rear-legacy-bearing-proxies-hidden="'
+                    +str(expected_hidden)+'"]').wait_for(timeout=45000)
                 actual=fit.evaluate('''el=>({
                   rearCount:Number(el.dataset.rearCompositeCadParts),
                   oldBearingsHidden:Number(el.dataset.rearLegacyBearingProxiesHidden),
                   rearMechanicalMate:el.dataset.rearMechanicalMateCertified
                 })''')
-                expected_parts=31 if split else 19
-                expected_hidden=4 if split else 0
                 if (actual.get('rearCount')!=expected_parts
                     or actual.get('oldBearingsHidden')!=expected_hidden
                     or actual.get('rearMechanicalMate')!='false'):
