@@ -246,6 +246,7 @@ def export(out:Path)->dict:
       'newPartNames':list(parts),'newNativeSolidCount':16,
       'previousP213Solids':8,'candidateCombinedSourceSolids':31,
       'upstreamCadSourceSha256':hashes,
+      'ownCadSourceSha256':sha(Path(__file__).resolve()),
       'step':step.name,'stepSha256':sha(step),'stepRoundtripSolids':16,
       'openingFeasibility':entry,'discreteAssemblyPathAudit':path_audit,
       'nominalStaticAudit':report,
