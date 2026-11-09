@@ -89,14 +89,24 @@ export default function ModelBAssemblyPage(){
    setReady(old=>old[id]===meshCount?old:{...old,[id]:meshCount});
  },[]);
  const handleError=useCallback((message:string)=>setError(message),[]);
+ const resetReady=useCallback((kind:SourceName)=>{
+   setReady(previous=>{
+     const next:Partial<Record<StageId,number>>={};
+     if(previous['model-b']!==undefined)next['model-b']=previous['model-b'];
+     if(kind!=='front'&&previous.p28!==undefined)next.p28=previous.p28;
+     if(kind==='split'&&previous['rear-toe']!==undefined)
+       next['rear-toe']=previous['rear-toe'];
+     return next;
+   });
+ },[]);
  const importManifest=async(event:ChangeEvent<HTMLInputElement>,kind:SourceName)=>{
    const file=event.target.files?.[0];
    event.target.value='';
    if(!file)return;
    setError('');
+   resetReady(kind);
    if(kind==='front'){
      setCorner(null);setRearToe(null);setSplitRace(null);
-     setReady(previous=>({'model-b':previous['model-b']}));
    }else if(kind==='toe'){
      setRearToe(null);setSplitRace(null);
    }else setSplitRace(null);
@@ -113,6 +123,7 @@ export default function ModelBAssemblyPage(){
    event.target.value='';
    if(!file)return;
    setBusy(kind);setError('');
+   resetReady(kind);
    try{
      if(kind==='front'){
        if(!sourceManifest)throw Error('Load P2.8 original manifest first');
