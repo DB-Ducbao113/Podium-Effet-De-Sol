@@ -74,7 +74,7 @@ def capture(url:str,out:Path,p28:Path,quality:str='BALANCED',
       'originalModelBHTTP200':False,'modelBDecoded':False,
       'p28Decoded59':False,'p212Decoded19':False,'p214Decoded16':False,
       'browserJSExceptions':[],'webglErrors':[],'sourceImportErrors':[],
-      'chapterScreenshots':{},'renderedFrames':0,'videoFile':None,
+      'chapterScreenshots':{},'chapterCanvasSHA256':{},'renderedFrames':0,'videoFile':None,
       'mechanicalG2':'HOLD','genuineRearMechanicalAssemblyCertified':False,
       'allSixChaptersConfirmed':False,
     }
@@ -151,9 +151,15 @@ def capture(url:str,out:Path,p28:Path,quality:str='BALANCED',
                 digest=hashlib.sha256(screenshot.read_bytes()).hexdigest()
                 audit['chapterScreenshots'][str(index)]={'title':title,'progress':progress,
                                                          'sha256':digest,'file':screenshot.name}
+                canvas_image=out/f'chapter_{index:02d}_actual_webgl.png'
+                canvas.screenshot(path=str(canvas_image))
+                canvas_digest=hashlib.sha256(canvas_image.read_bytes()).hexdigest()
+                audit['chapterCanvasSHA256'][str(index)]=canvas_digest
                 sources.append(digest)
             if len(set(sources))<5:
                 raise RuntimeError('Actual Model B browser frames failed to change across scroll chapters')
+            if len(set(audit['chapterCanvasSHA256'].values()))<4:
+                raise RuntimeError('Real WebGL CANVAS stayed visually static across the scroll; no fake MP4 allowed')
             audit['allSixChaptersConfirmed']=True
             audit['canvasExists']=canvas.count()==1
             audit['canvasSourceDimensions']=page.evaluate(
