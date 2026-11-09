@@ -237,7 +237,8 @@ export default function ModelBAssemblyPage(){
               reducedMotion={reducedMotion}
               onReady={handleReady} onFit={handleFit}
               onRearComposite={handleRearComposite}
-              onInspect={handlePartInspect} onError={handleError}/>
+              onInspect={handlePartInspect} selectedPart={inspectedPart}
+              onError={handleError}/>
          </Suspense>
        </div>
        <div className="mb-build-shade" aria-hidden="true"/>
@@ -285,6 +286,7 @@ export default function ModelBAssemblyPage(){
              aria-label="Clear selected CAD part">×</button>
          </div>
          <strong>{inspectedPart.subsystem}</strong>
+         <span className="mb-build-focus-status">CAMERA FOCUS / SOURCE GEOMETRY</span>
          <code>{inspectedPart.partId}</code>
          <dl>
            <div><dt>WHEEL</dt><dd>{inspectedPart.wheelStation.toUpperCase()}</dd></div>
