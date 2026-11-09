@@ -224,7 +224,7 @@ def capture(url:str,out:Path,p28:Path,quality:str='BALANCED',
             before_focus=out/'cad-focus-original-camera-before.png'
             canvas.screenshot(path=str(before_focus))
             page.get_by_role('button',name='EXPLORE REAL CAD PARTS',exact=False).click()
-            catalog=page.get_by_label('Verified original CAD component catalog')
+            catalog=page.get_by_role('complementary',name='Verified original CAD component catalog')
             catalog.wait_for(state='visible',timeout=20000)
             catalog.get_by_role('textbox',name='Search original CAD components').fill(
                 'P2_TYRE_SLICK_BODY')
