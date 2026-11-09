@@ -17,8 +17,8 @@ HERE=Path(__file__).resolve().parent
 CASES=(
   "test_five_new_solids_replace_not_duplicate_old_link",
   "test_real_rod_helix_and_separate_axial_sleeve_nuts",
-  "test_helical_phase_is_geometry_not_shader",
-  "test_limited_six_pose_thread_pair_motion",
+  "test_threaded_faces_and_mechanical_holds_are_explicit",
+  "test_screw_pitch_and_locknut_gap_contract",
   "test_static_171_pairs_and_collision_guard",
   "test_step_glb_roundtrip_hashes_and_mechanical_hold",
 )
@@ -32,7 +32,7 @@ def run(out:Path)->dict:
         t0=time.monotonic()
         try:
             p=subprocess.run(argv,cwd=HERE,text=True,
-                             capture_output=True,timeout=135,check=False)
+                             capture_output=True,timeout=100,check=False)
             record={"name":case,"returncode":p.returncode,
                     "elapsedSeconds":round(time.monotonic()-t0,3),
                     "stdout":p.stdout[-3000:],"stderr":p.stderr[-3000:],
