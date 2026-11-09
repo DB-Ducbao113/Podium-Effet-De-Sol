@@ -508,10 +508,12 @@ export default function AssemblyPreviewPage(){
             ' / 19 ORIGINAL CAD PARTS / TWO REAR STATIONS':
             'P2.12 not loaded — the previous rear source remains active.'}</small>
           <small><strong>THREADED V3 / G2 HOLD:</strong> Native RH/LH
-            female helical grooves are now present in both the sleeve and
-            locknuts and pass the nominal source static audit. Load transfer,
-            thread wear, preload, adjustment travel and verified chassis
-            hardpoints are still unapproved.</small>
+            helical grooves are present in the sleeve and locknuts.
+            The static B-Rep Boolean audit alone can miss helical overlaps:
+            the full local QA additionally requires 12 independent
+            solid-occupancy checks, including four deliberately misphased
+            negative controls. Thread load transfer, wear, preload, continuous
+            adjustment travel and chassis hardpoints remain unverified.</small>
         </div>
         <div className="peds-assembly-controls-section">
           <h2>02 / Geometry inspection</h2>
