@@ -29,6 +29,14 @@ export default function modelBLocalCadPlugin():Plugin{
     apply:'serve',
     configureServer(server){
       server.middlewares.use('/__peds-model-b-cad',(request,response)=>{
+        // Do not expose owner CAD over LAN even if a developer starts Vite
+        // with --host 0.0.0.0 or a proxy changes the Host header.
+        const client=request.socket.remoteAddress??'';
+        if(!['127.0.0.1','::1','::ffff:127.0.0.1'].includes(client)){
+          response.statusCode=403;
+          response.end('Original CAD review is restricted to local loopback');
+          return;
+        }
         const rel=(request.url??'').split('?')[0];
         const asset=allowed.get(rel);
         if(!asset){
