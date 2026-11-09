@@ -152,6 +152,43 @@ def assembly_path_audit()->dict:
             'manufacturingAssemblyCertified':False,
             'mechanicalG2':'HOLD'}
 
+def pose_articulation_audit()->dict:
+    """140 actual split-race/ball/sleeve B-Rep screens in 7 ideal poses.
+
+    Tested pairs are ONLY four native bearing subassemblies, not full 31-body
+    moving suspension, not continuous swept geometry or axle/chassis mating.
+    """
+    results=[]
+    for angle in ANGLES:
+        frames=ideal_joint_frames(angle)
+        for station in STATIONS:
+            p=local_parts(station)
+            prefix='P214_'+station+'_'
+            frame=frames[station]
+            ball=apply_pose(p[prefix+'DRILLED_SPHERICAL_BALL'],
+                            frame['center'],frame['ballRot'])
+            sleeve=apply_pose(p[prefix+'SLIDING_RETENTION_SLEEVE'],
+                              frame['center'],frame['raceRot'])
+            cases=[]
+            for suffix in ('SPLIT_RACE_POSITIVE_X','SPLIT_RACE_NEGATIVE_X'):
+                race=apply_pose(p[prefix+suffix],frame['center'],frame['raceRot'])
+                cases.extend((race.intersect(ball).Volume(),
+                              race.intersect(sleeve).Volume()))
+            cases.append(ball.intersect(sleeve).Volume())
+            if any(not math.isfinite(v) or v>.01 for v in cases):
+                raise ValueError('P2.14 sampled bearing articulation collision '+station)
+            results.append({'sleeveTurnDeg':angle,'station':station,
+                            'fiveNativePairChecks':len(cases),
+                            'maxPositiveOverlapMm3':max(cases),
+                            'actualChassisArticulationCertified':False})
+    if len(results)!=28 or sum(r['fiveNativePairChecks'] for r in results)!=140:
+        raise RuntimeError('P2.14 native split bearing articulation audit incomplete')
+    return {'poseCount':7,'jointPoseCount':28,'nativePairChecks':140,
+            'maxPositiveOverlapMm3':max(r['maxPositiveOverlapMm3'] for r in results),
+            'results':results,'continuousSweptCollisionCertified':False,
+            'whole31BodyDynamicCollisionCertified':False,
+            'nativeBearingRetentionCertified':False,'mechanicalG2':'HOLD'}
+
 def export(out:Path)->dict:
     if out.exists() and any(out.iterdir()):raise FileExistsError('Refuse overwrite P2.14 CAD review')
     out.mkdir(parents=True,exist_ok=True)
