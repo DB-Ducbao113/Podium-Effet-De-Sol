@@ -13,8 +13,9 @@ import cadquery as cq
 import numpy as np
 from scipy.spatial.transform import Rotation
 import trimesh
-from p2_10_rear_wishbone import ARM_PICKUPS_MM,OUTER_EYE_Z_OFFSET_MM,QUALITY
+from p2_10_rear_wishbone import ARM_PICKUPS_MM,OUTER_EYE_Z_OFFSET_MM,QUALITY,exact_static_audit
 from p2_11_rear_toe_link import TOE_OUTER_EYE_MM,TOE_INNER_EYE_MM
+from p2_12_toe_adjuster import all_parts as p212_all_parts
 from p2_12_constrained_kinematics import ANGLES,solve_angle,immutable_source
 
 SCHEMA='podium-eds.p213.source-spherical-joint-articulation.v1'
@@ -119,6 +120,27 @@ def review_pose(angle:float,do_boolean:bool=True)->dict:
             'jointBallCentresCoincidentByConstruction':True,
             'chassisHardpointsMeasured':False,'mechanicalG2':'HOLD'}
 
+def nominal_combined_static_audit()->dict:
+    """Replace four original annuli in P2.12's genuine source 19 CAD parts.
+
+    Native Boolean may false-negative on P2.12 helical threads, so this is a
+    static B-Rep screening ONLY, never dynamic or actual chassis signoff.
+    """
+    combined=p212_all_parts()
+    if len(combined)!=19:
+        raise RuntimeError('Expected the real P2.12 19 solid source')
+    for prior in SOURCE_BEARING_TO_REPLACE.values():
+        if prior not in combined:
+            raise RuntimeError('Missing original spherical-bearing proxy: '+prior)
+        del combined[prior]
+    combined.update(source_parts())
+    if len(combined)!=23:
+        raise RuntimeError('P2.13 must yield exactly 23 native source CAD bodies')
+    report=exact_static_audit(combined)
+    if report['pairCount']!=253 or not report['passStatic']:
+        raise RuntimeError('P2.13 nominal combined source static clearance FAIL')
+    return report
+
 def export(out:Path)->dict:
     if out.exists() and any(out.iterdir()):
         raise FileExistsError('Refusing to overwrite prototype native CAD evidence')
@@ -156,6 +178,8 @@ def export(out:Path)->dict:
     if not counts[0]>counts[1]>counts[2]:
         raise RuntimeError('P2.13 progressive LOD topology FAIL')
     poses=[review_pose(angle) for angle in ANGLES]
+    static=nominal_combined_static_audit()
+    (out/'P213_23_body_static_audit.json').write_text(json.dumps(static,indent=2)+'\n')
     data={
       'schema':SCHEMA,'unitsCad':'mm','unitsGLB':'m',
       'sourceCadFileSha256':source_hashes,'replaceAnnularProxies':SOURCE_BEARING_TO_REPLACE,
@@ -172,9 +196,10 @@ def export(out:Path)->dict:
       'chassisHardpointsMeasured':False,'wholeCarClearanceCertified':False,
       'continuousSweptCollisionCertified':False,
       'anglesDeg':list(ANGLES),'poseCount':len(poses),'poseReviews':poses,
+      'combinedNominalStaticAudit':static,
       'profiles':profiles,'mechanicalG2':'HOLD',
       'limitations':['Bearing prototype is not manufacturing-verified; ball insertion and axial capture unsolved',
-         'Only each race/ball pair checked; not 23-part complete moving assembly',
+         '23-part static Boolean screen was run, but not complete moving assembly; P2.12 helix Boolean may false-negative',
          'Model B actual chassis hardpoints and suspension bearing tolerances not measured',
          'Load paths, joint wear, fatigue, press fit, bolt preload and retention are HOLD'],
     }
