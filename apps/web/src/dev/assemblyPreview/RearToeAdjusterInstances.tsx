@@ -4,6 +4,7 @@ import { MeshoptDecoder } from 'meshoptimizer';
 import * as THREE from 'three';
 import { layoutFourCorners } from './fourCornerLayout';
 import type { OwnerMeasuredFit } from './ownerMeasuredFit';
+import {P213_REPLACED_BEARING_PARTS} from './rearJointSource';
 import {
   REAR_TOE_ADJUSTER_ALL_PARTS, type ToeAdjusterSource,
 } from './rearToeAdjusterSource';
@@ -13,6 +14,7 @@ type Props = {
   fit: OwnerMeasuredFit;
   onError: (message:string)=>void;
   onLoaded: (message:string)=>void;
+  replaceBearingProxies?:boolean;
 };
 function disposeSource(root:THREE.Group) {
   const geometries=new Set<THREE.BufferGeometry>();
@@ -34,7 +36,7 @@ function disposeSource(root:THREE.Group) {
  * No rear mechanical/chassis or female thread engagement certification.
  */
 export default function RearToeAdjusterInstances({
-  source,fit,onError,onLoaded,
+  source,fit,onError,onLoaded,replaceBearingProxies=false,
 }:Props) {
   const [scene,setScene]=useState<THREE.Group|null>(null);
   useEffect(()=>{
@@ -77,8 +79,17 @@ export default function RearToeAdjusterInstances({
   const rearMounts=useMemo(()=>
     layoutFourCorners(fit).filter(mount=>mount.station==='rear'),[fit]);
   const instances=useMemo(()=>
-    scene?rearMounts.map(mount=>({mount,view:scene.clone(true)})):[],
-    [rearMounts,scene]);
+    scene?rearMounts.map(mount=>{
+      const view=scene.clone(true);
+      if(replaceBearingProxies){
+        const oldNames=new Set<string>(P213_REPLACED_BEARING_PARTS);
+        view.traverse(o=>{
+          if(o instanceof THREE.Mesh && oldNames.has(o.name))o.visible=false;
+        });
+      }
+      return {mount,view};
+    }):[],
+    [rearMounts,scene,replaceBearingProxies]);
   return <>
     {instances.map(({mount,view})=>
       <group key={mount.id}
