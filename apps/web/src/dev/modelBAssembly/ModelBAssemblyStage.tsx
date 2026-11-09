@@ -15,6 +15,7 @@ import {addReversibleWheelWindow} from '../assemblyPreview/showroomWheelMask';
 import {classifyP28Part} from '../assemblyPreview/cadPresentation';
 import {pivotSourceMeshAtCentroid,applyVisualScrewSpin,
  type CadAnimatedPivot} from './sourcePartPivot';
+import {rearVisualPartIds,type RearVisualParts} from './rearVisualComposite';
 import {
  clamp01,exteriorSeparation,originalPartAssembly,rearSourceAssembly,
  visualShellOpacity,wheelOffset,stablePartOffset,
@@ -29,6 +30,7 @@ type Props={
  splitRace:SplitRaceSource|null;
  onReady:(which:'model-b'|'p28'|'rear-toe'|'p214',meshCount:number)=>void;
  onFit:(value:OwnerMeasuredFit|null)=>void;
+ onRearComposite:(value:RearVisualParts|null)=>void;
  onError:(message:string)=>void;
 };
 type Decoded={model:THREE.Group;probe?:SourceGeometryProbe};
@@ -46,6 +48,7 @@ type Visual={
  root:THREE.Group;
  meshes:AnimatedMesh[];
  ownedMaterials:THREE.Material[];
+ rearComposite:RearVisualParts|null;
 };
 
 const FINGERPRINT_LENGTH=27.7926;
@@ -158,6 +161,12 @@ function createWheelVisual(
  const root=new THREE.Group();
  const meshes:AnimatedMesh[]=[];
  const ownedMaterials:THREE.Material[]=[];
+ const rearNames:string[]=[];
+ const jointNames:string[]=[];
+ toe?.traverse(o=>{if(o instanceof THREE.Mesh)rearNames.push(o.name);});
+ joints?.traverse(o=>{if(o instanceof THREE.Mesh)jointNames.push(o.name);});
+ const rearComposite=toe?rearVisualPartIds(rearNames,joints?jointNames:null):null;
+ const allowedRearPartNames=rearComposite?new Set(rearComposite.visiblePartNames):null;
  function bindMesh(mesh:THREE.Mesh,kind:AnimatedMesh['kind'],
      offset:THREE.Vector3){
    const animatedScrew=kind==='p28'&&classifyP28Part(mesh.name)==='hardware'
@@ -204,8 +213,7 @@ function createWheelVisual(
      view.position.add(new THREE.Vector3(...fit.originalP28WheelCenterM));
      view.traverse(o=>{
        if(!(o instanceof THREE.Mesh))return;
-       if(kind==='rear-toe'&&joints&&
-          /P210_REAR_(UPPER|LOWER)_OUTER_SPHERICAL_BEARING_PROPOSAL|P211_REAR_TOE_(OUTER|INNER)_BEARING_PROPOSAL/.test(o.name)){
+       if(allowedRearPartNames&&!allowedRearPartNames.has(o.name)){
          o.visible=false;return;
        }
        const e=(stablePartOffset(o.name)*33);
@@ -220,7 +228,7 @@ function createWheelVisual(
  }
  if(toe)addRear(toe,'rear-toe');
  if(joints&&toe)addRear(joints,'joint');
- return {root,meshes,ownedMaterials};
+ return {root,meshes,ownedMaterials,rearComposite};
 }
 function StudioLights(){
  const {gl,scene}=useThree();
@@ -244,7 +252,7 @@ function StudioLights(){
   <pointLight position={[1.5,2,-3]} intensity={32} distance={12} color="#8aaeff"/>
  </>;
 }
-function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRace,onReady,onFit,onError}:Props){
+function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRace,onReady,onFit,onRearComposite,onError}:Props){
  const {camera,size}=useThree();
  const original=useOriginalBody(onReady,onError);
  const originalPartNames=useMemo(()=>corner?.parts.map(x=>x.node)??[],[corner]);
@@ -308,6 +316,8 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
    if(!p28||!fit)return null;
    return createWheelVisual(p28.model,fit,rear?.model??null,split?.model??null);
  },[p28,fit,rear,split]);
+ useEffect(()=>onRearComposite(visual?.rearComposite??null),
+   [visual,onRearComposite]);
  useEffect(()=>()=>{
    if(!visual)return;
    visual.ownedMaterials.forEach(m=>m.dispose());
