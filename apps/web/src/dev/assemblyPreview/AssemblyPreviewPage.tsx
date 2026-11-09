@@ -13,6 +13,8 @@ import { readRearSuspensionManifest, verifyRearSuspensionSource,
   type RearSuspensionManifest, type RearSuspensionSource } from './rearSuspensionSource';
 import { readRearToeManifest, verifyRearToeSource,
   type RearToeManifest, type RearToeSource } from './rearToeSource';
+import {readToeAdjusterManifest,verifyToeAdjusterSource,
+  type ToeAdjusterManifest,type ToeAdjusterSource} from './rearToeAdjusterSource';
 import './assemblyPreview.css';
 
 const Stage=lazy(()=>import('./AssemblyPreviewStage'));
@@ -38,6 +40,9 @@ export default function AssemblyPreviewPage(){
   const [rearToeManifest,setRearToeManifest]=useState<RearToeManifest|null>(null);
   const [rearToeSource,setRearToeSource]=useState<RearToeSource|null>(null);
   const [rearToeBusy,setRearToeBusy]=useState(false);
+  const [toeAdjusterManifest,setToeAdjusterManifest]=useState<ToeAdjusterManifest|null>(null);
+  const [toeAdjusterSource,setToeAdjusterSource]=useState<ToeAdjusterSource|null>(null);
+  const [toeAdjusterBusy,setToeAdjusterBusy]=useState(false);
   const [error,setError]=useState('');
   const [info,setInfo]=useState('MODEL B EXTERIOR · P2.8 SOURCE NOT LOADED');
   const [placement,setPlacement]=useState<Placement>(INITIAL_PLACEMENT);
@@ -117,7 +122,7 @@ export default function AssemblyPreviewPage(){
   };
   const importManifest=async(event:ChangeEvent<HTMLInputElement>)=>{
     const file=event.target.files?.[0];if(!file)return;
-    setError('');setManifest(null);setSource(null);setRearUprightSource(null);setRearSuspensionSource(null);setRearToeSource(null);setPart(null);setCornerProbe(null);setRegistration(null);setResolvedTransform(null);setDraftLandmarks([]);setPickedBody(null);setPickedCorner(null);setPickMode('off');
+    setError('');setManifest(null);setSource(null);setRearUprightSource(null);setRearSuspensionSource(null);setRearToeSource(null);setToeAdjusterSource(null);setPart(null);setCornerProbe(null);setRegistration(null);setResolvedTransform(null);setDraftLandmarks([]);setPickedBody(null);setPickedCorner(null);setPickMode('off');
     try{
       if(file.size>MAX_MANIFEST)throw Error('Source manifest exceeds 5 MB');
       const data=JSON.parse(await file.text()) as unknown;
@@ -130,7 +135,7 @@ export default function AssemblyPreviewPage(){
   };
   const importGLB=async(event:ChangeEvent<HTMLInputElement>)=>{
     const file=event.target.files?.[0];if(!file)return;
-    setError('');setSource(null);setRearUprightSource(null);setRearSuspensionSource(null);setRearToeSource(null);setPart(null);setCornerProbe(null);setRegistration(null);setDraftLandmarks([]);setPickedBody(null);setPickedCorner(null);setPickMode('off');setBusy(true);
+    setError('');setSource(null);setRearUprightSource(null);setRearSuspensionSource(null);setRearToeSource(null);setToeAdjusterSource(null);setPart(null);setCornerProbe(null);setRegistration(null);setDraftLandmarks([]);setPickedBody(null);setPickedCorner(null);setPickMode('off');setBusy(true);
     try {
       if(!manifest)throw Error('Load P2.8 manifest first');
       // Reuse the existing byte-length, embedded-resource and cryptographic SHA gate.
@@ -210,6 +215,29 @@ export default function AssemblyPreviewPage(){
       setInfo('P211 SOURCE SHA VERIFIED / WAITING TO PARSE 15 MESHES / G2 HOLD');
     }catch(err){setError(String(err));}finally{setRearToeBusy(false);event.target.value='';}
   };
+  const importToeAdjusterManifest=async(event:ChangeEvent<HTMLInputElement>)=>{
+    const file=event.target.files?.[0];if(!file)return;
+    setError('');setToeAdjusterManifest(null);setToeAdjusterSource(null);
+    try{
+      if(file.size>MAX_MANIFEST)throw Error('P2.12 manifest exceeds 5 MB');
+      const checked=readToeAdjusterManifest(JSON.parse(await file.text()) as unknown);
+      setToeAdjusterManifest(checked);
+      setInfo('P212 ORIGINAL REAR TOE ADJUSTER SOURCE MANIFEST VERIFIED / G2 HOLD');
+    }catch(err){setError(String(err));}finally{event.target.value='';}
+  };
+  const importToeAdjusterGLB=async(event:ChangeEvent<HTMLInputElement>)=>{
+    const file=event.target.files?.[0];if(!file)return;
+    setError('');setToeAdjusterSource(null);setToeAdjusterBusy(true);
+    try{
+      if(!source||!calibration.fit||!toeAdjusterManifest)
+        throw Error('P2.8 wheel source and P2.12 verified manifest required');
+      const verified=await verifyToeAdjusterSource(toeAdjusterManifest,file);
+      setToeAdjusterSource(verified);
+      setAllFourWheelsEnabled(true);
+      setMeasuredOverlayEnabled(true);
+      setInfo('P212 REAR ADJUSTER SHA VERIFIED / 19 MESHES LOADING / G2 HOLD');
+    }catch(err){setError(String(err));}finally{setToeAdjusterBusy(false);event.target.value='';}
+  };
   const importLandmarks=async(event:ChangeEvent<HTMLInputElement>)=>{
     const file=event.target.files?.[0];if(!file)return;
     setError('');setRegistration(null);
@@ -280,6 +308,20 @@ export default function AssemblyPreviewPage(){
       originalModelBGeometryModified:false,
       p28OriginalCadScale:1,
       fourWheelPreviewEnabled:allFourWheelsEnabled,
+      rearToeAdjusterProposal:toeAdjusterSource?{
+        schema:toeAdjusterSource.manifest.schema,
+        fileName:toeAdjusterSource.fileName,
+        profile:toeAdjusterSource.profile,
+        sourceSha256:toeAdjusterSource.manifest.profiles[toeAdjusterSource.profile].sha256,
+        totalCadSolids:19,newParts:5,
+        nativeStaticPairCount:toeAdjusterSource.manifest.nativeStaticAudit.pairCount,
+        replacedPriorPartId:toeAdjusterSource.manifest.replacedPriorPartId,
+        actualChassisToeHardpointMeasured:false,
+        fullFemaleThreadProfileModelled:false,
+        mechanicalThreadEngagementCertified:false,
+        mechanicalMateCertified:false,
+        dynamicToeKinematicsCertified:false,
+      }:null,
       rearToeLinkProposal:rearToeSource?{
         schema:rearToeSource.manifest.schema,
         fileName:rearToeSource.fileName,
@@ -345,7 +387,8 @@ export default function AssemblyPreviewPage(){
         <Suspense fallback={<p>Loading Three.js preview…</p>}>
           <Stage source={source} rearUprightSource={rearUprightSource}
             rearSuspensionSource={rearSuspensionSource}
-            rearToeSource={rearToeSource} placement={placement} shellOpacity={opacity} selectedPart={part}
+            rearToeSource={rearToeSource}
+            rearToeAdjusterSource={toeAdjusterSource} placement={placement} shellOpacity={opacity} selectedPart={part}
             cameraFocus={cameraFocus} cornerPresentation={cornerPresentation}
             technicalMaterials={technicalMaterials}
             allFourWheelsEnabled={allFourWheelsEnabled} activeWheelId={activeWheelId}
@@ -443,6 +486,30 @@ export default function AssemblyPreviewPage(){
           <small><strong>ENGINEERING G2 HOLD:</strong> Exact 105-pair static B-Rep
             test does not prove a chassis hardpoint, toe-angle adjustment,
             dynamic bump/toe solution, rear driveshaft clearance or structural strength.</small>
+        </div>
+        <div className="peds-assembly-controls-section" aria-label="P2.12 original rear toe adjuster source">
+          <h2>01E / P2.12 opposing-hand rear toe adjuster</h2>
+          <p>The original P2.11 fixed rod is removed and replaced with two
+            project-authored left/right-hand helical rod ends, a hollow sleeve
+            and two separate locknuts. P2.9–P2.11 previous instances are
+            suppressed when this source is active, preventing double geometry.</p>
+          <label>P2.12 rear toe adjuster manifest (.json)
+            <input type="file" accept=".json,application/json"
+              onChange={e=>{void importToeAdjusterManifest(e);}}/>
+          </label>
+          <label>P2.12 rear toe adjuster GLB (.glb)
+            <input type="file" accept=".glb,model/gltf-binary"
+              disabled={!toeAdjusterManifest||!source||!calibration.fit||toeAdjusterBusy}
+              onChange={e=>{void importToeAdjusterGLB(e);}}/>
+          </label>
+          <small>{toeAdjusterSource?
+            'P2.12 SOURCE VERIFIED / '+toeAdjusterSource.profile+
+            ' / 19 ORIGINAL CAD PARTS / TWO REAR STATIONS':
+            'P2.12 not loaded — the previous rear source remains active.'}</small>
+          <small><strong>MECHANICAL G2 HOLD:</strong> Helical male crests are
+            modeled, but the female sleeve has a clearance bore rather than
+            engaged internal thread geometry. Locknuts have no certified preload,
+            adjustment travel is unverified and chassis pickup points remain proposals.</small>
         </div>
         <div className="peds-assembly-controls-section">
           <h2>02 / Geometry inspection</h2>
