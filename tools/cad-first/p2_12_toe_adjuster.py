@@ -20,7 +20,7 @@ from p2_11_rear_toe_link import (
     ring as eye_ring, RADIUS_MM as P211_RADIUS,
 )
 
-SCHEMA='podium-eds.p2.cad-first.rear-toe-adjuster-static-proposal.v1'
+SCHEMA='podium-eds.p2.cad-first.rear-toe-adjuster-threaded.v2'
 PARTS={
     'outer':'P212_TOE_OUTER_RIGHT_HAND_THREADED_ROD_END',
     'inner':'P212_TOE_INNER_LEFT_HAND_THREADED_ROD_END',
@@ -41,9 +41,13 @@ INNER_NUT_RANGE_MM=(114.0,121.0)
 ROD_R_MM=8.85
 THREAD_PITCH_MM=2.0
 THREAD_CREST_R_MM=9.62
-SLEEVE_BORE_R_MM=10.02
+SLEEVE_BORE_R_MM=9.05
 SLEEVE_BODY_R_MM=15.2
-LOCKNUT_BORE_R_MM=9.9
+FEMALE_GROOVE_MAJOR_R_MM=10.08
+FEMALE_GROOVE_HALF_WIDTH_MM=.60
+MALE_OUTER_START_MM=45.0
+MALE_INNER_START_MM=89.0
+MALE_THREAD_HEIGHT_MM=34.0
 
 def sha(path:Path)->str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -82,34 +86,63 @@ def rod_end(outer:bool)->cq.Shape:
     if outer:
         eye=TOE_OUTER_EYE_MM
         shank=cylinder_segment(0.,OUTER_ROD_END_MM,ROD_R_MM)
-        ridge=male_helix(SLEEVE_START_MM+1.,20.,False)
+        ridge=male_helix(MALE_OUTER_START_MM,MALE_THREAD_HEIGHT_MM,False)
     else:
         eye=TOE_INNER_EYE_MM
         shank=cylinder_segment(INNER_ROD_START_MM,LINK_LENGTH_MM,ROD_R_MM)
-        ridge=male_helix(INNER_ROD_START_MM+1.,20.,True)
+        ridge=male_helix(MALE_INNER_START_MM,MALE_THREAD_HEIGHT_MM,True)
     body=shank.fuse(eye_ring(eye,P211_RADIUS['eyeOuter'],P211_RADIUS['eyeBore'],16.))
     body=body.fuse(ridge)
     x,y,z=eye
     drill=cq.Solid.makeCylinder(P211_RADIUS['eyeBore'],90,cq.Vector(x,y,z-45),cq.Vector(0,0,1))
     return body.cut(drill).clean()
 
-def sleeve()->cq.Shape:
-    shell=cylinder_segment(SLEEVE_START_MM,SLEEVE_END_MM,SLEEVE_BODY_R_MM)
-    bore=cylinder_segment(SLEEVE_START_MM-.5,SLEEVE_END_MM+.5,SLEEVE_BORE_R_MM)
-    return shell.cut(bore).clean()
+def female_groove(start:float,height:float,left_hand:bool)->cq.Shape:
+    """True native swept internal V-groove; deliberate manufacturing tolerance HOLD."""
+    helix=cq.Wire.makeHelix(THREAD_PITCH_MM,height,SLEEVE_BORE_R_MM,
+                            lefthand=left_hand)
+    section=(cq.Workplane('XZ').polyline([
+      (SLEEVE_BORE_R_MM-.27,-FEMALE_GROOVE_HALF_WIDTH_MM),
+      (FEMALE_GROOVE_MAJOR_R_MM,0),
+      (SLEEVE_BORE_R_MM-.27,FEMALE_GROOVE_HALF_WIDTH_MM),
+    ]).close())
+    return on_axis(section.sweep(helix,isFrenet=True).val(),start)
 
-def hex_nut(s0:float,s1:float)->cq.Shape:
-    w=cq.Workplane('XY').polygon(6,33).extrude(s1-s0).val()
-    drill=cq.Solid.makeCylinder(LOCKNUT_BORE_R_MM,s1-s0+2,cq.Vector(0,0,-1),cq.Vector(0,0,1))
-    return on_axis(w.cut(drill).clean(),s0)
+def sleeve()->cq.Shape:
+    blank=cylinder_segment(SLEEVE_START_MM,SLEEVE_END_MM,SLEEVE_BODY_R_MM).cut(
+      cylinder_segment(SLEEVE_START_MM-.5,SLEEVE_END_MM+.5,SLEEVE_BORE_R_MM))
+    # Simultaneous OCCT subtraction is required: sequential groove cuts have
+    # produced an invalid B-Rep on this source in a prior local check.
+    grooves=cq.Compound.makeCompound([
+      female_groove(57.0,22.0,False),
+      female_groove(89.0,22.0,True),
+    ])
+    result=blank.cut(grooves).clean()
+    material_removed=blank.Volume()-result.Volume()
+    if not result.isValid() or len(result.Solids())!=1 or not 500<material_removed<900:
+        raise ValueError('Both female sleeve grooves must be physically subtracted')
+    return result
+
+def hex_nut(s0:float,s1:float,left_hand:bool)->cq.Shape:
+    blank=cq.Workplane('XY').polygon(6,33).extrude(s1-s0).val()
+    bore=cq.Solid.makeCylinder(SLEEVE_BORE_R_MM,s1-s0+2,
+                               cq.Vector(0,0,-1),cq.Vector(0,0,1))
+    nut=on_axis(blank.cut(bore).clean(),s0)
+    # Groove starts at pitch-aligned phases: RH s47 (male s45);
+    # LH s115 (male s89). Neither nut uses a fake smooth hole.
+    groove_start=s0 if not left_hand else s0+1.0
+    result=nut.cut(female_groove(groove_start,6.0,left_hand)).clean()
+    if not result.isValid() or len(result.Solids())!=1 or nut.Volume()-result.Volume()<40:
+        raise ValueError('Locknut native female thread Boolean failed')
+    return result
 
 def build_new_parts()->dict[str,cq.Shape]:
     parts={
         PARTS['outer']:rod_end(True),
         PARTS['inner']:rod_end(False),
         PARTS['sleeve']:sleeve(),
-        PARTS['outerNut']:hex_nut(*OUTER_NUT_RANGE_MM),
-        PARTS['innerNut']:hex_nut(*INNER_NUT_RANGE_MM),
+        PARTS['outerNut']:hex_nut(*OUTER_NUT_RANGE_MM,False),
+        PARTS['innerNut']:hex_nut(*INNER_NUT_RANGE_MM,True),
     }
     for name,solid in parts.items():
         if solid.isNull() or not solid.isValid() or solid.Volume()<=0 or len(solid.Solids())!=1:
@@ -182,11 +215,19 @@ def build(out:Path)->dict:
         'outerThreadHand':'RIGHT','innerThreadHand':'LEFT',
         'externalHelicalCrestsModelled':True,'pitchMm':THREAD_PITCH_MM,
         'maleThreadCrestRadiusMm':THREAD_CREST_R_MM,
-        'femaleSleeveBoreRadiusMm':SLEEVE_BORE_R_MM,
-        'radialSleeveClearanceMm':SLEEVE_BORE_R_MM-THREAD_CREST_R_MM,
+        'femaleSleeveMinorRadiusMm':SLEEVE_BORE_R_MM,
+        'femaleThreadMajorRadiusMm':FEMALE_GROOVE_MAJOR_R_MM,
+        'femaleThreadGrooveDepthMm':FEMALE_GROOVE_MAJOR_R_MM-SLEEVE_BORE_R_MM,
+        'rodRootRadialClearanceMm':SLEEVE_BORE_R_MM-ROD_R_MM,
+        'threadCrestRadialClearanceMm':FEMALE_GROOVE_MAJOR_R_MM-THREAD_CREST_R_MM,
+        'sleeveOppositeHandGroovesModelled':True,
+        'bothLocknutFemaleGroovesModelled':True,
+        'nominalThreadPhaseMatched':True,
+        'threadedRodSpanMm':MALE_THREAD_HEIGHT_MM,
+        'threadGeometryRevision':'P2.12-R2-BREP-GROOVED',
         'sourceP28Modified':False,'modelBSourceModified':False,
         'actualChassisToeHardpointMeasured':False,
-        'fullFemaleThreadProfileModelled':False,
+        'fullFemaleThreadProfileModelled':True,
         'mechanicalThreadEngagementCertified':False,
         'toeAdjustmentTravelCertified':False,'locknutTorqueCertified':False,
         'dynamicToeKinematicsCertified':False,'mechanicalMateCertified':False,
