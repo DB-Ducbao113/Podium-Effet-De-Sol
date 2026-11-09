@@ -7,11 +7,11 @@ import * as THREE from 'three';
 import type {CadSource} from '../cadFirstScroll/cadSource';
 import type {ToeAdjusterSource} from '../assemblyPreview/rearToeAdjusterSource';
 import type {SplitRaceSource} from '../assemblyPreview/splitRaceSource';
-import {P214_PARTS,P214_PARTS as SPLIT_PART_NAMES} from '../assemblyPreview/splitRaceSource';
+import {P214_PARTS} from '../assemblyPreview/splitRaceSource';
 import {REAR_TOE_ADJUSTER_ALL_PARTS} from '../assemblyPreview/rearToeAdjusterSource';
 import {probeOriginalGeometry,type SourceGeometryProbe} from '../assemblyPreview/geometryProbe';
 import {fitOwnerShellToOriginalP28,type OwnerMeasuredFit} from '../assemblyPreview/ownerMeasuredFit';
-import {layoutFourCorners,visibleInFourCornerPreview,type FourCornerMount} from '../assemblyPreview/fourCornerLayout';
+import {layoutFourCorners,visibleInFourCornerPreview} from '../assemblyPreview/fourCornerLayout';
 import {addReversibleWheelWindow} from '../assemblyPreview/showroomWheelMask';
 import {
  clamp01,exteriorSeparation,originalPartAssembly,rearSourceAssembly,
@@ -45,7 +45,6 @@ type Visual={
 
 const FINGERPRINT_LENGTH=27.7926;
 const OWNER_CALIBRATED_FALLBACK_SCALE=.17357287237986882;
-const ACTIVE_REAR_PREFIXES=['P212_','P214_'];
 const finite3=(items:number[])=>items.length===3&&items.every(Number.isFinite);
 
 function releaseSource(model:THREE.Group){
@@ -337,11 +336,11 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
    let distance=8.6;
    let orbit=.0;
    if(p>=.30&&p<.50){
-     cameraTarget=new THREE.Vector3(...front);distance=2.65;orbit=.20;
+     cameraTarget=new THREE.Vector3(front[0],front[1],front[2]);distance=2.65;orbit=.20;
    }else if(p>=.50&&p<.69){
      cameraTarget.set(-.32,-.12,0);distance=7.3;orbit=-.14;
    }else if(p>=.69&&p<.85){
-     cameraTarget=new THREE.Vector3(...rearCenter);distance=2.8;orbit=-.35;
+     cameraTarget=new THREE.Vector3(rearCenter[0],rearCenter[1],rearCenter[2]);distance=2.8;orbit=-.35;
    }else if(p>=.85){
      cameraTarget.set(-.1,-.1,0);distance=8;orbit=.18;
    }else if(p>=.15){
