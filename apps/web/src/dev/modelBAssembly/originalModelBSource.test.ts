@@ -31,7 +31,7 @@ describe('Owner original Model B immutable binary provenance',()=>{
  });
  it('rejects missing and oversized binary without a hash operation',async()=>{
   await expect(gitBlobHash(new ArrayBuffer(0))).rejects.toThrow(/length/);
-  await expect(gitBlobHash(new ArrayBuffer(81*1024*1024)))
+  await expect(gitBlobHash(new ArrayBuffer(9*1024*1024)))
    .rejects.toThrow(/length/);
  });
 });
