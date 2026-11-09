@@ -41,7 +41,8 @@ def verify(p28:Path,quality:str)->tuple[Path,Path,dict]:
     return manifest,glb,record
 
 def capture(url:str,p28:Path,out:Path,quality:str,p29:Path|None=None,
-            p210:Path|None=None,p211:Path|None=None,p212:Path|None=None)->dict:
+            p210:Path|None=None,p211:Path|None=None,p212:Path|None=None,
+            p213:Path|None=None)->dict:
     try:
         from playwright.sync_api import sync_playwright
     except ImportError as exc:
@@ -56,6 +57,8 @@ def capture(url:str,p28:Path,out:Path,quality:str,p29:Path|None=None,
         "real_p210_rear_wishbone_loaded":False,
         "real_p211_rear_toe_loaded":False,
         "real_p212_toe_adjuster_loaded":False,
+        "real_p213_spherical_joint_cad_loaded":False,
+        "p213_step_source_sha256":None,
         "p212_step_source_sha256":None,
         "p211_step_source_sha256":None,
         "p210_step_source_sha256":None,
@@ -233,6 +236,41 @@ def capture(url:str,p28:Path,out:Path,quality:str,p29:Path|None=None,
                 page.get_by_text("P212 REAR TOE ADJUSTER MESHES PARSED",exact=False).first.wait_for(timeout=60000)
                 runtime["p212_step_source_sha256"]=source212["masterSTEPsha256"]
                 runtime["p212_source_glb_sha256"]=row212["sha256"]
+            if p213 is not None:
+                manifest213=p213/"P213_joint_articulation_manifest.json"
+                if not manifest213.is_file():
+                    raise RuntimeError("Original P2.13 8-solid source manifest unavailable")
+                source213=json.loads(manifest213.read_text(encoding="utf8"))
+                source_hashes={name:hashlib.sha256(
+                    (Path(__file__).resolve().parent/name).read_bytes()).hexdigest()
+                    for name in ("p2_9_rear_upright.py","p2_10_rear_wishbone.py",
+                                 "p2_11_rear_toe_link.py","p2_12_toe_adjuster.py",
+                                 "p2_12_constrained_kinematics.py")}
+                if (source213.get("schema")!="podium-eds.p213.source-spherical-joint-articulation.v1"
+                    or source213.get("sourceCadFileSha256")!=source_hashes
+                    or source213.get("newCadSolids")!=8
+                    or source213.get("replacedOldCadSolids")!=4
+                    or source213.get("candidateCombinedCadSolids")!=23
+                    or source213.get("poseCount")!=7
+                    or source213.get("mechanicalG2")!="HOLD"
+                    or source213.get("sphericalBallRetainedCertified") is not False
+                    or source213.get("actualSphericalArticulationCertified") is not False
+                    or source213.get("chassisHardpointsMeasured") is not False):
+                    raise RuntimeError("P2.13 source geometry identity and mechanical G2 gate failed")
+                step213=p213/source213["masterSTEP"]
+                if (not step213.is_file() or
+                    hashlib.sha256(step213.read_bytes()).hexdigest()!=source213["masterSTEPsha256"]):
+                    raise RuntimeError("P2.13 source STEP SHA mismatch")
+                tier213=source213["profiles"][quality]
+                glb213=p213/tier213["file"]
+                if (not glb213.is_file() or
+                    hashlib.sha256(glb213.read_bytes()).hexdigest()!=tier213["sha256"]):
+                    raise RuntimeError("P2.13 original eight-body GLB SHA mismatch")
+                page.get_by_label("P2.13 spherical joint manifest (.json)").set_input_files(str(manifest213))
+                page.get_by_label("P2.13 spherical joint GLB (.glb)").set_input_files(str(glb213))
+                page.get_by_text("P213 FOUR SPHERICAL JOINT PAIRS PARSED",exact=False).first.wait_for(timeout=45000)
+                runtime["p213_step_source_sha256"]=source213["masterSTEPsha256"]
+                runtime["p213_source_glb_sha256"]=tier213["sha256"]
             with page.expect_download(timeout=15000) as download_info:
                 page.get_by_role("button",name="EXPORT PLACEMENT JSON").click()
             audit_file=out/"four-corner-original-source-placement.json"
@@ -242,6 +280,21 @@ def capture(url:str,p28:Path,out:Path,quality:str,p29:Path|None=None,
             corners=layout.get("corners",[])
             if len(corners)!=4 or {x.get("id") for x in corners}!={x[0] for x in WHEELS}:
                 raise RuntimeError("Browser did NOT place exactly four measured wheels")
+            if p213 is not None:
+                joints=placement.get("sphericalJointPrototype")
+                if (not isinstance(joints,dict)
+                    or joints.get("schema")!="podium-eds.p213.source-spherical-joint-articulation.v1"
+                    or joints.get("newSolids")!=8
+                    or joints.get("replacedOldBearingProxies")!=4
+                    or joints.get("fullCadCandidateSolids")!=23
+                    or joints.get("poseReviews")!=28
+                    or joints.get("sourceSha256")!=runtime["p213_source_glb_sha256"]
+                    or joints.get("sphericalBallRetainedCertified") is not False
+                    or joints.get("mechanicalArticulationCertified") is not False
+                    or joints.get("chassisHardpointsMeasured") is not False
+                    or joints.get("wholeCarClearanceCertified") is not False):
+                    raise RuntimeError("P2.13 WebGL source placement/uncertified G2 evidence failed")
+                runtime["real_p213_spherical_joint_cad_loaded"]=True
             if p212 is not None:
                 adjuster=placement.get("rearToeAdjusterProposal")
                 if (not isinstance(adjuster,dict) or
@@ -421,6 +474,7 @@ def main():
     parser.add_argument("--p210-dir",type=Path,default=None)
     parser.add_argument("--p211-dir",type=Path,default=None)
     parser.add_argument("--p212-dir",type=Path,default=None)
+    parser.add_argument("--p213-dir",type=Path,default=None)
     parser.add_argument("--out",type=Path,required=True)
     parser.add_argument("--quality",choices=["HIGH","BALANCED","PERFORMANCE"],default="BALANCED")
     args=parser.parse_args()
@@ -428,7 +482,8 @@ def main():
                    args.p29_dir.resolve() if args.p29_dir else None,
                    args.p210_dir.resolve() if args.p210_dir else None,
                    args.p211_dir.resolve() if args.p211_dir else None,
-                   args.p212_dir.resolve() if args.p212_dir else None)
+                   args.p212_dir.resolve() if args.p212_dir else None,
+                   args.p213_dir.resolve() if args.p213_dir else None)
     print("LOCAL four-wheel browser review recorded:",result["recorded_video"])
     print("G2 HOLD: rear is front source wheel-end proxy, NOT rear suspension CAD.")
 
