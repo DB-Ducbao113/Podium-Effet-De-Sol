@@ -277,6 +277,36 @@ def main()->None:
                                "helical sleeve/locknut surface phase QA did not pass")
         status["p212_independent_phase_negative_control"]=True
         gate("P212_OCC_FALSE_NEGATIVE_PHASE_SURFACE_GUARD","PASS")
+        five_path=out/"p212-five-body-pose-audit.json"
+        if not five_path.is_file():
+            invoke(sys.executable,TOOLS/"p2_12_five_body_pose_audit.py",
+                   "--out",five_path,timeout=240)
+        five=json.loads(five_path.read_text(encoding="utf8"))
+        five_rows=five.get("poses",[])
+        if (five.get("schema")!="podium-eds.p212.five-body-pose-audit.v1"
+            or five.get("cadSourceSha256")!=source_sha
+            or five.get("complete") is not True
+            or five.get("sampleCount")!=3
+            or five.get("anglesDeg")!=[-90,0,90]
+            or five.get("pairChecks")!=30
+            or five.get("booleanOnlyAudit") is not True
+            or five.get("independentPhaseOccupancyQARequired") is not True
+            or five.get("fullNineteenBodyKinematicsCertified") is not False
+            or five.get("continuousCollisionClearanceCertified") is not False
+            or five.get("physicalRearChassisMatingCertified") is not False
+            or five.get("mechanicalG2")!="HOLD"
+            or len(five_rows)!=3
+            or {r.get("sleeveAngleDeg") for r in five_rows}!={-90,0,90}
+            or any(r.get("nativePairCount")!=10 or
+                   r.get("aabbExcluded",0)+r.get("nativeBrepPairsEvaluated",0)!=10
+                   or r.get("recordedBrepPositiveOverlaps")!=0
+                   or r.get("booleanErrors")!=0
+                   or r.get("booleanOnlyPassed") is not True
+                   for r in five_rows)):
+            raise RuntimeError("P2.12 independent free-adjuster five-body motion "
+                               "source audit incomplete; G2 HOLD")
+        status["p212_five_body_free_pose_audit"]=True
+        gate("P212_FIVE_BODY_THREE_STATIC_POSES_BREP_ONLY","PASS")
         npm=shutil.which("npm")
         if npm is None:raise RuntimeError("Node/npm missing")
         if not a.skip_web_qa:
