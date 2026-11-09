@@ -307,6 +307,62 @@ def main()->None:
                                "source audit incomplete; G2 HOLD")
         status["p212_five_body_free_pose_audit"]=True
         gate("P212_FIVE_BODY_THREE_STATIC_POSES_BREP_ONLY","PASS")
+        closure_path=out/"p212-fixed-bearing-joint-closure.json"
+        if not closure_path.is_file():
+            invoke(sys.executable,TOOLS/"p2_12_joint_closure_gate.py",
+                   "--out",closure_path,timeout=45)
+        closure=json.loads(closure_path.read_text(encoding="utf8"))
+        closure_rows=closure.get("samples",[])
+        if (closure.get("schema")!="podium-eds.p212.v3.joint-closure-blocker.v1"
+            or closure.get("cadSourceSha256")!=source_sha
+            or closure.get("sampleCount")!=7
+            or closure.get("anglesDeg")!=[-180,-90,-45,0,45,90,180]
+            or closure.get("nominalRadialGapMm")!=.4
+            or closure.get("staticCenterClosurePass") is not True
+            or closure.get("adjustedRigidFixedBearingClosurePass") is not False
+            or closure.get("freeThreadMotionCanBeAcceptedAsVehicleToeMotion") is not False
+            or closure.get("fullNineteenBodyKinematicsCertified") is not False
+            or closure.get("sourceJointCoordinatesAreProposalsNotMeasuredChassis") is not True
+            or closure.get("mechanicalG2")!="HOLD"
+            or len(closure_rows)!=7
+            or not all(row.get("twoPinnedEyeCentersCloseWithinReviewThreshold") is (row.get("sleeveAngleDeg")==0) for row in closure_rows)
+            or any(abs(row.get("outerEyeErrorFromFixedBearingMm",-1)-abs(row.get("sleeveAngleDeg",0))/180)>1e-6 for row in closure_rows)
+            or any(abs(row.get("innerEyeErrorFromFixedBearingMm",-1)-abs(row.get("sleeveAngleDeg",0))/180)>1e-6 for row in closure_rows)):
+            raise RuntimeError("P2.12 fixed-joint source kinematics mismatch was hidden; G2 HOLD")
+        status["p212_unverified_chassis_joint_closure"]=True
+        gate("P212_FIXED_BEARING_KINEMATIC_NONCLOSURE_IDENTIFIED","PASS")
+        full_path=out/"p212-19-body-pose-closure.json"
+        if not full_path.is_file():
+            invoke(sys.executable,TOOLS/"p2_12_19_body_motion_audit.py",
+                   "--out",full_path,"--per-case-timeout","110",timeout=430)
+        full=json.loads(full_path.read_text(encoding="utf8"))
+        full_rows=full.get("cases",[])
+        if (full.get("schema")!="podium-eds.p212.v3.all-19-pose-closure.v1"
+            or full.get("sourceSha256")!=source_sha
+            or full.get("complete") is not True
+            or full.get("sampleCount")!=3
+            or full.get("anglesDeg")!=[-90,0,90]
+            or full.get("pairClassifications")!=513
+            or full.get("nominalPinnedEyeClosureWithin0p01mm") is not True
+            or full.get("adjustedPinnedEyeClosureWithin0p01mm") is not False
+            or full.get("independentThreadSurfaceOccupancyRequired") is not True
+            or full.get("continuousKinematicsCertified") is not False
+            or full.get("actualChassisHardpointsVerified") is not False
+            or full.get("mechanicalG2")!="HOLD"
+            or len(full_rows)!=3
+            or {row.get("sleeveAngleDeg") for row in full_rows}!={-90,0,90}
+            or any(row.get("pairCount")!=171
+                   or row.get("aabbExcluded",0)+row.get("nativeBrepPairsEvaluated",0)!=171
+                   or row.get("recordedNativePositiveOverlaps")!=[]
+                   or row.get("nativeBooleanExceptions")!=[]
+                   or row.get("booleanStaticReviewOnly") is not True
+                   or row.get("knownHelicalBooleanFalseNegatives") is not True
+                   or row.get("vehicleKinematicsCertified") is not False
+                   or row.get("pinnedEyeClosureWithin0p01mm") is (row.get("sleeveAngleDeg")!=0)
+                   for row in full_rows)):
+            raise RuntimeError("P2.12 19-body source pose/closure audit incomplete; G2 HOLD")
+        status["p212_full_19_body_free_pose_boolean_review"]=True
+        gate("P212_ALL_19_BODY_THREE_POSES_BOOLEAN_ONLY_AND_G2_HOLD","PASS")
         npm=shutil.which("npm")
         if npm is None:raise RuntimeError("Node/npm missing")
         if not a.skip_web_qa:
