@@ -20,7 +20,7 @@ CASES=(
   "test_threaded_faces_and_mechanical_holds_are_explicit",
   "test_screw_pitch_and_locknut_gap_contract",
   "test_static_171_pairs_and_collision_guard",
-  "test_step_glb_roundtrip_hashes_and_mechanical_hold",
+  "test_sleeve_native_step_and_three_mesh_tessellations",
 )
 CLASS="test_p2_12_toe_adjuster.RearToeAdjusterCADTest."
 
