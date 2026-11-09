@@ -15,6 +15,8 @@ import { readRearToeManifest, verifyRearToeSource,
   type RearToeManifest, type RearToeSource } from './rearToeSource';
 import {readToeAdjusterManifest,verifyToeAdjusterSource,
   type ToeAdjusterManifest,type ToeAdjusterSource} from './rearToeAdjusterSource';
+import {readRearJointManifest,verifyRearJointSource,
+  type RearJointManifest,type RearJointSource} from './rearJointSource';
 import './assemblyPreview.css';
 
 const Stage=lazy(()=>import('./AssemblyPreviewStage'));
@@ -43,6 +45,9 @@ export default function AssemblyPreviewPage(){
   const [toeAdjusterManifest,setToeAdjusterManifest]=useState<ToeAdjusterManifest|null>(null);
   const [toeAdjusterSource,setToeAdjusterSource]=useState<ToeAdjusterSource|null>(null);
   const [toeAdjusterBusy,setToeAdjusterBusy]=useState(false);
+  const [rearJointManifest,setRearJointManifest]=useState<RearJointManifest|null>(null);
+  const [rearJointSource,setRearJointSource]=useState<RearJointSource|null>(null);
+  const [rearJointBusy,setRearJointBusy]=useState(false);
   const [error,setError]=useState('');
   const [info,setInfo]=useState('MODEL B EXTERIOR · P2.8 SOURCE NOT LOADED');
   const [placement,setPlacement]=useState<Placement>(INITIAL_PLACEMENT);
@@ -122,7 +127,7 @@ export default function AssemblyPreviewPage(){
   };
   const importManifest=async(event:ChangeEvent<HTMLInputElement>)=>{
     const file=event.target.files?.[0];if(!file)return;
-    setError('');setManifest(null);setSource(null);setRearUprightSource(null);setRearSuspensionSource(null);setRearToeSource(null);setToeAdjusterSource(null);setPart(null);setCornerProbe(null);setRegistration(null);setResolvedTransform(null);setDraftLandmarks([]);setPickedBody(null);setPickedCorner(null);setPickMode('off');
+    setError('');setManifest(null);setSource(null);setRearUprightSource(null);setRearSuspensionSource(null);setRearToeSource(null);setToeAdjusterSource(null);setRearJointSource(null);setPart(null);setCornerProbe(null);setRegistration(null);setResolvedTransform(null);setDraftLandmarks([]);setPickedBody(null);setPickedCorner(null);setPickMode('off');
     try{
       if(file.size>MAX_MANIFEST)throw Error('Source manifest exceeds 5 MB');
       const data=JSON.parse(await file.text()) as unknown;
@@ -135,7 +140,7 @@ export default function AssemblyPreviewPage(){
   };
   const importGLB=async(event:ChangeEvent<HTMLInputElement>)=>{
     const file=event.target.files?.[0];if(!file)return;
-    setError('');setSource(null);setRearUprightSource(null);setRearSuspensionSource(null);setRearToeSource(null);setToeAdjusterSource(null);setPart(null);setCornerProbe(null);setRegistration(null);setDraftLandmarks([]);setPickedBody(null);setPickedCorner(null);setPickMode('off');setBusy(true);
+    setError('');setSource(null);setRearUprightSource(null);setRearSuspensionSource(null);setRearToeSource(null);setToeAdjusterSource(null);setRearJointSource(null);setPart(null);setCornerProbe(null);setRegistration(null);setDraftLandmarks([]);setPickedBody(null);setPickedCorner(null);setPickMode('off');setBusy(true);
     try {
       if(!manifest)throw Error('Load P2.8 manifest first');
       // Reuse the existing byte-length, embedded-resource and cryptographic SHA gate.
@@ -217,7 +222,7 @@ export default function AssemblyPreviewPage(){
   };
   const importToeAdjusterManifest=async(event:ChangeEvent<HTMLInputElement>)=>{
     const file=event.target.files?.[0];if(!file)return;
-    setError('');setToeAdjusterManifest(null);setToeAdjusterSource(null);
+    setError('');setToeAdjusterManifest(null);setToeAdjusterSource(null);setRearJointSource(null);
     try{
       if(file.size>MAX_MANIFEST)throw Error('P2.12 manifest exceeds 5 MB');
       const checked=readToeAdjusterManifest(JSON.parse(await file.text()) as unknown);
@@ -227,7 +232,7 @@ export default function AssemblyPreviewPage(){
   };
   const importToeAdjusterGLB=async(event:ChangeEvent<HTMLInputElement>)=>{
     const file=event.target.files?.[0];if(!file)return;
-    setError('');setToeAdjusterSource(null);setToeAdjusterBusy(true);
+    setError('');setToeAdjusterSource(null);setRearJointSource(null);setToeAdjusterBusy(true);
     try{
       if(!source||!calibration.fit||!toeAdjusterManifest)
         throw Error('P2.8 wheel source and P2.12 verified manifest required');
@@ -237,6 +242,29 @@ export default function AssemblyPreviewPage(){
       setMeasuredOverlayEnabled(true);
       setInfo('P212 REAR ADJUSTER SHA VERIFIED / 19 MESHES LOADING / G2 HOLD');
     }catch(err){setError(String(err));}finally{setToeAdjusterBusy(false);event.target.value='';}
+  };
+  const importRearJointManifest=async(event:ChangeEvent<HTMLInputElement>)=>{
+    const file=event.target.files?.[0];if(!file)return;
+    setError('');setRearJointManifest(null);setRearJointSource(null);
+    try{
+      if(file.size>MAX_MANIFEST)throw Error('P2.13 manifest exceeds 5 MB');
+      const parsed=readRearJointManifest(JSON.parse(await file.text()) as unknown);
+      setRearJointManifest(parsed);
+      setInfo('P213 FOUR SPHERICAL JOINT SOURCE MANIFEST READY / MECHANICAL G2 HOLD');
+    }catch(err){setError(String(err));}finally{event.target.value='';}
+  };
+  const importRearJointGLB=async(event:ChangeEvent<HTMLInputElement>)=>{
+    const file=event.target.files?.[0];if(!file)return;
+    setError('');setRearJointSource(null);setRearJointBusy(true);
+    try{
+      if(!source||!calibration.fit||!toeAdjusterSource||!rearJointManifest)
+        throw Error('Load P2.8 and P2.12 original source before P2.13');
+      const verified=await verifyRearJointSource(rearJointManifest,file);
+      setRearJointSource(verified);
+      setAllFourWheelsEnabled(true);
+      setMeasuredOverlayEnabled(true);
+      setInfo('P213 8 SOURCE SPHERICAL CAD MESHES SHA VERIFIED / STATIC / G2 HOLD');
+    }catch(err){setError(String(err));}finally{setRearJointBusy(false);event.target.value='';}
   };
   const importLandmarks=async(event:ChangeEvent<HTMLInputElement>)=>{
     const file=event.target.files?.[0];if(!file)return;
@@ -308,6 +336,19 @@ export default function AssemblyPreviewPage(){
       originalModelBGeometryModified:false,
       p28OriginalCadScale:1,
       fourWheelPreviewEnabled:allFourWheelsEnabled,
+      sphericalJointPrototype:rearJointSource?{
+        schema:rearJointSource.manifest.schema,
+        fileName:rearJointSource.fileName,
+        profile:rearJointSource.profile,
+        sourceSha256:rearJointSource.manifest.profiles[rearJointSource.profile].sha256,
+        sourceCadFileSha256:rearJointSource.manifest.sourceCadFileSha256,
+        newSolids:8,replacedOldBearingProxies:4,
+        fullCadCandidateSolids:23,poseReviews:28,
+        sphericalBallRetainedCertified:false,
+        mechanicalArticulationCertified:false,
+        chassisHardpointsMeasured:false,
+        wholeCarClearanceCertified:false,
+      }:null,
       rearToeAdjusterProposal:toeAdjusterSource?{
         schema:toeAdjusterSource.manifest.schema,
         fileName:toeAdjusterSource.fileName,
@@ -389,7 +430,8 @@ export default function AssemblyPreviewPage(){
           <Stage source={source} rearUprightSource={rearUprightSource}
             rearSuspensionSource={rearSuspensionSource}
             rearToeSource={rearToeSource}
-            rearToeAdjusterSource={toeAdjusterSource} placement={placement} shellOpacity={opacity} selectedPart={part}
+            rearToeAdjusterSource={toeAdjusterSource}
+            rearJointSource={rearJointSource} placement={placement} shellOpacity={opacity} selectedPart={part}
             cameraFocus={cameraFocus} cornerPresentation={cornerPresentation}
             technicalMaterials={technicalMaterials}
             allFourWheelsEnabled={allFourWheelsEnabled} activeWheelId={activeWheelId}
@@ -522,6 +564,30 @@ export default function AssemblyPreviewPage(){
             require genuine articulation. This WebGL scene remains a STATIC
             CAD pose: no verified animated rear suspension, chassis hardpoints
             or engineering G2 approval.</small>
+        </div>
+        <div className="peds-assembly-controls-section" aria-label="P2.13 original spherical bearing CAD prototypes">
+          <h2>01F / P2.13 four spherical bearing prototypes</h2>
+          <p>Four source-authored spherical sockets and four drilled ball inserts
+            replace exactly four annular P2.12 bearing placeholders. The
+            original 19-part rear CAD and wheel placement remain unchanged.
+            This is the static nominal pose, not an approved moving suspension.</p>
+          <label>P2.13 spherical joint manifest (.json)
+            <input type="file" accept=".json,application/json"
+              onChange={e=>{void importRearJointManifest(e);}}/>
+          </label>
+          <label>P2.13 spherical joint GLB (.glb)
+            <input type="file" accept=".glb,model/gltf-binary"
+              disabled={!rearJointManifest||!source||!toeAdjusterSource||!calibration.fit||rearJointBusy}
+              onChange={e=>{void importRearJointGLB(e);}}/>
+          </label>
+          <small>{rearJointSource?
+            'P2.13 SHA VERIFIED / '+rearJointSource.profile+
+            ' / 8 NATIVE SPHERICAL PARTS / TWO REAR STATIONS':
+            'P2.13 not loaded — existing bearing proxies remain visible.'}</small>
+          <small><strong>P2.13 / G2 HOLD:</strong> 28 sampled native race-ball
+            pairs were screened at seven ideal 6DOF poses; real sphere
+            retention, manufacture, material and full 23-body clearance are
+            unverified. The preview does NOT animate those seven poses.</small>
         </div>
         <div className="peds-assembly-controls-section">
           <h2>02 / Geometry inspection</h2>
