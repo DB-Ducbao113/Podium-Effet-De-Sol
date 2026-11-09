@@ -158,6 +158,9 @@ def run_report(out:Path,angles:tuple[float,...]=ANGLES)->dict:
         raise FileExistsError('Refusing to overwrite previous kinematic source evidence')
     out.parent.mkdir(parents=True,exist_ok=True)
     sha=hashlib.sha256(Path(__file__).with_name('p2_12_toe_adjuster.py').read_bytes()).hexdigest()
+    input_hashes={name:hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest()
+                  for name in ('p2_9_rear_upright.py','p2_10_rear_wishbone.py',
+                               'p2_11_rear_toe_link.py','p2_12_toe_adjuster.py')}
     try:
         if P212_SCHEMA!='podium-eds.p2.cad-first.rear-toe-adjuster-threaded.v3':
             raise RuntimeError('Original P2.12 source version mismatch')
@@ -169,7 +172,7 @@ def run_report(out:Path,angles:tuple[float,...]=ANGLES)->dict:
         ]) for r in rows)
         result={
           'schema':SCHEMA,'cadSourceSchema':P212_SCHEMA,
-          'cadSourceSha256':sha,'complete':True,
+          'cadSourceSha256':sha,'inputCadSourceSha256':input_hashes,'complete':True,
           'anglesDeg':list(angles),'sampleCount':len(rows),
           'maximumConstraintResidualMm':max(r['maximumIdealLinkageConstraintResidualMm'] for r in rows),
           'maximumBoreAxisMismatchDeg':maximum_bore,
