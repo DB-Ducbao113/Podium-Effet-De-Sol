@@ -10,6 +10,7 @@ import argparse
 import hashlib
 import json
 import re
+import struct
 from pathlib import Path
 import shutil
 import tempfile
@@ -25,6 +26,44 @@ OUTPUT=LOCAL/'model-b-scroll-preview'
 def checked_sha(path:Path)->str:
     with path.open('rb') as stream:
         return hashlib.file_digest(stream,'sha256').hexdigest()
+
+def verify_glb_mesh_identities(glb:Path,expected_names:list[str])->None:
+    """Read native glTF 2.0 GLB JSON header; check exact authored mesh nodes.
+
+    No browser rendering is inferred from this metadata test. It runs before
+    replacing any known-good local source bundle.
+    """
+    if (not expected_names or len(set(expected_names))!=len(expected_names)
+        or glb.stat().st_size<24 or glb.stat().st_size>150*1024*1024):
+        raise RuntimeError('Invalid original source GLB bounds or CAD node list')
+    with glb.open('rb') as stream:
+        header=stream.read(20)
+        if len(header)!=20:raise RuntimeError('Original source GLB header is truncated')
+        magic,version,total,jlength,jtype=struct.unpack('<IIIII',header)
+        if (magic!=0x46546c67 or version!=2 or total!=glb.stat().st_size
+            or jtype!=0x4e4f534a or jlength<2 or jlength>10*1024*1024
+            or 20+jlength>total):
+            raise RuntimeError('Source GLB 2.0 header/json size invalid')
+        gltf=json.loads(stream.read(jlength))
+    meshes=gltf.get('meshes',[])
+    nodes=gltf.get('nodes',[])
+    if not isinstance(meshes,list) or not isinstance(nodes,list):
+        raise RuntimeError('GLB geometry/nodes are not lists')
+    names=[]
+    for node in nodes:
+        if 'mesh' not in node:continue
+        index=node['mesh']
+        if (not isinstance(index,int) or isinstance(index,bool)
+            or index<0 or index>=len(meshes)
+            or not isinstance(node.get('name'),str)):
+            raise RuntimeError('Source GLB mesh-node topology invalid')
+        names.append(node['name'])
+    if len(names)!=len(expected_names) or set(names)!=set(expected_names):
+        raise RuntimeError('Original GLB authored CAD part node identities mismatch')
+    for entry in [*(gltf.get('buffers') or []),*(gltf.get('images') or [])]:
+        uri=entry.get('uri')
+        if uri and (not isinstance(uri,str) or not uri.startswith('data:')):
+            raise RuntimeError('External geometry/texture URI in private CAD GLB refused')
 
 def verify_cad_source_evidence(name:str,record:dict)->None:
     """Do not evict a good local CAD bundle with a weak, stale manifest."""
@@ -100,6 +139,14 @@ def run(p28:Path,out:Path,quality:str='BALANCED',
             raise RuntimeError('Wrong original source/part count for '+name)
         verify_cad_source_evidence(name,record)
         source_sha=record['profiles'][quality]['sha256']
+        advertised_name=record['profiles'][quality]['file']
+        if (not isinstance(advertised_name,str)
+            or Path(advertised_name).name!=advertised_name
+            or not advertised_name.lower().endswith('.glb')):
+            raise RuntimeError('Original CAD manifest may not escape its source directory')
+        expected_names=(record['partIds'] if name in ('p28','p212')
+                        else record['newPartNames'])
+        verify_glb_mesh_identities(glb,expected_names)
         if checked_sha(glb)!=source_sha:
             raise RuntimeError('Original source GLB modified while staging: '+str(glb))
         if name=='p214':
@@ -125,6 +172,8 @@ def run(p28:Path,out:Path,quality:str='BALANCED',
             folder=scratch/name;folder.mkdir()
             shutil.copy2(manifest,folder/'manifest.json')
             shutil.copy2(glb,folder/'source.glb')
+            verify_glb_mesh_identities(folder/'source.glb',
+                record['partIds'] if name in ('p28','p212') else record['newPartNames'])
             if checked_sha(folder/'source.glb')!=row[name]['sha256']:
                 raise RuntimeError('Source GLB changed during final local staging: '+name)
             if (json.loads((folder/'manifest.json').read_text(encoding='utf8'))
