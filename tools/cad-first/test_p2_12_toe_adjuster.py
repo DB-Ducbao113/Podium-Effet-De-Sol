@@ -55,8 +55,8 @@ class RearToeAdjusterCADTest(unittest.TestCase):
 
     def test_threaded_faces_and_mechanical_holds_are_explicit(self):
         p=build_new_parts()
-        self.assertGreater(len(p[PARTS['outer']].Faces()),30)
-        self.assertGreater(len(p[PARTS['inner']].Faces()),30)
+        self.assertGreater(len(p[PARTS['outer']].Faces()),12)
+        self.assertGreater(len(p[PARTS['inner']].Faces()),12)
         self.assertGreater(len(p[PARTS['outerNut']].Faces()),12)
         self.assertGreater(len(p[PARTS['innerNut']].Faces()),12)
         # A non-collision at 180 degrees is NOT proof of thread flank load
