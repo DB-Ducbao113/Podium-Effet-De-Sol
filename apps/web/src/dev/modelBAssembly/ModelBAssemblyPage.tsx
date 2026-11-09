@@ -14,6 +14,7 @@ import {
  type SplitRaceSource,
 } from '../assemblyPreview/splitRaceSource';
 import {chapterAt,clamp01,MODEL_B_CHAPTERS} from './modelBAssemblyTimeline';
+import {modelBChapterTruth} from './modelBChapterTruth';
 import {readLocalAutoCadIndex,type AutoCadRow} from './localSourceIndex';
 import {ORIGINAL_MODEL_B_SOURCE} from './originalModelBSource';
 import type {OwnerMeasuredFit} from '../assemblyPreview/ownerMeasuredFit';
@@ -254,6 +255,12 @@ export default function ModelBAssemblyPage(){
  const rearToePartIds=useMemo(()=>rearToe?.manifest.partIds??null,[rearToe]);
  const splitPartIds=useMemo(()=>splitRace?.manifest.newPartNames??null,[splitRace]);
  const allRear=Boolean(rearToe&&splitRace&&ready['rear-toe']&&ready.p214);
+ const truth=modelBChapterTruth(chapter.id,cadLoaded,
+   ready['rear-toe']===19,ready.p214===16);
+ const description=truth.kind==='ORIGINAL_CAD_ASSEMBLY'
+   ?chapter.description:truth.description;
+ const evidence=truth.kind==='ORIGINAL_CAD_ASSEMBLY'
+   ?chapter.evidence:truth.evidence;
  return <div className="mb-build">
    <a href="#mb-build-end" className="mb-build-skip">SKIP ASSEMBLY SEQUENCE</a>
    <section className="mb-build-track" ref={track} style={{height:'735svh'}}>
@@ -289,10 +296,10 @@ export default function ModelBAssemblyPage(){
            <span>{chapter.eyebrow}</span>
          </div>
          <h1 key={chapter.id} ref={titleRef}>{chapter.title}</h1>
-         <p className="mb-build-copy">{chapter.description}</p>
+         <p className="mb-build-copy">{description}</p>
          <div className="mb-build-status">
            <span className={cadLoaded?'mb-build-point ready':'mb-build-point'}/>
-           <span>{chapter.evidence}</span>
+           <span>{evidence}</span>
          </div>
        </section>
        <nav className="mb-build-rail" aria-label="Model B assembly chapters">
@@ -355,6 +362,7 @@ export default function ModelBAssemblyPage(){
          data-original-p28-scale={measuredFit?.p28Scale??'unknown'}
          data-original-mechanical-mate-certified={measuredFit?.mechanicalFitCertified?'true':'false'}
          data-model-b-source-only-review={sourceOnlyProof?'true':'false'}
+         data-model-b-scene-truth={truth.kind}
          data-p28-cad-ready={cadLoaded?'true':'false'}
          data-p212-cad-ready={ready['rear-toe']===19&&!!rearToe?'true':'false'}
          data-p214-cad-ready={ready.p214===16&&!!splitRace?'true':'false'}>
