@@ -675,8 +675,10 @@ def main()->None:
             or scroll.get("mechanicalG2")!="HOLD"
             or scroll.get("genuineRearMechanicalAssemblyCertified") is not False):
             raise RuntimeError("Real Model B scroll WebGL video provenance/browser QA failed")
+        status["four_corners_review_video"]=movie
         status["model_b_scroll_video"]=str(scroll_movie)
         status["model_b_scroll_video_sha256"]=scroll.get("videoSHA256")
+        status["final_video"]=str(scroll_movie)
         gate("LOCAL_MODEL_B_ORIGINAL_GLTF_SIX_SCROLL_CHAPTERS_REAL_MP4","PASS")
     except Exception as exc:
         status["all_four_wheel_review"]="FAILED_CANNOT_CLAIM_VIDEO"
