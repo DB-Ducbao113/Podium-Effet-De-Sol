@@ -5,6 +5,7 @@ import path from "node:path";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { cloudflare } from "@cloudflare/vite-plugin";
+import modelBLocalCadPlugin from "./plugins/modelBLocalCadPlugin";
 import itmAssetIdentity from "./src/dev/insideMachineI1/asset-identity.json";
 import p5SeasonalManifest from "./src/data/visualAssets/p5SeasonalManifest.json";
 import p5Extended2026Manifest from "./src/data/visualAssets/p5Extended2026Manifest.json";
@@ -253,6 +254,7 @@ export default defineConfig(({ mode }) => ({
     react(),
     commercialReviewAssetPlugin,
     insideMachineLocalAssetsPlugin,
+    modelBLocalCadPlugin(),
     p5SeasonalLocalAssetsPlugin,
     p5Extended2026LocalAssetsPlugin,
     ...(mode === "test" ? [] : [cloudflare({ configPath: cloudflareConfig })]),
