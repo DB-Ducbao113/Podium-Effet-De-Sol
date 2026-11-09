@@ -145,6 +145,37 @@ class ModelBOriginalCadStagingTests(unittest.TestCase):
   with self.assertRaises(FileExistsError):
    self.run_stage()
   self.assertTrue((self.stage/'do-not-delete.txt').is_file())
+ def test_wrong_glb_named_meshes_preserve_previous_good_bundle(self):
+  self.run_stage()
+  old_index=(self.stage/'index.json').read_bytes()
+  manifest=self.dirs['p212']/'P212_rear_toe_adjuster_manifest.json'
+  record=json.loads(manifest.read_text())
+  names=[name for name in record['partIds']]
+  names[-1]='INJECTED_FAKE_CAR_MESH'
+  glb=self.synthetic_glb(names)
+  source=self.dirs['p212']/'p212_balanced.glb'
+  source.write_bytes(glb)
+  record['profiles']['BALANCED']['bytes']=len(glb)
+  record['profiles']['BALANCED']['sha256']=sha(glb)
+  manifest.write_text(json.dumps(record))
+  with self.assertRaisesRegex(RuntimeError,'node identities mismatch'):
+   self.run_stage()
+  self.assertEqual((self.stage/'index.json').read_bytes(),old_index)
+
+ def test_truncated_binary_header_preserves_previous_good_bundle(self):
+  self.run_stage()
+  old_source=(self.stage/'p214/source.glb').read_bytes()
+  source=self.dirs['p214']/'p214_balanced.glb'
+  source.write_bytes(b'not a real GLB')
+  manifest=self.dirs['p214']/'P214_split_race_manifest.json'
+  record=json.loads(manifest.read_text())
+  record['profiles']['BALANCED']['bytes']=source.stat().st_size
+  record['profiles']['BALANCED']['sha256']=staging.checked_sha(source)
+  manifest.write_text(json.dumps(record))
+  with self.assertRaisesRegex(RuntimeError,'GLB bounds|GLB 2.0 header'):
+   self.run_stage()
+  self.assertEqual((self.stage/'p214/source.glb').read_bytes(),old_source)
+
  def test_p28_only_remains_allowed_without_fake_rear_source(self):
   x=self.run_stage(all_sources=False)
   self.assertEqual(set(x['sources']),{'p28'})
