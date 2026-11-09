@@ -498,6 +498,7 @@ def main()->None:
                'p2_11_rear_toe_link.py','p2_12_toe_adjuster.py',
                'p2_12_constrained_kinematics.py','p2_13_rear_joint_prototype.py']
         hashes={name:sha256((TOOLS/name).read_bytes()).hexdigest() for name in names}
+        p214_current_sha=sha256((TOOLS/"p2_14_split_spherical_race.py").read_bytes()).hexdigest()
         p214_open=p214.get("openingFeasibility",{})
         p214_path=p214.get("discreteAssemblyPathAudit",{})
         p214_static=p214.get("nominalStaticAudit",{})
@@ -505,6 +506,7 @@ def main()->None:
         p214_parts=p214.get("newPartNames",[])
         if (p214.get("schema")!="podium-eds.p214.split-race-radial-assembly.v1"
             or p214.get("upstreamCadSourceSha256")!=hashes
+            or p214.get("ownCadSourceSha256")!=p214_current_sha
             or p214.get("newNativeSolidCount")!=16
             or len(set(p214_parts))!=16
             or p214.get("previousP213Solids")!=8
@@ -551,8 +553,36 @@ def main()->None:
                 or entry.get("allWatertight") is not True
                 or set(entry.get("perPartTriangles",{}))!=set(p214_parts)):
                 raise RuntimeError("P2.14 original 16-mesh GLB integrity failure: "+tier)
+        p214_pose_path=out/"p214-seven-pose-native-bearing-audit.json"
+        if not p214_pose_path.is_file():
+            invoke(sys.executable,TOOLS/"p2_14_pose_audit.py",
+                   "--out",p214_pose_path,timeout=150)
+        pose214=json.loads(p214_pose_path.read_text(encoding="utf8"))
+        poseRows=pose214.get("results",[])
+        expected_angles=[-180,-90,-45,0,45,90,180]
+        stations={'UPPER','LOWER','TOE_OUTER','TOE_INNER'}
+        if (pose214.get("schema")!="podium-eds.p214.seven-pose-bearing-native-audit.v1"
+            or pose214.get("p214SourceSha256")!=p214_current_sha
+            or pose214.get("complete") is not True
+            or pose214.get("poseCount")!=7
+            or pose214.get("jointPoseCount")!=28
+            or pose214.get("nativePairChecks")!=140
+            or pose214.get("maxPositiveOverlapMm3",1)>.01
+            or pose214.get("continuousSweptCollisionCertified") is not False
+            or pose214.get("whole31BodyDynamicCollisionCertified") is not False
+            or pose214.get("nativeBearingRetentionCertified") is not False
+            or pose214.get("mechanicalG2")!="HOLD"
+            or len(poseRows)!=28
+            or {(row.get("sleeveTurnDeg"),row.get("station")) for row in poseRows}
+               !={(angle,station) for angle in expected_angles for station in stations}
+            or any(row.get("fiveNativePairChecks")!=5
+                   or row.get("maxPositiveOverlapMm3",1)>.01
+                   or row.get("actualChassisArticulationCertified") is not False
+                   for row in poseRows)):
+            raise RuntimeError("P2.14 140 native source bearing articulation pairs incomplete; G2 HOLD")
         status["p214_split_spherical_joint_cad_source"]=True
         gate("P214_SPLIT_SPHERICAL_RACES_144_INSERTION_465_STATIC_G2_HOLD","PASS")
+        gate("P214_SEVEN_IDEAL_POSES_140_NATIVE_BEARING_PAIR_SCREEN_G2_HOLD","PASS")
         npm=shutil.which("npm")
         if npm is None:raise RuntimeError("Node/npm missing")
         if not a.skip_web_qa:
