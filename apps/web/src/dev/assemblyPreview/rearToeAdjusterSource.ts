@@ -2,7 +2,7 @@ import { checkGlb, sha256, type Profile } from '../cadFirstScroll/cadSource';
 import { REAR_TOE_ALL_PARTS, REAR_TOE_NEW_PARTS } from './rearToeSource';
 
 export const REAR_TOE_ADJUSTER_SCHEMA =
-  'podium-eds.p2.cad-first.rear-toe-adjuster-threaded.v2';
+  'podium-eds.p2.cad-first.rear-toe-adjuster-threaded.v3';
 export const REPLACED_FIXED_ROD = REAR_TOE_NEW_PARTS[0];
 export const ADJUSTER_PARTS = [
   'P212_TOE_OUTER_RIGHT_HAND_THREADED_ROD_END',
@@ -48,7 +48,11 @@ export type ToeAdjusterManifest = {
   bothLocknutFemaleGroovesModelled:true;
   nominalThreadPhaseMatched:true;
   threadedRodSpanMm:number;
-  threadGeometryRevision:'P2.12-R2-BREP-GROOVED-RUNOUT';
+  threadGeometryRevision:'P2.12-R3-BREP-LOCKNUT-ENGAGEMENT';
+  nominalNutThreadGrooveAxialPhaseMm:number[];
+  nominalNutBodyAxialRangesMm:number[][];
+  nominalSleeveNutAxialClearanceMm:number;
+  maleHelixStartMm:number[];
   threadRunoutsModelled:true;
   threadRunoutRadiusMm:number;
   threadRunoutIntervalsMm:number[][];
@@ -106,7 +110,11 @@ export function readToeAdjusterManifest(input:unknown):ToeAdjusterManifest {
     m.outerThreadHand!=='RIGHT' || m.innerThreadHand!=='LEFT' ||
     m.externalHelicalCrestsModelled!==true ||
     m.pitchMm!==2 ||
-    m.threadGeometryRevision!=='P2.12-R2-BREP-GROOVED-RUNOUT' ||
+    m.threadGeometryRevision!=='P2.12-R3-BREP-LOCKNUT-ENGAGEMENT' ||
+    m.nominalSleeveNutAxialClearanceMm!==2.5 ||
+    JSON.stringify(m.nominalNutThreadGrooveAxialPhaseMm)!=='[47,115]' ||
+    JSON.stringify(m.nominalNutBodyAxialRangesMm)!=='[[47.5,53.5],[114.5,120.5]]' ||
+    JSON.stringify(m.maleHelixStartMm)!=='[45,99]' ||
     m.threadRunoutsModelled!==true ||
     m.threadRunoutRadiusMm!==10.12 ||
     !Array.isArray(m.threadRunoutIntervalsMm) ||
@@ -114,7 +122,7 @@ export function readToeAdjusterManifest(input:unknown):ToeAdjusterManifest {
     m.sleeveOppositeHandGroovesModelled!==true ||
     m.bothLocknutFemaleGroovesModelled!==true ||
     m.nominalThreadPhaseMatched!==true ||
-    m.threadedRodSpanMm!==34 ||
+    m.threadedRodSpanMm!==24 ||
     !Number.isFinite(m.femaleSleeveMinorRadiusMm ?? NaN) ||
     !Number.isFinite(m.femaleThreadMajorRadiusMm ?? NaN) ||
     !Number.isFinite(m.femaleThreadGrooveDepthMm ?? NaN) ||
