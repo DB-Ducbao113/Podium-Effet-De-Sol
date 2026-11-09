@@ -42,7 +42,7 @@ def verify(p28:Path,quality:str)->tuple[Path,Path,dict]:
 
 def capture(url:str,p28:Path,out:Path,quality:str,p29:Path|None=None,
             p210:Path|None=None,p211:Path|None=None,p212:Path|None=None,
-            p213:Path|None=None)->dict:
+            p213:Path|None=None,p214:Path|None=None)->dict:
     try:
         from playwright.sync_api import sync_playwright
     except ImportError as exc:
@@ -58,6 +58,8 @@ def capture(url:str,p28:Path,out:Path,quality:str,p29:Path|None=None,
         "real_p211_rear_toe_loaded":False,
         "real_p212_toe_adjuster_loaded":False,
         "real_p213_spherical_joint_cad_loaded":False,
+        "real_p214_split_spherical_race_loaded":False,
+        "p214_step_source_sha256":None,
         "p213_step_source_sha256":None,
         "p212_step_source_sha256":None,
         "p211_step_source_sha256":None,
@@ -275,6 +277,48 @@ def capture(url:str,p28:Path,out:Path,quality:str,p29:Path|None=None,
                 page.get_by_text("P213 FOUR SPHERICAL JOINT PAIRS PARSED",exact=False).first.wait_for(timeout=45000)
                 runtime["p213_step_source_sha256"]=source213["masterSTEPsha256"]
                 runtime["p213_source_glb_sha256"]=tier213["sha256"]
+            if p214 is not None:
+                manifest214=p214/"P214_split_race_manifest.json"
+                if not manifest214.is_file():
+                    raise RuntimeError("P2.14 original source manifest unavailable")
+                source214=json.loads(manifest214.read_text(encoding="utf8"))
+                names214=("p2_9_rear_upright.py","p2_10_rear_wishbone.py",
+                          "p2_11_rear_toe_link.py","p2_12_toe_adjuster.py",
+                          "p2_12_constrained_kinematics.py","p2_13_rear_joint_prototype.py")
+                hashes214={name:hashlib.sha256(
+                    (Path(__file__).resolve().parent/name).read_bytes()).hexdigest()
+                    for name in names214}
+                audit214=source214.get("nominalStaticAudit",{})
+                path214=source214.get("discreteAssemblyPathAudit",{})
+                controls214=path214.get("intentionallyCollidingSphereControls",[])
+                if (source214.get("schema")!="podium-eds.p214.split-race-radial-assembly.v1"
+                    or source214.get("upstreamCadSourceSha256")!=hashes214
+                    or source214.get("newNativeSolidCount")!=16
+                    or source214.get("candidateCombinedSourceSolids")!=31
+                    or source214.get("stepRoundtripSolids")!=16
+                    or audit214.get("pairCount")!=465 or audit214.get("passStatic") is not True
+                    or audit214.get("unresolvedCollisions")!=[]
+                    or path214.get("finiteInsertionPairChecks")!=144
+                    or path214.get("positiveControlCount")!=4 or len(controls214)!=4
+                    or source214.get("axialRetentionCertified") is not False
+                    or source214.get("dynamic31BodyCollisionCertified") is not False
+                    or source214.get("chassisHardpointsMeasured") is not False
+                    or source214.get("mechanicalG2")!="HOLD"):
+                    raise RuntimeError("P2.14 split-race source CAD / G2 gate failed")
+                step214=p214/source214["step"]
+                if (not step214.is_file() or
+                    hashlib.sha256(step214.read_bytes()).hexdigest()!=source214["stepSha256"]):
+                    raise RuntimeError("P2.14 source STEP SHA mismatch")
+                entry214=source214["profiles"][quality]
+                glb214=p214/entry214["file"]
+                if (not glb214.is_file() or
+                    hashlib.sha256(glb214.read_bytes()).hexdigest()!=entry214["sha256"]):
+                    raise RuntimeError("P2.14 original GLB SHA mismatch")
+                page.get_by_label("P2.14 split race manifest (.json)").set_input_files(str(manifest214))
+                page.get_by_label("P2.14 split race GLB (.glb)").set_input_files(str(glb214))
+                page.get_by_text("P214 SPLIT SPHERICAL RACE 16 CAD MESHES PARSED",exact=False).first.wait_for(timeout=45000)
+                runtime["p214_step_source_sha256"]=source214["stepSha256"]
+                runtime["p214_source_glb_sha256"]=entry214["sha256"]
             with page.expect_download(timeout=15000) as download_info:
                 page.get_by_role("button",name="EXPORT PLACEMENT JSON").click()
             audit_file=out/"four-corner-original-source-placement.json"
@@ -284,6 +328,25 @@ def capture(url:str,p28:Path,out:Path,quality:str,p29:Path|None=None,
             corners=layout.get("corners",[])
             if len(corners)!=4 or {x.get("id") for x in corners}!={x[0] for x in WHEELS}:
                 raise RuntimeError("Browser did NOT place exactly four measured wheels")
+            if p214 is not None:
+                joint=placement.get("splitSphericalRacePrototype")
+                if (not isinstance(joint,dict)
+                    or placement.get("activeRearBearingSource")!="P214"
+                    or joint.get("schema")!="podium-eds.p214.split-race-radial-assembly.v1"
+                    or joint.get("newNativeSolids")!=16
+                    or joint.get("replacesP213Solids")!=8
+                    or joint.get("replacedPriorAnnularProxies")!=4
+                    or joint.get("candidateCombinedSourceSolids")!=31
+                    or joint.get("sampledApproachPairChecks")!=144
+                    or joint.get("combinedStaticPairCount")!=465
+                    or joint.get("sourceSha256")!=runtime["p214_source_glb_sha256"]
+                    or joint.get("axialRetentionCertified") is not False
+                    or joint.get("physicalAssemblyCertified") is not False
+                    or joint.get("chassisHardpointsMeasured") is not False
+                    or joint.get("dynamic31BodyCollisionCertified") is not False
+                    or joint.get("mechanicalG2")!="HOLD"):
+                    raise RuntimeError("P2.14 source visual mode/uncertified G2 export failed")
+                runtime["real_p214_split_spherical_race_loaded"]=True
             if p213 is not None:
                 joints=placement.get("sphericalJointPrototype")
                 if (not isinstance(joints,dict)
@@ -479,6 +542,7 @@ def main():
     parser.add_argument("--p211-dir",type=Path,default=None)
     parser.add_argument("--p212-dir",type=Path,default=None)
     parser.add_argument("--p213-dir",type=Path,default=None)
+    parser.add_argument("--p214-dir",type=Path,default=None)
     parser.add_argument("--out",type=Path,required=True)
     parser.add_argument("--quality",choices=["HIGH","BALANCED","PERFORMANCE"],default="BALANCED")
     args=parser.parse_args()
@@ -487,7 +551,8 @@ def main():
                    args.p210_dir.resolve() if args.p210_dir else None,
                    args.p211_dir.resolve() if args.p211_dir else None,
                    args.p212_dir.resolve() if args.p212_dir else None,
-                   args.p213_dir.resolve() if args.p213_dir else None)
+                   args.p213_dir.resolve() if args.p213_dir else None,
+                   args.p214_dir.resolve() if args.p214_dir else None)
     print("LOCAL four-wheel browser review recorded:",result["recorded_video"])
     print("G2 HOLD: rear is front source wheel-end proxy, NOT rear suspension CAD.")
 
