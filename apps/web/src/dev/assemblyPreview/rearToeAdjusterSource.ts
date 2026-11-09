@@ -48,7 +48,10 @@ export type ToeAdjusterManifest = {
   bothLocknutFemaleGroovesModelled:true;
   nominalThreadPhaseMatched:true;
   threadedRodSpanMm:number;
-  threadGeometryRevision:'P2.12-R2-BREP-GROOVED';
+  threadGeometryRevision:'P2.12-R2-BREP-GROOVED-RUNOUT';
+  threadRunoutsModelled:true;
+  threadRunoutRadiusMm:number;
+  threadRunoutIntervalsMm:number[][];
   sourceP28Modified: false;
   modelBSourceModified: false;
   actualChassisToeHardpointMeasured: false;
@@ -103,7 +106,11 @@ export function readToeAdjusterManifest(input:unknown):ToeAdjusterManifest {
     m.outerThreadHand!=='RIGHT' || m.innerThreadHand!=='LEFT' ||
     m.externalHelicalCrestsModelled!==true ||
     m.pitchMm!==2 ||
-    m.threadGeometryRevision!=='P2.12-R2-BREP-GROOVED' ||
+    m.threadGeometryRevision!=='P2.12-R2-BREP-GROOVED-RUNOUT' ||
+    m.threadRunoutsModelled!==true ||
+    m.threadRunoutRadiusMm!==10.12 ||
+    !Array.isArray(m.threadRunoutIntervalsMm) ||
+    m.threadRunoutIntervalsMm.length!==4 ||
     m.sleeveOppositeHandGroovesModelled!==true ||
     m.bothLocknutFemaleGroovesModelled!==true ||
     m.nominalThreadPhaseMatched!==true ||
