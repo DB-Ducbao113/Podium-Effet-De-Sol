@@ -6,7 +6,7 @@ import trimesh
 from p2_13_rear_joint_prototype import (
  STATIONS,SOURCE_BEARING_TO_REPLACE,RACE_RADII_MM,
  BEARING_SPHERE_MM,RACE_CAVITY_SPHERE_MM,BALL_BORE_RADIUS_MM,
- parts_local,source_parts,review_pose,export,sha,ANGLES
+ parts_local,source_parts,review_pose,nominal_combined_static_audit,export,sha,ANGLES
 )
 
 class P213NativeJointTests(unittest.TestCase):
@@ -30,6 +30,9 @@ class P213NativeJointTests(unittest.TestCase):
     self.assertTrue(any('SPHERE' in face.geomType().upper() for face in race.Faces()))
     self.assertTrue(any('SPHERE' in face.geomType().upper() for face in ball.Faces()))
     self.assertGreater(RACE_RADII_MM[name],RACE_CAVITY_SPHERE_MM)
+    # Positive-interference control: native common MUST detect a deliberately
+    # shifted ball. This limits silent zero-volume false-negative acceptance.
+    self.assertGreater(race.intersect(ball.translate((1,0,0))).Volume(),100)
  def test_seven_ideal_solved_joints_28_ball_race_volume_reviews(self):
   peak=0
   for angle in ANGLES:
@@ -44,6 +47,15 @@ class P213NativeJointTests(unittest.TestCase):
     self.assertFalse(case['realMechanicalJointCertified'])
     peak=max(peak,case['raceBallAxisAngleDeg'])
   self.assertGreater(peak,1.)
+ def test_all_23_source_parts_253_nominal_brep_pair_screen(self):
+  row=nominal_combined_static_audit()
+  self.assertEqual(row['pairCount'],253)
+  self.assertEqual(row['aabbExcluded']+row['nativeBrepIntersectionsEvaluated'],253)
+  self.assertTrue(row['passStatic'])
+  self.assertEqual(row['unresolvedCollisions'],[])
+  self.assertEqual(row['booleanErrors'],[])
+  self.assertFalse(row['dynamicKinematicsCertified'])
+
  def test_original_step_three_source_lods_and_no_overwrite(self):
   with tempfile.TemporaryDirectory() as folder:
    p=Path(folder)/'p213'
@@ -51,6 +63,7 @@ class P213NativeJointTests(unittest.TestCase):
    self.assertEqual(m['newCadSolids'],8)
    self.assertEqual(m['replacedOldCadSolids'],4)
    self.assertEqual(m['candidateCombinedCadSolids'],23)
+   self.assertEqual(m['combinedNominalStaticAudit']['pairCount'],253)
    self.assertEqual(m['stepRoundtripSolids'],8)
    self.assertEqual(sha(p/m['masterSTEP']),m['masterSTEPsha256'])
    self.assertEqual(len(cq.importers.importStep(str(p/m['masterSTEP'])).solids().vals()),8)
