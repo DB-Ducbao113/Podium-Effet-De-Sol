@@ -124,6 +124,9 @@ export default function ModelBAssemblyPage(){
    if(!file)return;
    setBusy(kind);setError('');
    resetReady(kind);
+   if(kind==='front'){setCorner(null);setRearToe(null);setSplitRace(null);}
+   else if(kind==='toe'){setRearToe(null);setSplitRace(null);}
+   else setSplitRace(null);
    try{
      if(kind==='front'){
        if(!sourceManifest)throw Error('Load P2.8 original manifest first');
