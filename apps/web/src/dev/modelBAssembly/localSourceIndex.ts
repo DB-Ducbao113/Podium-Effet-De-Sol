@@ -12,7 +12,7 @@ export type AutoCadRow={
 export type AutoCadIndex={
   schema:typeof AUTO_CAD_INDEX_SCHEMA;
   quality:AutoCadQuality;
-  sources:Partial<Record<AutoCadKind,AutoCadRow>>;
+  sources:{p28:AutoCadRow;p212?:AutoCadRow;p214?:AutoCadRow};
   localOnlyNotDeployed:true;
   mechanicalG2:'HOLD';
   noFabricatedGeometry:true;
