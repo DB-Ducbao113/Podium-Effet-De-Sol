@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 from pathlib import Path
 import shutil
 import tempfile
@@ -24,6 +25,48 @@ OUTPUT=LOCAL/'model-b-scroll-preview'
 def checked_sha(path:Path)->str:
     with path.open('rb') as stream:
         return hashlib.file_digest(stream,'sha256').hexdigest()
+
+def verify_cad_source_evidence(name:str,record:dict)->None:
+    """Do not evict a good local CAD bundle with a weak, stale manifest."""
+    if name=='p28':
+        ids=record.get('partIds',[])
+        stat=record.get('staticFit') or {}
+        if (not isinstance(ids,list) or len(ids)!=59 or len(set(ids))!=59
+            or record.get('source')!='Project-authored P2.6/P2.7 original B-Rep'
+            or record.get('allRoundtripValid') is not True
+            or not re.fullmatch(r'[0-9a-fA-F]{64}',record.get('masterSTEPsha256',''))
+            or stat.get('totalPairs')!=1711
+            or stat.get('singleStaticPosePass') is not True):
+            raise RuntimeError('P2.8 59-body original STEP and 1711-pair source evidence missing')
+    elif name=='p212':
+        audit=record.get('nativeStaticAudit') or {}
+        if (len(record.get('partIds',[]))!=19
+            or len(set(record.get('partIds',[])))!=19
+            or record.get('threadGeometryRevision')!='P2.12-R3-BREP-LOCKNUT-ENGAGEMENT'
+            or record.get('mechanicalMateCertified') is not False
+            or record.get('actualChassisToeHardpointMeasured') is not False
+            or audit.get('pairCount')!=171 or audit.get('passStatic') is not True
+            or audit.get('unresolvedCollisions')!=[]
+            or audit.get('booleanErrors')!=[]
+            or audit.get('dynamicKinematicsCertified') is not False):
+            raise RuntimeError('P2.12 threaded source lineage and G2 HOLD evidence missing')
+    elif name=='p214':
+        audit=record.get('nominalStaticAudit') or {}
+        path=record.get('discreteAssemblyPathAudit') or {}
+        ids=record.get('newPartNames',[])
+        if (not isinstance(ids,list) or len(ids)!=16 or len(set(ids))!=16
+            or record.get('candidateCombinedSourceSolids')!=31
+            or record.get('stepRoundtripSolids')!=16
+            or audit.get('pairCount')!=465 or audit.get('passStatic') is not True
+            or audit.get('unresolvedCollisions')!=[]
+            or audit.get('booleanErrors')!=[]
+            or path.get('finiteInsertionPairChecks')!=144
+            or path.get('positiveControlCount')!=4
+            or record.get('axialRetentionCertified') is not False
+            or record.get('chassisHardpointsMeasured') is not False
+            or record.get('mechanicalG2')!='HOLD'):
+            raise RuntimeError('P2.14 31-body split race and 144-path G2 HOLD evidence missing')
+    else:raise ValueError('Unknown allowed source kind: '+name)
 
 def run(p28:Path,out:Path,quality:str='BALANCED',
         p212:Path|None=None,p214:Path|None=None)->dict:
@@ -55,6 +98,7 @@ def run(p28:Path,out:Path,quality:str='BALANCED',
           record.get('newNativeSolidCount'))
         if record.get('schema')!=schema or current!=expected_count:
             raise RuntimeError('Wrong original source/part count for '+name)
+        verify_cad_source_evidence(name,record)
         source_sha=record['profiles'][quality]['sha256']
         if checked_sha(glb)!=source_sha:
             raise RuntimeError('Original source GLB modified while staging: '+str(glb))
