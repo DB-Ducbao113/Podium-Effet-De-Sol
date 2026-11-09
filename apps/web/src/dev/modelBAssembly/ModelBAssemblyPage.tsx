@@ -17,6 +17,7 @@ import {chapterAt,clamp01,MODEL_B_CHAPTERS} from './modelBAssemblyTimeline';
 import {readLocalAutoCadIndex,type AutoCadRow} from './localSourceIndex';
 import type {OwnerMeasuredFit} from '../assemblyPreview/ownerMeasuredFit';
 import type {RearVisualParts} from './rearVisualComposite';
+import type {InspectedCadPart} from './cadPartInspector';
 import './modelBAssembly.css';
 
 const Stage=lazy(()=>import('./ModelBAssemblyStage'));
@@ -42,6 +43,7 @@ export default function ModelBAssemblyPage(){
  const [ready,setReady]=useState<Partial<Record<StageId,number>>>({});
  const [measuredFit,setMeasuredFit]=useState<OwnerMeasuredFit|null>(null);
  const [rearComposite,setRearComposite]=useState<RearVisualParts|null>(null);
+ const [inspectedPart,setInspectedPart]=useState<InspectedCadPart|null>(null);
  const [reducedMotion,setReducedMotion]=useState(()=>{
    return typeof window!=='undefined'&&
      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -160,7 +162,9 @@ export default function ModelBAssemblyPage(){
  const handleFit=useCallback((fit:OwnerMeasuredFit|null)=>setMeasuredFit(fit),[]);
  const handleRearComposite=useCallback(
    (info:RearVisualParts|null)=>setRearComposite(info),[]);
+ const handlePartInspect=useCallback((part:InspectedCadPart)=>setInspectedPart(part),[]);
  const resetReady=useCallback((kind:SourceName)=>{
+   setInspectedPart(null);
    setReady(previous=>{
      const next:Partial<Record<StageId,number>>={};
      if(previous['model-b']!==undefined)next['model-b']=previous['model-b'];
@@ -232,7 +236,8 @@ export default function ModelBAssemblyPage(){
               rearToe={rearToe} splitRace={splitRace}
               reducedMotion={reducedMotion}
               onReady={handleReady} onFit={handleFit}
-              onRearComposite={handleRearComposite} onError={handleError}/>
+              onRearComposite={handleRearComposite}
+              onInspect={handlePartInspect} onError={handleError}/>
          </Suspense>
        </div>
        <div className="mb-build-shade" aria-hidden="true"/>
@@ -271,6 +276,27 @@ export default function ModelBAssemblyPage(){
            </button>
          )}
        </nav>
+       {inspectedPart&&<aside className="mb-build-part-inspector"
+          aria-label="Selected original CAD component" aria-live="polite"
+          data-inspected-cad-part-id={inspectedPart.partId}>
+         <div className="mb-build-part-inspector-head">
+           <span>SOURCE PART / SELECTED</span>
+           <button type="button" onClick={()=>setInspectedPart(null)}
+             aria-label="Clear selected CAD part">×</button>
+         </div>
+         <strong>{inspectedPart.subsystem}</strong>
+         <code>{inspectedPart.partId}</code>
+         <dl>
+           <div><dt>WHEEL</dt><dd>{inspectedPart.wheelStation.toUpperCase()}</dd></div>
+           <div><dt>SOURCE</dt><dd>{inspectedPart.sourceLabel}</dd></div>
+           <div><dt>MATE</dt><dd>VISUAL ONLY · G2 HOLD</dd></div>
+         </dl>
+         {inspectedPart.sourceWheelEndIsRearProxy&&
+           <p className="mb-build-part-warning">P2.8 FRONT-SOURCE WHEEL-END
+             PROXY. NOT AN AUTHENTIC REAR WHEEL/SUSPENSION ASSEMBLY.</p>}
+         <p>Source CAD identity verified. The animation is not a
+           mechanical assembly or a manufacturing simulation.</p>
+       </aside>}
        <div className="mb-build-source-wrap"
          data-original-model-b-wheel-fit={measuredFit?.wheels.length===4&&cadLoaded?'true':'false'}
          data-wheel-station-count={measuredFit?.wheels.length??0}
