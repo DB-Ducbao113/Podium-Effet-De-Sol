@@ -2,7 +2,7 @@
 import unittest
 from p2_14_split_spherical_race import (
     STATIONS,source_parts,local_parts,opening_check,assembly_path_audit,
-    combined_nominal
+    combined_nominal,pose_articulation_audit
 )
 
 class P214SplitRaceNativeTests(unittest.TestCase):
@@ -39,6 +39,16 @@ class P214SplitRaceNativeTests(unittest.TestCase):
         self.assertFalse(path['continuousInsertionCertified'])
         self.assertFalse(path['axialSleeveRetentionCertified'])
         self.assertEqual(path['mechanicalG2'],'HOLD')
+    def test_seven_ideal_poses_140_native_bearing_subassembly_pairs(self):
+        report=pose_articulation_audit()
+        self.assertEqual(report['poseCount'],7)
+        self.assertEqual(report['jointPoseCount'],28)
+        self.assertEqual(report['nativePairChecks'],140)
+        self.assertLessEqual(report['maxPositiveOverlapMm3'],.01)
+        self.assertFalse(report['continuousSweptCollisionCertified'])
+        self.assertFalse(report['whole31BodyDynamicCollisionCertified'])
+        self.assertFalse(report['nativeBearingRetentionCertified'])
+        self.assertEqual(report['mechanicalG2'],'HOLD')
     def test_all_31_native_source_static_pairs(self):
         from p2_10_rear_wishbone import exact_static_audit
         parts=combined_nominal()
