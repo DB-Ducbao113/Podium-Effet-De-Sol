@@ -207,6 +207,8 @@ def capture(url:str,p28:Path,out:Path,quality:str,p29:Path|None=None,
                     or source212.get("outerThreadHand")!="RIGHT"
                     or source212.get("innerThreadHand")!="LEFT"
                     or source212.get("fullFemaleThreadProfileModelled") is not True
+                    or source212.get("threadRunoutsModelled") is not True
+                    or source212.get("threadRunoutRadiusMm")!=10.12
                     or source212.get("sleeveOppositeHandGroovesModelled") is not True
                     or source212.get("bothLocknutFemaleGroovesModelled") is not True
                     or source212.get("mechanicalThreadEngagementCertified") is not False
@@ -246,6 +248,7 @@ def capture(url:str,p28:Path,out:Path,quality:str,p29:Path|None=None,
                     or adjuster.get("sourceSha256")!=runtime["p212_source_glb_sha256"]
                     or adjuster.get("replacedPriorPartId")!="P211_REAR_TOE_LINK_TUBULAR_FORGED"
                     or adjuster.get("fullFemaleThreadProfileModelled") is not True
+                    or adjuster.get("threadRunoutsModelled") is not True
                     or adjuster.get("mechanicalThreadEngagementCertified") is not False
                     or adjuster.get("actualChassisToeHardpointMeasured") is not False
                     or adjuster.get("mechanicalMateCertified") is not False
