@@ -74,6 +74,8 @@ def capture(url:str,out:Path,p28:Path,quality:str='BALANCED',
       'p212SHA256':rear[2]['profiles'][quality]['sha256'] if rear else None,
       'p214SHA256':split[2]['profiles'][quality]['sha256'] if split else None,
       'originalModelBHTTP200':False,'modelBDecoded':False,
+      'originalModelBGitBlobSHA1Verified':False,
+      'originalModelBGitBlobSHA1':None,
       'p28Decoded59':False,'p212Decoded19':False,'p214Decoded16':False,
       'fourOriginalModelBWheelCentresRegistered':False,
       'originalP28CadScale':None,'rearMechanicalMateCertified':None,
@@ -111,6 +113,13 @@ def capture(url:str,out:Path,p28:Path,quality:str='BALANCED',
             if not response or response.status>=400:raise RuntimeError('DEV scroll route unavailable')
             page.get_by_text('OWNER MODEL B LOADED',exact=False).first.wait_for(timeout=90000)
             audit['modelBDecoded']=True
+            owner_identity=page.locator(
+                '.mb-build-source-wrap[data-owner-model-b-git-blob-sha1="'
+                '74fbd44daf709d0d368adef9de66e4e22a49fed4"]'
+                '[data-owner-model-b-git-file-bytes="2120816"]')
+            owner_identity.wait_for(timeout=15000)
+            audit['originalModelBGitBlobSHA1Verified']=True
+            audit['originalModelBGitBlobSHA1']='74fbd44daf709d0d368adef9de66e4e22a49fed4'
             audit['originalModelBHTTP200']=200 in model_responses
             if not audit['originalModelBHTTP200']:
                 raise RuntimeError('Actual original Model B asset was not fetched with HTTP 200')
