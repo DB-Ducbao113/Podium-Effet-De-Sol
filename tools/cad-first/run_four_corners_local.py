@@ -190,6 +190,8 @@ def main()->None:
             or p212.get("innerThreadHand")!="LEFT"
             or p212.get("actualChassisToeHardpointMeasured") is not False
             or p212.get("fullFemaleThreadProfileModelled") is not True
+            or p212.get("threadRunoutsModelled") is not True
+            or p212.get("threadRunoutRadiusMm")!=10.12
             or p212.get("sleeveOppositeHandGroovesModelled") is not True
             or p212.get("bothLocknutFemaleGroovesModelled") is not True
             or p212.get("threadGeometryRevision")!="P2.12-R2-BREP-GROOVED"
@@ -210,6 +212,20 @@ def main()->None:
                 raise RuntimeError("P2.12 original 19-mesh GLB digest failure: "+tier)
         status["independent_p212_toe_adjuster_static_cad"]=True
         gate("INDEPENDENT_P212_TOE_ADJUSTER_NATIVE_171_PAIR_STATIC","PASS")
+        sweep_path=out/"p212-thread-pair-sweep.json"
+        if not sweep_path.is_file():
+            invoke(sys.executable,TOOLS/"p2_12_thread_sweep.py",
+                   "--out",sweep_path,timeout=240)
+        sweep=json.loads(sweep_path.read_text(encoding="utf8"))
+        if (sweep.get("cadSourceSchema")!="podium-eds.p2.cad-first.rear-toe-adjuster-threaded.v2"
+            or sweep.get("sampleCount")!=6
+            or sweep.get("anglesDeg")!=[-90,0,90]
+            or sweep.get("threadPairsPassLimitedSweep") is not True
+            or sweep.get("maximumPositiveOverlapMm3",1)>.05
+            or sweep.get("chassisToeKinematicsCertified") is not False):
+            raise RuntimeError("P2.12 isolated ±90-degree thread pair sweep is not verified")
+        status["p212_limited_thread_pair_sweep"]=True
+        gate("P212_THREAD_PAIR_SIX_POSES_NO_BREP_CLASH","PASS")
         npm=shutil.which("npm")
         if npm is None:raise RuntimeError("Node/npm missing")
         if not a.skip_web_qa:
