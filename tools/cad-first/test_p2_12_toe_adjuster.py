@@ -9,7 +9,7 @@ from p2_12_toe_adjuster import (
     OUTER_NUT_RANGE_MM,INNER_NUT_RANGE_MM,SLEEVE_BORE_R_MM,THREAD_CREST_R_MM,
     FEMALE_GROOVE_MAJOR_R_MM,ROD_R_MM,cylinder_segment,
     THREAD_PITCH_MM,MALE_THREAD_HEIGHT_MM,THREAD_RUNOUT_RADIUS_MM,
-    TOE_211_IDS,QUALITY,SCHEMA,all_parts,build_new_parts,build,sha,exact_static_audit
+    TOE_211_IDS,QUALITY,SCHEMA,all_parts,build_new_parts,build,sha,exact_static_audit,sleeve as build_sleeve
 )
 
 class RearToeAdjusterCADTest(unittest.TestCase):
@@ -105,7 +105,7 @@ class RearToeAdjusterCADTest(unittest.TestCase):
             for quality in ('HIGH','BALANCED','PERFORMANCE'):
                 from p2_10_rear_wishbone import QUALITY
                 linear,angular=QUALITY[quality]
-                vertices,faces=sleeve.tessellate(linear,angular)
+                vertices,faces=build_sleeve().tessellate(linear,angular)
                 mesh=trimesh.Trimesh(
                     vertices=np.array([[v.x,v.y,v.z] for v in vertices])/1000,
                     faces=np.array(faces,dtype=np.int32),process=False)
