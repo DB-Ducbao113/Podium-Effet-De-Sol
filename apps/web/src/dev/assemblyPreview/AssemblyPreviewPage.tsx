@@ -318,6 +318,7 @@ export default function AssemblyPreviewPage(){
         replacedPriorPartId:toeAdjusterSource.manifest.replacedPriorPartId,
         actualChassisToeHardpointMeasured:false,
         fullFemaleThreadProfileModelled:true,
+        threadRunoutsModelled:true,
         mechanicalThreadEngagementCertified:false,
         mechanicalMateCertified:false,
         dynamicToeKinematicsCertified:false,
