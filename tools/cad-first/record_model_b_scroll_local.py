@@ -117,12 +117,12 @@ def capture(url:str,out:Path,p28:Path,quality:str='BALANCED',
             if rear:
                 imports.nth(1).locator('input[type=file]').nth(0).set_input_files(str(rear[0]))
                 imports.nth(1).locator('input[type=file]').nth(1).set_input_files(str(rear[1]))
-                page.get_by_text('SOURCE SHA PASSED',exact=True).last.wait_for(timeout=45000)
+                page.get_by_text('19 CAD MESHES DECODED',exact=True).wait_for(timeout=45000)
                 audit['p212Decoded19']=True
             if split:
                 imports.nth(2).locator('input[type=file]').nth(0).set_input_files(str(split[0]))
                 imports.nth(2).locator('input[type=file]').nth(1).set_input_files(str(split[1]))
-                page.get_by_text('SOURCE SCENE VERIFIED · G2 HOLD',exact=True).wait_for(timeout=45000)
+                page.get_by_text('16 CAD MESHES DECODED · G2 HOLD',exact=True).wait_for(timeout=45000)
                 audit['p214Decoded16']=True
             page.get_by_role('button',name='Close CAD source input').click()
             errors=page.locator('.mb-build-feedback[role=alert]')
