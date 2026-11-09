@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 """P2.12 v3 phase-locked rear toe thread-pair interference QA.
 
-Six separate CadQuery/OCCT child processes. Fails closed for crashes, timeouts,
-invalid B-Rep, geometric collision or insufficient locknut-to-sleeve gap.
+Six separate CadQuery/OCCT child processes. Fails closed for crashes,
+timeouts, some geometric collisions or insufficient locknut-to-sleeve gaps.
+WARNING: OCCT Boolean common() has produced FALSE NEGATIVE zero overlap on
+intentionally misphased helical source geometry. This volumetric sweep
+MUST be accompanied by p2_12_phase_contact_audit.py's 12 independent
+solid-occupancy and phase-negative-control cases before local acceptance.
 These are free screw-pair movements, NOT rear chassis or vehicle suspension
 kinematics, dynamic certification or material load validation.
 """
