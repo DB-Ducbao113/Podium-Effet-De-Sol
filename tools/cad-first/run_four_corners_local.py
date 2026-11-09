@@ -84,6 +84,7 @@ def main()->None:
                "--out",out/"p212-isolated-native-qa.json",timeout=750)
         invoke(sys.executable,TOOLS/"test_p2_12_joint_closure_gate.py",timeout=45)
         invoke(sys.executable,TOOLS/"test_p2_12_constrained_kinematics.py",timeout=60)
+        invoke(sys.executable,TOOLS/"test_p2_13_rear_joint_prototype.py",timeout=120)
         invoke(sys.executable,TOOLS/"test_rebuild_owner_p28.py",timeout=150)
         invoke(sys.executable,TOOLS/"test_audit_assembly_mesh.py",timeout=150)
         gate("LOCAL_SOURCE_PROVENANCE_UNIT_TESTS","PASS")
@@ -407,6 +408,61 @@ def main()->None:
             raise RuntimeError("P2.12 ideal-joint 6DOF source closure report is incomplete; G2 HOLD")
         status["p212_ideal_6dof_constrained_kinematics"]=True
         gate("P212_PROVISIONAL_6DOF_WISHBONE_AND_TOE_JOINT_CENTRE_SOLVER","PASS")
+        p213_dir=out/"p213-four-spherical-joint-cad-prototypes"
+        if not p213_dir.is_dir():
+            invoke(sys.executable,TOOLS/"p2_13_rear_joint_prototype.py",
+                   "--out",p213_dir,timeout=180)
+        p213_file=p213_dir/"P213_joint_articulation_manifest.json"
+        if not p213_file.is_file():
+            raise RuntimeError("Missing P2.13 native bearing concept evidence")
+        p213=json.loads(p213_file.read_text(encoding="utf8"))
+        p213_source_names=['p2_9_rear_upright.py','p2_10_rear_wishbone.py',
+                           'p2_11_rear_toe_link.py','p2_12_toe_adjuster.py',
+                           'p2_12_constrained_kinematics.py']
+        p213_hashes={name:sha256((TOOLS/name).read_bytes()).hexdigest()
+                     for name in p213_source_names}
+        expected_joint_stations={'UPPER','LOWER','TOE_OUTER','TOE_INNER'}
+        positions=p213.get("poseReviews",[])
+        measured_pairs=[pair for pose in positions for pair in pose.get("cases",[])]
+        if (p213.get("schema")!="podium-eds.p213.source-spherical-joint-articulation.v1"
+            or p213.get("sourceCadFileSha256")!=p213_hashes
+            or p213.get("newCadSolids")!=8
+            or p213.get("replacedOldCadSolids")!=4
+            or p213.get("candidateCombinedCadSolids")!=23
+            or p213.get("stepRoundtripSolids")!=8
+            or p213.get("poseCount")!=7
+            or p213.get("anglesDeg")!=[-180,-90,-45,0,45,90,180]
+            or len(set(p213.get("newCadPartIds",[])))!=8
+            or set(p213.get("replaceAnnularProxies",{}))!=expected_joint_stations
+            or p213.get("sphericalBallRetainedCertified") is not False
+            or p213.get("actualSphericalArticulationCertified") is not False
+            or p213.get("chassisHardpointsMeasured") is not False
+            or p213.get("wholeCarClearanceCertified") is not False
+            or p213.get("continuousSweptCollisionCertified") is not False
+            or p213.get("mechanicalG2")!="HOLD"
+            or len(positions)!=7
+            or len(measured_pairs)!=28
+            or any(set(pair.get("station") for pair in pose.get("cases",[]))
+                   !=expected_joint_stations for pose in positions)
+            or any(pair.get("nativeOverlapMm3",1)>.02
+                   or pair.get("radialSeatGapMm")!=p213.get("nominalSphericalRadialGapMm")
+                   or pair.get("realMechanicalJointCertified") is not False
+                   for pair in measured_pairs)):
+            raise RuntimeError("P2.13 native race/ball proposal QA failed, or G2 falsely certified")
+        p213_step=p213_dir/p213["masterSTEP"]
+        if (not p213_step.is_file() or
+            sha256(p213_step.read_bytes()).hexdigest()!=p213["masterSTEPsha256"]):
+            raise RuntimeError("P2.13 native STEP source SHA mismatch")
+        for tier in ("HIGH","BALANCED","PERFORMANCE"):
+            entry=p213.get("profiles",{}).get(tier,{})
+            file=p213_dir/entry.get("file","")
+            if (not file.is_file() or
+                sha256(file.read_bytes()).hexdigest()!=entry.get("sha256")
+                or entry.get("meshCount")!=8 or
+                entry.get("allWatertight") is not True):
+                raise RuntimeError("P2.13 native GLB LOD provenance failure: "+tier)
+        status["p213_spherical_bearing_candidate_native_cad"]=True
+        gate("P213_FOUR_NATIVE_SPHERICAL_JOINTS_28_POSE_PAIRS_G2_HOLD","PASS")
         npm=shutil.which("npm")
         if npm is None:raise RuntimeError("Node/npm missing")
         if not a.skip_web_qa:
