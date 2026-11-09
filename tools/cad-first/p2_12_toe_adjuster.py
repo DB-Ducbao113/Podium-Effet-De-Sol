@@ -20,7 +20,7 @@ from p2_11_rear_toe_link import (
     ring as eye_ring, RADIUS_MM as P211_RADIUS,
 )
 
-SCHEMA='podium-eds.p2.cad-first.rear-toe-adjuster-threaded.v2'
+SCHEMA='podium-eds.p2.cad-first.rear-toe-adjuster-threaded.v3'
 PARTS={
     'outer':'P212_TOE_OUTER_RIGHT_HAND_THREADED_ROD_END',
     'inner':'P212_TOE_INNER_LEFT_HAND_THREADED_ROD_END',
@@ -36,8 +36,8 @@ SLEEVE_START_MM=56.0
 SLEEVE_END_MM=112.0
 OUTER_ROD_END_MM=80.0
 INNER_ROD_START_MM=88.0
-OUTER_NUT_RANGE_MM=(47.0,54.0)
-INNER_NUT_RANGE_MM=(114.0,121.0)
+OUTER_NUT_RANGE_MM=(47.5,53.5)
+INNER_NUT_RANGE_MM=(114.5,120.5)
 ROD_R_MM=8.85
 THREAD_PITCH_MM=2.0
 THREAD_CREST_R_MM=9.62
@@ -46,8 +46,8 @@ SLEEVE_BODY_R_MM=15.2
 FEMALE_GROOVE_MAJOR_R_MM=10.08
 FEMALE_GROOVE_HALF_WIDTH_MM=.60
 MALE_OUTER_START_MM=45.0
-MALE_INNER_START_MM=89.0
-MALE_THREAD_HEIGHT_MM=34.0
+MALE_INNER_START_MM=99.0
+MALE_THREAD_HEIGHT_MM=24.0
 THREAD_RUNOUT_RADIUS_MM=10.12
 THREAD_RUNOUT_INTERVALS_MM=((56.,58.5),(77.5,80.),(88.,90.5),(109.3,112.))
 
@@ -138,7 +138,9 @@ def hex_nut(s0:float,s1:float,left_hand:bool)->cq.Shape:
     nut=on_axis(blank.cut(bore).clean(),s0)
     # Groove starts at pitch-aligned phases: RH s47 (male s45);
     # LH s115 (male s89). Neither nut uses a fake smooth hole.
-    groove_start=s0 if not left_hand else s0+1.0
+    # Keep pitch phase fixed to male crest origins. The nut bodies start
+    # 0.5 mm INSIDE the cutter's helical span, avoiding open-cut end clash.
+    groove_start=47.0 if not left_hand else 115.0
     result=nut.cut(female_groove(groove_start,6.0,left_hand)).clean()
     if not result.isValid() or len(result.Solids())!=1 or nut.Volume()-result.Volume()<40:
         raise ValueError('Locknut native female thread Boolean failed')
@@ -258,7 +260,11 @@ def build(out:Path)->dict:
         'bothLocknutFemaleGroovesModelled':True,
         'nominalThreadPhaseMatched':True,
         'threadedRodSpanMm':MALE_THREAD_HEIGHT_MM,
-        'threadGeometryRevision':'P2.12-R2-BREP-GROOVED-RUNOUT',
+        'threadGeometryRevision':'P2.12-R3-BREP-LOCKNUT-ENGAGEMENT',
+        'nominalNutThreadGrooveAxialPhaseMm':[47.0,115.0],
+        'nominalNutBodyAxialRangesMm':[OUTER_NUT_RANGE_MM,INNER_NUT_RANGE_MM],
+        'nominalSleeveNutAxialClearanceMm':2.5,
+        'maleHelixStartMm':[MALE_OUTER_START_MM,MALE_INNER_START_MM],
         'threadRunoutsModelled':True,
         'threadRunoutRadiusMm':THREAD_RUNOUT_RADIUS_MM,
         'threadRunoutIntervalsMm':THREAD_RUNOUT_INTERVALS_MM,
