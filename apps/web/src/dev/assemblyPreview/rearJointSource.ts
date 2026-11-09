@@ -41,6 +41,11 @@ export type RearJointManifest={
   wholeCarClearanceCertified:false;
   continuousSweptCollisionCertified:false;
   anglesDeg:number[];poseCount:7;
+  combinedNominalStaticAudit:{
+    pairCount:253;aabbExcluded:number;nativeBrepIntersectionsEvaluated:number;
+    unresolvedCollisions:unknown[];booleanErrors:unknown[];
+    passStatic:true;dynamicKinematicsCertified:false;
+  };
   poseReviews:{angleDeg:number;jointCount:4;cases:{
     station:string;nativeOverlapMm3:number;realMechanicalJointCertified:false;
   }[]}[];
@@ -77,6 +82,15 @@ export function readRearJointManifest(value:unknown):RearJointManifest {
     m.continuousSweptCollisionCertified!==false ||
     m.mechanicalG2!=='HOLD')
     throw Error('P2.13 source lineage, 8-solid identity or G2 certification flags invalid');
+  const audit=m.combinedNominalStaticAudit;
+  if(!audit || audit.pairCount!==253 ||
+    !Number.isSafeInteger(audit.aabbExcluded) ||
+    !Number.isSafeInteger(audit.nativeBrepIntersectionsEvaluated) ||
+    audit.aabbExcluded<0 || audit.nativeBrepIntersectionsEvaluated<0 ||
+    audit.aabbExcluded+audit.nativeBrepIntersectionsEvaluated!==253 ||
+    audit.unresolvedCollisions?.length!==0 || audit.booleanErrors?.length!==0 ||
+    audit.passStatic!==true || audit.dynamicKinematicsCertified!==false)
+    throw Error('P2.13 must include all 253 nominal 23-body static native CAD pair classifications');
   const angles=[-180,-90,-45,0,45,90,180];
   if(m.poseCount!==7 || JSON.stringify(m.anglesDeg)!==JSON.stringify(angles) ||
     !Array.isArray(m.poseReviews) || m.poseReviews.length!==7 ||
