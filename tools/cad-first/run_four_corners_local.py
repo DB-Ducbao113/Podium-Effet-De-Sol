@@ -696,6 +696,8 @@ def main()->None:
             or scroll.get("rearMechanicalMateCertified") is not False
             or scroll.get("p212Decoded19") is not True
             or scroll.get("p214Decoded16") is not True
+            or scroll.get("rearCompositeCadMeshesPerStation")!=31
+            or scroll.get("formerBearingProxiesSuppressedPerStation")!=4
             or scroll.get("allSixChaptersConfirmed") is not True
             or scroll.get("renderedFrames")!=96
             or len(scroll.get("chapterCanvasSHA256",{}))!=6
