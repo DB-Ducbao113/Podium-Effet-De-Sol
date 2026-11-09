@@ -8,6 +8,7 @@ from p2_12_toe_adjuster import (
     A,B,D,PARTS,LINK_LENGTH_MM,SLEEVE_START_MM,SLEEVE_END_MM,
     OUTER_NUT_RANGE_MM,INNER_NUT_RANGE_MM,SLEEVE_BORE_R_MM,THREAD_CREST_R_MM,
     FEMALE_GROOVE_MAJOR_R_MM,ROD_R_MM,cylinder_segment,
+    sample_isolated_thread_motion,THREAD_RUNOUT_RADIUS_MM,
     TOE_211_IDS,QUALITY,SCHEMA,all_parts,build_new_parts,build,sha,exact_static_audit
 )
 
@@ -36,8 +37,9 @@ class RearToeAdjusterCADTest(unittest.TestCase):
         blank=cylinder_segment(SLEEVE_START_MM,SLEEVE_END_MM,15.2).cut(
             cylinder_segment(SLEEVE_START_MM-.5,SLEEVE_END_MM+.5,SLEEVE_BORE_R_MM))
         removed=blank.Volume()-p[PARTS['sleeve']].Volume()
-        self.assertGreater(removed,500)
-        self.assertLess(removed,900)
+        self.assertGreater(removed,1100)
+        self.assertLess(removed,1450)
+        self.assertGreater(THREAD_RUNOUT_RADIUS_MM,FEMALE_GROOVE_MAJOR_R_MM)
         self.assertGreater(len(p[PARTS['sleeve']].Faces()),30)
         self.assertGreater(len(p[PARTS['outerNut']].Faces()),12)
         self.assertGreater(len(p[PARTS['innerNut']].Faces()),12)
@@ -55,6 +57,15 @@ class RearToeAdjusterCADTest(unittest.TestCase):
         # A pitch/2=1mm translation re-aligns this right-hand helix.
         corrected=mistimed.translate(tuple(D*1.0))
         self.assertLess(sleeve.intersect(corrected).Volume(),.05)
+
+    def test_limited_six_pose_thread_pair_motion(self):
+        proof=sample_isolated_thread_motion(build_new_parts())
+        self.assertEqual(proof['sampleCount'],6)
+        self.assertEqual(proof['anglesDeg'],[-90,0,90])
+        self.assertTrue(proof['threadPairsPassLimitedSweep'])
+        self.assertLess(proof['maximumPositiveOverlapMm3'],.05)
+        self.assertFalse(proof['chassisToeKinematicsCertified'])
+        self.assertFalse(proof['fullDynamicAssemblyInterferenceTested'])
 
     def test_static_171_pairs_and_collision_guard(self):
         audit=exact_static_audit(all_parts())
@@ -87,7 +98,10 @@ class RearToeAdjusterCADTest(unittest.TestCase):
                         'sleeveOppositeHandGroovesModelled',
                         'bothLocknutFemaleGroovesModelled','nominalThreadPhaseMatched'):
                 self.assertIs(manifest[key],True)
-            self.assertEqual(manifest['threadGeometryRevision'],'P2.12-R2-BREP-GROOVED')
+            self.assertEqual(manifest['threadGeometryRevision'],'P2.12-R2-BREP-GROOVED-RUNOUT')
+            self.assertTrue(manifest['threadRunoutsModelled'])
+            self.assertAlmostEqual(manifest['threadRunoutRadiusMm'],10.12,places=6)
+            self.assertEqual(len(manifest['threadRunoutIntervalsMm']),4)
             self.assertAlmostEqual(manifest['rodRootRadialClearanceMm'],.2,places=6)
             self.assertAlmostEqual(manifest['threadCrestRadialClearanceMm'],.46,places=6)
             step=out/manifest['masterSTEP']
