@@ -23,8 +23,12 @@ function fixture() {
     sleeveOppositeHandGroovesModelled:true,
     bothLocknutFemaleGroovesModelled:true,
     nominalThreadPhaseMatched:true,
-    threadedRodSpanMm:34,
-    threadGeometryRevision:'P2.12-R2-BREP-GROOVED-RUNOUT',
+    threadedRodSpanMm:24,
+    threadGeometryRevision:'P2.12-R3-BREP-LOCKNUT-ENGAGEMENT',
+    nominalNutThreadGrooveAxialPhaseMm:[47,115],
+    nominalNutBodyAxialRangesMm:[[47.5,53.5],[114.5,120.5]],
+    nominalSleeveNutAxialClearanceMm:2.5,
+    maleHelixStartMm:[45,99],
     threadRunoutsModelled:true,
     threadRunoutRadiusMm:10.12,
     threadRunoutIntervalsMm:[[56,58.5],[77.5,80],[88,90.5],[109.3,112]],
@@ -54,6 +58,8 @@ describe('P2.12 RH/LH toe adjuster source guard',()=>{
     expect(m.sleeveOppositeHandGroovesModelled).toBe(true);
     expect(m.bothLocknutFemaleGroovesModelled).toBe(true);
     expect(m.threadRunoutsModelled).toBe(true);
+    expect(m.threadedRodSpanMm).toBe(24);
+    expect(m.nominalNutBodyAxialRangesMm).toEqual([[47.5,53.5],[114.5,120.5]]);
     expect(m.threadCrestRadialClearanceMm).toBeCloseTo(.46);
     expect(m.mechanicalThreadEngagementCertified).toBe(false);
     expect(m.actualChassisToeHardpointMeasured).toBe(false);
@@ -75,6 +81,10 @@ describe('P2.12 RH/LH toe adjuster source guard',()=>{
     expect(()=>readToeAdjusterManifest({...fixture(),fullFemaleThreadProfileModelled:false}))
       .toThrow(/flags/);
     expect(()=>readToeAdjusterManifest({...fixture(),threadRunoutsModelled:false})).toThrow(/flags/);
+    expect(()=>readToeAdjusterManifest({...fixture(),maleHelixStartMm:[57,89]}))
+      .toThrow(/flags/);
+    expect(()=>readToeAdjusterManifest({...fixture(),nominalNutBodyAxialRangesMm:[[47,54],[114,121]]}))
+      .toThrow(/flags/);
     expect(()=>readToeAdjusterManifest({...fixture(),bothLocknutFemaleGroovesModelled:false}))
       .toThrow(/flags/);
     expect(()=>readToeAdjusterManifest({...fixture(),threadCrestRadialClearanceMm:-.1}))
