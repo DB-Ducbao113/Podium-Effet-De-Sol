@@ -8,7 +8,6 @@ import type {CadSource} from '../cadFirstScroll/cadSource';
 import type {ToeAdjusterSource} from '../assemblyPreview/rearToeAdjusterSource';
 import type {SplitRaceSource} from '../assemblyPreview/splitRaceSource';
 import {P214_PARTS} from '../assemblyPreview/splitRaceSource';
-import {REAR_TOE_ADJUSTER_ALL_PARTS} from '../assemblyPreview/rearToeAdjusterSource';
 import {probeOriginalGeometry,type SourceGeometryProbe} from '../assemblyPreview/geometryProbe';
 import {fitOwnerShellToOriginalP28,type OwnerMeasuredFit} from '../assemblyPreview/ownerMeasuredFit';
 import {layoutFourCorners,visibleInFourCornerPreview} from '../assemblyPreview/fourCornerLayout';
