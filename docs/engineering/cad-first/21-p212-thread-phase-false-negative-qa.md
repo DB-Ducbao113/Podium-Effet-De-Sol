@@ -41,10 +41,32 @@ The GitHub local review runner `tools/cad-first/run_four_corners_local.py` addit
 - at least 20/30 samples inside for every deliberately misphased case;
 - explicit `mechanicalLoadCapacityCertified=false`, `continuousMotionCertified=false` and `mechanicalG2=HOLD`.
 
+## Internal five-body free-adjuster review
+
+A second script, `tools/cad-first/p2_12_five_body_pose_audit.py`, constructs
+**the five actual P2.12 source solids** (outer rod, inner rod, RH/LH sleeve,
+two locknuts) and applies proper source-axis transforms at −90°, 0°, +90°:
+the sleeve rotates while the two rod ends **and their associated locknuts**
+translate in opposite directions. Each pose has 10 unique body pairs.
+
+The task-container source review completed **3/3 sampled poses**:
+**30 pair classifications in total** (9 AABB exclusions, 21 native OCC
+Boolean candidates), no recorded positive-volume overlaps over the source
+threshold and no exceptions. The script marks this **Boolean-only** and
+**explicitly requires the 12-case independent phase/solid-occupancy QA**
+because native helical Boolean common() has been shown to produce a false
+negative. It never marks real chassis dynamics as certified.
+
+The combined local QA runner requires source SHA-256, all three distinct
+poses, 10 pair classifications at each pose, explicit Boolean-only status,
+the separately verified surface-phase evidence, and all mechanical G2
+flags remaining false.
+
 ### Local reproduction (no GitHub Actions)
 
 ```powershell
 python tools/cad-first/p2_12_phase_contact_audit.py --out ".local-assets/cad-first/p212-phase-occupancy-v2.json"
+python tools/cad-first/p2_12_five_body_pose_audit.py --out ".local-assets/cad-first/p212-five-body-poses.json"
 ```
 
 The evidence from this turn was **executed against the source included with the P2.12 v3 review ZIP**, which contains the same nominal geometry but is not asserted byte-identical to the current remote Python file. The complete source-checkout runner, npm build, browser/WebGL, source 59-solid P2.8 mechanical cross-check, complete continuous kinematics and physical stress testing **have not been executed on the whole repository in this turn**.
