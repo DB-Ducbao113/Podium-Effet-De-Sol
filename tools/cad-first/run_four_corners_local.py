@@ -84,7 +84,8 @@ def main()->None:
                "--out",out/"p212-isolated-native-qa.json",timeout=750)
         invoke(sys.executable,TOOLS/"test_p2_12_joint_closure_gate.py",timeout=45)
         invoke(sys.executable,TOOLS/"test_p2_12_constrained_kinematics.py",timeout=60)
-        invoke(sys.executable,TOOLS/"test_p2_13_rear_joint_prototype.py",timeout=120)
+        invoke(sys.executable,TOOLS/"run_p213_tests_isolated.py",
+               "--out",out/"p213-isolated-native-qa.json",timeout=550)
         invoke(sys.executable,TOOLS/"test_rebuild_owner_p28.py",timeout=150)
         invoke(sys.executable,TOOLS/"test_audit_assembly_mesh.py",timeout=150)
         gate("LOCAL_SOURCE_PROVENANCE_UNIT_TESTS","PASS")
@@ -416,12 +417,33 @@ def main()->None:
         if not p213_file.is_file():
             raise RuntimeError("Missing P2.13 native bearing concept evidence")
         p213=json.loads(p213_file.read_text(encoding="utf8"))
+        p213_test=json.loads((out/"p213-isolated-native-qa.json").read_text(encoding="utf8"))
+        p213_test_sha=sha256((TOOLS/"p2_13_rear_joint_prototype.py").read_bytes()).hexdigest()
+        if (p213_test.get("schema")!="podium-eds.p213.occt-isolated-cad-qa.v1"
+            or p213_test.get("cadSourceSha256")!=p213_test_sha
+            or p213_test.get("complete") is not True
+            or p213_test.get("tested")!=5 or p213_test.get("passed")!=5
+            or p213_test.get("mechanicalG2")!="HOLD"
+            or any(r.get("passed") is not True for r in p213_test.get("cases",[]))):
+            raise RuntimeError("P2.13 isolated source CAD regression suite incomplete")
         p213_source_names=['p2_9_rear_upright.py','p2_10_rear_wishbone.py',
                            'p2_11_rear_toe_link.py','p2_12_toe_adjuster.py',
                            'p2_12_constrained_kinematics.py']
         p213_hashes={name:sha256((TOOLS/name).read_bytes()).hexdigest()
                      for name in p213_source_names}
         expected_joint_stations={'UPPER','LOWER','TOE_OUTER','TOE_INNER'}
+        combined_static=p213.get("combinedNominalStaticAudit",{})
+        if (combined_static.get("pairCount")!=253
+            or combined_static.get("aabbExcluded",0)+combined_static.get("nativeBrepIntersectionsEvaluated",0)!=253
+            or combined_static.get("unresolvedCollisions")!=[]
+            or combined_static.get("booleanErrors")!=[]
+            or combined_static.get("passStatic") is not True
+            or combined_static.get("dynamicKinematicsCertified") is not False):
+            raise RuntimeError("P2.13 combined 23-source-solid 253-pair native static BRep screen failed")
+        audit_file=p213_dir/"P213_23_body_static_audit.json"
+        if (not audit_file.is_file() or
+            json.loads(audit_file.read_text(encoding="utf8"))!=combined_static):
+            raise RuntimeError("P2.13 static source audit detached from manifest")
         positions=p213.get("poseReviews",[])
         measured_pairs=[pair for pose in positions for pair in pose.get("cases",[])]
         if (p213.get("schema")!="podium-eds.p213.source-spherical-joint-articulation.v1"
