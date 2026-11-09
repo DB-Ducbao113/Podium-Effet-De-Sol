@@ -371,9 +371,15 @@ def main()->None:
                    "--out",six_dof_path,timeout=60)
         solution=json.loads(six_dof_path.read_text(encoding="utf8"))
         solution_rows=solution.get("samples",[])
+        source_files=['p2_9_rear_upright.py','p2_10_rear_wishbone.py',
+                      'p2_11_rear_toe_link.py','p2_12_toe_adjuster.py']
+        expected_source_hashes={
+          name:sha256((TOOLS/name).read_bytes()).hexdigest() for name in source_files
+        }
         expected_angles=[-180,-90,-45,0,45,90,180]
         if (solution.get("schema")!="podium-eds.p212.v3.constrained-six-dof-ideal-joints.v1"
             or solution.get("cadSourceSha256")!=source_sha
+            or solution.get("inputCadSourceSha256")!=expected_source_hashes
             or solution.get("cadSourceSchema")!="podium-eds.p2.cad-first.rear-toe-adjuster-threaded.v3"
             or solution.get("complete") is not True
             or solution.get("sampleCount")!=7
