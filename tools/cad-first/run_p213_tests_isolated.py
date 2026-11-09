@@ -15,7 +15,7 @@ CASES=(
  "test_genuine_spherical_cavity_and_drilled_ball",
  "test_seven_ideal_solved_joints_28_ball_race_volume_reviews",
  "test_all_23_source_parts_253_nominal_brep_pair_screen",
- "test_original_step_three_source_lods_and_no_overwrite",
+ "test_eight_body_step_roundtrip_and_source_provenance",
 )
 
 def run(out:Path,timeout_per_case:int=100)->dict:
