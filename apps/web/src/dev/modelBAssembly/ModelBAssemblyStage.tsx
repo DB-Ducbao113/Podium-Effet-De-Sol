@@ -17,6 +17,7 @@ import {pivotSourceMeshAtCentroid,applyVisualScrewSpin,
  type CadAnimatedPivot} from './sourcePartPivot';
 import {rearVisualPartIds,type RearVisualParts} from './rearVisualComposite';
 import {inspectOriginalCadMesh,type InspectedCadPart} from './cadPartInspector';
+import {locateSelectedCadMesh,sourceMeshWorldCentre,highlightSourceMaterials} from './cadFocus';
 import type {WheelId} from '../assemblyPreview/fourCornerLayout';
 import {
  clamp01,exteriorSeparation,originalPartAssembly,rearSourceAssembly,
@@ -34,11 +35,14 @@ type Props={
  onFit:(value:OwnerMeasuredFit|null)=>void;
  onRearComposite:(value:RearVisualParts|null)=>void;
  onInspect:(part:InspectedCadPart)=>void;
+ selectedPart:InspectedCadPart|null;
  onError:(message:string)=>void;
 };
 type Decoded={model:THREE.Group;probe?:SourceGeometryProbe};
 type AnimatedMesh={
  mesh:THREE.Mesh;
+ station:WheelId;
+ origin:'p28'|'rear-toe'|'joint';
  target:THREE.Object3D;
  spin:CadAnimatedPivot|null;
  originalPosition:THREE.Vector3;
@@ -179,7 +183,7 @@ function createWheelVisual(
      ?pivotSourceMeshAtCentroid(mesh):null;
    const target=animatedScrew?.root??mesh;
    const materials=copyMaterials(mesh,ownedMaterials);
-   meshes.push({mesh,target,spin:animatedScrew,
+   meshes.push({mesh,station,origin:kind,target,spin:animatedScrew,
      originalPosition:target.position.clone(),
      offset,name:mesh.name,kind,materials});
  }
@@ -258,7 +262,7 @@ function StudioLights(){
   <pointLight position={[1.5,2,-3]} intensity={32} distance={12} color="#8aaeff"/>
  </>;
 }
-function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRace,onReady,onFit,onRearComposite,onInspect,onError}:Props){
+function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRace,onReady,onFit,onRearComposite,onInspect,selectedPart,onError}:Props){
  const {camera,size}=useThree();
  const original=useOriginalBody(onReady,onError);
  const originalPartNames=useMemo(()=>corner?.parts.map(x=>x.node)??[],[corner]);
@@ -328,6 +332,19 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
    if(!visual)return;
    visual.ownedMaterials.forEach(m=>m.dispose());
  },[visual]);
+ useEffect(()=>{
+   if(!visual||!selectedPart)return;
+   try{
+     return highlightSourceMaterials(visual.meshes,selectedPart);
+   }catch(error){
+     onError('Selected original CAD material highlight failed: '+String(error));
+   }
+ },[visual,selectedPart,onError]);
+ const selectedVisual=useMemo(()=>{
+   if(!visual||!selectedPart)return null;
+   try{return locateSelectedCadMesh(visual.meshes,selectedPart);}
+   catch{return null;}
+ },[visual,selectedPart]);
  const progress=useMemo(()=>({current:0}),[]);
  const targetPos=useMemo(()=>new THREE.Vector3(7,3,9),[]);
  const targetLook=useMemo(()=>new THREE.Vector3(),[]);
@@ -378,6 +395,21 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
      cameraTarget.set(-.1,-.1,0);distance=8;orbit=.18;
    }else if(p>=.15){
      cameraTarget.set(.05,-.1,0);distance=7.7;orbit=-.15;
+   }
+   // Focus moves with the actual animated source geometry. Its original
+   // GLB mesh vertices can be offset from Object3D.position, so target the
+   // real mesh bounding-box centre, not a guessed chassis hardpoint.
+   if(selectedVisual&&p>.24){
+     try{
+       const centre=sourceMeshWorldCentre(selectedVisual.mesh);
+       cameraTarget.copy(centre);
+       distance=selectedVisual.kind==='p28'&&
+         classifyP28Part(selectedVisual.name)==='hardware'?.52:1.4;
+       orbit=.14;
+     }catch{
+       // Geometry failing provenance must never become a fictional camera
+       // target: retain source-derived chapter camera instead.
+     }
    }
    const aspect=size.width/Math.max(1,size.height);
    if(aspect<.8)distance*=1.45;
