@@ -661,7 +661,8 @@ def main()->None:
                    "src/dev/modelBAssembly/cadPartInspector.test.ts",
                    "src/dev/modelBAssembly/cadPartCatalog.test.ts",
                    "src/dev/modelBAssembly/cadFocus.test.ts",
-                   "src/dev/modelBAssembly/originalModelBSource.test.ts",timeout=300)
+                   "src/dev/modelBAssembly/originalModelBSource.test.ts",
+                   "src/dev/modelBAssembly/modelBSourceOnlyCamera.test.ts",timeout=300)
             invoke(npm,"run","build","--workspace=@peds/web",timeout=900)
             gate("LOCAL_WEB_LINT_TYPES_TESTS_BUILD","PASS")
         # Copy private checked CAD only into .local-assets (gitignored).
@@ -693,6 +694,40 @@ def main()->None:
         url="http://127.0.0.1:5184/engineering/assembly-preview"
         wait_http(url,deadline_seconds=75)
         gate("LOCAL_VITE_WEBGL_ROUTE","PASS")
+
+        # Original owner Model B is committed in GitHub and can be checked
+        # BEFORE P2.8 animation. This independent Chromium/MP4 source-only
+        # gate never uses synthetic wheel parts and stays available as a
+        # standalone command even without the private 59-part P2.8 GLB.
+        showroom_dir=out/"owner-model-b-source-only-browser"
+        invoke(sys.executable,TOOLS/"record_original_model_b_only_local.py",
+               "--url","http://127.0.0.1:5184/engineering/model-b-build",
+               "--out",showroom_dir,
+               "--existing-vite","--frames","96","--fps","16",timeout=840)
+        showroom=json.loads((showroom_dir/"original-model-b-browser-evidence.json")
+                            .read_text(encoding="utf8"))
+        showroom_movie=showroom_dir/showroom.get("mp4File","__missing__")
+        if (showroom.get("complete") is not True
+            or showroom.get("gitBlobSha1")!="74fbd44daf709d0d368adef9de66e4e22a49fed4"
+            or showroom.get("browserOriginalGlbHTTP200") is not True
+            or showroom.get("browserOriginalGlbDecodedAndHashVerified") is not True
+            or showroom.get("realWebglContextVerified") is not True
+            or len(showroom.get("chapters",{}))!=6
+            or len(set(showroom.get("canvasSha256",{}).values()))<5
+            or showroom.get("framesCaptured")!=96
+            or showroom.get("p28WheelCadLoaded") is not False
+            or showroom.get("fullAssemblyVerified") is not False
+            or showroom.get("mechanicalMateCertified") is not False
+            or showroom.get("mechanicalG2")!="HOLD"
+            or showroom.get("browserExceptions")
+            or showroom.get("webglErrors")
+            or not showroom_movie.is_file()
+            or sha256(showroom_movie.read_bytes()).hexdigest()!=showroom.get("mp4Sha256")):
+            raise RuntimeError("Owner original standalone Model B Chromium/GLB video invalid")
+        status["model_b_original_showroom_video"]=str(showroom_movie)
+        status["model_b_original_showroom_git_sha1"]=showroom["gitBlobSha1"]
+        gate("LOCAL_ORIGINAL_MODEL_B_SOURCE_ONLY_SIX_CAMERA_CHAPTERS_MP4","PASS")
+
         invoke(sys.executable,TOOLS/"record_four_corners_local.py",
                "--p28-dir",source,"--out",out/"browser",
                "--quality",a.quality,"--url",url,
