@@ -83,6 +83,7 @@ def main()->None:
         invoke(sys.executable,TOOLS/"run_p212_tests_isolated.py",
                "--out",out/"p212-isolated-native-qa.json",timeout=750)
         invoke(sys.executable,TOOLS/"test_p2_12_joint_closure_gate.py",timeout=45)
+        invoke(sys.executable,TOOLS/"test_p2_12_constrained_kinematics.py",timeout=60)
         invoke(sys.executable,TOOLS/"test_rebuild_owner_p28.py",timeout=150)
         invoke(sys.executable,TOOLS/"test_audit_assembly_mesh.py",timeout=150)
         gate("LOCAL_SOURCE_PROVENANCE_UNIT_TESTS","PASS")
@@ -364,6 +365,42 @@ def main()->None:
             raise RuntimeError("P2.12 19-body source pose/closure audit incomplete; G2 HOLD")
         status["p212_full_19_body_free_pose_boolean_review"]=True
         gate("P212_ALL_19_BODY_THREE_POSES_BOOLEAN_ONLY_AND_G2_HOLD","PASS")
+        six_dof_path=out/"p212-constrained-6dof-kinematics.json"
+        if not six_dof_path.is_file():
+            invoke(sys.executable,TOOLS/"p2_12_constrained_kinematics.py",
+                   "--out",six_dof_path,timeout=60)
+        solution=json.loads(six_dof_path.read_text(encoding="utf8"))
+        solution_rows=solution.get("samples",[])
+        expected_angles=[-180,-90,-45,0,45,90,180]
+        if (solution.get("schema")!="podium-eds.p212.v3.constrained-six-dof-ideal-joints.v1"
+            or solution.get("cadSourceSha256")!=source_sha
+            or solution.get("cadSourceSchema")!="podium-eds.p2.cad-first.rear-toe-adjuster-threaded.v3"
+            or solution.get("complete") is not True
+            or solution.get("sampleCount")!=7
+            or solution.get("anglesDeg")!=expected_angles
+            or solution.get("maximumConstraintResidualMm",1)>.001
+            or solution.get("maximumBoreAxisMismatchDeg",0)<1.0
+            or solution.get("provisionalHardpointsOnly") is not True
+            or solution.get("sphericalJointCADNotVerified") is not True
+            or solution.get("fullNativeBrepDynamicCollisionNotRun") is not True
+            or solution.get("vehicleKinematicsCertified") is not False
+            or solution.get("mechanicalG2")!="HOLD"
+            or len(solution_rows)!=7
+            or [row.get("sleeveTurnDeg") for row in solution_rows]!=expected_angles
+            or any(row.get("maximumIdealLinkageConstraintResidualMm",1)>.001
+                   or len(row.get("idealWishboneHingeSolutions",[]))!=2
+                   or row.get("sourceChassisHardpointsMeasured") is not False
+                   or row.get("nativeBallJointArticulationValidated") is not False
+                   or row.get("realVehicleKinematicsCertified") is not False
+                   or row.get("mechanicalG2")!="HOLD"
+                   or abs(row.get("toeLengthChangeMm",-100)-row.get("sleeveTurnDeg",0)/90)>.000001
+                   or any(arm.get("rigidArmOuterPivotClosureResidualMm",1)>.001
+                          or arm.get("actualSphericalBearingArticulationCertified") is not False
+                          for arm in row.get("idealWishboneHingeSolutions",[]))
+                   for row in solution_rows)):
+            raise RuntimeError("P2.12 ideal-joint 6DOF source closure report is incomplete; G2 HOLD")
+        status["p212_ideal_6dof_constrained_kinematics"]=True
+        gate("P212_PROVISIONAL_6DOF_WISHBONE_AND_TOE_JOINT_CENTRE_SOLVER","PASS")
         npm=shutil.which("npm")
         if npm is None:raise RuntimeError("Node/npm missing")
         if not a.skip_web_qa:
