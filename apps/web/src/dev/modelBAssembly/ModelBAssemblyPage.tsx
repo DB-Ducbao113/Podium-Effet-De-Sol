@@ -168,6 +168,21 @@ export default function ModelBAssemblyPage(){
    setInspectedPart(part);
    setCatalogOpen(false);
  },[]);
+ const handleCatalogSelect=useCallback((part:InspectedCadPart)=>{
+   handlePartInspect(part);
+   // A source-only part selected from the index at chapter 00 would be
+   // visually hidden by the staged build timeline. Move forward to an
+   // assembled-but-still-real-source review frame; direct WebGL clicks
+   // never change the user's scroll position.
+   if(progressRef.current<.85){
+     const node=track.current;
+     if(!node)return;
+     const top=window.scrollY+node.getBoundingClientRect().top;
+     const length=Math.max(1,node.getBoundingClientRect().height-window.innerHeight);
+     window.scrollTo({top:top+length*.95,
+       behavior:reducedMotion?'instant':'smooth'});
+   }
+ },[handlePartInspect,reducedMotion]);
  const resetReady=useCallback((kind:SourceName)=>{
    setInspectedPart(null);
    setCatalogOpen(false);
@@ -296,7 +311,7 @@ export default function ModelBAssemblyPage(){
            p28PartIds={p28PartIds}
            p212PartIds={rearToe&&ready['rear-toe']===19?rearToePartIds:null}
            p214PartIds={splitRace&&ready.p214===16?splitPartIds:null}
-           onSelect={handlePartInspect}
+           onSelect={handleCatalogSelect}
            onClose={()=>setCatalogOpen(false)}/>}
        </div>
        {inspectedPart&&<aside className="mb-build-part-inspector"
