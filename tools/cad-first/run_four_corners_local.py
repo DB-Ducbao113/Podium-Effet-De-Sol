@@ -171,7 +171,7 @@ def main()->None:
                 raise RuntimeError("P2.11 source GLB and mesh identities invalid: "+tier)
         status["independent_p211_rear_toe_static_cad"]=True
         gate("INDEPENDENT_P211_REAR_TOE_NATIVE_105_PAIR_STATIC","PASS")
-        p212_dir=out/"p212-threaded-v2-source"
+        p212_dir=out/"p212-threaded-v3-source"
         if not p212_dir.is_dir():
             invoke(sys.executable,TOOLS/"p2_12_toe_adjuster.py",
                    "--out",p212_dir,timeout=600)
@@ -220,7 +220,11 @@ def main()->None:
             invoke(sys.executable,TOOLS/"p2_12_thread_sweep.py",
                    "--out",sweep_path,timeout=240)
         sweep=json.loads(sweep_path.read_text(encoding="utf8"))
+        source_sha=sha256((TOOLS/"p2_12_toe_adjuster.py").read_bytes()).hexdigest()
         if (sweep.get("cadSourceSchema")!="podium-eds.p2.cad-first.rear-toe-adjuster-threaded.v3"
+            or sweep.get("cadSourceSha256")!=source_sha
+            or sweep.get("complete") is not True
+            or sweep.get("minimumLocknutGapMm",0)<2.0
             or sweep.get("sampleCount")!=6
             or sweep.get("anglesDeg")!=[-90,0,90]
             or sweep.get("threadPairsPassLimitedSweep") is not True
