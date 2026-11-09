@@ -46,6 +46,7 @@ def main()->None:
       "independent_p29_rear_upright_proposal":False,
       "independent_p210_rear_wishbone_static_cad":False,
       "independent_p211_rear_toe_static_cad":False,
+      "independent_p212_toe_adjuster_static_cad":False,
       "all_four_wheel_review":"NOT_RUN",
       "steps":[],
       "final_video":None,
@@ -79,6 +80,7 @@ def main()->None:
         invoke(sys.executable,TOOLS/"test_p2_9_rear_upright.py",timeout=150)
         invoke(sys.executable,TOOLS/"test_p2_10_rear_wishbone.py",timeout=180)
         invoke(sys.executable,TOOLS/"test_p2_11_rear_toe_link.py",timeout=180)
+        invoke(sys.executable,TOOLS/"test_p2_12_toe_adjuster.py",timeout=300)
         invoke(sys.executable,TOOLS/"test_rebuild_owner_p28.py",timeout=150)
         invoke(sys.executable,TOOLS/"test_audit_assembly_mesh.py",timeout=150)
         gate("LOCAL_SOURCE_PROVENANCE_UNIT_TESTS","PASS")
@@ -168,6 +170,42 @@ def main()->None:
                 raise RuntimeError("P2.11 source GLB and mesh identities invalid: "+tier)
         status["independent_p211_rear_toe_static_cad"]=True
         gate("INDEPENDENT_P211_REAR_TOE_NATIVE_105_PAIR_STATIC","PASS")
+        p212_dir=out/"p212-rear-adjuster-source"
+        if not p212_dir.is_dir():
+            invoke(sys.executable,TOOLS/"p2_12_toe_adjuster.py",
+                   "--out",p212_dir,timeout=600)
+        p212_manifest=p212_dir/"P212_rear_toe_adjuster_manifest.json"
+        if not p212_manifest.is_file():
+            raise RuntimeError("P2.12 original toe adjuster manifest missing")
+        p212=json.loads(p212_manifest.read_text(encoding="utf8"))
+        a212=p212.get("nativeStaticAudit",{})
+        ids212=p212.get("partIds",[])
+        if (p212.get("schema")!="podium-eds.p2.cad-first.rear-toe-adjuster-static-proposal.v1"
+            or p212.get("sourcePartCount")!=19 or p212.get("totalCadSolids")!=19
+            or p212.get("newParts")!=5 or len(set(ids212))!=19
+            or p212.get("replacedPriorPartId")!="P211_REAR_TOE_LINK_TUBULAR_FORGED"
+            or "P211_REAR_TOE_LINK_TUBULAR_FORGED" in ids212
+            or p212.get("outerThreadHand")!="RIGHT"
+            or p212.get("innerThreadHand")!="LEFT"
+            or p212.get("actualChassisToeHardpointMeasured") is not False
+            or p212.get("fullFemaleThreadProfileModelled") is not False
+            or p212.get("mechanicalThreadEngagementCertified") is not False
+            or p212.get("toeAdjustmentTravelCertified") is not False
+            or p212.get("mechanicalMateCertified") is not False
+            or a212.get("pairCount")!=171 or a212.get("passStatic") is not True
+            or a212.get("unresolvedCollisions") or a212.get("booleanErrors")):
+            raise RuntimeError("P2.12 19-solid source static/honesty gate failed")
+        if sha256((p212_dir/p212["masterSTEP"]).read_bytes()).hexdigest() != p212["masterSTEPsha256"]:
+            raise RuntimeError("P2.12 source STEP SHA mismatch")
+        for tier,entry in p212["profiles"].items():
+            asset=p212_dir/entry["file"]
+            if (not asset.is_file() or
+                sha256(asset.read_bytes()).hexdigest()!=entry["sha256"] or
+                entry.get("allNodesWatertight") is not True or
+                len(entry.get("perPartTriangles",{}))!=19):
+                raise RuntimeError("P2.12 original 19-mesh GLB digest failure: "+tier)
+        status["independent_p212_toe_adjuster_static_cad"]=True
+        gate("INDEPENDENT_P212_TOE_ADJUSTER_NATIVE_171_PAIR_STATIC","PASS")
         npm=shutil.which("npm")
         if npm is None:raise RuntimeError("Node/npm missing")
         if not a.skip_web_qa:
@@ -180,7 +218,8 @@ def main()->None:
                    "src/dev/assemblyPreview/showroomWheelMask.test.ts",
                    "src/dev/assemblyPreview/rearUprightSource.test.ts",
                    "src/dev/assemblyPreview/rearSuspensionSource.test.ts",
-                   "src/dev/assemblyPreview/rearToeSource.test.ts",timeout=300)
+                   "src/dev/assemblyPreview/rearToeSource.test.ts",
+                   "src/dev/assemblyPreview/rearToeAdjusterSource.test.ts",timeout=300)
             invoke(npm,"run","build","--workspace=@peds/web",timeout=900)
             gate("LOCAL_WEB_LINT_TYPES_TESTS_BUILD","PASS")
         job=subprocess.Popen([
@@ -196,7 +235,8 @@ def main()->None:
                "--quality",a.quality,"--url",url,
                "--p29-dir",p29_dir,
                "--p210-dir",p210_dir,
-               "--p211-dir",p211_dir,timeout=1100)
+               "--p211-dir",p211_dir,
+               "--p212-dir",p212_dir,timeout=1100)
         detail=json.loads((out/"browser/four-wheel-browser-evidence.json")
                           .read_text(encoding="utf8"))
         if not detail.get("all_four_original_modelb_wheel_positions"):
@@ -207,6 +247,8 @@ def main()->None:
             raise RuntimeError("P2.10 11-mesh rear wishbone source was not loaded on both rear stations")
         if not detail.get("real_p211_rear_toe_loaded"):
             raise RuntimeError("P2.11 15-mesh rear toe source was not loaded on both rear stations")
+        if not detail.get("real_p212_toe_adjuster_loaded"):
+            raise RuntimeError("P2.12 19-mesh rear toe adjuster was not parsed on both rear stations")
         movie=detail.get("recorded_video")
         if not movie or not Path(movie).is_file() or Path(movie).stat().st_size<1024:
             raise RuntimeError("No genuine WebGL four-wheel video created")
