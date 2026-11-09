@@ -16,6 +16,7 @@ import {
 import {chapterAt,clamp01,MODEL_B_CHAPTERS} from './modelBAssemblyTimeline';
 import {readLocalAutoCadIndex,type AutoCadRow} from './localSourceIndex';
 import type {OwnerMeasuredFit} from '../assemblyPreview/ownerMeasuredFit';
+import type {RearVisualParts} from './rearVisualComposite';
 import './modelBAssembly.css';
 
 const Stage=lazy(()=>import('./ModelBAssemblyStage'));
@@ -40,6 +41,7 @@ export default function ModelBAssemblyPage(){
  const [error,setError]=useState('');
  const [ready,setReady]=useState<Partial<Record<StageId,number>>>({});
  const [measuredFit,setMeasuredFit]=useState<OwnerMeasuredFit|null>(null);
+ const [rearComposite,setRearComposite]=useState<RearVisualParts|null>(null);
  const [reducedMotion,setReducedMotion]=useState(()=>{
    return typeof window!=='undefined'&&
      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -156,6 +158,8 @@ export default function ModelBAssemblyPage(){
  },[]);
  const handleError=useCallback((message:string)=>setError(message),[]);
  const handleFit=useCallback((fit:OwnerMeasuredFit|null)=>setMeasuredFit(fit),[]);
+ const handleRearComposite=useCallback(
+   (info:RearVisualParts|null)=>setRearComposite(info),[]);
  const resetReady=useCallback((kind:SourceName)=>{
    setReady(previous=>{
      const next:Partial<Record<StageId,number>>={};
@@ -227,7 +231,8 @@ export default function ModelBAssemblyPage(){
            <Stage progressRef={progressRef} corner={corner}
               rearToe={rearToe} splitRace={splitRace}
               reducedMotion={reducedMotion}
-              onReady={handleReady} onFit={handleFit} onError={handleError}/>
+              onReady={handleReady} onFit={handleFit}
+              onRearComposite={handleRearComposite} onError={handleError}/>
          </Suspense>
        </div>
        <div className="mb-build-shade" aria-hidden="true"/>
@@ -269,6 +274,10 @@ export default function ModelBAssemblyPage(){
        <div className="mb-build-source-wrap"
          data-original-model-b-wheel-fit={measuredFit?.wheels.length===4&&cadLoaded?'true':'false'}
          data-wheel-station-count={measuredFit?.wheels.length??0}
+         data-rear-composite-cad-parts={rearComposite?.count??0}
+         data-rear-legacy-bearing-proxies-hidden={
+            rearComposite?.hiddenOldAnnularBearingProxies??0}
+         data-rear-mechanical-mate-certified="false"
          data-original-p28-scale={measuredFit?.p28Scale??'unknown'}
          data-original-mechanical-mate-certified={measuredFit?.mechanicalFitCertified?'true':'false'}
          data-p28-cad-ready={cadLoaded?'true':'false'}
