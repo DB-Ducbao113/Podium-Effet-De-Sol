@@ -168,12 +168,13 @@ def run(p28:Path,out:Path,quality:str='BALANCED',
     scratch=Path(tempfile.mkdtemp(prefix='.'+out.name+'.staging-',dir=out.parent))
     old_bundle:Path|None=None
     try:
-        for name,(manifest,glb,_) in sources.items():
+        for name,(manifest,glb,source_record) in sources.items():
             folder=scratch/name;folder.mkdir()
             shutil.copy2(manifest,folder/'manifest.json')
             shutil.copy2(glb,folder/'source.glb')
             verify_glb_mesh_identities(folder/'source.glb',
-                record['partIds'] if name in ('p28','p212') else record['newPartNames'])
+                source_record['partIds'] if name in ('p28','p212')
+                else source_record['newPartNames'])
             if checked_sha(folder/'source.glb')!=row[name]['sha256']:
                 raise RuntimeError('Source GLB changed during final local staging: '+name)
             if (json.loads((folder/'manifest.json').read_text(encoding='utf8'))
