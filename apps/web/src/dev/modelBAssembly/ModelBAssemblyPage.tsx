@@ -273,7 +273,10 @@ export default function ModelBAssemblyPage(){
            </button>
          )}
        </nav>
-       <div className="mb-build-source-wrap">
+       <div className="mb-build-source-wrap"
+         data-p28-cad-ready={cadLoaded?'true':'false'}
+         data-p212-cad-ready={ready['rear-toe']===19&&!!rearToe?'true':'false'}
+         data-p214-cad-ready={ready.p214===16&&!!splitRace?'true':'false'}>
          <button type="button" className="mb-build-source-trigger"
            aria-expanded={sourceOpen} aria-controls="mb-build-source-panel"
            onClick={()=>setSourceOpen(value=>!value)}>
