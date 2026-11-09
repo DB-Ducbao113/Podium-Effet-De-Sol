@@ -404,7 +404,7 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
        const centre=sourceMeshWorldCentre(selectedVisual.mesh);
        cameraTarget.copy(centre);
        distance=selectedVisual.kind==='p28'&&
-         classifyP28Part(selectedVisual.name)==='hardware'?.52:1.4;
+         classifyP28Part(selectedVisual.name)==='hardware' ? 0.52 : 1.4;
        orbit=.14;
      }catch{
        // Geometry failing provenance must never become a fictional camera
