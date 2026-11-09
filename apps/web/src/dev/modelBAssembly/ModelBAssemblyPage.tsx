@@ -14,6 +14,7 @@ import {
  type SplitRaceSource,
 } from '../assemblyPreview/splitRaceSource';
 import {chapterAt,clamp01,MODEL_B_CHAPTERS} from './modelBAssemblyTimeline';
+import {readLocalAutoCadIndex,type AutoCadRow} from './localSourceIndex';
 import './modelBAssembly.css';
 
 const Stage=lazy(()=>import('./ModelBAssemblyStage'));
@@ -53,19 +54,13 @@ export default function ModelBAssemblyPage(){
  useEffect(()=>{
    let active=true;
    const base='/__peds-model-b-cad';
-   type BundleRow={originalGlbFileName:string;sha256:string;meshCount:number};
-   type Bundle={
-     schema:string;mechanicalG2:string;localOnlyNotDeployed:boolean;
-     noFabricatedGeometry:boolean;
-     sources:Partial<Record<'p28'|'p212'|'p214',BundleRow>>;
-   };
-   const checkedFetch=async(relative:string)=>{
+    const checkedFetch=async(relative:string)=>{
      const response=await fetch(base+relative,{cache:'no-store'});
      if(!response.ok)
        throw Error('Original local CAD unavailable: '+relative+' HTTP '+response.status);
      return response;
    };
-   const sourceFile=async(kind:'p28'|'p212'|'p214',record:BundleRow)=>{
+   const sourceFile=async(kind:'p28'|'p212'|'p214',record:AutoCadRow)=>{
      const bytes=await (await checkedFetch('/'+kind+'/source.glb')).arrayBuffer();
      return new File([bytes],record.originalGlbFileName,{type:'model/gltf-binary'});
    };
@@ -74,12 +69,7 @@ export default function ModelBAssemblyPage(){
        const response=await fetch(base+'/index.json',{cache:'no-store'});
        if(response.status===404)return; // manual manifest and GLB import still works
        if(!response.ok)throw Error('Local source index HTTP '+response.status);
-       const bundle=await response.json() as Bundle;
-       if(bundle.schema!=='podium-eds.model-b-assembly.local-owner-cad.v1'||
-         bundle.localOnlyNotDeployed!==true||
-         bundle.noFabricatedGeometry!==true||
-         bundle.mechanicalG2!=='HOLD'||!bundle.sources.p28)
-         throw Error('Untrusted owner source index');
+       const bundle=readLocalAutoCadIndex(await response.json() as unknown);
        const frontJson=await (await checkedFetch('/p28/manifest.json')).json() as unknown;
        const front=await verifyCadSource(frontJson,
          await sourceFile('p28',bundle.sources.p28));
