@@ -241,27 +241,40 @@ def main()->None:
         samples=phase.get("samples",[])
         matched=[row for row in samples if row.get("deliberatelyMisphased") is False]
         negative=[row for row in samples if row.get("deliberatelyMisphased") is True]
-        if (phase.get("schema")!="podium-eds.p212.threaded-v3.phase-occupancy.v1"
+        expected={(angle,side,False,"sleeve") for angle in (-90,0,90)
+                  for side in ("outer","inner")}
+        expected.update((0,side,True,"sleeve") for side in ("outer","inner"))
+        expected.update((0,side,False,"locknut") for side in ("outer","inner"))
+        expected.update((0,side,True,"locknut") for side in ("outer","inner"))
+        observed={(row.get("angleDeg"),row.get("rod"),
+                   row.get("deliberatelyMisphased"),row.get("contactTarget"))
+                  for row in samples}
+        if (phase.get("schema")!="podium-eds.p212.threaded-v3.phase-occupancy.v2"
             or phase.get("cadSourceSha256")!=source_sha
             or phase.get("complete") is not True
             or phase.get("mechanicalG2")!="HOLD"
-            or phase.get("sampleCount")!=8
-            or phase.get("matchedPhaseCases")!=6
-            or phase.get("negativeControlCases")!=2
+            or phase.get("sampleCount")!=12
+            or phase.get("matchedPhaseCases")!=8
+            or phase.get("negativeControlCases")!=4
+            or phase.get("sleeveMatchedCases")!=6
+            or phase.get("sleeveNegativeCases")!=2
+            or phase.get("locknutMatchedCases")!=2
+            or phase.get("locknutNegativeCases")!=2
             or phase.get("surfaceSamplesPerCase")!=30
             or phase.get("matchingPhaseZeroIntrusions") is not True
             or phase.get("halfPitchNegativeControlsDetectIntrusion") is not True
             or phase.get("mechanicalLoadCapacityCertified") is not False
             or phase.get("continuousMotionCertified") is not False
-            or len(samples)!=8 or len(matched)!=6 or len(negative)!=2
+            or len(samples)!=12 or len(matched)!=8 or len(negative)!=4
+            or observed!=expected
             or any(row.get("valid") is not True or
                    row.get("sourceCrestSamples")!=30 or
-                   row.get("crestSamplesInsideSleeve")!=0 for row in matched)
+                   row.get("crestSamplesInsideFemale")!=0 for row in matched)
             or any(row.get("valid") is not True or
                    row.get("sourceCrestSamples")!=30 or
-                   row.get("crestSamplesInsideSleeve",0)<20 for row in negative)):
+                   row.get("crestSamplesInsideFemale",0)<20 for row in negative)):
             raise RuntimeError("P2.12 OCC Boolean false-negative guard: independent "
-                               "helical surface-occupancy phase QA did not pass")
+                               "helical sleeve/locknut surface phase QA did not pass")
         status["p212_independent_phase_negative_control"]=True
         gate("P212_OCC_FALSE_NEGATIVE_PHASE_SURFACE_GUARD","PASS")
         npm=shutil.which("npm")
