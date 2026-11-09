@@ -18,6 +18,7 @@ CASES=(
   "test_five_new_solids_replace_not_duplicate_old_link",
   "test_real_rod_helix_and_separate_axial_sleeve_nuts",
   "test_helical_phase_is_geometry_not_shader",
+  "test_limited_six_pose_thread_pair_motion",
   "test_static_171_pairs_and_collision_guard",
   "test_step_glb_roundtrip_hashes_and_mechanical_hold",
 )
