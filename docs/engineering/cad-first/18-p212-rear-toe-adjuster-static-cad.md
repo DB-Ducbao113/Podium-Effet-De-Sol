@@ -1,3 +1,5 @@
+> **Superseded for new builds:** This document describes the original P2.12 smooth-bore v1. The current source uses real RH/LH female B-Rep grooves (threaded v2); see [P2.12 threaded-v2 repair](19-p212-threaded-v2-female-groove-repair.md). Historical static measurements below apply to v1 only. Mechanical G2 remains HOLD.
+
 # P2.12 — Original rear toe adjuster source, static CAD checkpoint
 
 Project: **Podium Effet De Sol**, repository \`DB-Ducbao113/Podium-Effet-De-Sol\`.  
