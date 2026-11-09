@@ -48,6 +48,8 @@ FEMALE_GROOVE_HALF_WIDTH_MM=.60
 MALE_OUTER_START_MM=45.0
 MALE_INNER_START_MM=89.0
 MALE_THREAD_HEIGHT_MM=34.0
+THREAD_RUNOUT_RADIUS_MM=10.12
+THREAD_RUNOUT_INTERVALS_MM=((56.,58.5),(77.5,80.),(88.,90.5),(109.3,112.))
 
 def sha(path:Path)->str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -117,10 +119,16 @@ def sleeve()->cq.Shape:
       female_groove(57.0,22.0,False),
       female_groove(89.0,22.0,True),
     ])
-    result=blank.cut(grooves).clean()
+    threaded=blank.cut(grooves).clean()
+    # Cut axial thread runouts separately after both helical grooves.
+    # Combining all cutters at once produced invalid topology in a source trial.
+    runouts=cq.Compound.makeCompound([
+      cylinder_segment(start,end,THREAD_RUNOUT_RADIUS_MM)
+      for start,end in THREAD_RUNOUT_INTERVALS_MM])
+    result=threaded.cut(runouts).clean()
     material_removed=blank.Volume()-result.Volume()
-    if not result.isValid() or len(result.Solids())!=1 or not 500<material_removed<900:
-        raise ValueError('Both female sleeve grooves must be physically subtracted')
+    if not result.isValid() or len(result.Solids())!=1 or not 1100<material_removed<1450:
+        raise ValueError('Female sleeve grooves and end runouts must be a valid connected B-Rep')
     return result
 
 def hex_nut(s0:float,s1:float,left_hand:bool)->cq.Shape:
@@ -148,6 +156,32 @@ def build_new_parts()->dict[str,cq.Shape]:
         if solid.isNull() or not solid.isValid() or solid.Volume()<=0 or len(solid.Solids())!=1:
             raise ValueError('Invalid independent P2.12 B-Rep: '+name)
     return parts
+
+def sample_isolated_thread_motion(parts:dict[str,cq.Shape])->dict:
+    """Six exact B-Rep checks of free RH/LH rod relative to rotated sleeve.
+
+    This is NOT full chassis toe motion or load-path certification.
+    """
+    tests=[]
+    sleeve_body=parts[PARTS['sleeve']]
+    for angle in (-90,0,90):
+        turned=sleeve_body.rotate(tuple(A),tuple(A+D),angle)
+        travel=THREAD_PITCH_MM*angle/360.
+        for label,shift in (('outer',-travel),('inner',travel)):
+            male=parts[PARTS[label]].translate(tuple(D*shift))
+            volume=turned.intersect(male).Volume()
+            tests.append({'sleeveAngleDeg':angle,'rodEnd':label,
+                          'rodAxialTranslationMm':round(shift,5),
+                          'positiveOverlapMm3':round(volume,6)})
+            if not np.isfinite(volume) or volume>.05:
+                raise ValueError('P2.12 thread pair limited-sweep collision: '+str(tests[-1]))
+    return {'sampleCount':len(tests),'samples':tests,
+            'maximumPositiveOverlapMm3':max(r['positiveOverlapMm3'] for r in tests),
+            'threadPairsPassLimitedSweep':True,
+            'anglesDeg':[-90,0,90],
+            'totalTheoreticalEyeSpanChangePerRevolutionMm':2*THREAD_PITCH_MM,
+            'chassisToeKinematicsCertified':False,
+            'fullDynamicAssemblyInterferenceTested':False}
 
 def all_parts()->dict[str,cq.Shape]:
     prior=p211_all_parts()
@@ -224,7 +258,11 @@ def build(out:Path)->dict:
         'bothLocknutFemaleGroovesModelled':True,
         'nominalThreadPhaseMatched':True,
         'threadedRodSpanMm':MALE_THREAD_HEIGHT_MM,
-        'threadGeometryRevision':'P2.12-R2-BREP-GROOVED',
+        'threadGeometryRevision':'P2.12-R2-BREP-GROOVED-RUNOUT',
+        'threadRunoutsModelled':True,
+        'threadRunoutRadiusMm':THREAD_RUNOUT_RADIUS_MM,
+        'threadRunoutIntervalsMm':THREAD_RUNOUT_INTERVALS_MM,
+        'isolatedThreadPairMotionEvidence':'separate 6-sample BRep sweep, not chassis dynamics',
         'sourceP28Modified':False,'modelBSourceModified':False,
         'actualChassisToeHardpointMeasured':False,
         'fullFemaleThreadProfileModelled':True,
