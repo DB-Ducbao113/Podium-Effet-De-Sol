@@ -199,7 +199,7 @@ def capture(url:str,p28:Path,out:Path,quality:str,p29:Path|None=None,
                 pair212=source212.get("nativeStaticAudit",{})
                 ids212=source212.get("partIds",[])
                 if (source212.get("schema") !=
-                    "podium-eds.p2.cad-first.rear-toe-adjuster-threaded.v2"
+                    "podium-eds.p2.cad-first.rear-toe-adjuster-threaded.v3"
                     or source212.get("totalCadSolids")!=19
                     or source212.get("newParts")!=5 or len(set(ids212))!=19
                     or source212.get("replacedPriorPartId")!="P211_REAR_TOE_LINK_TUBULAR_FORGED"
@@ -209,6 +209,8 @@ def capture(url:str,p28:Path,out:Path,quality:str,p29:Path|None=None,
                     or source212.get("fullFemaleThreadProfileModelled") is not True
                     or source212.get("threadRunoutsModelled") is not True
                     or source212.get("threadRunoutRadiusMm")!=10.12
+                    or source212.get("threadedRodSpanMm")!=24
+                    or source212.get("threadGeometryRevision")!="P2.12-R3-BREP-LOCKNUT-ENGAGEMENT"
                     or source212.get("sleeveOppositeHandGroovesModelled") is not True
                     or source212.get("bothLocknutFemaleGroovesModelled") is not True
                     or source212.get("mechanicalThreadEngagementCertified") is not False
