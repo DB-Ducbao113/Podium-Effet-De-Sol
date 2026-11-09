@@ -598,9 +598,31 @@ def main()->None:
                    "src/dev/assemblyPreview/rearToeSource.test.ts",
                    "src/dev/assemblyPreview/rearToeAdjusterSource.test.ts",
                    "src/dev/assemblyPreview/rearJointSource.test.ts",
-                   "src/dev/assemblyPreview/splitRaceSource.test.ts",timeout=300)
+                   "src/dev/assemblyPreview/splitRaceSource.test.ts",
+                   "src/dev/modelBAssembly/modelBAssemblyTimeline.test.ts",timeout=300)
             invoke(npm,"run","build","--workspace=@peds/web",timeout=900)
             gate("LOCAL_WEB_LINT_TYPES_TESTS_BUILD","PASS")
+        # Copy private checked CAD only into .local-assets (gitignored).
+        # The serve-only Vite plugin exposes seven fixed paths on loopback;
+        # nothing enters public/, production dist or Cloudflare.
+        staged=ROOT/".local-assets/model-b-scroll-preview"
+        invoke(sys.executable,TOOLS/"stage_model_b_scroll_assets.py",
+               "--p28-dir",source,"--p212-dir",p212_dir,
+               "--p214-dir",p214_dir,"--quality",a.quality,
+               "--out",staged,timeout=120)
+        index=json.loads((staged/"index.json").read_text(encoding="utf8"))
+        source_rows=index.get("sources",{})
+        if (index.get("schema")!="podium-eds.model-b-assembly.local-owner-cad.v1"
+            or index.get("quality")!=a.quality
+            or index.get("localOnlyNotDeployed") is not True
+            or index.get("noFabricatedGeometry") is not True
+            or index.get("mechanicalG2")!="HOLD"
+            or source_rows.get("p28",{}).get("meshCount")!=59
+            or source_rows.get("p212",{}).get("meshCount")!=19
+            or source_rows.get("p214",{}).get("meshCount")!=16):
+            raise RuntimeError("DEV-only Model B authentic CAD asset staging failed")
+        status["model_b_original_cad_local_auto_source"]=True
+        gate("MODEL_B_SCROLL_GITIGNORED_SHA_VERIFIED_AUTO_SOURCE","PASS")
         job=subprocess.Popen([
             npm,"run","dev","--workspace=@peds/web","--",
             "--host","127.0.0.1","--port","5184","--strictPort"],
