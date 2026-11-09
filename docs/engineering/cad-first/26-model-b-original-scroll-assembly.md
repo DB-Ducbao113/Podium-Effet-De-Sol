@@ -83,6 +83,41 @@ to simulate assembly. The import drawer explicitly reports missing CAD.
   gates; records the resultant scroll MP4's SHA-256 and source lineage.
 - None of these scripts uses GitHub Actions.
 
+## Automatic DEV CAD source (no repeated manual imports)
+
+The original Model B source is always loaded directly from the repository.
+The **existing local CAD review runner** now also invokes
+`tools/cad-first/stage_model_b_scroll_assets.py` after generating P2.8,
+P2.12 and P2.14. This strictly verifies each source manifest/GLB SHA-256 and
+copies only those originals into the **Git-ignored**
+`.local-assets/model-b-scroll-preview` folder. P2.14 additionally requires
+the real currently checked-out P2.14 generator and six upstream CAD hashes.
+
+The serve-only `apps/web/plugins/modelBLocalCadPlugin.ts` exposes just seven
+fixed, read-only paths beneath `/__peds-model-b-cad/`, rejects requests
+from non-loopback clients, supports no arbitrary filesystem paths and is
+absent from production builds. No private P2.8/P2.12/P2.14 binary is
+committed to GitHub or placed inside `apps/web/public`/production `dist`.
+
+On opening the scroll route, `ModelBAssemblyPage` reads the local source
+index and **automatically** verifies and loads the original 59/19/16 named
+CAD meshes in sequence. If no local bundle exists, the optional manual
+SHA-verified CAD SOURCE importer remains accessible. An invalid staged
+bundle is rejected rather than silently replaced by fake parts.
+`localSourceIndex.ts` and its Vitest tests reject incorrect counts,
+unexpected source names/URLs, missing P2.12 with P2.14, and any claim of
+mechanical G2 approval.
+
+Local original staging, if running Vite without the combined script:
+
+```powershell
+python tools/cad-first/stage_model_b_scroll_assets.py --p28-dir ".local-assets/cad-first/p28-owner-remate" --p212-dir ".local-assets/cad-first/p212-threaded-v3-source" --p214-dir ".local-assets/cad-first/p214-split-race-cad-source" --quality BALANCED
+```
+
+**These are local review export paths, not precommitted CAD binaries.** The
+full combined native review runner already knows the real resolved source
+folders and stages them automatically.
+
 ## Local owner browser testing
 
 From a repository checkout with npm and Python/Playwright/FFmpeg installed:
@@ -104,7 +139,7 @@ P2.12/P2.14 imports require the prior source to be loaded.
 For local real-browser MP4 from that Vite server:
 
 \`\`\`powershell
-python tools/cad-first/record_model_b_scroll_local.py --p28-dir ".local-assets/cad-first/p28-owner-remate" --p212-dir ".local-assets/cad-first/p212-threaded-v3-source" --p214-dir ".local-assets/cad-first/p214-split-race-cad-source" --quality BALANCED --out ".local-assets/model-b-real-scroll-video"
+python tools/cad-first/record_model_b_scroll_local.py --p28-dir ".local-assets/cad-first/p28-owner-remate" --p212-dir ".local-assets/cad-first/p212-threaded-v3-source" --p214-dir ".local-assets/cad-first/p214-split-race-cad-source" --quality BALANCED --out ".local-assets/model-b-real-scroll-video" --require-auto-source
 \`\`\`
 
 Those directories are representative local owner CAD export folders, **not
@@ -119,6 +154,8 @@ running local Vite DEV server (the combined runner starts it itself).
 The recorder requires all of the following before it can report completion:
 
 - Original Model B source requested and **HTTP 200**, parsed into the real WebGL scene.
+- With `--require-auto-source`, the 59/19/16 CAD meshes must decode **without
+  clicking any upload input**; the local endpoint bundle must be the only source.
 - Original source P2.8 contains 59 mesh IDs, plus P2.12 19 and P2.14 16 when
   their optional sources are included, and the corresponding UI decoded-mesh
   status is displayed after real GLTF parsing.
