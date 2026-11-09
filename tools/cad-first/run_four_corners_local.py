@@ -181,7 +181,7 @@ def main()->None:
         p212=json.loads(p212_manifest.read_text(encoding="utf8"))
         a212=p212.get("nativeStaticAudit",{})
         ids212=p212.get("partIds",[])
-        if (p212.get("schema")!="podium-eds.p2.cad-first.rear-toe-adjuster-threaded.v2"
+        if (p212.get("schema")!="podium-eds.p2.cad-first.rear-toe-adjuster-threaded.v3"
             or p212.get("sourcePartCount")!=19 or p212.get("totalCadSolids")!=19
             or p212.get("newParts")!=5 or len(set(ids212))!=19
             or p212.get("replacedPriorPartId")!="P211_REAR_TOE_LINK_TUBULAR_FORGED"
@@ -192,6 +192,9 @@ def main()->None:
             or p212.get("fullFemaleThreadProfileModelled") is not True
             or p212.get("threadRunoutsModelled") is not True
             or p212.get("threadRunoutRadiusMm")!=10.12
+            or p212.get("threadedRodSpanMm")!=24
+            or p212.get("threadGeometryRevision")!="P2.12-R3-BREP-LOCKNUT-ENGAGEMENT"
+            or p212.get("nominalNutBodyAxialRangesMm")!=[[47.5,53.5],[114.5,120.5]]
             or p212.get("sleeveOppositeHandGroovesModelled") is not True
             or p212.get("bothLocknutFemaleGroovesModelled") is not True
             or p212.get("threadGeometryRevision")!="P2.12-R2-BREP-GROOVED"
@@ -217,7 +220,7 @@ def main()->None:
             invoke(sys.executable,TOOLS/"p2_12_thread_sweep.py",
                    "--out",sweep_path,timeout=240)
         sweep=json.loads(sweep_path.read_text(encoding="utf8"))
-        if (sweep.get("cadSourceSchema")!="podium-eds.p2.cad-first.rear-toe-adjuster-threaded.v2"
+        if (sweep.get("cadSourceSchema")!="podium-eds.p2.cad-first.rear-toe-adjuster-threaded.v3"
             or sweep.get("sampleCount")!=6
             or sweep.get("anglesDeg")!=[-90,0,90]
             or sweep.get("threadPairsPassLimitedSweep") is not True
