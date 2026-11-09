@@ -16,6 +16,8 @@ import RearUprightInstances from './RearUprightInstances';
 import RearSuspensionInstances from './RearSuspensionInstances';
 import RearToeInstances from './RearToeInstances';
 import RearToeAdjusterInstances from './RearToeAdjusterInstances';
+import RearJointInstances from './RearJointInstances';
+import type {RearJointSource} from './rearJointSource';
 import type { ToeAdjusterSource } from './rearToeAdjusterSource';
 import type { RearToeSource } from './rearToeSource';
 import type { RearSuspensionSource } from './rearSuspensionSource';
@@ -29,6 +31,7 @@ type Props = {
   rearSuspensionSource: RearSuspensionSource | null;
   rearToeSource: RearToeSource | null;
   rearToeAdjusterSource: ToeAdjusterSource | null;
+  rearJointSource: RearJointSource | null;
   placement: Placement;
   shellOpacity: number;
   selectedPart: string | null;
@@ -116,7 +119,7 @@ function needsRecomputedSourceNormals(geometry:THREE.BufferGeometry):boolean {
   return checked>0 && invalid/checked>.05;
 }
 
-function Scene({source,rearUprightSource,rearSuspensionSource,rearToeSource,rearToeAdjusterSource,placement,shellOpacity,selectedPart,cameraFocus,cornerPresentation,technicalMaterials,
+function Scene({source,rearUprightSource,rearSuspensionSource,rearToeSource,rearToeAdjusterSource,rearJointSource,placement,shellOpacity,selectedPart,cameraFocus,cornerPresentation,technicalMaterials,
   allFourWheelsEnabled,activeWheelId,showroomWheelWindowsEnabled,registration,measuredFit,measuredOverlayEnabled,onError,onInfo,
   pickMode,onPointPick,onBodyPartNames,hiddenBodyMeshes,onResolvedTransform,onGeometryProbe,p28GeometryProfile}:Props) {
   const {camera,invalidate} = useThree();
@@ -386,7 +389,12 @@ function Scene({source,rearUprightSource,rearSuspensionSource,rearToeSource,rear
       <RearToeInstances source={rearToeSource} fit={measuredFit} onError={onError} onLoaded={onInfo}/>}
     {rearToeAdjusterSource&&source&&measuredFit&&fourMounts&&allFourWheelsEnabled&&measuredOverlayEnabled&&
       <RearToeAdjusterInstances source={rearToeAdjusterSource} fit={measuredFit}
+        replaceBearingProxies={!!rearJointSource}
         onError={onError} onLoaded={onInfo}/>}
+    {rearJointSource&&rearToeAdjusterSource&&source&&measuredFit&&fourMounts&&allFourWheelsEnabled&&measuredOverlayEnabled&&
+      <RearJointInstances source={rearJointSource} fit={measuredFit}
+        onError={onError} onLoaded={onInfo}/>}
+
 
 
 
