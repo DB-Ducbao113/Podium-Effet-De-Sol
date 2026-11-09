@@ -489,7 +489,7 @@ export default function AssemblyPreviewPage(){
             dynamic bump/toe solution, rear driveshaft clearance or structural strength.</small>
         </div>
         <div className="peds-assembly-controls-section" aria-label="P2.12 original rear toe adjuster source">
-          <h2>01E / P2.12 RH/LH threaded rear toe adjuster v2</h2>
+          <h2>01E / P2.12 RH/LH threaded rear toe adjuster v3</h2>
           <p>The original P2.11 fixed rod is removed and replaced with two
             project-authored left/right-hand helical rod ends, a hollow sleeve
             and two separate locknuts. P2.9–P2.11 previous instances are
@@ -507,7 +507,7 @@ export default function AssemblyPreviewPage(){
             'P2.12 SOURCE VERIFIED / '+toeAdjusterSource.profile+
             ' / 19 ORIGINAL CAD PARTS / TWO REAR STATIONS':
             'P2.12 not loaded — the previous rear source remains active.'}</small>
-          <small><strong>THREADED V2 / G2 HOLD:</strong> Native RH/LH
+          <small><strong>THREADED V3 / G2 HOLD:</strong> Native RH/LH
             female helical grooves are now present in both the sleeve and
             locknuts and pass the nominal source static audit. Load transfer,
             thread wear, preload, adjustment travel and verified chassis
