@@ -80,7 +80,8 @@ def main()->None:
         invoke(sys.executable,TOOLS/"test_p2_9_rear_upright.py",timeout=150)
         invoke(sys.executable,TOOLS/"test_p2_10_rear_wishbone.py",timeout=180)
         invoke(sys.executable,TOOLS/"test_p2_11_rear_toe_link.py",timeout=180)
-        invoke(sys.executable,TOOLS/"test_p2_12_toe_adjuster.py",timeout=300)
+        invoke(sys.executable,TOOLS/"run_p212_tests_isolated.py",
+               "--out",out/"p212-isolated-native-qa.json",timeout=750)
         invoke(sys.executable,TOOLS/"test_rebuild_owner_p28.py",timeout=150)
         invoke(sys.executable,TOOLS/"test_audit_assembly_mesh.py",timeout=150)
         gate("LOCAL_SOURCE_PROVENANCE_UNIT_TESTS","PASS")
