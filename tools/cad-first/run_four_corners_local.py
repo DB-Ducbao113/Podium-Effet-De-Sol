@@ -170,7 +170,7 @@ def main()->None:
                 raise RuntimeError("P2.11 source GLB and mesh identities invalid: "+tier)
         status["independent_p211_rear_toe_static_cad"]=True
         gate("INDEPENDENT_P211_REAR_TOE_NATIVE_105_PAIR_STATIC","PASS")
-        p212_dir=out/"p212-rear-adjuster-source"
+        p212_dir=out/"p212-threaded-v2-source"
         if not p212_dir.is_dir():
             invoke(sys.executable,TOOLS/"p2_12_toe_adjuster.py",
                    "--out",p212_dir,timeout=600)
@@ -180,7 +180,7 @@ def main()->None:
         p212=json.loads(p212_manifest.read_text(encoding="utf8"))
         a212=p212.get("nativeStaticAudit",{})
         ids212=p212.get("partIds",[])
-        if (p212.get("schema")!="podium-eds.p2.cad-first.rear-toe-adjuster-static-proposal.v1"
+        if (p212.get("schema")!="podium-eds.p2.cad-first.rear-toe-adjuster-threaded.v2"
             or p212.get("sourcePartCount")!=19 or p212.get("totalCadSolids")!=19
             or p212.get("newParts")!=5 or len(set(ids212))!=19
             or p212.get("replacedPriorPartId")!="P211_REAR_TOE_LINK_TUBULAR_FORGED"
@@ -188,7 +188,10 @@ def main()->None:
             or p212.get("outerThreadHand")!="RIGHT"
             or p212.get("innerThreadHand")!="LEFT"
             or p212.get("actualChassisToeHardpointMeasured") is not False
-            or p212.get("fullFemaleThreadProfileModelled") is not False
+            or p212.get("fullFemaleThreadProfileModelled") is not True
+            or p212.get("sleeveOppositeHandGroovesModelled") is not True
+            or p212.get("bothLocknutFemaleGroovesModelled") is not True
+            or p212.get("threadGeometryRevision")!="P2.12-R2-BREP-GROOVED"
             or p212.get("mechanicalThreadEngagementCertified") is not False
             or p212.get("toeAdjustmentTravelCertified") is not False
             or p212.get("mechanicalMateCertified") is not False
