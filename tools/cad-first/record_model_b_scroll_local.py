@@ -39,7 +39,8 @@ def check_source(folder:Path,manifest_file:str,quality:str)->tuple[Path,Path,dic
     return path,glb,record
 
 def capture(url:str,out:Path,p28:Path,quality:str='BALANCED',
-            p212:Path|None=None,p214:Path|None=None,frames:int=96,fps:int=16)->dict[str,Any]:
+            p212:Path|None=None,p214:Path|None=None,frames:int=96,fps:int=16,
+            require_auto_source:bool=False)->dict[str,Any]:
     if frames<48 or frames>360 or fps<8 or fps>60:
         raise ValueError('Capture must contain 48–360 real browser frames at 8–60 FPS')
     if p214 and not p212:
@@ -69,6 +70,7 @@ def capture(url:str,out:Path,p28:Path,quality:str='BALANCED',
       'route':url,'quality':quality,
       'originalModelBSourceFile':'/models/model-b-eds-optimized-v1.glb',
       'p28OriginalSHA256':front_record['profiles'][quality]['sha256'],
+      'autoSourceMandatory':require_auto_source,'autoSourceVerified':False,
       'p212SHA256':rear[2]['profiles'][quality]['sha256'] if rear else None,
       'p214SHA256':split[2]['profiles'][quality]['sha256'] if split else None,
       'originalModelBHTTP200':False,'modelBDecoded':False,
@@ -107,24 +109,37 @@ def capture(url:str,out:Path,p28:Path,quality:str='BALANCED',
                 raise RuntimeError('Actual original Model B asset was not fetched with HTTP 200')
             canvas=page.locator('.mb-build-webgl canvas')
             canvas.wait_for(state='visible',timeout=20000)
-            page.get_by_role('button',name='CAD SOURCE',exact=False).click()
-            imports=page.locator('.mb-build-input')
-            if imports.count()!=3:raise RuntimeError('Model B P2.8/P2.12/P2.14 importer missing')
-            imports.nth(0).locator('input[type=file]').nth(0).set_input_files(str(front_manifest))
-            imports.nth(0).locator('input[type=file]').nth(1).set_input_files(str(front_glb))
-            page.get_by_text('59 CAD MESHES DECODED',exact=True).wait_for(timeout=90000)
-            audit['p28Decoded59']=True
-            if rear:
-                imports.nth(1).locator('input[type=file]').nth(0).set_input_files(str(rear[0]))
-                imports.nth(1).locator('input[type=file]').nth(1).set_input_files(str(rear[1]))
-                page.get_by_text('19 CAD MESHES DECODED',exact=True).wait_for(timeout=45000)
-                audit['p212Decoded19']=True
-            if split:
-                imports.nth(2).locator('input[type=file]').nth(0).set_input_files(str(split[0]))
-                imports.nth(2).locator('input[type=file]').nth(1).set_input_files(str(split[1]))
-                page.get_by_text('16 CAD MESHES DECODED · G2 HOLD',exact=True).wait_for(timeout=45000)
-                audit['p214Decoded16']=True
-            page.get_by_role('button',name='Close CAD source input').click()
+            if require_auto_source:
+                # This must work WITHOUT clicking import or uploading source
+                # files. The checked real GLBs are served by local-only Vite.
+                page.locator('.mb-build-source-wrap[data-p28-cad-ready="true"]').wait_for(timeout=90000)
+                audit['p28Decoded59']=True
+                if rear:
+                    page.locator('.mb-build-source-wrap[data-p212-cad-ready="true"]').wait_for(timeout=90000)
+                    audit['p212Decoded19']=True
+                if split:
+                    page.locator('.mb-build-source-wrap[data-p214-cad-ready="true"]').wait_for(timeout=90000)
+                    audit['p214Decoded16']=True
+                audit['autoSourceVerified']=True
+            else:
+                page.get_by_role('button',name='CAD SOURCE',exact=False).click()
+                imports=page.locator('.mb-build-input')
+                if imports.count()!=3:raise RuntimeError('Original P2.8/P2.12/P2.14 importer missing')
+                imports.nth(0).locator('input[type=file]').nth(0).set_input_files(str(front_manifest))
+                imports.nth(0).locator('input[type=file]').nth(1).set_input_files(str(front_glb))
+                page.get_by_text('59 CAD MESHES DECODED',exact=True).wait_for(timeout=90000)
+                audit['p28Decoded59']=True
+                if rear:
+                    imports.nth(1).locator('input[type=file]').nth(0).set_input_files(str(rear[0]))
+                    imports.nth(1).locator('input[type=file]').nth(1).set_input_files(str(rear[1]))
+                    page.get_by_text('19 CAD MESHES DECODED',exact=True).wait_for(timeout=45000)
+                    audit['p212Decoded19']=True
+                if split:
+                    imports.nth(2).locator('input[type=file]').nth(0).set_input_files(str(split[0]))
+                    imports.nth(2).locator('input[type=file]').nth(1).set_input_files(str(split[1]))
+                    page.get_by_text('16 CAD MESHES DECODED · G2 HOLD',exact=True).wait_for(timeout=45000)
+                    audit['p214Decoded16']=True
+                page.get_by_role('button',name='Close CAD source input').click()
             errors=page.locator('.mb-build-feedback[role=alert]')
             if errors.count():
                 raise RuntimeError('Source review UI reports: '+errors.first.inner_text())
@@ -210,12 +225,13 @@ def main()->None:
     p.add_argument('--out',type=Path,required=True)
     p.add_argument('--quality',choices=['HIGH','BALANCED','PERFORMANCE'],default='BALANCED')
     p.add_argument('--frames',type=int,default=96)
+    p.add_argument('--require-auto-source',action='store_true')
     p.add_argument('--fps',type=int,default=16)
     a=p.parse_args()
     r=capture(a.url,a.out.resolve(),a.p28_dir.resolve(),a.quality,
               a.p212_dir.resolve() if a.p212_dir else None,
               a.p214_dir.resolve() if a.p214_dir else None,
-              frames=a.frames,fps=a.fps)
+              frames=a.frames,fps=a.fps,require_auto_source=a.require_auto_source)
     print('MODEL B REAL CHROMIUM VIDEO:',r['videoFile'],r['videoSHA256'])
 
 if __name__=='__main__':main()
