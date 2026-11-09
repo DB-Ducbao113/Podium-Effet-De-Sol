@@ -1,5 +1,5 @@
 import {useEffect,useMemo,useState,type RefObject} from 'react';
-import {Canvas,useFrame,useThree} from '@react-three/fiber';
+import {Canvas,useFrame,useThree,type ThreeEvent} from '@react-three/fiber';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 import {MeshoptDecoder} from 'meshoptimizer';
 import {RoomEnvironment} from 'three/examples/jsm/environments/RoomEnvironment.js';
@@ -16,6 +16,8 @@ import {classifyP28Part} from '../assemblyPreview/cadPresentation';
 import {pivotSourceMeshAtCentroid,applyVisualScrewSpin,
  type CadAnimatedPivot} from './sourcePartPivot';
 import {rearVisualPartIds,type RearVisualParts} from './rearVisualComposite';
+import {inspectOriginalCadMesh,type InspectedCadPart} from './cadPartInspector';
+import type {WheelId} from '../assemblyPreview/fourCornerLayout';
 import {
  clamp01,exteriorSeparation,originalPartAssembly,rearSourceAssembly,
  visualShellOpacity,wheelOffset,stablePartOffset,
@@ -31,6 +33,7 @@ type Props={
  onReady:(which:'model-b'|'p28'|'rear-toe'|'p214',meshCount:number)=>void;
  onFit:(value:OwnerMeasuredFit|null)=>void;
  onRearComposite:(value:RearVisualParts|null)=>void;
+ onInspect:(part:InspectedCadPart)=>void;
  onError:(message:string)=>void;
 };
 type Decoded={model:THREE.Group;probe?:SourceGeometryProbe};
@@ -168,7 +171,10 @@ function createWheelVisual(
  const rearComposite=toe?rearVisualPartIds(rearNames,joints?jointNames:null):null;
  const allowedRearPartNames=rearComposite?new Set(rearComposite.visiblePartNames):null;
  function bindMesh(mesh:THREE.Mesh,kind:AnimatedMesh['kind'],
-     offset:THREE.Vector3){
+     offset:THREE.Vector3,station:WheelId){
+   mesh.userData.pedsCadOrigin=kind;
+   mesh.userData.pedsWheelStation=station;
+   mesh.userData.pedsCadPartId=mesh.name;
    const animatedScrew=kind==='p28'&&classifyP28Part(mesh.name)==='hardware'
      ?pivotSourceMeshAtCentroid(mesh):null;
    const target=animatedScrew?.root??mesh;
@@ -196,7 +202,7 @@ function createWheelVisual(
      const [x,y,z]=wheelOffset(o.name,mount.station);
      // Native hardware rotates about its measured local geometry centroid.
      // The pivot has an exactly identical final world matrix to the source.
-     bindMesh(o,'p28',new THREE.Vector3(x,y,z));
+     bindMesh(o,'p28',new THREE.Vector3(x,y,z),mount.id);
    }
    carrier.add(partRoot);
    root.add(carrier);
@@ -220,7 +226,7 @@ function createWheelVisual(
        const offset=kind==='rear-toe'
          ?new THREE.Vector3(-.55,e+.05,mount.side*.60)
          :new THREE.Vector3(-.20,e+.25,mount.side*.48);
-       bindMesh(o,kind,offset);
+       bindMesh(o,kind,offset,mount.id);
      });
      carrier.add(view);
      root.add(carrier);
@@ -252,7 +258,7 @@ function StudioLights(){
   <pointLight position={[1.5,2,-3]} intensity={32} distance={12} color="#8aaeff"/>
  </>;
 }
-function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRace,onReady,onFit,onRearComposite,onError}:Props){
+function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRace,onReady,onFit,onRearComposite,onInspect,onError}:Props){
  const {camera,size}=useThree();
  const original=useOriginalBody(onReady,onError);
  const originalPartNames=useMemo(()=>corner?.parts.map(x=>x.node)??[],[corner]);
