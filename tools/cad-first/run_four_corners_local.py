@@ -88,6 +88,7 @@ def main()->None:
                "--out",out/"p213-isolated-native-qa.json",timeout=550)
         invoke(sys.executable,TOOLS/"test_p2_14_split_spherical_race.py",timeout=150)
         invoke(sys.executable,TOOLS/"test_stage_model_b_scroll_assets.py",timeout=70)
+        invoke(sys.executable,TOOLS/"test_compose_rear31_visual.py",timeout=70)
         invoke(sys.executable,TOOLS/"test_rebuild_owner_p28.py",timeout=150)
         invoke(sys.executable,TOOLS/"test_audit_assembly_mesh.py",timeout=150)
         gate("LOCAL_SOURCE_PROVENANCE_UNIT_TESTS","PASS")
