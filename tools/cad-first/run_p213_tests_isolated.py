@@ -25,8 +25,13 @@ def run(out:Path,timeout_per_case:int=100)->dict:
     records=[]
     for name in CASES:
         t=time.monotonic()
-        args=[sys.executable,'-m','unittest','-v',
-              'test_p2_13_rear_joint_prototype.P213NativeJointTests.'+name]
+        name_path='test_p2_13_rear_joint_prototype.P213NativeJointTests.'+name
+        worker=('import os,sys,unittest;'
+                'suite=unittest.defaultTestLoader.loadTestsFromName('+repr(name_path)+');'
+                'result=unittest.TextTestRunner(verbosity=2).run(suite);'
+                'sys.stdout.flush();sys.stderr.flush();'
+                'os._exit(0 if result.wasSuccessful() else 1)')
+        args=[sys.executable,'-c',worker]
         try:
             result=subprocess.run(args,cwd=HERE,capture_output=True,text=True,
                                   timeout=timeout_per_case,check=False)
