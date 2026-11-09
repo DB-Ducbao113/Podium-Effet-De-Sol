@@ -15,6 +15,7 @@ import {
 } from '../assemblyPreview/splitRaceSource';
 import {chapterAt,clamp01,MODEL_B_CHAPTERS} from './modelBAssemblyTimeline';
 import {readLocalAutoCadIndex,type AutoCadRow} from './localSourceIndex';
+import {ORIGINAL_MODEL_B_SOURCE} from './originalModelBSource';
 import type {OwnerMeasuredFit} from '../assemblyPreview/ownerMeasuredFit';
 import type {RearVisualParts} from './rearVisualComposite';
 import type {InspectedCadPart} from './cadPartInspector';
@@ -337,6 +338,10 @@ export default function ModelBAssemblyPage(){
            mechanical assembly or a manufacturing simulation.</p>
        </aside>}
        <div className="mb-build-source-wrap"
+         data-owner-model-b-git-blob-sha1={
+           ready['model-b']?ORIGINAL_MODEL_B_SOURCE.gitBlobSHA1:'unverified'}
+         data-owner-model-b-git-file-bytes={
+           ready['model-b']?ORIGINAL_MODEL_B_SOURCE.bytes:0}
          data-original-model-b-wheel-fit={measuredFit?.wheels.length===4&&cadLoaded?'true':'false'}
          data-wheel-station-count={measuredFit?.wheels.length??0}
          data-rear-composite-cad-parts={rearComposite?.count??0}
