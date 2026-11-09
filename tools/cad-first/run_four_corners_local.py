@@ -88,6 +88,7 @@ def main()->None:
                "--out",out/"p213-isolated-native-qa.json",timeout=550)
         invoke(sys.executable,TOOLS/"test_p2_14_split_spherical_race.py",timeout=150)
         invoke(sys.executable,TOOLS/"test_stage_model_b_scroll_assets.py",timeout=70)
+        invoke(sys.executable,TOOLS/"test_verify_original_model_b_asset.py",timeout=30)
         invoke(sys.executable,TOOLS/"test_compose_rear31_visual.py",timeout=70)
         invoke(sys.executable,TOOLS/"test_rebuild_owner_p28.py",timeout=150)
         invoke(sys.executable,TOOLS/"test_audit_assembly_mesh.py",timeout=150)
@@ -619,6 +620,24 @@ def main()->None:
             raise RuntimeError("P2.12/P2.14 exact original 31 CAD mesh GLB composition FAILED")
         status["rear31_original_source_glb"]=str(rear31_glb)
         gate("P212_P214_ORIGINAL_REAR_31_SOURCE_CAD_SINGLE_GLB","PASS")
+        # The exact owner Model B showroom binary is committed in this
+        # checkout. Verify its Git blob SHA, not merely original-looking
+        # shape/dimensions or a matching filename, BEFORE launching Vite.
+        modelBProofFile=out/"original-model-b-source-integrity.json"
+        invoke(sys.executable,TOOLS/"verify_original_model_b_asset.py",
+               "--out",modelBProofFile,timeout=60)
+        modelBProof=json.loads(modelBProofFile.read_text(encoding="utf8"))
+        if (modelBProof.get("schema")!="podium-eds.owner-model-b-original-file-git-integrity.v1"
+            or modelBProof.get("sourceProvenance")!="PODIUM_EDS_GITHUB_COMMITTED_OWNER_MODEL_B_GLB"
+            or modelBProof.get("fileBytes")!=2120816
+            or modelBProof.get("gitBlobSHA1")!="74fbd44daf709d0d368adef9de66e4e22a49fed4"
+            or modelBProof.get("gitBlobIdentityValid") is not True
+            or modelBProof.get("rendererDecoded") is not False
+            or modelBProof.get("fourWheelCadMated") is not False
+            or modelBProof.get("mechanicalG2")!="HOLD"):
+            raise RuntimeError("Original owner's Model B showroom source Git identity invalid")
+        status["owner_model_b_original_git_glb_sha1"]=modelBProof["gitBlobSHA1"]
+        gate("OWNER_MODEL_B_ORIGINAL_COMMITTED_GIT_BLOB_SOURCE","PASS")
         npm=shutil.which("npm")
         if npm is None:raise RuntimeError("Node/npm missing")
         if not a.skip_web_qa:
@@ -641,7 +660,8 @@ def main()->None:
                    "src/dev/modelBAssembly/rearVisualComposite.test.ts",
                    "src/dev/modelBAssembly/cadPartInspector.test.ts",
                    "src/dev/modelBAssembly/cadPartCatalog.test.ts",
-                   "src/dev/modelBAssembly/cadFocus.test.ts",timeout=300)
+                   "src/dev/modelBAssembly/cadFocus.test.ts",
+                   "src/dev/modelBAssembly/originalModelBSource.test.ts",timeout=300)
             invoke(npm,"run","build","--workspace=@peds/web",timeout=900)
             gate("LOCAL_WEB_LINT_TYPES_TESTS_BUILD","PASS")
         # Copy private checked CAD only into .local-assets (gitignored).
