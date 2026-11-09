@@ -23,6 +23,7 @@ type SourceName='front'|'toe'|'split';
 
 export default function ModelBAssemblyPage(){
  const track=useRef<HTMLElement|null>(null);
+ const manualChosen=useRef(false);
  const titleRef=useRef<HTMLHeadingElement|null>(null);
  const progressRef=useRef(0);
  const [progress,setProgress]=useState(0);
@@ -45,6 +46,79 @@ export default function ModelBAssemblyPage(){
    const listener=()=>setReducedMotion(m.matches);
    m.addEventListener('change',listener);
    return()=>m.removeEventListener('change',listener);
+ },[]);
+ // DEV-only local source. When original SHA-checked CAD was staged by the
+ // native local runner, show the full owner Model B build without file pickers.
+ // No production /public asset, no generated lookalike car, no remote upload.
+ useEffect(()=>{
+   let active=true;
+   const base='/__peds-model-b-cad';
+   type BundleRow={originalGlbFileName:string;sha256:string;meshCount:number};
+   type Bundle={
+     schema:string;mechanicalG2:string;localOnlyNotDeployed:boolean;
+     noFabricatedGeometry:boolean;
+     sources:Partial<Record<'p28'|'p212'|'p214',BundleRow>>;
+   };
+   const checkedFetch=async(relative:string)=>{
+     const response=await fetch(base+relative,{cache:'no-store'});
+     if(!response.ok)
+       throw Error('Original local CAD unavailable: '+relative+' HTTP '+response.status);
+     return response;
+   };
+   const sourceFile=async(kind:'p28'|'p212'|'p214',record:BundleRow)=>{
+     const bytes=await (await checkedFetch('/'+kind+'/source.glb')).arrayBuffer();
+     return new File([bytes],record.originalGlbFileName,{type:'model/gltf-binary'});
+   };
+   const load=async()=>{
+     try{
+       const response=await fetch(base+'/index.json',{cache:'no-store'});
+       if(response.status===404)return; // manual manifest and GLB import still works
+       if(!response.ok)throw Error('Local source index HTTP '+response.status);
+       const bundle=await response.json() as Bundle;
+       if(bundle.schema!=='podium-eds.model-b-assembly.local-owner-cad.v1'||
+         bundle.localOnlyNotDeployed!==true||
+         bundle.noFabricatedGeometry!==true||
+         bundle.mechanicalG2!=='HOLD'||!bundle.sources.p28)
+         throw Error('Untrusted owner source index');
+       const frontJson=await (await checkedFetch('/p28/manifest.json')).json() as unknown;
+       const front=await verifyCadSource(frontJson,
+         await sourceFile('p28',bundle.sources.p28));
+       if(front.scope!=='front-corner'||front.parts.length!==59||
+         bundle.sources.p28.meshCount!==59||
+         front.manifest.profiles[front.profile].sha256!==bundle.sources.p28.sha256)
+         throw Error('Original 59-part P2.8 index/source mismatch');
+       if(!active||manualChosen.current)return;
+       setSourceManifest(frontJson);setCorner(front);
+       if(bundle.sources.p212){
+         const manifest=readToeAdjusterManifest(await
+           (await checkedFetch('/p212/manifest.json')).json() as unknown);
+         const checked=await verifyToeAdjusterSource(manifest,
+           await sourceFile('p212',bundle.sources.p212));
+         if(bundle.sources.p212.meshCount!==19||
+           manifest.profiles[checked.profile].sha256!==bundle.sources.p212.sha256)
+           throw Error('Original 19-part rear toe source index mismatch');
+         if(!active||manualChosen.current)return;
+         setToeManifest(manifest);setRearToe(checked);
+       }
+       if(bundle.sources.p214){
+         if(!bundle.sources.p212)throw Error('P2.14 requires P2.12');
+         const manifest=readSplitRaceManifest(await
+           (await checkedFetch('/p214/manifest.json')).json() as unknown);
+         const checked=await verifySplitRaceSource(manifest,
+           await sourceFile('p214',bundle.sources.p214));
+         if(bundle.sources.p214.meshCount!==16||
+           manifest.profiles[checked.profile].sha256!==bundle.sources.p214.sha256)
+           throw Error('Original 16-part split-race source index mismatch');
+         if(!active||manualChosen.current)return;
+         setSplitManifest(manifest);setSplitRace(checked);
+       }
+     }catch(cause){
+       if(active&&!manualChosen.current)
+         setError('Original local CAD staging rejected: '+String(cause));
+     }
+   };
+   void load();
+   return()=>{active=false;};
  },[]);
  useEffect(()=>{
    let frame=0;
@@ -103,6 +177,7 @@ export default function ModelBAssemblyPage(){
    const file=event.target.files?.[0];
    event.target.value='';
    if(!file)return;
+   manualChosen.current=true;
    setError('');
    resetReady(kind);
    if(kind==='front'){
@@ -122,6 +197,7 @@ export default function ModelBAssemblyPage(){
    const file=event.target.files?.[0];
    event.target.value='';
    if(!file)return;
+   manualChosen.current=true;
    setBusy(kind);setError('');
    resetReady(kind);
    if(kind==='front'){setCorner(null);setRearToe(null);setSplitRace(null);}
