@@ -748,6 +748,8 @@ def main()->None:
             or scroll.get("autoSourceMandatory") is not True
             or scroll.get("autoSourceVerified") is not True
             or scroll.get("originalModelBHTTP200") is not True
+            or scroll.get("originalModelBGitBlobSHA1Verified") is not True
+            or scroll.get("originalModelBGitBlobSHA1")!="74fbd44daf709d0d368adef9de66e4e22a49fed4"
             or scroll.get("modelBDecoded") is not True
             or scroll.get("p28Decoded59") is not True
             or scroll.get("fourOriginalModelBWheelCentresRegistered") is not True
