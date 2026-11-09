@@ -15,9 +15,18 @@ function fixture() {
     totalCadSolids:19,masterSTEPsha256:'b'.repeat(64),
     outerThreadHand:'RIGHT',innerThreadHand:'LEFT',
     externalHelicalCrestsModelled:true,pitchMm:2,
-    radialSleeveClearanceMm:.4,
+    femaleSleeveMinorRadiusMm:9.05,
+    femaleThreadMajorRadiusMm:10.08,
+    femaleThreadGrooveDepthMm:1.03,
+    rodRootRadialClearanceMm:.2,
+    threadCrestRadialClearanceMm:.46,
+    sleeveOppositeHandGroovesModelled:true,
+    bothLocknutFemaleGroovesModelled:true,
+    nominalThreadPhaseMatched:true,
+    threadedRodSpanMm:34,
+    threadGeometryRevision:'P2.12-R2-BREP-GROOVED',
     sourceP28Modified:false,modelBSourceModified:false,
-    actualChassisToeHardpointMeasured:false,fullFemaleThreadProfileModelled:false,
+    actualChassisToeHardpointMeasured:false,fullFemaleThreadProfileModelled:true,
     mechanicalThreadEngagementCertified:false,toeAdjustmentTravelCertified:false,
     locknutTorqueCertified:false,dynamicToeKinematicsCertified:false,
     mechanicalMateCertified:false,
@@ -38,6 +47,10 @@ describe('P2.12 RH/LH toe adjuster source guard',()=>{
     const m=readToeAdjusterManifest(fixture());
     expect(m.partIds).toHaveLength(19);
     expect(m.newPartIds).toHaveLength(5);
+    expect(m.fullFemaleThreadProfileModelled).toBe(true);
+    expect(m.sleeveOppositeHandGroovesModelled).toBe(true);
+    expect(m.bothLocknutFemaleGroovesModelled).toBe(true);
+    expect(m.threadCrestRadialClearanceMm).toBeCloseTo(.46);
     expect(m.mechanicalThreadEngagementCertified).toBe(false);
     expect(m.actualChassisToeHardpointMeasured).toBe(false);
   });
@@ -49,15 +62,21 @@ describe('P2.12 RH/LH toe adjuster source guard',()=>{
   });
   it('rejects false real female thread engagement, toe travel and chassis proof',()=>{
     for(const key of ['mechanicalThreadEngagementCertified',
-      'fullFemaleThreadProfileModelled','toeAdjustmentTravelCertified',
+      'toeAdjustmentTravelCertified',
       'actualChassisToeHardpointMeasured','mechanicalMateCertified']) {
       expect(()=>readToeAdjusterManifest({...fixture(),[key]:true})).toThrow(/flags/);
     }
   });
   it('rejects incorrect thread hands, unverified clearances or incomplete BRep pairs',()=>{
+    expect(()=>readToeAdjusterManifest({...fixture(),fullFemaleThreadProfileModelled:false}))
+      .toThrow(/flags/);
+    expect(()=>readToeAdjusterManifest({...fixture(),bothLocknutFemaleGroovesModelled:false}))
+      .toThrow(/flags/);
+    expect(()=>readToeAdjusterManifest({...fixture(),threadCrestRadialClearanceMm:-.1}))
+      .toThrow(/flags/);
     expect(()=>readToeAdjusterManifest({...fixture(),outerThreadHand:'LEFT'}))
       .toThrow(/flags/);
-    expect(()=>readToeAdjusterManifest({...fixture(),radialSleeveClearanceMm:0}))
+    expect(()=>readToeAdjusterManifest({...fixture(),femaleThreadGrooveDepthMm:0}))
       .toThrow(/flags/);
     const original=fixture();
     expect(()=>readToeAdjusterManifest({...original,nativeStaticAudit:{
