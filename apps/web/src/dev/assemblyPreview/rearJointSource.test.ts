@@ -19,6 +19,10 @@ function fixture() {
     newCadPartIds:[...P213_PARTS],newCadSolids:8,
     replacedOldCadSolids:4,candidateCombinedCadSolids:23,
     stepRoundtripSolids:8,masterSTEPsha256:'c'.repeat(64),
+    combinedNominalStaticAudit:{pairCount:253,aabbExcluded:218,
+      nativeBrepIntersectionsEvaluated:35,
+      unresolvedCollisions:[],booleanErrors:[],passStatic:true,
+      dynamicKinematicsCertified:false},
     nominalSphericalRadialGapMm:.3,
     sphericalBallRetainedCertified:false,
     actualSphericalArticulationCertified:false,
@@ -46,6 +50,7 @@ describe('P2.13 provisional rear spherical joint source guard',()=>{
     expect(m.newCadPartIds).toHaveLength(8);
     expect(m.replacedOldCadSolids).toBe(4);
     expect(m.candidateCombinedCadSolids).toBe(23);
+    expect(m.combinedNominalStaticAudit.pairCount).toBe(253);
   });
   it('requires 28 pose joint checks, no claimed G2 approval',()=>{
     const m=readRearJointManifest(fixture());
@@ -70,6 +75,17 @@ describe('P2.13 provisional rear spherical joint source guard',()=>{
     expect(()=>readRearJointManifest({
       ...x,replaceAnnularProxies:{...x.replaceAnnularProxies,UPPER:'bad'},
     })).toThrow(/lineage/);
+  });
+  it('rejects a missing or contradicted 253-body pair audit',()=>{
+    const x=fixture();
+    expect(()=>readRearJointManifest({
+      ...x,combinedNominalStaticAudit:{...x.combinedNominalStaticAudit,
+        nativeBrepIntersectionsEvaluated:34},
+    })).toThrow(/253/);
+    expect(()=>readRearJointManifest({
+      ...x,combinedNominalStaticAudit:{...x.combinedNominalStaticAudit,
+        unresolvedCollisions:[{a:'a',b:'b'}]},
+    })).toThrow(/253/);
   });
   it('rejects positive race-ball overlap and missing LOD integrity',()=>{
     const x=fixture();
