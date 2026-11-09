@@ -16,6 +16,7 @@ import {classifyP28Part} from '../assemblyPreview/cadPresentation';
 import {pivotSourceMeshAtCentroid,applyVisualScrewSpin,
  type CadAnimatedPivot} from './sourcePartPivot';
 import {rearVisualPartIds,type RearVisualParts} from './rearVisualComposite';
+import {ORIGINAL_MODEL_B_SOURCE,verifyOriginalModelBBinary} from './originalModelBSource';
 import {inspectOriginalCadMesh,type InspectedCadPart} from './cadPartInspector';
 import {locateSelectedCadMesh,sourceMeshWorldCentre,highlightSourceMaterials} from './cadFocus';
 import type {WheelId} from '../assemblyPreview/fourCornerLayout';
@@ -127,25 +128,47 @@ function useLocalSource(
 function useOriginalBody(onReady:Props['onReady'],onError:Props['onError']):Decoded|null{
  const [body,setBody]=useState<Decoded|null>(null);
  useEffect(()=>{
-  let active=true;
-  let loaded:THREE.Group|null=null;
-  const loader=makeLoader();
-  loader.load(import.meta.env.BASE_URL+'models/model-b-eds-optimized-v1.glb',gltf=>{
-    const scene=gltf.scene;loaded=scene;
-    if(!active){releaseSource(scene);return;}
-    try{
-      const probe=probeOriginalGeometry(scene,'model-b');
-      const [min,max]=probe.sourceBoundsM;
-      if(!finite3(min)||!finite3(max)||Math.abs(max[0]-min[0]-FINGERPRINT_LENGTH)>.3)
-        throw Error('Unexpected original Model B mesh fingerprint');
-      setBody({model:scene,probe});
-      onReady('model-b',probe.meshCount);
-    }catch(error){
-      loaded=null;releaseSource(scene);
-      onError('Original Model B source fingerprint failed: '+String(error));
-    }
-  },undefined,error=>{if(active)onError('Original Model B GLB failed: '+String(error));});
-  return()=>{active=false;if(loaded)releaseSource(loaded);};
+   let active=true;
+   let loaded:THREE.Group|null=null;
+   const controller=new AbortController();
+   setBody(null);
+   const run=async()=>{
+     try{
+       const path=import.meta.env.BASE_URL+ORIGINAL_MODEL_B_SOURCE.assetPath;
+       const response=await fetch(path,{
+         cache:'no-store',signal:controller.signal,
+       });
+       if(!response.ok)
+         throw Error('Original Model B GLB HTTP '+response.status);
+       const bytes=await response.arrayBuffer();
+       // Do not render a same-shaped substitute. This Git object identity
+       // comes from the original Model B GLB committed to this repository.
+       await verifyOriginalModelBBinary(bytes);
+       if(!active)return;
+       await MeshoptDecoder.ready;
+       const {scene}=await makeLoader().parseAsync(bytes,'');
+       loaded=scene;
+       if(!active){releaseSource(scene);loaded=null;return;}
+       const probe=probeOriginalGeometry(scene,'model-b');
+       const [min,max]=probe.sourceBoundsM;
+       if(!finite3(min)||!finite3(max)||
+          Math.abs(max[0]-min[0]-FINGERPRINT_LENGTH)>.3)
+         throw Error('Unexpected original Model B mesh fingerprint');
+       if(active){
+         setBody({model:scene,probe});
+         onReady('model-b',probe.meshCount);
+       }
+     }catch(error){
+       if(loaded){releaseSource(loaded);loaded=null;}
+       if(active)onError('Owner Model B Git-object/geometry validation failed: '+String(error));
+     }
+   };
+   void run();
+   return()=>{
+     active=false;
+     controller.abort();
+     if(loaded)releaseSource(loaded);
+   };
  },[onReady,onError]);
  return body;
 }
