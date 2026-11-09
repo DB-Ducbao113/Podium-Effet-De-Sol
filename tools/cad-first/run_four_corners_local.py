@@ -86,6 +86,7 @@ def main()->None:
         invoke(sys.executable,TOOLS/"test_p2_12_constrained_kinematics.py",timeout=60)
         invoke(sys.executable,TOOLS/"run_p213_tests_isolated.py",
                "--out",out/"p213-isolated-native-qa.json",timeout=550)
+        invoke(sys.executable,TOOLS/"test_p2_14_split_spherical_race.py",timeout=150)
         invoke(sys.executable,TOOLS/"test_rebuild_owner_p28.py",timeout=150)
         invoke(sys.executable,TOOLS/"test_audit_assembly_mesh.py",timeout=150)
         gate("LOCAL_SOURCE_PROVENANCE_UNIT_TESTS","PASS")
@@ -485,6 +486,73 @@ def main()->None:
                 raise RuntimeError("P2.13 native GLB LOD provenance failure: "+tier)
         status["p213_spherical_bearing_candidate_native_cad"]=True
         gate("P213_FOUR_NATIVE_SPHERICAL_JOINTS_28_POSE_PAIRS_G2_HOLD","PASS")
+        p214_dir=out/"p214-split-race-cad-source"
+        if not p214_dir.is_dir():
+            invoke(sys.executable,TOOLS/"p2_14_split_spherical_race.py",
+                   "--out",p214_dir,timeout=240)
+        p214_file=p214_dir/"P214_split_race_manifest.json"
+        if not p214_file.is_file():
+            raise RuntimeError("P2.14 source split-bearing manifest missing")
+        p214=json.loads(p214_file.read_text(encoding="utf8"))
+        names=['p2_9_rear_upright.py','p2_10_rear_wishbone.py',
+               'p2_11_rear_toe_link.py','p2_12_toe_adjuster.py',
+               'p2_12_constrained_kinematics.py','p2_13_rear_joint_prototype.py']
+        hashes={name:sha256((TOOLS/name).read_bytes()).hexdigest() for name in names}
+        p214_open=p214.get("openingFeasibility",{})
+        p214_path=p214.get("discreteAssemblyPathAudit",{})
+        p214_static=p214.get("nominalStaticAudit",{})
+        p214_controls=p214_path.get("intentionallyCollidingSphereControls",[])
+        p214_parts=p214.get("newPartNames",[])
+        if (p214.get("schema")!="podium-eds.p214.split-race-radial-assembly.v1"
+            or p214.get("upstreamCadSourceSha256")!=hashes
+            or p214.get("newNativeSolidCount")!=16
+            or len(set(p214_parts))!=16
+            or p214.get("previousP213Solids")!=8
+            or p214.get("candidateCombinedSourceSolids")!=31
+            or p214.get("stepRoundtripSolids")!=16
+            or p214.get("sampledIdealPoseReviewCount")!=7
+            or p214_open.get("originalOnePieceAxialInsertionPossible") is not False
+            or p214_open.get("halvesPlacedFromRadiallyOppositeSides") is not True
+            or p214_open.get("axialSleeveRetentionCertified") is not False
+            or p214_path.get("finiteInsertionPairChecks")!=144
+            or p214_path.get("positiveControlCount")!=4
+            or len(p214_controls)!=4
+            or any(v.get("detected") is not True or
+                   v.get("intersectionMm3",0)<50 for v in p214_controls)
+            or p214_path.get("continuousInsertionCertified") is not False
+            or p214_path.get("axialSleeveRetentionCertified") is not False
+            or p214_path.get("mechanicalG2")!="HOLD"
+            or p214_static.get("pairCount")!=465
+            or p214_static.get("aabbExcluded",0)+p214_static.get("nativeBrepIntersectionsEvaluated",0)!=465
+            or p214_static.get("unresolvedCollisions")!=[]
+            or p214_static.get("booleanErrors")!=[]
+            or p214_static.get("passStatic") is not True
+            or p214_static.get("jointRetentionCertified") is not False
+            or p214.get("axialRetentionCertified") is not False
+            or p214.get("assemblySequenceKinematicallyVerified") is not False
+            or p214.get("chassisHardpointsMeasured") is not False
+            or p214.get("dynamic31BodyCollisionCertified") is not False
+            or p214.get("nativeBearingStrengthCertified") is not False
+            or p214.get("mechanicalG2")!="HOLD"):
+            raise RuntimeError("P2.14 31-source-body/assembly-sequence gate invalid or false G2")
+        if (json.loads((p214_dir/"P214_31_body_static_audit.json").read_text(encoding="utf8"))
+            !=p214_static):
+            raise RuntimeError("P2.14 original native static audit/manifest mismatch")
+        step214=p214_dir/p214["step"]
+        if (not step214.is_file() or
+            sha256(step214.read_bytes()).hexdigest()!=p214["stepSha256"]):
+            raise RuntimeError("P2.14 original 16-solid STEP SHA invalid")
+        for tier in ("HIGH","BALANCED","PERFORMANCE"):
+            entry=p214["profiles"][tier]
+            glb214=p214_dir/entry["file"]
+            if (not glb214.is_file() or
+                sha256(glb214.read_bytes()).hexdigest()!=entry["sha256"]
+                or entry.get("meshCount")!=16
+                or entry.get("allWatertight") is not True
+                or set(entry.get("perPartTriangles",{}))!=set(p214_parts)):
+                raise RuntimeError("P2.14 original 16-mesh GLB integrity failure: "+tier)
+        status["p214_split_spherical_joint_cad_source"]=True
+        gate("P214_SPLIT_SPHERICAL_RACES_144_INSERTION_465_STATIC_G2_HOLD","PASS")
         npm=shutil.which("npm")
         if npm is None:raise RuntimeError("Node/npm missing")
         if not a.skip_web_qa:
@@ -499,7 +567,8 @@ def main()->None:
                    "src/dev/assemblyPreview/rearSuspensionSource.test.ts",
                    "src/dev/assemblyPreview/rearToeSource.test.ts",
                    "src/dev/assemblyPreview/rearToeAdjusterSource.test.ts",
-                   "src/dev/assemblyPreview/rearJointSource.test.ts",timeout=300)
+                   "src/dev/assemblyPreview/rearJointSource.test.ts",
+                   "src/dev/assemblyPreview/splitRaceSource.test.ts",timeout=300)
             invoke(npm,"run","build","--workspace=@peds/web",timeout=900)
             gate("LOCAL_WEB_LINT_TYPES_TESTS_BUILD","PASS")
         job=subprocess.Popen([
@@ -517,7 +586,8 @@ def main()->None:
                "--p210-dir",p210_dir,
                "--p211-dir",p211_dir,
                "--p212-dir",p212_dir,
-               "--p213-dir",p213_dir,timeout=1100)
+               "--p213-dir",p213_dir,
+               "--p214-dir",p214_dir,timeout=1100)
         detail=json.loads((out/"browser/four-wheel-browser-evidence.json")
                           .read_text(encoding="utf8"))
         if not detail.get("all_four_original_modelb_wheel_positions"):
@@ -532,6 +602,8 @@ def main()->None:
             raise RuntimeError("P2.12 19-mesh rear toe adjuster was not parsed on both rear stations")
         if not detail.get("real_p213_spherical_joint_cad_loaded"):
             raise RuntimeError("P2.13 eight-piece original spherical joint CAD was not parsed on two rear stations")
+        if not detail.get("real_p214_split_spherical_race_loaded"):
+            raise RuntimeError("P2.14 16-mesh split spherical source was not parsed at both rear stations")
         movie=detail.get("recorded_video")
         if not movie or not Path(movie).is_file() or Path(movie).stat().st_size<1024:
             raise RuntimeError("No genuine WebGL four-wheel video created")
