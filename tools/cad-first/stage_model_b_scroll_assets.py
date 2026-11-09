@@ -11,6 +11,8 @@ import hashlib
 import json
 from pathlib import Path
 import shutil
+import tempfile
+import uuid
 
 from record_four_corners_local import verify
 from record_model_b_scroll_local import check_source
@@ -30,10 +32,10 @@ def run(p28:Path,out:Path,quality:str='BALANCED',
     out=out.resolve()
     if not out.is_relative_to(LOCAL.resolve()) or out==LOCAL.resolve():
         raise ValueError('Original private CAD staging MUST stay inside .local-assets')
-    if out.exists():
-        if not (out/'.peds-model-b-cad-staged').is_file():
-            raise FileExistsError('Refuse to remove unrelated existing output folder: '+str(out))
-        shutil.rmtree(out)
+    if out.exists() and not (out/'.peds-model-b-cad-staged').is_file():
+        raise FileExistsError('Refuse to overwrite unrelated output folder: '+str(out))
+    # Validate ALL incoming original sources before touching the last good
+    # local source bundle. A bad or interrupted rebuild must not erase it.
     front=verify(p28.resolve(),quality)
     sources={'p28':front}
     if p212:
@@ -71,26 +73,43 @@ def run(p28:Path,out:Path,quality:str='BALANCED',
         row[name]={'manifestFile':'manifest.json','glbFile':'source.glb',
                    'originalGlbFileName':glb.name,'sha256':source_sha,
                    'meshCount':expected_count,'profile':quality}
-    out.mkdir(parents=True,exist_ok=False)
+    out.parent.mkdir(parents=True,exist_ok=True)
+    scratch=Path(tempfile.mkdtemp(prefix='.'+out.name+'.staging-',dir=out.parent))
+    old_bundle:Path|None=None
     try:
         for name,(manifest,glb,_) in sources.items():
-            folder=out/name;folder.mkdir()
+            folder=scratch/name;folder.mkdir()
             shutil.copy2(manifest,folder/'manifest.json')
             shutil.copy2(glb,folder/'source.glb')
             if checked_sha(folder/'source.glb')!=row[name]['sha256']:
                 raise RuntimeError('Source GLB changed during final local staging: '+name)
+            if (json.loads((folder/'manifest.json').read_text(encoding='utf8'))
+                .get('schema')!=expected[name][0]):
+                raise RuntimeError('Source manifest mutated while staging: '+name)
         index={
           'schema':'podium-eds.model-b-assembly.local-owner-cad.v1',
           'quality':quality,'sources':row,
           'localOnlyNotDeployed':True,'mechanicalG2':'HOLD',
           'noFabricatedGeometry':True,
         }
-        (out/'index.json').write_text(json.dumps(index,indent=2)+'\n',encoding='utf8')
-        (out/'.peds-model-b-cad-staged').write_text(
+        (scratch/'index.json').write_text(json.dumps(index,indent=2)+'\n',encoding='utf8')
+        (scratch/'.peds-model-b-cad-staged').write_text(
           'Generated only from original owner source manifests and SHA-matched GLBs.\n')
-    except Exception:
-        shutil.rmtree(out,ignore_errors=True)
-        raise
+        if out.exists():
+            if not (out/'.peds-model-b-cad-staged').is_file():
+                raise FileExistsError('Original CAD target changed before replacement')
+            old_bundle=out.parent/('.'+out.name+'.previous-'+uuid.uuid4().hex)
+            out.rename(old_bundle)
+        try:
+            scratch.rename(out)
+        except Exception:
+            if old_bundle and old_bundle.exists() and not out.exists():
+                old_bundle.rename(out)
+            raise
+    finally:
+        if scratch.exists():shutil.rmtree(scratch,ignore_errors=True)
+    if old_bundle and old_bundle.exists():
+        shutil.rmtree(old_bundle)
     return index
 
 if __name__=='__main__':
