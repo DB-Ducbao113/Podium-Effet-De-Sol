@@ -28,14 +28,15 @@ export function HomeSeasonOverview() {
         <span className="home-live__slash" aria-hidden="true">///</span>
         <h2 id="home-title-fight-heading">THE TITLE FIGHT</h2>
         <span className="home-live__rule" aria-hidden="true" />
-        <span className="home-title-fight__year">2026</span>
+        <span className="home-title-fight__year">TOP 3 / 2026</span>
       </header>
 
       <div className="home-title-fight__grid">
         <article className="home-title-fight__panel">
           <div className="home-title-fight__panel-head">
             <span><Trophy size={18} aria-hidden="true" /> {lang === 'vi' ? 'TAY ĐUA' : 'DRIVERS'}</span>
-            <Link to="/season/2026?tab=standings&category=drivers" aria-label={lang === 'vi' ? 'Bảng xếp hạng tay đua' : 'Driver standings'}>
+            <Link to="/season/2026?tab=standings&category=drivers" aria-label={lang === 'vi' ? 'Xem toàn bộ bảng xếp hạng tay đua' : 'View all driver standings'}>
+              <span>{lang === 'vi' ? 'XEM TẤT CẢ' : 'VIEW ALL'}</span>
               <ArrowUpRight size={21} aria-hidden="true" />
             </Link>
           </div>
@@ -46,22 +47,23 @@ export function HomeSeasonOverview() {
                 style={{
                   '--home-rank-width': `${Math.round(Math.max(0, entry.points) / driverLeader * 100)}%`,
                   '--home-rank-delay': `${index * 110}ms`,
+                  '--home-rank-order': index,
                 } as CSSProperties}
               >
                 <span className="home-title-fight__scorebar" aria-hidden="true" />
                 <span className="home-title-fight__rank">{String(index + 1).padStart(2, '0')}</span>
-                <span className="home-title-fight__portrait" data-asset-slot="driver-photo" aria-hidden="true" />
                 <span className="home-title-fight__name">{entry.driverName}</span>
                 <strong>{entry.points} <small>PTS</small></strong>
               </li>
             ))}
           </ol>
-          {drivers.length === 0 && <span className="home-title-fight__empty">—</span>}
+          {drivers.length === 0 && <span className="home-title-fight__empty">{lang === 'vi' ? 'Chưa có bảng điểm tay đua' : 'Driver standings unavailable'}</span>}
         </article>
         <article className="home-title-fight__panel home-title-fight__panel--constructors">
           <div className="home-title-fight__panel-head">
             <span>{lang === 'vi' ? 'ĐỘI ĐUA' : 'CONSTRUCTORS'}</span>
-            <Link to="/season/2026?tab=standings&category=constructors" aria-label={lang === 'vi' ? 'Bảng xếp hạng đội đua' : 'Constructor standings'}>
+            <Link to="/season/2026?tab=standings&category=constructors" aria-label={lang === 'vi' ? 'Xem toàn bộ bảng xếp hạng đội đua' : 'View all constructor standings'}>
+              <span>{lang === 'vi' ? 'XEM TẤT CẢ' : 'VIEW ALL'}</span>
               <ArrowUpRight size={21} aria-hidden="true" />
             </Link>
           </div>
@@ -72,17 +74,17 @@ export function HomeSeasonOverview() {
                 style={{
                   '--home-rank-width': `${Math.round(Math.max(0, entry.points) / constructorLeader * 100)}%`,
                   '--home-rank-delay': `${index * 110}ms`,
+                  '--home-rank-order': index,
                 } as CSSProperties}
               >
                 <span className="home-title-fight__scorebar" aria-hidden="true" />
                 <span className="home-title-fight__rank">{String(index + 1).padStart(2, '0')}</span>
-                <span className="home-title-fight__team-mark" aria-hidden="true" />
                 <span className="home-title-fight__name">{entry.teamName}</span>
                 <strong>{entry.points} <small>PTS</small></strong>
               </li>
             ))}
           </ol>
-          {constructors.length === 0 && <span className="home-title-fight__empty">—</span>}
+          {constructors.length === 0 && <span className="home-title-fight__empty">{lang === 'vi' ? 'Chưa có bảng điểm đội đua' : 'Constructor standings unavailable'}</span>}
         </article>
       </div>
     </section>

@@ -9,6 +9,10 @@ import { cloudflare } from "@cloudflare/vite-plugin";
 import itmAssetIdentity from "./src/dev/insideMachineI1/asset-identity.json";
 import p5SeasonalManifest from "./src/data/visualAssets/p5SeasonalManifest.json";
 import p5Extended2026Manifest from "./src/data/visualAssets/p5Extended2026Manifest.json";
+import historicalStandingsReviewManifest from "../../docs/asset-manifests/p5-historical-standings-review.json";
+import miniRaceReviewManifest from "../../docs/asset-manifests/mini-race-2026-review.json";
+import miniRaceHistoricalReviewManifest from "../../docs/asset-manifests/mini-race-2024-2025-review.json";
+import showroomIntroReviewManifest from "../../docs/asset-manifests/showroom-intro-v3-review.json";
 
 const cloudflareConfig = path.resolve(
   import.meta.dirname,
@@ -185,6 +189,39 @@ const p5Extended2026LocalAssetsPlugin = {
   },
 };
 
+const historicalStandingsLocalAssetsPlugin = {
+  name: "p5-historical-standings-local-review-assets",
+  apply: "serve" as const,
+  configureServer(server: import("vite").ViteDevServer) {
+    const localDir = path.resolve(import.meta.dirname, "../../.local-assets/p5-historical-standings-v2");
+    const entries = new Map(historicalStandingsReviewManifest.assets.map((asset) => [`/${asset.season}.webp`, asset]));
+    server.middlewares.use("/__p5-historical-standings", (request, response) => {
+      if (request.method !== "GET" && request.method !== "HEAD") {
+        response.statusCode = 405;
+        response.end("Method not allowed.");
+        return;
+      }
+      const asset = entries.get(request.url?.split("?")[0] ?? "");
+      const file = asset && path.resolve(localDir, asset.file);
+      if (!asset || !file || !file.startsWith(localDir + path.sep) || !fs.existsSync(file)) {
+        response.statusCode = 404;
+        response.end("Historical standings review asset unavailable.");
+        return;
+      }
+      const data = fs.readFileSync(file);
+      if (data.length !== asset.bytes || crypto.createHash("sha256").update(data).digest("hex") !== asset.sha256) {
+        response.statusCode = 409;
+        response.end("Historical standings review asset identity mismatch.");
+        return;
+      }
+      response.setHeader("Content-Type", "image/webp");
+      response.setHeader("Content-Length", data.length);
+      response.setHeader("Cache-Control", "private, no-store");
+      response.end(request.method === "HEAD" ? undefined : data);
+    });
+  },
+};
+
 // These cinematic concept crops are private owner-review media, NOT production assets.
 // Source files stay outside public/ and the route exists in Vite serve mode only.
 const homeExploreReviewAssets = {
@@ -228,6 +265,115 @@ const homeExploreLocalAssetsPlugin = {
       }
       response.setHeader("Content-Type", "image/webp");
       response.setHeader("Cache-Control", "private, no-store");
+      response.setHeader("Content-Length", data.length);
+      response.end(request.method === "HEAD" ? undefined : data);
+    });
+  },
+};
+
+const miniRaceLocalAssetsPlugin = {
+  name: "peds-mini-race-local-review-assets",
+  apply: "serve" as const,
+  configureServer(server: import("vite").ViteDevServer) {
+    const packs = [
+      {
+        localDir: path.resolve(import.meta.dirname, "../../.local-assets/mini-race-2026"),
+        assets: miniRaceReviewManifest.assets,
+      },
+      {
+        localDir: path.resolve(import.meta.dirname, "../../.local-assets/mini-race-2024-2025"),
+        assets: miniRaceHistoricalReviewManifest.assets,
+      },
+    ];
+    const entries = new Map(
+      packs.flatMap(({ localDir, assets }) =>
+        assets.flatMap((asset) =>
+          [asset.gif, asset.poster].map((assetFile) => [
+            `/${assetFile.file}`,
+            { localDir, assetFile },
+          ] as const),
+        ),
+      ),
+    );
+    server.middlewares.use("/__peds-mini-race", (request, response) => {
+      if (request.method !== "GET" && request.method !== "HEAD") {
+        response.statusCode = 405;
+        response.end("Method not allowed.");
+        return;
+      }
+      const asset = entries.get(request.url?.split("?")[0] ?? "");
+      if (!asset) {
+        response.statusCode = 404;
+        response.end("Unknown Mini Race review asset.");
+        return;
+      }
+      const file = path.resolve(asset.localDir, asset.assetFile.file);
+      if (!file.startsWith(asset.localDir + path.sep) || !fs.existsSync(file)) {
+        response.statusCode = 404;
+        response.end("Mini Race review asset unavailable.");
+        return;
+      }
+      const data = fs.readFileSync(file);
+      if (data.length !== asset.assetFile.bytes || crypto.createHash("sha256").update(data).digest("hex") !== asset.assetFile.sha256) {
+        response.statusCode = 409;
+        response.end("Mini Race review asset identity mismatch.");
+        return;
+      }
+      response.setHeader("Content-Type", asset.assetFile.file.endsWith(".gif") ? "image/gif" : "image/webp");
+      response.setHeader("Cache-Control", "private, no-store");
+      response.setHeader("Content-Length", data.length);
+      response.end(request.method === "HEAD" ? undefined : data);
+    });
+  },
+};
+
+// Owner-review Showroom intro media: serve mode only, never part of a production build.
+const showroomIntroReviewPlugin = {
+  name: "peds-showroom-intro-review-assets",
+  apply: "serve" as const,
+  configureServer(server: import("vite").ViteDevServer) {
+    const directory = path.resolve(import.meta.dirname, "../../.local-assets/showroom-intro-v3");
+    const assets = new Map(showroomIntroReviewManifest.assets.map((asset) => [asset.file, asset]));
+    server.middlewares.use("/__peds-showroom-intro", (request, response) => {
+      if (request.method !== "GET" && request.method !== "HEAD") {
+        response.statusCode = 405;
+        response.end("Method not allowed.");
+        return;
+      }
+      const name = request.url?.slice(1).split("?")[0] ?? "";
+      const asset = assets.get(name);
+      const file = asset && path.join(directory, asset.file);
+      if (!asset || !file || !file.startsWith(directory + path.sep) || !fs.existsSync(file)) {
+        response.statusCode = 404;
+        response.end("Showroom intro review asset unavailable.");
+        return;
+      }
+      const data = fs.readFileSync(file);
+      if (data.length !== asset.bytes || crypto.createHash("sha256").update(data).digest("hex") !== asset.sha256) {
+        response.statusCode = 409;
+        response.end("Showroom intro review asset identity mismatch.");
+        return;
+      }
+      response.setHeader("Content-Type", asset.type);
+      response.setHeader("Cache-Control", "private, no-store");
+      response.setHeader("Accept-Ranges", "bytes");
+      const range = request.headers.range;
+      if (range) {
+        const match = /^bytes=(\d+)-(\d*)$/.exec(range);
+        const start = match ? Number(match[1]) : -1;
+        const end = match && match[2] ? Number(match[2]) : data.length - 1;
+        if (start < 0 || start >= data.length || end < start || end >= data.length) {
+          response.statusCode = 416;
+          response.setHeader("Content-Range", `bytes */${data.length}`);
+          response.end();
+          return;
+        }
+        response.statusCode = 206;
+        response.setHeader("Content-Range", `bytes ${start}-${end}/${data.length}`);
+        response.setHeader("Content-Length", end - start + 1);
+        response.end(request.method === "HEAD" ? undefined : data.subarray(start, end + 1));
+        return;
+      }
       response.setHeader("Content-Length", data.length);
       response.end(request.method === "HEAD" ? undefined : data);
     });
@@ -306,7 +452,10 @@ export default defineConfig(({ mode }) => ({
     insideMachineLocalAssetsPlugin,
     p5SeasonalLocalAssetsPlugin,
     p5Extended2026LocalAssetsPlugin,
+    historicalStandingsLocalAssetsPlugin,
     homeExploreLocalAssetsPlugin,
+    miniRaceLocalAssetsPlugin,
+    showroomIntroReviewPlugin,
     ...(mode === "test" ? [] : [cloudflare({ configPath: cloudflareConfig })]),
   ],
   test: {

@@ -43,12 +43,12 @@ export function StudioCameraController({ preset, trigger, zoomTrigger, zoomDirec
   }, [camera, invalidate]);
   React.useEffect(() => {
     if (camera instanceof THREE.PerspectiveCamera) {
-      setCameraFov(camera, preset === 'top' ? (aspect < .75 ? 50 : 44) : (aspect < .75 ? (preset === 'overview' ? 42 : 58) : 39));
+      setCameraFov(camera, preset === 'top' ? (aspect < .75 ? 50 : 44) : (aspect < .75 ? (preset === 'overview' ? 46 : 58) : 39));
       invalidate();
     }
   }, [camera, aspect, preset, invalidate]);
   React.useEffect(() => {
-    const point = aspect < .75 && preset === 'overview' ? [1.5, 1.85, -7.4] as [number, number, number] : presets[preset as keyof typeof presets] ?? presets.overview;
+    const point = aspect < .75 && preset === 'overview' ? [.3, 1.85, -7.4] as [number, number, number] : presets[preset as keyof typeof presets] ?? presets.overview;
     destination.current.set(...point).multiplyScalar(aspect < .75 && preset === 'overview' ? 1 : mobileScale);
     target.current.copy(focus);
     moving.current = true;

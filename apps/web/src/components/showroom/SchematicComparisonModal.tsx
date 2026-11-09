@@ -62,7 +62,7 @@ export const SchematicComparisonModal: React.FC<SchematicComparisonModalProps> =
     >
       <div
         className={`bg-studio-950 border border-studio-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden text-white transition-all duration-300 ${
-          isFullscreen ? 'w-full h-full rounded-none' : 'w-full max-w-6xl max-h-[94vh]'
+          isFullscreen ? 'w-full h-full rounded-none' : 'w-full max-w-6xl max-h-[calc(94vh_/_var(--peds-visual-zoom))]'
         }`}
         onClick={(e) => e.stopPropagation()}
       >
@@ -162,7 +162,7 @@ export const SchematicComparisonModal: React.FC<SchematicComparisonModalProps> =
         <div className="flex-1 overflow-auto p-3 sm:p-5 flex items-center justify-center bg-[#05070b]">
           <div
             className={`relative rounded-2xl border border-studio-800 bg-[#06080c] overflow-hidden flex items-center justify-center w-full shadow-2xl transition-all duration-200 ${
-              isFullscreen ? 'h-full min-h-[500px]' : 'min-h-[460px] max-h-[70vh]'
+              isFullscreen ? 'h-full min-h-[500px]' : 'min-h-[460px] max-h-[calc(70vh_/_var(--peds-visual-zoom))]'
             }`}
           >
             <div
@@ -175,7 +175,7 @@ export const SchematicComparisonModal: React.FC<SchematicComparisonModalProps> =
               <img
                 src={livery.schematicImage}
                 alt={lang === 'vi' ? livery.schematicTitleVi : livery.schematicTitleEn}
-                className="max-h-[68vh] w-auto object-contain rounded-xl shadow-2xl select-none"
+                className="max-h-[calc(68vh_/_var(--peds-visual-zoom))] w-auto object-contain rounded-xl shadow-2xl select-none"
                 loading="eager"
                 decoding="async"
               />

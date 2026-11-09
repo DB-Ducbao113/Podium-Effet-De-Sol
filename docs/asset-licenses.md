@@ -1,5 +1,33 @@
 # Asset licenses and provenance
 
+## Showroom intro V3 — local DEV review only (07/11/2026)
+
+The owner supplied `showroom-intro-v3-file.html` and authorized extraction of its gate poster and tunnel film for DEV review on `/showroom`. The 67,618-byte 1280×720 WebP poster, the 1,546,796-byte 1280×720 WebM (8.625 s) and the 1,025,040-byte 960×540 MP4 (8.667 s) are stored only in ignored `.local-assets/showroom-intro-v3/`; their exact sizes, dimensions and SHA-256 values are recorded in `docs/asset-manifests/showroom-intro-v3-review.json` with `release: "hold"`. The DEV-only `/__peds-showroom-intro/` route validates each file against that manifest before serving it and exists in Vite serve mode only, so the production build contains none of these bytes.
+
+The prototype's simulated showroom, its five car render images, its specification cards, its livery switcher and its `EDS-G01` / model-ownership labels were deliberately not extracted: the intro leads into the existing Showroom, and the production car remains Model B with its recorded attribution. The film is AI-generated concept footage, not a recording of a real car or venue. No trademark, sponsor or commercial-use clearance is asserted; promoting the film to production needs a separate owner rights review and visual approval.
+
+## Championship journey intro — WITHDRAWN (09/11/2026)
+
+The owner decided to remove the Championship calendar intro film entirely. The `JourneyIntro` component, its CSS, tests, the Vite `/__peds-journey-intro/` review route and `docs/asset-manifests/championship-intro-review.json` were deleted on 09/11/2026. The owner-supplied `globe-journey-v8-file.html` extraction (96,154-byte WebP poster, 1,045,923-byte MP4, 1,745,929-byte WebM) remains only in ignored `.local-assets/championship-intro-review/` and is not served or referenced by any code. It was never part of a production build. Rights and venue attribution were never cleared; the media must not be reintroduced without a new owner decision.
+
+## 2024–2025 standings thumbnails — local owner review only (06/11/2026)
+
+The owner supplied `PEDS_F1_2024_2025_PNG_WEBP.zip`, containing one 2048×682 WebP thumbnail per historical season (2024 and 2025), with PNG counterparts retained only locally. The WebP files are extracted to ignored `.local-assets/p5-historical-standings-v2/`; the DEV-only `/__p5-historical-standings/` route validates their exact sizes and SHA-256 values against `docs/asset-manifests/p5-historical-standings-review.json`. Production builds contain none of these files and preserve the existing venue-photo fallback.
+
+No trademark, sponsor, photograph, historical-livery or commercial-use clearance is asserted. Promotion to public assets requires a separate owner rights review and approval.
+
+## 2024–2025 Mini Race GIF pack — local owner review only (06/11/2026)
+
+The owner supplied `PEDS_F1_all_20_GIFs.zip`, containing ten transparent, animated AI concept cars for each of 2024 and 2025. Its 20 GIFs are extracted to ignored `.local-assets/mini-race-2024-2025/`; first-frame WebP posters were generated only as reduced-motion alternatives. The DEV-only `/__peds-mini-race/` route verifies the exact GIF and poster sizes/SHA-256 values in `docs/asset-manifests/mini-race-2024-2025-review.json`. The production build contains none of these bytes and keeps the visual car-slot fallback.
+
+The archive explicitly says that sponsor logos and chassis details have not been independently verified for historical accuracy. No trademark, sponsor, commercial-use or livery clearance is asserted. Promotion to public assets requires a separate owner rights review and approval.
+
+## 2026 Mini Race GIF pack — local owner review only (06/11/2026)
+
+The owner supplied `peds-2026-all-11-teams-horizontal-gifs-fixed.zip` for the Championship Mini Race. Its 11 GIFs and 11 WebP posters are extracted to ignored `.local-assets/mini-race-2026/`. The DEV-only `/__peds-mini-race/` route validates exact filenames, sizes and SHA-256 values against `docs/asset-manifests/mini-race-2026-review.json`. The production build contains no GIFs or posters from this pack and shows the existing car-slot fallback. The WebP posters serve reduced-motion users in local review.
+
+The package describes AI-generated team illustrations, not verified 2026 chassis or liveries. The contact sheet shows team and sponsor marks and car numbers that may not match the standings driver. The package itself calls for visual and rights review before public release. No trademark, sponsor or commercial-use clearance is asserted here; promotion to public assets needs a separate owner review and approval.
+
 ## Included runtime assets
 
 | Asset group | Provenance | Status |
@@ -91,3 +119,7 @@ A second owner-review iteration follows feedback that the four vector cards did 
 The 22 driver headshots and 11 team car crops under `apps/web/public/images/p5/concepts-2026/` come from the owner's AI concept package. The 33 source images and its manifest needed to reproduce those outputs are retained locally at `.local-assets/p5-concepts/`; they are not committed to Git. `tools/sync-f1-2026-concepts.mjs` reproduces the 235-pixel car crop below the poster's names and numbers; `docs/asset-manifests/f1-2026-concepts.json` records every delivered file's size, SHA-256, and crop. The supplied artworks are illustrative concepts, not official driver photography or verified 2026 car imagery. This integration is for local owner review; commercial rights, likeness and trademark clearance, and visual approval remain unresolved.
 
 Asset status here is an engineering inventory, not legal advice. CC BY 4.0 copyright permission does not independently clear trademarks, trade dress, design/patent, publicity rights, or the uploader's ownership of every element. Missing owner acceptance or third-party rights evidence must be treated as **BLOCKED** for commercial release.
+
+### P5 generated 2024–2025 driver portraits (local review)
+
+The owner requested new front-facing, photorealistic driver portraits in Formula 1 race suits, with a consistent editorial style for each season. The 2024 and 2025 sets are AI-generated composites from the existing local portrait references, with season-specific team suit colors. They are not documentary photographs of the drivers in those suits. The resulting PNG masters and WebP delivery files remain in ignored local P5 assets; no publication approval is inferred. `docs/asset-manifests/p5-generated-portraits.json` records the season, subject, team, prompt recipe, output path, size and SHA-256. The reference portrait sources and licenses remain in `apps/web/src/utils/driverPortraits.ts`. Facial likeness, team marks, suit details and commercial rights need owner review before release.

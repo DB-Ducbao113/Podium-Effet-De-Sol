@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { DRIVERS_DATA } from '../../data/drivers';
+import { getStandings } from '../../data/championship/standings';
 import { TEAMS_DATA } from '../../data/teams';
 import { getSeasonDriverNumber } from '../../data/championship/raceClassificationHelper';
 import { getTeamSeasonProfile } from '../../data/teamSeasons';
@@ -46,9 +47,11 @@ export function P5GalleryHero({
   const venueId = isDrivers ? P5_DRIVER_GALLERY_VENUE : P5_TEAM_GALLERY_VENUE;
   const venue = venueHeroFor(venueId);
   const reviewHero = extra2026Hero('constructors', season);
+  const historicalTeam = season === 2024 || season === 2025 ? getStandings(season).constructors[0] : undefined;
+  const historicalLineup = historicalTeam ? getStandings(season).drivers.filter((driver) => driver.teamId === historicalTeam.teamId).slice(0, 2) : [];
   return (
     <header className="p5-gallery-hero" data-p5-reveal>
-      <P5ExtraArtwork artwork={reviewHero} className="p5-hero-media" eager fallback={<picture className="p5-hero-media" aria-hidden="true">
+      <P5ExtraArtwork artwork={reviewHero} className="p5-hero-media" eager fallback={historicalTeam ? <span className="p5-hero-media p5-generated-team-hero" aria-hidden="true">{historicalLineup.map((driver) => <P5Portrait key={driver.driverId} season={season} driverId={driver.driverId} alt="" eager />)}</span> : <picture className="p5-hero-media" aria-hidden="true">
         <source type="image/avif" srcSet={venueHeroSrcSet(venueId, 'land', 'avif')} sizes="(max-width: 900px) 100vw, 1440px" />
         <source type="image/webp" srcSet={venueHeroSrcSet(venueId, 'land', 'webp')} sizes="(max-width: 900px) 100vw, 1440px" />
         <img src={`/images/p4/venues/${venueId}-land-1600.webp`} alt="" loading="eager" decoding="async" />
@@ -74,7 +77,8 @@ export function P5GalleryHero({
               ? `${teamCount} đội đua trong mùa ${season}. Màu nhận diện, đội hình, động cơ và điểm số từ bảng xếp hạng hiện có.`
               : `${teamCount} constructors in the ${season} season — identity, line-ups, power units and points from the current standings.`}
         </p>
-        {reviewHero ? <p className="p5-photo-credit p5-photo-credit-inline">{lang === 'vi' ? 'Ảnh minh họa AI · xem trước local' : 'AI illustration · local preview'}</p> : venue && (
+        {historicalTeam && <p className="p5-photo-credit p5-photo-credit-inline">{lang === 'vi' ? `Chân dung AI tạo dựng · mùa ${season}` : `AI-generated portraits · ${season} season`}</p>}
+        {reviewHero ? <p className="p5-photo-credit p5-photo-credit-inline">{lang === 'vi' ? 'Ảnh minh họa AI · xem trước local' : 'AI illustration · local preview'}</p> : !historicalTeam && venue && (
           <p className="p5-photo-credit p5-photo-credit-inline">
             {lang === 'vi' ? 'Ảnh minh họa' : 'Illustrative photo'}: {venue.place} ·{' '}
             <a href={venue.sourcePage} target="_blank" rel="noopener noreferrer">{venue.credit}</a> · {venue.license}
@@ -97,9 +101,10 @@ export function P5DriversHero({
   lang: Lang;
 }) {
   const reviewHero = extra2026Hero('drivers', season);
+  const historicalDriver = season === 2024 || season === 2025 ? getStandings(season).drivers[0] : undefined;
   return (
     <header className="p5-drivers-hero" data-p5-reveal>
-      <P5ExtraArtwork artwork={reviewHero} className="p5-drivers-hero-media p5-drivers-hero-media-helmet" eager fallback={<picture className="p5-drivers-hero-media p5-drivers-hero-media-helmet" aria-hidden="true">
+      <P5ExtraArtwork artwork={reviewHero} className="p5-drivers-hero-media p5-drivers-hero-media-helmet" eager fallback={historicalDriver ? <span className="p5-drivers-hero-media p5-drivers-hero-media-helmet" aria-hidden="true"><P5Portrait season={season} driverId={historicalDriver.driverId} alt="" eager /></span> : <picture className="p5-drivers-hero-media p5-drivers-hero-media-helmet" aria-hidden="true">
         <img
           src="/images/p5/hero/lando-helmet-2024.jpg"
           alt=""
@@ -129,7 +134,8 @@ export function P5DriversHero({
           <span>{lang === 'vi' ? 'Mùa giải' : 'Season'} {season}</span>
         </p>
       </div>
-      {reviewHero ? <p className="p5-drivers-hero-credit">{lang === 'vi' ? 'Ảnh minh họa AI · xem trước local' : 'AI illustration · local preview'}</p> : <p className="p5-drivers-hero-credit">
+      {historicalDriver && <p className="p5-drivers-hero-credit">{lang === 'vi' ? `Chân dung AI tạo dựng · mùa ${season}` : `AI-generated portrait · ${season} gallery`}</p>}
+      {reviewHero ? <p className="p5-drivers-hero-credit">{lang === 'vi' ? 'Ảnh minh họa AI · xem trước local' : 'AI illustration · local preview'}</p> : !historicalDriver && <p className="p5-drivers-hero-credit">
         <span>{lang === 'vi' ? 'Mũ đua lưu trữ 2024' : 'Archive helmet, 2024'}</span>{' '}
         <a href="https://commons.wikimedia.org/wiki/File:Lando_Norris_Helmet_2024.jpg" target="_blank" rel="noopener noreferrer">Liauzh</a>{' '}
         · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a> · {lang === 'vi' ? 'cắt khung/ánh sáng bằng CSS' : 'CSS crop and lighting'}
@@ -166,7 +172,7 @@ export function P5DriverCard({
   );
   return (
     <article
-      className="p5-driver-card p5-driver-card--directory"
+      className={`p5-driver-card p5-driver-card--directory${season !== 2026 ? ' p5-driver-card--generated' : ''}`}
       style={driverStyle(row.teamId)}
       data-rank={row.rank}
       data-p5-reveal
@@ -295,7 +301,7 @@ export function P5TeamCard({
         </div>
       </div>
       <div className="p5-team-card-art" aria-hidden="true">
-        <P5ExtraArtwork
+        {(season === 2024 || season === 2025) ? duo : <P5ExtraArtwork
           artwork={teamPoster}
           className="p5-team-card-poster"
           fallback={
@@ -307,7 +313,7 @@ export function P5TeamCard({
               fallback={duo}
             />
           }
-        />
+        />}
       </div>
     </Link>
   );
@@ -379,6 +385,7 @@ export function P5PortraitCredit({
           · <Link to="/about">{lang === 'vi' ? 'Chi tiết bản quyền' : 'Licence details'}</Link>
         </p>
       )}
+      {(season === 2024 || season === 2025) && <p className="p5-portrait-credit">{lang === 'vi' ? 'Chân dung mùa này được tạo dựng bằng AI từ ảnh tham chiếu, không phải ảnh chụp sự kiện.' : 'Season portraits are AI-generated from reference photos, not event photography.'}</p>}
       {cinematicCredits.length > 0 && (
         <p className="p5-portrait-credit">
           {lang === 'vi' ? 'Ảnh đua 2026' : '2026 race photography'}: Wikimedia Commons ·{' '}

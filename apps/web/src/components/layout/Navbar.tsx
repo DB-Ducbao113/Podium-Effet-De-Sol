@@ -4,7 +4,6 @@ import { ArrowUpRight, ChevronDown, Menu, X } from 'lucide-react';
 import { useNavigationStore } from '../../store/useNavigationStore';
 import { OfficialBrandLogo } from '../common/OfficialBrandLogo';
 import { isPrimaryPath, useMobileHub } from '../../hooks/useMobileHub';
-import { buttonClassName } from '../ui/buttonStyles';
 import { buildNavItems, type NavItem } from './navItems';
 import './navbarH1.css';
 import './navbarV4.css';
@@ -53,8 +52,6 @@ export const Navbar = memo(function Navbar() {
           : onHub && hubHash === '#home';
       case 'championship':
         return seasonSection === 'results' || seasonSection === 'standings' || (onHub && hubHash === '#giai-dau');
-      case 'grid':
-        return isActive('drivers') || isActive('teams');
       case 'results':
         return seasonSection === 'results';
       case 'standings':
@@ -72,16 +69,16 @@ export const Navbar = memo(function Navbar() {
     }
   };
   const isChildActive = (to: string) => to === currentUrl;
-  // Desktop V5 deliberately shows four well-spaced categories instead of
-  // squeezing six destinations together. Mobile keeps every original item.
+  // Keep one desktop menu structure across routes; links still target the selected season.
   const resultsItem = items.find((item) => item.id === 'results')!;
   const standingsItem = items.find((item) => item.id === 'standings')!;
   const driversItem = items.find((item) => item.id === 'drivers')!;
   const teamsItem = items.find((item) => item.id === 'teams')!;
   const engineeringItem = items.find((item) => item.id === 'engineering')!;
   const overviewItem = items.find((item) => item.id === 'overview')!;
+  const homeDesktop = location.pathname === '/';
   const desktopItems: NavItem[] = [
-    overviewItem,
+    { ...overviewItem, label: isVi ? 'Trang chủ' : 'Home' },
     {
       id: 'championship',
       label: isVi ? 'Giải đấu' : 'Championship',
@@ -90,21 +87,13 @@ export const Navbar = memo(function Navbar() {
       children: [
         { id: 'champ-results', label: resultsItem.label, to: resultsItem.to },
         ...resultsItem.children!,
-        { id: 'champ-standings', label: standingsItem.label, to: standingsItem.to },
         ...standingsItem.children!,
       ],
     },
-    {
-      id: 'grid',
-      label: isVi ? 'Đội hình' : 'The Grid',
-      to: isActive('teams') ? teamsItem.to : driversItem.to,
-      icon: driversItem.icon,
-      children: [
-        { id: 'grid-drivers', label: driversItem.label, to: driversItem.to },
-        { id: 'grid-teams', label: teamsItem.label, to: teamsItem.to },
-      ],
-    },
+    { id: 'showroom', label: 'Showroom', to: '/showroom', icon: overviewItem.icon },
     engineeringItem,
+    teamsItem,
+    driversItem,
   ];
 
   const showroomActive = isActive('showroom');
@@ -226,7 +215,7 @@ export const Navbar = memo(function Navbar() {
   const mobileTarget = (item: NavItem) => item.id === 'overview' ? homeHref : item.to;
 
   return <>
-    <header aria-hidden={menuOpen || undefined} className={`h1-nav h1-nav--v4 fixed inset-x-0 top-0 z-50 ${scrolled ? 'h1-nav--scrolled' : ''}`}>
+    <header aria-hidden={menuOpen || undefined} className={`h1-nav h1-nav--v4${homeDesktop ? '' : ' h1-nav--inner'} fixed inset-x-0 top-0 z-50 ${scrolled ? 'h1-nav--scrolled' : ''}`}>
       <div className="page-container h1-nav__bar flex items-center justify-between gap-3">
         <Link
           to={homeHref}
@@ -240,6 +229,9 @@ export const Navbar = memo(function Navbar() {
             const active = isActive(item.id);
             const dismissed = dismissedDropdown === item.id;
             const dropdownOpen = (openDropdown === item.id || focusedGroup === item.id) && !dismissed;
+            const children = item.children?.filter((child, index, all) =>
+              all.findIndex((candidate) => candidate.to === child.to) === index,
+            );
             return <div
               className={`h1-nav__group${active ? ' h1-nav__group--active' : ''}`}
               key={item.id}
@@ -249,13 +241,19 @@ export const Navbar = memo(function Navbar() {
               onFocusCapture={() => {
                 if (dismissedDropdown === item.id) return;
                 setFocusedGroup(item.id);
+                setOpenDropdown((current) => current === item.id ? current : null);
               }}
-              onPointerEnter={() => {
+              onPointerEnter={(event) => {
+                if (event.pointerType !== 'mouse' && event.pointerType !== 'pen') return;
                 setDismissedDropdown(null);
-                if (openDropdown && openDropdown !== item.id) setOpenDropdown(null);
+                setFocusedGroup((current) => current === item.id ? current : null);
+                setOpenDropdown(item.children ? item.id : null);
               }}
               onPointerLeave={(event) => {
-                if (!event.currentTarget.contains(document.activeElement)) setDismissedDropdown(null);
+                if (!event.currentTarget.contains(document.activeElement)) {
+                  setOpenDropdown((current) => current === item.id ? null : current);
+                  setDismissedDropdown(null);
+                }
               }}
               onBlur={(event) => {
                 if (event.currentTarget.contains(event.relatedTarget as Node | null)) return;
@@ -272,7 +270,7 @@ export const Navbar = memo(function Navbar() {
               >
                 <span>{item.label}</span>
               </Link>
-              {item.children && <>
+              {children && <>
                 <button
                   type="button"
                   className="h1-nav__chevron"
@@ -294,7 +292,7 @@ export const Navbar = memo(function Navbar() {
                 </button>
                 <div className="h1-nav__dropdown" id={`h1-nav-dropdown-${item.id}`}>
                   <div className="h1-nav__dropdown-inner">
-                    {item.children.map((child) => <Link
+                    {children.map((child) => <Link
                       key={child.id}
                       to={child.to}
                       className="h1-nav__sub"
@@ -306,15 +304,6 @@ export const Navbar = memo(function Navbar() {
               </>}
             </div>;
           })}
-          <Link
-            to={showroomHref}
-            className={buttonClassName({ size: 'sm', className: `h1-nav__cta${showroomActive ? ' h1-nav__cta--active' : ''}` })}
-            aria-current={showroomActive ? 'page' : undefined}
-            onClick={() => setOpenDropdown(null)}
-          >
-            <span>Showroom 3D</span>
-            <ArrowUpRight size={14} aria-hidden="true" />
-          </Link>
         </nav>
         <div className="h1-nav__actions flex shrink-0 items-center gap-2">
           <div className="h1-nav__lang flex items-center rounded-full border border-white/10 bg-white/5 p-0.5">

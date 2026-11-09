@@ -1,0 +1,146 @@
+/* A direct Showroom visit gives the model one viewport, including the site header. */
+.peds-showroom-route {
+  height: calc(100svh / var(--peds-visual-zoom));
+  min-height: 0;
+  overflow: hidden;
+}
+.peds-showroom-route > main {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.peds-showroom-route > main > div,
+.peds-showroom-route > main > div > div,
+.peds-showroom-route [data-testid="p6-review-showroom"] {
+  height: 100%;
+  min-height: 0;
+}
+.peds-showroom-route [data-testid="model-b-showroom"] {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+.peds-showroom-route .peds-compact-studio {
+  flex: 1;
+  height: auto;
+  min-height: 0;
+}
+@media (max-height: 560px) {
+  .peds-showroom-route {
+    overflow-y: auto;
+  }
+}
+html[data-text-zoom="200"] .peds-showroom-route,
+html[data-text-zoom="400"] .peds-showroom-route {
+  height: auto;
+  min-height: calc(100svh / var(--peds-visual-zoom));
+  overflow: visible;
+}
+
+/* SHOWROOM-INTRO-V3 keeps the stage mounted under the gate; the wrapper owns the
+   height chain in both the direct route and the mobile hub. Visibility (not
+   display) hides it so the 3D canvas keeps measuring while it loads. */
+.sr-view {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+.sr-stage {
+  flex: 1;
+  height: 100%;
+  min-height: 0;
+}
+.sr-stage[data-intro-hidden="true"] {
+  visibility: hidden;
+}
+
+/* The replay control is rendered by ShowroomView itself, so its styles must load
+   even for T0 visitors (reduced motion / save-data / weak device) who never mount
+   the intro chunk. These rules are inert in production, where the control never
+   renders. */
+.sr-replay {
+  position: absolute;
+  left: 16px;
+  bottom: 96px;
+  z-index: 35;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 36px;
+  padding: 0.45rem 1rem;
+  border: 1px solid
+    color-mix(in srgb, var(--peds-color-brake-amber) 40%, transparent);
+  border-radius: 999px;
+  color: var(--peds-color-brake-amber);
+  background: color-mix(in srgb, var(--peds-color-canvas) 78%, transparent);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  font: 700 0.64rem var(--peds-font-mono);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+.sr-replay:hover {
+  border-color: var(--peds-color-ignition);
+  color: var(--peds-color-ivory);
+}
+.sr-replay span {
+  font-size: 0.9rem;
+  letter-spacing: 0;
+}
+.sr-replay:focus-visible {
+  outline: var(--peds-focus-ring-width) solid var(--peds-focus-ring-color);
+  outline-offset: var(--peds-focus-ring-offset);
+}
+.sr-view[data-variant="model-b"] .sr-replay {
+  bottom: 76px;
+}
+/* The reveal only animates when the intro actually played (data-reveal). T0
+   visitors — reduced motion, save-data, weak device — enter with no delay. The
+   stage settles a beat after the veil blooms; the replay pill rises in last so
+   the events read as one sequence rather than firing together. */
+.sr-view[data-reveal="true"] .sr-stage {
+  animation: sr-stage-in 0.82s cubic-bezier(0.33, 1, 0.68, 1) 0.14s backwards;
+}
+@keyframes sr-stage-in {
+  from {
+    opacity: 0;
+    transform: scale(1.045) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+.sr-view[data-reveal="true"] .sr-replay {
+  animation: sr-replay-in 0.42s cubic-bezier(0.33, 1, 0.68, 1) 0.62s backwards;
+}
+@keyframes sr-replay-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (max-width: 860px) {
+  .sr-replay {
+    bottom: 12px;
+  }
+  .sr-view[data-variant="model-b"] .sr-replay {
+    bottom: 150px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sr-view[data-reveal="true"] .sr-stage,
+  .sr-view[data-reveal="true"] .sr-replay {
+    animation: none;
+  }
+}

@@ -1,5 +1,6 @@
-import { useEffect, useId, useMemo, useRef } from 'react';
+import { useEffect, useId, useMemo, useRef, useState, type RefObject } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Html } from '@react-three/drei';
 import * as THREE from 'three';
 import type { GrandPrixRound, SeasonYear } from '../../types';
 import { resolveCircuit } from './journeyCoordinates';
@@ -9,6 +10,9 @@ type Stop = { race: GrandPrixRound; vector: THREE.Vector3; latitude: number; lon
 type SceneProps = {
   stops: readonly Stop[];
   travelProgress: number;
+  introOpacity: number;
+  trackReveal: number;
+  markerOpacity: number;
   onSelectRound: (round: number) => void;
   closeUp: boolean;
   lang: 'vi' | 'en';
@@ -48,7 +52,8 @@ function arcPoints(start: THREE.Vector3, finish: THREE.Vector3) {
   return points;
 }
 
-function EarthSurface() {
+function EarthSurface({ surfaceRef }: { surfaceRef: RefObject<THREE.Mesh> }) {
+  const { gl } = useThree();
   const texture = useMemo(() => {
     if (typeof document === 'undefined') return null;
     const canvas = document.createElement('canvas');
@@ -57,9 +62,10 @@ function EarthSurface() {
     const context = canvas.getContext('2d');
     if (!context) return null;
     // Procedural maritime chart texture: self-hosted geography, no external image/API key.
-    context.fillStyle = '#061724';
+    // Clear blue ocean and lighter land keep the globe legible like the reference prototype.
+    context.fillStyle = '#0e2c40';
     context.fillRect(0, 0, canvas.width, canvas.height);
-    context.strokeStyle = 'rgba(75,147,171,0.21)';
+    context.strokeStyle = 'rgba(150,195,212,0.16)';
     context.lineWidth = 1;
     for (let x = 0; x <= canvas.width; x += canvas.width / 24) {
       context.beginPath(); context.moveTo(x, 0); context.lineTo(x, canvas.height); context.stroke();
@@ -70,31 +76,31 @@ function EarthSurface() {
     context.save();
     context.scale(canvas.width / 1000, canvas.height / 500);
     const land = new Path2D(JOURNEY_WORLD_LAND_PATH);
-    context.fillStyle = '#18333d';
+    context.fillStyle = '#3a6076';
     context.fill(land, 'evenodd');
-    context.strokeStyle = 'rgba(105,186,188,.75)';
-    context.lineWidth = 0.55;
+    context.strokeStyle = 'rgba(173,214,232,0.55)';
+    context.lineWidth = 0.7;
     context.stroke(land);
     context.restore();
     const map = new THREE.CanvasTexture(canvas);
     map.colorSpace = THREE.SRGBColorSpace;
-    map.anisotropy = 2;
+    map.anisotropy = Math.min(4, gl.capabilities.getMaxAnisotropy());
     map.needsUpdate = true;
     return map;
-  }, []);
+  }, [gl]);
 
   useEffect(() => () => texture?.dispose(), [texture]);
   return (
     <>
-      <mesh>
-        <sphereGeometry args={[RADIUS, 64, 48]} />
+      <mesh ref={surfaceRef}>
+        <sphereGeometry args={[RADIUS, 96, 64]} />
         <meshStandardMaterial
-          color="#d6f8ff" map={texture ?? undefined} metalness={0.18} roughness={0.75}
-          emissive="#12333a" emissiveIntensity={0.22}
+          color="#ffffff" map={texture ?? undefined} metalness={0.04} roughness={0.6}
+          emissive="#0b2735" emissiveIntensity={0.32}
         />
       </mesh>
       <mesh scale={1.065}>
-        <sphereGeometry args={[RADIUS, 48, 32]} />
+        <sphereGeometry args={[RADIUS, 64, 48]} />
         <shaderMaterial
           transparent depthWrite={false} blending={THREE.AdditiveBlending}
           side={THREE.BackSide}
@@ -106,7 +112,7 @@ function EarthSurface() {
           fragmentShader={`varying vec3 vNormal;
             void main() {
               float rim = pow(1.0 - abs(normalize(vNormal).z), 3.0);
-              gl_FragColor = vec4(vec3(0.10, 0.52, 0.68) * rim, rim * 0.55);
+              gl_FragColor = vec4(vec3(0.16, 0.55, 0.72) * rim, rim * 0.55);
             }`}
         />
       </mesh>
@@ -150,29 +156,40 @@ function Route({ from, to, completedFraction }: {
   );
 }
 
-function StopMarker({ stop, visited, active, onSelectRound }: {
-  stop: Stop; visited: boolean; active: boolean; onSelectRound: (round: number) => void;
+function StopMarker({ stop, visited, active, markerOpacity, onSelectRound, surfaceRef }: {
+  stop: Stop; visited: boolean; active: boolean; markerOpacity: number; onSelectRound: (round: number) => void;
+  surfaceRef: RefObject<THREE.Mesh>;
 }) {
+  const [hovered, setHovered] = useState(false);
   const position = useMemo(() => stop.vector.clone().multiplyScalar(1.018), [stop]);
   return (
-    <group position={position.toArray()} onClick={(event) => {
+    <group position={position.toArray()} visible={markerOpacity > 0}
+      onPointerOver={() => { if (markerOpacity > 0.5) setHovered(true); }}
+      onPointerOut={() => setHovered(false)} onClick={(event) => {
+      if (markerOpacity <= 0.5) return;
       event.stopPropagation();
       onSelectRound(stop.race.round);
     }}>
       <mesh>
         <sphereGeometry args={[active ? 0.022 : 0.013, 9, 8]} />
-        <meshBasicMaterial color={active ? '#fff8e8' : visited ? '#ff632e' : '#7392a4'} toneMapped={false} />
+        <meshBasicMaterial color={active ? '#fff8e8' : visited ? '#ff632e' : '#7392a4'} toneMapped={false}
+          transparent opacity={markerOpacity} depthWrite={false} />
       </mesh>
       {active && <mesh scale={1.95}>
         <sphereGeometry args={[0.025, 10, 8]} />
-        <meshBasicMaterial color="#ff632e" transparent opacity={0.25} depthWrite={false} />
+        <meshBasicMaterial color="#ff632e" transparent opacity={0.25 * markerOpacity} depthWrite={false} />
       </mesh>}
+      {markerOpacity > 0.01 && (active || hovered) && <Html position={[0, 0, 0]} center occlude={[surfaceRef]}
+        zIndexRange={[3, 3]} style={{ opacity: markerOpacity, pointerEvents: 'none' }}>
+        <span className="rcj-globe-city" aria-hidden="true">{stop.race.location}</span>
+      </Html>}
     </group>
   );
 }
 
-function SceneMotion({ stops, travelProgress, onSelectRound, closeUp, lang, stageId }: SceneProps) {
+function SceneMotion({ stops, travelProgress, introOpacity, trackReveal, markerOpacity, onSelectRound, closeUp, lang, stageId }: SceneProps) {
   const globe = useRef<THREE.Group>(null);
+  const surfaceRef = useRef<THREE.Mesh>(null!);
   const firstFrame = useRef(true);
   const dragOffset = useRef({ yaw: 0, pitch: 0 });
   const draggedSinceDown = useRef(false);
@@ -271,7 +288,8 @@ function SceneMotion({ stops, travelProgress, onSelectRound, closeUp, lang, stag
   const latitude = Math.asin(THREE.MathUtils.clamp(facing.y, -1, 1));
   const desiredYaw = -Math.PI / 2 - heading;
   const desiredPitch = latitude;
-  const distance = (closeUp ? 3.22 : 3.78) + Math.sin(fraction * Math.PI) * 0.15;
+  const distance = (closeUp ? 3.22 : 3.78) + introOpacity * 0.7
+    - trackReveal * 0.35 + Math.sin(fraction * Math.PI) * 0.15;
 
   useEffect(() => {
     // The next wheel / page-scroll gesture resumes the guided Grand Prix camera path.
@@ -285,12 +303,13 @@ function SceneMotion({ stops, travelProgress, onSelectRound, closeUp, lang, stag
       firstFrame.current = false;
     }
     invalidate();
-  }, [travelProgress, closeUp, desiredPitch, desiredYaw, invalidate]);
+  }, [travelProgress, introOpacity, trackReveal, closeUp, desiredPitch, desiredYaw, invalidate]);
 
   useFrame((state, delta) => {
     const camera = state.camera;
     if (!globe.current) return;
-    const smoothing = 1 - Math.exp(-Math.min(0.1, delta) * 3.6);
+    // Frame-rate-independent damping matched to the reference globe (0.16 per 60fps frame).
+    const smoothing = 1 - Math.pow(0.84, Math.min(delta, 0.08) * 60);
     const rotation = globe.current.rotation;
     // Shortest longitude path avoids the 360° snap at the international date line.
     const targetYaw = desiredYaw + dragOffset.current.yaw;
@@ -318,12 +337,14 @@ function SceneMotion({ stops, travelProgress, onSelectRound, closeUp, lang, stag
       <directionalLight position={[3, 2.5, 5]} color="#a9e3ff" intensity={2.6} />
       <directionalLight position={[-3, -2, -3]} color="#ff5a25" intensity={0.55} />
       <group ref={globe}>
-        <EarthSurface />
+        <EarthSurface surfaceRef={surfaceRef} />
         {stops.slice(1).map((stop, i) => (
           <Route key={stop.race.round} from={stops[i].vector} to={stop.vector}
             completedFraction={THREE.MathUtils.clamp(travelProgress - i, 0, 1)} />
         ))}
         {stops.map((stop, i) => <StopMarker key={stop.race.round} stop={stop}
+          surfaceRef={surfaceRef}
+          markerOpacity={markerOpacity}
           visited={travelProgress >= i - 0.02}
           active={stop.race.round === stops[index]?.race.round}
           onSelectRound={(round) => { if (!draggedSinceDown.current) onSelectRound(round); }} />)}
@@ -336,10 +357,13 @@ function SceneMotion({ stops, travelProgress, onSelectRound, closeUp, lang, stag
   );
 }
 
-export function JourneyGlobe3D({ season, calendar, travelProgress, onSelectRound, lang, closeUp }: {
+export function JourneyGlobe3D({ season, calendar, travelProgress, introOpacity, trackReveal, markerOpacity, onSelectRound, lang, closeUp }: {
   season: SeasonYear;
   calendar: readonly GrandPrixRound[];
   travelProgress: number;
+  introOpacity: number;
+  trackReveal: number;
+  markerOpacity: number;
   onSelectRound: (round: number) => void;
   lang: 'vi' | 'en';
   closeUp: boolean;
@@ -357,10 +381,12 @@ export function JourneyGlobe3D({ season, calendar, travelProgress, onSelectRound
       <div className="rcj-globe-vignette" aria-hidden="true" />
       <Canvas
         frameloop="demand"
-        dpr={[1, 1.5]}
+        dpr={[1, 2]}
+        resize={{ offsetSize: true }}
         camera={{ position: [0, 0, 3.8], fov: 36, near: 0.1, far: 50 }}
         gl={{ antialias: true, alpha: true, powerPreference: 'low-power' }}>
-        <SceneMotion stops={stops} travelProgress={travelProgress}
+        <SceneMotion stops={stops} travelProgress={travelProgress} introOpacity={introOpacity} trackReveal={trackReveal}
+          markerOpacity={markerOpacity}
           onSelectRound={onSelectRound} closeUp={closeUp} lang={lang} stageId={stageId} />
       </Canvas>
       <span className="rcj-globe-drag-hint" aria-hidden="true">{lang === 'vi' ? 'KÉO ĐỂ XOAY' : 'DRAG TO ROTATE'}</span>

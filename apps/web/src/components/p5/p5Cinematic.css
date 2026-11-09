@@ -127,7 +127,7 @@
   flex-direction: column;
   justify-content: flex-end;
   gap: 0.6rem;
-  padding: clamp(1.3rem, 3vw, 2.6rem);
+  padding: clamp(1.3rem, 3vw / var(--peds-visual-zoom), 2.6rem);
   background:
     radial-gradient(120% 90% at 100% 0%, color-mix(in srgb, var(--team-primary, var(--team)) 18%, transparent), transparent 62%),
     #070a10;
@@ -144,7 +144,7 @@
   right: 0.1rem;
   z-index: 0;
   font-family: var(--peds-font-display);
-  font-size: clamp(5.5rem, 13vw, 10rem);
+  font-size: clamp(5.5rem, 13vw / var(--peds-visual-zoom), 10rem);
   font-style: italic;
   font-weight: 800;
   line-height: 0.8;
@@ -161,7 +161,7 @@
 .p5-profile-action-copy h2 {
   margin: 0;
   font-family: var(--peds-font-display);
-  font-size: clamp(1.5rem, 2.8vw, 2.5rem);
+  font-size: clamp(1.5rem, 2.8vw / var(--peds-visual-zoom), 2.5rem);
   font-style: italic;
   font-weight: 800;
   line-height: 0.95;
@@ -289,7 +289,7 @@
 }
 
 .p5-team-hero-duo .p5-team-hero-driver {
-  width: clamp(7.5rem, 12vw, 10.5rem);
+  width: clamp(7.5rem, 12vw / var(--peds-visual-zoom), 10.5rem);
   border: 0;
   border-radius: 0;
 }
@@ -371,7 +371,7 @@
   }
 
   .p5-profile-action-copy h2 {
-    font-size: clamp(1.45rem, 7vw, 2rem);
+    font-size: clamp(1.45rem, 7vw / var(--peds-visual-zoom), 2rem);
   }
 
   .p5-profile-hero[data-cinematic='true'] .p5-profile-portrait {
@@ -388,7 +388,7 @@
   }
 
   .p5-team-hero-duo .p5-team-hero-driver {
-    width: clamp(6rem, 30vw, 8rem);
+    width: clamp(6rem, 30vw / var(--peds-visual-zoom), 8rem);
   }
 }
 

@@ -17,9 +17,9 @@
 }
 .home-aerocore__carbon-fallback {
   position: absolute;
-  width: min(92vw, 1120px);
+  width: min(92vw / var(--peds-visual-zoom), 1120px);
   height: auto;
-  max-height: 95vh;
+  max-height: calc(95vh / var(--peds-visual-zoom));
   left: 64%;
   top: 49%;
   opacity: .73;
@@ -53,7 +53,7 @@
 }
 .home-v3 .eds-explore { border-top-color: rgba(255,74,24,.22); }
 @media (max-width: 850px) {
-  .home-aerocore__carbon-fallback { left: 63%; top: 35%; width: min(150vw,760px); opacity: .65; }
+  .home-aerocore__carbon-fallback { left: 63%; top: 35%; width: min(150vw / var(--peds-visual-zoom),760px); opacity: .65; }
   .home-aerocore__vignette { background: linear-gradient(90deg,rgba(2,5,9,.76),rgba(2,5,9,.24)); }
 }
 @media (prefers-reduced-motion: reduce) {

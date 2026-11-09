@@ -58,7 +58,7 @@ export const QualifyingClassificationModal: React.FC<QualifyingModalProps> = ({
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-5xl bg-studio-950 border border-white/15 rounded-3xl shadow-2xl overflow-hidden my-auto max-h-[92vh] flex flex-col text-white animate-scale-up"
+        className="relative w-full max-w-5xl bg-studio-950 border border-white/15 rounded-3xl shadow-2xl overflow-hidden my-auto max-h-[calc(92vh_/_var(--peds-visual-zoom))] flex flex-col text-white animate-scale-up"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top Accent Strip */}

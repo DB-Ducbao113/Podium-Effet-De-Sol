@@ -70,8 +70,8 @@
   background: var(--p5-bg);
   display: flex;
   align-items: flex-end;
-  padding: clamp(1.6rem, 4vw, 3.4rem);
-  padding-bottom: clamp(8.5rem, 11vw, 11rem);
+  padding: clamp(1.6rem, 4vw / var(--peds-visual-zoom), 3.4rem);
+  padding-bottom: clamp(8.5rem, 11vw / var(--peds-visual-zoom), 11rem);
 }
 
 .p5-hero-media,
@@ -114,7 +114,7 @@
 .p5-mega {
   margin: 0.7rem 0 0;
   font-family: var(--peds-font-display);
-  font-size: clamp(4.2rem, 11.4vw, 10.5rem);
+  font-size: clamp(4.2rem, 11.4vw / var(--peds-visual-zoom), 10.5rem);
   font-style: italic;
   font-weight: 800;
   line-height: 0.8;
@@ -135,7 +135,7 @@
   max-width: 42rem;
   margin: 1.1rem 0 0;
   font-family: var(--peds-font-body);
-  font-size: clamp(0.95rem, 1.4vw, 1.12rem);
+  font-size: clamp(0.95rem, 1.4vw / var(--peds-visual-zoom), 1.12rem);
   line-height: 1.6;
   color: #d7dbe2;
 }
@@ -182,7 +182,7 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: end;
-  gap: clamp(0.6rem, 1.4vw, 1.2rem);
+  gap: clamp(0.6rem, 1.4vw / var(--peds-visual-zoom), 1.2rem);
   margin: -7.5rem 1.5rem 0;
 }
 
@@ -190,7 +190,7 @@
   position: relative;
   display: block;
   min-width: 0;
-  height: clamp(350px, 36vw, 470px);
+  height: clamp(350px, 36vw / var(--peds-visual-zoom), 470px);
   border-radius: 26px;
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--team-primary, var(--team)) 38%, rgba(244, 240, 232, 0.16));
@@ -203,7 +203,7 @@
 }
 
 .p5-podium-1 {
-  height: clamp(400px, 41vw, 530px);
+  height: clamp(400px, 41vw / var(--peds-visual-zoom), 530px);
   border-color: color-mix(in srgb, var(--team-primary, var(--team)) 58%, rgba(255, 179, 71, 0.45));
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55), 0 0 60px color-mix(in srgb, var(--team-primary, var(--team)) 22%, transparent);
 }
@@ -288,7 +288,7 @@
   font-family: var(--peds-font-display);
   font-style: italic;
   font-weight: 800;
-  font-size: clamp(7rem, 14vw, 13rem);
+  font-size: clamp(7rem, 14vw / var(--peds-visual-zoom), 13rem);
   line-height: 0.75;
   color: transparent;
   -webkit-text-stroke: 1px color-mix(in srgb, var(--team-primary, var(--team)) 42%, rgba(244, 240, 232, 0.14));
@@ -343,7 +343,7 @@
 .p5-podium-info h3 {
   margin: 0;
   font-family: var(--peds-font-display);
-  font-size: clamp(1.75rem, 2.6vw, 2.5rem);
+  font-size: clamp(1.75rem, 2.6vw / var(--peds-visual-zoom), 2.5rem);
   font-weight: 700;
   line-height: 0.96;
   letter-spacing: -0.01em;
@@ -366,7 +366,7 @@
 
 .p5-podium-points strong {
   font-family: var(--peds-font-display);
-  font-size: clamp(2.5rem, 4.6vw, 3.8rem);
+  font-size: clamp(2.5rem, 4.6vw / var(--peds-visual-zoom), 3.8rem);
   font-weight: 800;
   line-height: 0.85;
   color: var(--p5-text);
@@ -407,7 +407,7 @@
   align-items: end;
   justify-content: space-between;
   gap: 1rem;
-  margin: clamp(2.2rem, 4vw, 3.4rem) 0 1rem;
+  margin: clamp(2.2rem, 4vw / var(--peds-visual-zoom), 3.4rem) 0 1rem;
   padding-top: 1.4rem;
   border-top: 1px solid var(--p5-line);
 }
@@ -416,7 +416,7 @@
 .p5-section-head h3 {
   margin: 0.3rem 0 0;
   font-family: var(--peds-font-display);
-  font-size: clamp(1.9rem, 3.4vw, 3rem);
+  font-size: clamp(1.9rem, 3.4vw / var(--peds-visual-zoom), 3rem);
   font-weight: 700;
   line-height: 1;
 }
@@ -830,7 +830,7 @@
 /* ------------------------------------------------------------- gallery ---- */
 
 .p5-gallery-page {
-  min-height: 100vh;
+  min-height: calc(100vh / var(--peds-visual-zoom));
   padding: 2rem 0 4rem;
 }
 
@@ -848,7 +848,7 @@
   border: 1px solid var(--p5-line);
   display: flex;
   align-items: flex-end;
-  padding: clamp(1.6rem, 4vw, 3.2rem);
+  padding: clamp(1.6rem, 4vw / var(--peds-visual-zoom), 3.2rem);
 }
 
 .p5-gallery-hero .p5-hero-media img {
@@ -870,7 +870,7 @@
 .p5-gallery-hero h1 {
   margin: 0.5rem 0 0;
   font-family: var(--peds-font-display);
-  font-size: clamp(4rem, 12vw, 11rem);
+  font-size: clamp(4rem, 12vw / var(--peds-visual-zoom), 11rem);
   font-style: italic;
   font-weight: 800;
   line-height: 0.8;
@@ -906,7 +906,7 @@
     linear-gradient(118deg, #0b0d12 0%, #07090d 54%, #0e0a08 100%);
   display: flex;
   align-items: flex-end;
-  padding: clamp(1.5rem, 3.4vw, 2.8rem);
+  padding: clamp(1.5rem, 3.4vw / var(--peds-visual-zoom), 2.8rem);
 }
 
 .p5-drivers-hero::before {
@@ -986,7 +986,7 @@
 .p5-drivers-hero h1 {
   margin: 0.45rem 0 0;
   font-family: var(--peds-font-display);
-  font-size: clamp(4.6rem, 10.4vw, 9.4rem);
+  font-size: clamp(4.6rem, 10.4vw / var(--peds-visual-zoom), 9.4rem);
   font-style: italic;
   font-weight: 800;
   line-height: 0.78;
@@ -1002,7 +1002,7 @@
   gap: 0.7rem;
   margin: 1rem 0 0;
   font-family: var(--peds-font-mono);
-  font-size: clamp(0.6rem, 1vw, 0.72rem);
+  font-size: clamp(0.6rem, 1vw / var(--peds-visual-zoom), 0.72rem);
   letter-spacing: 0.24em;
   text-transform: uppercase;
   color: #e6e1d7;
@@ -1044,7 +1044,7 @@
 
 .p5-drivers-hero-credit {
   position: absolute;
-  right: clamp(1rem, 2vw, 1.6rem);
+  right: clamp(1rem, 2vw / var(--peds-visual-zoom), 1.6rem);
   bottom: 0.8rem;
   z-index: 3;
   max-width: 48%;
@@ -1113,7 +1113,7 @@
 }
 
 .p5-controls input {
-  min-width: min(22rem, 60vw);
+  min-width: min(22rem, 60vw / var(--peds-visual-zoom));
 }
 
 .p5-controls-meta {
@@ -1126,7 +1126,7 @@
 .p5-driver-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: clamp(0.65rem, 1.05vw, 1rem);
+  gap: clamp(0.65rem, 1.05vw / var(--peds-visual-zoom), 1rem);
 }
 
 @media (max-width: 1179px) {
@@ -1247,7 +1247,7 @@
   right: -0.02em;
   z-index: 4;
   font-family: var(--peds-font-display);
-  font-size: clamp(5rem, 7.4vw, 7.4rem);
+  font-size: clamp(5rem, 7.4vw / var(--peds-visual-zoom), 7.4rem);
   font-style: italic;
   font-weight: 800;
   line-height: 0.8;
@@ -1300,7 +1300,7 @@
 }
 
 .p5-driver-card-last {
-  font-size: clamp(1.65rem, 2.35vw, 2.2rem);
+  font-size: clamp(1.65rem, 2.35vw / var(--peds-visual-zoom), 2.2rem);
   font-style: italic;
   font-weight: 800;
   letter-spacing: -0.01em;
@@ -1423,7 +1423,7 @@
 .p5-team-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
-  gap: clamp(0.8rem, 1.4vw, 1.2rem);
+  gap: clamp(0.8rem, 1.4vw / var(--peds-visual-zoom), 1.2rem);
 }
 
 .p5-team-card {
@@ -1509,7 +1509,7 @@
 .p5-team-card h2 {
   margin: 0.25rem 0 0;
   font-family: var(--peds-font-display);
-  font-size: clamp(1.7rem, 3vw, 2.6rem);
+  font-size: clamp(1.7rem, 3vw / var(--peds-visual-zoom), 2.6rem);
   font-weight: 700;
   line-height: 0.92;
   overflow-wrap: anywhere;
@@ -1554,7 +1554,7 @@
 /* ------------------------------------------------------------- profile ---- */
 
 .p5-profile {
-  min-height: 100vh;
+  min-height: calc(100vh / var(--peds-visual-zoom));
   padding: 1.5rem 0 4rem;
 }
 
@@ -1611,16 +1611,16 @@
   position: relative;
   z-index: 2;
   max-width: 46rem;
-  padding: clamp(1.6rem, 4vw, 3.2rem);
+  padding: clamp(1.6rem, 4vw / var(--peds-visual-zoom), 3.2rem);
 }
 
 .p5-profile-number {
   position: absolute;
   top: 3.2rem;
-  left: clamp(1.4rem, 4vw, 3rem);
+  left: clamp(1.4rem, 4vw / var(--peds-visual-zoom), 3rem);
   z-index: 0;
   font-family: var(--peds-font-display);
-  font-size: clamp(8rem, 20vw, 18rem);
+  font-size: clamp(8rem, 20vw / var(--peds-visual-zoom), 18rem);
   font-style: italic;
   font-weight: 800;
   line-height: 0.72;
@@ -1648,7 +1648,7 @@
 .p5-profile-hero h1 {
   margin: 0.4rem 0 0;
   font-family: var(--peds-font-display);
-  font-size: clamp(3.4rem, 8.6vw, 8.2rem);
+  font-size: clamp(3.4rem, 8.6vw / var(--peds-visual-zoom), 8.2rem);
   font-style: italic;
   font-weight: 800;
   line-height: 0.82;
@@ -1761,7 +1761,7 @@
   display: block;
   margin-top: 0.35rem;
   font-family: var(--peds-font-display);
-  font-size: clamp(2rem, 3.6vw, 3rem);
+  font-size: clamp(2rem, 3.6vw / var(--peds-visual-zoom), 3rem);
   font-weight: 800;
   line-height: 0.86;
 }
@@ -1835,7 +1835,7 @@
 .p5-profile-section-head h2 {
   margin: 0.3rem 0 0;
   font-family: var(--peds-font-display);
-  font-size: clamp(1.7rem, 3vw, 2.5rem);
+  font-size: clamp(1.7rem, 3vw / var(--peds-visual-zoom), 2.5rem);
   font-weight: 700;
   line-height: 1;
 }
@@ -2244,7 +2244,7 @@
   }
 
   .p5-mega {
-    font-size: clamp(3.2rem, 15vw, 5.4rem);
+    font-size: clamp(3.2rem, 15vw / var(--peds-visual-zoom), 5.4rem);
   }
 
   .p5-hero-lead {
@@ -2325,7 +2325,7 @@
   }
 
   .p5-gallery-hero h1 {
-    font-size: clamp(3.4rem, 16vw, 6rem);
+    font-size: clamp(3.4rem, 16vw / var(--peds-visual-zoom), 6rem);
   }
 
   .p5-drivers-hero {
@@ -2353,7 +2353,7 @@
   }
 
   .p5-drivers-hero h1 {
-    font-size: clamp(3.5rem, 16vw, 5.6rem);
+    font-size: clamp(3.5rem, 16vw / var(--peds-visual-zoom), 5.6rem);
   }
 
   .p5-drivers-hero-sub {
@@ -2467,7 +2467,7 @@
   }
 
   .p5-profile-hero h1 {
-    font-size: clamp(2.9rem, 15vw, 5rem);
+    font-size: clamp(2.9rem, 15vw / var(--peds-visual-zoom), 5rem);
   }
 
   .p5-profile-number {
@@ -2670,9 +2670,9 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: end;
-  gap: clamp(1.2rem, 3vw, 2.6rem);
+  gap: clamp(1.2rem, 3vw / var(--peds-visual-zoom), 2.6rem);
   min-height: 560px;
-  padding: clamp(1.6rem, 4vw, 3.2rem);
+  padding: clamp(1.6rem, 4vw / var(--peds-visual-zoom), 3.2rem);
   border-radius: 30px;
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--team-primary, var(--team)) 38%, rgba(244, 240, 232, 0.16));
@@ -2699,7 +2699,7 @@
 .p5-team-hero h1 {
   margin: 0.5rem 0 0;
   font-family: var(--peds-font-display);
-  font-size: clamp(3.2rem, 7.8vw, 7.6rem);
+  font-size: clamp(3.2rem, 7.8vw / var(--peds-visual-zoom), 7.6rem);
   font-style: italic;
   font-weight: 800;
   line-height: 0.82;
@@ -2710,11 +2710,11 @@
 
 .p5-team-hero-rank {
   position: absolute;
-  top: clamp(1rem, 4vw, 2.4rem);
-  right: clamp(1.2rem, 4vw, 2.6rem);
+  top: clamp(1rem, 4vw / var(--peds-visual-zoom), 2.4rem);
+  right: clamp(1.2rem, 4vw / var(--peds-visual-zoom), 2.6rem);
   z-index: 1;
   font-family: var(--peds-font-display);
-  font-size: clamp(6rem, 16vw, 15rem);
+  font-size: clamp(6rem, 16vw / var(--peds-visual-zoom), 15rem);
   font-style: italic;
   font-weight: 800;
   line-height: 0.7;
@@ -2735,7 +2735,7 @@
 .p5-team-hero-driver {
   position: relative;
   display: block;
-  width: clamp(6.5rem, 10vw, 9.5rem);
+  width: clamp(6.5rem, 10vw / var(--peds-visual-zoom), 9.5rem);
   aspect-ratio: 3 / 4;
   border-radius: 16px;
   overflow: hidden;
@@ -2828,7 +2828,7 @@
 .p5-team-panel h3 {
   margin: 0.1rem 0 0;
   font-family: var(--peds-font-display);
-  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  font-size: clamp(1.8rem, 3vw / var(--peds-visual-zoom), 2.6rem);
   font-weight: 700;
   line-height: 0.95;
   overflow-wrap: anywhere;
@@ -2885,7 +2885,7 @@
 }
 
 .p5-team-drivers-grid .p5-driver-mini-body strong {
-  font-size: clamp(2rem, 3vw, 2.8rem);
+  font-size: clamp(2rem, 3vw / var(--peds-visual-zoom), 2.8rem);
 }
 
 @media (max-width: 900px) {
@@ -2896,7 +2896,7 @@
   }
 
   .p5-team-hero h1 {
-    font-size: clamp(3rem, 12vw, 5.6rem);
+    font-size: clamp(3rem, 12vw / var(--peds-visual-zoom), 5.6rem);
   }
 
   .p5-team-hero-rank {
@@ -2928,7 +2928,7 @@
   }
 
   .p5-team-hero-driver {
-    width: clamp(5.5rem, 26vw, 7.5rem);
+    width: clamp(5.5rem, 26vw / var(--peds-visual-zoom), 7.5rem);
     border-radius: 12px;
   }
 
@@ -2961,10 +2961,10 @@
 }
 
 .p5-gallery-page-drivers .p5-drivers-hero {
-  min-height: clamp(250px, 23vw, 330px);
+  min-height: clamp(250px, 23vw / var(--peds-visual-zoom), 330px);
   align-items: center;
   border-radius: 5px;
-  padding: clamp(1.4rem, 3vw, 2.6rem);
+  padding: clamp(1.4rem, 3vw / var(--peds-visual-zoom), 2.6rem);
 }
 
 .p5-gallery-page-drivers .p5-drivers-hero-media {
@@ -2977,7 +2977,7 @@
 }
 
 .p5-gallery-page-drivers .p5-drivers-hero h1 {
-  font-size: clamp(4.4rem, 7.2vw, 7rem);
+  font-size: clamp(4.4rem, 7.2vw / var(--peds-visual-zoom), 7rem);
 }
 
 .p5-gallery-page-drivers .p5-drivers-hero-sub {
@@ -2987,7 +2987,7 @@
 
 .p5-gallery-page-drivers .p5-controls {
   position: absolute;
-  top: calc(clamp(250px, 23vw, 330px) - 8rem);
+  top: calc(clamp(250px, 23vw / var(--peds-visual-zoom), 330px) - 8rem);
   right: 0;
   z-index: 3;
   width: min(52%, 42rem);
@@ -3012,7 +3012,7 @@
 
 .p5-gallery-page-drivers .p5-driver-grid {
   margin-top: 0.7rem;
-  gap: clamp(0.5rem, 0.7vw, 0.8rem);
+  gap: clamp(0.5rem, 0.7vw / var(--peds-visual-zoom), 0.8rem);
 }
 
 .p5-gallery-page-drivers .p5-driver-card {
@@ -3038,7 +3038,7 @@
   top: 0.45rem;
   left: 0.6rem;
   right: auto;
-  font-size: clamp(4.6rem, 6vw, 6.2rem);
+  font-size: clamp(4.6rem, 6vw / var(--peds-visual-zoom), 6.2rem);
   font-style: normal;
   color: var(--team, var(--p5-amber));
   -webkit-text-stroke: 0;
@@ -3151,7 +3151,7 @@
   }
 
   .p5-podium-card:not(.p5-podium-team-card):has(.p5-portrait--concept) .p5-podium-info h3 {
-    font-size: clamp(1.5rem, 6vw, 1.9rem);
+    font-size: clamp(1.5rem, 6vw / var(--peds-visual-zoom), 1.9rem);
   }
 
   .p5-concept-car--profile {
@@ -3218,7 +3218,7 @@
 }
 
 .p5-gallery-page-drivers .p5-driver-card-last {
-  font-size: clamp(1.8rem, 2.45vw, 2.5rem);
+  font-size: clamp(1.8rem, 2.45vw / var(--peds-visual-zoom), 2.5rem);
 }
 
 @media (max-width: 760px) {
@@ -3237,7 +3237,7 @@
   }
 
   .p5-gallery-page-drivers .p5-drivers-hero h1 {
-    font-size: clamp(3.4rem, 15vw, 5rem);
+    font-size: clamp(3.4rem, 15vw / var(--peds-visual-zoom), 5rem);
   }
 
   .p5-gallery-page-drivers .p5-controls {
@@ -3251,7 +3251,7 @@
   .p5-gallery-page-drivers .p5-driver-card-number {
     top: 0.35rem;
     left: 0.4rem;
-    font-size: clamp(2.8rem, 12vw, 4rem);
+    font-size: clamp(2.8rem, 12vw / var(--peds-visual-zoom), 4rem);
   }
 
   .p5-gallery-page-drivers .p5-driver-card-first {
@@ -3259,7 +3259,7 @@
   }
 
   .p5-gallery-page-drivers .p5-driver-card-last {
-    font-size: clamp(1.3rem, 6vw, 1.65rem);
+    font-size: clamp(1.3rem, 6vw / var(--peds-visual-zoom), 1.65rem);
   }
 }
 
@@ -3268,9 +3268,9 @@
   display: grid;
   grid-template-columns: minmax(12rem, 0.65fr) minmax(0, 1.35fr);
   align-items: center;
-  gap: clamp(1rem, 3vw, 2.5rem);
+  gap: clamp(1rem, 3vw / var(--peds-visual-zoom), 2.5rem);
   margin: 2rem 0;
-  padding: clamp(1rem, 2.5vw, 2rem);
+  padding: clamp(1rem, 2.5vw / var(--peds-visual-zoom), 2rem);
   border: 1px solid rgb(255 255 255 / 0.12);
   border-radius: 1rem;
   background: linear-gradient(130deg, rgb(255 74 24 / 0.08), transparent 55%), #0b1018;
@@ -3279,7 +3279,7 @@
 .p5-extra-review-copy h2 {
   margin: 0.4rem 0 0.8rem;
   color: #f4f0e8;
-  font: 800 clamp(2rem, 5vw, 4rem)/0.95 var(--peds-font-display);
+  font: 800 clamp(2rem, 5vw / var(--peds-visual-zoom), 4rem)/0.95 var(--peds-font-display);
   text-transform: uppercase;
 }
 
@@ -3360,8 +3360,8 @@
   height: 100%;
 }
 .p5-profile-hero--poster .p5-profile-poster img { object-fit: contain; filter: none; }
-.p5-profile-hero--poster .p5-profile-copy { max-width: none; padding: clamp(1.5rem, 3vw, 3rem); }
-.p5-profile-hero--poster h1 { font-size: clamp(2.5rem, 4.5vw, 5rem); line-height: 0.9; }
+.p5-profile-hero--poster .p5-profile-copy { max-width: none; padding: clamp(1.5rem, 3vw / var(--peds-visual-zoom), 3rem); }
+.p5-profile-hero--poster h1 { font-size: clamp(2.5rem, 4.5vw / var(--peds-visual-zoom), 5rem); line-height: 0.9; }
 .p5-profile-hero--poster .p5-profile-credit { max-width: 40%; }
 .p5-profile-action-section:has(.p5-profile-celebration) {
   position: relative;
@@ -3482,4 +3482,21 @@
 }
 @media (max-width: 620px) {
   .p5-driver-grid:has(.p5-driver-card--poster) { grid-template-columns: minmax(0, 1fr); }
+}
+.p5-portrait--historical-2024 img { filter: contrast(1.08) saturate(.76); }
+.p5-portrait--historical-2025 img { filter: contrast(1.04) saturate(.94); }
+
+.p5-generated-team-hero {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.p5-generated-team-hero .p5-portrait {
+  min-width: 0;
+  height: 100%;
+}
+.p5-generated-team-hero .p5-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 20%;
 }

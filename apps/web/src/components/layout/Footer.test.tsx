@@ -38,14 +38,18 @@ describe('Cinematic Footer / About and Credits contract', () => {
     expect(html).toContain('href="/drivers"');
     expect(html).toContain('peds-footer__backtop');
     expect(html).not.toMatch(/<canvas|<video/i);
+    expect(html).not.toContain('BEYOND THE');
+    expect(html).not.toContain('VƯỢT QUA');
+    expect(html).not.toContain('peds-footer__feature');
   });
 
-  it('places the project story in the About column and keeps one main legal disclosure', () => {
+  it('places concise creator context in the About column and keeps one main legal disclosure', () => {
     const html = renderFooter('en');
     expect(html).toContain('ABOUT PODIUM EDS');
-    expect(html).toContain('BUILT FOR THE LOVE OF RACING.');
+    expect(html).toContain('An independent project created by BaoBungBu for racing fans.');
     expect(html).toContain('Project &amp; creator');
     expect(html).toContain('Credits &amp; rights');
     expect(html.match(/Independent, unofficial platform/g)).toHaveLength(1);
+    expect(html).not.toContain('peds-footer__brand-tags');
   });
 });

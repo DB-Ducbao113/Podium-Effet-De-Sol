@@ -11,12 +11,31 @@ const renderAt = (path = '/') =>
 const currentPages = (html: string) => (html.match(/aria-current="page"/g) ?? []).length;
 
 describe('V5 grouped global navigation', () => {
+  it('keeps desktop menu and submenu labels consistent across routes', () => {
+    const labels = (path: string) => {
+      const desktop = renderAt(path).match(/<nav class="h1-nav__desktop"[\s\S]*?<\/nav>/)?.[0] ?? '';
+      return {
+        primary: [...desktop.matchAll(/class="h1-nav__link"[^>]*><span>([^<]+)<\/span>/g)].map((match) => match[1]),
+        submenus: [...desktop.matchAll(/class="h1-nav__sub"[^>]*>([^<]+)<\/a>/g)].map((match) => match[1]),
+      };
+    };
+    expect(labels('/season/2026?tab=standings')).toEqual(labels('/'));
+    expect(labels('/showroom')).toEqual(labels('/'));
+  });
+
+  it('uses the inner-route navbar treatment outside Home', () => {
+    expect(renderAt('/')).not.toContain('h1-nav--inner');
+    expect(renderAt('/season/2026?tab=standings')).toContain('h1-nav--inner');
+    expect(renderAt('/showroom')).toContain('h1-nav--inner');
+  });
+
   it('renders one flat primary navigation with existing routes only', () => {
     const html = renderAt();
-    for (const href of ['/', '/season/2026?tab=results', '/season/2026?tab=standings', '/drivers', '/teams', '/showroom', '/engineering']) {
+    for (const href of ['/', '/season/2026?tab=results', '/drivers', '/teams', '/showroom', '/engineering']) {
       expect(html).toContain(`href="${href}"`);
     }
-    expect(html).toContain('h1-nav__cta');
+    expect(html).toContain('href="/season/2026?tab=standings&amp;category=drivers"');
+    expect(html).toContain('h1-nav__desktop');
     for (const path of ['/live', '/timing', '/archive', '/races', '/circuits', '/stories']) {
       expect(html).not.toContain(`href="${path}"`);
     }
@@ -24,14 +43,35 @@ describe('V5 grouped global navigation', () => {
     expect(html).not.toContain('/season/2026?tab=drivers');
   });
 
-  it('uses spacious grouped desktop destinations with all original routes accessible', () => {
+  it('shows the same six desktop destinations on Home and other routes', () => {
     const html = renderAt('/');
     expect(html).toContain('Championship');
-    expect(html).toContain('The Grid');
+    expect(html).toContain('Showroom');
     expect(html).toContain('h1-nav-dropdown-championship');
-    expect(html).toContain('h1-nav-dropdown-grid');
     expect(html).toContain('href="/teams"');
     expect(html).toContain('href="/season/2026?tab=calendar"');
+    const desktop = html.match(/<nav class="h1-nav__desktop"[\s\S]*?<\/nav>/)?.[0] ?? '';
+    expect((desktop.match(/h1-nav__group/g) ?? []).length).toBeGreaterThanOrEqual(6);
+    expect(desktop).not.toContain('The Grid');
+    const season = renderAt('/season/2026?tab=results');
+    expect(season).not.toContain('The Grid');
+    expect(season).toContain('href="/showroom"');
+  });
+
+  it('does not repeat the same destination within a desktop submenu', () => {
+    const html = renderAt('/');
+    const championship = html.match(/data-nav-id="championship"[\s\S]*?id="h1-nav-dropdown-championship"[\s\S]*?<\/div><\/div>/)?.[0] ?? '';
+    const childLinks = [...championship.matchAll(/class="h1-nav__sub"[^>]*href="([^"]+)"/g)];
+    expect(childLinks.length).toBeGreaterThan(0);
+    expect(new Set(childLinks.map((match) => match[1])).size).toBe(childLinks.length);
+  });
+
+  it('does not list generic Standings beside the two championship classifications', () => {
+    const html = renderAt('/season/2026?tab=standings&category=drivers');
+    const championship = html.match(/data-nav-id="championship"[\s\S]*?id="h1-nav-dropdown-championship"[\s\S]*?<\/div><\/div>/)?.[0] ?? '';
+    expect(championship).not.toContain('>Standings</a>');
+    expect(championship).toContain("Drivers&#x27; championship");
+    expect(championship).toContain("Constructors&#x27; championship");
   });
 
   it('renders the official PODIUM EDS logo with an accessible home label', () => {
@@ -108,8 +148,8 @@ describe('Inside the Machine Engineering integration', () => {
     const html = renderAt();
     expect(html).toContain('href="/engineering"');
     expect(html).toContain('Inside the Machine');
-    expect(html).toContain('href="/engineering/insights"');
-    expect(html).toContain('href="/engineering/car-anatomy"');
-    expect(html).not.toContain('/engineering/car-anatomy?chapter=diffuser');
+    expect(html).not.toContain('Engineering insights');
+    expect(html).not.toContain('Previous car anatomy');
+    expect(html).not.toContain('/engineering/car-anatomy');
   });
 });

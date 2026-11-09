@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import type { PointerEventHandler } from 'react';
 import { animate, createScope } from 'animejs';
 import { ArrowDown, ArrowRight, Move3d } from 'lucide-react';
@@ -6,23 +6,19 @@ import { useNavigate } from 'react-router-dom';
 import { useNavigationStore } from '../../store/useNavigationStore';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import { HomeRacePulseScene } from './HomeRacePulseScene';
+import { HomeCommandStrip } from './HomeCommandStrip';
+import { useNextRace } from './useNextRace';
+import { chapterScrollTarget } from './journey/homeChapterScroll';
 import './podiumHeroR1.css';
 import './homeHeroV7.css';
-
-const chapters = [
-  { number: '01', id: 'launch-control' },
-  { number: '02', id: 'race-control' },
-  { number: '03', id: 'championship-overview' },
-  { number: '04', id: 'eds-explore' },
-];
 
 export function PodiumBrandHero() {
   const lang = useNavigationStore((state) => state.lang);
   const navigate = useNavigate();
   const reducedMotion = useReducedMotion();
+  const nextRace = useNextRace();
   const heroRef = useRef<HTMLElement | null>(null);
   const frame = useRef<number | null>(null);
-  const [chapter, setChapter] = useState('launch-control');
 
   useEffect(() => {
     const root = heroRef.current;
@@ -46,20 +42,6 @@ export function PodiumBrandHero() {
       root.dataset.visible = String(entry.isIntersecting);
     }, { threshold: 0.03 });
     observer.observe(root);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    if (!('IntersectionObserver' in window)) return;
-    const observer = new IntersectionObserver((entries) => {
-      for (const entry of entries) {
-        if (entry.isIntersecting) setChapter(entry.target.id);
-      }
-    }, { rootMargin: '-20% 0px -55% 0px' });
-    for (const entry of chapters) {
-      const element = document.getElementById(entry.id);
-      if (element) observer.observe(element);
-    }
     return () => observer.disconnect();
   }, []);
 
@@ -93,8 +75,7 @@ export function PodiumBrandHero() {
     }
   };
   const goTo = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: reducedMotion ? 'instant' : 'smooth', block: 'start' });
-    setChapter(id);
+    chapterScrollTarget(id)?.scrollIntoView({ behavior: reducedMotion ? 'instant' : 'smooth', block: 'start' });
   };
 
   return (
@@ -129,26 +110,15 @@ export function PodiumBrandHero() {
             </button>
           </div>
         </div>
-        <div className="r1-cinema__scene" data-launch-reveal>
+        <div className="r1-cinema__scene">
           <div className="r1-cinema__scene-heading" aria-hidden="true">
             <span>LAUNCH CONTROL</span>
             <span>EDS / 01</span>
           </div>
           <HomeRacePulseScene />
         </div>
+        <HomeCommandStrip race={nextRace} />
       </div>
-      <nav className="r1-cinema__chapters" aria-label={lang === 'vi' ? 'Đi tới khu vực trang chủ' : 'Homepage sections'}>
-        {chapters.map(({ number, id }) => (
-          <button
-            key={id}
-            type="button"
-            data-active={chapter === id}
-            aria-label={`${lang === 'vi' ? 'Khu vực' : 'Section'} ${number}`}
-            aria-current={chapter === id ? 'step' : undefined}
-            onClick={() => goTo(id)}
-          >{number}</button>
-        ))}
-      </nav>
       <button type="button" className="r1-cinema__scroll" onClick={() => goTo('race-control')}>
         <span>{lang === 'vi' ? 'Khám phá' : 'Scroll to explore'}</span><ArrowDown size={16} aria-hidden="true" />
       </button>

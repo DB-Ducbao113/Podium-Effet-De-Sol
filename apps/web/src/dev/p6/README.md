@@ -14,8 +14,9 @@ This branch now runs a **geometry-first sponsor preflight** before P6 decals are
 - When the source anchor fails, the runtime tries uniform scale 0.88/0.72 and small same-panel translations. It does **not** distort the artwork aspect ratio or cross to a different mesh.
 - Invalid or restricted artwork is not rendered; each rejection is recorded as `unplaced` or `blocked`, rather than inserting a floating/illegible wordmark.
 - Flat wing appliques follow measured surface-hit positions instead of hard-coded X coordinates; an additional shallow-depth preflight is mandatory.
-- `standard2026References.ts`: one official 2026 livery gallery per team; galleries are **external-only**, and individual view coverage/rights remain unverified.
-- Cadillac's default study is frozen to its **February 2026 split white-left / black-right launch**. Midseason revisions must be represented as a separate future variant.
+- `standard2026References.ts`: one official 2026 launch gallery per team. `official2026PhotoIndex.json` records 67 individual gallery images plus dated regular-race photos for all 11 teams; a missing angle remains unverified.
+- Cadillac opens on the `season-current-2026-11-06` paint study anchored to **10 Belgium race-weekend images**: three F1 photos dated 17 July and seven Cadillac team photos from its [Belgium page](https://www.cadillacf1team.com/2026-belgium) and race reports. Four later race photos are comparison evidence only. The team photos document front, rear and both side profiles; overhead and underside remain unverified. The **February 2026 split white-left / black-right launch** remains selectable. Belgium paint withholds launch decals until matching logo placements are checked.
+- Mercedes W17 paint now includes a lower PETRONAS green flow line, top-sidepod rhombi and an engine-cover three-pointed-star field, using the [official 2026 design description](https://www.mercedesamgf1.com/news/mercedes-amg-f1-2026-challenger-w17-revealed) and launch renders. A [Mexico City race photo](https://www.mercedesamgf1.com/news/in-pictures-the-best-images-from-mexico-city-2026) corroborates the regular silver/black/green scheme after the Austin special. This is still a Model B paint study; paint seams and sponsor placement need same-angle review.
 - `main.tsx`: P6 Advanced tab shows placed/adapted/unplaced/blocked counts. For detailed metrics, open browser DevTools and run `window.__P6_LIVERY_DEBUG__()` on the local review page; `placementAudit` includes each attempted anchor, coverage, normals, stretch and reason.
 
 **What the counters mean:** A `placed` result means sampled geometry and decal creation checks passed; it does **not** mean the sponsor, photo angle, artwork rights or final visual legibility has been accepted.
@@ -59,7 +60,7 @@ The geometry preflight introduced in V2 was too expensive to run synchronously d
 **Problem 2: inconsistent 2026 colors.** Previously `teamLiveries.ts`, `paintAtlas.ts` and the runtime's Cadillac fallback used conflicting hardcoded RGB values. This created mismatches between swatches, paint regions and quick transitions even before source-photo approval. Fix:
 - `standard2026Paint.ts` is the sole source of the 11 teams' paint-role swatches (primary, secondary, accent, side, cover, nose, wing, dark, light, detail and finish).
 - `teamLiveries.ts` spreads those values into each selectable team's runtime data; `paintAtlas.ts` consumes exactly the same source for all three projections. 109 individual atlas color literals were replaced.
-- `liveryRuntime.ts::zoneColor` does not inject independent Cadillac colors. Cadillac stays left-light / right-dark as in the February launch source; later revisions must remain separate.
+- `liveryRuntime.ts::zoneColor` preserves the February asymmetry by default. The Belgium-onward Cadillac variant has its own color mapping and atlas, so it cannot overwrite the frozen launch source.
 - Studio uses neutral key/fill lighting and white rim by default. Optional Team lighting is decorative and **not** color-reference accurate.
 - Existing body-mask geometry and sponsor anchors remain provisional; the shared palette stops conflicting *colors* but does not prove every polygon follows the source's real panel boundaries.
 
@@ -84,3 +85,33 @@ The palette values are visually estimated colors matched to one 2026 launch desi
 - These groups are **semantic review slots** (`geometryEvidence: 'semantic-only'`, `meshName: null`), not confirmed GLB mesh boundaries. Do not bake the wrong polygon from this early-stage map.
 
 **Recommended local validation:** `npm run typecheck --workspace=@peds/web`; `npm run test --workspace=@peds/web -- modelBComponentMap.test.ts`; then inspect `/showroom` with the Advanced part selector and neutral Studio lights. Full browser/GLB multi-angle visual QA remains to be done before sponsor placement.
+
+## Eleven-team current logo review (2026-11-06)
+
+The DEV selector now opens the dated current-review target for all 11 teams. Nine teams reuse their launch-era decal anchors as **provisional visual proxies** because the indexed current race photos do not establish both sides and top. Mercedes has separate Mexico anchors. Cadillac's Belgium revision stays paint-only: the available TWG artwork and other current sponsor marks are not cleared for placement. The launch variant remains selectable for every team.
+
+| Team | Current DEV logo result | Remaining evidence or geometry issue |
+| --- | --- | --- |
+| McLaren | 17 projected; two narrow-halo marks unplaced, two restricted marks blocked | Current photo is front-only; side/top and partner positions are unverified. |
+| Ferrari | 11 projected | Current photo is an unresolved front quarter; side/top positions are unverified. |
+| Mercedes | 4 Mexico projections; two oversized side stars hidden | Right-side Mexico photo is indexed; physical left remains mirrored and top is unverified. |
+| Red Bull | 7 projected | Current photo is front-only; side/top positions are unverified. |
+| Racing Bulls | 7 projected | Current side in the index is unresolved; both physical sides need confirmation. |
+| Aston Martin | 5 projected | Launch gallery depicts a concept chassis; current image is an unresolved front quarter. |
+| Alpine | 7 projected | Current photo is front-only; BWT/eni placement needs same-angle review. |
+| Williams | 9 projected | Atlassian still warps across Model B's cover; current side is unresolved. |
+| Haas | 4 projected | Current photo is an unresolved front quarter; both sides need confirmation. |
+| Audi | 5 projected | Current photo is an unresolved front quarter; side positions need confirmation. |
+| Cadillac | 0 current projections; 12 logo observations remain unplaced | Belgium-side photos exist, but matching artwork and the TWG scale/identity are unresolved. |
+
+The counts above are **projection counts, not visual approvals**. The browser review captured physical left, right and top for all 11 in `.local-assets/qa/p6-all-logos-2026/`; it found no page errors or failed requests. Headless Chrome on a software renderer does not establish real-device performance. No Model B binary, public asset, production Showroom, or release permission changed.
+
+## Wheel and rear-endplate design study
+
+The DEV runtime now draws medium-yellow sidewall lettering and a narrow compound ring on each of Model B's four measured wheel positions, independent of sponsor visibility. Rubber remains dark and matte; the older rainbow McLaren ring is removed. This is an illustrative medium-compound presentation for all 11 cars, not a claim about the tyres fitted at a particular race. [Pirelli's 2026 tyre description](https://press.pirelli.com/pirelli-reveals-2026-f1-tyres-a-fresh-logo-design-and-new-compounds/) confirms the white/yellow/red compound coding and revised sidewall graphics; the local lettering is a hand-drawn approximation, pending artwork rights and owner visual review.
+
+The McLaren Dropbox mark and the Racing Bulls, Alpine and Williams right rear-endplate marks use smaller footprints on Model B's outer wing face. They are still review projections rather than verified 2026 sponsor placements. Close-up browser evidence is stored in `.local-assets/qa/p6-all-logos-2026/wheel-*-right.png` and `wheel-mclaren-rear.png`.
+
+## Rear wing team-name fallback
+
+The fixed Model B rear endplate has a narrow, comparatively flat lower strip; its upper curved area is not treated as a logo plane. DEV now draws each team's name on that strip on both physical sides. On the right, existing Dropbox, VISA, eni or Komatsu artwork takes precedence while sponsor preview is enabled. Cars without a rear-facing main-wing wordmark also receive a centered team name on the main wing. These names are generated canvas text for this local design study, not official team artwork or evidence of a race-specific sponsor layout. The visual audit is in `.local-assets/qa/p6-all-logos-2026/rearname-*-{left,right,rear}.png`.

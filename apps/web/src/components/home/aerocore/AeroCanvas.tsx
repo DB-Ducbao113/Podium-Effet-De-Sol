@@ -114,6 +114,7 @@ export function AeroCanvas({ controller, visible, onFailure }: Props) {
   return <Canvas
     className="home-aerocore__canvas"
     dpr={[1, 1.5]}
+    resize={{ offsetSize: true }}
     frameloop={visible ? 'always' : 'never'}
     gl={{ alpha: true, antialias: true, powerPreference: 'low-power' }}
     camera={{ position: [0, .5, 10.5], fov: 39, near: .1, far: 90 }}

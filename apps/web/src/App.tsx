@@ -27,6 +27,7 @@ import { Container } from './components/ui/Container';
 import { buttonClassName } from './components/ui/buttonStyles';
 import { StatePanel } from './components/ui/StatePanel';
 import { HomeWorldHost } from './components/home/world/HomeWorldHost';
+import { isChampionshipJourneyRoute } from './championshipJourneyRoute';
 
 const HomeView = lazy(() =>
   import('./components/home/HomeView').then((m) => ({ default: m.HomeView })),
@@ -158,7 +159,7 @@ function RaceRoute() {
 function NotFound() {
   const lang = useNavigationStore((state) => state.lang);
   return (
-    <Container className="flex min-h-[60vh] flex-col items-center justify-center py-24 text-center">
+    <Container className="flex min-h-[calc(60vh_/_var(--peds-visual-zoom))] flex-col items-center justify-center py-24 text-center">
       <p className="font-mono text-sm font-bold uppercase tracking-[0.28em] text-peds-accent-soft">
         Route error · 404
       </p>
@@ -179,6 +180,7 @@ export const App: React.FC = () => {
   const v9Preview = import.meta.env.DEV && !mobileHub && location.pathname === '/' &&
     new URLSearchParams(location.search).get('v9') === '1';
   const isHubRoute = mobileHub && isPrimaryPath(location.pathname);
+  const isShowroomRoute = location.pathname === '/showroom';
   const isInsideMachineTrial = insideMachineTrialEnabled &&
     (location.pathname === '/engineering' || location.pathname === '/engineering/inside-the-machine');
   const syncSeasonData = useChampionshipStore((state) => state.syncSeasonData);
@@ -239,14 +241,21 @@ export const App: React.FC = () => {
   }, [location.pathname, v9Preview]);
 
   useEffect(() => {
+    if (isChampionshipJourneyRoute(location.pathname, location.search)) {
+      // The map's own focus effect restores a saved round after returning from details.
+      if (!new URLSearchParams(location.search).has('focus')) {
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      }
+      return;
+    }
     if (mobileHub && isPrimaryPath(location.pathname)) return;
     if (location.pathname.startsWith('/season/') && new URLSearchParams(location.search).get('tab') === 'calendar') return;
-    window.scrollTo({ top: 0, behavior: isInsideMachineTrial ? 'auto' : 'smooth' });
-  }, [location.pathname, location.search, mobileHub, isInsideMachineTrial]);
+    window.scrollTo({ top: 0, behavior: isInsideMachineTrial || isShowroomRoute ? 'instant' : 'smooth' });
+  }, [location.pathname, location.search, mobileHub, isInsideMachineTrial, isShowroomRoute]);
 
 
   return (
-    <div className={`relative flex min-h-screen flex-col bg-peds-canvas font-sans text-peds-text selection:bg-peds-accent selection:text-white ${location.pathname === '/' ? 'h25-home-route' : ''}`} data-home-v9={v9Preview ? 'true' : undefined}>
+    <div className={`relative flex min-h-screen flex-col bg-peds-canvas font-sans text-peds-text selection:bg-peds-accent selection:text-white ${location.pathname === '/' ? 'h25-home-route' : ''} ${isShowroomRoute ? 'peds-showroom-route' : ''}`} data-home-v9={v9Preview ? 'true' : undefined}>
       {!isInsideMachineTrial && <RouteSeo />}
       {/* ── D2. Film Grain Overlay (Cinematic Texture) ── */}
       <div
@@ -261,7 +270,7 @@ export const App: React.FC = () => {
       {!isInsideMachineTrial && <Navbar />}
 
       {/* ── D1. Scroll Progress Speed Strip ── */}
-      {!v9Preview && <div className="fixed top-0 left-0 right-0 h-[2.5px] z-[70] pointer-events-none bg-black/20 overflow-hidden">
+      {!v9Preview && !isShowroomRoute && <div className="fixed top-0 left-0 right-0 h-[2.5px] z-[70] pointer-events-none bg-black/20 overflow-hidden">
         <div
           style={{
             transform: `scaleX(${scrollProgress})`,
@@ -278,7 +287,7 @@ export const App: React.FC = () => {
         >
           <Suspense
             fallback={
-              <Container className="min-h-[calc(100svh-64px)] py-16">
+              <Container className="min-h-[calc(100svh_/_var(--peds-visual-zoom)-64px)] py-16">
                 <StatePanel state="loading" title="Loading interface" />
               </Container>
             }
@@ -302,7 +311,7 @@ export const App: React.FC = () => {
               <Route path="/season/:year/race/:round" element={<RaceRoute />} />
               <Route
                 path="/showroom"
-                element={mobileHub ? <MobileAllInOne season={2026} /> : <ShowroomView />}
+                element={<ShowroomView />}
               />
               <Route path="/gallery" element={<Navigate to="/showroom" replace />} />
               <Route path="/teams/:teamId" element={<TeamDetailPage />} />
@@ -321,7 +330,7 @@ export const App: React.FC = () => {
           </Suspense>
         </F1PageTransition>
       </main>
-      {!isInsideMachineTrial && <Footer />}
+      {!isInsideMachineTrial && !isShowroomRoute && <Footer />}
     </div>
   );
 };

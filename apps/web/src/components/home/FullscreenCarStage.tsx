@@ -289,9 +289,9 @@ export const FullscreenCarStage: React.FC = React.memo(() => {
 
       {/* ── Ambient Speed-Lines on Dark Hero Background (Plan 2.3) ── */}
       <div className="absolute inset-y-0 right-0 w-2/3 pointer-events-none overflow-hidden z-0 motion-reduce:hidden">
-        <div className="absolute top-1/4 right-1/4 w-[2px] h-[35vh] bg-gradient-to-b from-transparent via-white to-transparent transform -rotate-45 animate-speed-drift-1" />
-        <div className="absolute top-1/3 right-1/2 w-[1.5px] h-[40vh] bg-gradient-to-b from-transparent via-white to-transparent transform -rotate-45 animate-speed-drift-2" />
-        <div className="absolute top-1/2 right-1/6 w-[2px] h-[30vh] bg-gradient-to-b from-transparent via-white to-transparent transform -rotate-45 animate-speed-drift-3" />
+        <div className="absolute top-1/4 right-1/4 w-[2px] h-[calc(35vh_/_var(--peds-visual-zoom))] bg-gradient-to-b from-transparent via-white to-transparent transform -rotate-45 animate-speed-drift-1" />
+        <div className="absolute top-1/3 right-1/2 w-[1.5px] h-[calc(40vh_/_var(--peds-visual-zoom))] bg-gradient-to-b from-transparent via-white to-transparent transform -rotate-45 animate-speed-drift-2" />
+        <div className="absolute top-1/2 right-1/6 w-[2px] h-[calc(30vh_/_var(--peds-visual-zoom))] bg-gradient-to-b from-transparent via-white to-transparent transform -rotate-45 animate-speed-drift-3" />
       </div>
 
       {/* ── Top Header Controls & Badges ── */}
@@ -469,7 +469,7 @@ export const FullscreenCarStage: React.FC = React.memo(() => {
 
                   {/* Huge Watermark Background Text */}
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden z-0">
-                    <span className="font-display text-[12vw] font-black uppercase tracking-widest text-white/[0.04] whitespace-nowrap select-none">
+                    <span className="font-display text-[calc(12vw_/_var(--peds-visual-zoom))] font-black uppercase tracking-widest text-white/[0.04] whitespace-nowrap select-none">
                       {car.watermark}
                     </span>
                   </div>

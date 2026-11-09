@@ -1,0 +1,288 @@
+{
+  "status": "local-owner-review-only",
+  "sourceArchive": "PEDS_F1_all_20_GIFs.zip",
+  "sourceArchiveSha256": "0de658875fb533dea0b2b5dd6a494cdfe8087afe8a23f26be37145367cf266a4",
+  "provenance": "Owner-supplied AI-generated team car GIF pack; historical livery, sponsor, trademark and commercial-use rights are not verified. Do not publish without owner rights review.",
+  "assets": [
+    {
+      "season": 2024,
+      "teamId": "ferrari",
+      "gif": {
+        "file": "2024/ferrari-2024.gif",
+        "bytes": 337479,
+        "sha256": "a4a949ceadf6ed0d81f7833b09ca047928cb233aaa5623d74f6d1daddaeec571"
+      },
+      "poster": {
+        "file": "posters/2024/ferrari-2024.webp",
+        "bytes": 15018,
+        "sha256": "8a7e7003737b8bbbeb3f34247ddea28436cf4a8ea6870d2d385f631e64f07648"
+      }
+    },
+    {
+      "season": 2024,
+      "teamId": "redbull",
+      "gif": {
+        "file": "2024/redbull-2024.gif",
+        "bytes": 332415,
+        "sha256": "188346a2eca399044b386431342290a04516e37923d4f6517acea833f26a36d8"
+      },
+      "poster": {
+        "file": "posters/2024/redbull-2024.webp",
+        "bytes": 14258,
+        "sha256": "79e82aa1316aff296bbe7e0857127d5bd002b94be571a10cc27488daeb74c4d1"
+      }
+    },
+    {
+      "season": 2024,
+      "teamId": "mclaren",
+      "gif": {
+        "file": "2024/mclaren-2024.gif",
+        "bytes": 364504,
+        "sha256": "3a50119285de23c2f83e56e98bb683953c028f92a5951c48837831cf3dbff646"
+      },
+      "poster": {
+        "file": "posters/2024/mclaren-2024.webp",
+        "bytes": 15168,
+        "sha256": "40283efcec6f347080e0c5b7d74f47f2c6d6ea620ac515756817a8f7b47b7d79"
+      }
+    },
+    {
+      "season": 2024,
+      "teamId": "mercedes",
+      "gif": {
+        "file": "2024/mercedes-2024.gif",
+        "bytes": 370393,
+        "sha256": "7b2a9ca26a350993b18861561ad89bff06baa624e5b2f8b127721d18bb4305ca"
+      },
+      "poster": {
+        "file": "posters/2024/mercedes-2024.webp",
+        "bytes": 16670,
+        "sha256": "6d5ebb03af908b6f0d09c2df8eff9e295a57b899ceee15c56ebdc72cdd403e35"
+      }
+    },
+    {
+      "season": 2024,
+      "teamId": "astonmartin",
+      "gif": {
+        "file": "2024/astonmartin-2024.gif",
+        "bytes": 385523,
+        "sha256": "daf41deb5a93f0ef6977759344b61e2b94094f889ea1a56147f2e78ecfa79086"
+      },
+      "poster": {
+        "file": "posters/2024/astonmartin-2024.webp",
+        "bytes": 16940,
+        "sha256": "7f118c2c27185609cd598461dfcdd91da57bd320bb7711f27e197772291f7cf2"
+      }
+    },
+    {
+      "season": 2024,
+      "teamId": "alpine",
+      "gif": {
+        "file": "2024/alpine-2024.gif",
+        "bytes": 367264,
+        "sha256": "60316bcac345ed63085c3f65350ba53c76e9c75a4810277ef22d8c8cd95bd928"
+      },
+      "poster": {
+        "file": "posters/2024/alpine-2024.webp",
+        "bytes": 15098,
+        "sha256": "dc59850d9e836d6461aa67de89a73285fe80810f3e12f8ec28c3646c18a68f18"
+      }
+    },
+    {
+      "season": 2024,
+      "teamId": "williams",
+      "gif": {
+        "file": "2024/williams-2024.gif",
+        "bytes": 365624,
+        "sha256": "d810839c357f94662d89c3a9539aecb30ab3fbdd566ea7526a17a08fed3efa1e"
+      },
+      "poster": {
+        "file": "posters/2024/williams-2024.webp",
+        "bytes": 16022,
+        "sha256": "8db0efc53f83bf6a15554dde06ff825fe2b44262af555ad5a0dd5e3a217c417d"
+      }
+    },
+    {
+      "season": 2024,
+      "teamId": "haas",
+      "gif": {
+        "file": "2024/haas-2024.gif",
+        "bytes": 402997,
+        "sha256": "b9a40e279d6cd0fa92a1abfa47564ad8743401784bc5b4b056c23c2f40addee1"
+      },
+      "poster": {
+        "file": "posters/2024/haas-2024.webp",
+        "bytes": 16330,
+        "sha256": "507c53d528f2152276354c58d6f043045bcabeb459d2045abb8e8f88530859ea"
+      }
+    },
+    {
+      "season": 2024,
+      "teamId": "racingbulls",
+      "gif": {
+        "file": "2024/racingbulls-2024.gif",
+        "bytes": 409027,
+        "sha256": "dee359cba281d51e957c2a8960e47e3dffe70a1cb700ad78b140f1903fc47800"
+      },
+      "poster": {
+        "file": "posters/2024/racingbulls-2024.webp",
+        "bytes": 17790,
+        "sha256": "3eb6f1a374989f1a8cc3807922035b904d270183c2e1bd2efca74e2f8e0ac6f6"
+      }
+    },
+    {
+      "season": 2024,
+      "teamId": "sauber",
+      "gif": {
+        "file": "2024/sauber-2024.gif",
+        "bytes": 359293,
+        "sha256": "897790165faed9af7c32080cd6bd51f9fef54fd63cdd16c801e067d92410017d"
+      },
+      "poster": {
+        "file": "posters/2024/sauber-2024.webp",
+        "bytes": 13816,
+        "sha256": "dcf52a055606aebdcc4fe5a4e38edc53d1d4fb981c7b6f0befe0d5a0ba951b96"
+      }
+    },
+    {
+      "season": 2025,
+      "teamId": "ferrari",
+      "gif": {
+        "file": "2025/ferrari-2025.gif",
+        "bytes": 337497,
+        "sha256": "ec840bcd21dd397a1386ae9562cd813fd63c74e6ab299bdaa3397c249a6c300c"
+      },
+      "poster": {
+        "file": "posters/2025/ferrari-2025.webp",
+        "bytes": 13612,
+        "sha256": "fe3d2929ff1e1278d1fe9d294e0f94228a8435cf66b0a2095b2b8db91927c4f7"
+      }
+    },
+    {
+      "season": 2025,
+      "teamId": "redbull",
+      "gif": {
+        "file": "2025/redbull-2025.gif",
+        "bytes": 331196,
+        "sha256": "df94ec919a99e248fc95750b672e1b16cbd0b4cbc30261d4de058d146e4cee46"
+      },
+      "poster": {
+        "file": "posters/2025/redbull-2025.webp",
+        "bytes": 13120,
+        "sha256": "e1e5d0e88808cba8f7aa7829dcf13c4da1b96223452c53cb61eaef82af1de957"
+      }
+    },
+    {
+      "season": 2025,
+      "teamId": "mclaren",
+      "gif": {
+        "file": "2025/mclaren-2025.gif",
+        "bytes": 630038,
+        "sha256": "a95d9b61c0396faf1668f366e50c53e3d8929cae93fa8ae4b068e18d4ba4a543"
+      },
+      "poster": {
+        "file": "posters/2025/mclaren-2025.webp",
+        "bytes": 14224,
+        "sha256": "aee08489228ca7c9ab4837dc1a8fc283b33f08c25ff552b00d0a1ebf2fc2db77"
+      }
+    },
+    {
+      "season": 2025,
+      "teamId": "mercedes",
+      "gif": {
+        "file": "2025/mercedes-2025.gif",
+        "bytes": 548494,
+        "sha256": "9b9130bb9cd9f1c7f40b49728a9e0f105a5990e61e9dc3351c14c1c1b882a321"
+      },
+      "poster": {
+        "file": "posters/2025/mercedes-2025.webp",
+        "bytes": 10812,
+        "sha256": "83ac669bd7cd1b535189099a5bc70ff2aff0b87ae82201e706be43a9f5b90df6"
+      }
+    },
+    {
+      "season": 2025,
+      "teamId": "astonmartin",
+      "gif": {
+        "file": "2025/astonmartin-2025.gif",
+        "bytes": 281269,
+        "sha256": "e795b92f9617c724cbb6776f291c9a97861673df996b7cdb34e10c00a1715fa8"
+      },
+      "poster": {
+        "file": "posters/2025/astonmartin-2025.webp",
+        "bytes": 12536,
+        "sha256": "dc1214ea919e023bd7c8c1b1738e1d83b34fa9dc7bdc9130e7ab019ff578c1fc"
+      }
+    },
+    {
+      "season": 2025,
+      "teamId": "alpine",
+      "gif": {
+        "file": "2025/alpine-2025.gif",
+        "bytes": 335160,
+        "sha256": "32f90f72703e73d47319a73922ed98a799504b43511b6d421723accb5825fb74"
+      },
+      "poster": {
+        "file": "posters/2025/alpine-2025.webp",
+        "bytes": 13884,
+        "sha256": "6201819a35d3d2be86e4acc5b8cae7000ef0d418f2337ba8b4b954d2fce12b65"
+      }
+    },
+    {
+      "season": 2025,
+      "teamId": "williams",
+      "gif": {
+        "file": "2025/williams-2025.gif",
+        "bytes": 307503,
+        "sha256": "a5c6d8c1500c93b81a62bccc0e028e9dcc1e831dd8d0c5144824ebe0ee2389f9"
+      },
+      "poster": {
+        "file": "posters/2025/williams-2025.webp",
+        "bytes": 12592,
+        "sha256": "073e179acb2e0edf966b16c910845b0210c5daea51179d660aab91d5e9a6b391"
+      }
+    },
+    {
+      "season": 2025,
+      "teamId": "haas",
+      "gif": {
+        "file": "2025/haas-2025.gif",
+        "bytes": 323180,
+        "sha256": "1ebf6a04ab74f86dd5c55096471f4b7339a50a9360cf60abac4005182425ca66"
+      },
+      "poster": {
+        "file": "posters/2025/haas-2025.webp",
+        "bytes": 13312,
+        "sha256": "00a8f80080221de31bd157884438ceed358e1240dea6a8635c3b1d50030b9359"
+      }
+    },
+    {
+      "season": 2025,
+      "teamId": "racingbulls",
+      "gif": {
+        "file": "2025/racingbulls-2025.gif",
+        "bytes": 310720,
+        "sha256": "23ee7cdef774ad58f56122c0d0b5edc57d257cadcb2258b5871fbb7a5ff4a7e7"
+      },
+      "poster": {
+        "file": "posters/2025/racingbulls-2025.webp",
+        "bytes": 13900,
+        "sha256": "0a37c177c644076145038b61a81c285a914bdeb04818ab06969f9cb48be2d077"
+      }
+    },
+    {
+      "season": 2025,
+      "teamId": "sauber",
+      "gif": {
+        "file": "2025/sauber-2025.gif",
+        "bytes": 324588,
+        "sha256": "67b0e8bff1126a48cbe8f93372eef4f3580562ff450a7dc05131948da0a7f926"
+      },
+      "poster": {
+        "file": "posters/2025/sauber-2025.webp",
+        "bytes": 12790,
+        "sha256": "20242ac8dc66ce1e158c77d8e5fd044e1780c71084a2dbf8b9afcfbe77cdd8c9"
+      }
+    }
+  ]
+}

@@ -12,10 +12,10 @@
 
 .podium-intro__sheet {
   position: absolute;
-  inset: -1px -1px -1px -24vh;
+  inset: -1px -1px -1px calc(-24vh / var(--peds-visual-zoom));
   background: #07080b;
   /* Static silhouette: only the transform moves during the reveal. */
-  clip-path: polygon(24vh 0, 100% 0, 100% 100%, 0 100%);
+  clip-path: polygon(calc(24vh / var(--peds-visual-zoom)) 0, 100% 0, 100% 100%, 0 100%);
 }
 
 .podium-intro[data-phase='lights-out'] .podium-intro__sheet,
@@ -25,7 +25,7 @@
 
 .podium-intro__scene {
   position: absolute;
-  inset: 0 0 0 24vh;
+  inset: 0 0 0 calc(24vh / var(--peds-visual-zoom));
   overflow: hidden;
 }
 
@@ -33,7 +33,7 @@
   opacity: 0;
   position: absolute;
   inset: 0 auto 0 0;
-  width: calc(24vh + 8px);
+  width: calc(24vh / var(--peds-visual-zoom) + 8px);
   background: linear-gradient(100deg, #a20c09, var(--intro-red) 65%, #fff);
   clip-path: polygon(calc(100% - 8px) 0, 100% 0, 8px 100%, 0 100%);
 }
@@ -78,8 +78,8 @@
 
 .podium-intro__signature {
   position: absolute;
-  top: clamp(24px, 5vh, 56px);
-  left: clamp(24px, 5vw, 80px);
+  top: clamp(24px, 5vh / var(--peds-visual-zoom), 56px);
+  left: clamp(24px, 5vw / var(--peds-visual-zoom), 80px);
   display: flex;
   flex-direction: column;
   gap: 5px;
@@ -122,8 +122,8 @@
 
 .podium-intro__pressure {
   position: absolute;
-  width: min(900px, 150vw);
-  height: min(650px, 85vh);
+  width: min(900px, 150vw / var(--peds-visual-zoom));
+  height: min(650px, 85vh / var(--peds-visual-zoom));
   background: radial-gradient(ellipse, #e106003b, #e1060012 40%, transparent 68%);
   animation: podiumPressure 0.42s ease-out both;
 }
@@ -132,20 +132,20 @@
 .podium-intro__status {
   position: relative;
   color: #8c8e95;
-  font-size: clamp(9px, 1vw, 11px);
+  font-size: clamp(9px, 1vw / var(--peds-visual-zoom), 11px);
   font-weight: 600;
   letter-spacing: 0.28em;
 }
 
 .podium-intro__eyebrow {
-  margin-bottom: clamp(24px, 5vh, 44px);
+  margin-bottom: clamp(24px, 5vh / var(--peds-visual-zoom), 44px);
 }
 
 .podium-intro__rack {
   position: relative;
   display: flex;
-  gap: clamp(8px, 1.8vw, 24px);
-  padding: clamp(10px, 2vw, 26px);
+  gap: clamp(8px, 1.8vw / var(--peds-visual-zoom), 24px);
+  padding: clamp(10px, 2vw / var(--peds-visual-zoom), 26px);
   border: 1px solid #ffffff12;
   border-top-color: #ffffff29;
   border-radius: 16px;
@@ -156,8 +156,8 @@
 .podium-intro__column {
   display: flex;
   flex-direction: column;
-  gap: clamp(8px, 1.4vw, 18px);
-  padding: clamp(6px, 1vw, 12px);
+  gap: clamp(8px, 1.4vw / var(--peds-visual-zoom), 18px);
+  padding: clamp(6px, 1vw / var(--peds-visual-zoom), 12px);
   border-radius: 9px;
   background: #050608;
   border: 1px solid #ffffff07;
@@ -166,7 +166,7 @@
 .podium-intro__lamp {
   position: relative;
   display: block;
-  width: clamp(27px, 6.4vw, 70px);
+  width: clamp(27px, 6.4vw / var(--peds-visual-zoom), 70px);
   aspect-ratio: 1;
   border-radius: 50%;
   background: #1d0a0b;
@@ -252,14 +252,14 @@
   display: block;
   margin-bottom: 14px;
   color: #a4a5ab;
-  font-size: clamp(10px, 1.1vw, 15px);
+  font-size: clamp(10px, 1.1vw / var(--peds-visual-zoom), 15px);
   font-weight: 600;
   letter-spacing: 0.6em;
 }
 
 .podium-intro__cue strong {
   display: block;
-  font-size: clamp(42px, 11.5vw, 170px);
+  font-size: clamp(42px, 11.5vw / var(--peds-visual-zoom), 170px);
   line-height: 1;
   font-style: italic;
   font-weight: 950;
@@ -270,11 +270,11 @@
 
 .podium-intro__away {
   display: block;
-  margin-top: clamp(18px, 3vh, 32px);
+  margin-top: clamp(18px, 3vh / var(--peds-visual-zoom), 32px);
   color: #ff4b42;
-  font-size: clamp(11px, 2.1vw, 28px);
+  font-size: clamp(11px, 2.1vw / var(--peds-visual-zoom), 28px);
   font-weight: 800;
-  letter-spacing: clamp(0.18em, 0.65vw, 0.45em);
+  letter-spacing: clamp(0.18em, 0.65vw / var(--peds-visual-zoom), 0.45em);
 }
 
 .podium-intro__speed {
@@ -307,7 +307,7 @@
 
 .podium-intro__launch-brand {
   align-items: flex-start;
-  padding-left: clamp(28px, 12vw, 200px);
+  padding-left: clamp(28px, 12vw / var(--peds-visual-zoom), 200px);
   background: linear-gradient(115deg, transparent 64%, #e10600 64%);
   animation: podiumBrandSweep var(--intro-brand-sweep-duration, 0.45s) cubic-bezier(0.76, 0, 0.24, 1) both;
 }
@@ -358,7 +358,7 @@
 }
 
 .podium-intro__launch-brand strong {
-  font-size: clamp(58px, 12vw, 170px);
+  font-size: clamp(58px, 12vw / var(--peds-visual-zoom), 170px);
   font-weight: 950;
   letter-spacing: -0.08em;
   line-height: 1;
@@ -367,7 +367,7 @@
 .podium-intro__launch-brand > span {
   margin-top: 24px;
   color: #ff4b42;
-  font-size: clamp(11px, 2vw, 26px);
+  font-size: clamp(11px, 2vw / var(--peds-visual-zoom), 26px);
   font-weight: 700;
   letter-spacing: 0.4em;
 }
@@ -383,8 +383,8 @@
 
 .podium-intro__skip {
   position: absolute;
-  top: clamp(24px, 5vh, 56px);
-  right: clamp(24px, 5vw, 80px);
+  top: clamp(24px, 5vh / var(--peds-visual-zoom), 56px);
+  right: clamp(24px, 5vw / var(--peds-visual-zoom), 80px);
   z-index: 5;
   display: flex;
   align-items: center;
@@ -421,9 +421,9 @@
 
 .podium-intro__footer {
   position: absolute;
-  right: clamp(24px, 5vw, 80px);
-  bottom: clamp(24px, 5vh, 56px);
-  left: clamp(24px, 5vw, 80px);
+  right: clamp(24px, 5vw / var(--peds-visual-zoom), 80px);
+  bottom: clamp(24px, 5vh / var(--peds-visual-zoom), 56px);
+  left: clamp(24px, 5vw / var(--peds-visual-zoom), 80px);
   display: flex;
   justify-content: space-between;
   border-top: 1px solid #ffffff12;
@@ -524,7 +524,7 @@
     transform: translate3d(0, 0, 0);
   }
   to {
-    transform: translate3d(calc(100vw + 24vh), 0, 0);
+    transform: translate3d(calc(100vw / var(--peds-visual-zoom) + 24vh / var(--peds-visual-zoom)), 0, 0);
   }
 }
 

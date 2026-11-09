@@ -1,3 +1,4 @@
+import { useRef, useState } from 'react';
 import type { CSSProperties, PointerEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowUpRight, Box, Move3d, Shield, Users } from 'lucide-react';
@@ -43,6 +44,29 @@ export function HomeStoryLinks() {
   const lang = useNavigationStore((state) => state.lang);
   const localReview = import.meta.env.DEV;
   const { ref, isRevealed } = useReveal(0.1);
+  const gridRef = useRef<HTMLDivElement>(null);
+  const [activeCard, setActiveCard] = useState(0);
+
+  const updateActiveCard = () => {
+    const grid = gridRef.current;
+    if (!grid) return;
+    const cards = Array.from(grid.children) as HTMLElement[];
+    const nearest = cards.reduce((best, card, index) =>
+      Math.abs(card.offsetLeft - grid.offsetLeft - grid.scrollLeft) <
+      Math.abs(cards[best].offsetLeft - grid.offsetLeft - grid.scrollLeft) ? index : best, 0);
+    setActiveCard(nearest);
+  };
+
+  const showCard = (index: number) => {
+    const grid = gridRef.current;
+    const card = grid?.children[index] as HTMLElement | undefined;
+    if (!grid || !card) return;
+    grid.scrollTo({
+      left: card.offsetLeft - grid.offsetLeft,
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
+    });
+    setActiveCard(index);
+  };
 
   // Gallery backgrounds: local-only, identity-checked owner review.
   // No model, trademark, video or extra racing data is introduced in production.
@@ -92,7 +116,7 @@ export function HomeStoryLinks() {
         </h2>
         <span className="eds-explore__header-rule" aria-hidden="true" />
       </header>
-      <div className="eds-explore__grid">
+      <div className="eds-explore__grid" ref={gridRef} onScroll={updateActiveCard}>
         {cards.map(({ id, to, label, Icon, fallback }, index) => (
           <Link
             key={id}
@@ -129,6 +153,22 @@ export function HomeStoryLinks() {
             </span>
           </Link>
         ))}
+      </div>
+      <div className="eds-explore__pager" role="group" aria-label={lang === 'vi' ? 'Chọn thẻ khám phá' : 'Choose an Explore card'}>
+        <span className="eds-explore__swipe-hint">{lang === 'vi' ? 'VUỐT ĐỂ KHÁM PHÁ' : 'SWIPE TO EXPLORE'}</span>
+        <div className="eds-explore__pager-buttons">
+          {cards.map((card, index) => (
+            <button
+              key={card.id}
+              type="button"
+              aria-label={lang === 'vi' ? `Hiện thẻ ${card.label}` : `Show ${card.label} card`}
+              aria-pressed={activeCard === index}
+              onClick={() => showCard(index)}
+            >
+              <span aria-hidden="true" />
+            </button>
+          ))}
+        </div>
       </div>
     </section>
   );

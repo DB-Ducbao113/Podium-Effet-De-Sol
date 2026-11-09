@@ -2,6 +2,7 @@ import { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useNavigationStore } from '../../store/useNavigationStore';
 import { SeasonYear } from '../../types';
+import { isChampionshipMobileHubRoute } from '../../championshipJourneyRoute';
 
 const HomeView = lazy(() => import('../home/HomeView').then((m) => ({ default: m.HomeView })));
 const ChampionshipView = lazy(() =>
@@ -47,6 +48,7 @@ export function MobileAllInOne({ season }: { season: SeasonYear }) {
         : 'home';
   const showHome = location.pathname === '/' || location.hash === '#home';
   const showShowroom = location.pathname === '/showroom' || location.hash === '#showroom';
+  const standaloneChampionship = isChampionshipMobileHubRoute(location.pathname, location.search);
   const championshipRef = useRef<HTMLElement>(null);
   const [loadChampionship, setLoadChampionship] = useState(() =>
     location.pathname.startsWith('/season/') || location.hash === '#giai-dau');
@@ -123,6 +125,20 @@ export function MobileAllInOne({ season }: { season: SeasonYear }) {
     const search = params.size ? `?${params.toString()}` : '';
     navigate(`${location.pathname}${search}#${section}`);
   };
+
+  if (standaloneChampionship) {
+    return (
+      <div className="r1-mobile-hub" data-mobile-hub>
+        <section id="giai-dau" aria-label={lang === 'vi' ? 'Giải đấu' : 'Championship'}>
+          <Suspense fallback={<div className="flex min-h-[75svh] items-center justify-center" role="status"
+            style={{ color: 'var(--peds-color-ivory)' }}>Loading journey…</div>}>
+            <ChampionshipView season={season}
+              onSeasonChange={(next) => navigate(`/season/${next}${location.search}`)} />
+          </Suspense>
+        </section>
+      </div>
+    );
+  }
 
   return (
     <div

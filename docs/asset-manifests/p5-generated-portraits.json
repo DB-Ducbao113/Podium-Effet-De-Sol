@@ -1,0 +1,869 @@
+{
+  "description": "AI-generated photorealistic front-facing F1 driver portraits for local P5 review",
+  "generator": "built-in imagegen",
+  "promptRecipe": {
+    "composition": "front-facing, centered upper body, 3:4 studio portrait, natural skin texture",
+    "season2024": "dark graphite, cool silver key light, subtle team-color edge light",
+    "season2025": "charcoal black, warm key light, subtle team-color edge light",
+    "clothing": "season-specific Formula 1 racing suit in team colors",
+    "label": "AI-generated editorial composite, not documentary photography"
+  },
+  "expected": 45,
+  "files": [
+    {
+      "season": 2024,
+      "driverId": "verstappen",
+      "driverName": "Max Verstappen",
+      "teamId": "redbull",
+      "sourceReference": "/images/p5/portraits/verstappen-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2024-verstappen.png",
+        "size": 2406812,
+        "sha256": "30fa46739bed03f23d1f11df381dc404188fce4375dc8762ea50dcf2e80203c7"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2024-verstappen.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 88102,
+        "sha256": "b5ea0b213ecdac6c96af6b7f5f7112b0ade4810921e43e607f4169f6b12e3633"
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "norris",
+      "driverName": "Lando Norris",
+      "teamId": "mclaren",
+      "sourceReference": "/images/p5/portraits/norris-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2024-norris.png",
+        "size": 2368778,
+        "sha256": "4d36dae67328e20fa3361cdfeb0e2b84ee05e87383d4a90ef9970d964ce08004"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2024-norris.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 85944,
+        "sha256": "d6f6cf388f13e104aec38f4dc01316aac303349780608eda63cd301b262a411c"
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "leclerc",
+      "driverName": "Charles Leclerc",
+      "teamId": "ferrari",
+      "sourceReference": "/images/p5/portraits/leclerc-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2024-leclerc.png",
+        "size": 2536464,
+        "sha256": "6098c8e0a18338b165ff065c0e55d8d1e992c4c9625e71264727a9fae2ddfc95"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2024-leclerc.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 91196,
+        "sha256": "332f859e158765d18cf7a89997596403c24271639608f40f6425600f7a073470"
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "piastri",
+      "driverName": "Oscar Piastri",
+      "teamId": "mclaren",
+      "sourceReference": "/images/p5/portraits/piastri-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2024-piastri.png",
+        "size": 2328301,
+        "sha256": "a2dfa1cbbbeb7f8523f5cb19a302946e5d57e31f00a9d8242e73b95f1da11401"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2024-piastri.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 73768,
+        "sha256": "3ad796a25c4e0ea5b555535b7fe8b922681c943065a1248443b69c6234a2206f"
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "sainz",
+      "driverName": "Carlos Sainz",
+      "teamId": "ferrari",
+      "sourceReference": "/images/p5/portraits/sainz-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2024-sainz.png",
+        "size": 2477148,
+        "sha256": "c57aaadb42c72e1ee887225f90d3e45bdf9320fede55294b0c78b39244be1e4a"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2024-sainz.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 80068,
+        "sha256": "4933c742e55bb114596efa0aaeafe22f0ca9722c2f416c4a137ee9cb0e28e35f"
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "russell",
+      "driverName": "George Russell",
+      "teamId": "mercedes",
+      "sourceReference": "/images/p5/portraits/russell-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2024-russell.png",
+        "size": 2237108,
+        "sha256": "9a03b269399f3c6ad016ae2adb4f305a83944801f833387fd69c5d13b155fc7d"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2024-russell.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 60312,
+        "sha256": "77a0b08bbc2479d8e5b809b0197b0431294b30e3c234b39a2e550a4cc8fcb15f"
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "hamilton",
+      "driverName": "Lewis Hamilton",
+      "teamId": "mercedes",
+      "sourceReference": "/images/p5/portraits/hamilton-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2024-hamilton.png",
+        "size": 2177606,
+        "sha256": "6a45a39e0e133075f6c3f7c3d3a3d752a1f590fcd0cfb5a225ce6e7d8ef85629"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2024-hamilton.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 54382,
+        "sha256": "442c691572a95c501e52aaa1cf3861de1d370762cc5e7c5bdab537ea3b3934c5"
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "perez",
+      "driverName": "Sergio Perez",
+      "teamId": "redbull",
+      "sourceReference": "/images/p5/portraits/perez-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2024-perez.png",
+        "size": 2365613,
+        "sha256": "af4bfc18331a52d14de1d1f3f03b3d3bf77e5773d1b4378b5df446827586861b"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2024-perez.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 89694,
+        "sha256": "9617ee0561f31a33cda07d730aab7b1af3a1f07d33c24c8fb425294d012af51a"
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "alonso",
+      "driverName": "Fernando Alonso",
+      "teamId": "astonmartin",
+      "sourceReference": "/images/p5/portraits/alonso-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2024-alonso.png",
+        "size": 2388213,
+        "sha256": "bd3d43bf42c11a790fb44d22066ab517b6868e8e4521528d3fd9d4dbf39c711f"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2024-alonso.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 78568,
+        "sha256": "c39deccc7409755b09d247f845fdc50d1e9a05b38d0affd771bfe619b212c1e2"
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "gasly",
+      "driverName": "Pierre Gasly",
+      "teamId": "alpine",
+      "sourceReference": "/images/p5/portraits/gasly-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2024-gasly.png",
+        "size": 2441216,
+        "sha256": "b025e39ef91a8f06a41984e8f54b9b0e83a76af48f1b4d116a25b5b19467c108"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2024-gasly.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 71772,
+        "sha256": "62031c79932bdc3c15d3db757f05a09a2a5001223686f932e4b1aad65d08125d"
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "hulkenberg",
+      "driverName": "Nico Hülkenberg",
+      "teamId": "haas",
+      "sourceReference": "/images/p5/portraits/hulkenberg-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2024-hulkenberg.png",
+        "size": 2363491,
+        "sha256": "2451ab54f11cc67a3e106b917db41c6f3b44132b029cc7bb78da9228c11eabe8"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2024-hulkenberg.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 71092,
+        "sha256": "e8015d8fdfac8d097f71ab91a1b09d354445a979b1f85ab6e30108c37cf7f7be"
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "tsunoda",
+      "driverName": "Yuki Tsunoda",
+      "teamId": "racingbulls",
+      "sourceReference": "/images/p5/portraits/tsunoda-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2024-tsunoda.png",
+        "size": 2440186,
+        "sha256": "b71aff4e2efc11289c03b220ae4971acb95dc581059673f27beaf7d6779f3a58"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2024-tsunoda.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 77504,
+        "sha256": "b16b6c18a790223580a96f730b751bd794b598831d8c339d97dd4fb3a8647195"
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "stroll",
+      "driverName": "Lance Stroll",
+      "teamId": "astonmartin",
+      "sourceReference": "/images/p5/portraits/stroll-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2024-stroll.png",
+        "size": 2335421,
+        "sha256": "637fa21994cc33023c14a8e43d578f314e9ab90e19d95c56432b8f180afd727e"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2024-stroll.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 75494,
+        "sha256": "aa9663c75c21eead12e50a52c40363bc5432230d044a76cc64a64cd38cd1dbd7"
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "ocon",
+      "driverName": "Esteban Ocon",
+      "teamId": "alpine",
+      "sourceReference": "/images/p5/portraits/ocon-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2024-ocon.png",
+        "size": 2324613,
+        "sha256": "50ce38156f216b701d35705f7e841c04f4875c146e6e994a3689cfbe562fb09a"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2024-ocon.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 64246,
+        "sha256": "f003eb2979f19672b28e06fe5d0eb9edce708aa9016a24df8ef6697ae490c7d3"
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "magnussen",
+      "driverName": "Kevin Magnussen",
+      "teamId": "haas",
+      "sourceReference": "/images/p5/portraits/magnussen-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2024-magnussen.png",
+        "size": 2402533,
+        "sha256": "76817e04a45764260b442713719bef9802eccd57b18b50a8957674d9ec625ba2"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2024-magnussen.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 76526,
+        "sha256": "dbc63d97d41db948121b982a92694ae907658292d3473d323981237a04dfa30c"
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "albon",
+      "driverName": "Alexander Albon",
+      "teamId": "williams",
+      "sourceReference": "/images/p5/portraits/albon-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2024-albon.png",
+        "size": 2501033,
+        "sha256": "1d7429d6382f3a95fe57c6049df05353fc9cfd2166725ab6896eef9c18b357c5"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2024-albon.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 84636,
+        "sha256": "c4c1bf607c168658c8830f3dffde08569118b82af37e881ef1c33323f0cbe2f2"
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "ricciardo",
+      "driverName": "Daniel Ricciardo",
+      "teamId": "racingbulls",
+      "sourceReference": "/images/p5/portraits/ricciardo-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2024-ricciardo.png",
+        "size": 2404415,
+        "sha256": "7020ae9920cedf5c7f724f67fcf5ceb5a6a8f59b6596aa47e659edf1696e98a6"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2024-ricciardo.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 80452,
+        "sha256": "284cd3a2f22227e98da15e949c223f1d800afeaf654a8444f458cf38be924cbb"
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "bearman",
+      "driverName": "Oliver Bearman",
+      "teamId": "haas",
+      "sourceReference": "/images/p5/portraits/bearman-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2024-bearman.png",
+        "size": 2455047,
+        "sha256": "6e2e9bcdd23fbae45a28e17bec25dea2b70bcf4587f70fb2be32947cd69954b1"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2024-bearman.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 82026,
+        "sha256": "ab217c3ae1e8d4496864fc63a19165332dad9ba41aef77de09e353cc33b453fb"
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "colapinto",
+      "driverName": "Franco Colapinto",
+      "teamId": "williams",
+      "sourceReference": "/images/p5/portraits/colapinto-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2024-colapinto.png",
+        "size": 2569898,
+        "sha256": "d079537054521bfa27d08eabae23348e4094259e5b34f4f1914f09326af6f9ea"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2024-colapinto.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 92178,
+        "sha256": "ccd22f2bf4192156aa620a7e19a3239c245f559096b98eb5630c4091a844b0e9"
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "zhou",
+      "driverName": "Zhou Guanyu",
+      "teamId": "audi",
+      "sourceReference": "/images/p5/portraits/zhou-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2024-zhou.png",
+        "size": 2361604,
+        "sha256": "865a6c9a12aebcdd532c81523d068d660c64c6bd33c3a299d7312403ba4ebc6e"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2024-zhou.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 79852,
+        "sha256": "b3e2d43aa63d85ddf53060c355c379d0ccdfc3b2cf4a060314bdf463100ecb47"
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "lawson",
+      "driverName": "Liam Lawson",
+      "teamId": "racingbulls",
+      "sourceReference": "/images/p5/portraits/lawson-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2024-lawson.png",
+        "size": 2548413,
+        "sha256": "6fea035d2ce483e106ebe3338650d76392f68f0ae932b6934a1d8c06bbd29a9a"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2024-lawson.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 86370,
+        "sha256": "3dc2887d5e6a430636510ecdf4f16e22fc7fd13f820dc86abc95e910de40c4b9"
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "bottas",
+      "driverName": "Valtteri Bottas",
+      "teamId": "audi",
+      "sourceReference": "/images/p5/portraits/bottas-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2024-bottas.png",
+        "size": 2576685,
+        "sha256": "a87a2520d81c95f569da85be80a09cd992c7fb8a1b110a19f281996265907136"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2024-bottas.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 90840,
+        "sha256": "5951050c2d951a70bdc44db5484a105e58bcf1a0b1d68753741f160d4a62bfd2"
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "sargeant",
+      "driverName": "Logan Sargeant",
+      "teamId": "williams",
+      "sourceReference": "/images/p5/portraits/sargeant-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2024-sargeant.png",
+        "size": 2399974,
+        "sha256": "5bc833acaf936a4f2683002d5cc7cc5f8d2d8bb960e593ff199910900bfa9b05"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2024-sargeant.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 74552,
+        "sha256": "d4fc9194938b3c64fca952b41f0c6320103f954b95104c6666ab14801542fff3"
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "doohan",
+      "driverName": "Jack Doohan",
+      "teamId": "alpine",
+      "sourceReference": "/images/p5/portraits/doohan-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2024-doohan.png",
+        "size": 2182953,
+        "sha256": "52600c0ced9996f963599c7d144d362e1870bfed6c4ba9be989b9f5a507eec7e"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2024-doohan.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 58558,
+        "sha256": "5d1335c173d43ee4ab6d888fa95e66c8d2d448da71d580d644fdfacd2cba91ff"
+      }
+    },
+    {
+      "season": 2025,
+      "driverId": "norris",
+      "driverName": "Lando Norris",
+      "teamId": "mclaren",
+      "sourceReference": "/images/p5/portraits/norris-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2025-norris.png",
+        "size": 2263350,
+        "sha256": "eb00bf5f5fcfec8ab142cc2704ad8bb8eaca276d663946d7e0854e8c89b4e479"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2025-norris.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 72646,
+        "sha256": "79fde504f7d7711d5e51c516fc508bc442bf2af638bec6e2bda0810f66bb9224"
+      }
+    },
+    {
+      "season": 2025,
+      "driverId": "verstappen",
+      "driverName": "Max Verstappen",
+      "teamId": "redbull",
+      "sourceReference": "/images/p5/portraits/verstappen-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2025-verstappen.png",
+        "size": 2329446,
+        "sha256": "cb9967d47a7c0d8b4fa807192d7f761881fba809cc6801ef99caae42c5978c86"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2025-verstappen.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 78622,
+        "sha256": "da88a905af402b9979ab69d06a1cb81cd26d29c3e30e4314c05b716cd936e011"
+      }
+    },
+    {
+      "season": 2025,
+      "driverId": "piastri",
+      "driverName": "Oscar Piastri",
+      "teamId": "mclaren",
+      "sourceReference": "/images/p5/portraits/piastri-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2025-piastri.png",
+        "size": 2275810,
+        "sha256": "d9bd882eb533f012f84ff8c597dcd82a78e0ad8c957f591df0b3832ee0d1fb12"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2025-piastri.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 75692,
+        "sha256": "da32b5e46cb2512677f81cd2c32c038782a4490bb4de15e83cd48006633dae1e"
+      }
+    },
+    {
+      "season": 2025,
+      "driverId": "russell",
+      "driverName": "George Russell",
+      "teamId": "mercedes",
+      "sourceReference": "/images/p5/portraits/russell-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2025-russell.png",
+        "size": 2169328,
+        "sha256": "5405f352c92ef96e3643bdeac3d96439cf81bcc3caf611744777f6e809185f94"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2025-russell.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 47892,
+        "sha256": "62d618808cd7ec03597a136289e1ce17b40c8ba08940d6b22f764117fcc283a2"
+      }
+    },
+    {
+      "season": 2025,
+      "driverId": "leclerc",
+      "driverName": "Charles Leclerc",
+      "teamId": "ferrari",
+      "sourceReference": "/images/p5/portraits/leclerc-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2025-leclerc.png",
+        "size": 2411016,
+        "sha256": "4ae6d86f42603f2df110f814a8c905ec1f5a3ed3cb907689a1912a3bc79980ca"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2025-leclerc.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 80508,
+        "sha256": "00c2d5d6b4089a2db8d650dc222e5f6b64474d25055bd60369499c401f4ed2bb"
+      }
+    },
+    {
+      "season": 2025,
+      "driverId": "hamilton",
+      "driverName": "Lewis Hamilton",
+      "teamId": "ferrari",
+      "sourceReference": "/images/p5/portraits/hamilton-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2025-hamilton.png",
+        "size": 2245367,
+        "sha256": "db254db25a4ed246f3344a4bdb1967865aea65ca8c85106558612abc3ea2780a"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2025-hamilton.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 62630,
+        "sha256": "cbf32d8273ef5b5bf847bdeddebd32aaabfd9fc14137c1abff85e73a0edc462e"
+      }
+    },
+    {
+      "season": 2025,
+      "driverId": "antonelli",
+      "driverName": "Kimi Antonelli",
+      "teamId": "mercedes",
+      "sourceReference": "/images/p5/portraits/antonelli-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2025-antonelli.png",
+        "size": 2357011,
+        "sha256": "feadef67792d790ade3c9078859c959b6830a7a6e61860c241852e6cc8d4b99a"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2025-antonelli.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 75288,
+        "sha256": "d79f8e603f3cf62393b13c45915a985ceee8c6c9515bc43a6945b9d7111bec8e"
+      }
+    },
+    {
+      "season": 2025,
+      "driverId": "albon",
+      "driverName": "Alexander Albon",
+      "teamId": "williams",
+      "sourceReference": "/images/p5/portraits/albon-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2025-albon.png",
+        "size": 2391589,
+        "sha256": "430cad1063501f32e5c228ebd6024dbc2a84f22677424806a807a2989684ce88"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2025-albon.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 77794,
+        "sha256": "c56bb17b2b70ca5ff67a7357ddb2f2745e290246353e73d9b9c778fe42863e0b"
+      }
+    },
+    {
+      "season": 2025,
+      "driverId": "sainz",
+      "driverName": "Carlos Sainz",
+      "teamId": "williams",
+      "sourceReference": "/images/p5/portraits/sainz-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2025-sainz.png",
+        "size": 2429406,
+        "sha256": "0cb1f39f6f4d46379c6201e1efb38ce2c59dab7c00006fe1fe145686786ee129"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2025-sainz.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 79836,
+        "sha256": "df78f4567218c356b914918bfa29e3831f2a24e5d0a4bca89d02054dd00ecd17"
+      }
+    },
+    {
+      "season": 2025,
+      "driverId": "alonso",
+      "driverName": "Fernando Alonso",
+      "teamId": "astonmartin",
+      "sourceReference": "/images/p5/portraits/alonso-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2025-alonso.png",
+        "size": 2280353,
+        "sha256": "ba0f1815627d9c02dbc1b51c1747aaa994711345b6be00db14abb375b4dd7930"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2025-alonso.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 66216,
+        "sha256": "131c86c32543e52a0d7e0ff150cd963abf4642da3c0dbb702f0503a44b1cfdd3"
+      }
+    },
+    {
+      "season": 2025,
+      "driverId": "hulkenberg",
+      "driverName": "Nico Hülkenberg",
+      "teamId": "audi",
+      "sourceReference": "/images/p5/portraits/hulkenberg-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2025-hulkenberg.png",
+        "size": 2203636,
+        "sha256": "d5089e5766f541eb562286ba7c05f8bb05bb61b2b885382043e1a2090562f98a"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2025-hulkenberg.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 60488,
+        "sha256": "3b55a6600ad0c99ab4ab24a1f373ba10518dff22a5efcd2b8f893ee87ab35461"
+      }
+    },
+    {
+      "season": 2025,
+      "driverId": "hadjar",
+      "driverName": "Isack Hadjar",
+      "teamId": "racingbulls",
+      "sourceReference": "/images/p5/portraits/hadjar-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2025-hadjar.png",
+        "size": 2321515,
+        "sha256": "6f630081a71ed37348ba76fd4fa74a13152aa6252268be835b3839f3bed424f2"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2025-hadjar.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 69032,
+        "sha256": "c19d5b9ddf3f45cf4ede34c939644b2746597507e6acb7f8d310d558ff0fe615"
+      }
+    },
+    {
+      "season": 2025,
+      "driverId": "bearman",
+      "driverName": "Oliver Bearman",
+      "teamId": "haas",
+      "sourceReference": "/images/p5/portraits/bearman-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2025-bearman.png",
+        "size": 2182229,
+        "sha256": "7d42a003fcc710d32bc0a56796d6541f3a824c52e8c20f18bdf890def9f7861f"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2025-bearman.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 63052,
+        "sha256": "a829d4251206b2504c3ef1528120cae81ad4cda066a564172a217e477acfcf8a"
+      }
+    },
+    {
+      "season": 2025,
+      "driverId": "lawson",
+      "driverName": "Liam Lawson",
+      "teamId": "racingbulls",
+      "sourceReference": "/images/p5/portraits/lawson-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2025-lawson.png",
+        "size": 2340048,
+        "sha256": "9c03c83005fd05ee74c53f88f278d93ed4b5bfedfd6db3d5555460a1289f1b96"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2025-lawson.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 68868,
+        "sha256": "c6aa1bc2f16117d0b0442d0e19d1d218691d87cb3ef50e318b9cfac629e7bf37"
+      }
+    },
+    {
+      "season": 2025,
+      "driverId": "ocon",
+      "driverName": "Esteban Ocon",
+      "teamId": "haas",
+      "sourceReference": "/images/p5/portraits/ocon-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2025-ocon.png",
+        "size": 2332251,
+        "sha256": "e5c9639dbb74f294beb9c0865eb28c2bbbf73d306923c21520d3250b16d321d3"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2025-ocon.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 69042,
+        "sha256": "70094732291866972fa129a3a0da71fc7a604f9a137285358f77aa94552f60ba"
+      }
+    },
+    {
+      "season": 2025,
+      "driverId": "stroll",
+      "driverName": "Lance Stroll",
+      "teamId": "astonmartin",
+      "sourceReference": "/images/p5/portraits/stroll-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2025-stroll.png",
+        "size": 2253289,
+        "sha256": "b1b1744e7126eb14fb94d6584050833d9ad560948cc9062226e0158627996059"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2025-stroll.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 69074,
+        "sha256": "2fccb1c1058659e5e82e7e8f577874b9badbb1cf56c632c4179160d4132290f9"
+      }
+    },
+    {
+      "season": 2025,
+      "driverId": "tsunoda",
+      "driverName": "Yuki Tsunoda",
+      "teamId": "redbull",
+      "sourceReference": "/images/p5/portraits/tsunoda-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2025-tsunoda.png",
+        "size": 2378567,
+        "sha256": "0b980051fb9afa5c0e0ef6f89eb577d34f7d3930553ac56f6a199efb842b29e5"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2025-tsunoda.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 84084,
+        "sha256": "43471bc0405cb4b3d1627678f8f5687829283363e66e93cf3126f740db50ce78"
+      }
+    },
+    {
+      "season": 2025,
+      "driverId": "gasly",
+      "driverName": "Pierre Gasly",
+      "teamId": "alpine",
+      "sourceReference": "/images/p5/portraits/gasly-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2025-gasly.png",
+        "size": 2280728,
+        "sha256": "6d0893ebe6a59d9de040f4a2b2e371b6e28d9decc691f5cd5661fdf122e00d4d"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2025-gasly.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 64728,
+        "sha256": "037d7b7c0fc2846ef36a3c81a9a796d5276d476ea913b663f408444871fe83f3"
+      }
+    },
+    {
+      "season": 2025,
+      "driverId": "bortoleto",
+      "driverName": "Gabriel Bortoleto",
+      "teamId": "audi",
+      "sourceReference": "/images/p5/portraits/bortoleto-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2025-bortoleto.png",
+        "size": 2250941,
+        "sha256": "c053a081349bab08c566f333529231266f42bd4e3abc5814ba37be2d100e7ab5"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2025-bortoleto.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 65784,
+        "sha256": "55c4292145d2fe244b56bf101745e8fb46f09152babd7880c5b756c56e720c84"
+      }
+    },
+    {
+      "season": 2025,
+      "driverId": "colapinto",
+      "driverName": "Franco Colapinto",
+      "teamId": "alpine",
+      "sourceReference": "/images/p5/portraits/colapinto-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2025-colapinto.png",
+        "size": 2459404,
+        "sha256": "5bb1aadab32ed3e492731042fe74adee40c2e1bc5007cb2b135cc6c4297fc653"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2025-colapinto.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 83902,
+        "sha256": "e6b514a07a75a90c4efe62927270623d55e5b4e0756be6cba0b6cf09774e01b9"
+      }
+    },
+    {
+      "season": 2025,
+      "driverId": "doohan",
+      "driverName": "Jack Doohan",
+      "teamId": "alpine",
+      "sourceReference": "/images/p5/portraits/doohan-720.webp",
+      "master": {
+        "file": ".local-assets/p5-generated-portraits/2025-doohan.png",
+        "size": 2216499,
+        "sha256": "dc7db99094d93454643e197adce09dfaa4c7a9eb0f65f5200465b50b6ba6cdc6"
+      },
+      "delivery": {
+        "file": "/images/p5/generated-portraits/2025-doohan.webp",
+        "width": 768,
+        "height": 1024,
+        "size": 58420,
+        "sha256": "bc4f1f5c1e56e019479a7b7996c6ed062815ef0919697ea8fd9840205fef4334"
+      }
+    }
+  ]
+}

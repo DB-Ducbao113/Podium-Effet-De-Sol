@@ -4,8 +4,8 @@ import { TIMEZONE_STORAGE_KEY, validTimeZone } from '../utils/championshipTimezo
 function initialPreference() {
   try {
     const saved = localStorage.getItem(TIMEZONE_STORAGE_KEY);
-    return saved && validTimeZone(saved) ? saved : 'venue';
-  } catch { return 'venue'; }
+    return saved && validTimeZone(saved) ? saved : 'local';
+  } catch { return 'local'; }
 }
 
 export const useTimezoneStore = create<{ preference: string; setPreference: (zone: string) => void }>((set) => ({

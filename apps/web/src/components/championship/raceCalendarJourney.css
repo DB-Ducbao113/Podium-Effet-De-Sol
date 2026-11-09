@@ -6,8 +6,8 @@
   position: relative;
   isolation: isolate;
   box-sizing: border-box;
-  width: min(calc(100vw - 24px), 1880px);
-  margin-left: calc(50% - min(calc(50vw - 12px), 940px));
+  width: min(calc(100vw / var(--peds-visual-zoom) - 24px), 1880px);
+  margin-left: calc(50% - min(calc(50vw / var(--peds-visual-zoom) - 12px), 940px));
   color: var(--rcj-ivory);
   background: #050e17;
   font-family: var(--peds-font-ui, inherit);
@@ -32,7 +32,7 @@
   top: var(--peds-header-height, 64px);
   z-index: 2;
   align-self: start;
-  height: calc(100svh - var(--peds-header-height, 64px));
+  height: calc(100svh / var(--peds-visual-zoom) - var(--peds-header-height, 64px));
   min-height: 420px;
   width: 100%;
   overflow: hidden;
@@ -49,10 +49,21 @@
 }
 .rcj-globe-stage canvas[data-dragging="true"] { cursor: grabbing; }
 .rcj-globe-stage canvas:focus-visible { outline: 2px solid #ff8459; outline-offset: -3px; }
+.rcj-globe-city {
+  display: block;
+  transform: translateY(-32px);
+  white-space: nowrap;
+  padding: 6px 11px;
+  border: 1px solid rgba(255, 132, 89, .5);
+  background: rgba(5, 19, 34, .9);
+  color: #f4f0e8;
+  font: 700 15px/1.2 var(--peds-font-ui, sans-serif);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .45);
+}
 .rcj-globe-drag-hint {
   position: absolute;
   z-index: 4;
-  right: clamp(18px, 2.6vw, 42px);
+  right: clamp(18px, 2.6vw / var(--peds-visual-zoom), 42px);
   bottom: 110px;
   pointer-events: none;
   color: #a6c1cb;
@@ -79,13 +90,13 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 14px;
-  padding: clamp(16px, 2.5vw, 32px);
+  padding: clamp(16px, 2.5vw / var(--peds-visual-zoom), 32px);
 }
 .rcj-stage-title {
   margin: 0;
   padding: 0;
   max-width: 60%;
-  font: 700 clamp(24px, 2.4vw, 36px)/1.15 var(--peds-font-display, Impact);
+  font: 700 clamp(24px, 2.4vw / var(--peds-visual-zoom), 36px)/1.15 var(--peds-font-display, Impact);
   letter-spacing: .015em;
   text-transform: uppercase;
   color: var(--rcj-ivory);
@@ -133,11 +144,11 @@
   position: absolute;
   z-index: 7;
   bottom: 108px;
-  left: clamp(16px, 3vw, 45px);
+  left: clamp(16px, 3vw / var(--peds-visual-zoom), 45px);
   max-width: min(470px, calc(100% - 55px));
   display: flex;
   align-items: center;
-  gap: clamp(12px, 1.7vw, 24px);
+  gap: clamp(12px, 1.7vw / var(--peds-visual-zoom), 24px);
   padding: 11px 26px 12px 0;
   background: linear-gradient(90deg, #03101de3, #03101d99 76%, transparent);
   border: 0;
@@ -147,11 +158,11 @@
 .rcj-stage-counter {
   flex: none;
   color: var(--rcj-accent);
-  font: 800 clamp(34px, 3vw, 46px)/1 var(--peds-font-display, Impact);
+  font: 800 clamp(34px, 3vw / var(--peds-visual-zoom), 46px)/1 var(--peds-font-display, Impact);
 }
 .rcj-stage-active { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .rcj-stage-active strong {
-  font: 800 clamp(22px, 2.1vw, 30px)/1.1 var(--peds-font-display, Impact);
+  font: 800 clamp(22px, 2.1vw / var(--peds-visual-zoom), 30px)/1.1 var(--peds-font-display, Impact);
   text-transform: uppercase;
   overflow-wrap: anywhere;
 }
@@ -166,7 +177,7 @@
   position: absolute;
   z-index: 7;
   inset: auto 0 0;
-  padding: 5px clamp(16px, 2.7vw, 42px) 12px;
+  padding: 5px clamp(16px, 2.7vw / var(--peds-visual-zoom), 42px) 12px;
   background: linear-gradient(0deg, #030b14ed, #030b14b8 73%, transparent);
   border: 0;
 }
@@ -236,8 +247,8 @@
 }
 /* Semantic scroll points create the scroll-driven globe path without covering the map. */
 .rcj-scroll-track { grid-area: 1 / 1; position: relative; z-index: 3; pointer-events: none; }
-.rcj-scroll-beat { height: 85svh; min-height: 450px; scroll-margin-top: 47vh; pointer-events: none; }
-.rcj-scroll-finish { height: 25svh; }
+.rcj-scroll-beat { height: calc(85svh / var(--peds-visual-zoom)); min-height: 450px; scroll-margin-top: calc(47vh / var(--peds-visual-zoom)); pointer-events: none; }
+.rcj-scroll-finish { height: calc(25svh / var(--peds-visual-zoom)); }
 
 /* 2D fallback uses the same presentation surface; preserve actual geographic waypoint positions. */
 .rcj-stage-viewport .rcj-world-map {
@@ -287,10 +298,10 @@
 .rcj-empty { min-height: 300px; padding: 40px; color: var(--rcj-ivory); }
 
 @media (max-width: 760px) {
-  .rcj { width: calc(100vw - 12px); margin-left: calc(50% - 50vw + 6px); }
+  .rcj { width: calc(100vw / var(--peds-visual-zoom) - 12px); margin-left: calc(50% - 50vw / var(--peds-visual-zoom) + 6px); }
   .rcj-map-stage { min-height: 0; }
   .rcj-stage-top { padding: 12px; }
-  .rcj-stage-title { max-width: 42%; font-size: clamp(19px, 4.3vw, 28px); }
+  .rcj-stage-title { max-width: 42%; font-size: clamp(19px, 4.3vw / var(--peds-visual-zoom), 28px); }
   .rcj-stage-actions { gap: 5px; }
   .rcj-stage-controls { gap: 0; padding: 2px; }
   .rcj-stage-controls button { min-width: 33px; min-height: 40px; padding: 5px; }
@@ -304,7 +315,7 @@
   .rcj-scroll-hint { display: none; }
   .rcj-nav select { min-width: 88px; max-width: 150px; font-size: 10px; padding: 5px; }
   .rcj-rounds button { flex-basis: 38px; min-height: 38px; }
-  .rcj-scroll-beat { height: 75svh; min-height: 350px; }
+  .rcj-scroll-beat { height: calc(75svh / var(--peds-visual-zoom)); min-height: 350px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .rcj *, .rcj *::before, .rcj *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
@@ -356,7 +367,7 @@
 .rcj-map-atlas {
   display: block;
   flex: 0 0 auto;
-  width: min(100%, calc((100svh - 118px) * 2));
+  width: min(100%, calc((calc(100svh / var(--peds-visual-zoom)) - 118px) * 2));
   min-width: 1050px;
   max-width: 1720px;
   margin-inline: auto;
@@ -393,10 +404,100 @@
 }
 .rcj-map-number[data-active="true"] text { fill: #fff7f2; }
 .rcj-map-number:focus-visible rect { stroke: rgba(255, 255, 255, .92); stroke-width: 1.5; }
+
+/* Championship navigation is part of the map scene on the two journey pages. */
+html:has(.rcj--immersive) { scroll-behavior: auto; }
+.f4-championship.is-journey { padding-top: 0 !important; }
+.f4-championship.is-journey .page-container > .f4-panel { margin-top: 0; }
+.rcj-map-stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background: linear-gradient(180deg, #030b14db, transparent 29%, transparent 65%, #030b1499);
+}
+.rcj-stage-heading { min-width: 0; }
+.rcj-stage-kicker {
+  display: block;
+  margin-bottom: 7px;
+  color: #b9cbd2;
+  font: 700 10px/1.2 var(--peds-font-mono, monospace);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 12px #000;
+}
+.rcj-stage-controls a {
+  display: grid;
+  place-items: center;
+  min-height: 40px;
+  padding: 6px 13px;
+  color: #cbd8e0;
+  border-radius: 4px;
+  text-decoration: none;
+  font: 700 11px/1 var(--peds-font-ui, inherit);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.rcj-stage-controls a[aria-current="page"] { background: #ff4a1829; color: #ffad8d; }
+.rcj-stage-controls a:hover { color: #fff; }
+.rcj-season-controls {
+  position: absolute;
+  z-index: 7;
+  top: clamp(103px, 8.6vw / var(--peds-visual-zoom), 125px);
+  left: clamp(16px, 2.5vw / var(--peds-visual-zoom), 32px);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #c3d0d6;
+  font: 700 11px/1 var(--peds-font-ui, inherit);
+  text-shadow: 0 2px 10px #000;
+}
+.rcj-season-controls > span { margin-right: 10px; text-transform: uppercase; letter-spacing: 0.08em; }
+.rcj-season-controls a,
+.rcj-season-controls button {
+  display: grid;
+  place-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px;
+  color: #c3d0d6;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  text-decoration: none;
+  cursor: pointer;
+}
+.rcj-season-controls a[aria-current="page"] { color: #fff; border-color: var(--rcj-accent); }
+.rcj-season-controls :is(a, button):hover { color: #fff; }
+.rcj-season-controls button:disabled { opacity: 0.5; cursor: wait; }
+.rcj-season-controls :is(a, button):focus-visible { outline: 2px solid var(--rcj-accent); outline-offset: 2px; }
+.rcj-stage-data { max-width: min(440px, calc(100% - 24px)); }
+.rcj-map-stage .rcj-sync-note {
+  position: absolute;
+  z-index: 8;
+  right: clamp(16px, 2.5vw / var(--peds-visual-zoom), 32px);
+  bottom: 112px;
+  max-width: 22rem;
+  margin: 0;
+  padding: 8px 11px;
+  background: #2b1d16c9;
+  text-align: right;
+}
+@media (max-width: 760px) {
+  .rcj-stage-title { max-width: none; font-size: clamp(25px, 7vw / var(--peds-visual-zoom), 32px); }
+  .rcj-stage-kicker { font-size: 9px; letter-spacing: 0.08em; }
+  .rcj-stage-controls a { min-height: 40px; padding-inline: 7px; font-size: 10px; }
+  .rcj-season-controls { top: 84px; left: 12px; gap: 0; font-size: 10px; }
+  .rcj-season-controls > span { margin-right: 2px; }
+  .rcj-season-controls a, .rcj-season-controls button { min-width: 42px; padding-inline: 5px; }
+  .rcj-stage-data { bottom: 105px; }
+  .rcj-map-stage .rcj-sync-note { right: 12px; bottom: 184px; max-width: 12rem; }
+}
 .rcj-map-key {
   position: absolute;
   z-index: 5;
-  left: clamp(16px, 3vw, 48px);
+  left: clamp(16px, 3vw / var(--peds-visual-zoom), 48px);
   bottom: 119px;
   display: flex;
   flex-wrap: wrap;
@@ -413,12 +514,12 @@
 .rcj-map-selection {
   position: absolute;
   z-index: 8;
-  right: clamp(16px, 3vw, 42px);
+  right: clamp(16px, 3vw / var(--peds-visual-zoom), 42px);
   bottom: 115px;
   display: flex;
   flex-direction: column;
   gap: 7px;
-  width: min(305px, calc(100vw - 44px));
+  width: min(305px, calc(100vw / var(--peds-visual-zoom) - 44px));
   padding: 14px 17px 13px;
   color: #f4f0e8;
   background: linear-gradient(110deg, rgba(5, 19, 34, .62), rgba(5, 19, 34, .42));
@@ -434,7 +535,7 @@
   letter-spacing: .04em;
 }
 .rcj-map-selection strong {
-  font: 750 clamp(18px, 1.65vw, 22px)/1.14 var(--peds-font-display, Impact);
+  font: 750 clamp(18px, 1.65vw / var(--peds-visual-zoom), 22px)/1.14 var(--peds-font-display, Impact);
   text-transform: uppercase;
   padding-right: 22px;
 }
@@ -501,3 +602,205 @@
 @media(prefers-reduced-motion:reduce) {
   .rcj-map-number rect, .rcj-globe-details { transition: none; }
 }
+
+/* The circuit is a season-owned SVG outline over the same vector globe or 2D fallback. */
+.rcj-journey-intro {
+  position: absolute;
+  z-index: 6;
+  left: clamp(20px, 5vw / var(--peds-visual-zoom), 70px);
+  bottom: clamp(145px, 20vh / var(--peds-visual-zoom), 235px);
+  max-width: min(590px, 78%);
+  pointer-events: none;
+  text-shadow: 0 3px 25px #020a12;
+}
+.rcj-journey-intro span,
+.rcj-journey-intro small {
+  display: block;
+  color: #ff9b76;
+  font: 700 11px/1.5 var(--peds-font-mono, monospace);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+.rcj-journey-intro p {
+  margin: 13px 0 16px;
+  font: 650 clamp(32px, 5vw / var(--peds-visual-zoom), 72px)/0.99 var(--peds-font-display, Impact);
+  text-transform: uppercase;
+  letter-spacing: -0.025em;
+}
+.rcj-journey-intro small { color: #d2e0e4; }
+.rcj-circuit-overlay {
+  position: absolute;
+  z-index: 6;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 118px clamp(16px, 4vw / var(--peds-visual-zoom), 56px) 122px;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 48%, #04101bd9, #04101bf2 78%);
+}
+.rcj-circuit-overlay[data-visible="true"] { pointer-events: auto; }
+/* Centered composition: the circuit and its caption focus in together as one group. */
+.rcj-circuit-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(18px, 3.4vw / var(--peds-visual-zoom), 52px);
+  width: min(1060px, 100%);
+  max-height: 100%;
+  transform: scale(0.94) translateY(16px);
+  transform-origin: 50% 52%;
+  transition: transform 0.62s cubic-bezier(0.33, 1, 0.68, 1);
+}
+.rcj-circuit-overlay[data-visible="true"] .rcj-circuit-inner { transform: none; }
+.rcj-circuit-art { position: relative; flex: 0 1 560px; min-width: 0; max-width: 560px; aspect-ratio: 1.25; }
+.rcj-circuit-art svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.rcj-circuit-art path { vector-effect: non-scaling-stroke; stroke-linecap: round; stroke-linejoin: round; }
+.rcj-circuit-bed { stroke: #020b13; stroke-width: 18; }
+.rcj-circuit-line { stroke: #486472; stroke-width: 11; }
+.rcj-circuit-draw { stroke: #ff7040; stroke-width: 5; stroke-dasharray: 1; }
+.rcj-circuit-start { fill: #f4f0e8; stroke: #ff7040; stroke-width: 3; vector-effect: non-scaling-stroke; }
+.rcj-circuit-vector-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  color: #99b4bd;
+  font: 700 10px var(--peds-font-mono, monospace);
+  letter-spacing: 0.16em;
+}
+.rcj-circuit-copy {
+  flex: 0 1 380px;
+  min-width: 0;
+  max-height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: #ff7040 #0a1a26;
+}
+.rcj-circuit-copy::-webkit-scrollbar { width: 8px; }
+.rcj-circuit-copy::-webkit-scrollbar-track { background: #0a1a26; border-radius: 99px; }
+.rcj-circuit-copy::-webkit-scrollbar-thumb { background: #ff7040; border-radius: 99px; border: 2px solid #0a1a26; }
+.rcj-circuit-copy::-webkit-scrollbar-thumb:hover { background: #ff9970; }
+.rcj-circuit-copy:focus-visible { outline: 2px solid var(--rcj-accent); outline-offset: 4px; }
+.rcj-circuit-round,
+.rcj-circuit-date { color: #ff9b76; font: 700 12px var(--peds-font-mono, monospace); letter-spacing: 0.1em; }
+.rcj-circuit-copy h3 {
+  margin: 17px 0 14px;
+  font: 700 clamp(30px, 3vw / var(--peds-visual-zoom), 52px)/1 var(--peds-font-display, Impact);
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+.rcj-circuit-copy p { color: #c4d1d5; font-size: 14px; line-height: 1.45; }
+.rcj-circuit-copy a {
+  display: flex;
+  width: fit-content;
+  min-height: 44px;
+  align-items: center;
+  margin-top: 18px;
+  color: #ffa883;
+  text-decoration: none;
+  border-bottom: 1px solid #ffa883;
+  font-weight: 700;
+}
+.rcj-circuit-copy a:hover { color: white; border-color: white; }
+/* Inner core: coordinates, venue, race distance and the weekend schedule, drawn
+   from the season calendar — label/value rows in the World Tour visual language. */
+.rcj-circuit-place { margin: 0; }
+.rcj-circuit-place strong { color: var(--rcj-ivory); font-weight: 700; }
+.rcj-circuit-coords { display: flex; flex-direction: column; gap: 3px; margin: 13px 0 0; }
+.rcj-circuit-coords-label { color: #ff9b76; font: 700 10px var(--peds-font-mono, monospace); letter-spacing: 0.16em; }
+.rcj-circuit-coords-value { color: #e4edf0; font: 600 13px var(--peds-font-mono, monospace); letter-spacing: 0.03em; }
+.rcj-circuit-rows { margin: 16px 0 0; border-top: 1px solid rgba(166, 193, 203, 0.18); }
+.rcj-circuit-rows > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(166, 193, 203, 0.18);
+}
+.rcj-circuit-rows dt { color: #a6c1cb; font: 400 13px var(--peds-font-ui, inherit); }
+.rcj-circuit-rows dd { margin: 0; color: #f4f0e8; font: 700 13px var(--peds-font-mono, monospace); text-align: right; }
+.rcj-circuit-schedule { margin-top: 18px; }
+.rcj-circuit-schedule-head {
+  display: block;
+  margin-bottom: 8px;
+  color: #ff9b76;
+  font: 700 10.5px var(--peds-font-mono, monospace);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+/* Focus travels into the schedule: the head settles, then each session row slides in. */
+.rcj-circuit-overlay[data-visible="true"] .rcj-circuit-schedule-head {
+  animation: rcj-schedule-focus 0.6s cubic-bezier(0.33, 1, 0.68, 1) 0.06s both;
+}
+.rcj-circuit-overlay[data-visible="true"] .rcj-circuit-sessions li {
+  animation: rcj-session-in 0.5s cubic-bezier(0.33, 1, 0.68, 1) both;
+  animation-delay: calc(0.16s + var(--rcj-sess-order, 0) * 0.07s);
+}
+.rcj-circuit-overlay[data-visible="true"] .rcj-circuit-sessions li[data-session="race"] {
+  background: linear-gradient(90deg, rgba(255, 74, 24, 0.13), transparent 72%);
+  box-shadow: inset 2px 0 0 var(--rcj-accent);
+}
+@keyframes rcj-schedule-focus {
+  from { opacity: 0; letter-spacing: 0.34em; transform: translateY(6px); }
+  to { opacity: 1; letter-spacing: 0.2em; transform: none; }
+}
+@keyframes rcj-session-in {
+  from { opacity: 0; transform: translateX(14px); }
+  to { opacity: 1; transform: none; }
+}
+.rcj-circuit-sessions { list-style: none; margin: 0; padding: 0; border-top: 1px solid rgba(166, 193, 203, 0.18); }
+.rcj-circuit-sessions li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(166, 193, 203, 0.12);
+}
+.rcj-circuit-sessions li span { color: #a6c1cb; font: 400 12.5px var(--peds-font-ui, inherit); }
+.rcj-circuit-sessions li b { color: #e4edf0; font: 600 12px var(--peds-font-mono, monospace); text-align: right; }
+.rcj-circuit-sessions li[data-session="race"] span { color: #ff9b76; }
+.rcj-circuit-sessions li[data-session="race"] b { color: #ff7040; }
+.rcj-circuit-tz { display: block; margin-top: 8px; color: #8296a3; font: 400 11px/1.5 var(--peds-font-ui, inherit); }
+.rcj-stage-data[aria-hidden="true"] { pointer-events: none; }
+@media (max-width: 760px) {
+  .rcj-journey-intro { bottom: 175px; max-width: calc(100% - 32px); left: 16px; }
+  .rcj-journey-intro p { font-size: clamp(30px, 8vw / var(--peds-visual-zoom), 45px); }
+  .rcj-circuit-overlay { padding: 96px 14px 116px; }
+  .rcj-circuit-inner {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 12px;
+    width: 100%;
+    max-height: 100%;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-right: 4px;
+    scrollbar-width: thin;
+    scrollbar-color: #ff7040 #0a1a26;
+  }
+  .rcj-circuit-inner::-webkit-scrollbar { width: 8px; }
+  .rcj-circuit-inner::-webkit-scrollbar-track { background: #0a1a26; border-radius: 99px; }
+  .rcj-circuit-inner::-webkit-scrollbar-thumb { background: #ff7040; border-radius: 99px; border: 2px solid #0a1a26; }
+  .rcj-circuit-inner::-webkit-scrollbar-thumb:hover { background: #ff9970; }
+  .rcj-circuit-art { flex: 0 0 auto; width: min(100%, 300px); max-width: 300px; max-height: 28vh; margin: 0 auto; }
+  .rcj-circuit-copy h3 { margin: 7px 0; font-size: 25px; }
+  .rcj-circuit-copy p { margin: 4px 0; font-size: 11px; }
+  .rcj-circuit-copy a { margin-top: 7px; font-size: 12px; }
+  .rcj-circuit-copy { flex: 0 0 auto; max-height: none; overflow: visible; padding-right: 2px; }
+  .rcj-circuit-coords-value { font-size: 11.5px; }
+  .rcj-circuit-rows { margin: 10px 0 0; }
+  .rcj-circuit-rows > div { padding: 5px 0; }
+  .rcj-circuit-rows dt, .rcj-circuit-rows dd { font-size: 11.5px; }
+  .rcj-circuit-schedule { margin-top: 12px; }
+  .rcj-circuit-sessions li { padding: 5px 0; }
+  .rcj-circuit-sessions li span { font-size: 11px; }
+  .rcj-circuit-sessions li b { font-size: 10.5px; }
+  .rcj-circuit-tz { font-size: 10px; }
+}
+
+.rcj-stage-coords { color: #8fb0bd; font: 600 11px/1.3 var(--peds-font-mono, monospace); letter-spacing: 0.05em; }

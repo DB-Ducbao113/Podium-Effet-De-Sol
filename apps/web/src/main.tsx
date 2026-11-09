@@ -13,6 +13,7 @@ import App from "./App";
 import "./index.css";
 import "./styles/compactDesktop.css";
 import "./styles/densityV2.css";
+import "./styles/visualZoom.css";
 import { BrowserRouter } from "react-router-dom";
 import { ErrorBoundary } from "./components/common/ErrorBoundary";
 import { DocumentIntroController } from "./components/common/DocumentIntroController";

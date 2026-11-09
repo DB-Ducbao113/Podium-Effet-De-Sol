@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 const styles = readFileSync('src/styles/densityV2.css', 'utf8');
+const heroStyles = readFileSync('src/components/home/homeHeroV7.css', 'utf8');
 const entry = readFileSync('src/main.tsx', 'utf8');
 const article = readFileSync('src/components/engineering/EngineeringArticlePage.tsx', 'utf8');
 const car = readFileSync('src/components/pages/CarDetailPage.tsx', 'utf8');
@@ -14,12 +15,16 @@ describe('Density-02 stronger site-wide compact pass', () => {
     );
     expect(styles).toContain('--peds-density-version: 2');
     expect(styles).toContain('--peds-hero-stage-safety: 1');
-    expect(styles).toContain('min-height: clamp(500px, 57svh, 620px)');
-    expect(styles).toContain('height: clamp(385px, 32vw, 468px)');
+    expect(heroStyles).toContain('min-height: max(720px, calc(100svh / var(--peds-visual-zoom) - 56px))');
+    expect(styles).not.toContain('min-height: clamp(500px, 57svh, 620px)');
     expect(styles).not.toContain('min-height: clamp(335px, 43svh, 435px)');
   });
 
-  it('does not shrink the whole app using zoom or transform scaling', () => {
+  it('applies the 75% desktop scale to inherited text', () => {
+    expect(styles).toContain('font-size: 75%;');
+    expect(styles).toContain('font-size: 1rem;');
+    expect(styles).toContain('@media (min-width: 1180px)');
+    expect(styles).toContain("html:not([data-text-zoom='200']):not([data-text-zoom='400'])");
     expect(styles).not.toMatch(/(?:^|[;\s{])zoom\s*:/);
     expect(styles).not.toMatch(/transform\s*:\s*scale\(/);
     expect(styles).not.toContain('.rcj-map-stage {');
@@ -37,7 +42,7 @@ describe('Density-02 stronger site-wide compact pass', () => {
       '.r1-cinema--v7', '.home-rc__next', '.eds-explore__card',
       '.p5-mega', '.p5-profile-hero', '.p5-podium-card',
       '.p5-gallery-hero', '.c1-standing-row:nth-child(-n + 3)',
-      '.anatomy-hero', '.anatomy-chapter', '.peds-footer__feature',
+      '.anatomy-hero', '.anatomy-chapter', '.peds-footer__main',
       '.peds-engineering-article', '.peds-car-detail',
     ]) expect(styles).toContain(selector);
     expect(article).toContain('peds-engineering-article');

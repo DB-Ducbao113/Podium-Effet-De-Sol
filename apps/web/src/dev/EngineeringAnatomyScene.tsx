@@ -205,6 +205,7 @@ export default function EngineeringAnatomyScene({
           : "Interactive Model B vehicle"
       }
       dpr={dpr}
+      resize={{ offsetSize: true }}
       frameloop={visible ? "always" : "never"}
       camera={{ position: [2.8, 1.4, -2.8], fov: 38, near: 0.01, far: 100 }}
       gl={{

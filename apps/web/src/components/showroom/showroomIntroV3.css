@@ -1,0 +1,504 @@
+/*
+ * SHOWROOM-INTRO-V3 — DEV review gate + tunnel film.
+ * Loaded only by the DEV-only intro chunk, so production ships none of it.
+ * The overlay sits below the fixed site header (z-50) so navigation is never
+ * trapped; the Showroom stage underneath stays mounted and keeps its layout.
+ */
+.sr-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  overflow: hidden;
+  isolation: isolate;
+  color: var(--peds-color-ivory);
+  background: var(--peds-color-canvas);
+  transition: opacity 0.72s cubic-bezier(0.33, 1, 0.68, 1) 0.14s;
+}
+.sr-intro[data-phase="entered"] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* The tunnel ends in a white flash; this veil catches that flash at full opacity
+   before the overlay dissolves, so the cut into the dark showroom reads as one
+   continuous bloom of light rather than a hard snap. */
+.sr-intro-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    120% 120% at 50% 44%,
+    #fff 0%,
+    var(--peds-color-ivory) 52%,
+    color-mix(
+        in srgb,
+        var(--peds-color-brake-amber) 26%,
+        var(--peds-color-ivory)
+      )
+      100%
+  );
+}
+.sr-intro[data-phase="entered"] .sr-intro-veil {
+  animation: sr-veil-bridge 0.9s cubic-bezier(0.33, 1, 0.68, 1) both;
+}
+@keyframes sr-veil-bridge {
+  0% {
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.94;
+  }
+  30% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.sr-intro-media,
+.sr-intro-scrim,
+.sr-intro-top,
+.sr-intro-hit {
+  position: absolute;
+  inset: 0;
+}
+.sr-intro-media {
+  filter: brightness(0.66) saturate(1.05);
+  transition: filter 0.8s ease;
+}
+.sr-intro[data-phase="playing"] .sr-intro-media,
+.sr-intro[data-phase="entered"] .sr-intro-media {
+  filter: brightness(1) saturate(1.05);
+}
+.sr-intro-poster,
+.sr-intro-video {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* The still poster is pushed slowly into the tunnel mouth so the gate breathes
+   with forward motion instead of sitting frozen behind the invitation. */
+.sr-intro[data-phase="gate"] .sr-intro-poster {
+  transform-origin: 50% 44%;
+  animation: sr-poster-drift 16s ease-in-out infinite alternate;
+  will-change: transform;
+}
+@keyframes sr-poster-drift {
+  from {
+    transform: scale(1.08) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.2) translate3d(0, -2%, 0);
+  }
+}
+.sr-intro-video {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.sr-intro[data-phase="playing"] .sr-intro-video,
+.sr-intro[data-phase="entered"] .sr-intro-video {
+  opacity: 1;
+}
+.sr-intro-scrim {
+  pointer-events: none;
+  background: linear-gradient(
+    0deg,
+    color-mix(in srgb, var(--peds-color-canvas) 88%, transparent) 0%,
+    color-mix(in srgb, var(--peds-color-canvas) 55%, transparent) 26%,
+    transparent 58%
+  );
+  transition: opacity 0.6s ease;
+}
+.sr-intro[data-phase="playing"] .sr-intro-scrim {
+  opacity: 0.3;
+}
+.sr-intro-top {
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--peds-color-canvas) 92%, transparent) 0%,
+    color-mix(in srgb, var(--peds-color-canvas) 60%, transparent) 55%,
+    transparent 100%
+  );
+  height: calc(7rem / var(--peds-visual-zoom));
+}
+.sr-intro-hit {
+  cursor: pointer;
+}
+
+/* Gate: pulsing tunnel mouth rings behind the invitation. */
+.sr-intro-gate {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 calc(6vw / var(--peds-visual-zoom))
+    calc(6vh / var(--peds-visual-zoom));
+  text-align: center;
+  transition:
+    opacity 0.35s ease,
+    visibility 0.35s;
+}
+.sr-intro[data-phase="playing"] .sr-intro-gate,
+.sr-intro[data-phase="entered"] .sr-intro-gate {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.sr-intro-rings {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+/* A starburst painted once, then rotated on the compositor so the tunnel mouth
+   shimmers with warp-speed light without repainting the gradient each frame. */
+.sr-intro-rays {
+  position: absolute;
+  left: 50%;
+  top: 44%;
+  width: min(940px, 160vw / var(--peds-visual-zoom));
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  background: repeating-conic-gradient(
+    from 0deg at 50% 50%,
+    color-mix(in srgb, var(--peds-color-brake-amber) 20%, transparent) 0deg
+      0.9deg,
+    transparent 0.9deg 8deg
+  );
+  -webkit-mask-image: radial-gradient(
+    50% 50% at 50% 50%,
+    transparent 12%,
+    #000 38%,
+    transparent 76%
+  );
+  mask-image: radial-gradient(
+    50% 50% at 50% 50%,
+    transparent 12%,
+    #000 38%,
+    transparent 76%
+  );
+  opacity: 0.4;
+  animation: sr-rays-spin 28s linear infinite;
+  will-change: transform;
+}
+@keyframes sr-rays-spin {
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+.sr-intro-embers {
+  position: absolute;
+  inset: 0;
+}
+/* Sparks trailing off the car beneath the tunnel mouth, each on its own vector. */
+.sr-intro-ember {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--peds-color-brake-amber);
+  box-shadow: 0 0 8px 2px
+    color-mix(in srgb, var(--peds-color-ignition) 65%, transparent);
+  opacity: 0;
+  animation: sr-ember-fly 3s ease-out infinite;
+  will-change: transform, opacity;
+}
+@keyframes sr-ember-fly {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) translate(0, 0) scale(0.5);
+  }
+  12% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) translate(var(--ember-x), var(--ember-y))
+      scale(0.15);
+  }
+}
+.sr-intro-ring,
+.sr-intro-glow {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+.sr-intro-ring {
+  border: 1px solid
+    color-mix(in srgb, var(--peds-color-burnt-orange) 38%, transparent);
+  animation: sr-ring-pulse 2.6s ease-in-out infinite;
+}
+.sr-intro-ring--1 {
+  width: min(340px, 62vw / var(--peds-visual-zoom));
+  aspect-ratio: 1;
+}
+.sr-intro-ring--2 {
+  width: min(520px, 88vw / var(--peds-visual-zoom));
+  aspect-ratio: 1;
+  border-color: color-mix(
+    in srgb,
+    var(--peds-color-burnt-orange) 22%,
+    transparent
+  );
+  animation-delay: 0.5s;
+}
+.sr-intro-ring--3 {
+  width: min(730px, 118vw / var(--peds-visual-zoom));
+  aspect-ratio: 1;
+  border-color: color-mix(
+    in srgb,
+    var(--peds-color-burnt-orange) 12%,
+    transparent
+  );
+  animation-delay: 1s;
+}
+.sr-intro-glow {
+  width: min(300px, 56vw / var(--peds-visual-zoom));
+  aspect-ratio: 1;
+  background: radial-gradient(
+    50% 50% at 50% 50%,
+    color-mix(in srgb, var(--peds-color-brake-amber) 34%, transparent),
+    color-mix(in srgb, var(--peds-color-burnt-orange) 18%, transparent) 46%,
+    transparent 72%
+  );
+  animation: sr-glow-breathe 3.4s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+@keyframes sr-glow-breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: translate(-50%, -50%) scale(0.92);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.08);
+  }
+}
+/* Rings rush outward and fade, staggered, so the gate reads as forward motion
+   through the tunnel rather than a static pulse. */
+@keyframes sr-ring-pulse {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.72);
+  }
+  30% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.3);
+  }
+}
+
+.sr-intro-gate-ui {
+  position: relative;
+  max-width: 620px;
+}
+.sr-intro-eyebrow {
+  margin: 0;
+  color: var(--peds-color-burnt-orange);
+  font: 700 0.7rem/1.4 var(--peds-font-mono);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+.sr-intro-title {
+  margin: 0.9rem 0 0;
+  font:
+    400 clamp(2.1rem, 4.6vw / var(--peds-visual-zoom), 3.6rem)/1.08 Georgia,
+    "Times New Roman",
+    serif;
+  letter-spacing: 0;
+  text-shadow: 0 4px 30px var(--peds-color-canvas);
+}
+.sr-intro-title em {
+  color: var(--peds-color-ignition);
+  font-style: italic;
+}
+.sr-intro-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin-top: 1.7rem;
+  min-height: 52px;
+  padding: 0.9rem 2.4rem;
+  border: 0;
+  border-radius: 999px;
+  color: #fff;
+  background: linear-gradient(
+    180deg,
+    var(--peds-color-burnt-orange) 0%,
+    var(--peds-color-ignition) 58%,
+    var(--peds-color-racing-red) 100%
+  );
+  box-shadow: 0 10px 34px
+    color-mix(in srgb, var(--peds-color-ignition) 42%, transparent);
+  cursor: pointer;
+  font: 700 0.82rem var(--peds-font-ui);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.sr-intro-open:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 44px
+    color-mix(in srgb, var(--peds-color-ignition) 58%, transparent);
+}
+.sr-intro-open span {
+  font-size: 1.05rem;
+  letter-spacing: 0;
+}
+
+.sr-intro-skip {
+  position: absolute;
+  top: calc(4rem / var(--peds-visual-zoom) + 0.75rem);
+  right: clamp(1rem, 2vw / var(--peds-visual-zoom), 1.6rem);
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0.6rem 1.2rem;
+  border: 1px solid
+    color-mix(in srgb, var(--peds-color-brake-amber) 45%, transparent);
+  border-radius: 999px;
+  color: var(--peds-color-brake-amber);
+  background: color-mix(in srgb, var(--peds-color-canvas) 55%, transparent);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  font: 700 0.68rem var(--peds-font-mono);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease,
+    background 0.2s ease;
+}
+.sr-intro-skip:hover {
+  border-color: var(--peds-color-ignition);
+  color: var(--peds-color-ivory);
+  background: color-mix(in srgb, var(--peds-color-ignition) 18%, transparent);
+}
+.sr-intro-skip span {
+  font-size: 0.95rem;
+  letter-spacing: 0;
+}
+
+.sr-intro-progress {
+  position: absolute;
+  inset: auto 0 0;
+  height: 3px;
+  background: color-mix(in srgb, var(--peds-color-ivory) 12%, transparent);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.sr-intro[data-phase="playing"] .sr-intro-progress,
+.sr-intro[data-phase="entered"] .sr-intro-progress {
+  opacity: 1;
+}
+.sr-intro-progress span {
+  display: block;
+  height: 100%;
+  transform-origin: left center;
+  background: linear-gradient(
+    90deg,
+    var(--peds-color-burnt-orange),
+    var(--peds-color-ignition) 55%,
+    var(--peds-color-brake-amber)
+  );
+  transition: transform 0.25s linear;
+}
+
+.sr-intro button:focus-visible {
+  outline: var(--peds-focus-ring-width) solid var(--peds-focus-ring-color);
+  outline-offset: var(--peds-focus-ring-offset);
+}
+
+@media (max-width: 860px) {
+  .sr-intro-gate {
+    padding: 0 6vw max(5vh, env(safe-area-inset-bottom));
+  }
+  .sr-intro-ring--1 {
+    width: 64vw;
+  }
+  .sr-intro-ring--2 {
+    width: 92vw;
+  }
+  .sr-intro-ring--3 {
+    width: 128vw;
+  }
+  .sr-intro-glow {
+    width: 58vw;
+  }
+  .sr-intro-title {
+    font-size: clamp(1.9rem, 8.4vw, 2.6rem);
+  }
+  .sr-intro-open {
+    min-height: 48px;
+    margin-top: 1.4rem;
+    padding: 0.8rem 1.9rem;
+  }
+  .sr-intro-skip {
+    top: calc(3.5rem + 10px);
+    right: 12px;
+  }
+}
+
+@media (max-height: 620px) {
+  .sr-intro-gate {
+    padding-bottom: calc(4vh / var(--peds-visual-zoom));
+  }
+  .sr-intro-ring--2,
+  .sr-intro-ring--3 {
+    display: none;
+  }
+  .sr-intro-open {
+    margin-top: 1.1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sr-intro,
+  .sr-intro-media,
+  .sr-intro-video,
+  .sr-intro-scrim,
+  .sr-intro-gate,
+  .sr-intro-open,
+  .sr-intro-progress,
+  .sr-intro-progress span {
+    transition: none;
+  }
+  .sr-intro-ring,
+  .sr-intro-rays,
+  .sr-intro-glow,
+  .sr-intro-ember {
+    animation: none;
+  }
+  .sr-intro[data-phase="gate"] .sr-intro-poster {
+    animation: none;
+  }
+  .sr-intro-ember {
+    opacity: 0;
+  }
+  .sr-intro-veil {
+    animation: none;
+    opacity: 0;
+  }
+  .sr-intro-open:hover {
+    transform: none;
+  }
+}

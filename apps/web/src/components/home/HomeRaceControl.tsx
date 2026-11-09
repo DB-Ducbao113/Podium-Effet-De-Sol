@@ -1,15 +1,21 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowUpRight, FlagTriangleRight, Radio } from 'lucide-react';
 import type { GrandPrixRound } from '../../types';
 import { useNavigationStore } from '../../store/useNavigationStore';
 import { useChampionshipStore } from '../../store/useChampionshipStore';
+import { CALENDAR_2026 } from '../../data/championship';
 import { scheduleWallClockSecondTick } from '../../lib/live/tabSync';
-import { getSessionTimeRange } from '../../utils/raceSchedule';
+import { getCalendarRaceState, getSessionTimeRange } from '../../utils/raceSchedule';
+import { smoothstep } from './journey/homeJourneyMath';
+import { subscribeHomeScrub } from './journey/homeScrubRegistry';
+import { HomeRaceTrackScrub } from './HomeRaceTrackScrub';
+import { HomeSessionTimeline } from './HomeSessionTimeline';
 
 export function HomeRaceControl({ race }: { race?: GrandPrixRound }) {
   const lang = useNavigationStore((state) => state.lang);
   const [now, setNow] = useState(() => Date.now());
+  const sectionRef = useRef<HTMLElement>(null);
   const completed = useChampionshipStore((state) => state.detailedResults[2026]);
   const latest = [...(completed ?? [])]
     .filter((entry) => entry.status === 'completed' && !entry.isSynthesized && entry.entries?.length)
@@ -25,17 +31,39 @@ export function HomeRaceControl({ race }: { race?: GrandPrixRound }) {
     };
   }, []);
 
+  // Dusk-to-night sky washes over the pinned floor as the weekend lap draws.
+  useEffect(() => {
+    const node = sectionRef.current;
+    if (!node) return;
+    const mix = (from: number, to: number, t: number) => Math.round(from + (to - from) * t);
+    return subscribeHomeScrub('race-control', (progress) => {
+      const t = smoothstep(0, .6, progress);
+      node.style.setProperty('--home-sky-top', `rgb(${mix(27, 8, t)}, ${mix(16, 10, t)}, ${mix(48, 14, t)})`);
+      node.style.setProperty('--home-sky-horizon', `rgb(${mix(10, 16, t)}, ${mix(12, 20, t)}, ${mix(16, 28, t)})`);
+    });
+  }, []);
+
   const start = race ? getSessionTimeRange(race, 'race')?.start.getTime() : undefined;
   const remaining = start ? Math.max(0, Math.floor((start - now) / 1000)) : 0;
   const count = [
     Math.floor(remaining / 86400),
     Math.floor((remaining % 86400) / 3600),
     Math.floor((remaining % 3600) / 60),
+    remaining % 60,
   ];
+  const latestScheduledRound = CALENDAR_2026.filter(
+    (entry) => getCalendarRaceState(entry, now) === 'completed',
+  ).at(-1)?.round ?? 0;
+  const newerResultsPending = latestScheduledRound > (latest?.round ?? 0);
   const winner = latest?.entries?.find((entry) => entry.position === 1);
+  const raceDate = start ? new Date(start) : null;
+  const raceTime = raceDate ? new Intl.DateTimeFormat(lang === 'vi' ? 'vi-VN' : 'en-GB', {
+    day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
+    timeZone: 'UTC', hourCycle: 'h23',
+  }).format(raceDate) + ' UTC' : null;
 
   return (
-    <section id="race-control" className="page-container home-rc" aria-labelledby="home-rc-title">
+    <section id="race-control" ref={sectionRef} className="page-container home-rc" aria-labelledby="home-rc-title">
       <header className="home-live__heading">
         <span className="home-live__slash" aria-hidden="true">///</span>
         <h2 id="home-rc-title">RACE CONTROL</h2>
@@ -46,69 +74,42 @@ export function HomeRaceControl({ race }: { race?: GrandPrixRound }) {
       </header>
       <div className="home-rc__grid">
         <div className="home-rc__next">
-          <div className="home-rc__map" data-asset-slot="circuit-map" aria-hidden="true">
-            <svg className="home-rc__signal" viewBox="0 0 360 200" preserveAspectRatio="xMidYMid slice" fill="none" role="presentation">
-              <defs>
-                <pattern id="home-rc-signal-grid" width="24" height="24" patternUnits="userSpaceOnUse">
-                  <path d="M24 0H0V24" stroke="#7DB4CC" strokeOpacity=".12" strokeWidth=".7" />
-                </pattern>
-                <linearGradient id="home-rc-signal-flow" x1="0" x2="1" y1="0" y2="1">
-                  <stop stopColor="#68C9EB" stopOpacity=".14" />
-                  <stop offset=".56" stopColor="#75D2F0" stopOpacity=".9" />
-                  <stop offset="1" stopColor="#FF6634" stopOpacity=".64" />
-                </linearGradient>
-              </defs>
-              <rect width="360" height="200" fill="url(#home-rc-signal-grid)" />
-              <g stroke="#75B8D4" strokeOpacity=".32">
-                <path d="M0 95H360M186 0V200" strokeDasharray="5 9" />
-                <circle cx="186" cy="95" r="52" />
-                <circle cx="186" cy="95" r="81" strokeDasharray="2 10" className="home-rc__signal-orbit" />
-              </g>
-              <path className="home-rc__signal-glow home-rc__signal-route"
-                d="M-20 149C66 99 102 151 164 95S253 41 380 83"
-                stroke="url(#home-rc-signal-flow)" strokeWidth="2.3" />
-              <path className="home-rc__signal-pulse"
-                d="M-20 149C66 99 102 151 164 95S253 41 380 83"
-                stroke="#FF8952" strokeWidth="3" />
-              <circle cx="186" cy="95" r="4" fill="#FF793D" fillOpacity=".8" />
-              <circle cx="186" cy="95" r="11" stroke="#FF793D" strokeOpacity=".58" />
-              <g fill="#90BBD0" fillOpacity=".56">
-                <rect x="19" y="172" width="28" height="2" />
-                <rect x="51" y="172" width="14" height="2" />
-                <rect x="69" y="172" width="9" height="2" />
-              </g>
-            </svg>
-            <span className="home-rc__map-label">SIGNAL / FIELD</span>
-            <span className="home-rc__map-index">{race ? 'R' + String(race.round).padStart(2, '0') : '—'}<small>2026</small></span>
-            <span className="home-rc__map-corner" />
-          </div>
           <div className="home-rc__identity">
             <span className="home-live__eyebrow"><FlagTriangleRight size={16} aria-hidden="true" /> {lang === 'vi' ? 'CHẶNG TIẾP THEO' : 'NEXT GRAND PRIX'}</span>
             <h3>{race?.name ?? (lang === 'vi' ? 'Lịch mùa giải' : 'Season calendar')}</h3>
-            <span className="home-rc__location">{race ? `R${String(race.round).padStart(2, '0')} · ${race.location}` : '2026'}</span>
+            <span className="home-rc__location">{race ? `R${String(race.round).padStart(2, '0')} · ${race.location}` : (lang === 'vi' ? 'Không còn chặng sắp tới' : 'No upcoming race')}</span>
+            {raceTime && <time className="home-rc__race-time" dateTime={raceDate?.toISOString()}>{raceTime}</time>}
+          </div>
+          <div className="home-rc__map" data-asset-slot="circuit-map" aria-hidden="true">
+            <HomeRaceTrackScrub race={race} />
+            <span className="home-rc__map-label">{race ? 'CIRCUIT / VECTOR' : 'SIGNAL / FIELD'}</span>
+            <span className="home-rc__map-index">{race ? 'R' + String(race.round).padStart(2, '0') : '—'}<small>2026</small></span>
+            <span className="home-rc__map-corner" />
           </div>
         </div>
         <div className="home-rc__timing">
-          <span className="home-live__eyebrow"><Radio size={15} aria-hidden="true" /> {start && start > now ? (lang === 'vi' ? 'ĐẾM NGƯỢC ĐUA CHÍNH' : 'RACE COUNTDOWN') : (lang === 'vi' ? 'CUỐI TUẦN ĐUA' : 'RACE WEEKEND')}</span>
+          <span className="home-live__eyebrow"><Radio size={15} aria-hidden="true" /> {start && start > now ? (lang === 'vi' ? 'ĐẾM NGƯỢC ĐUA CHÍNH' : 'RACE COUNTDOWN') : (lang === 'vi' ? 'LỊCH ĐUA 2026' : '2026 RACE CALENDAR')}</span>
           {start && start > now ? (
-            <div className="home-rc__digits" role="timer" aria-label={lang === 'vi' ? `Còn ${count[0]} ngày, ${count[1]} giờ, ${count[2]} phút` : `${count[0]} days, ${count[1]} hours, ${count[2]} minutes remaining`}>
+            <div className="home-rc__digits" role="timer" aria-label={lang === 'vi' ? `Còn ${count[0]} ngày, ${count[1]} giờ, ${count[2]} phút, ${count[3]} giây` : `${count[0]} days, ${count[1]} hours, ${count[2]} minutes, ${count[3]} seconds remaining`}>
               {count.map((value, index) => (
                 <div key={index}>
                   <strong>{String(value).padStart(2, '0')}</strong>
-                  <small>{(lang === 'vi' ? ['NGÀY', 'GIỜ', 'PHÚT'] : ['DAYS', 'HRS', 'MIN'])[index]}</small>
+                  <small>{(lang === 'vi' ? ['NGÀY', 'GIỜ', 'PHÚT', 'GIÂY'] : ['DAYS', 'HRS', 'MIN', 'SEC'])[index]}</small>
                 </div>
               ))}
             </div>
-          ) : <div className="home-rc__no-countdown">{lang === 'vi' ? 'Xem lịch chi tiết' : 'Explore the calendar'}</div>}
+          ) : <div className="home-rc__no-countdown">{lang === 'vi' ? 'Không có giờ đua sắp tới để đếm ngược' : 'No upcoming race start to count down'}</div>}
+          <HomeSessionTimeline race={race} now={now} />
           <Link to="/season/2026?tab=calendar" className="home-rc__link">
             {lang === 'vi' ? 'Lịch đua 2026' : '2026 Calendar'} <ArrowUpRight size={17} aria-hidden="true" />
           </Link>
         </div>
         <Link to={latest ? `/season/2026/race/${latest.round}` : '/season/2026?tab=results'} className="home-rc__result">
-          <span className="home-live__eyebrow">{lang === 'vi' ? 'KẾT QUẢ GẦN NHẤT' : 'LATEST RESULT'}</span>
+          <span className="home-live__eyebrow">{lang === 'vi' ? 'KẾT QUẢ ĐÃ XÁC MINH GẦN NHẤT' : 'LATEST VERIFIED RESULT'}</span>
           <strong>{latest ? `R${String(latest.round).padStart(2, '0')}` : '—'}</strong>
           <span className="home-rc__result-meta">{latest?.grandPrix ?? (lang === 'vi' ? 'Chưa có kết quả xác minh' : 'No verified result')}</span>
           {winner && <span className="home-rc__winner">{winner.driverName}</span>}
+          {newerResultsPending && <span className="home-rc__verification-note">{lang === 'vi' ? 'Các chặng mới hơn đang chờ xác minh kết quả.' : 'Newer rounds await verified results.'}</span>}
           <ArrowUpRight size={19} aria-hidden="true" className="home-rc__result-arrow" />
         </Link>
       </div>

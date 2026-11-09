@@ -7,6 +7,8 @@ import { STANDARD_2026_REFERENCE_SETS } from './standard2026References';
 
 type Props = {
   teamId: PrecisionTeam;
+  referenceUrl?: string;
+  belgiumStudy?: boolean;
   showBranding: boolean;
   onShowBranding: (show: boolean) => void;
   onCamera: (preset: CameraPreset) => void;
@@ -22,12 +24,12 @@ const statusLabel = {
  * This panel is intentionally metadata-only. It never raycasts, loads geometry
  * or alters shaders on every render, so reviewing 30 components stays cheap.
  */
-export function ModelBPaintLayoutInspector({ teamId, showBranding, onShowBranding, onCamera }: Props) {
+export function ModelBPaintLayoutInspector({ teamId, referenceUrl, belgiumStudy = false, showBranding, onShowBranding, onCamera }: Props) {
   const [selected, setSelected] = React.useState('sidepod-inlet-lip');
   const reviews = React.useMemo(() => getPaintLayoutReview(teamId), [teamId]);
   const counts = React.useMemo(() => getPaintLayoutCounts(teamId), [teamId]);
   const active = reviews.find((item) => item.group.id === selected) ?? reviews[0];
-  const gallery = STANDARD_2026_REFERENCE_SETS[teamId].galleryUrl;
+  const gallery = referenceUrl ?? STANDARD_2026_REFERENCE_SETS[teamId].galleryUrl;
 
   const lookAtSide = (side: 'left' | 'right') => {
     const devView = (window as Window & {
@@ -41,8 +43,9 @@ export function ModelBPaintLayoutInspector({ teamId, showBranding, onShowBrandin
     <div className="advanced-group component-review">
       <h3>Paint layout · component audit</h3>
       <p className="component-review-disclaimer">
-        30 design groups / 54 physical surfaces. Paint first; sponsor artwork stays hidden until requested.
+        30 design groups / 54 physical surfaces. Sponsor artwork is a provisional DEV preview where available.
         All mesh-to-part mappings are provisional pending actual Model B inspection.
+        {belgiumStudy && ' Findings below describe the February launch baseline; Belgium part-by-part comparison is pending.'}
       </p>
       <div className="component-review-totals" aria-label="Paint layout audit counts">
         <span>{counts.confirmedGaps} documented gaps</span>
@@ -93,9 +96,9 @@ export function ModelBPaintLayoutInspector({ teamId, showBranding, onShowBrandin
         Show existing sponsor/wordmark overlays
       </label>
       <p className="component-review-disclaimer">
-        Paint-only is recommended for layout QA. It hides review decals and unverified wheel lettering;
+        Paint-only is recommended for layout QA. It hides review sponsor decals; tyre-sidewall lettering and team-name study marks remain visible.
         it does not change the chassis mesh or claim the livery is approved.
-        <a href={gallery} target="_blank" rel="noopener noreferrer"> View canonical 2026 gallery</a>
+        <a href={gallery} target="_blank" rel="noopener noreferrer"> View photo reference</a>
       </p>
     </div>
   );

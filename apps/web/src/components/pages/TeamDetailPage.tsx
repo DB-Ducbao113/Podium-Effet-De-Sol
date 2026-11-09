@@ -118,11 +118,11 @@ export function TeamDetailPage() {
 
         <header className="p5-team-hero" data-p5-reveal>
           {teamConcept2026(team.id, season) && <span className="p5-concept-car p5-concept-car--profile" aria-hidden="true"><img src={teamConcept2026(team.id, season)} alt="" width={teamConceptWidth2026(team.id)} height={235} loading="eager" /></span>}
-          <picture className="p5-hero-media" aria-hidden="true">
+          {(season === 2024 || season === 2025) ? <span className="p5-hero-media p5-generated-team-hero" aria-hidden="true">{drivers.slice(0, 2).map((driver) => <P5Portrait key={driver.driverId} season={season} driverId={driver.driverId} alt="" eager />)}</span> : <picture className="p5-hero-media" aria-hidden="true">
             <source type="image/avif" srcSet={venueHeroSrcSet(venueId, 'land', 'avif')} sizes="(max-width: 900px) 100vw, 1440px" />
             <source type="image/webp" srcSet={venueHeroSrcSet(venueId, 'land', 'webp')} sizes="(max-width: 900px) 100vw, 1440px" />
             <img src={`/images/p4/venues/${venueId}-land-1600.webp`} alt="" loading="eager" decoding="async" />
-          </picture>
+          </picture>}
           <span className="p5-hero-scrim" aria-hidden="true" />
           <span className="p5-team-hero-rank" aria-hidden="true">
             {constructor ? String(constructor.rank).padStart(2, '0') : '—'}
@@ -141,14 +141,15 @@ export function TeamDetailPage() {
                   : `No ${season} standings entry is available for this team.`}
             </p>
             {season === 2026 && <p className="p5-photo-credit p5-photo-credit-inline">{lang === 'vi' ? 'Xe minh họa 2026 · ảnh concept, chờ duyệt' : '2026 car illustration · concept artwork, pending review'}</p>}
-            <p className="p5-photo-credit p5-photo-credit-inline">
+            {(season === 2024 || season === 2025) && <p className="p5-photo-credit p5-photo-credit-inline">{lang === 'vi' ? `Chân dung AI tạo dựng · mùa ${season}` : `AI-generated portraits · ${season} season`}</p>}
+            {season === 2026 && <p className="p5-photo-credit p5-photo-credit-inline">
               {lang === 'vi' ? 'Ảnh minh họa' : 'Illustrative photo'}: {venue?.place || 'Circuit atmosphere'} ·{' '}
               {venue && (
                 <>
                   <a href={venue.sourcePage} target="_blank" rel="noopener noreferrer">{venue.credit}</a> · {venue.license}
                 </>
               )}
-            </p>
+            </p>}
           </div>
           <div className="p5-team-hero-lineup p5-team-hero-duo" aria-label={lang === 'vi' ? 'Tay đua của đội' : 'Team drivers'}>
             {drivers.map((driver) => {

@@ -3,15 +3,34 @@ import { DecalGeometry } from 'three/examples/jsm/geometries/DecalGeometry.js';
 import type { TeamLivery } from './teamLiveries';
 import { artwork, type ArtworkKey } from './officialArtwork';
 import { createPaintAtlas, type PrecisionTeam } from './paintAtlas';
-import { liveryDefinitions, type SurfaceAnchorMap } from './liveryDefinitions';
+import { MERCEDES_MEXICO_BODY } from './standard2026Paint';
+import { getLiveryDecals, type SurfaceAnchorMap } from './liveryDefinitions';
 import { fitModelBSurface, shouldEnableDetailedSurfaceQa, surfaceLimitsForArtwork, type SurfacePlacement, type SurfaceProbe } from './modelBSurfaceAudit';
 
 type Decal = { mesh: THREE.Mesh; key: ArtworkKey; id: string };
 type AtlasRect = { u: number; v: number; w: number; h: number };
 type DecalAtlas = { map: THREE.CanvasTexture; rects: Partial<Record<ArtworkKey, AtlasRect>> };
+export type LiveryVariant = 'season-default-2026' | 'season-current-2026-11-06';
+export function supportsReviewBranding(teamId: string, variant: LiveryVariant): boolean {
+  return variant === 'season-default-2026' || teamId !== 'cadillac';
+}
+export function shouldShowEndplateTeamName(teamId: PrecisionTeam, variant: LiveryVariant, side: 'left' | 'right', brandingVisible: boolean): boolean {
+  if (side === 'left' || !brandingVisible) return true;
+  return !getLiveryDecals(teamId, variant).some((entry) =>
+    (entry.id === 'mclaren-dropbox-right' || entry.id.endsWith('-wing-endplate-right')) && entry.anchor.visible !== false);
+}
+export function needsRearWingTeamName(teamId: PrecisionTeam, variant: LiveryVariant): boolean {
+  return !getLiveryDecals(teamId, variant).some((entry) =>
+    entry.id.endsWith('-rear-wing-main') || entry.id === 'mclaren-wordmark-wing-rear');
+}
 const vector = new THREE.Vector3();
 type PlacementAudit = { id: string; state: 'placed' | 'adapted' | 'unplaced' | 'blocked' | 'provisional'; reason: string; coverage?: number; normalDegrees?: number; stretchRatio?: number; depthRange?: number; anchor?: SurfaceAnchorMap };
 const REVIEW_BLOCKED_ARTWORK = new Set<ArtworkKey>(['velo', 'allwyn']);
+export const WHEEL_SIDEWALL_CENTERS = [
+  { x: -1.02, z: -1.265, side: -1 }, { x: .91, z: -1.265, side: 1 },
+  { x: -1.04, z: 2.135, side: -1 }, { x: 1.04, z: 2.135, side: 1 },
+] as const;
+export const WHEEL_MEDIUM_MARKING = '#e8bd25';
 const PLANAR_MARK_IDS = new Set([
   'mclaren-dropbox-right',
   'mclaren-pirelli-wing-top',
@@ -19,14 +38,23 @@ const PLANAR_MARK_IDS = new Set([
   'mclaren-groq-underwing-rear',
 ]);
 
-function zoneColor(team: TeamLivery, x: number, y: number, z: number): string {
+function zoneColor(team: TeamLivery, variant: LiveryVariant, x: number, y: number, z: number): string {
   if (team.id === 'cadillac') {
+    if (variant === 'season-current-2026-11-06') {
+      if (z < -1.88 || z > 1.96) return team.wing;
+      if (y < .44) return team.secondary;
+      return team.primary;
+    }
     // February launch: physical left light, right dark at every camera angle.
     // The atlas uses the same canonical paint tokens.
     if (z < -1.88 || z > 1.96) return x < 0 ? team.primary : team.secondary;
     if (x < -0.055) return y > 0.55 && z > 0.55 ? team.primary : team.side;
     if (x > 0.055) return team.secondary;
     return team.accent;
+  }
+  if (team.id === 'mercedes' && variant === 'season-current-2026-11-06') {
+    if (z < -1.88 || z > 1.96) return team.wing;
+    return y > .77 && z < -.45 ? MERCEDES_MEXICO_BODY : team.secondary;
   }
   if (team.id === 'mclaren' && z > 0.18 && z < 1.58 && y > .4) return team.secondary;
   if (z < -1.88 || z > 1.96) return team.wing;
@@ -122,6 +150,8 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
   let placementAudit: PlacementAudit[] = [];
   const placementCache = new Map<string, SurfacePlacement>();
   const wheelDetails: THREE.Mesh[] = [];
+  const teamNameDetails: THREE.Mesh[] = [];
+  let teamNameTexture: THREE.CanvasTexture | null = null;
   const authorOverrides = new Map<string, SurfaceAnchorMap>();
   const undoStack: string[] = [];
   const redoStack: string[] = [];
@@ -231,20 +261,26 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
 
   function applyBrandingVisibility() {
     for (const item of decals) item.mesh.visible = brandingVisible;
-    // McLaren wheel overlays are not paint-surface verified. Do not let the
-    // experimental wheel bands obscure tire/rim layout during paint review.
-    for (const mesh of wheelDetails) mesh.visible = brandingVisible;
+    updateTeamNameVisibility();
+    // Tyre markings are independent of sponsor visibility.
     for (const box of boxes) box.visible = brandingVisible;
   }
+  function updateTeamNameVisibility() {
+    if (!currentTeam) return;
+    for (const mesh of teamNameDetails) {
+      mesh.visible = shouldShowEndplateTeamName(currentTeam as PrecisionTeam, currentVariant ?? 'season-default-2026', mesh.name.endsWith('-right') ? 'right' : 'left', brandingVisible);
+    }
+  }
   function setBrandingVisible(visible: boolean) {
+    if (visible && currentTeam && currentVariant && !supportsReviewBranding(currentTeam, currentVariant)) return Promise.resolve(false);
     if (brandingVisible === visible) return Promise.resolve(false);
     brandingVisible = visible;
+    updateTeamNameVisibility();
     if (!visible) {
       // Paint-only mode must stop loading expensive sponsor atlases.
       ++requestId;
       ++renderVersion;
       clearDecals();
-      clearWheelDetails();
       for (const [id, pending] of decalAtlases) {
         void pending.then((atlas) => {
           if (atlas !== activeAtlas) atlas.map.dispose();
@@ -282,22 +318,29 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
     }
     wheelDetails.length = 0;
   }
+  function clearTeamNames() {
+    for (const mesh of teamNameDetails) {
+      scene.remove(mesh);
+      mesh.geometry.dispose();
+      (mesh.material as THREE.Material).dispose();
+    }
+    teamNameDetails.length = 0;
+    teamNameTexture?.dispose();
+    teamNameTexture = null;
+  }
 
-  function addMcLarenWheelDetails() {
+  function addWheelDetails() {
     // Measured tire centers from MODEL_B_COMPONENT_BOUNDS.json. These local
     // scene overlays leave the owner's GLB and its tire meshes untouched.
-    const centers = [
-      { x: -1.02, z: -1.265, side: -1 }, { x: .91, z: -1.265, side: 1 },
-      { x: -1.04, z: 2.135, side: -1 }, { x: 1.04, z: 2.135, side: 1 },
-    ];
     const tireMesh = model.getObjectByName('PEDS_Model_B_Mesh_10');
+    if (!(tireMesh instanceof THREE.Mesh)) return;
     const sidewallCanvas = document.createElement('canvas');
     sidewallCanvas.width = sidewallCanvas.height = 512;
     const sidewall = sidewallCanvas.getContext('2d')!;
-    sidewall.fillStyle = '#f1f0e9';
+    sidewall.fillStyle = WHEEL_MEDIUM_MARKING;
     sidewall.textAlign = 'center';
     sidewall.textBaseline = 'middle';
-    sidewall.font = 'bold 48px Arial, sans-serif';
+    sidewall.font = 'bold 45px Arial, sans-serif';
     const curvedLabel = (label: string, centerAngle: number, radius: number) => {
       const advance = .14;
       [...label].forEach((letter, index) => {
@@ -309,34 +352,24 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
         sidewall.restore();
       });
     };
-    curvedLabel('P ZERO', Math.PI, 218);
-    curvedLabel('PIRELLI', 0, 218);
-    for (const center of centers) {
-      const geometry = new THREE.TorusGeometry(.223, .017, 8, 112);
-      const positions = geometry.getAttribute('position');
-      const colors = new Float32Array(positions.count * 3);
-      const color = new THREE.Color();
-      for (let i = 0; i < positions.count; i++) {
-        const angle = (Math.atan2(positions.getY(i), positions.getX(i)) + Math.PI) / (2 * Math.PI);
-        color.setHSL((.68 + angle * .93) % 1, .90, .53);
-        colors[i * 3] = color.r; colors[i * 3 + 1] = color.g; colors[i * 3 + 2] = color.b;
-      }
-      geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-      const material = new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false, depthTest: true });
+    curvedLabel('P ZERO', Math.PI, 206);
+    curvedLabel('PIRELLI', 0, 206);
+    for (const center of WHEEL_SIDEWALL_CENTERS) {
+      const geometry = new THREE.TorusGeometry(.275, .004, 6, 96);
+      const material = new THREE.MeshBasicMaterial({ color: WHEEL_MEDIUM_MARKING, toneMapped: false, depthTest: true });
       const mesh = new THREE.Mesh(geometry, material);
-      mesh.name = `mclaren-wheel-band-${center.side < 0 ? 'left' : 'right'}-${center.z < 0 ? 'front' : 'rear'}`;
+      mesh.name = `wheel-compound-ring-${center.side < 0 ? 'left' : 'right'}-${center.z < 0 ? 'front' : 'rear'}`;
       mesh.rotation.y = center.side * Math.PI / 2;
       mesh.position.set(center.x, .365, center.z);
       mesh.renderOrder = 3;
       scene.add(mesh);
       wheelDetails.push(mesh);
-      // Source-photo tire lettering study, positioned on the measured sidewall.
+      // Flat lettering projects only onto the actual rubber triangles.
       const map = new THREE.CanvasTexture(sidewallCanvas);
       map.colorSpace = THREE.SRGBColorSpace;
-      if (!(tireMesh instanceof THREE.Mesh)) { map.dispose(); continue; }
       const letteringGeometry = new DecalGeometry(tireMesh, new THREE.Vector3(center.x + center.side * .008,.365,center.z), new THREE.Euler(0, center.side * Math.PI / 2, 0), new THREE.Vector3(.68,.68,.20));
       const label = new THREE.Mesh(letteringGeometry, new THREE.MeshBasicMaterial({map, transparent:true, side:THREE.DoubleSide, depthWrite:false, polygonOffset:true, polygonOffsetFactor:-4, toneMapped:false}));
-      label.name = `mclaren-wheel-lettering-${center.side < 0 ? 'left' : 'right'}-${center.z < 0 ? 'front' : 'rear'}`;
+      label.name = `wheel-sidewall-lettering-${center.side < 0 ? 'left' : 'right'}-${center.z < 0 ? 'front' : 'rear'}`;
       label.renderOrder = 4;
       scene.add(label);
       wheelDetails.push(label);
@@ -413,15 +446,17 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
     decals.push({ mesh, key, id });
   }
 
-  function conformingSideMark(id: string, key: ArtworkKey, anchor: SurfaceAnchorMap, atlas: DecalAtlas, target: THREE.Mesh) {
+  function conformingSideMark(id: string, key: ArtworkKey, anchor: SurfaceAnchorMap, atlas: DecalAtlas, target: THREE.Mesh, destination?: THREE.Mesh[]) {
     const rect = atlas.rects[key];
-    if (!rect || (anchor.side !== 'left' && anchor.side !== 'right')) return;
+    if (!rect || (anchor.side !== 'left' && anchor.side !== 'right')) return false;
     const sign = anchor.side === 'right' ? 1 : -1;
     // Conforming decals are a preview, not an offline UV bake. 12x4 avoids
     // 225 raycasts per mark on slower CPUs; the high-density grid is reserved
     // for explicit (potentially expensive) surface QA.
-    const columns = surfaceQaEnabled ? 24 : 12, rows = surfaceQaEnabled ? 8 : 4;
-    const points: number[] = [], uvs: number[] = [], valid: boolean[] = [], triangles: number[] = [];
+    const wingPlate = id === 'mclaren-dropbox-right' || id.endsWith('-wing-endplate-right') || id.includes('-rear-endplate-name-');
+    const columns = wingPlate ? 6 : surfaceQaEnabled ? 24 : 12;
+    const rows = wingPlate ? 3 : surfaceQaEnabled ? 8 : 4;
+    const points: number[] = [], uvs: number[] = [], valid: boolean[] = [], normals: Array<THREE.Vector3 | null> = [], triangles: number[] = [];
     // Drape a regular logo UV grid over the outer paint triangles. Sampling
     // the actual mesh preserves letter continuity across Model B's body folds.
     for (let row = 0; row <= rows; row++) for (let column = 0; column <= columns; column++) {
@@ -431,14 +466,22 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
       raycaster.set(new THREE.Vector3(sign * 2, y, z), new THREE.Vector3(-sign, 0, 0));
       const hit = raycaster.intersectObject(target, false).find((candidate) => candidate.point.x * sign > .02);
       valid.push(Boolean(hit));
+      normals.push(hit?.face?.normal.clone() ?? null);
       points.push(hit ? hit.point.x + sign * .007 : 0, y, z);
       uvs.push(rect.u + u * rect.w, rect.v + v * rect.h);
     }
     for (let row = 0; row < rows; row++) for (let column = 0; column < columns; column++) {
       const a = row * (columns + 1) + column, b = a + 1, c = a + columns + 1, d = c + 1;
-      if (valid[a] && valid[b] && valid[c] && valid[d]) triangles.push(a,c,b,b,c,d);
+      if (!(valid[a] && valid[b] && valid[c] && valid[d])) continue;
+      if (wingPlate) {
+        const flatNormals = [normals[a], normals[b], normals[c], normals[d]];
+        const depths = [points[a * 3], points[b * 3], points[c * 3], points[d * 3]];
+        if (flatNormals.some((normal) => !normal || normal.dot(flatNormals[0]!) < Math.cos(Math.PI / 12))
+          || Math.max(...depths) - Math.min(...depths) > .035) continue;
+      }
+      triangles.push(a,c,b,b,c,d);
     }
-    if (!triangles.length) return;
+    if (!triangles.length) return false;
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(points, 3));
     geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
@@ -448,7 +491,82 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
     mesh.name = id;
     mesh.renderOrder = 4;
     scene.add(mesh);
-    decals.push({ mesh, key, id });
+    if (destination) destination.push(mesh);
+    else decals.push({ mesh, key, id });
+    return true;
+  }
+
+  function conformingRearName(id: string, key: ArtworkKey, anchor: SurfaceAnchorMap, atlas: DecalAtlas, target: THREE.Mesh) {
+    const rect = atlas.rects[key];
+    if (!rect) return false;
+    const columns = 12, rows = 3;
+    const points: number[] = [], uvs: number[] = [], normals: Array<THREE.Vector3 | null> = [], triangles: number[] = [];
+    for (let row = 0; row <= rows; row++) for (let column = 0; column <= columns; column++) {
+      const u = column / columns, v = row / rows;
+      const x = (anchor.x ?? 0) + (u - .5) * anchor.width;
+      const y = anchor.y + (v - .5) * anchor.height;
+      raycaster.set(new THREE.Vector3(x, y, 3), new THREE.Vector3(0, 0, -1));
+      const hit = raycaster.intersectObject(target, false)[0];
+      points.push(x, y, hit ? hit.point.z + .007 : 0);
+      normals.push(hit?.face?.normal.clone() ?? null);
+      uvs.push(rect.u + u * rect.w, rect.v + v * rect.h);
+    }
+    for (let row = 0; row < rows; row++) for (let column = 0; column < columns; column++) {
+      const a = row * (columns + 1) + column, b = a + 1, c = a + columns + 1, d = c + 1;
+      const faces = [normals[a], normals[b], normals[c], normals[d]];
+      const depths = [points[a * 3 + 2], points[b * 3 + 2], points[c * 3 + 2], points[d * 3 + 2]];
+      if (faces.some((normal) => !normal || normal.dot(faces[0]!) < Math.cos(Math.PI / 12))
+        || Math.max(...depths) - Math.min(...depths) > .035) continue;
+      triangles.push(a,c,b,b,c,d);
+    }
+    if (!triangles.length) return false;
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(points, 3));
+    geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+    geometry.setIndex(triangles);
+    const material = new THREE.MeshBasicMaterial({ map: atlas.map, transparent: true, depthTest: true, depthWrite: false, side: THREE.DoubleSide, toneMapped: false, polygonOffset: true, polygonOffsetFactor: -4 });
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.name = id; mesh.renderOrder = 4;
+    scene.add(mesh); teamNameDetails.push(mesh);
+    return true;
+  }
+
+  function addTeamNames(team: TeamLivery) {
+    const target = model.getObjectByName('PEDS_Model_B_Mesh_4');
+    if (!(target instanceof THREE.Mesh)) return;
+    const canvas = document.createElement('canvas');
+    canvas.width = 1000; canvas.height = 200;
+    const context = canvas.getContext('2d');
+    if (!context) return;
+    const name = team.name.toUpperCase();
+    context.textAlign = 'center'; context.textBaseline = 'middle';
+    let fontSize = 118;
+    do {
+      context.font = `800 ${fontSize}px Arial, sans-serif`;
+      fontSize -= 4;
+    } while (fontSize > 40 && context.measureText(name).width > 880);
+    context.lineWidth = 5;
+    context.strokeStyle = '#111318';
+    context.fillStyle = '#f4f5f2';
+    context.strokeText(name, 500, 102);
+    context.fillText(name, 500, 102);
+    const map = new THREE.CanvasTexture(canvas);
+    map.colorSpace = THREE.SRGBColorSpace;
+    map.anisotropy = 4;
+    teamNameTexture = map;
+    const key = team.id as ArtworkKey;
+    const atlas: DecalAtlas = { map, rects: { [key]: { u: 0, v: 0, w: 1, h: 1 } } };
+    for (const side of ['left', 'right'] as const) {
+      for (const y of [.74, .72, .70, .76]) {
+        const anchor: SurfaceAnchorMap = { side, meshName: 'PEDS_Model_B_Mesh_4', y, z: 2.29, width: .25, height: .05, depth: .10, rotation: 0, offset: .007 };
+        if (conformingSideMark(`${team.id}-rear-endplate-name-${side}`, key, anchor, atlas, target, teamNameDetails)) break;
+      }
+    }
+    if (needsRearWingTeamName(team.id as PrecisionTeam, currentVariant ?? 'season-default-2026')) {
+      const anchor: SurfaceAnchorMap = { side: 'rear', meshName: 'PEDS_Model_B_Mesh_4', x: 0, y: .92, z: 2.43, width: .64, height: .05, depth: .18, rotation: 0, offset: .008 };
+      conformingRearName(`${team.id}-rear-wing-name`, key, anchor, atlas, target);
+    }
+    updateTeamNameVisibility();
   }
 
   let activeAtlas: DecalAtlas | null = null;
@@ -457,14 +575,14 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
     const version = ++renderVersion;
     clearDecals();
     placementAudit = [];
-    for (const entry of liveryDefinitions[team.id as PrecisionTeam].decals) {
+    for (const entry of getLiveryDecals(team.id as PrecisionTeam, currentVariant ?? 'season-default-2026')) {
       // Each surface audit raycasts against the full body mesh. Yield between
       // marks so switching liveries does not lock the controls or the page.
       await new Promise<void>((resolve) => setTimeout(resolve, 0));
       if (disposed || version !== renderVersion || currentTeam !== team.id) return false;
       const requested = authorOverrides.get(entry.id) ?? entry.anchor;
       if (requested.visible === false) {
-        placementAudit.push({ id: entry.id, state: 'unplaced', reason: 'hidden-by-author' });
+        placementAudit.push({ id: entry.id, state: 'unplaced', reason: authorOverrides.has(entry.id) ? 'hidden-by-author' : 'hidden-by-variant' });
         continue;
       }
       // Do not introduce age-restricted sponsor artwork through the review renderer.
@@ -477,8 +595,9 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
         placementAudit.push({ id: entry.id, state: 'unplaced', reason: 'missing-target-mesh' });
         continue;
       }
-      const needsPlanar = PLANAR_MARK_IDS.has(entry.id)
-        || entry.id.endsWith('-rear-wing-main') || entry.id.endsWith('-wing-endplate-right');
+      const wingPlate = entry.id === 'mclaren-dropbox-right' || entry.id.endsWith('-wing-endplate-right');
+      const needsPlanar = !wingPlate && (PLANAR_MARK_IDS.has(entry.id)
+        || entry.id.endsWith('-rear-wing-main'));
       // Normal preview: render directly from the inspected author anchor
       // (one raycast during decal projection), without N × 25 × retry scans.
       let anchor = requested;
@@ -507,7 +626,7 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
       const auditRow: PlacementAudit = {
         id: entry.id,
         state: surfaceQaEnabled ? (adapted ? 'adapted' : 'placed') : 'provisional',
-        reason: surfaceQaEnabled ? 'geometry-preflight-passed' : 'fast-preview-no-surface-scan',
+        reason: surfaceQaEnabled ? 'geometry-preflight-passed' : currentVariant === 'season-current-2026-11-06' && team.id !== 'mercedes' ? 'launch-logo-preview-current-unverified' : 'fast-preview-no-surface-scan',
         ...(probe ? {
           coverage: probe.coverage, normalDegrees: probe.normalSpreadDegrees,
           stretchRatio: probe.stretchRatio, depthRange: probe.depthRange,
@@ -520,7 +639,9 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
       const from = anchor.side === 'top' ? new THREE.Vector3(anchor.x ?? 0, 2, anchor.z) : anchor.side === 'rear' ? new THREE.Vector3(anchor.x ?? 0, anchor.y, 3) : new THREE.Vector3(sign * 2, anchor.y, anchor.z);
       const direction = anchor.side === 'top' ? new THREE.Vector3(0, -1, 0) : anchor.side === 'rear' ? new THREE.Vector3(0, 0, -1) : new THREE.Vector3(-sign, 0, 0);
       const orientation = anchor.side === 'top' ? new THREE.Euler(-Math.PI / 2, 0, anchor.rotation) : anchor.side === 'rear' ? new THREE.Euler(0, 0, anchor.rotation) : new THREE.Euler(0, sign * Math.PI / 2, anchor.rotation);
-      if (needsPlanar) {
+      if (wingPlate && !authorOverrides.has(entry.id)) {
+        conformingSideMark(entry.id, entry.artwork, anchor, atlas, targetMesh);
+      } else if (needsPlanar) {
         if (!probe) {
           // Fast preview uses a single raycast for planar marks. Detailed
           // curvature/stretch certification is DEV opt-in, not load-time.
@@ -575,8 +696,8 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
     return snapshot;
   }
 
-  function beginPaintTransition(precision: PrecisionTeam, reduced: boolean) {
-    const next = createPaintAtlas(precision);
+  function beginPaintTransition(precision: PrecisionTeam, variant: LiveryVariant, reduced: boolean) {
+    const next = createPaintAtlas(precision, variant);
     if (!paintTo) {
       paintFrom = next;
       paintTo = next;
@@ -608,25 +729,18 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
   }
 
   async function loadBrandingForTeam(teamId: string, request: number) {
-    const definition = liveryDefinitions[teamId as PrecisionTeam];
-    const keys = [...new Set(definition.decals.filter((entry) =>
+    const entries = getLiveryDecals(teamId as PrecisionTeam, currentVariant ?? 'season-default-2026');
+    const keys = [...new Set(entries.filter((entry) =>
       !REVIEW_BLOCKED_ARTWORK.has(entry.artwork),
     ).map((entry) => entry.artwork))];
     const atlas = await getDecalAtlas(teamId, keys);
     if (disposed || !brandingVisible || request !== requestId || currentTeam !== teamId) return false;
     if (activeAtlas && activeAtlas !== atlas) activeAtlas.map.dispose();
     activeAtlas = atlas;
-    if (!selectedDecalId || !definition.decals.some((entry) => entry.id === selectedDecalId)) {
-      selectedDecalId = definition.decals[0]?.id ?? null;
+    if (!selectedDecalId || !entries.some((entry) => entry.id === selectedDecalId)) {
+      selectedDecalId = entries[0]?.id ?? null;
     }
     if (!await renderDecals({ id: teamId }, atlas)) return false;
-    // Experimental wheel rings are not part of the approved paint layout.
-    // Only show them in an explicit owner-review study, never by default.
-    if (teamId === 'mclaren' && authorMode &&
-        new URLSearchParams(location.search).get('wheelStudy') === '1') {
-      addMcLarenWheelDetails();
-      applyBrandingVisibility();
-    }
     for (const [id, pending] of decalAtlases) if (id !== teamId) {
       void pending.then((item) => { if (item !== activeAtlas) item.map.dispose(); })
         .catch(() => undefined);
@@ -638,22 +752,30 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
     return true;
   }
 
-  async function setTeam(team: TeamLivery, reduced: boolean) {
-    if (currentTeam === team.id) return true;
+  let currentVariant: LiveryVariant | null = null;
+  async function setTeam(team: TeamLivery, variant: LiveryVariant, reduced: boolean, allowBranding = brandingVisible) {
+    if (!supportsReviewBranding(team.id, variant)) allowBranding = false;
+    if (currentTeam === team.id && currentVariant === variant) return true;
+    if (!allowBranding && brandingVisible) await setBrandingVisible(false);
     const request = ++requestId;
     renderVersion++;
     const precision = team.id as PrecisionTeam;
-    beginPaintTransition(precision, reduced);
+    beginPaintTransition(precision, variant, reduced);
     currentTeam = team.id;
+    currentVariant = variant;
+    brandingVisible = allowBranding;
     clearDecals();
     clearWheelDetails();
+    clearTeamNames();
+    addWheelDetails();
+    addTeamNames(team);
     const color = new THREE.Color();
     const cache = new Map<string, THREE.Color>();
     paintMesh.updateWorldMatrix(true, false);
     const paintWorldMatrix = paintMesh.matrixWorld;
     for (let index = 0; index < positions.count; index++) {
       vector.fromBufferAttribute(positions, index).applyMatrix4(paintWorldMatrix);
-      const hex = zoneColor(team, vector.x, vector.y, vector.z);
+      const hex = zoneColor(team, variant, vector.x, vector.y, vector.z);
       const selected = cache.get(hex) ?? color.set(hex).clone();
       cache.set(hex, selected);
       target[index * 3] = selected.r;
@@ -663,7 +785,7 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
     if (first) { colors.set(target); attribute.needsUpdate = true; animating = false; first = false; }
     else animating = true;
     for (const accent of accents) accent.color.set(team.accent);
-    if (!brandingVisible) {
+    if (!allowBranding) {
       // Paint-first QA should be interactive without downloading and rasterizing
       // every sponsor artwork or building any decal meshes.
       activeAtlas?.map.dispose();
@@ -673,7 +795,7 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
     return loadBrandingForTeam(team.id, request);
   }
 
-  function entries() { return currentTeam ? liveryDefinitions[currentTeam as PrecisionTeam].decals : []; }
+  function entries() { return currentTeam ? getLiveryDecals(currentTeam as PrecisionTeam, currentVariant ?? 'season-default-2026') : []; }
   function anchor(id: string) { const entry = entries().find((item) => item.id === id); return entry ? { ...(authorOverrides.get(id) ?? entry.anchor) } : null; }
   function snapshot() { return JSON.stringify(Object.fromEntries(authorOverrides)); }
   function restore(serialized: string) {
@@ -748,5 +870,5 @@ export function createLiveryRuntime(model: THREE.Group, scene: THREE.Scene) {
     return animating || (paintFrom !== paintTo) || Math.abs(paintMesh.material.roughness - surface) > .003;
   }
 
-  return { setTeam, setBrandingVisible, frame, author, dispose: () => { disposed = true; placementCache.clear(); clearDecals(); clearWheelDetails(); for (const pending of textureCache.values()) void pending.then((item) => item.dispose()); for (const pending of decalAtlases.values()) void pending.then((item) => item.map.dispose()); paintFrom?.dispose(); if (paintTo !== paintFrom) paintTo?.dispose(); emptyPaintTexture.dispose(); textureCache.clear(); decalAtlases.clear(); }, getDebug: () => ({ team: currentTeam, brandingVisible, surfaceQaEnabled, placementAudit: [...placementAudit], decalCount: decals.length, decalIds: decals.map((item) => item.id), decalKeys: decals.map((item) => item.key), decalVertices: decals.map((item) => item.mesh.geometry.getAttribute('position').count), wheelDetails: wheelDetails.map((item) => item.name), bodyVertices: positions.count, paintAtlas: paintUniforms.uUsePaintAtlas.value === 1, paintBlend: paintUniforms.uPaintBlend.value, paintAtlasSize: paintUniforms.uUsePaintAtlas.value === 1 ? [1536, 512] : null }) };
+  return { setTeam, setBrandingVisible, frame, author, dispose: () => { disposed = true; placementCache.clear(); clearDecals(); clearWheelDetails(); clearTeamNames(); for (const pending of textureCache.values()) void pending.then((item) => item.dispose()); for (const pending of decalAtlases.values()) void pending.then((item) => item.map.dispose()); paintFrom?.dispose(); if (paintTo !== paintFrom) paintTo?.dispose(); emptyPaintTexture.dispose(); textureCache.clear(); decalAtlases.clear(); }, getDebug: () => ({ team: currentTeam, variant: currentVariant, brandingVisible, surfaceQaEnabled, placementAudit: [...placementAudit], decalCount: decals.length, decalIds: decals.map((item) => item.id), decalKeys: decals.map((item) => item.key), decalVertices: decals.map((item) => item.mesh.geometry.getAttribute('position').count), wheelDetails: wheelDetails.map((item) => item.name), teamNames: teamNameDetails.map((mesh) => ({ id: mesh.name, visible: mesh.visible })), bodyVertices: positions.count, paintAtlas: paintUniforms.uUsePaintAtlas.value === 1, paintBlend: paintUniforms.uPaintBlend.value, paintAtlasSize: paintUniforms.uUsePaintAtlas.value === 1 ? [1536, 512] : null }) };
 }

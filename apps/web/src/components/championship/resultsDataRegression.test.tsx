@@ -15,6 +15,7 @@ import {
 import type { SeasonYear } from "../../types";
 import { getClassificationPresentation } from "./resultSelection";
 import { RaceResults } from "./RaceResults";
+import { RaceCalendarJourney } from "./RaceCalendarJourney";
 
 const OPEN = openF1SessionResults as unknown as {
   practice: ResultDataSources["practice"];
@@ -57,20 +58,47 @@ describe("Results data selection against the live season data", () => {
 
   it("presents the season map and scroll route by default", () => {
     const html = render("/season/2026?tab=results");
-    expect(html).toContain('WORLD TOUR');
+    expect(html).toContain("WORLD TOUR");
     expect(html).toContain('data-map-mode="all-rounds"');
     expect(html).toContain('data-route-lines="false"');
     expect(html).toContain('data-round-label="R01"');
     expect(html).toContain('data-round-label="R23"');
     expect(html).toContain('data-experience="world-tour-v6"');
-    expect(html).not.toContain('rcj-view-details');
-    expect(html).not.toContain('data-view-details');
-    expect(html).toContain('rcj-scroll-beat');
-    expect(html).toContain('rcj-stage-title');
-    expect(html).not.toContain('ONE YEAR.');
-    expect(html).not.toContain('Season Journey');
-    expect(html).not.toContain('Detailed view');
+    expect(html).not.toContain('aria-label="Watch intro"');
+    expect(html).not.toContain("rcj-journey-intro");
+    expect(html).not.toContain("rcj-view-details");
+    expect(html).toContain("data-view-details");
+    expect(html).toContain('href="/season/2026?tab=results&amp;round=1"');
+    expect(html).toContain("View results");
+    expect(html).toContain('href="/season/2026?tab=calendar"');
+    expect(html).toMatch(
+      /aria-current="page" href="\/season\/2026\?tab=results"[^>]*>Results<\/a>/,
+    );
+    expect(html).toContain("rcj-scroll-beat");
+    expect(html).toContain("rcj-stage-title");
+    expect(html).not.toContain("ONE YEAR.");
+    expect(html).not.toContain("Season Journey");
+    expect(html).not.toContain("Detailed view");
     expect(html).not.toContain('class="rcj-chapter"');
+  });
+  it("switches the map navigation between Results and Calendar routes", () => {
+    const calendarHtml = renderToStaticMarkup(
+      <MemoryRouter initialEntries={["/season/2026?tab=calendar"]}>
+        <RaceCalendarJourney season={2026} />
+      </MemoryRouter>,
+    );
+    expect(calendarHtml).toMatch(
+      /aria-current="page" href="\/season\/2026\?tab=calendar"[^>]*>Calendar<\/a>/,
+    );
+    expect(calendarHtml).toContain('href="/season/2026?tab=results"');
+    expect(calendarHtml).toContain(
+      'href="/season/2026?tab=calendar&amp;round=1"',
+    );
+    expect(calendarHtml).toContain("View weekend");
+    expect(calendarHtml).toContain('data-map-mode="all-rounds"');
+    expect(calendarHtml).not.toContain('rcj-season-controls');
+    expect(calendarHtml).not.toContain('aria-label="Watch intro"');
+    expect(calendarHtml).not.toContain('rcj-film');
   });
   it("keeps a deep link to a verified round and session", () => {
     const round = latest as number;
@@ -117,7 +145,9 @@ describe("Results data selection against the live season data", () => {
   it("keeps sprint classifications on the sprint weekend that ran them", () => {
     const sprintRound = getCalendarBySeason(2026)
       .filter((race) => race.hasSprint)
-      .find((race) => getAvailableSessions(sources, race.round).includes("sprint"));
+      .find((race) =>
+        getAvailableSessions(sources, race.round).includes("sprint"),
+      );
     expect(sprintRound).toBeDefined();
     const html = render(
       `/season/2026?tab=results&round=${sprintRound?.round}&session=sprint`,
@@ -128,7 +158,10 @@ describe("Results data selection against the live season data", () => {
   });
 
   it("labels a hydration-level race summary as a summary, never as final", () => {
-    const summarySources: ResultDataSources = { ...sources, detailedResults: [] };
+    const summarySources: ResultDataSources = {
+      ...sources,
+      detailedResults: [],
+    };
     const summaryRound = getCalendarBySeason(2026)
       .map((race) => race.round)
       .find(
@@ -142,6 +175,8 @@ describe("Results data selection against the live season data", () => {
       summaryRound as number,
       "race",
     );
-    expect(getClassificationPresentation(classification, false)).toBe("summary");
+    expect(getClassificationPresentation(classification, false)).toBe(
+      "summary",
+    );
   });
 });

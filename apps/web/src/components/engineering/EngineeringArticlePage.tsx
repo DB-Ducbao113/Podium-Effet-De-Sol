@@ -15,7 +15,7 @@ export const EngineeringArticlePage: React.FC = () => {
 
   if (!article) {
     return (
-      <div className="page-container min-h-[65vh] py-24 text-center">
+      <div className="page-container min-h-[calc(65vh_/_var(--peds-visual-zoom))] py-24 text-center">
         <p className="font-display text-6xl font-black text-f1red">404</p>
         <h1 className="mt-4 text-2xl font-bold">
           {lang === 'vi' ? 'Không tìm thấy bài viết' : 'Article not found'}

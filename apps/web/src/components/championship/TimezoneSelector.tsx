@@ -12,7 +12,7 @@ export function TimezoneSelector({ lang, venue }: { lang: 'vi' | 'en'; venue?: G
   return <label className="c1-timezone">
     <span>{label}</span>
     <select aria-label={label} value={preference} onChange={(event) => setPreference(event.target.value)}>
-      {TIMEZONE_OPTIONS.map((zone) => <option key={zone} value={zone}>{zone === 'venue' ? (lang === 'vi' ? 'Giờ tại đường đua (tự động)' : 'Circuit local time (automatic)') : zone === 'local' ? `${lang === 'vi' ? 'Thiết bị' : 'Your device'} (${browserTimeZone()})` : zone}</option>)}
+      {TIMEZONE_OPTIONS.map((zone) => <option key={zone} value={zone}>{zone === 'venue' ? (lang === 'vi' ? 'Giờ tại đường đua' : 'Circuit local time') : zone === 'local' ? `${lang === 'vi' ? 'Tự động theo thiết bị' : 'Automatic device time'} (${browserTimeZone()})` : zone}</option>)}
     </select>
     <small>{currentLabel}</small>
   </label>;

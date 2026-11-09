@@ -17,4 +17,4 @@ export function useMobileHub() {
 }
 
 export const isPrimaryPath = (pathname: string) =>
-  pathname === '/' || pathname === '/showroom' || /^\/season\/(2024|2025|2026)$/.test(pathname);
+  pathname === '/' || /^\/season\/(2024|2025|2026)$/.test(pathname);

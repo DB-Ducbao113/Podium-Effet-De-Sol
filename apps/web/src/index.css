@@ -191,7 +191,7 @@
   /* Shared display primitives — pages compose these instead of parallel scales. */
   .peds-display-page {
     @apply font-display uppercase text-peds-text;
-    font-size: clamp(2.5rem, 6vw, 4.75rem);
+    font-size: clamp(2.5rem, 6vw / var(--peds-visual-zoom), 4.75rem);
     font-weight: 800;
     line-height: 0.98;
     letter-spacing: -0.02em;
@@ -279,7 +279,7 @@
   }
 
   .hero-height {
-    height: calc(100svh - 64px);
+    height: calc(100svh / var(--peds-visual-zoom) - 64px);
     min-height: 580px;
   }
 
@@ -1011,7 +1011,7 @@ canvas.r3f {
   }
 
   .r1-mobile-hub .r1-quick-hud {
-    top: min(calc(50svh - 1.5rem), 26.5rem);
+    top: min(calc(50svh / var(--peds-visual-zoom) - 1.5rem), 26.5rem);
     bottom: auto;
   }
 }
@@ -1027,8 +1027,8 @@ canvas.r3f {
 .home-data-details__summary:focus-visible { outline: 2px solid #ff7180; outline-offset: -4px; }
 .home-data-details[open] > .page-container:last-of-type { padding-bottom: 4rem; }
 .home-section-index { color: #ff625d; font-size: .7rem; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; }
-.home-section-title { max-width: 18ch; margin-top: 1rem; font-family: var(--peds-font-display); font-size: clamp(2.4rem, 5vw, 5.5rem); font-weight: 700; line-height: 1.02; letter-spacing: -.03em; text-wrap: balance; }
-.home-section-copy { max-width: 58ch; margin-top: 1.5rem; color: #c7cbd2; font-size: clamp(1rem, 1.25vw, 1.15rem); line-height: 1.65; }
+.home-section-title { max-width: 18ch; margin-top: 1rem; font-family: var(--peds-font-display); font-size: clamp(2.4rem, 5vw / var(--peds-visual-zoom), 5.5rem); font-weight: 700; line-height: 1.02; letter-spacing: -.03em; text-wrap: balance; }
+.home-section-copy { max-width: 58ch; margin-top: 1.5rem; color: #c7cbd2; font-size: clamp(1rem, 1.25vw / var(--peds-visual-zoom), 1.15rem); line-height: 1.65; }
 .home-text-link { display: inline-flex; align-items: center; gap: .55rem; min-height: 44px; color: #fff; font-size: .8rem; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; text-decoration: underline; text-decoration-color: #e10600; text-underline-offset: .45em; transition: color 180ms ease, gap 180ms ease; }
 .home-text-link:hover { color: #ff625d; gap: .8rem; }
 .home-text-link:focus-visible, .home-editorial__article:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }

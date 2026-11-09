@@ -37,3 +37,9 @@ export const resolveCircuit = (race: GrandPrixRound): Geo | null => {
   const found = CIRCUITS.find((entry) => entry.match.test(race.circuit));
   return found ? { longitude: found.at[0], latitude: found.at[1] } : null;
 };
+
+export const formatLatitude = (latitude: number): string =>
+  `${Math.abs(latitude).toFixed(3)}°${latitude >= 0 ? 'N' : 'S'}`;
+
+export const formatLongitude = (longitude: number): string =>
+  `${Math.abs(longitude).toFixed(3)}°${longitude >= 0 ? 'E' : 'W'}`;

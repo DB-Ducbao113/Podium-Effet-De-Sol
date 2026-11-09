@@ -1,0 +1,10 @@
+{
+  "status": "local-owner-review-only",
+  "sourceArchive": "PEDS_F1_2024_2025_PNG_WEBP.zip",
+  "sourceArchiveSha256": "1e5a8de707bbf59a9a1a6cd84295512bef816f88f09009c98093a67f8efbd173",
+  "provenance": "Owner-supplied standings thumbnails. Publication rights, historical livery accuracy and trademark clearance are not verified; do not publish without owner approval.",
+  "assets": [
+    { "season": 2024, "file": "2024/thumbnail.webp", "bytes": 422326, "sha256": "4779a93717f915ba052fbcbfa0bdee2ca714d8dfd9adab18d34b01354a55dd57", "width": 2048, "height": 682 },
+    { "season": 2025, "file": "2025/thumbnail.webp", "bytes": 415558, "sha256": "b880f150a51773641899540a8333c07c6efa97d080d55a098a8968c52b81f69e", "width": 2048, "height": 682 }
+  ]
+}

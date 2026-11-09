@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { animate, createScope } from 'animejs';
 import {
@@ -18,6 +19,7 @@ import { useTimezoneStore } from '../../store/useTimezoneStore';
 import type { SeasonYear } from '../../types';
 import {
   effectiveTimeZone,
+  browserTimeZone,
   formatRaceSessionTime,
   venueOffsetLabel,
   zoneOffsetLabel,
@@ -53,6 +55,10 @@ const ORDER: RaceSessionKey[] = [
   'qualifying',
   'race',
 ];
+
+function renderSelectedDetail(host: HTMLDivElement | null, detail: ReactNode) {
+  return host ? createPortal(detail, host) : detail;
+}
 
 const SESSION_CODE: Record<RaceSessionKey, string> = {
   fp1: 'FP1',
@@ -108,6 +114,7 @@ export function ChampionshipCalendar({ season }: { season: SeasonYear }) {
   const [expandedRound, setExpandedRound] = useState<number | null>(
     deepLinkedRound,
   );
+  const [detailHost, setDetailHost] = useState<HTMLDivElement | null>(null);
   const deepLinkKey =
     autoScrollRound === null ? null : `${season}:${autoScrollRound}`;
   const scrolledDeepLinkKey = useRef<string | null>(null);
@@ -161,6 +168,19 @@ export function ChampionshipCalendar({ season }: { season: SeasonYear }) {
     });
     return () => window.cancelAnimationFrame(frame);
   }, [expandedRound, journeyMode]);
+
+  useEffect(() => {
+    if (expandedRound === null || requestedRound !== null || !detailHost ||
+      !window.matchMedia('(max-width: 760px)').matches) return;
+    const frame = window.requestAnimationFrame(() => {
+      detailHost.scrollIntoView({
+        block: 'start',
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+          ? 'instant' : 'smooth',
+      });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [expandedRound, requestedRound, detailHost]);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -258,9 +278,10 @@ export function ChampionshipCalendar({ season }: { season: SeasonYear }) {
     window.addEventListener('touchstart', cancel, { passive: true });
     const timer = window.setTimeout(() => {
       if (!userScrolled) {
-        document
-          .getElementById(`calendar-round-${autoScrollRound}`)
-          ?.scrollIntoView({
+        const destination = window.matchMedia('(max-width: 760px)').matches
+          ? detailHost
+          : document.getElementById(`calendar-round-${autoScrollRound}`);
+        destination?.scrollIntoView({
             block: 'start',
             behavior: window.matchMedia('(prefers-reduced-motion: reduce)')
               .matches
@@ -277,7 +298,7 @@ export function ChampionshipCalendar({ season }: { season: SeasonYear }) {
       window.removeEventListener('wheel', cancel);
       window.removeEventListener('touchstart', cancel);
     };
-  }, [autoScrollRound, deepLinkKey]);
+  }, [autoScrollRound, deepLinkKey, detailHost]);
 
   const nextRace = useMemo(
     () =>
@@ -319,6 +340,7 @@ export function ChampionshipCalendar({ season }: { season: SeasonYear }) {
   );
 
   const changeFilter = (next: CalendarFilter) => {
+    setExpandedRound(null);
     const params = new URLSearchParams(location.search);
     if (next === 'all') params.delete('view');
     else params.set('view', next);
@@ -425,7 +447,11 @@ export function ChampionshipCalendar({ season }: { season: SeasonYear }) {
         </div>
         <div className="c1-calendar-actions">
           <details className="cal-timezone-more">
-            <summary>{lang === 'vi' ? 'Giờ hiển thị' : 'Displayed time'} · {venueHours === undefined ? zoneOffsetLabel(raceRange?.start ?? new Date(), preference) : `${nextRace?.location} ${venueOffsetLabel(venueHours)}`}</summary>
+            <summary>{lang === 'vi' ? 'Giờ hiển thị' : 'Displayed time'} · {venueHours !== undefined
+              ? `${nextRace?.location} ${venueOffsetLabel(venueHours)}`
+              : preference === 'local'
+                ? `${lang === 'vi' ? 'Thiết bị' : 'Your device'} · ${browserTimeZone()} ${zoneOffsetLabel(raceRange?.start ?? new Date(), preference)}`
+                : zoneOffsetLabel(raceRange?.start ?? new Date(), preference)}</summary>
             <TimezoneSelector lang={lang} venue={nextRace ?? undefined} />
           </details>
           <button type="button" onClick={jumpToRelevant} disabled={targetRound === null}>
@@ -433,8 +459,8 @@ export function ChampionshipCalendar({ season }: { season: SeasonYear }) {
           </button>
         </div>
       </header>
-      <div className="cal-layout">
-        <div className="cal-stream">
+      <div className="cal-layout" data-selected-round={expandedRound ?? undefined}>
+        <div className="cal-stream" data-selected-round={expandedRound ?? undefined}>
         <section
           className="cal-feature"
           aria-labelledby={nextRace ? 'cal-next-title' : undefined}
@@ -941,6 +967,7 @@ export function ChampionshipCalendar({ season }: { season: SeasonYear }) {
             </section>
           )}
         </div>
+          <div className="cal-selected-host" ref={setDetailHost} />
         </div>
         <aside
           className="cal-rail"
@@ -1045,8 +1072,15 @@ export function ChampionshipCalendar({ season }: { season: SeasonYear }) {
                       <ChevronDown size={16} aria-hidden="true" />
                     )}
                   </button>
-                  {expanded && (
+                  {expanded && renderSelectedDetail(detailHost,
                     <div id={`schedule-${race.round}`} className="c1-round-detail">
+                      <div className="cal-selected-heading">
+                        <span>R{String(race.round).padStart(2, '0')} / {season}</span>
+                        <h3>{race.name}</h3>
+                        <button type="button" onClick={() => setExpandedRound(null)}>
+                          {lang === 'vi' ? 'Đóng chi tiết' : 'Close details'}
+                        </button>
+                      </div>
                       {(reviewVisual || detailVisual) && (
                         <figure className="cal-detail-photo">
                           {reviewVisual

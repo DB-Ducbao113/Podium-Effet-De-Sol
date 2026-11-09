@@ -11,6 +11,12 @@ export const celebrationSlugs = {
 
 export type Extra2026Artwork = { src: string; mobileSrc?: string };
 
+/** Local owner-review only; never expose these historical thumbnails in production. */
+export function historicalStandingsHero(season: SeasonYear): Extra2026Artwork | undefined {
+  if (!P5_SEASONAL_REVIEW_ENABLED || (season !== 2024 && season !== 2025)) return undefined;
+  return { src: `/__p5-historical-standings/${season}.webp` };
+}
+
 export function extra2026Hero(kind: 'drivers' | 'constructors' | 'championship', season: SeasonYear): Extra2026Artwork | undefined {
   if (!P5_SEASONAL_REVIEW_ENABLED || season !== 2026) return undefined;
   const stem = `hero-${kind}-2026`;

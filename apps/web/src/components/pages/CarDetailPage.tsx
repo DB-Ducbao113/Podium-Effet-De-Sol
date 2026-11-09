@@ -15,7 +15,7 @@ export const CarDetailPage: React.FC = () => {
 
   if (!car) {
     return (
-      <div className="page-container py-24 min-h-[60vh] text-center">
+      <div className="page-container py-24 min-h-[calc(60vh_/_var(--peds-visual-zoom))] text-center">
         <p className="text-f1red font-black text-5xl">404</p>
         <h1 className="mt-4 text-xl font-bold">
           {lang === 'vi' ? 'Không tìm thấy xe đua' : 'Car not found'}
@@ -54,7 +54,7 @@ export const CarDetailPage: React.FC = () => {
   ].filter(([, value]) => Boolean(value));
 
   return (
-    <div className="peds-car-detail peds-editorial-light min-h-[70vh] bg-studio-100 py-10 sm:py-16">
+    <div className="peds-car-detail peds-editorial-light min-h-[calc(70vh_/_var(--peds-visual-zoom))] bg-studio-100 py-10 sm:py-16">
       <div className="page-container space-y-8">
         <div className="flex items-center gap-3">
           <button

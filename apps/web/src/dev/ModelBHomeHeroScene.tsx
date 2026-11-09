@@ -155,6 +155,7 @@ export function ModelBHomeHeroScene({ active, reducedMotion, replayKey, onReady,
       aria-label="Model B Formula 1 2022 Car, local development preview"
       frameloop="demand"
       dpr={profile.renderScale}
+      resize={{ offsetSize: true }}
       camera={{ position: [3.6, 1.6, -4.05], fov: 38 }}
       gl={{ alpha: true, antialias: false, powerPreference: 'high-performance' }}
       onCreated={({ gl }) => {

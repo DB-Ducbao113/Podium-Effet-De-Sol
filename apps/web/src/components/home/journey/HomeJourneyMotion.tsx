@@ -1,10 +1,18 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { useNavigationStore } from '../../../store/useNavigationStore';
+import { useReducedMotion } from '../../../hooks/useReducedMotion';
 import {
   HOME_CHAPTER_IDS,
+  type HomeChapter,
+  dampProgress,
   getCurrentHomeChapter,
   getHomePageProgress,
+  getHomePinnedProgress,
   getHomeSectionProgress,
 } from './homeJourneyMath';
+import { dispatchHomeScrub } from './homeScrubRegistry';
+import { chapterScrollTarget } from './homeChapterScroll';
 import './homeJourneyMotion.css';
 
 /**
@@ -16,6 +24,10 @@ import './homeJourneyMotion.css';
  */
 export function HomeJourneyMotion() {
   const field = useRef<HTMLDivElement>(null);
+  const lang = useNavigationStore((state) => state.lang);
+  const reducedMotion = useReducedMotion();
+  const [chapter, setChapter] = useState<HomeChapter>('launch-control');
+  const [inFooter, setInFooter] = useState(false);
 
   useEffect(() => {
     const host = field.current?.closest<HTMLElement>('.home-v3');
@@ -23,36 +35,81 @@ export function HomeJourneyMotion() {
 
     const nodes = HOME_CHAPTER_IDS.map((id) => document.getElementById(id))
       .filter((node): node is HTMLElement => node !== null);
+    const frames = nodes.map((node) => node.closest<HTMLElement>('[data-home-chapter-frame]') ?? node);
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
     const compact = window.matchMedia('(max-width: 850px)');
     const nav = navigator as Navigator & { connection?: { saveData?: boolean }; deviceMemory?: number };
     let raf = 0;
+    let lastTime = 0;
+    let zoom = document.documentElement.dataset.textZoom;
+    let mode = 'full';
+    const pinned = new Map<HomeChapter, number>();
 
     const motionQuality = () => {
-      const mode = reduced.matches
+      const textZoom = document.documentElement.dataset.textZoom;
+      mode = reduced.matches
         ? 'off'
-        : compact.matches || nav.connection?.saveData || (nav.deviceMemory !== undefined && nav.deviceMemory <= 4)
+        : compact.matches || nav.connection?.saveData || (nav.deviceMemory !== undefined && nav.deviceMemory <= 4) || textZoom === '200' || textZoom === '400'
           ? 'lite'
           : 'full';
       host.dataset.homeMotion = mode;
       if (mode === 'off') nodes.forEach((node) => { node.dataset.homeEntered = 'true'; });
+      if (mode !== 'full') {
+        pinned.clear();
+        frames.forEach((frame) => frame.style.removeProperty('--home-pin-progress'));
+        HOME_CHAPTER_IDS.forEach((id) => dispatchHomeScrub(id, 1));
+      }
+      schedule();
     };
 
-    const update = () => {
+    const update = (time?: number) => {
       raf = 0;
       if (document.hidden) return;
+      const now = time ?? performance.now();
+      const dt = lastTime ? Math.min(Math.max(now - lastTime, 0), 80) : 16.667;
+      lastTime = now;
+      const currentZoom = document.documentElement.dataset.textZoom;
+      if (currentZoom !== zoom) {
+        zoom = currentZoom;
+        motionQuality();
+      }
       const height = Math.max(document.documentElement.scrollHeight, host.scrollHeight);
       const progress = getHomePageProgress(window.scrollY, height, window.innerHeight);
       host.style.setProperty('--home-scroll-progress', progress.toFixed(4));
       host.style.setProperty('--home-vector-offset', ((progress - .5) * 115).toFixed(1) + 'px');
-      const rects = nodes.map((node) => {
-        const rect = node.getBoundingClientRect();
+      let settling = false;
+      const rects = nodes.map((node, index) => {
+        const frame = frames[index];
+        const rect = frame.getBoundingClientRect();
         const sectionProgress = getHomeSectionProgress(rect.top, rect.height, window.innerHeight);
         node.style.setProperty('--home-chapter-progress', sectionProgress.toFixed(3));
         node.style.setProperty('--home-chapter-offset', ((sectionProgress - .5) * 32).toFixed(1) + 'px');
-        return { id: node.id as (typeof HOME_CHAPTER_IDS)[number], top: rect.top, bottom: rect.bottom };
+        const id = node.id as HomeChapter;
+        if (mode === 'full' && frame !== node) {
+          // Measure the pin span in rect space (frame minus sticky stage) so the
+          // ratio stays correct under the site's root CSS zoom, where innerHeight
+          // is layout px but getBoundingClientRect is visual px.
+          const stageHeight = node.getBoundingClientRect().height;
+          const target = getHomePinnedProgress(rect.top, rect.height, stageHeight);
+          const previous = pinned.get(id) ?? target;
+          let value = dampProgress(previous, target, dt);
+          if (Math.abs(value - target) < .0004) value = target;
+          else settling = true;
+          if (value !== previous || !pinned.has(id)) {
+            pinned.set(id, value);
+            frame.style.setProperty('--home-pin-progress', value.toFixed(4));
+            dispatchHomeScrub(id, value);
+          }
+        }
+        return { id, top: rect.top, bottom: rect.bottom };
       });
-      host.dataset.homeChapter = getCurrentHomeChapter(rects, window.innerHeight);
+      const currentChapter = getCurrentHomeChapter(rects, window.innerHeight);
+      host.dataset.homeChapter = currentChapter;
+      setChapter((previous) => previous === currentChapter ? previous : currentChapter);
+      const footerTop = document.getElementById('peds-credits')?.getBoundingClientRect().top;
+      const footerReached = footerTop !== undefined && footerTop < window.innerHeight * .65;
+      setInFooter((previous) => previous === footerReached ? previous : footerReached);
+      if (settling) schedule();
     };
 
     const schedule = () => { if (!raf && !document.hidden) raf = requestAnimationFrame(update); };
@@ -101,10 +158,28 @@ export function HomeJourneyMotion() {
         node.style.removeProperty('--home-chapter-progress');
         node.style.removeProperty('--home-chapter-offset');
       });
+      frames.forEach((frame) => frame.style.removeProperty('--home-pin-progress'));
     };
   }, []);
 
-  return (
+  const sectionNav = <nav className="home-section-nav" data-footer-visible={inFooter} aria-label={lang === 'vi' ? 'Đi tới khu vực trang chủ' : 'Homepage sections'}>
+    {HOME_CHAPTER_IDS.map((id, index) => {
+      const number = String(index + 1).padStart(2, '0');
+      return <button
+        key={id}
+        type="button"
+        data-active={!inFooter && chapter === id}
+        aria-label={`${lang === 'vi' ? 'Khu vực' : 'Section'} ${number}`}
+        aria-current={!inFooter && chapter === id ? 'step' : undefined}
+        onClick={() => {
+          chapterScrollTarget(id)?.scrollIntoView({ behavior: reducedMotion ? 'instant' : 'smooth', block: 'start' });
+          setChapter(id);
+        }}
+      >{number}</button>;
+    })}
+  </nav>;
+
+  return <>
     <div ref={field} className="home-journey" data-home-storyboard="four-chapters" aria-hidden="true">
       <div className="home-journey__wash home-journey__wash--ignition" />
       <div className="home-journey__wash home-journey__wash--control" />
@@ -144,5 +219,6 @@ export function HomeJourneyMotion() {
         </div>
       </div>
     </div>
-  );
+    {typeof document === 'undefined' ? sectionNav : createPortal(sectionNav, document.body)}
+  </>;
 }

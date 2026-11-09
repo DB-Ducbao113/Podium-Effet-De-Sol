@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
+import { isChampionshipJourneyRoute } from "../../championshipJourneyRoute";
 import { useChampionshipStore } from "../../store/useChampionshipStore";
 import { useNavigationStore } from "../../store/useNavigationStore";
 import { SeasonYear } from "../../types";
 import { t } from "../../i18n/translations";
+import { resolveTextZoomLevel } from "../../hooks/useTextZoomAttribute";
 import { ChampionshipStandings } from "./ChampionshipStandings";
 import { ChampionshipCalendar } from "./ChampionshipCalendar";
 import { RaceResults } from "./RaceResults";
@@ -31,6 +34,7 @@ export const ChampionshipView: React.FC<ChampionshipViewProps> = ({
   headingLevel = "h1",
 }) => {
   const { lang } = useNavigationStore();
+  const location = useLocation();
   const {
     setSelectedSeason,
     activeSubTab,
@@ -50,9 +54,7 @@ export const ChampionshipView: React.FC<ChampionshipViewProps> = ({
       "position:absolute;left:-9999px;top:0;width:1rem;height:1rem;pointer-events:none;visibility:hidden";
     document.body.appendChild(probe);
     const update = () => {
-      const size = probe.getBoundingClientRect().width;
-      const ratio = size > 0 ? size / 16 : 1;
-      setTextZoom(ratio >= 3 ? "400" : ratio >= 1.5 ? "200" : "normal");
+      setTextZoom(resolveTextZoomLevel(document.documentElement, probe));
     };
     const observer = new ResizeObserver(update);
     observer.observe(probe);
@@ -73,6 +75,9 @@ export const ChampionshipView: React.FC<ChampionshipViewProps> = ({
           : activeSubTab;
   const adReview =
     new URLSearchParams(window.location.search).get("design-review") === "ads";
+  const immersiveJourney =
+    (activeSubTab === "results" || activeSubTab === "calendar") &&
+    isChampionshipJourneyRoute(location.pathname, location.search);
 
   const SEASONS: SeasonYear[] = [2026, 2025, 2024];
   useEffect(() => {
@@ -94,7 +99,7 @@ export const ChampionshipView: React.FC<ChampionshipViewProps> = ({
 
   return (
     <div
-      className={`r1-primary r1-championship f4-championship min-h-screen py-12 relative ${
+      className={`r1-primary r1-championship f4-championship min-h-screen relative ${immersiveJourney ? "is-journey" : "py-12"} ${
         activeSubTab === "results"
           ? "c1-results-active"
           : activeSubTab === "calendar"
@@ -121,7 +126,7 @@ export const ChampionshipView: React.FC<ChampionshipViewProps> = ({
           />
         </div>
 
-        <div className="f4-controls" aria-label={lang === "vi" ? "Điều khiển mùa giải" : "Season controls"}>
+        {!immersiveJourney && <div className="f4-controls" aria-label={lang === "vi" ? "Điều khiển mùa giải" : "Season controls"}>
           <div className="f4-season-row">
             <span className="f4-season-label">{lang === 'vi' ? 'Mùa giải' : 'Season'}</span>
             <div className="f4-season-switcher" role="group" aria-label={lang === 'vi' ? 'Chọn mùa giải' : 'Choose season'}>
@@ -152,7 +157,7 @@ export const ChampionshipView: React.FC<ChampionshipViewProps> = ({
               </Button>
             </Tooltip>
           </div>
-        </div>
+        </div>}
 
         {/* Section content selected by the primary navigation. */}
         <div

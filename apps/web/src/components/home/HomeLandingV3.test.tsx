@@ -22,6 +22,7 @@ describe('Homepage Cinematic V7', () => {
     expect(html).toContain('BEYOND');
     expect(html).toContain('LIMITS.');
     expect(html).toContain('LAUNCH CONTROL');
+    expect(html).toContain('data-home-instruments');
     expect(html).toContain('peds-aero01-car.webp');
     expect(html).toContain('data-f1-visual="cinematic-2.5d"');
     expect(html).toContain('f1hero__vehicle');
@@ -33,13 +34,13 @@ describe('Homepage Cinematic V7', () => {
     expect(html).not.toContain('<canvas');
   });
 
-  it('keeps race map and driver photographs empty during the layout phase', () => {
+  it('keeps the race graphic decorative and standings free of unlicensed portraits', () => {
     const race = markup(<HomeRaceControl race={CALENDAR_2026[0]} />);
     const standings = markup(<HomeSeasonOverview />);
     expect(race).toContain('data-asset-slot="circuit-map"');
     expect(race).not.toContain('circuit-map.webp');
     expect(race).toContain('/season/2026?tab=calendar');
-    expect(standings).toContain('data-asset-slot="driver-photo"');
+    expect(standings).not.toContain('data-asset-slot="driver-photo"');
     expect(standings).not.toContain('<img');
     expect(standings).toContain('category=drivers');
     expect(standings).toContain('category=constructors');

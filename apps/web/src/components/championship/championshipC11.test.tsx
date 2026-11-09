@@ -141,6 +141,6 @@ describe("C1.1 simplified profiles and results", () => {
     }
 
     expect(render("/drivers/leclerc?season=2026", <DriverDetailPage />)).toContain("2026 AI illustration");
-    expect(render("/season/2025?tab=drivers", <ChampionshipDirectory season={2025} kind="drivers" />)).toContain("/images/p5/portraits/");
+    expect(render("/season/2025?tab=drivers", <ChampionshipDirectory season={2025} kind="drivers" />)).toContain("/images/p5/generated-portraits/");
   });
 });

@@ -8,6 +8,7 @@ import {
 import { useP5SeasonData } from "../p5/useP5ChampionshipData";
 import { useP5Reveal } from "../p5/useP5Reveal";
 import "../p5/p5.css";
+import "../p5/p5TeamGarage.css";
 
 export function ChampionshipDirectory({
   season,

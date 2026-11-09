@@ -16,12 +16,12 @@
   cursor: pointer;
 }
 .anatomy-hero {
-  min-height: min(690px, 80svh);
+  min-height: min(690px, 80svh / var(--peds-visual-zoom));
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 0.55fr);
-  gap: clamp(2rem, 5vw, 6rem);
+  gap: clamp(2rem, 5vw / var(--peds-visual-zoom), 6rem);
   align-items: center;
-  padding-block: clamp(5rem, 8vw, 8rem);
+  padding-block: clamp(5rem, 8vw / var(--peds-visual-zoom), 8rem);
 }
 .anatomy-hero__copy {
   position: relative;
@@ -30,7 +30,7 @@
 .anatomy-hero h1 {
   max-width: 12ch;
   font-family: var(--peds-font-body);
-  font-size: clamp(3.5rem, 7.2vw, 7.5rem);
+  font-size: clamp(3.5rem, 7.2vw / var(--peds-visual-zoom), 7.5rem);
   font-weight: 900;
   line-height: 0.9;
   letter-spacing: -0.06em;
@@ -42,7 +42,7 @@
   max-width: 55ch;
   margin-top: 2rem;
   color: var(--anatomy-muted);
-  font-size: clamp(1rem, 1.3vw, 1.25rem);
+  font-size: clamp(1rem, 1.3vw / var(--peds-visual-zoom), 1.25rem);
   line-height: 1.55;
 }
 .anatomy-primary-link {
@@ -65,7 +65,7 @@
   transform: translateY(-2px);
 }
 .anatomy-hero__count { border-left: 1px solid #414957; padding: 2rem; }
-.anatomy-hero__count strong { display: block; font-family: var(--peds-font-body); font-size: clamp(5rem, 8vw, 8rem); font-weight: 900; line-height: .9; letter-spacing: -.06em; }
+.anatomy-hero__count strong { display: block; font-family: var(--peds-font-body); font-size: clamp(5rem, 8vw / var(--peds-visual-zoom), 8rem); font-weight: 900; line-height: .9; letter-spacing: -.06em; }
 .anatomy-hero__count strong span { color: var(--anatomy-accent); }
 .anatomy-hero__count > span { display: block; margin-top: 1rem; color: #c5cdd4; font-size: .75rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
 .anatomy-hero .anatomy-hero__count p { max-width: 35ch; margin-top: 1.5rem; color: #b4bac4; font-size: .9rem; line-height: 1.7; }
@@ -76,7 +76,7 @@
   margin-bottom: 2rem;
 }
 .anatomy-chapters h2 {
-  font-size: clamp(1.55rem, 2.2vw, 2.25rem);
+  font-size: clamp(1.55rem, 2.2vw / var(--peds-visual-zoom), 2.25rem);
   font-weight: 750;
   line-height: 1.12;
 }
@@ -136,7 +136,7 @@
 .anatomy-layout {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-  gap: clamp(2rem, 4vw, 5rem);
+  gap: clamp(2rem, 4vw / var(--peds-visual-zoom), 5rem);
   align-items: start;
 }
 .anatomy-stage-column {
@@ -149,7 +149,7 @@
 }
 .anatomy-stage {
   position: relative;
-  height: clamp(420px, 45vw, 670px);
+  height: clamp(420px, 45vw / var(--peds-visual-zoom), 670px);
   overflow: hidden;
   background: #1b2026;
 }
@@ -290,8 +290,8 @@
   min-width: 0;
 }
 .anatomy-chapter {
-  min-height: min(730px, 85svh);
-  padding: clamp(2rem, 5vw, 4rem) 0;
+  min-height: min(730px, 85svh / var(--peds-visual-zoom));
+  padding: clamp(2rem, 5vw / var(--peds-visual-zoom), 4rem) 0;
   scroll-margin-top: 6rem;
 }
 .anatomy-chapter.is-active {
@@ -319,7 +319,7 @@
 .anatomy-chapter h2 {
   margin-top: 2.25rem;
   font-family: var(--peds-font-display);
-  font-size: clamp(2.25rem, 3.4vw, 4.2rem);
+  font-size: clamp(2.25rem, 3.4vw / var(--peds-visual-zoom), 4.2rem);
   font-weight: 800;
   letter-spacing: -0.025em;
   line-height: 1.05;
@@ -328,7 +328,7 @@
 .anatomy-chapter__principle {
   margin-top: 1.25rem;
   color: #f1a6b0;
-  font-size: clamp(1.15rem, 1.5vw, 1.45rem);
+  font-size: clamp(1.15rem, 1.5vw / var(--peds-visual-zoom), 1.45rem);
   font-weight: 700;
 }
 .anatomy-chapter > p:not(.anatomy-chapter__principle) {
@@ -497,7 +497,7 @@
     line-height: 1.45;
   }
   .anatomy-stage {
-    height: clamp(420px, 55vw, 620px);
+    height: clamp(420px, 55vw / var(--peds-visual-zoom), 620px);
   }
   .anatomy-chapter {
     min-height: 0;
@@ -523,10 +523,10 @@
     padding: 2rem 0 0;
   }
   .anatomy-hero h1 {
-    font-size: clamp(2.7rem, 11vw, 4rem);
+    font-size: clamp(2.7rem, 11vw / var(--peds-visual-zoom), 4rem);
   }
   .anatomy-stage {
-    height: min(52svh, 340px);
+    height: min(52svh / var(--peds-visual-zoom), 340px);
     min-height: 300px;
   }
   .anatomy-stage__controls {

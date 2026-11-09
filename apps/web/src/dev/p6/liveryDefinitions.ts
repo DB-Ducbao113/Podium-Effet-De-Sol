@@ -14,7 +14,7 @@ const side = (z: number, y: number, width: number, height: number, face: 'left' 
 const marks = (id: PrecisionTeam, slug: string, z: number, y: number, width: number, height: number, note: string): SponsorDecalRegistry => (['left', 'right'] as const).map((face) => ({ id: `${id}-team-${face}`, artwork: id === 'cadillac' ? 'cadillacDark' : id === 'redbull' ? 'redbullGraphic' : id, referencePhoto: f1(slug), referenceDate: '2026 season', version: id === 'cadillac' ? 'standard 2026 launch' : 'standard 2026', panel: 'engine cover / upper side', anchor: side(z, y, width, height, face), layer: 1, expectedVisibility: `${face} three-quarter and side`, status: 'placed-study', discrepancy: note }));
 const partners = (team: PrecisionTeam, key: ArtworkKey, slug: string, panel: string, z: number, y: number, width: number, height: number, note: string, photo = f1(slug)): SponsorDecalRegistry => (['left','right'] as const).map((face) => ({ id: `${team}-${key}-${face}`, artwork: key, referencePhoto: photo, referenceDate: '2026 season', version: team === 'cadillac' ? 'standard 2026 launch' : 'standard 2026', panel, anchor: side(z,y,width,height,face), layer: 2, expectedVisibility: `${face} side`, status: 'placed-study', discrepancy: note + (face === 'left' ? ' Left-side photograph still needs confirmation.' : '') }));
 const rearWing = (team: PrecisionTeam, key: ArtworkKey, photo: string, note: string): SponsorDecalRegistry => [{ id: `${team}-rear-wing-main`, artwork: key, referencePhoto: photo, referenceDate: '2026 season', version: '2026 photographed variant', panel: 'rear-facing main wing', anchor: { side: 'rear', meshName: 'PEDS_Model_B_Mesh_4', x: 0, y: .91, z: 2.51, width: .68, height: .085, depth: .14, rotation: 0, offset: .006 }, layer: 3, expectedVisibility: 'rear and rear three-quarter', status: 'placed-study', discrepancy: note }];
-const wingEndplate = (team: PrecisionTeam, key: ArtworkKey, photo: string, note: string): SponsorDecalRegistry => [{ id: `${team}-wing-endplate-right`, artwork: key, referencePhoto: photo, referenceDate: '2026 season', version: '2026 photographed variant', panel: 'right rear-wing endplate', anchor: { ...side(2.28,.82,.39,.105,'right'), meshName: 'PEDS_Model_B_Mesh_4', depth: .18 }, layer: 3, expectedVisibility: 'right side and rear three-quarter', status: 'placed-study', discrepancy: note }];
+const wingEndplate = (team: PrecisionTeam, key: ArtworkKey, photo: string, note: string): SponsorDecalRegistry => [{ id: `${team}-wing-endplate-right`, artwork: key, referencePhoto: photo, referenceDate: '2026 season', version: '2026 photographed variant', panel: 'right rear-wing endplate', anchor: { ...side(2.29,.74,.25,.05,'right'), meshName: 'PEDS_Model_B_Mesh_4', depth: .10 }, layer: 3, expectedVisibility: 'right side and rear three-quarter', status: 'placed-study', discrepancy: `${note} Lettering is inset to the small outer face; geometry and visual review are still required.` }];
 const drivers = (a: string, n: string, b: string, m: string): [DriverNumberDefinition, DriverNumberDefinition] => [{ name: a, number: n, source: fia, artworkVerified: false }, { name: b, number: m, source: fia, artworkVerified: false }];
 const definition = (id: PrecisionTeam, decals: SponsorDecalRegistry, driverPair: [DriverNumberDefinition, DriverNumberDefinition]): TeamLiveryDefinition => ({ id, paint: { atlas: id, projection: 'model-space-three-panel', sourceUvVerified: false }, decals, drivers: driverPair });
 
@@ -26,7 +26,7 @@ export const liveryDefinitions: Record<PrecisionTeam, TeamLiveryDefinition> = {
     { id: 'mclaren-dell-right', artwork: 'dell', referencePhoto: f1('mclaren'), referenceDate: '2026 launch', version: 'standard 2026', panel: 'rear upper side ahead of rear tire', anchor: { ...side(1.42,.54,.28,.12,'right'), depth: .32 }, layer: 2, expectedVisibility: 'right side', status: 'placed-study', discrepancy: 'Lowered to clear the Gemini bounding region; right-side legibility still requires visual confirmation.' },
     { id: 'mclaren-cisco-right', artwork: 'cisco', referencePhoto: f1('mclaren'), referenceDate: '2026 launch', version: 'standard 2026', panel: 'orange cockpit shoulder', anchor: { ...side(-.20,.57,.24,.13,'right'), depth: .20 }, layer: 2, expectedVisibility: 'right side', status: 'placed-study', discrepancy: 'Right-side surface confirmed in coordinate scan; wordmark legibility remains under review.' },
     { id: 'mclaren-workday-right', artwork: 'workday', referencePhoto: f1('mclaren'), referenceDate: '2026 launch', version: 'standard 2026', panel: 'orange nose ahead of front tire', anchor: { ...side(-1.78,.45,.24,.10,'right'), depth: .30 }, layer: 2, expectedVisibility: 'right side', status: 'placed-study', discrepancy: 'Right-side projection requires visual confirmation.' },
-    { id: 'mclaren-dropbox-right', artwork: 'dropbox', referencePhoto: f1('mclaren'), referenceDate: '2026 launch', version: 'standard 2026', panel: 'rear wing endplate', anchor: { ...side(2.28,.82,.42,.09,'right'), meshName: 'PEDS_Model_B_Mesh_4', depth: .20 }, layer: 2, expectedVisibility: 'right rear', status: 'placed-study', discrepancy: 'Sized to the measured Model B endplate and artwork aspect ratio; right/rear legibility requires visual review.' },
+    { id: 'mclaren-dropbox-right', artwork: 'dropbox', referencePhoto: f1('mclaren'), referenceDate: '2026 launch', version: 'standard 2026', panel: 'rear wing endplate', anchor: { ...side(2.29,.74,.25,.05,'right'), meshName: 'PEDS_Model_B_Mesh_4', depth: .10 }, layer: 2, expectedVisibility: 'right rear', status: 'placed-study', discrepancy: 'Inset on the outer endplate face to keep the wordmark off the curved lower edge; surface and legibility need visual review.' },
     { id: 'mclaren-pirelli-wing-top', artwork: 'pirelliBlack', referencePhoto: f1('mclaren'), referenceDate: '2026 launch', version: 'standard 2026', panel: 'upper rear wing', anchor: { side: 'top', meshName: 'PEDS_Model_B_Mesh_4', x: 0, y: .88, z: 2.41, width: .72, height: .17, depth: .15, rotation: 0, offset: .006 }, layer: 2, expectedVisibility: 'top and rear three-quarter', status: 'placed-study', discrepancy: 'Projected against the measured upper rear-wing surface; reference-photo variant and legibility require owner review.' },
     { id: 'mclaren-wordmark-wing-rear', artwork: 'mclarenWordmarkWhite', referencePhoto: f1('mclaren'), referenceDate: '2026 launch', version: 'standard 2026', panel: 'rear-facing upper wing', anchor: { side: 'rear', meshName: 'PEDS_Model_B_Mesh_4', x: 0, y: .88, z: 2.43, width: .72, height: .12, depth: .18, rotation: 0, offset: .006 }, layer: 2, expectedVisibility: 'rear', status: 'placed-study', discrepancy: 'Rear-facing projection follows the measured sloped wing; wordmark needs direct rear-view verification.' },
     { id: 'mclaren-allwyn-right', artwork: 'allwyn', referencePhoto: 'https://www.mclaren.com/racing/formula-1/2026/mcl40-launch/', referenceDate: '2026 launch', version: 'standard 2026', panel: 'teal airbox shoulder', anchor: { ...side(.57,.85,.31,.14,'right'), depth: .34 }, layer: 2, expectedVisibility: 'right side', status: 'placed-study', discrepancy: 'Moved forward and reduced to clear the measured Gemini bounding region; airbox projection requires review.' },
@@ -64,5 +64,29 @@ export const liveryDefinitions: Record<PrecisionTeam, TeamLiveryDefinition> = {
 };
 
 export const officialFiaEntryList = fia;
+
+/** Current review reuses launch anchors except for the Mexico right-profile study. */
+export function getLiveryDecals(
+  teamId: PrecisionTeam,
+  variant: 'season-default-2026' | 'season-current-2026-11-06',
+): SponsorDecalRegistry {
+  const decals = liveryDefinitions[teamId].decals;
+  if (teamId !== 'mercedes' || variant !== 'season-current-2026-11-06') return decals;
+  return decals.map((entry) => {
+    if (entry.id.startsWith('mercedes-team-')) {
+      return { ...entry, anchor: { ...entry.anchor, visible: false }, status: 'unplaced' as const,
+        discrepancy: 'Large round side star is not supported by the Mexico right-profile photo; retain only in the January launch study.' };
+    }
+    if (entry.id.startsWith('mercedes-petronas-')) {
+      return { ...entry, anchor: { ...entry.anchor, z: .26, width: .72, height: .20 },
+        discrepancy: 'Mexico right profile: reduced on the lower sidepod; Model B panel geometry limits rearward movement, and the left side remains a mirrored review placement.' };
+    }
+    if (entry.id.startsWith('mercedes-microsoft-')) {
+      return { ...entry, anchor: { ...entry.anchor, z: .88, width: .32, height: .11 },
+        discrepancy: 'Mexico right profile: shifted forward to clear the rear wheel; left side remains a mirrored review placement.' };
+    }
+    return entry;
+  });
+}
 
 

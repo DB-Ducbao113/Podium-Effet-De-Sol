@@ -1,24 +1,24 @@
 /* V7 / Homepage hero is an open window into the page-wide race world.
    Do not bring back the Showroom model or boxed technical display. */
 .r1-cinema--v7 {
-  min-height: clamp(460px,58svh,605px);
+  min-height: clamp(460px,58svh / var(--peds-visual-zoom),605px);
   background: transparent;
 }
 .r1-cinema--v7 .r1-cinema__inner {
-  min-height: clamp(460px,58svh,605px);
+  min-height: clamp(460px,58svh / var(--peds-visual-zoom),605px);
   grid-template-columns: minmax(0,.85fr) minmax(0,1.15fr);
-  padding-top: clamp(32px,4vw,54px);
-  padding-bottom: clamp(58px,6vw,80px);
+  padding-top: clamp(32px,4vw / var(--peds-visual-zoom),54px);
+  padding-bottom: clamp(58px,6vw / var(--peds-visual-zoom),80px);
 }
 .r1-cinema--v7 .r1-cinema__title {
-  font-size: clamp(3.2rem,5.45vw,5.8rem);
+  font-size: clamp(3.2rem,5.45vw / var(--peds-visual-zoom),5.8rem);
   text-shadow: 0 6px 35px rgba(0,0,0,.67);
 }
 .r1-cinema--v7 .r1-cinema__scene {
   position: relative;
   border: 0;
   border-radius: 0;
-  height: clamp(335px,33vw,445px);
+  height: clamp(335px,33vw / var(--peds-visual-zoom),445px);
   background: transparent;
   overflow: visible;
   box-shadow: none;
@@ -53,9 +53,85 @@
   height: 1px;
   opacity: .88;
 }
-@media (max-width: 1100px) {
-  .r1-cinema--v7 .r1-cinema__inner { grid-template-columns: minmax(0,.8fr) minmax(0,1.2fr); }
-  .r1-cinema--v7 .r1-cinema__title { font-size: clamp(3rem,6vw,5rem); }
+/* Desktop Aero Machine: the car and headline fill the first screen. */
+@media (min-width: 861px) {
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .r1-cinema--v7 {
+    min-height: max(720px, calc(100svh / var(--peds-visual-zoom) - 56px));
+    background:
+      radial-gradient(ellipse 48% 56% at 78% 62%, rgba(255, 80, 19, .20), transparent 80%),
+      linear-gradient(110deg, #05070b 8%, #090c12 58%, #160d0b 100%);
+  }
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .r1-cinema--v7 .r1-cinema__inner {
+    min-height: max(720px, calc(100svh / var(--peds-visual-zoom) - 56px));
+    grid-template-columns: minmax(0, .78fr) minmax(0, 1.22fr);
+    gap: 0;
+    padding-top: clamp(72px, 8vh / var(--peds-visual-zoom), 110px);
+    padding-bottom: clamp(90px, 10vh / var(--peds-visual-zoom), 130px);
+  }
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .r1-cinema--v7 .r1-cinema__copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .r1-cinema--v7 .r1-cinema__title {
+    order: 1;
+    font-size: clamp(6rem, 8.1vw / var(--peds-visual-zoom), 9.2rem);
+    line-height: .81;
+    text-shadow: 0 9px 33px rgba(0, 0, 0, .86);
+  }
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .r1-cinema--v7 .r1-cinema__eyebrow {
+    order: 2;
+    margin: clamp(18px, 3vh / var(--peds-visual-zoom), 32px) 0 0;
+    color: #e4e4e3;
+    font-size: clamp(.74rem, .9vw / var(--peds-visual-zoom), .9rem);
+  }
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .r1-cinema--v7 .r1-cinema__actions {
+    order: 3;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    margin-top: clamp(24px, 4vh / var(--peds-visual-zoom), 40px);
+  }
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .r1-cinema--v7 .r1-cinema__actions button {
+    min-width: clamp(210px, 18vw / var(--peds-visual-zoom), 260px);
+    min-height: 54px;
+    justify-content: space-between;
+    padding-inline: 22px;
+    font-size: .81rem;
+  }
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .r1-cinema--v7 .r1-cinema__scene {
+    width: calc(100% + clamp(100px, 11vw / var(--peds-visual-zoom), 180px));
+    height: clamp(480px, 48vw / var(--peds-visual-zoom), 670px);
+    margin-left: calc(-1 * clamp(100px, 11vw / var(--peds-visual-zoom), 180px));
+  }
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .r1-cinema--v7 .r1-cinema__scene-heading,
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .r1-cinema--v7 .f1hero__hud,
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .r1-cinema--v7 .f1hero__telemetry { display: none; }
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .r1-cinema--v7 .r1-cinema__scroll { bottom: 32px; }
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .r1-cinema--v7 .r1-cinema__chapters {
+    top: auto;
+    right: auto;
+    bottom: 29px;
+    left: max(24px, calc((calc(100vw / var(--peds-visual-zoom)) - 1580px) / 2 + 32px));
+    display: flex;
+    gap: 5px;
+    transform: none;
+  }
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .r1-cinema--v7 .r1-cinema__chapters button {
+    width: 38px;
+    height: 36px;
+    border-right: 0;
+    border-bottom: 1px solid rgba(150, 179, 193, .48);
+    background: transparent;
+    color: #a9b7c0;
+    font-size: .69rem;
+  }
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .r1-cinema--v7 .r1-cinema__chapters button[data-active='true'],
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .r1-cinema--v7 .r1-cinema__chapters button:hover {
+    border-bottom: 2px solid #ff4a18;
+    background: rgba(255, 74, 24, .08);
+    color: #fff;
+  }
 }
 @media (max-width: 850px) {
   .r1-cinema--v7 { min-height: 0; }
@@ -66,12 +142,12 @@
     padding-bottom: 70px;
     gap: 8px;
   }
-  .r1-cinema--v7 .r1-cinema__title { font-size: clamp(3.2rem,8vw,5rem); }
+  .r1-cinema--v7 .r1-cinema__title { font-size: clamp(3.2rem,8vw / var(--peds-visual-zoom),5rem); }
   .r1-cinema--v7 .r1-cinema__scene { height: 320px; width: 100%; transform: none; }
 }
 @media (max-width: 500px) {
   .r1-cinema--v7 .r1-cinema__inner { padding-top: 65px; padding-bottom: 62px; }
-  .r1-cinema--v7 .r1-cinema__title { font-size: clamp(3.05rem,12.8vw,4.55rem); }
+  .r1-cinema--v7 .r1-cinema__title { font-size: clamp(3.05rem,12.8vw / var(--peds-visual-zoom),4.55rem); }
   .r1-cinema--v7 .r1-cinema__scene { height: 255px; }
 }
 @media (max-width: 370px) {

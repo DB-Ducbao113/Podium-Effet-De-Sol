@@ -378,7 +378,7 @@ export const HotspotDetailsModal: React.FC<HotspotDetailsModalProps> = React.mem
                 <img
                   src={closeUpData.imageUrl}
                   alt={lang === 'vi' ? closeUpData.titleVi : closeUpData.titleEn}
-                  className="max-h-[75vh] w-auto object-contain mx-auto select-none"
+                  className="max-h-[calc(75vh_/_var(--peds-visual-zoom))] w-auto object-contain mx-auto select-none"
                 />
 
                 {/* Watermark badge on image */}

@@ -283,14 +283,14 @@ export const CircuitStreetReview: React.FC<CircuitStreetReviewProps> = ({
           onClick={() => setIsPhotoExpanded(false)}
         >
           <div
-            className="relative max-w-4xl w-full max-h-[90vh] flex flex-col items-center"
+            className="relative max-w-4xl w-full max-h-[calc(90vh_/_var(--peds-visual-zoom))] flex flex-col items-center"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="relative w-full">
               <img
                 src={activePoint.imageUrl}
                 alt={isVi ? activePoint.nameVi : activePoint.nameEn}
-                className="w-full h-auto max-h-[80vh] object-contain rounded-xl border border-studio-800 shadow-2xl"
+                className="w-full h-auto max-h-[calc(80vh_/_var(--peds-visual-zoom))] object-contain rounded-xl border border-studio-800 shadow-2xl"
               />
               <button
                 type="button"

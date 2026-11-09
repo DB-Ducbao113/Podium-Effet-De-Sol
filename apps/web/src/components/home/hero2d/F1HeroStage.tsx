@@ -17,6 +17,8 @@ export function F1HeroStage() {
     if (!layer || !hero) return;
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const desktopPointer = window.matchMedia('(min-width: 861px) and (hover: hover) and (pointer: fine)');
+    const scene = layer.closest<HTMLElement>('.r1-cinema__scene');
     const nav = navigator as Navigator & { connection?: { saveData?: boolean }; deviceMemory?: number };
     const lite = Boolean(nav.connection?.saveData || (nav.deviceMemory !== undefined && nav.deviceMemory <= 4));
     layer.dataset.fx = lite ? 'lite' : 'full';
@@ -31,6 +33,24 @@ export function F1HeroStage() {
     let scrollValue = 0;
     let targetScroll = 0;
     let lastTime = 0;
+    let revTarget = 0;
+    let rev = 0;
+    let launch = 0;
+    let revHeld = false;
+    let autoReleaseTimer = 0;
+    let introTimer = 0;
+    let introCheckTimer = 0;
+    let introPulseQueued = false;
+    let lastPulse = 0;
+
+    const clearRev = () => {
+      revHeld = false;
+      revTarget = rev = launch = 0;
+      layer.style.setProperty('--f1-rev-x', '0px');
+      layer.style.setProperty('--f1-rev-y', '0px');
+      layer.style.setProperty('--f1-rev-scale', '1');
+      layer.style.setProperty('--f1-rev-wake', '0');
+    };
 
     const apply = (time: number) => {
       raf = 0;
@@ -42,8 +62,11 @@ export function F1HeroStage() {
       y = damp(y, targetY, delta, 6.2);
       impulse = damp(impulse, 0, delta, 2.7);
       scrollValue = damp(scrollValue, targetScroll, delta, 4.2);
+      rev = damp(rev, revTarget, delta, revTarget ? 9 : 6);
+      launch = damp(launch, 0, delta, 5.5);
       const pose = carPose(x, y);
-      const energy = clamp(impulse * .76 + Math.hypot(x, y) * .13, 0, 1);
+      const energy = clamp(impulse * .76 + Math.hypot(x, y) * .13 + rev * .35 + launch * .55, 0, 1);
+      const rumble = revHeld ? Math.sin(time * .055) * rev * 1.3 : 0;
 
       layer.style.setProperty('--f1-x', pose.translateX.toFixed(2) + 'px');
       layer.style.setProperty('--f1-y', pose.translateY.toFixed(2) + 'px');
@@ -56,12 +79,16 @@ export function F1HeroStage() {
       layer.style.setProperty('--f1-readout-energy', (.3 + energy * .7).toFixed(3));
       layer.style.setProperty('--f1-scroll-offset', (scrollValue * 38).toFixed(2) + 'px');
       layer.style.setProperty('--f1-scroll-scale', (1 - scrollValue * .055).toFixed(3));
+      layer.style.setProperty('--f1-rev-x', (rev * 8 - launch * 38 + rumble).toFixed(2) + 'px');
+      layer.style.setProperty('--f1-rev-y', (rev * 3 - launch * 2).toFixed(2) + 'px');
+      layer.style.setProperty('--f1-rev-scale', (1 + launch * .025 - rev * .006).toFixed(4));
+      layer.style.setProperty('--f1-rev-wake', clamp(rev * .48 + launch * .75, 0, 1).toFixed(3));
 
       if (
         Math.abs(x - targetX) > .002 ||
         Math.abs(y - targetY) > .002 ||
         Math.abs(scrollValue - targetScroll) > .002 ||
-        impulse > .012
+        impulse > .012 || revHeld || rev > .004 || launch > .004
       ) {
         raf = requestAnimationFrame(apply);
       } else {
@@ -85,6 +112,41 @@ export function F1HeroStage() {
     const reset = () => {
       targetX = 0;
       targetY = 0;
+      revHeld = false;
+      revTarget = 0;
+      schedule();
+    };
+
+    const beginRev = (event: PointerEvent) => {
+      if (event.button !== 0 || (event.pointerType !== 'mouse' && event.pointerType !== 'pen')) return;
+      if (!desktopPointer.matches || reduced.matches || lite || !visible || document.hidden) return;
+      window.clearTimeout(autoReleaseTimer);
+      revHeld = true;
+      revTarget = 1;
+      schedule();
+    };
+
+    const pulseRev = () => {
+      if (!desktopPointer.matches || reduced.matches || lite || !visible || document.hidden || revHeld) return;
+      if (Date.now() - lastPulse < 2400) return;
+      lastPulse = Date.now();
+      revHeld = true;
+      revTarget = 1;
+      schedule();
+      autoReleaseTimer = window.setTimeout(endRev, 420);
+    };
+
+    const introComplete = () => {
+      if (introPulseQueued) return;
+      introPulseQueued = true;
+      introTimer = window.setTimeout(pulseRev, 1050);
+    };
+
+    const endRev = () => {
+      if (!revHeld) return;
+      revHeld = false;
+      revTarget = 0;
+      launch = Math.max(launch, rev * .95);
       schedule();
     };
 
@@ -98,6 +160,7 @@ export function F1HeroStage() {
         cancelAnimationFrame(raf);
         raf = 0;
         lastTime = 0;
+        clearRev();
       } else schedule();
     };
 
@@ -112,6 +175,7 @@ export function F1HeroStage() {
         targetY = 0;
         impulse = 0;
         scrollValue = 0;
+        clearRev();
         lastTime = 0;
       } else {
         syncScroll();
@@ -125,6 +189,7 @@ export function F1HeroStage() {
             cancelAnimationFrame(raf);
             raf = 0;
             lastTime = 0;
+            clearRev();
           } else {
             syncScroll();
           }
@@ -134,6 +199,14 @@ export function F1HeroStage() {
     observer?.observe(hero);
     hero.addEventListener('pointermove', pointer, { passive: true });
     hero.addEventListener('pointerleave', reset);
+    scene?.addEventListener('pointerdown', beginRev);
+    scene?.addEventListener('pointerenter', pulseRev);
+    window.addEventListener('pointerup', endRev);
+    window.addEventListener('pointercancel', endRev);
+    window.addEventListener('peds:intro-complete', introComplete);
+    introCheckTimer = window.setTimeout(() => {
+      if (document.documentElement.dataset.introActive !== 'true') introComplete();
+    }, 1200);
     window.addEventListener('scroll', syncScroll, { passive: true });
     document.addEventListener('visibilitychange', visibility);
     reduced.addEventListener('change', preference);
@@ -144,6 +217,14 @@ export function F1HeroStage() {
       observer?.disconnect();
       hero.removeEventListener('pointermove', pointer);
       hero.removeEventListener('pointerleave', reset);
+      scene?.removeEventListener('pointerdown', beginRev);
+      scene?.removeEventListener('pointerenter', pulseRev);
+      window.removeEventListener('pointerup', endRev);
+      window.removeEventListener('pointercancel', endRev);
+      window.removeEventListener('peds:intro-complete', introComplete);
+      window.clearTimeout(autoReleaseTimer);
+      window.clearTimeout(introTimer);
+      window.clearTimeout(introCheckTimer);
       window.removeEventListener('scroll', syncScroll);
       document.removeEventListener('visibilitychange', visibility);
       reduced.removeEventListener('change', preference);
@@ -179,6 +260,7 @@ export function F1HeroStage() {
       </svg>
 
       <div className="f1hero__ground-shadow" />
+      <div className="f1hero__rev-wake" />
       <div className="f1hero__vehicle">
         <div className="f1hero__floating">
           <img
@@ -225,7 +307,7 @@ export function F1HeroStage() {
       </div>
       <div className="f1hero__microcopy">
         <span>AERO-01 <i /> CINEMATIC STUDY</span>
-        <span>MOVE POINTER TO EXPLORE</span>
+        <span>MOVE POINTER / HOLD TO REV</span>
       </div>
     </div>
   );

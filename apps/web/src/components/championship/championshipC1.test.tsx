@@ -46,24 +46,25 @@ describe("C1 championship presentation", () => {
     expect(html).not.toContain("CircuitTrackMap");
     expect(html).not.toContain("View Qualifying Table");
   });
-  it("makes the world tour the primary calendar while preserving a classic mode", () => {
+  it("keeps the world tour and vector map as the primary calendar entry", () => {
     const html = render(<ChampionshipCalendar season={2026} />, '/season/2026?tab=calendar');
     expect(html).toContain('WORLD TOUR');
     expect(html).toContain('data-map-mode="all-rounds"');
-    expect(html).toContain('data-route-lines="false"');
     expect(html).toContain('data-round-label="R01"');
     expect(html).toContain('data-round-label="R23"');
     expect(html).toContain('data-experience="world-tour-v6"');
-    expect(html).not.toContain('rcj-view-details');
-    expect(html).not.toContain('class="rcj-chapter"');
-    expect(html).not.toContain('Season Journey');
-    expect(html).not.toContain('Detailed view');
+    expect(html).not.toContain('class="c1-calendar"');
   });
-  it("opens the full calendar for the selected round via View Details", () => {
+  it("exposes selected round detail for the right panel and preserves results access", () => {
     const html = render(<ChampionshipCalendar season={2026} />, '/season/2026?tab=calendar&round=1');
     expect(html).toContain('calendar-round-1');
+    expect(html).toContain('data-selected-round="1"');
+    expect(html).toContain('class="cal-selected-host"');
+    expect(html).toContain('id="schedule-1"');
+    expect(html).toContain('Close details');
     expect(html).toContain('data-back-to-map');
     expect(html).toContain('href="/season/2026?tab=calendar&amp;focus=1"');
+    expect(html).toContain('href="/season/2026?tab=results&amp;round=1"');
     expect(html).not.toContain('data-experience="world-tour-v6"');
   });
     it("filters rounds by schedule state and exposes the next race", () => {
@@ -123,12 +124,28 @@ describe("C1 championship presentation", () => {
     );
     expect(source).not.toMatch(/\$\{session\.dateStr\} · \$\{session\.timeStr\}/);
   });
-  it("keeps P5 standings movement and form honest", () => {
+  it("shows one standings presentation with full Mini Race rows", () => {
     const html = render(<ChampionshipStandings season={2026} />);
-    expect(html).toContain("p5-table-row");
-    expect(html).toContain("No verified prior rank");
-    expect(html).toContain("not a full-grid result");
+    expect(html).toContain('class="mini-race"');
+    expect(html).toContain('P1 POINTS');
+    expect(html).toContain('View profile');
+    expect((html.match(/class="mini-race__lane"/g) ?? []).length).toBeGreaterThan(5);
+    expect(html).not.toContain('View classic podium');
+    expect(html).not.toContain('Full standings');
+    expect(html).not.toContain('p5-table-row');
+    expect(html).not.toContain('p5-mobile-row');
+    expect(html).toContain('2026 cars are illustrations; numbers and logos may differ.');
+    expect(html).toContain('Check F1.com');
     expect(html).not.toContain("c1-points-track");
+  });
+
+  it("selects the local historical standings thumbnail for 2024 and 2025", () => {
+    const visualSource = readFileSync(
+      "src/utils/p5Extended2026Visuals.ts",
+      "utf8",
+    );
+    expect(visualSource).toContain("historicalStandingsHero");
+    expect(visualSource).toContain("/__p5-historical-standings/${season}.webp");
   });
   it("renders directory portraits with accessible labels", () => {
     const teams = render(<ChampionshipDirectory season={2026} kind="teams" />);

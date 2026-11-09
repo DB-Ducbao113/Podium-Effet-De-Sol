@@ -15,6 +15,7 @@ import { useP5SeasonData } from "../p5/useP5ChampionshipData";
 import { useP5Reveal } from "../p5/useP5Reveal";
 import "../p5/p5.css";
 import "../p5/p5DirectoryV2.css";
+import "../p5/p5TeamGarage.css";
 import { P5DriverIcon } from '../p5/P5DriverIcon';
 import { P5_SEASONAL_REVIEW_ENABLED, packageOnlyDriverVisuals } from '../../utils/p5SeasonalVisuals';
 

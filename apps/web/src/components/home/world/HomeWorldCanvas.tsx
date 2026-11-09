@@ -80,6 +80,7 @@ export default function HomeWorldCanvas({ controller, quality, active, onFailure
   return (
     <Canvas
       className="home-v9-canvas"
+      resize={{ offsetSize: true }}
       frameloop={active ? 'always' : 'never'}
       dpr={quality === 'high' ? [1, 1.45] : quality === 'balanced' ? [1, 1.18] : [1, 1]}
       camera={{ position: [0, 0, 12.1], near: .1, far: 75, fov: 39 }}

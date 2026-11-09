@@ -1,12 +1,9 @@
 name: Migration CI
 
 on:
-  pull_request:
-  push:
-    branches:
-      - main
-      - rebuild
-      - "migration/**"
+  # Temporarily pause automatic CI while the rebuild UI is in progress.
+  # Restore push/pull_request triggers when the owner resumes CI.
+  workflow_dispatch:
 
 permissions:
   contents: read

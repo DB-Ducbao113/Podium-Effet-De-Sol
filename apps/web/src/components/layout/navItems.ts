@@ -17,16 +17,8 @@ export const buildNavItems = (lang: 'vi' | 'en', insideMachineTrialEnabled: bool
   ] },
   { id: 'drivers', to: '/drivers', label: lang === 'vi' ? 'Tay đua' : 'Drivers', icon: Users },
   { id: 'teams', to: '/teams', label: lang === 'vi' ? 'Đội đua' : 'Teams', icon: Shield },
-  { id: 'engineering', to: insideMachineTrialEnabled ? '/engineering' : '/engineering/car-anatomy', label: lang === 'vi' ? 'Kỹ thuật' : 'Engineering', icon: BookOpen, children: insideMachineTrialEnabled ? [
+  { id: 'engineering', to: '/engineering', label: lang === 'vi' ? 'Kỹ thuật' : 'Engineering', icon: BookOpen, children: insideMachineTrialEnabled ? [
     { id: 'inside-machine', label: 'Inside the Machine', to: '/engineering' },
-    { id: 'insights', label: lang === 'vi' ? 'Bài viết kỹ thuật' : 'Engineering insights', to: '/engineering/insights' },
-    { id: 'previous-anatomy', label: lang === 'vi' ? 'Giải phẫu xe cũ' : 'Previous car anatomy', to: '/engineering/car-anatomy' },
-  ] : [
-    { id: 'car-anatomy', label: lang === 'vi' ? 'Giải phẫu xe' : 'Car anatomy', to: '/engineering/car-anatomy' },
-    { id: 'front-wing', label: lang === 'vi' ? 'Cánh trước' : 'Front wing', to: '/engineering/car-anatomy?chapter=front-wing' },
-    { id: 'floor', label: lang === 'vi' ? 'Sàn xe' : 'Floor', to: '/engineering/car-anatomy?chapter=floor' },
-    { id: 'diffuser', label: lang === 'vi' ? 'Bộ khuếch tán' : 'Diffuser', to: '/engineering/car-anatomy?chapter=diffuser' },
-    { id: 'rear-wing', label: lang === 'vi' ? 'Cánh sau' : 'Rear wing', to: '/engineering/car-anatomy?chapter=rear-wing' },
-  ] },
+  ] : undefined },
   ];
 };

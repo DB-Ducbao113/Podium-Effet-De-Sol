@@ -31,6 +31,12 @@ export const DRIVER_PORTRAIT_CREDIT: Record<string, DriverPortraitCredit> = {
   sainz: { credit: 'LucaFazPhoto', license: 'CC BY-SA 4.0', licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0', sourcePage: 'https://commons.wikimedia.org/wiki/File%3ACarlos_Sainz_at_the_83rd_Venice_FILM_festival-9_(cropped).jpg' },
   stroll: { credit: 'Liauzh', license: 'CC BY-SA 4.0', licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0', sourcePage: 'https://commons.wikimedia.org/wiki/File%3A2025_Japan_GP_-_Aston_Martin_-_Lance_Stroll_-_Fanzone_Stage_(cropped).jpg' },
   verstappen: { credit: 'Steffen Prößdorf', license: 'CC BY-SA 4.0', licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0', sourcePage: 'https://commons.wikimedia.org/wiki/File%3A2024-08-25_Motorsport%2C_Formel_1%2C_Gro%C3%9Fer_Preis_der_Niederlande_2024_STP_3973_by_Stepro_(medium_crop).jpg' },
+  doohan: { credit: 'KVYTICAL', license: 'CC BY-SA 4.0', licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0', sourcePage: 'https://commons.wikimedia.org/wiki/File:Jack_Doohan_Austria_2022_(cropped).jpg' },
+  magnussen: { credit: 'Lukas Raich', license: 'CC BY-SA 4.0', licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0', sourcePage: 'https://commons.wikimedia.org/wiki/File:FIA_F1_Austria_2022_Kevin_Magnussen_(cropped).jpg' },
+  ricciardo: { credit: 'DaHuzyBru', license: 'CC BY-SA 4.0', licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0', sourcePage: 'https://commons.wikimedia.org/wiki/File:Daniel_Ricciardo_January_2024.jpg' },
+  sargeant: { credit: 'JazzyJoeyD', license: 'CC BY-SA 4.0', licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0', sourcePage: 'https://commons.wikimedia.org/wiki/File:Logan_Sargeant_NYC_(cropped).jpg' },
+  tsunoda: { credit: 'Jen Ross', license: 'CC BY 2.0', licenseUrl: 'https://creativecommons.org/licenses/by/2.0', sourcePage: 'https://commons.wikimedia.org/wiki/File:Yuki_Tsunoda,_Alpha_Tauri,_British_GP,_Silverstone_2021_(51350028354)_(cropped).jpg' },
+  zhou: { credit: 'Dorian Schuster (XaviYuahanda)', license: 'CC BY-SA 4.0', licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0', sourcePage: 'https://commons.wikimedia.org/wiki/File:Zhou_Guanyu_at_the_2022_Austrian_Grand_Prix.jpg' },
 };
 
 export const driverPortraitAvailable = (driverId?: string): boolean =>

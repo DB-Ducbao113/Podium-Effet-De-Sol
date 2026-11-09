@@ -63,5 +63,8 @@ describe('Homepage Explore cinematic gateways', () => {
     }
     expect((vietnamese.match(/loading="lazy"/g) ?? []).length).toBe(4);
     expect((vietnamese.match(/alt=""/g) ?? []).length).toBe(4);
+    expect(vietnamese).toContain('VUỐT ĐỂ KHÁM PHÁ');
+    expect((vietnamese.match(/aria-pressed="true"/g) ?? []).length).toBe(1);
+    expect((vietnamese.match(/aria-label="Hiện thẻ /g) ?? []).length).toBe(4);
   });
 });

@@ -3,18 +3,17 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { ContactShadows, Html } from '@react-three/drei';
 import * as THREE from 'three';
 import {
-  ExternalLink,
   Gauge,
   Pause,
   Play,
   RotateCcw,
-  ShieldCheck,
 } from 'lucide-react';
 import { CameraController, type CameraPreset } from './CameraController';
 import { CompactShowroomLayout } from './CompactShowroomLayout';
 import { ErrorBoundary } from '../common/ErrorBoundary';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import { useNavigationStore } from '../../store/useNavigationStore';
+
 import {
   AdaptiveQualityController,
   type GraphicsMode,
@@ -32,6 +31,21 @@ import { applyModelBLivery } from '../../dev/commercial-b/modelBMaterials';
 import { MODEL_B_HOTSPOTS, MODEL_B_LIVERIES, type ModelBHotspot, type ModelBLivery } from '../../dev/commercial-b/modelBExperience';
 import { disposeModelB, loadModelB } from '../../dev/commercial-b/modelBLoader';
 import { getModelBPaintStorage, persistModelBPaint, readModelBPaint } from '../../dev/commercial-b/paintPreference';
+
+function setShowroomCameraFov(camera: THREE.PerspectiveCamera, fov: number) {
+  camera.fov = fov;
+  camera.updateProjectionMatrix();
+}
+
+function ShowroomCameraFraming() {
+  const { camera, size, invalidate } = useThree();
+  useEffect(() => {
+    if (!(camera instanceof THREE.PerspectiveCamera)) return;
+    setShowroomCameraFov(camera, size.width / Math.max(size.height, 1) < .7 ? 46 : 38);
+    invalidate();
+  }, [camera, size.width, size.height, invalidate]);
+  return null;
+}
 
 const MODES: GraphicsMode[] = ['AUTO', 'HIGH', 'BALANCED', 'PERFORMANCE'];
 const CAMERA_PRESETS: CameraPreset[] = ['overview', 'front', 'side', 'cockpit', 'rear', 'top'];
@@ -617,23 +631,17 @@ export const CommercialBReviewShowroom: React.FC<{ headingLevel?: 'h1' | 'h2' }>
   };
 
   return (
-    <main className="min-h-screen bg-[#111417] text-white" data-testid="model-b-showroom">
-      <header className="border-b border-white/10 bg-[#171b21] px-4 py-5">
+    <main className="bg-[#111417] text-white" data-testid="model-b-showroom">
+      <header className="border-b border-white/10 bg-[#171b21] px-4 py-3">
         <div className="page-container">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               {React.createElement(
                 headingLevel,
                 { className: 'font-display text-2xl font-bold tracking-tight text-white sm:text-3xl' },
-                lang === 'vi' ? 'Studio kỹ thuật' : 'Engineering studio',
+                lang === 'vi' ? 'Showroom 3D' : '3D Showroom',
               )}
-              <p className="mt-1 max-w-2xl text-xs leading-relaxed text-[#b8c0c8]">
-                {lang === 'vi'
-                  ? 'Formula 1 2022 Car · Model B — mô hình 3D có thể xoay và khám phá.'
-                  : 'Formula 1 2022 Car · Model B — interactive 3D model for rotation and exploration.'}
-              </p>
             </div>
-            <span className="rounded-md border border-[#cf2539]/45 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.15em] text-[#f2a9b2]">Model B</span>
           </div>
         </div>
       </header>
@@ -765,6 +773,7 @@ export const CommercialBReviewShowroom: React.FC<{ headingLevel?: 'h1' | 'h2' }>
           <ErrorBoundary fallback={<ReviewFallback lang={lang} />}>
             <Canvas
               dpr={Math.min(window.devicePixelRatio * scale, 2)}
+              resize={{ offsetSize: true }}
               frameloop={isCanvasActive ? 'always' : 'never'}
               camera={{ position: [2.8, 1.4, -2.8], fov: 38, near: 0.01, far: 100 }}
               gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}
@@ -814,7 +823,9 @@ export const CommercialBReviewShowroom: React.FC<{ headingLevel?: 'h1' | 'h2' }>
                 zoomDirection={zoomDirection}
                 reduceMotion={reduceMotion}
                 compactStage
+                narrowFramingMultiplier={.92}
               />
+              <ShowroomCameraFraming />
               <PerformanceProbe
                 active={continuous}
                 transitions={controller.getState().transitions}
@@ -845,53 +856,21 @@ export const CommercialBReviewShowroom: React.FC<{ headingLevel?: 'h1' | 'h2' }>
               }
             />
           )}
+          <details className="absolute bottom-4 left-4 z-20 max-w-[min(380px,calc(100%-32px))] rounded-lg bg-[#0b1015]/90 px-3 py-2 text-xs text-[#c9d2d9] shadow-lg open:bg-[#0b1015]">
+            <summary className="cursor-pointer font-semibold text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#cf2539]">
+              {lang === 'vi' ? 'Model B · ghi công' : 'Model B · credits'}
+            </summary>
+            <p className="mt-2 leading-relaxed">
+              “Formula 1 2022 Car” by{' '}
+              <a href="https://sketchfab.com/3d-models/formula-1-2022-car-65dcd974798f4f03be5cdf4f79e228d8" target="_blank" rel="noreferrer" className="font-bold text-white underline underline-offset-4">Luis Adrian V.</a>{' '}
+              ·{' '}
+              <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer" className="font-bold text-white underline underline-offset-4">CC BY 4.0</a>.
+              {' '}Modified by Podium EDS: materials replaced, textures removed, scene consolidated, geometry quantized and Meshopt-compressed.
+            </p>
+            <p className="mt-2 leading-relaxed">{lang === 'vi' ? 'Một mesh, 13 vùng vật liệu; điểm tham chiếu chỉ mang tính gần đúng.' : 'One mesh, 13 material regions; reference points are approximate.'}</p>
+          </details>
         </div>
       </CompactShowroomLayout>
-      <section className="border-t border-white/10 bg-[#080a0e]">
-        <div className="page-container grid gap-4 py-5 text-xs text-studio-300 lg:grid-cols-[1fr_auto] lg:items-center">
-          <div className="flex gap-3">
-            <ShieldCheck
-              className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400"
-              aria-hidden="true"
-            />
-            <div>
-              <p className="font-bold text-white">
-                {lang === 'vi'
-                  ? 'Thông tin mô hình và giới hạn kỹ thuật'
-                  : 'Model information and technical boundary'}
-              </p>
-              <p className="mt-1 max-w-3xl leading-relaxed">
-                {lang === 'vi'
-                  ? 'Một mesh với 13 vùng vật liệu: phù hợp cho raycast hotspot và camera focus, không hỗ trợ true exploded geometry hoặc lựa chọn assembly độc lập.'
-                  : 'One mesh with 13 material regions: suitable for raycast hotspots and camera focus, but not true exploded geometry or independent assembly selection.'}
-              </p>
-            </div>
-          </div>
-          <p className="leading-relaxed lg:max-w-md lg:text-right">
-            “Formula 1 2022 Car” by{' '}
-            <a
-              href="https://sketchfab.com/3d-models/formula-1-2022-car-65dcd974798f4f03be5cdf4f79e228d8"
-              target="_blank"
-              rel="noreferrer"
-              className="font-bold text-white underline decoration-white/35 underline-offset-4 hover:decoration-f1red"
-            >
-              Luis Adrian V.{' '}
-              <ExternalLink className="inline h-3 w-3" aria-hidden="true" />
-            </a>{' '}
-            ·{' '}
-            <a
-              href="https://creativecommons.org/licenses/by/4.0/"
-              target="_blank"
-              rel="noreferrer"
-              className="font-bold text-white underline decoration-white/35 underline-offset-4 hover:decoration-f1red"
-            >
-              CC BY 4.0
-            </a>
-            . Modified by Podium EDS: materials replaced, textures removed, scene consolidated,
-            geometry quantized and Meshopt-compressed.
-          </p>
-        </div>
-      </section>
     </main>
   );
 };

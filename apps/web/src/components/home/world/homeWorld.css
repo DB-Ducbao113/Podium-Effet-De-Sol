@@ -79,9 +79,6 @@
   background: rgba(5, 9, 15, .68);
   backdrop-filter: blur(3px);
 }
-.h25-home-route[data-home-v9='true'] .peds-footer__feature {
-  border-color: rgba(141, 196, 219, .31);
-}
 
 /* V9 replaces the redundant V8 neon streamlines, but retains the real car,
    silhouette-masked light and its pointer motion. The world handles the flow. */
@@ -94,7 +91,6 @@
   display: none;
 }
 .h25-home-route[data-home-v9='true'] .home-v3__content::before { opacity: .12; }
-.h25-home-route[data-home-v9='true'] .peds-footer__aero-art { opacity: .63; }
 
 
 /* V9 Scene 05: asymmetric cinematic destinations, not four equal poster tiles.
@@ -128,7 +124,7 @@
 /* Developer laboratory */
 .v9-lab {
   position: relative;
-  min-height: calc(100svh - 64px);
+  min-height: calc(100svh / var(--peds-visual-zoom) - 64px);
   color: #eef5f9;
   isolation: isolate;
   overflow: hidden;
@@ -140,7 +136,7 @@
   z-index: 1;
   width: min(1180px, calc(100% - 40px));
   margin-inline: auto;
-  padding-block: clamp(42px, 8svh, 100px) 58px;
+  padding-block: clamp(42px, 8svh / var(--peds-visual-zoom), 100px) 58px;
 }
 .v9-lab__eyebrow {
   color: #ff9d73;
@@ -150,14 +146,14 @@
 .v9-lab__title {
   max-width: 830px;
   margin: 18px 0 0;
-  font: italic 900 clamp(3.3rem, 7.2vw, 7.8rem)/.88 var(--peds-font-display);
+  font: italic 900 clamp(3.3rem, 7.2vw / var(--peds-visual-zoom), 7.8rem)/.88 var(--peds-font-display);
   letter-spacing: -.035em;
 }
 .v9-lab__title em { color: #ff713f; font-style: inherit; }
 .v9-lab__lead {
   margin: 24px 0 0;
   max-width: 59ch;
-  font-size: clamp(.92rem, 1.2vw, 1.1rem);
+  font-size: clamp(.92rem, 1.2vw / var(--peds-visual-zoom), 1.1rem);
   line-height: 1.68;
   color: #bbd0dc;
 }
@@ -165,7 +161,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin: clamp(32px, 5vw, 60px) 0 0;
+  margin: clamp(32px, 5vw / var(--peds-visual-zoom), 60px) 0 0;
 }
 .v9-lab__select button {
   min-height: 48px;
@@ -196,7 +192,7 @@
   gap: 18px;
   max-width: 690px;
   min-height: 115px;
-  margin-top: clamp(55px, 13svh, 160px);
+  margin-top: clamp(55px, 13svh / var(--peds-visual-zoom), 160px);
   padding: 18px 22px;
   background: rgba(7, 15, 24, .84);
   border-left: 2px solid #ff7842;

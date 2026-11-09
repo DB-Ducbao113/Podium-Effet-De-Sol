@@ -52,7 +52,7 @@ export const CircuitDetailModal: React.FC<CircuitDetailModalProps> = ({ circuit,
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-5xl max-h-[94vh] overflow-y-auto bg-studio-950 text-white rounded-2xl border border-studio-800 shadow-2xl flex flex-col"
+        className="relative w-full max-w-5xl max-h-[calc(94vh_/_var(--peds-visual-zoom))] overflow-y-auto bg-studio-950 text-white rounded-2xl border border-studio-800 shadow-2xl flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}

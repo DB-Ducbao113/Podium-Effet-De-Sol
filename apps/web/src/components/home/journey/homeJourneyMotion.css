@@ -16,6 +16,48 @@
   pointer-events: none;
   isolation: isolate;
 }
+
+/* Keep the chapter control in view while the four Home sections scroll. */
+.home-section-nav {
+  position: fixed;
+  z-index: 40;
+  top: 50%;
+  right: clamp(12px, 1.8vw / var(--peds-visual-zoom), 28px);
+  bottom: auto;
+  left: auto;
+  display: grid;
+  gap: 4px;
+  transform: translateY(-50%);
+  padding: 4px;
+  background: rgba(5, 8, 13, .72);
+  backdrop-filter: blur(10px);
+  font: 700 .82rem/1 var(--peds-font-mono);
+}
+.home-section-nav button {
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-right: 1px solid rgba(171, 190, 199, .5);
+  background: transparent;
+  color: #b6c2c9;
+  font-weight: 600;
+}
+.home-section-nav button[data-active='true'] {
+  border-right: 3px solid #ff6a1b;
+  background: rgba(255, 106, 27, .12);
+  color: #fff;
+  font-weight: 800;
+}
+.home-section-nav button:hover {
+  color: #fff;
+}
+.home-section-nav button:focus-visible {
+  outline: 3px solid var(--peds-color-focus);
+  outline-offset: 2px;
+}
+@media (max-width: 1023px) {
+  .home-section-nav { display: none; }
+}
 .home-journey__wash {
   position: absolute;
   inset: -13%;
@@ -27,7 +69,7 @@
   position: absolute;
   right: 1%;
   bottom: 7%;
-  font: italic 900 clamp(8rem, 24vw, 24rem)/.7 var(--peds-font-display);
+  font: italic 900 clamp(8rem, 24vw / var(--peds-visual-zoom), 24rem)/.7 var(--peds-font-display);
   letter-spacing: -.06em;
   color: rgba(191,214,226,.055);
   opacity: .8;
@@ -98,7 +140,7 @@
 
 .home-journey__rail {
   position: absolute;
-  inset: 22vh auto 22vh clamp(9px, 1.6vw, 25px);
+  inset: calc(22vh / var(--peds-visual-zoom)) auto calc(22vh / var(--peds-visual-zoom)) clamp(9px, 1.6vw / var(--peds-visual-zoom), 25px);
   display: flex;
   align-items: center;
   gap: 11px;
@@ -186,37 +228,16 @@
   to { opacity: 1; transform: translate3d(0,0,0); }
 }
 
-/* Race Control / actual next-round information sits above an abstract signal field. */
+/* Race Control / actual next-round information sits above a vector circuit field. */
 .home-v3 .home-rc__map {
   overflow: hidden;
   border: 1px solid rgba(132,192,218,.32);
   background:
+    repeating-linear-gradient(0deg, transparent 0 23px, rgba(125,180,204,.07) 23px 24px),
+    repeating-linear-gradient(90deg, transparent 0 23px, rgba(125,180,204,.07) 23px 24px),
     radial-gradient(ellipse at 68% 55%, rgba(37,141,187,.19), transparent 72%),
     linear-gradient(135deg, #060e18, #101c2b 55%, #050b12);
   box-shadow: inset 0 0 27px rgba(5,10,17,.72);
-}
-.home-rc__signal {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  opacity: .92;
-  pointer-events: none;
-}
-.home-rc__signal-glow { filter: drop-shadow(0 0 6px rgba(117,202,228,.55)); }
-.home-rc__signal-route {
-  stroke-dasharray: 7 11;
-  opacity: .85;
-}
-.home-rc__signal-pulse {
-  stroke-dasharray: 85 370;
-  stroke-dashoffset: 130;
-  filter: drop-shadow(0 0 9px rgba(255,112,58,.67));
-}
-.home-rc__signal-orbit {
-  transform-origin: 186px 95px;
-  stroke-dasharray: 5 12;
-  opacity: .32;
 }
 .home-rc__map-label {
   position: absolute;
@@ -240,18 +261,6 @@
   color: rgba(166,196,211,.66);
   letter-spacing: .1em;
 }
-.home-v3[data-home-motion='full'] #race-control[data-home-entered='true'] .home-rc__signal-route {
-  animation: home-v84-signal-flow 14s linear infinite;
-}
-.home-v3[data-home-motion='full'] #race-control[data-home-entered='true'] .home-rc__signal-pulse {
-  animation: home-v84-signal-pulse 4.8s linear infinite;
-}
-.home-v3[data-home-motion='full'] #race-control[data-home-entered='true'] .home-rc__signal-orbit {
-  animation: home-v84-signal-orbit 25s linear infinite;
-}
-@keyframes home-v84-signal-flow { to { stroke-dashoffset: -216; } }
-@keyframes home-v84-signal-pulse { to { stroke-dashoffset: -325; } }
-@keyframes home-v84-signal-orbit { to { transform: rotate(360deg); } }
 
 /* Title Fight / real point shares animate as compact data rails. */
 .home-v3 .home-title-fight__rows li {
@@ -330,9 +339,6 @@
 
 
 /* Continuously scrub non-text decoration with the user's scroll position. */
-.home-v3 #race-control .home-rc__signal {
-  transform: translate3d(0, var(--home-chapter-offset, 0px), 0);
-}
 .home-v3 #championship-overview .home-title-fight__panel::before {
   transform: translate3d(var(--home-chapter-offset, 0px), 0, 0);
 }
@@ -341,21 +347,17 @@
 }
 
 /* No heavy animation on small devices, data saver or reduced motion. */
-.home-v3[data-home-motion='lite'] .home-journey__streamlines,
-.home-v3[data-home-motion='lite'] .home-rc__signal-pulse,
-.home-v3[data-home-motion='lite'] .home-rc__signal-orbit { animation: none !important; }
-.home-v3[data-home-motion-playback='paused'] .home-journey *,
-.home-v3[data-home-motion-playback='paused'] .home-rc__signal * { animation-play-state: paused !important; }
+.home-v3[data-home-motion='lite'] .home-journey__streamlines { animation: none !important; }
+.home-v3[data-home-motion-playback='paused'] .home-journey * { animation-play-state: paused !important; }
 @media (max-width: 850px) {
   .home-journey__rail { display: none; }
-  .home-journey__wash::after { opacity: .35; font-size: 30vw; }
+  .home-journey__wash::after { opacity: .35; font-size: calc(30vw / var(--peds-visual-zoom)); }
   .home-journey__stream { opacity: .26 !important; }
   .home-journey__grid { opacity: .27; }
   .home-v3 .home-rc__map-index { font-size: 25px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .home-journey *,
-  .home-v3 .home-rc__signal *,
   .home-v3 .home-title-fight__scorebar,
   .home-v3 .home-title-fight__panel-head::after {
     animation: none !important;

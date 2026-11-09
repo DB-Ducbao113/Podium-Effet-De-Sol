@@ -69,4 +69,18 @@ describe('2D World Tour: all-round atlas, not a progressive flight map', () => {
     expect(journeySource).toContain('data-view-details');
     expect(journeySource).not.toContain('rcj-view-details');
   });
+
+  it('keeps the vector atlas while removing pins from focus and pointer interaction during circuit reveal', () => {
+    const calendar = getCalendarBySeason(2026);
+    const html = renderToStaticMarkup(
+      <MemoryRouter>
+        <JourneyWorldMap season={2026} calendar={calendar} activeRound={calendar[0].round}
+          lang="en" markerOpacity={0} />
+      </MemoryRouter>,
+    );
+    expect(html).toContain('class="rcj-map-markers" opacity="0" aria-hidden="true"');
+    expect(html).toContain('tabindex="-1" class="rcj-map-number"');
+    expect(html).toContain('pointer-events:none');
+    expect(html).toContain('class="rcj-map-svg rcj-map-atlas"');
+  });
 });
