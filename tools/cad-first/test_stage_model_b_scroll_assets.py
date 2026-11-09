@@ -4,7 +4,7 @@ Fixtures are SYNTHETIC bytes for testing source validation and filesystem
 atomicity. They never establish real STEP/BRep or manufacturer provenance.
 """
 from __future__ import annotations
-import hashlib,json,tempfile,unittest
+import hashlib,json,struct,tempfile,unittest
 from pathlib import Path
 from unittest.mock import patch
 
@@ -13,6 +13,20 @@ import stage_model_b_scroll_assets as staging
 def sha(data:bytes)->str:return hashlib.sha256(data).hexdigest()
 
 class ModelBOriginalCadStagingTests(unittest.TestCase):
+ @staticmethod
+ def synthetic_glb(names:list[str])->bytes:
+  # glTF 2.0 JSON header and distinct named mesh nodes; these empty synthetic
+  # primitives are deliberately NOT a rendered real CAD vehicle.
+  model={
+   'asset':{'version':'2.0'},
+   'nodes':[{'name':name,'mesh':i} for i,name in enumerate(names)],
+   'meshes':[{'name':name,'primitives':[]} for name in names],
+  }
+  jsonbytes=json.dumps(model,separators=(',',':')).encode('utf8')
+  jsonbytes+=b' '*((-len(jsonbytes))%4)
+  return struct.pack('<IIIII',0x46546c67,2,20+len(jsonbytes),
+                     len(jsonbytes),0x4e4f534a)+jsonbytes
+
  def setUp(self):
   self.tmp=tempfile.TemporaryDirectory()
   self.addCleanup(self.tmp.cleanup)
@@ -42,8 +56,7 @@ class ModelBOriginalCadStagingTests(unittest.TestCase):
   return hashes,hashlib.sha256(own.read_bytes()).hexdigest()
  def make_source(self,name,filename,data):
   file=self.dirs[name]/(name+'_balanced.glb')
-  file.write_bytes(data)
-  row={'file':file.name,'bytes':len(data),'sha256':sha(data)}
+  row={'file':file.name,'bytes':0,'sha256':''}
   if name=='p28':
    manifest={
     'schema':'podium-eds.p2.cad-first.full-corner.remate.v1',
@@ -79,6 +92,10 @@ class ModelBOriginalCadStagingTests(unittest.TestCase):
     'axialRetentionCertified':False,'chassisHardpointsMeasured':False,
     'mechanicalG2':'HOLD','profiles':{'BALANCED':row},
    }
+  data=self.synthetic_glb(
+    manifest['partIds'] if name in ('p28','p212') else manifest['newPartNames'])
+  file.write_bytes(data)
+  row.update({'bytes':len(data),'sha256':sha(data)})
   (self.dirs[name]/filename).write_text(json.dumps(manifest))
  def run_stage(self,all_sources=True):
   return staging.run(self.dirs['p28'],self.stage,'BALANCED',
