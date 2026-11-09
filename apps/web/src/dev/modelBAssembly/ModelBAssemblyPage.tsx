@@ -15,6 +15,7 @@ import {
 } from '../assemblyPreview/splitRaceSource';
 import {chapterAt,clamp01,MODEL_B_CHAPTERS} from './modelBAssemblyTimeline';
 import {readLocalAutoCadIndex,type AutoCadRow} from './localSourceIndex';
+import type {OwnerMeasuredFit} from '../assemblyPreview/ownerMeasuredFit';
 import './modelBAssembly.css';
 
 const Stage=lazy(()=>import('./ModelBAssemblyStage'));
@@ -38,6 +39,7 @@ export default function ModelBAssemblyPage(){
  const [busy,setBusy]=useState<SourceName|null>(null);
  const [error,setError]=useState('');
  const [ready,setReady]=useState<Partial<Record<StageId,number>>>({});
+ const [measuredFit,setMeasuredFit]=useState<OwnerMeasuredFit|null>(null);
  const [reducedMotion,setReducedMotion]=useState(()=>{
    return typeof window!=='undefined'&&
      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -153,6 +155,7 @@ export default function ModelBAssemblyPage(){
    setReady(old=>old[id]===meshCount?old:{...old,[id]:meshCount});
  },[]);
  const handleError=useCallback((message:string)=>setError(message),[]);
+ const handleFit=useCallback((fit:OwnerMeasuredFit|null)=>setMeasuredFit(fit),[]);
  const resetReady=useCallback((kind:SourceName)=>{
    setReady(previous=>{
      const next:Partial<Record<StageId,number>>={};
@@ -224,7 +227,7 @@ export default function ModelBAssemblyPage(){
            <Stage progressRef={progressRef} corner={corner}
               rearToe={rearToe} splitRace={splitRace}
               reducedMotion={reducedMotion}
-              onReady={handleReady} onError={handleError}/>
+              onReady={handleReady} onFit={handleFit} onError={handleError}/>
          </Suspense>
        </div>
        <div className="mb-build-shade" aria-hidden="true"/>
@@ -264,6 +267,10 @@ export default function ModelBAssemblyPage(){
          )}
        </nav>
        <div className="mb-build-source-wrap"
+         data-original-model-b-wheel-fit={measuredFit?.wheels.length===4&&cadLoaded?'true':'false'}
+         data-wheel-station-count={measuredFit?.wheels.length??0}
+         data-original-p28-scale={measuredFit?.p28Scale??'unknown'}
+         data-original-mechanical-mate-certified={measuredFit?.mechanicalFitCertified?'true':'false'}
          data-p28-cad-ready={cadLoaded?'true':'false'}
          data-p212-cad-ready={ready['rear-toe']===19&&!!rearToe?'true':'false'}
          data-p214-cad-ready={ready.p214===16&&!!splitRace?'true':'false'}>
