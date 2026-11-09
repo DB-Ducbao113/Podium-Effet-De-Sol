@@ -17,6 +17,7 @@ import {pivotSourceMeshAtCentroid,applyVisualScrewSpin,
  type CadAnimatedPivot} from './sourcePartPivot';
 import {rearVisualPartIds,type RearVisualParts} from './rearVisualComposite';
 import {ORIGINAL_MODEL_B_SOURCE,verifyOriginalModelBBinary} from './originalModelBSource';
+import {sourceOnlyModelBCamera} from './modelBSourceOnlyCamera';
 import {inspectOriginalCadMesh,type InspectedCadPart} from './cadPartInspector';
 import {locateSelectedCadMesh,sourceMeshWorldCentre,highlightSourceMaterials} from './cadFocus';
 import type {WheelId} from '../assemblyPreview/fourCornerLayout';
@@ -401,22 +402,37 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
        item.mesh.visible=p>.235;
      }
    }
-   const front=fit?.frontPositiveZCenterM??[1.29,-.18,.88];
-   const rearCenter=fit?.wheels.find(w=>w.station==='rear'&&w.side===1)?.centerM
-     ??[-1.95,-.19,.99];
+   const aspect=size.width/Math.max(1,size.height);
    let cameraTarget=new THREE.Vector3(0,-.1,0);
    let distance=8.6;
    let orbit=.0;
-   if(p>=.30&&p<.50){
-     cameraTarget=new THREE.Vector3(front[0],front[1],front[2]);distance=2.65;orbit=.20;
-   }else if(p>=.50&&p<.69){
-     cameraTarget.set(-.32,-.12,0);distance=7.3;orbit=-.14;
-   }else if(p>=.69&&p<.85){
-     cameraTarget=new THREE.Vector3(rearCenter[0],rearCenter[1],rearCenter[2]);distance=2.8;orbit=-.35;
-   }else if(p>=.85){
-     cameraTarget.set(-.1,-.1,0);distance=8;orbit=.18;
-   }else if(p>=.15){
-     cameraTarget.set(.05,-.1,0);distance=7.7;orbit=-.15;
+   if(!fit&&original?.probe){
+     // No private P2.8 on this checkout? Still animate the genuine original
+     // showroom Model B through all six chapters using its actual GLB bounds.
+     // Never present assumed wheel/chassis coordinates as measured CAD mates.
+     const raw=original.probe.sourceBoundsM;
+     const pose=sourceOnlyModelBCamera(
+       [raw[0],raw[1]],shellScale,p,aspect);
+     cameraTarget.set(...pose.targetM);
+     distance=pose.distanceM;
+     orbit=pose.orbit;
+   }else if(fit){
+     // Once native P2.8 is loaded and measured, use its actual four centres.
+     const front=fit.frontPositiveZCenterM;
+     const rearCenter=fit.wheels.find(w=>w.station==='rear'&&w.side===1)?.centerM;
+     if(!rearCenter)throw Error('Source-measured original rear wheel centre absent');
+     if(p>=.30&&p<.50){
+       cameraTarget.set(front[0],front[1],front[2]);distance=2.65;orbit=.20;
+     }else if(p>=.50&&p<.69){
+       cameraTarget.set(-.32,-.12,0);distance=7.3;orbit=-.14;
+     }else if(p>=.69&&p<.85){
+       cameraTarget.set(rearCenter[0],rearCenter[1],rearCenter[2]);distance=2.8;orbit=-.35;
+     }else if(p>=.85){
+       cameraTarget.set(-.1,-.1,0);distance=8;orbit=.18;
+     }else if(p>=.15){
+       cameraTarget.set(.05,-.1,0);distance=7.7;orbit=-.15;
+     }
+     if(aspect<.8)distance*=1.45;
    }
    // Focus moves with the actual animated source geometry. Its original
    // GLB mesh vertices can be offset from Object3D.position, so target the
@@ -433,8 +449,6 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
        // target: retain source-derived chapter camera instead.
      }
    }
-   const aspect=size.width/Math.max(1,size.height);
-   if(aspect<.8)distance*=1.45;
    targetLook.copy(cameraTarget);
    const orientation=new THREE.Vector3(.72+orbit,.44,1).normalize();
    targetPos.copy(cameraTarget).addScaledVector(orientation,distance);
