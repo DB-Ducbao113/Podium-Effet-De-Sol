@@ -252,6 +252,10 @@ def capture(url:str,p28:Path,out:Path,quality:str,p29:Path|None=None,
                     or source213.get("replacedOldCadSolids")!=4
                     or source213.get("candidateCombinedCadSolids")!=23
                     or source213.get("poseCount")!=7
+                    or source213.get("combinedNominalStaticAudit",{}).get("pairCount")!=253
+                    or source213.get("combinedNominalStaticAudit",{}).get("passStatic") is not True
+                    or source213.get("combinedNominalStaticAudit",{}).get("unresolvedCollisions")!=[]
+                    or source213.get("combinedNominalStaticAudit",{}).get("booleanErrors")!=[]
                     or source213.get("mechanicalG2")!="HOLD"
                     or source213.get("sphericalBallRetainedCertified") is not False
                     or source213.get("actualSphericalArticulationCertified") is not False
