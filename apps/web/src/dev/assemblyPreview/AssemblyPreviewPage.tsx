@@ -464,6 +464,7 @@ export default function AssemblyPreviewPage(){
     <header className="peds-assembly-top">
       <Link to="/engineering">PODIUM EDS / ENGINEERING</Link>
       <strong>MODEL B + P2.8 / OWNER SOURCE</strong>
+      <Link to="/engineering/model-b-build">VIEW SCROLL ASSEMBLY ↗</Link>
       <span>DEV ONLY · G2 HOLD</span>
     </header>
     <main className="peds-assembly-main">
