@@ -677,11 +677,14 @@ def main()->None:
                "--p214-dir",p214_dir,
                "--quality",a.quality,
                "--out",scroll_out,
-               "--frames","96","--fps","16",timeout=1000)
+               "--frames","96","--fps","16",
+               "--require-auto-source",timeout=1000)
         scroll=json.loads((scroll_out/"model-b-scroll-browser-evidence.json")
                           .read_text(encoding="utf8"))
         scroll_movie=scroll_out/scroll.get("videoFile","__missing__")
         if (scroll.get("complete") is not True
+            or scroll.get("autoSourceMandatory") is not True
+            or scroll.get("autoSourceVerified") is not True
             or scroll.get("originalModelBHTTP200") is not True
             or scroll.get("modelBDecoded") is not True
             or scroll.get("p28Decoded59") is not True
