@@ -584,6 +584,40 @@ def main()->None:
         status["p214_split_spherical_joint_cad_source"]=True
         gate("P214_SPLIT_SPHERICAL_RACES_144_INSERTION_465_STATIC_G2_HOLD","PASS")
         gate("P214_SEVEN_IDEAL_POSES_140_NATIVE_BEARING_PAIR_SCREEN_G2_HOLD","PASS")
+        # Produce a single original 31-mesh rear GLB for direct engineering
+        # review; retain individual P2.12/P2.14 GLBs for true source inspector.
+        rear31_dir=out/"rear31-source-cad-visual"
+        if not rear31_dir.is_dir():
+            invoke(sys.executable,TOOLS/"compose_rear31_visual.py",
+                   "--p212-dir",p212_dir,"--p214-dir",p214_dir,
+                   "--quality",a.quality,"--out",rear31_dir,timeout=120)
+        rear31=json.loads((rear31_dir/"PEDS_rear_31_source_manifest.json")
+                          .read_text(encoding="utf8"))
+        rear31_expected_removed=set(p214["replacesSourceBearingProxies"].values())
+        rear31_expected_names=(set(p212["partIds"])-rear31_expected_removed) | set(p214_parts)
+        rear31_glb=rear31_dir/rear31.get("glbFile","__missing__")
+        if (rear31.get("schema")!="podium-eds.original-model-b.rear31-source-visual.v1"
+            or rear31.get("quality")!=a.quality
+            or rear31.get("sourceP212PartCount")!=19
+            or rear31.get("sourceP214PartCount")!=16
+            or rear31.get("nativeVisualSourceCount")!=31
+            or len(rear31.get("sourcePartIds",[]))!=31
+            or set(rear31["sourcePartIds"])!=rear31_expected_names
+            or set(rear31.get("sourceRemovedAnnularBearingNames",[]))!=rear31_expected_removed
+            or rear31.get("p212SourceGlbSha256")!=p212["profiles"][a.quality]["sha256"]
+            or rear31.get("p214SourceGlbSha256")!=p214["profiles"][a.quality]["sha256"]
+            or rear31.get("allSourceMeshesWatertight") is not True
+            or rear31.get("ownerModelBOriginalShellIncluded") is not False
+            or rear31.get("ownerChassisRearHardpointsMeasured") is not False
+            or rear31.get("dynamic31BodyNativeBrepCollisionCertified") is not False
+            or rear31.get("sphericalBearingAxialRetentionCertified") is not False
+            or rear31.get("mechanicalG2")!="HOLD"
+            or not rear31_glb.is_file()
+            or rear31_glb.stat().st_size!=rear31.get("glbBytes")
+            or sha256(rear31_glb.read_bytes()).hexdigest()!=rear31.get("glbSHA256")):
+            raise RuntimeError("P2.12/P2.14 exact original 31 CAD mesh GLB composition FAILED")
+        status["rear31_original_source_glb"]=str(rear31_glb)
+        gate("P212_P214_ORIGINAL_REAR_31_SOURCE_CAD_SINGLE_GLB","PASS")
         npm=shutil.which("npm")
         if npm is None:raise RuntimeError("Node/npm missing")
         if not a.skip_web_qa:
