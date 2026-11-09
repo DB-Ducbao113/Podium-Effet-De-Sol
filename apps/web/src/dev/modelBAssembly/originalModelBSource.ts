@@ -17,7 +17,7 @@ export const ORIGINAL_MODEL_B_SOURCE = {
 } as const;
 
 export async function gitBlobHash(bytes:ArrayBuffer):Promise<string>{
-  if(!bytes.byteLength||bytes.byteLength>80*1024*1024)
+  if(!bytes.byteLength||bytes.byteLength>8*1024*1024)
     throw Error('Model B original binary length invalid');
   if(!globalThis.crypto?.subtle)
     throw Error('Secure Web Crypto SHA-1 required to verify owner Model B Git object');
