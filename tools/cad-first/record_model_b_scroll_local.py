@@ -83,6 +83,9 @@ def capture(url:str,out:Path,p28:Path,quality:str='BALANCED',
       'chapterScreenshots':{},'chapterCanvasSHA256':{},'renderedFrames':0,'videoFile':None,
       'mechanicalG2':'HOLD','genuineRearMechanicalAssemblyCertified':False,
       'allSixChaptersConfirmed':False,
+      'originalCadCatalogSelectionVerified':False,
+      'sourceCadFocusCameraVisualChanged':False,
+      'selectedOriginalCadPartId':None,
     }
     def persist()->None:
         (out/'model-b-scroll-browser-evidence.json').write_text(
@@ -212,6 +215,42 @@ def capture(url:str,out:Path,p28:Path,quality:str='BALANCED',
             if len(set(audit['chapterCanvasSHA256'].values()))<4:
                 raise RuntimeError('Real WebGL CANVAS stayed visually static across the scroll; no fake MP4 allowed')
             audit['allSixChaptersConfirmed']=True
+
+            # Exercise the same genuine source inspector used by raycasting
+            # directly on original P2.8 meshes. The catalog is populated
+            # from the exact SHA-verified original 59-mesh manifest; this
+            # route neither invents nor simulates geometry for testing.
+            seek(.94,600)
+            before_focus=out/'cad-focus-original-camera-before.png'
+            canvas.screenshot(path=str(before_focus))
+            page.get_by_role('button',name='EXPLORE REAL CAD PARTS',exact=False).click()
+            catalog=page.get_by_label('Verified original CAD component catalog')
+            catalog.wait_for(state='visible',timeout=20000)
+            catalog.get_by_role('textbox',name='Search original CAD components').fill(
+                'P2_TYRE_SLICK_BODY')
+            catalog.get_by_role('combobox',name='Filter by measured wheel station').select_option(
+                'front-positive-z')
+            catalog.get_by_role('button',name=(
+                'Inspect CAD P2_TYRE_SLICK_BODY at front-positive-z')).click()
+            selected=page.locator(
+                '.mb-build-part-inspector[data-inspected-cad-part-id="P2_TYRE_SLICK_BODY"]')
+            selected.wait_for(timeout=15000)
+            if ('FRONT-POSITIVE-Z' not in selected.inner_text()
+                or 'VISUAL ONLY' not in selected.inner_text()
+                or not selected.get_by_text('CAMERA FOCUS / SOURCE GEOMETRY').is_visible()):
+                raise RuntimeError('Selected source CAD panel failed provenance G2 check')
+            audit['selectedOriginalCadPartId']='P2_TYRE_SLICK_BODY'
+            audit['originalCadCatalogSelectionVerified']=True
+            page.wait_for_timeout(1500)
+            after_focus=out/'cad-focus-original-camera-after.png'
+            canvas.screenshot(path=str(after_focus))
+            if hashlib.sha256(before_focus.read_bytes()).hexdigest()==hashlib.sha256(
+                    after_focus.read_bytes()).hexdigest():
+                raise RuntimeError('Native source-part selection failed to alter real WebGL camera')
+            audit['sourceCadFocusCameraVisualChanged']=True
+            selected.get_by_role('button',name='Clear selected CAD part').click()
+            page.wait_for_timeout(500)
+
             audit['canvasExists']=canvas.count()==1
             audit['canvasSourceDimensions']=page.evaluate(
                 '()=>{const c=document.querySelector(".mb-build-webgl canvas");'
