@@ -41,7 +41,7 @@ def verify(p28:Path,quality:str)->tuple[Path,Path,dict]:
     return manifest,glb,record
 
 def capture(url:str,p28:Path,out:Path,quality:str,p29:Path|None=None,
-            p210:Path|None=None,p211:Path|None=None)->dict:
+            p210:Path|None=None,p211:Path|None=None,p212:Path|None=None)->dict:
     try:
         from playwright.sync_api import sync_playwright
     except ImportError as exc:
@@ -55,6 +55,8 @@ def capture(url:str,p28:Path,out:Path,quality:str,p29:Path|None=None,
         "real_p29_rear_upright_loaded":False,
         "real_p210_rear_wishbone_loaded":False,
         "real_p211_rear_toe_loaded":False,
+        "real_p212_toe_adjuster_loaded":False,
+        "p212_step_source_sha256":None,
         "p211_step_source_sha256":None,
         "p210_step_source_sha256":None,
         "p29_step_source_sha256":None,
@@ -189,6 +191,42 @@ def capture(url:str,p28:Path,out:Path,quality:str,p29:Path|None=None,
                 page.get_by_text("P211 REAR TOE SOURCE MESHES PARSED",exact=False).first.wait_for(timeout=60000)
                 runtime["p211_step_source_sha256"]=source211["masterSTEPsha256"]
                 runtime["p211_source_glb_sha256"]=entry211["sha256"]
+            if p212 is not None:
+                manifest212=p212/"P212_rear_toe_adjuster_manifest.json"
+                if not manifest212.is_file():
+                    raise RuntimeError("P2.12 owner CAD source manifest unavailable")
+                source212=json.loads(manifest212.read_text(encoding="utf8"))
+                pair212=source212.get("nativeStaticAudit",{})
+                ids212=source212.get("partIds",[])
+                if (source212.get("schema") !=
+                    "podium-eds.p2.cad-first.rear-toe-adjuster-static-proposal.v1"
+                    or source212.get("totalCadSolids")!=19
+                    or source212.get("newParts")!=5 or len(set(ids212))!=19
+                    or source212.get("replacedPriorPartId")!="P211_REAR_TOE_LINK_TUBULAR_FORGED"
+                    or "P211_REAR_TOE_LINK_TUBULAR_FORGED" in ids212
+                    or source212.get("outerThreadHand")!="RIGHT"
+                    or source212.get("innerThreadHand")!="LEFT"
+                    or source212.get("fullFemaleThreadProfileModelled") is not False
+                    or source212.get("mechanicalThreadEngagementCertified") is not False
+                    or source212.get("actualChassisToeHardpointMeasured") is not False
+                    or source212.get("mechanicalMateCertified") is not False
+                    or pair212.get("pairCount")!=171 or pair212.get("passStatic") is not True
+                    or pair212.get("unresolvedCollisions") or pair212.get("booleanErrors")):
+                    raise RuntimeError("P2.12 original static toe adjuster source gate failed")
+                step212=p212/source212["masterSTEP"]
+                if (not step212.is_file() or
+                    hashlib.sha256(step212.read_bytes()).hexdigest()!=source212["masterSTEPsha256"]):
+                    raise RuntimeError("P2.12 STEP SHA digest mismatch")
+                row212=source212["profiles"][quality]
+                glb212=p212/row212["file"]
+                if (not glb212.is_file() or
+                    hashlib.sha256(glb212.read_bytes()).hexdigest()!=row212["sha256"]):
+                    raise RuntimeError("P2.12 original GLB SHA digest mismatch")
+                page.get_by_label("P2.12 rear toe adjuster manifest (.json)").set_input_files(str(manifest212))
+                page.get_by_label("P2.12 rear toe adjuster GLB (.glb)").set_input_files(str(glb212))
+                page.get_by_text("P212 REAR TOE ADJUSTER MESHES PARSED",exact=False).first.wait_for(timeout=60000)
+                runtime["p212_step_source_sha256"]=source212["masterSTEPsha256"]
+                runtime["p212_source_glb_sha256"]=row212["sha256"]
             with page.expect_download(timeout=15000) as download_info:
                 page.get_by_role("button",name="EXPORT PLACEMENT JSON").click()
             audit_file=out/"four-corner-original-source-placement.json"
@@ -198,6 +236,20 @@ def capture(url:str,p28:Path,out:Path,quality:str,p29:Path|None=None,
             corners=layout.get("corners",[])
             if len(corners)!=4 or {x.get("id") for x in corners}!={x[0] for x in WHEELS}:
                 raise RuntimeError("Browser did NOT place exactly four measured wheels")
+            if p212 is not None:
+                adjuster=placement.get("rearToeAdjusterProposal")
+                if (not isinstance(adjuster,dict) or
+                    adjuster.get("totalCadSolids")!=19 or adjuster.get("newParts")!=5
+                    or adjuster.get("nativeStaticPairCount")!=171
+                    or adjuster.get("sourceSha256")!=runtime["p212_source_glb_sha256"]
+                    or adjuster.get("replacedPriorPartId")!="P211_REAR_TOE_LINK_TUBULAR_FORGED"
+                    or adjuster.get("fullFemaleThreadProfileModelled") is not False
+                    or adjuster.get("mechanicalThreadEngagementCertified") is not False
+                    or adjuster.get("actualChassisToeHardpointMeasured") is not False
+                    or adjuster.get("mechanicalMateCertified") is not False
+                    or adjuster.get("dynamicToeKinematicsCertified") is not False):
+                    raise RuntimeError("P2.12 actual browser placement SHA/G2 gate failed")
+                runtime["real_p212_toe_adjuster_loaded"]=True
             if p211 is not None:
                 toe=placement.get("rearToeLinkProposal")
                 if (not isinstance(toe,dict) or
@@ -361,13 +413,15 @@ def main():
     parser.add_argument("--p29-dir",type=Path,default=None)
     parser.add_argument("--p210-dir",type=Path,default=None)
     parser.add_argument("--p211-dir",type=Path,default=None)
+    parser.add_argument("--p212-dir",type=Path,default=None)
     parser.add_argument("--out",type=Path,required=True)
     parser.add_argument("--quality",choices=["HIGH","BALANCED","PERFORMANCE"],default="BALANCED")
     args=parser.parse_args()
     result=capture(args.url,args.p28_dir.resolve(),args.out.resolve(),args.quality,
                    args.p29_dir.resolve() if args.p29_dir else None,
                    args.p210_dir.resolve() if args.p210_dir else None,
-                   args.p211_dir.resolve() if args.p211_dir else None)
+                   args.p211_dir.resolve() if args.p211_dir else None,
+                   args.p212_dir.resolve() if args.p212_dir else None)
     print("LOCAL four-wheel browser review recorded:",result["recorded_video"])
     print("G2 HOLD: rear is front source wheel-end proxy, NOT rear suspension CAD.")
 
