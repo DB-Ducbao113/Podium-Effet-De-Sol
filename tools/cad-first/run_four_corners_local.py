@@ -601,7 +601,8 @@ def main()->None:
                    "src/dev/assemblyPreview/rearJointSource.test.ts",
                    "src/dev/assemblyPreview/splitRaceSource.test.ts",
                    "src/dev/modelBAssembly/modelBAssemblyTimeline.test.ts",
-                   "src/dev/modelBAssembly/localSourceIndex.test.ts",timeout=300)
+                   "src/dev/modelBAssembly/localSourceIndex.test.ts",
+                   "src/dev/modelBAssembly/sourcePartPivot.test.ts",timeout=300)
             invoke(npm,"run","build","--workspace=@peds/web",timeout=900)
             gate("LOCAL_WEB_LINT_TYPES_TESTS_BUILD","PASS")
         # Copy private checked CAD only into .local-assets (gitignored).
