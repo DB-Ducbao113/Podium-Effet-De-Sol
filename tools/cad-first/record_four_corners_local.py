@@ -41,7 +41,7 @@ def verify(p28:Path,quality:str)->tuple[Path,Path,dict]:
     return manifest,glb,record
 
 def capture(url:str,p28:Path,out:Path,quality:str,p29:Path|None=None,
-            p210:Path|None=None)->dict:
+            p210:Path|None=None,p211:Path|None=None)->dict:
     try:
         from playwright.sync_api import sync_playwright
     except ImportError as exc:
@@ -54,6 +54,8 @@ def capture(url:str,p28:Path,out:Path,quality:str,p29:Path|None=None,
         "source_part_count":59,
         "real_p29_rear_upright_loaded":False,
         "real_p210_rear_wishbone_loaded":False,
+        "real_p211_rear_toe_loaded":False,
+        "p211_step_source_sha256":None,
         "p210_step_source_sha256":None,
         "p29_step_source_sha256":None,
         "native_cad_scale":1,
@@ -156,6 +158,37 @@ def capture(url:str,p28:Path,out:Path,quality:str,p29:Path|None=None,
                 page.get_by_text("P210 REAR SUSPENSION MESHES PARSED",exact=False).first.wait_for(timeout=60000)
                 runtime["p210_step_source_sha256"]=source210["masterSTEPsha256"]
                 runtime["p210_source_glb_sha256"]=profile210["sha256"]
+            if p211 is not None:
+                manifest211=p211/"P211_rear_toe_manifest.json"
+                if not manifest211.is_file():
+                    raise RuntimeError("P2.11 source manifest unavailable")
+                source211=json.loads(manifest211.read_text(encoding="utf8"))
+                audit211=source211.get("nativeStaticAudit",{})
+                if (source211.get("schema") !=
+                    "podium-eds.p2.cad-first.rear-toe-link-static-proposal.v1" or
+                    source211.get("totalCadSolids")!=15 or source211.get("newSolids")!=4
+                    or source211.get("actualChassisToeHardpointMeasured") is not False
+                    or source211.get("mechanicalMateCertified") is not False
+                    or source211.get("dynamicToeKinematicsCertified") is not False
+                    or audit211.get("pairCount")!=105 or
+                    audit211.get("passStatic") is not True or
+                    audit211.get("unresolvedCollisions") or
+                    audit211.get("booleanErrors")):
+                    raise RuntimeError("P2.11 15-solid static source G2 gate failed")
+                step211=p211/source211["masterSTEP"]
+                if (not step211.is_file() or
+                    hashlib.sha256(step211.read_bytes()).hexdigest()!=source211["masterSTEPsha256"]):
+                    raise RuntimeError("P2.11 STEP original hash mismatch")
+                entry211=source211["profiles"][quality]
+                glb211=p211/entry211["file"]
+                if (not glb211.is_file() or
+                    hashlib.sha256(glb211.read_bytes()).hexdigest()!=entry211["sha256"]):
+                    raise RuntimeError("P2.11 source GLB hash mismatch")
+                page.get_by_label("P2.11 rear toe manifest (.json)").set_input_files(str(manifest211))
+                page.get_by_label("P2.11 rear toe GLB (.glb)").set_input_files(str(glb211))
+                page.get_by_text("P211 REAR TOE SOURCE MESHES PARSED",exact=False).first.wait_for(timeout=60000)
+                runtime["p211_step_source_sha256"]=source211["masterSTEPsha256"]
+                runtime["p211_source_glb_sha256"]=entry211["sha256"]
             with page.expect_download(timeout=15000) as download_info:
                 page.get_by_role("button",name="EXPORT PLACEMENT JSON").click()
             audit_file=out/"four-corner-original-source-placement.json"
@@ -165,6 +198,18 @@ def capture(url:str,p28:Path,out:Path,quality:str,p29:Path|None=None,
             corners=layout.get("corners",[])
             if len(corners)!=4 or {x.get("id") for x in corners}!={x[0] for x in WHEELS}:
                 raise RuntimeError("Browser did NOT place exactly four measured wheels")
+            if p211 is not None:
+                toe=placement.get("rearToeLinkProposal")
+                if (not isinstance(toe,dict) or
+                    toe.get("totalCadSolids")!=15 or
+                    toe.get("newSolids")!=4 or
+                    toe.get("originalNativeStaticPairs")!=105 or
+                    toe.get("sourceSha256")!=runtime["p211_source_glb_sha256"] or
+                    toe.get("actualChassisToeHardpointMeasured") is not False or
+                    toe.get("mechanicalMateCertified") is not False or
+                    toe.get("dynamicToeKinematicsCertified") is not False):
+                    raise RuntimeError("P2.11 browser source placement export invalid")
+                runtime["real_p211_rear_toe_loaded"]=True
             if p210 is not None:
                 rear_susp=placement.get("rearSuspensionProposal")
                 if (not isinstance(rear_susp,dict) or
@@ -315,12 +360,14 @@ def main():
     parser.add_argument("--p28-dir",type=Path,required=True)
     parser.add_argument("--p29-dir",type=Path,default=None)
     parser.add_argument("--p210-dir",type=Path,default=None)
+    parser.add_argument("--p211-dir",type=Path,default=None)
     parser.add_argument("--out",type=Path,required=True)
     parser.add_argument("--quality",choices=["HIGH","BALANCED","PERFORMANCE"],default="BALANCED")
     args=parser.parse_args()
     result=capture(args.url,args.p28_dir.resolve(),args.out.resolve(),args.quality,
                    args.p29_dir.resolve() if args.p29_dir else None,
-                   args.p210_dir.resolve() if args.p210_dir else None)
+                   args.p210_dir.resolve() if args.p210_dir else None,
+                   args.p211_dir.resolve() if args.p211_dir else None)
     print("LOCAL four-wheel browser review recorded:",result["recorded_video"])
     print("G2 HOLD: rear is front source wheel-end proxy, NOT rear suspension CAD.")
 
