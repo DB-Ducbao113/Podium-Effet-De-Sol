@@ -91,6 +91,12 @@ const AssemblyPreviewPage = import.meta.env.DEV
   ? lazy(() => import('./dev/assemblyPreview/AssemblyPreviewPage'))
   : null;
 
+// Owner Model B source + verified CAD animated into the original car on scroll.
+// DEV-only; never route provisional rear engineering geometry to production.
+const ModelBAssemblyPage = import.meta.env.DEV
+  ? lazy(() => import('./dev/modelBAssembly/ModelBAssemblyPage'))
+  : null;
+
 // P2 replaces the Model B lookdev pilot on DEV. No production route changes.
 const cadFirstLabEnabled = import.meta.env.DEV;
 const P2CadLabPage = cadFirstLabEnabled
@@ -187,6 +193,7 @@ export const App: React.FC = () => {
     (location.pathname === '/engineering' ||
       location.pathname === '/engineering/cad-lab' ||
       location.pathname === '/engineering/assembly-preview' ||
+      location.pathname === '/engineering/model-b-build' ||
       location.pathname === '/engineering/inside-the-machine' ||
       location.pathname === '/engineering/cinematic-rebuild');
   const syncSeasonData = useChampionshipStore((state) => state.syncSeasonData);
@@ -303,6 +310,7 @@ export const App: React.FC = () => {
               <Route path="/engineering" element={P2CadLabPage ? <P2CadLabPage /> : <EngineeringIndexPage />} />
               {P2CadLabPage && <Route path="/engineering/cad-lab" element={<P2CadLabPage />} />}
               {AssemblyPreviewPage && <Route path="/engineering/assembly-preview" element={<AssemblyPreviewPage />} />}
+              {ModelBAssemblyPage && <Route path="/engineering/model-b-build" element={<ModelBAssemblyPage />} />}
               {P2CadLabPage && <Route path="/engineering/insights" element={<EngineeringIndexPage />} />}
               <Route path="/engineering/car-anatomy" element={<EngineeringAnatomyPage />} />
               {P2CadLabPage && <Route path="/engineering/inside-the-machine" element={<P2CadLabPage />} />}
