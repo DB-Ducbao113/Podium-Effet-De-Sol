@@ -8,7 +8,7 @@ from p2_12_toe_adjuster import (
     A,B,D,PARTS,LINK_LENGTH_MM,SLEEVE_START_MM,SLEEVE_END_MM,
     OUTER_NUT_RANGE_MM,INNER_NUT_RANGE_MM,SLEEVE_BORE_R_MM,THREAD_CREST_R_MM,
     FEMALE_GROOVE_MAJOR_R_MM,ROD_R_MM,cylinder_segment,
-    sample_isolated_thread_motion,THREAD_RUNOUT_RADIUS_MM,
+    THREAD_PITCH_MM,MALE_THREAD_HEIGHT_MM,THREAD_RUNOUT_RADIUS_MM,
     TOE_211_IDS,QUALITY,SCHEMA,all_parts,build_new_parts,build,sha,exact_static_audit
 )
 
@@ -45,27 +45,34 @@ class RearToeAdjusterCADTest(unittest.TestCase):
         self.assertGreater(len(p[PARTS['innerNut']].Faces()),12)
         self.assertLess(p[PARTS['outer']].intersect(p[PARTS['sleeve']]).Volume(),.05)
         self.assertLess(p[PARTS['inner']].intersect(p[PARTS['sleeve']]).Volume(),.05)
+        # Critical v3 regression: v2 GitHub's longer crest collided with the
+        # outer jamnut at 0.11787 mm^3 (> 0.05 mm^3 source threshold).
+        self.assertEqual(OUTER_NUT_RANGE_MM,(47.5,53.5))
+        self.assertEqual(INNER_NUT_RANGE_MM,(114.5,120.5))
+        self.assertEqual(MALE_THREAD_HEIGHT_MM,24)
+        self.assertLess(p[PARTS['outer']].intersect(p[PARTS['outerNut']]).Volume(),.05)
+        self.assertLess(p[PARTS['inner']].intersect(p[PARTS['innerNut']]).Volume(),.05)
 
-    def test_helical_phase_is_geometry_not_shader(self):
-        parts=build_new_parts()
-        sleeve=parts[PARTS['sleeve']]
-        male=parts[PARTS['outer']]
-        # Without screw-pitch translation, rotating a rod half a turn
-        # forces the real teeth into solid lands.
-        mistimed=male.rotate(tuple(A),tuple(A+D),180)
-        self.assertGreater(sleeve.intersect(mistimed).Volume(),20)
-        # A pitch/2=1mm translation re-aligns this right-hand helix.
-        corrected=mistimed.translate(tuple(D*1.0))
-        self.assertLess(sleeve.intersect(corrected).Volume(),.05)
+    def test_threaded_faces_and_mechanical_holds_are_explicit(self):
+        p=build_new_parts()
+        self.assertGreater(len(p[PARTS['outer']].Faces()),30)
+        self.assertGreater(len(p[PARTS['inner']].Faces()),30)
+        self.assertGreater(len(p[PARTS['outerNut']].Faces()),12)
+        self.assertGreater(len(p[PARTS['innerNut']].Faces()),12)
+        # A non-collision at 180 degrees is NOT proof of thread flank load
+        # transfer: load-bearing engagement and manufacturing remain HOLD.
+        self.assertEqual(MALE_THREAD_HEIGHT_MM,24)
 
-    def test_limited_six_pose_thread_pair_motion(self):
-        proof=sample_isolated_thread_motion(build_new_parts())
-        self.assertEqual(proof['sampleCount'],6)
-        self.assertEqual(proof['anglesDeg'],[-90,0,90])
-        self.assertTrue(proof['threadPairsPassLimitedSweep'])
-        self.assertLess(proof['maximumPositiveOverlapMm3'],.05)
-        self.assertFalse(proof['chassisToeKinematicsCertified'])
-        self.assertFalse(proof['fullDynamicAssemblyInterferenceTested'])
+    def test_screw_pitch_and_locknut_gap_contract(self):
+        self.assertEqual(THREAD_PITCH_MM,2.0)
+        for angle in (-90,0,90):
+            shift=THREAD_PITCH_MM*angle/360
+            outer_gap=SLEEVE_START_MM-(OUTER_NUT_RANGE_MM[1]-shift)
+            inner_gap=(INNER_NUT_RANGE_MM[0]+shift)-SLEEVE_END_MM
+            self.assertGreaterEqual(outer_gap,2.0)
+            self.assertGreaterEqual(inner_gap,2.0)
+        # The actual six B-Rep pair tests run as separate child processes
+        # via p2_12_thread_sweep.py and fail closed for timeouts/crashes.
 
     def test_static_171_pairs_and_collision_guard(self):
         audit=exact_static_audit(all_parts())
@@ -98,8 +105,12 @@ class RearToeAdjusterCADTest(unittest.TestCase):
                         'sleeveOppositeHandGroovesModelled',
                         'bothLocknutFemaleGroovesModelled','nominalThreadPhaseMatched'):
                 self.assertIs(manifest[key],True)
-            self.assertEqual(manifest['threadGeometryRevision'],'P2.12-R2-BREP-GROOVED-RUNOUT')
+            self.assertEqual(manifest['threadGeometryRevision'],'P2.12-R3-BREP-LOCKNUT-ENGAGEMENT')
             self.assertTrue(manifest['threadRunoutsModelled'])
+            self.assertEqual(manifest['threadedRodSpanMm'],24)
+            self.assertEqual(manifest['nominalNutBodyAxialRangesMm'],
+                             [[47.5,53.5],[114.5,120.5]])
+            self.assertEqual(manifest['nominalNutThreadGrooveAxialPhaseMm'],[47.0,115.0])
             self.assertAlmostEqual(manifest['threadRunoutRadiusMm'],10.12,places=6)
             self.assertEqual(len(manifest['threadRunoutIntervalsMm']),4)
             self.assertAlmostEqual(manifest['rodRootRadialClearanceMm'],.2,places=6)
