@@ -689,6 +689,9 @@ def main()->None:
             or scroll.get("originalModelBHTTP200") is not True
             or scroll.get("modelBDecoded") is not True
             or scroll.get("p28Decoded59") is not True
+            or scroll.get("fourOriginalModelBWheelCentresRegistered") is not True
+            or scroll.get("originalP28CadScale")!=1
+            or scroll.get("rearMechanicalMateCertified") is not False
             or scroll.get("p212Decoded19") is not True
             or scroll.get("p214Decoded16") is not True
             or scroll.get("allSixChaptersConfirmed") is not True
