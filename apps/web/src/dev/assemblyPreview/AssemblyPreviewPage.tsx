@@ -513,7 +513,11 @@ export default function AssemblyPreviewPage(){
             the full local QA additionally requires 12 independent
             solid-occupancy checks, including four deliberately misphased
             negative controls. Thread load transfer, wear, preload, continuous
-            adjustment travel and chassis hardpoints remain unverified.</small>
+            adjustment travel and chassis hardpoints remain unverified.
+            The independent 19-solid free-turn review also found 0.5 mm
+            mismatch between each moving toe eye and its fixed P2.11 bearing
+            datum at +/-90 degrees. This preview is not a solved chassis
+            suspension; upright/bearing remate is required.</small>
         </div>
         <div className="peds-assembly-controls-section">
           <h2>02 / Geometry inspection</h2>
