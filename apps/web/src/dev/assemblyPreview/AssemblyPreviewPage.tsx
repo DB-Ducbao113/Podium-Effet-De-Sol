@@ -516,8 +516,12 @@ export default function AssemblyPreviewPage(){
             adjustment travel and chassis hardpoints remain unverified.
             The independent 19-solid free-turn review also found 0.5 mm
             mismatch between each moving toe eye and its fixed P2.11 bearing
-            datum at +/-90 degrees. This preview is not a solved chassis
-            suspension; upright/bearing remate is required.</small>
+            datum at +/-90 degrees. A separate 6-DOF source-proposal
+            solver can close ideal wishbone and toe-link joint centres
+            at seven sampled angles, but source CAD bearing/pin axes still
+            require genuine articulation. This WebGL scene remains a STATIC
+            CAD pose: no verified animated rear suspension, chassis hardpoints
+            or engineering G2 approval.</small>
         </div>
         <div className="peds-assembly-controls-section">
           <h2>02 / Geometry inspection</h2>
