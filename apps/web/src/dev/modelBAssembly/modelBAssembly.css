@@ -98,6 +98,29 @@
  font:9px 'IBM Plex Mono',monospace;letter-spacing:.1em}
 .mb-build-source-panel .mb-build-disclaimer{color:#e3a97e;
  font:10px/1.65 'IBM Plex Mono',monospace;margin:0;padding-top:8px}
+.mb-build-part-inspector{
+ position:absolute;right:clamp(27px,5vw,95px);bottom:115px;z-index:13;
+ width:min(350px,36vw);max-height:55svh;overflow:auto;pointer-events:auto;
+ padding:20px 21px;border:1px solid rgba(243,176,120,.48);
+ background:rgba(9,17,27,.94);backdrop-filter:blur(26px);
+ box-shadow:0 16px 50px rgba(0,0,0,.48);
+}
+.mb-build-part-inspector-head{display:flex;justify-content:space-between;
+ align-items:center;gap:15px;margin-bottom:16px;color:#f6a66d;
+ font:10px 'IBM Plex Mono',monospace;letter-spacing:.12em}
+.mb-build-part-inspector-head button{background:none;border:0;cursor:pointer;
+ color:#fff;font-size:23px;line-height:1}
+.mb-build-part-inspector>strong{display:block;font:700 21px 'Space Grotesk',sans-serif;
+ line-height:1.22;margin-bottom:9px}
+.mb-build-part-inspector code{color:#f3ab7b;display:block;
+ word-break:break-word;overflow-wrap:anywhere;font:11px/1.55 'IBM Plex Mono',monospace}
+.mb-build-part-inspector dl{margin:18px 0 8px;padding:0;border-top:1px solid rgba(220,229,239,.18)}
+.mb-build-part-inspector dl div{display:grid;grid-template-columns:58px 1fr;
+ border-bottom:1px solid rgba(220,229,239,.13);gap:13px;padding:10px 0}
+.mb-build-part-inspector dt{color:#8493a3;font:10px 'IBM Plex Mono',monospace}
+.mb-build-part-inspector dd{color:#dde8f2;margin:0;font:10px/1.6 'IBM Plex Mono',monospace}
+.mb-build-part-inspector>p{color:#9eafbf;font:10px/1.5 'IBM Plex Mono',monospace}
+.mb-build-part-inspector .mb-build-part-warning{color:#f4a77f}
 .mb-build-feedback{position:absolute;z-index:11;right:clamp(24px,5vw,80px);
  bottom:110px;max-width:min(355px,45vw);background:#1e1c1a;
  border:1px solid #9b5a36;color:#ffd3ac;padding:13px 17px;
@@ -159,6 +182,9 @@
  .mb-build-source-trigger{padding:11px 12px;font-size:10px}
  .mb-build-source-count{font-size:8px}
  .mb-build-source-panel{max-height:55svh;padding:17px}
+ .mb-build-part-inspector{right:14px;bottom:167px;max-height:43svh;
+ width:min(340px,calc(100vw - 42px));padding:15px}
+ .mb-build-part-inspector>strong{font-size:18px}
  .mb-build-feedback{right:20px;bottom:152px;max-width:calc(100vw - 40px);
  font-size:9px;padding:9px}
  .mb-build-footer{min-height:75px;padding:0 22px;display:grid;gap:8px;align-content:center}
