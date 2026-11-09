@@ -108,11 +108,11 @@ export function readToeAdjusterManifest(input:unknown):ToeAdjusterManifest {
     m.bothLocknutFemaleGroovesModelled!==true ||
     m.nominalThreadPhaseMatched!==true ||
     m.threadedRodSpanMm!==34 ||
-    !Number.isFinite(m.femaleSleeveMinorRadiusMm) ||
-    !Number.isFinite(m.femaleThreadMajorRadiusMm) ||
-    !Number.isFinite(m.femaleThreadGrooveDepthMm) ||
-    !Number.isFinite(m.rodRootRadialClearanceMm) ||
-    !Number.isFinite(m.threadCrestRadialClearanceMm) ||
+    !Number.isFinite(m.femaleSleeveMinorRadiusMm ?? NaN) ||
+    !Number.isFinite(m.femaleThreadMajorRadiusMm ?? NaN) ||
+    !Number.isFinite(m.femaleThreadGrooveDepthMm ?? NaN) ||
+    !Number.isFinite(m.rodRootRadialClearanceMm ?? NaN) ||
+    !Number.isFinite(m.threadCrestRadialClearanceMm ?? NaN) ||
     Math.abs((m.femaleSleeveMinorRadiusMm??0)-9.05)>1e-5 ||
     Math.abs((m.femaleThreadMajorRadiusMm??0)-10.08)>1e-5 ||
     Math.abs((m.femaleThreadGrooveDepthMm??0)-1.03)>1e-5 ||
