@@ -75,6 +75,8 @@ def capture(url:str,out:Path,p28:Path,quality:str='BALANCED',
       'p214SHA256':split[2]['profiles'][quality]['sha256'] if split else None,
       'originalModelBHTTP200':False,'modelBDecoded':False,
       'p28Decoded59':False,'p212Decoded19':False,'p214Decoded16':False,
+      'fourOriginalModelBWheelCentresRegistered':False,
+      'originalP28CadScale':None,'rearMechanicalMateCertified':None,
       'browserJSExceptions':[],'webglErrors':[],'sourceImportErrors':[],
       'chapterScreenshots':{},'chapterCanvasSHA256':{},'renderedFrames':0,'videoFile':None,
       'mechanicalG2':'HOLD','genuineRearMechanicalAssemblyCertified':False,
@@ -140,6 +142,20 @@ def capture(url:str,out:Path,p28:Path,quality:str='BALANCED',
                     page.get_by_text('16 CAD MESHES DECODED · G2 HOLD',exact=True).wait_for(timeout=45000)
                     audit['p214Decoded16']=True
                 page.get_by_role('button',name='Close CAD source input').click()
+            fit=page.locator('.mb-build-source-wrap[data-original-model-b-wheel-fit="true"]')
+            fit.wait_for(timeout=90000)
+            attributes=fit.evaluate('''el=>({
+              count:Number(el.dataset.wheelStationCount),
+              p28Scale:Number(el.dataset.originalP28Scale),
+              mechanicalMate:el.dataset.originalMechanicalMateCertified
+            })''')
+            if (attributes.get('count')!=4
+                or attributes.get('p28Scale')!=1
+                or attributes.get('mechanicalMate')!='false'):
+                raise RuntimeError('Four real source wheel centres unmeasured or false mechanical certification')
+            audit['fourOriginalModelBWheelCentresRegistered']=True
+            audit['originalP28CadScale']=attributes['p28Scale']
+            audit['rearMechanicalMateCertified']=False
             errors=page.locator('.mb-build-feedback[role=alert]')
             if errors.count():
                 raise RuntimeError('Source review UI reports: '+errors.first.inner_text())
