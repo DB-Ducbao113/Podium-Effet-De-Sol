@@ -119,7 +119,7 @@ function useLocalSource(
     setDecoded({model:scene,probe});
     onReady(kind,names.length);
    }).catch(error=>{if(active)onError(identity+' decode failed: '+String(error));});
-  return()=>{active=false;setDecoded(null);if(parsed)releaseSource(parsed);};
+  return()=>{active=false;if(parsed)releaseSource(parsed);};
  // Stable parent callbacks and memoized identity arrays avoid repeat source decode.
  },[source,identity,expectedNames,onError,onReady,kind]);
  return decoded;
@@ -145,7 +145,7 @@ function useOriginalBody(onReady:Props['onReady'],onError:Props['onError']):Deco
       onError('Original Model B source fingerprint failed: '+String(error));
     }
   },undefined,error=>{if(active)onError('Original Model B GLB failed: '+String(error));});
-  return()=>{active=false;setBody(null);if(loaded)releaseSource(loaded);};
+  return()=>{active=false;if(loaded)releaseSource(loaded);};
  },[onReady,onError]);
  return body;
 }
@@ -319,7 +319,6 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
      for(const [mesh,mat]of saved)mesh.material=mat;
      for(const r of records)r.mesh.position.copy(r.origin);
      owned.forEach(m=>m.dispose());
-     setShellVisuals([]);
    };
  },[original,fit,corner,shellScale]);
  const visual=useMemo(()=>{
