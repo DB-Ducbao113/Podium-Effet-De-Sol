@@ -640,6 +640,44 @@ def main()->None:
         status["all_four_wheel_review"]="VISUAL_PASS_G2_HOLD"
         status["final_video"]=movie
         gate("LOCAL_ACTUAL_FOUR_WHEEL_WEBGL_VIDEO","PASS")
+
+        # The user-facing Anime.js-style Model B scroll route is a separate
+        # real browser deliverable. Record it from the SAME original checked
+        # CAD assets and the already running local Vite process. Never claim
+        # video success merely because source files or fake stills exist.
+        scroll_url="http://127.0.0.1:5184/engineering/model-b-build"
+        wait_http(scroll_url,deadline_seconds=30)
+        scroll_out=out/"model-b-scroll-browser"
+        invoke(sys.executable,TOOLS/"record_model_b_scroll_local.py",
+               "--url",scroll_url,
+               "--p28-dir",source,
+               "--p212-dir",p212_dir,
+               "--p214-dir",p214_dir,
+               "--quality",a.quality,
+               "--out",scroll_out,
+               "--frames","96","--fps","16",timeout=1000)
+        scroll=json.loads((scroll_out/"model-b-scroll-browser-evidence.json")
+                          .read_text(encoding="utf8"))
+        scroll_movie=scroll_out/scroll.get("videoFile","__missing__")
+        if (scroll.get("complete") is not True
+            or scroll.get("originalModelBHTTP200") is not True
+            or scroll.get("modelBDecoded") is not True
+            or scroll.get("p28Decoded59") is not True
+            or scroll.get("p212Decoded19") is not True
+            or scroll.get("p214Decoded16") is not True
+            or scroll.get("allSixChaptersConfirmed") is not True
+            or scroll.get("renderedFrames")!=96
+            or len(scroll.get("chapterCanvasSHA256",{}))!=6
+            or len(set(scroll.get("chapterCanvasSHA256",{}).values()))<4
+            or scroll.get("browserJSExceptions") or scroll.get("webglErrors")
+            or not scroll_movie.is_file() or scroll_movie.stat().st_size<25000
+            or sha256(scroll_movie.read_bytes()).hexdigest()!=scroll.get("videoSHA256")
+            or scroll.get("mechanicalG2")!="HOLD"
+            or scroll.get("genuineRearMechanicalAssemblyCertified") is not False):
+            raise RuntimeError("Real Model B scroll WebGL video provenance/browser QA failed")
+        status["model_b_scroll_video"]=str(scroll_movie)
+        status["model_b_scroll_video_sha256"]=scroll.get("videoSHA256")
+        gate("LOCAL_MODEL_B_ORIGINAL_GLTF_SIX_SCROLL_CHAPTERS_REAL_MP4","PASS")
     except Exception as exc:
         status["all_four_wheel_review"]="FAILED_CANNOT_CLAIM_VIDEO"
         status["error"]=type(exc).__name__+": "+str(exc)
