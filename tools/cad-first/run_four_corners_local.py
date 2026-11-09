@@ -233,6 +233,37 @@ def main()->None:
             raise RuntimeError("P2.12 isolated ±90-degree thread pair sweep is not verified")
         status["p212_limited_thread_pair_sweep"]=True
         gate("P212_THREAD_PAIR_SIX_POSES_NO_BREP_CLASH","PASS")
+        phase_path=out/"p212-helical-phase-occupancy.json"
+        if not phase_path.is_file():
+            invoke(sys.executable,TOOLS/"p2_12_phase_contact_audit.py",
+                   "--out",phase_path,timeout=360)
+        phase=json.loads(phase_path.read_text(encoding="utf8"))
+        samples=phase.get("samples",[])
+        matched=[row for row in samples if row.get("deliberatelyMisphased") is False]
+        negative=[row for row in samples if row.get("deliberatelyMisphased") is True]
+        if (phase.get("schema")!="podium-eds.p212.threaded-v3.phase-occupancy.v1"
+            or phase.get("cadSourceSha256")!=source_sha
+            or phase.get("complete") is not True
+            or phase.get("mechanicalG2")!="HOLD"
+            or phase.get("sampleCount")!=8
+            or phase.get("matchedPhaseCases")!=6
+            or phase.get("negativeControlCases")!=2
+            or phase.get("surfaceSamplesPerCase")!=30
+            or phase.get("matchingPhaseZeroIntrusions") is not True
+            or phase.get("halfPitchNegativeControlsDetectIntrusion") is not True
+            or phase.get("mechanicalLoadCapacityCertified") is not False
+            or phase.get("continuousMotionCertified") is not False
+            or len(samples)!=8 or len(matched)!=6 or len(negative)!=2
+            or any(row.get("valid") is not True or
+                   row.get("sourceCrestSamples")!=30 or
+                   row.get("crestSamplesInsideSleeve")!=0 for row in matched)
+            or any(row.get("valid") is not True or
+                   row.get("sourceCrestSamples")!=30 or
+                   row.get("crestSamplesInsideSleeve",0)<20 for row in negative)):
+            raise RuntimeError("P2.12 OCC Boolean false-negative guard: independent "
+                               "helical surface-occupancy phase QA did not pass")
+        status["p212_independent_phase_negative_control"]=True
+        gate("P212_OCC_FALSE_NEGATIVE_PHASE_SURFACE_GUARD","PASS")
         npm=shutil.which("npm")
         if npm is None:raise RuntimeError("Node/npm missing")
         if not a.skip_web_qa:
