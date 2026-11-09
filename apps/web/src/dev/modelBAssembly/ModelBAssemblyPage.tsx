@@ -216,7 +216,7 @@ export default function ModelBAssemblyPage(){
                <input type="file" accept=".glb,model/gltf-binary"
                  disabled={!corner||!toeManifest||!!busy}
                  onChange={e=>{void importGlb(e,'toe');}}/></label>
-             <small>{rearToe?'SOURCE SHA PASSED':'SOURCE REQUIRED / PROPOSAL'}</small>
+             <small>{ready['rear-toe']===19?'19 CAD MESHES DECODED':rearToe?'SOURCE SHA PASSED · DECODING':'SOURCE REQUIRED / PROPOSAL'}</small>
            </div>
            <div className="mb-build-input">
              <span>03 / P2.14 SPLIT RACES · 16 MESHES</span>
@@ -226,7 +226,7 @@ export default function ModelBAssemblyPage(){
                <input type="file" accept=".glb,model/gltf-binary"
                  disabled={!rearToe||!splitManifest||!!busy}
                  onChange={e=>{void importGlb(e,'split');}}/></label>
-             <small>{allRear?'SOURCE SCENE VERIFIED · G2 HOLD':splitRace?'DECODING P2.14':'NOT LOADED'}</small>
+             <small>{allRear?'16 CAD MESHES DECODED · G2 HOLD':splitRace?'SOURCE SHA PASSED · DECODING':'NOT LOADED'}</small>
            </div>
            <p className="mb-build-disclaimer">Rear wheel ends reuse original P2.8 front-source wheel-end
              meshes for visual positioning. P2.12/P2.14 chassis joints are engineering prototypes.
