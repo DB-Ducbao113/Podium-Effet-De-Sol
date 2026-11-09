@@ -77,6 +77,8 @@ def capture(url:str,out:Path,p28:Path,quality:str='BALANCED',
       'p28Decoded59':False,'p212Decoded19':False,'p214Decoded16':False,
       'fourOriginalModelBWheelCentresRegistered':False,
       'originalP28CadScale':None,'rearMechanicalMateCertified':None,
+      'rearCompositeCadMeshesPerStation':None,
+      'formerBearingProxiesSuppressedPerStation':None,
       'browserJSExceptions':[],'webglErrors':[],'sourceImportErrors':[],
       'chapterScreenshots':{},'chapterCanvasSHA256':{},'renderedFrames':0,'videoFile':None,
       'mechanicalG2':'HOLD','genuineRearMechanicalAssemblyCertified':False,
@@ -156,6 +158,20 @@ def capture(url:str,out:Path,p28:Path,quality:str='BALANCED',
             audit['fourOriginalModelBWheelCentresRegistered']=True
             audit['originalP28CadScale']=attributes['p28Scale']
             audit['rearMechanicalMateCertified']=False
+            if rear:
+                actual=fit.evaluate('''el=>({
+                  rearCount:Number(el.dataset.rearCompositeCadParts),
+                  oldBearingsHidden:Number(el.dataset.rearLegacyBearingProxiesHidden),
+                  rearMechanicalMate:el.dataset.rearMechanicalMateCertified
+                })''')
+                expected_parts=31 if split else 19
+                expected_hidden=4 if split else 0
+                if (actual.get('rearCount')!=expected_parts
+                    or actual.get('oldBearingsHidden')!=expected_hidden
+                    or actual.get('rearMechanicalMate')!='false'):
+                    raise RuntimeError('P2.12/P2.14 actual source rear CAD composition invalid')
+                audit['rearCompositeCadMeshesPerStation']=actual['rearCount']
+                audit['formerBearingProxiesSuppressedPerStation']=actual['oldBearingsHidden']
             errors=page.locator('.mb-build-feedback[role=alert]')
             if errors.count():
                 raise RuntimeError('Source review UI reports: '+errors.first.inner_text())
