@@ -25,6 +25,7 @@ type Props={
  rearToe:ToeAdjusterSource|null;
  splitRace:SplitRaceSource|null;
  onReady:(which:'model-b'|'p28'|'rear-toe'|'p214',meshCount:number)=>void;
+ onFit:(value:OwnerMeasuredFit|null)=>void;
  onError:(message:string)=>void;
 };
 type Decoded={model:THREE.Group;probe?:SourceGeometryProbe};
@@ -228,7 +229,7 @@ function StudioLights(){
   <pointLight position={[1.5,2,-3]} intensity={32} distance={12} color="#8aaeff"/>
  </>;
 }
-function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRace,onReady,onError}:Props){
+function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRace,onReady,onFit,onError}:Props){
  const {camera,size}=useThree();
  const original=useOriginalBody(onReady,onError);
  const originalPartNames=useMemo(()=>corner?.parts.map(x=>x.node)??[],[corner]);
@@ -245,6 +246,7 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
  useEffect(()=>{if(fitResult.error)onError('Original wheel geometry fit: '+fitResult.error);},
    [fitResult.error,onError]);
  const fit=fitResult.fit;
+ useEffect(()=>onFit(fit),[fit,onFit]);
  const shellScale=fit?.normalizedShellScale??OWNER_CALIBRATED_FALLBACK_SCALE;
  const [shellVisuals,setShellVisuals]=useState<{
    mesh:THREE.Mesh;origin:THREE.Vector3;offset:THREE.Vector3;
