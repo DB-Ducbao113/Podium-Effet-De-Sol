@@ -14,7 +14,7 @@ Status: **Static source CAD review PASS; Mechanical G2 HOLD; DEV only**.
 
 ## Executed local native source evidence
 
-The original project CAD source and native tool dependencies were available in the execution environment. `python -m unittest -v test_p2_11_rear_toe_link.py` returned **4/4 PASS**.
+The original project CAD source and native tool dependencies were available in the execution environment. `python -m unittest -v test_p2_11_rear_toe_link.py` returned **4/4 PASS**. An independent combined local run of P2.9, P2.10 and P2.11 source tests completed **12/12 PASS** (CadQuery 2.8 / Python 3.13); this is native-source QA, not browser WebGL/vehicle signoff.
 
 - Source geometry: **15 / 15 valid, connected native B-Rep solids**, 15 / 15 after STEP import roundtrip.
 - Every pair of the 15 parts was classified: **105 total**, **88 nonintersecting AABBs** and **17 exact native B-Rep Boolean evaluations**, zero Boolean failures, zero positive overlaps above the **0.05 mm³** static-review threshold.
