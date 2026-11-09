@@ -639,7 +639,9 @@ def main()->None:
                    "src/dev/modelBAssembly/localSourceIndex.test.ts",
                    "src/dev/modelBAssembly/sourcePartPivot.test.ts",
                    "src/dev/modelBAssembly/rearVisualComposite.test.ts",
-                   "src/dev/modelBAssembly/cadPartInspector.test.ts",timeout=300)
+                   "src/dev/modelBAssembly/cadPartInspector.test.ts",
+                   "src/dev/modelBAssembly/cadPartCatalog.test.ts",
+                   "src/dev/modelBAssembly/cadFocus.test.ts",timeout=300)
             invoke(npm,"run","build","--workspace=@peds/web",timeout=900)
             gate("LOCAL_WEB_LINT_TYPES_TESTS_BUILD","PASS")
         # Copy private checked CAD only into .local-assets (gitignored).
@@ -735,6 +737,9 @@ def main()->None:
             or scroll.get("p214Decoded16") is not True
             or scroll.get("rearCompositeCadMeshesPerStation")!=31
             or scroll.get("formerBearingProxiesSuppressedPerStation")!=4
+            or scroll.get("originalCadCatalogSelectionVerified") is not True
+            or scroll.get("sourceCadFocusCameraVisualChanged") is not True
+            or scroll.get("selectedOriginalCadPartId")!="P2_TYRE_SLICK_BODY"
             or scroll.get("allSixChaptersConfirmed") is not True
             or scroll.get("renderedFrames")!=96
             or len(scroll.get("chapterCanvasSHA256",{}))!=6
