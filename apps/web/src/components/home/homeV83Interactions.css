@@ -1,0 +1,112 @@
+/*
+ * V8.3 Homepage micro-interactions. All rules scoped to Home; no data or layout changes.
+ * Car receives the visual emphasis; these signals only reward exploration of lower sections.
+ */
+.home-v3 .home-rc__next,
+.home-v3 .home-rc__timing,
+.home-v3 .home-title-fight__panel {
+  transition:
+    border-color 250ms ease,
+    box-shadow 250ms ease,
+    transform 250ms ease;
+}
+
+/* A narrow surface reflection, not a glowing rectangular overlay. */
+.home-v3 .home-rc__next::after,
+.home-v3 .home-rc__timing::after,
+.home-v3 .home-title-fight__panel::after {
+  content: '';
+  position: absolute;
+  z-index: 2;
+  inset: -30% -10%;
+  pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(
+    112deg,
+    transparent 34%,
+    rgba(128, 207, 236, .025) 45%,
+    rgba(255, 255, 255, .075) 50%,
+    rgba(255, 112, 56, .04) 54%,
+    transparent 68%
+  );
+  opacity: 0;
+  transform: translate3d(-110%, 0, 0);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .home-v3 .home-rc__next:hover,
+  .home-v3 .home-rc__timing:hover,
+  .home-v3 .home-title-fight__panel:hover {
+    border-color: rgba(142, 209, 230, .42);
+    box-shadow:
+      0 16px 42px rgba(0, 0, 0, .28),
+      0 0 24px rgba(255, 74, 24, .055);
+    transform: translateY(-2px);
+  }
+  .home-v3 .home-rc__next:hover::after,
+  .home-v3 .home-rc__timing:hover::after,
+  .home-v3 .home-title-fight__panel:hover::after {
+    animation: home-v83-surface-pass 680ms cubic-bezier(.2, .6, .3, 1) both;
+  }
+  .home-v3 .home-title-fight__rows li {
+    position: relative;
+  }
+  .home-v3 .home-title-fight__rows li::before {
+    content: '';
+    position: absolute;
+    top: 15%;
+    bottom: 15%;
+    left: 0;
+    width: 2px;
+    pointer-events: none;
+    background: #FF6D36;
+    transform: scaleY(0);
+    transform-origin: center;
+    transition: transform 190ms ease;
+  }
+  .home-v3 .home-title-fight__rows li:hover::before { transform: scaleY(1); }
+}
+@keyframes home-v83-surface-pass {
+  0% { opacity: 0; transform: translate3d(-110%, 0, 0); }
+  25% { opacity: .85; }
+  75% { opacity: .75; }
+  100% { opacity: 0; transform: translate3d(110%, 0, 0); }
+}
+
+.home-v3 .home-rc__digits strong {
+  text-shadow: 0 0 22px rgba(255, 99, 45, .12);
+}
+.home-v3 .home-live__rule {
+  background:
+    linear-gradient(90deg, rgba(255, 74, 24, .8), rgba(127, 205, 232, .22) 44%, transparent 100%);
+}
+
+/* Progressive enhancement: browsers without scroll timelines get the stable original layout. */
+@media (prefers-reduced-motion: no-preference) and (min-width: 851px) {
+  @supports (animation-timeline: view()) {
+    .home-v3 .home-rc__grid > * {
+      animation-name: home-v83-reveal-panel;
+      animation-duration: 1s;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 24%;
+    }
+    .home-v3 .home-rc__grid > :nth-child(2) { animation-range: entry 4% cover 29%; }
+    .home-v3 .home-rc__grid > :nth-child(3) { animation-range: entry 8% cover 34%; }
+  }
+}
+@keyframes home-v83-reveal-panel {
+  from { opacity: .5; translate: 0 17px; }
+  to { opacity: 1; translate: 0 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-v3 .home-rc__next,
+  .home-v3 .home-rc__timing,
+  .home-v3 .home-title-fight__panel { transition: none !important; }
+  .home-v3 .home-rc__next::after,
+  .home-v3 .home-rc__timing::after,
+  .home-v3 .home-title-fight__panel::after,
+  .home-v3 .home-title-fight__rows li::before { animation: none !important; transition: none !important; }
+}

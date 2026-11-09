@@ -1,0 +1,3728 @@
+{
+  "schemaVersion": 1,
+  "assetKind": "ai-illustration",
+  "reviewStatus": "NEEDS_REVIEW",
+  "circuits": [
+    {
+      "season": 2024,
+      "eventId": "2024:r01",
+      "round": 1,
+      "circuitId": "bahrain",
+      "code": "bhr",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "LOW_RES_SOURCE",
+      "focalPointX": 0.69,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/hero/2024-r01-bhr-hero.webp",
+        "bytes": 46808,
+        "sha256": "1014157dd36382b1f158be6f65ee770a60c3a844ca6062ed20b6bab8777edea7",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/mobile/2024-r01-bhr-mobile.webp",
+        "bytes": 20874,
+        "sha256": "c5931ac9d6041caffc6e0172c54df597ab729470df4e82ad8a3165edfdff3e57",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/thumb/2024-r01-bhr-thumb.webp",
+        "bytes": 13616,
+        "sha256": "6066835377ba1490ea46595b0981edcdf427f79062a8e89a28a9767318602e75",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2024,
+      "eventId": "2024:r02",
+      "round": 2,
+      "circuitId": "jeddah",
+      "code": "sau",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "LOW_RES_SOURCE",
+      "focalPointX": 0.55,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/hero/2024-r02-sau-hero.webp",
+        "bytes": 63778,
+        "sha256": "417118202b7867878165dc331be5ac022670ad6fce392afe3076bdec510ef569",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/mobile/2024-r02-sau-mobile.webp",
+        "bytes": 28192,
+        "sha256": "4d5f33a7c903939852a04493e9f3ca402322491cbd070a52aaa4666685be961c",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/thumb/2024-r02-sau-thumb.webp",
+        "bytes": 19362,
+        "sha256": "607c47a8f9f1d1a7c19e073507133a8beeb1ba4b678f8c66cbfb7deee2871fdd",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2024,
+      "eventId": "2024:r03",
+      "round": 3,
+      "circuitId": "albert-park",
+      "code": "aus",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.55,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/hero/2024-r03-aus-hero.webp",
+        "bytes": 198094,
+        "sha256": "ff22b69fda10258caa049668f903b43286965d1710a41fb81ee6a3f13092bdec",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/mobile/2024-r03-aus-mobile.webp",
+        "bytes": 65034,
+        "sha256": "706cebc5ba5dc0811018616f26b843b2d6e98f71113efa656d980f548b53c63f",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/thumb/2024-r03-aus-thumb.webp",
+        "bytes": 34062,
+        "sha256": "33b1ceee45e7ab0dbe18ff6332fa69efae22475b77570f748a37e221dabe4461",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2024,
+      "eventId": "2024:r04",
+      "round": 4,
+      "circuitId": "suzuka",
+      "code": "jpn",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.6,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/hero/2024-r04-jpn-hero.webp",
+        "bytes": 212536,
+        "sha256": "303c14422ea11b7c7e825f0404023ed75bb1b6ebd3d75dd5b7981c4e5bdc84b8",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/mobile/2024-r04-jpn-mobile.webp",
+        "bytes": 65350,
+        "sha256": "b5c62f02a0b45a8f4c26210beb2a782cd255da9712a1aefca0178bf9091538fc",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/thumb/2024-r04-jpn-thumb.webp",
+        "bytes": 37506,
+        "sha256": "e407ab422e059c35f525137521e8df1572a29846540e84f7ed778f5a4b552085",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2024,
+      "eventId": "2024:r05",
+      "round": 5,
+      "circuitId": "shanghai",
+      "code": "chn",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.67,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/hero/2024-r05-chn-hero.webp",
+        "bytes": 172726,
+        "sha256": "d33e4abd1ec1d5628de369c0e2306679f8ef52331c69bc4297dcc7ee7187ec5c",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/mobile/2024-r05-chn-mobile.webp",
+        "bytes": 73582,
+        "sha256": "3ecbe9614e1d12102df5b0f906e9b0b711cb3c5fbf7baabf19f6fa893389cc07",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/thumb/2024-r05-chn-thumb.webp",
+        "bytes": 26846,
+        "sha256": "456fc1998cb55897c7ca860d31355ffdc6c593356b67007c288872da41b85084",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2024,
+      "eventId": "2024:r06",
+      "round": 6,
+      "circuitId": "miami",
+      "code": "mia",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.66,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/hero/2024-r06-mia-hero.webp",
+        "bytes": 193704,
+        "sha256": "a579a0543b9da200a86f4ec155e756d29f1409ddc3a83f5a329fa3eaac8cfb09",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/mobile/2024-r06-mia-mobile.webp",
+        "bytes": 68166,
+        "sha256": "1fd80c73fbc6892022b400b558a7b5b537f339283592f0571dbdf084941b320c",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/thumb/2024-r06-mia-thumb.webp",
+        "bytes": 32032,
+        "sha256": "c01c2e5a0744c94ca64fc18c8affa1ccf64ae7ec0554bce24cf68efc2702d5be",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2024,
+      "eventId": "2024:r07",
+      "round": 7,
+      "circuitId": "imola",
+      "code": "imo",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "LOW_RES_SOURCE",
+      "focalPointX": 0.49,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/hero/2024-r07-imo-hero.webp",
+        "bytes": 82758,
+        "sha256": "a0a8a81079cf88dc546c42e6efcc72bdb5bdc74eb30f1880d90b3d3ed3c9e07c",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/mobile/2024-r07-imo-mobile.webp",
+        "bytes": 31504,
+        "sha256": "7b5ae9a50f3804e79940a27022b5b60a23aea8edfb03799ad2ccd1735944eb37",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/thumb/2024-r07-imo-thumb.webp",
+        "bytes": 24340,
+        "sha256": "671253a03291aaae122adea6984efa5ea2e1054bc7baf447feb5570b6f113edf",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2024,
+      "eventId": "2024:r08",
+      "round": 8,
+      "circuitId": "monaco",
+      "code": "mon",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.5,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/hero/2024-r08-mon-hero.webp",
+        "bytes": 196790,
+        "sha256": "550ba82a06e770f5dbf0238c02e39160d10291488a6bc4ab045ad0980b2cb4e4",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/mobile/2024-r08-mon-mobile.webp",
+        "bytes": 82962,
+        "sha256": "03f8a7f55c462fae0ab4c0bbeac9e8b1d86473f1ff4a7980c2ab1317e491e479",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/thumb/2024-r08-mon-thumb.webp",
+        "bytes": 31472,
+        "sha256": "aea50a6b0a6d9a997596344947c244bc1f036e926eb9027da4b5595b63f8332d",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2024,
+      "eventId": "2024:r09",
+      "round": 9,
+      "circuitId": "gilles-villeneuve",
+      "code": "can",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.52,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/hero/2024-r09-can-hero.webp",
+        "bytes": 231206,
+        "sha256": "5756f960e1fe89469735c1880432a0a6ce4c49ccb77cc0256169c94f8460ba9c",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/mobile/2024-r09-can-mobile.webp",
+        "bytes": 75052,
+        "sha256": "a8562dc38b17c5943203698e4f09375ac63a2613cf62263b0802e38c8ac37b6f",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/thumb/2024-r09-can-thumb.webp",
+        "bytes": 38324,
+        "sha256": "d01ef517eafcbc19033383304ea9de0f98354a2235bc8cd8c413c2f29557e630",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2024,
+      "eventId": "2024:r10",
+      "round": 10,
+      "circuitId": "catalunya",
+      "code": "bcn",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.6,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/hero/2024-r10-bcn-hero.webp",
+        "bytes": 181716,
+        "sha256": "8e251fc4ab80ceed598e4d6293f7114fbd9cfd63936dc1bd7a795980ca65a41a",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/mobile/2024-r10-bcn-mobile.webp",
+        "bytes": 61944,
+        "sha256": "56eed2d58c67146d8330f359e31a09439b36c9152fb9d23112a51838a98479a2",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/thumb/2024-r10-bcn-thumb.webp",
+        "bytes": 33304,
+        "sha256": "34c1c530fae8c7ea3a878f47f7c6b08630d37bd6f89dff695fad718a0b1e5dc7",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2024,
+      "eventId": "2024:r11",
+      "round": 11,
+      "circuitId": "red-bull-ring",
+      "code": "aut",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.58,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/hero/2024-r11-aut-hero.webp",
+        "bytes": 189180,
+        "sha256": "e065d364ffb0195c607dcfb184a2067309c2c2c20b51a674ec9d5609c29b8196",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/mobile/2024-r11-aut-mobile.webp",
+        "bytes": 74244,
+        "sha256": "0c14653fa9df02dcaa6c106cf7c8911ec292a40f28756be26de05bb33e91a9fe",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/thumb/2024-r11-aut-thumb.webp",
+        "bytes": 33536,
+        "sha256": "ad908982fbcaa5eb19feb4ab9645f35a4f2fa6bf77644cb98190c15228d20059",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2024,
+      "eventId": "2024:r12",
+      "round": 12,
+      "circuitId": "silverstone",
+      "code": "gbr",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.54,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/hero/2024-r12-gbr-hero.webp",
+        "bytes": 146216,
+        "sha256": "a4e93f21dcaf06a0434612952f30cddbc9faf5aa4a463a282ba96a6749ddff62",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/mobile/2024-r12-gbr-mobile.webp",
+        "bytes": 62958,
+        "sha256": "a670d98c9329c3c8353cfa351799eab567b2eff3d2234ff3fccfcf895d258c24",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/thumb/2024-r12-gbr-thumb.webp",
+        "bytes": 27340,
+        "sha256": "2a95beeee4caca4f5ebb17f799406d867e63660e4599424e87224244a086d6c2",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2024,
+      "eventId": "2024:r13",
+      "round": 13,
+      "circuitId": "hungaroring",
+      "code": "hun",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.47,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/hero/2024-r13-hun-hero.webp",
+        "bytes": 172030,
+        "sha256": "163f8ca1d52a546196c38f8c27991247dcf279c8303eb01af4feddf9737da116",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/mobile/2024-r13-hun-mobile.webp",
+        "bytes": 66450,
+        "sha256": "5a58ff0c03fde302804840fb9d7f12d2870a5a69cf600a86321cf198e7b39382",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/thumb/2024-r13-hun-thumb.webp",
+        "bytes": 29748,
+        "sha256": "cb863a8ce6175f026f1f54e36284e87ad924780e714f7a3a410cb817089917b8",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2024,
+      "eventId": "2024:r14",
+      "round": 14,
+      "circuitId": "spa",
+      "code": "bel",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.6,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/hero/2024-r14-bel-hero.webp",
+        "bytes": 153362,
+        "sha256": "4a7a8cdda5bb49f0d1725dd8329d3df94371da316584a3d25efee3bde8d7b986",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/mobile/2024-r14-bel-mobile.webp",
+        "bytes": 46986,
+        "sha256": "563f9acecdbef73cbd61014b938ac3d5d318f9d4df29e2860895d1f55593ea05",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/thumb/2024-r14-bel-thumb.webp",
+        "bytes": 26500,
+        "sha256": "0139bf778a9f8fc09b85329b6bfb84c03eb19b320ba8880cb07535b54a059119",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2024,
+      "eventId": "2024:r15",
+      "round": 15,
+      "circuitId": "zandvoort",
+      "code": "ned",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.58,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/hero/2024-r15-ned-hero.webp",
+        "bytes": 171338,
+        "sha256": "0405c7dcc542f590b20dca56b8d4204c5a62cd7d5b937eceba0f4ddb04282f59",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/mobile/2024-r15-ned-mobile.webp",
+        "bytes": 64332,
+        "sha256": "f998de2045b13318d7dab229dcfa4456868e28f7486ef47aa788283703679b03",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/thumb/2024-r15-ned-thumb.webp",
+        "bytes": 32404,
+        "sha256": "239d863b9999b4a3bfc5c1d542c889535a280968ca9b09d92f0b10864d369466",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2024,
+      "eventId": "2024:r16",
+      "round": 16,
+      "circuitId": "monza",
+      "code": "ita",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.6,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/hero/2024-r16-ita-hero.webp",
+        "bytes": 252364,
+        "sha256": "54987e1428bbe19263824493ce38254979054779d5af12b975d16098329a6b9c",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/mobile/2024-r16-ita-mobile.webp",
+        "bytes": 107670,
+        "sha256": "532b5c7a62c09438e40e648bc96c85bcd8b4e3459ebfc2476b646eea6a5462ab",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/thumb/2024-r16-ita-thumb.webp",
+        "bytes": 42356,
+        "sha256": "2f378cc1acdd38b37f34620fe3101ed24e44aa45d86368d5d375e3c43a4af044",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2024,
+      "eventId": "2024:r17",
+      "round": 17,
+      "circuitId": "baku",
+      "code": "aze",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.46,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/hero/2024-r17-aze-hero.webp",
+        "bytes": 192148,
+        "sha256": "1ba97a6860e9602b231825c80779729e6146d6b4a35305a4519eb893225e0591",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/mobile/2024-r17-aze-mobile.webp",
+        "bytes": 73510,
+        "sha256": "aea078a1307d31d374fee788759ef40cf9b704fba2fee147c7ce925e216d8206",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/thumb/2024-r17-aze-thumb.webp",
+        "bytes": 32378,
+        "sha256": "c252e51b985dff58912b016db8b41d70cf203fcb73cb6643f8a37f7d7cbcecc9",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2024,
+      "eventId": "2024:r18",
+      "round": 18,
+      "circuitId": "marina-bay",
+      "code": "sgp",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.52,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/hero/2024-r18-sgp-hero.webp",
+        "bytes": 236522,
+        "sha256": "9762ec33c2bd9d58cfda336b991f0ef630310d164954626e9b585493c955592c",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/mobile/2024-r18-sgp-mobile.webp",
+        "bytes": 92864,
+        "sha256": "f23c052372edaf5039786f9e483c4d201f59856be709a101519020af965532e0",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/thumb/2024-r18-sgp-thumb.webp",
+        "bytes": 38956,
+        "sha256": "ccbca05f1caf46a8a2a64ad02a3f08f40501ec5fa27c3f993d0d411d8411dd91",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2024,
+      "eventId": "2024:r19",
+      "round": 19,
+      "circuitId": "cota",
+      "code": "usa",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.61,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/hero/2024-r19-usa-hero.webp",
+        "bytes": 143814,
+        "sha256": "a09590cffc834ae2f3abd9d53667d20e487c11a80aaf3b438cb5dde2e2a34864",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/mobile/2024-r19-usa-mobile.webp",
+        "bytes": 59222,
+        "sha256": "44ffa72191e2e78e738da5ff5088c81e47c0c9b9a1cc1352e5bdb3d502ea646f",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/thumb/2024-r19-usa-thumb.webp",
+        "bytes": 29840,
+        "sha256": "d28f6dcdf39842bfd7107a4785110cec2b17feceedeb0f14fc2261d6b0016c06",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2024,
+      "eventId": "2024:r20",
+      "round": 20,
+      "circuitId": "hermanos-rodriguez",
+      "code": "mex",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.55,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/hero/2024-r20-mex-hero.webp",
+        "bytes": 191022,
+        "sha256": "2b902233eaf21ff8e49e9f0843701f63532a86ec086b49abe3e294614bfe5c8d",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/mobile/2024-r20-mex-mobile.webp",
+        "bytes": 70550,
+        "sha256": "3fd9504b7bbfd53468fc769dcb401a5bef7e39c678da2155313b1e51682bc0f1",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/thumb/2024-r20-mex-thumb.webp",
+        "bytes": 31290,
+        "sha256": "e1433bfd5824b894cb91efd112ba75308b1d582ab93d8aa9e4bbfd17b2a42ee0",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2024,
+      "eventId": "2024:r21",
+      "round": 21,
+      "circuitId": "interlagos",
+      "code": "bra",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.5,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/hero/2024-r21-bra-hero.webp",
+        "bytes": 160404,
+        "sha256": "d21474193ce9ca8421bbddf4ddab5a8cff80836a47a7cd8cb8318dab86fa4763",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/mobile/2024-r21-bra-mobile.webp",
+        "bytes": 67416,
+        "sha256": "92e1f19301f86869cedf61441fa5087cd0158644cd9600f49fb0d59d1b88f34d",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/thumb/2024-r21-bra-thumb.webp",
+        "bytes": 31160,
+        "sha256": "e3bffeaa2644759cfec565a30157bd884ca123d8ca2bf0a02d0386a40de736f0",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2024,
+      "eventId": "2024:r22",
+      "round": 22,
+      "circuitId": "las-vegas",
+      "code": "lvg",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.63,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/hero/2024-r22-lvg-hero.webp",
+        "bytes": 232838,
+        "sha256": "a86a675ef258e943f4fd3c6e955c79a617c343ce81ac550fae431e71d0fcc823",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/mobile/2024-r22-lvg-mobile.webp",
+        "bytes": 88574,
+        "sha256": "fb0ef1142c2ff08133ebbc783b60491909db88a2456639c0a77f579e136da35d",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/thumb/2024-r22-lvg-thumb.webp",
+        "bytes": 34652,
+        "sha256": "8e0095d6baf1c545c9f5f55acfcb2ba48512b415b6ca5d6027a508107ac26b97",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2024,
+      "eventId": "2024:r23",
+      "round": 23,
+      "circuitId": "lusail",
+      "code": "qat",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.56,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/hero/2024-r23-qat-hero.webp",
+        "bytes": 160562,
+        "sha256": "b3d5b50a11942b178f793cfeb4ad2e24ca7815137e0039b1013283f1ce40be9f",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/mobile/2024-r23-qat-mobile.webp",
+        "bytes": 48156,
+        "sha256": "37bbc85db95032bfb2e872acbee4ee6cd62766ff0e9ddbecb8957aeda68e677b",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/thumb/2024-r23-qat-thumb.webp",
+        "bytes": 25628,
+        "sha256": "112dfbc643f9f8708159063800fc0c0621817cb3b4771bb396f91a8d522f9aaa",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2024,
+      "eventId": "2024:r24",
+      "round": 24,
+      "circuitId": "yas-marina",
+      "code": "abu",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.71,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/hero/2024-r24-abu-hero.webp",
+        "bytes": 168254,
+        "sha256": "02221697ba5a8356f6d64578915f9368e8ffe82f74bcc6079c9a0af205c31631",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/mobile/2024-r24-abu-mobile.webp",
+        "bytes": 76012,
+        "sha256": "3cf831538783069677b9c78544ab6066c50d6224f479f53837a9e6bdf534ce65",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/circuits/thumb/2024-r24-abu-thumb.webp",
+        "bytes": 27462,
+        "sha256": "2e6da30d4b6b1e12b153e9bb226d0a3b31e673b36ad9b9d2c2619fa53558f2e9",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2025,
+      "eventId": "2025:r01",
+      "round": 1,
+      "circuitId": "albert-park",
+      "code": "aus",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.55,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/hero/2025-r01-aus-hero.webp",
+        "bytes": 198094,
+        "sha256": "ff22b69fda10258caa049668f903b43286965d1710a41fb81ee6a3f13092bdec",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/mobile/2025-r01-aus-mobile.webp",
+        "bytes": 65034,
+        "sha256": "706cebc5ba5dc0811018616f26b843b2d6e98f71113efa656d980f548b53c63f",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/thumb/2025-r01-aus-thumb.webp",
+        "bytes": 34062,
+        "sha256": "33b1ceee45e7ab0dbe18ff6332fa69efae22475b77570f748a37e221dabe4461",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2025,
+      "eventId": "2025:r02",
+      "round": 2,
+      "circuitId": "shanghai",
+      "code": "chn",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.67,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/hero/2025-r02-chn-hero.webp",
+        "bytes": 172726,
+        "sha256": "d33e4abd1ec1d5628de369c0e2306679f8ef52331c69bc4297dcc7ee7187ec5c",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/mobile/2025-r02-chn-mobile.webp",
+        "bytes": 73582,
+        "sha256": "3ecbe9614e1d12102df5b0f906e9b0b711cb3c5fbf7baabf19f6fa893389cc07",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/thumb/2025-r02-chn-thumb.webp",
+        "bytes": 26846,
+        "sha256": "456fc1998cb55897c7ca860d31355ffdc6c593356b67007c288872da41b85084",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2025,
+      "eventId": "2025:r03",
+      "round": 3,
+      "circuitId": "suzuka",
+      "code": "jpn",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.6,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/hero/2025-r03-jpn-hero.webp",
+        "bytes": 212536,
+        "sha256": "303c14422ea11b7c7e825f0404023ed75bb1b6ebd3d75dd5b7981c4e5bdc84b8",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/mobile/2025-r03-jpn-mobile.webp",
+        "bytes": 65350,
+        "sha256": "b5c62f02a0b45a8f4c26210beb2a782cd255da9712a1aefca0178bf9091538fc",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/thumb/2025-r03-jpn-thumb.webp",
+        "bytes": 37506,
+        "sha256": "e407ab422e059c35f525137521e8df1572a29846540e84f7ed778f5a4b552085",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2025,
+      "eventId": "2025:r04",
+      "round": 4,
+      "circuitId": "bahrain",
+      "code": "bhr",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "LOW_RES_SOURCE",
+      "focalPointX": 0.69,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/hero/2025-r04-bhr-hero.webp",
+        "bytes": 46808,
+        "sha256": "1014157dd36382b1f158be6f65ee770a60c3a844ca6062ed20b6bab8777edea7",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/mobile/2025-r04-bhr-mobile.webp",
+        "bytes": 20874,
+        "sha256": "c5931ac9d6041caffc6e0172c54df597ab729470df4e82ad8a3165edfdff3e57",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/thumb/2025-r04-bhr-thumb.webp",
+        "bytes": 13616,
+        "sha256": "6066835377ba1490ea46595b0981edcdf427f79062a8e89a28a9767318602e75",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2025,
+      "eventId": "2025:r05",
+      "round": 5,
+      "circuitId": "jeddah",
+      "code": "sau",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "LOW_RES_SOURCE",
+      "focalPointX": 0.55,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/hero/2025-r05-sau-hero.webp",
+        "bytes": 63778,
+        "sha256": "417118202b7867878165dc331be5ac022670ad6fce392afe3076bdec510ef569",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/mobile/2025-r05-sau-mobile.webp",
+        "bytes": 28192,
+        "sha256": "4d5f33a7c903939852a04493e9f3ca402322491cbd070a52aaa4666685be961c",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/thumb/2025-r05-sau-thumb.webp",
+        "bytes": 19362,
+        "sha256": "607c47a8f9f1d1a7c19e073507133a8beeb1ba4b678f8c66cbfb7deee2871fdd",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2025,
+      "eventId": "2025:r06",
+      "round": 6,
+      "circuitId": "miami",
+      "code": "mia",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.66,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/hero/2025-r06-mia-hero.webp",
+        "bytes": 193704,
+        "sha256": "a579a0543b9da200a86f4ec155e756d29f1409ddc3a83f5a329fa3eaac8cfb09",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/mobile/2025-r06-mia-mobile.webp",
+        "bytes": 68166,
+        "sha256": "1fd80c73fbc6892022b400b558a7b5b537f339283592f0571dbdf084941b320c",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/thumb/2025-r06-mia-thumb.webp",
+        "bytes": 32032,
+        "sha256": "c01c2e5a0744c94ca64fc18c8affa1ccf64ae7ec0554bce24cf68efc2702d5be",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2025,
+      "eventId": "2025:r07",
+      "round": 7,
+      "circuitId": "imola",
+      "code": "imo",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "LOW_RES_SOURCE",
+      "focalPointX": 0.49,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/hero/2025-r07-imo-hero.webp",
+        "bytes": 82758,
+        "sha256": "a0a8a81079cf88dc546c42e6efcc72bdb5bdc74eb30f1880d90b3d3ed3c9e07c",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/mobile/2025-r07-imo-mobile.webp",
+        "bytes": 31504,
+        "sha256": "7b5ae9a50f3804e79940a27022b5b60a23aea8edfb03799ad2ccd1735944eb37",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/thumb/2025-r07-imo-thumb.webp",
+        "bytes": 24340,
+        "sha256": "671253a03291aaae122adea6984efa5ea2e1054bc7baf447feb5570b6f113edf",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2025,
+      "eventId": "2025:r08",
+      "round": 8,
+      "circuitId": "monaco",
+      "code": "mon",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.5,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/hero/2025-r08-mon-hero.webp",
+        "bytes": 196790,
+        "sha256": "550ba82a06e770f5dbf0238c02e39160d10291488a6bc4ab045ad0980b2cb4e4",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/mobile/2025-r08-mon-mobile.webp",
+        "bytes": 82962,
+        "sha256": "03f8a7f55c462fae0ab4c0bbeac9e8b1d86473f1ff4a7980c2ab1317e491e479",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/thumb/2025-r08-mon-thumb.webp",
+        "bytes": 31472,
+        "sha256": "aea50a6b0a6d9a997596344947c244bc1f036e926eb9027da4b5595b63f8332d",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2025,
+      "eventId": "2025:r09",
+      "round": 9,
+      "circuitId": "catalunya",
+      "code": "bcn",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.6,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/hero/2025-r09-bcn-hero.webp",
+        "bytes": 181716,
+        "sha256": "8e251fc4ab80ceed598e4d6293f7114fbd9cfd63936dc1bd7a795980ca65a41a",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/mobile/2025-r09-bcn-mobile.webp",
+        "bytes": 61944,
+        "sha256": "56eed2d58c67146d8330f359e31a09439b36c9152fb9d23112a51838a98479a2",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/thumb/2025-r09-bcn-thumb.webp",
+        "bytes": 33304,
+        "sha256": "34c1c530fae8c7ea3a878f47f7c6b08630d37bd6f89dff695fad718a0b1e5dc7",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2025,
+      "eventId": "2025:r10",
+      "round": 10,
+      "circuitId": "gilles-villeneuve",
+      "code": "can",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.52,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/hero/2025-r10-can-hero.webp",
+        "bytes": 231206,
+        "sha256": "5756f960e1fe89469735c1880432a0a6ce4c49ccb77cc0256169c94f8460ba9c",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/mobile/2025-r10-can-mobile.webp",
+        "bytes": 75052,
+        "sha256": "a8562dc38b17c5943203698e4f09375ac63a2613cf62263b0802e38c8ac37b6f",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/thumb/2025-r10-can-thumb.webp",
+        "bytes": 38324,
+        "sha256": "d01ef517eafcbc19033383304ea9de0f98354a2235bc8cd8c413c2f29557e630",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2025,
+      "eventId": "2025:r11",
+      "round": 11,
+      "circuitId": "red-bull-ring",
+      "code": "aut",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.58,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/hero/2025-r11-aut-hero.webp",
+        "bytes": 189180,
+        "sha256": "e065d364ffb0195c607dcfb184a2067309c2c2c20b51a674ec9d5609c29b8196",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/mobile/2025-r11-aut-mobile.webp",
+        "bytes": 74244,
+        "sha256": "0c14653fa9df02dcaa6c106cf7c8911ec292a40f28756be26de05bb33e91a9fe",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/thumb/2025-r11-aut-thumb.webp",
+        "bytes": 33536,
+        "sha256": "ad908982fbcaa5eb19feb4ab9645f35a4f2fa6bf77644cb98190c15228d20059",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2025,
+      "eventId": "2025:r12",
+      "round": 12,
+      "circuitId": "silverstone",
+      "code": "gbr",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.54,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/hero/2025-r12-gbr-hero.webp",
+        "bytes": 146216,
+        "sha256": "a4e93f21dcaf06a0434612952f30cddbc9faf5aa4a463a282ba96a6749ddff62",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/mobile/2025-r12-gbr-mobile.webp",
+        "bytes": 62958,
+        "sha256": "a670d98c9329c3c8353cfa351799eab567b2eff3d2234ff3fccfcf895d258c24",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/thumb/2025-r12-gbr-thumb.webp",
+        "bytes": 27340,
+        "sha256": "2a95beeee4caca4f5ebb17f799406d867e63660e4599424e87224244a086d6c2",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2025,
+      "eventId": "2025:r13",
+      "round": 13,
+      "circuitId": "spa",
+      "code": "bel",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.6,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/hero/2025-r13-bel-hero.webp",
+        "bytes": 153362,
+        "sha256": "4a7a8cdda5bb49f0d1725dd8329d3df94371da316584a3d25efee3bde8d7b986",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/mobile/2025-r13-bel-mobile.webp",
+        "bytes": 46986,
+        "sha256": "563f9acecdbef73cbd61014b938ac3d5d318f9d4df29e2860895d1f55593ea05",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/thumb/2025-r13-bel-thumb.webp",
+        "bytes": 26500,
+        "sha256": "0139bf778a9f8fc09b85329b6bfb84c03eb19b320ba8880cb07535b54a059119",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2025,
+      "eventId": "2025:r14",
+      "round": 14,
+      "circuitId": "hungaroring",
+      "code": "hun",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.47,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/hero/2025-r14-hun-hero.webp",
+        "bytes": 172030,
+        "sha256": "163f8ca1d52a546196c38f8c27991247dcf279c8303eb01af4feddf9737da116",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/mobile/2025-r14-hun-mobile.webp",
+        "bytes": 66450,
+        "sha256": "5a58ff0c03fde302804840fb9d7f12d2870a5a69cf600a86321cf198e7b39382",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/thumb/2025-r14-hun-thumb.webp",
+        "bytes": 29748,
+        "sha256": "cb863a8ce6175f026f1f54e36284e87ad924780e714f7a3a410cb817089917b8",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2025,
+      "eventId": "2025:r15",
+      "round": 15,
+      "circuitId": "zandvoort",
+      "code": "ned",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.58,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/hero/2025-r15-ned-hero.webp",
+        "bytes": 171338,
+        "sha256": "0405c7dcc542f590b20dca56b8d4204c5a62cd7d5b937eceba0f4ddb04282f59",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/mobile/2025-r15-ned-mobile.webp",
+        "bytes": 64332,
+        "sha256": "f998de2045b13318d7dab229dcfa4456868e28f7486ef47aa788283703679b03",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/thumb/2025-r15-ned-thumb.webp",
+        "bytes": 32404,
+        "sha256": "239d863b9999b4a3bfc5c1d542c889535a280968ca9b09d92f0b10864d369466",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2025,
+      "eventId": "2025:r16",
+      "round": 16,
+      "circuitId": "monza",
+      "code": "ita",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.6,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/hero/2025-r16-ita-hero.webp",
+        "bytes": 252364,
+        "sha256": "54987e1428bbe19263824493ce38254979054779d5af12b975d16098329a6b9c",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/mobile/2025-r16-ita-mobile.webp",
+        "bytes": 107670,
+        "sha256": "532b5c7a62c09438e40e648bc96c85bcd8b4e3459ebfc2476b646eea6a5462ab",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/thumb/2025-r16-ita-thumb.webp",
+        "bytes": 42356,
+        "sha256": "2f378cc1acdd38b37f34620fe3101ed24e44aa45d86368d5d375e3c43a4af044",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2025,
+      "eventId": "2025:r17",
+      "round": 17,
+      "circuitId": "baku",
+      "code": "aze",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.46,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/hero/2025-r17-aze-hero.webp",
+        "bytes": 192148,
+        "sha256": "1ba97a6860e9602b231825c80779729e6146d6b4a35305a4519eb893225e0591",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/mobile/2025-r17-aze-mobile.webp",
+        "bytes": 73510,
+        "sha256": "aea078a1307d31d374fee788759ef40cf9b704fba2fee147c7ce925e216d8206",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/thumb/2025-r17-aze-thumb.webp",
+        "bytes": 32378,
+        "sha256": "c252e51b985dff58912b016db8b41d70cf203fcb73cb6643f8a37f7d7cbcecc9",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2025,
+      "eventId": "2025:r18",
+      "round": 18,
+      "circuitId": "marina-bay",
+      "code": "sgp",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.52,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/hero/2025-r18-sgp-hero.webp",
+        "bytes": 236522,
+        "sha256": "9762ec33c2bd9d58cfda336b991f0ef630310d164954626e9b585493c955592c",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/mobile/2025-r18-sgp-mobile.webp",
+        "bytes": 92864,
+        "sha256": "f23c052372edaf5039786f9e483c4d201f59856be709a101519020af965532e0",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/thumb/2025-r18-sgp-thumb.webp",
+        "bytes": 38956,
+        "sha256": "ccbca05f1caf46a8a2a64ad02a3f08f40501ec5fa27c3f993d0d411d8411dd91",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2025,
+      "eventId": "2025:r19",
+      "round": 19,
+      "circuitId": "cota",
+      "code": "usa",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.61,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/hero/2025-r19-usa-hero.webp",
+        "bytes": 143814,
+        "sha256": "a09590cffc834ae2f3abd9d53667d20e487c11a80aaf3b438cb5dde2e2a34864",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/mobile/2025-r19-usa-mobile.webp",
+        "bytes": 59222,
+        "sha256": "44ffa72191e2e78e738da5ff5088c81e47c0c9b9a1cc1352e5bdb3d502ea646f",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/thumb/2025-r19-usa-thumb.webp",
+        "bytes": 29840,
+        "sha256": "d28f6dcdf39842bfd7107a4785110cec2b17feceedeb0f14fc2261d6b0016c06",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2025,
+      "eventId": "2025:r20",
+      "round": 20,
+      "circuitId": "hermanos-rodriguez",
+      "code": "mex",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.55,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/hero/2025-r20-mex-hero.webp",
+        "bytes": 191022,
+        "sha256": "2b902233eaf21ff8e49e9f0843701f63532a86ec086b49abe3e294614bfe5c8d",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/mobile/2025-r20-mex-mobile.webp",
+        "bytes": 70550,
+        "sha256": "3fd9504b7bbfd53468fc769dcb401a5bef7e39c678da2155313b1e51682bc0f1",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/thumb/2025-r20-mex-thumb.webp",
+        "bytes": 31290,
+        "sha256": "e1433bfd5824b894cb91efd112ba75308b1d582ab93d8aa9e4bbfd17b2a42ee0",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2025,
+      "eventId": "2025:r21",
+      "round": 21,
+      "circuitId": "interlagos",
+      "code": "bra",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.5,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/hero/2025-r21-bra-hero.webp",
+        "bytes": 160404,
+        "sha256": "d21474193ce9ca8421bbddf4ddab5a8cff80836a47a7cd8cb8318dab86fa4763",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/mobile/2025-r21-bra-mobile.webp",
+        "bytes": 67416,
+        "sha256": "92e1f19301f86869cedf61441fa5087cd0158644cd9600f49fb0d59d1b88f34d",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/thumb/2025-r21-bra-thumb.webp",
+        "bytes": 31160,
+        "sha256": "e3bffeaa2644759cfec565a30157bd884ca123d8ca2bf0a02d0386a40de736f0",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2025,
+      "eventId": "2025:r22",
+      "round": 22,
+      "circuitId": "las-vegas",
+      "code": "lvg",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.63,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/hero/2025-r22-lvg-hero.webp",
+        "bytes": 232838,
+        "sha256": "a86a675ef258e943f4fd3c6e955c79a617c343ce81ac550fae431e71d0fcc823",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/mobile/2025-r22-lvg-mobile.webp",
+        "bytes": 88574,
+        "sha256": "fb0ef1142c2ff08133ebbc783b60491909db88a2456639c0a77f579e136da35d",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/thumb/2025-r22-lvg-thumb.webp",
+        "bytes": 34652,
+        "sha256": "8e0095d6baf1c545c9f5f55acfcb2ba48512b415b6ca5d6027a508107ac26b97",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2025,
+      "eventId": "2025:r23",
+      "round": 23,
+      "circuitId": "lusail",
+      "code": "qat",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.56,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/hero/2025-r23-qat-hero.webp",
+        "bytes": 160562,
+        "sha256": "b3d5b50a11942b178f793cfeb4ad2e24ca7815137e0039b1013283f1ce40be9f",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/mobile/2025-r23-qat-mobile.webp",
+        "bytes": 48156,
+        "sha256": "37bbc85db95032bfb2e872acbee4ee6cd62766ff0e9ddbecb8957aeda68e677b",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/thumb/2025-r23-qat-thumb.webp",
+        "bytes": 25628,
+        "sha256": "112dfbc643f9f8708159063800fc0c0621817cb3b4771bb396f91a8d522f9aaa",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2025,
+      "eventId": "2025:r24",
+      "round": 24,
+      "circuitId": "yas-marina",
+      "code": "abu",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.71,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/hero/2025-r24-abu-hero.webp",
+        "bytes": 168254,
+        "sha256": "02221697ba5a8356f6d64578915f9368e8ffe82f74bcc6079c9a0af205c31631",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/mobile/2025-r24-abu-mobile.webp",
+        "bytes": 76012,
+        "sha256": "3cf831538783069677b9c78544ab6066c50d6224f479f53837a9e6bdf534ce65",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/circuits/thumb/2025-r24-abu-thumb.webp",
+        "bytes": 27462,
+        "sha256": "2e6da30d4b6b1e12b153e9bb226d0a3b31e673b36ad9b9d2c2619fa53558f2e9",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2026,
+      "eventId": "2026:r01",
+      "round": 1,
+      "circuitId": "albert-park",
+      "code": "aus",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.55,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/circuits/hero/2026-r01-aus-hero.webp",
+        "bytes": 197942,
+        "sha256": "638d2fe03b10efb31b4e203cfd0d339e6f764a7febcb7758ac2855f0f5983a4e",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/circuits/mobile/2026-r01-aus-mobile.webp",
+        "bytes": 69754,
+        "sha256": "5e95ac4d7ab6eef22dfda9ef14f0c0d88a0789e7faab80d3e4530cdbfda304b1",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/circuits/thumb/2026-r01-aus-thumb.webp",
+        "bytes": 33166,
+        "sha256": "b671e65987f53ff4cc834fddcfc0b45fdab6bedadc33c77654c838284d41084e",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2026,
+      "eventId": "2026:r02",
+      "round": 2,
+      "circuitId": "shanghai",
+      "code": "chn",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.67,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/circuits/hero/2026-r02-chn-hero.webp",
+        "bytes": 172100,
+        "sha256": "6771b9cabcec6ccb1e7f4c67b4ef4bdccfc0b5e941128af9ea83b4f53d667b7e",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/circuits/mobile/2026-r02-chn-mobile.webp",
+        "bytes": 80160,
+        "sha256": "476e3519eaf4fbc078b7f772fd0444b81fe0d02fb4a25576309a406179d9dbdf",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/circuits/thumb/2026-r02-chn-thumb.webp",
+        "bytes": 25662,
+        "sha256": "209cee6496cabfe446c00ce3b77fbdf29622b9eb4b10a3b09612eb59e62a0cda",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2026,
+      "eventId": "2026:r03",
+      "round": 3,
+      "circuitId": "suzuka",
+      "code": "jpn",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.6,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/circuits/hero/2026-r03-jpn-hero.webp",
+        "bytes": 212552,
+        "sha256": "69bb5e24221e3655cfce8e31f59e402b541e7895e05245284b723ace63bedddc",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/circuits/mobile/2026-r03-jpn-mobile.webp",
+        "bytes": 71286,
+        "sha256": "4f57312a3e405c8be6128f41669411b1d649772005f2b5d31dacfd8efddda4b3",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/circuits/thumb/2026-r03-jpn-thumb.webp",
+        "bytes": 36314,
+        "sha256": "0f916185e5b3899852cd79e8ec88b5ababa65038a4f14d8f43ef9bbcccd07166",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2026,
+      "eventId": "2026:r04",
+      "round": 4,
+      "circuitId": "miami",
+      "code": "mia",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.66,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/circuits/hero/2026-r04-mia-hero.webp",
+        "bytes": 192382,
+        "sha256": "4939d72866c646f2ead0f1a5b3872af614b9d338fb1f224ccc31967d2e8ed524",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/circuits/mobile/2026-r04-mia-mobile.webp",
+        "bytes": 75454,
+        "sha256": "f4122a1f8e1b70c4896c3f41719cd9d5b9fa6949072f06d4d7591e3c2935223f",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/circuits/thumb/2026-r04-mia-thumb.webp",
+        "bytes": 31116,
+        "sha256": "f2c294a238391156719d128e5a08e4b62a5aea463ced78b6278e2e7ba8b47f8f",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2026,
+      "eventId": "2026:r05",
+      "round": 5,
+      "circuitId": "gilles-villeneuve",
+      "code": "can",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.52,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/circuits/hero/2026-r05-can-hero.webp",
+        "bytes": 230168,
+        "sha256": "4ce3516f486c33d1a614eca0d2f343381eb7c1b9df0aa2a41ed9e0477d56a8fc",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/circuits/mobile/2026-r05-can-mobile.webp",
+        "bytes": 80072,
+        "sha256": "77508d21bdfe5d403527052809b9c7323f99df66d9a7cbc45845dbc393e52d9c",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/circuits/thumb/2026-r05-can-thumb.webp",
+        "bytes": 36914,
+        "sha256": "c6f584c35d97db0354f51172371dee517aaf593c9c27867c8c6849b5ed9e7d50",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2026,
+      "eventId": "2026:r06",
+      "round": 6,
+      "circuitId": "monaco",
+      "code": "mon",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.5,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/circuits/hero/2026-r06-mon-hero.webp",
+        "bytes": 195710,
+        "sha256": "6bf1ae104a084d0a5dc299c857678765d3fa7aeebc568f000336512d8462f494",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/circuits/mobile/2026-r06-mon-mobile.webp",
+        "bytes": 90786,
+        "sha256": "4692fbf60dc230113b18807da01427b1fb24e8d0b9c5b23b7c5f27f6df6d302c",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/circuits/thumb/2026-r06-mon-thumb.webp",
+        "bytes": 30272,
+        "sha256": "14383b50dece161ea8f9d1d7bb50eb236fbea2e247f608ddcd9cbdc064b78bd4",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2026,
+      "eventId": "2026:r07",
+      "round": 7,
+      "circuitId": "catalunya",
+      "code": "bcn",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.6,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/circuits/hero/2026-r07-bcn-hero.webp",
+        "bytes": 181686,
+        "sha256": "fa863215b8867099af5ca4396902e392d5dc4f783e3eeba7676468f014e6812c",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/circuits/mobile/2026-r07-bcn-mobile.webp",
+        "bytes": 66470,
+        "sha256": "85b1eb2aa00e21b58f8aca53fd62ba088f7922a198bbbd29d809c1bb87e29eff",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/circuits/thumb/2026-r07-bcn-thumb.webp",
+        "bytes": 32178,
+        "sha256": "9a4b73bed7d37c96d26498e7ca01b24c3b320f773615eebd6189cbf4e7be9070",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2026,
+      "eventId": "2026:r08",
+      "round": 8,
+      "circuitId": "red-bull-ring",
+      "code": "aut",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.58,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/circuits/hero/2026-r08-aut-hero.webp",
+        "bytes": 188258,
+        "sha256": "6ae3065286a28049ef9adbfb3be0fd3c142a345195f04badfe666f5c309621c3",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/circuits/mobile/2026-r08-aut-mobile.webp",
+        "bytes": 81364,
+        "sha256": "debe6b5c3ef9ab4a33171f2034ebb929f7c4831d966b5006a755415e2a79af31",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/circuits/thumb/2026-r08-aut-thumb.webp",
+        "bytes": 32516,
+        "sha256": "18df5fecb80c4d359936cfae1ec376a9b8785557b5e3a38b3568050ad246d6ff",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2026,
+      "eventId": "2026:r09",
+      "round": 9,
+      "circuitId": "silverstone",
+      "code": "gbr",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.54,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/circuits/hero/2026-r09-gbr-hero.webp",
+        "bytes": 146460,
+        "sha256": "4f6cb430235d81b3bbb929805cb12c2890c36a7870239ca64700733e599befd5",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/circuits/mobile/2026-r09-gbr-mobile.webp",
+        "bytes": 67842,
+        "sha256": "0a1b8a60a1d71be13ae64b7bfdfb45d6bc1a92ede95def15daafa13c71fbe7cf",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/circuits/thumb/2026-r09-gbr-thumb.webp",
+        "bytes": 25938,
+        "sha256": "8566b60bd18b3f8d86e1c91a27ba68de1da864c76cbde67762779803026cbe3a",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2026,
+      "eventId": "2026:r10",
+      "round": 10,
+      "circuitId": "spa",
+      "code": "bel",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.6,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/circuits/hero/2026-r10-bel-hero.webp",
+        "bytes": 155444,
+        "sha256": "6a4782c23afa2a544f7a53490762692fa9ca5c6b78a877746a801f7d323c03e4",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/circuits/mobile/2026-r10-bel-mobile.webp",
+        "bytes": 53132,
+        "sha256": "d140e517f932d7f2c4b2f405a0e7780d264de0dfb44d318d32fba563b5326ba0",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/circuits/thumb/2026-r10-bel-thumb.webp",
+        "bytes": 25446,
+        "sha256": "4ab8b10eede02d89b2899229b0d9365a4cdfa1a1b5b9fb582d8ee68bc4c428f4",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2026,
+      "eventId": "2026:r11",
+      "round": 11,
+      "circuitId": "hungaroring",
+      "code": "hun",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.47,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/circuits/hero/2026-r11-hun-hero.webp",
+        "bytes": 172462,
+        "sha256": "f04b1723feba96ef941053ac5adc106d6b8c37d3fded8527e0d9b6fdad695268",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/circuits/mobile/2026-r11-hun-mobile.webp",
+        "bytes": 72230,
+        "sha256": "80da58ef3596236e774ddc970dee336a7072f2fde83d36c43480f06e04532ea4",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/circuits/thumb/2026-r11-hun-thumb.webp",
+        "bytes": 28914,
+        "sha256": "fc8bd56e2082f5ad41c3100f549966a9e11fd7240a28a90c1473621352ccca06",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2026,
+      "eventId": "2026:r12",
+      "round": 12,
+      "circuitId": "zandvoort",
+      "code": "ned",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.58,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/circuits/hero/2026-r12-ned-hero.webp",
+        "bytes": 170582,
+        "sha256": "e1d50141455747ff7257c4d2d896d433d69d9bea9f2eef4aff33fa730b9147ec",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/circuits/mobile/2026-r12-ned-mobile.webp",
+        "bytes": 67556,
+        "sha256": "a1e2e576913b6d5f196221d73781f1aaa6476891a6cb9ffef13fb9c017c5bd36",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/circuits/thumb/2026-r12-ned-thumb.webp",
+        "bytes": 31790,
+        "sha256": "2970c584d3be15322465e1e951ef047e6e4a0bd3448f22b0e4ba53b1e99bee34",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2026,
+      "eventId": "2026:r13",
+      "round": 13,
+      "circuitId": "monza",
+      "code": "ita",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.6,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/circuits/hero/2026-r13-ita-hero.webp",
+        "bytes": 248386,
+        "sha256": "a0ba818c1a34688e71b3e35036327fde754d229dc94cfeec2077110ae43ae294",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/circuits/mobile/2026-r13-ita-mobile.webp",
+        "bytes": 113622,
+        "sha256": "cb321e967ae47e3c4fc965787ca98ff6f798ace90f6356bcd4dd582f38b63e18",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/circuits/thumb/2026-r13-ita-thumb.webp",
+        "bytes": 41404,
+        "sha256": "6abc6bfc09fc80ade4f91d5b7e84881c10832da7e55ed9784938974df6b94675",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2026,
+      "eventId": "2026:r14",
+      "round": 14,
+      "circuitId": "madring",
+      "code": "mad",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.68,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/circuits/hero/2026-r14-mad-hero.webp",
+        "bytes": 140748,
+        "sha256": "7ef591af04d9680c65a9b865da6739e6c8f12208f427e760eec46b18ac7d95e7",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/circuits/mobile/2026-r14-mad-mobile.webp",
+        "bytes": 54004,
+        "sha256": "29b86232621ce2356a191016392f61a90cfa78df82a20003d366a45e61e73239",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/circuits/thumb/2026-r14-mad-thumb.webp",
+        "bytes": 22542,
+        "sha256": "c69bf5f4d5405bd36402283d81e1d094853a1cb0b58d5322b1d59469195a1c22",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2026,
+      "eventId": "2026:r15",
+      "round": 15,
+      "circuitId": "baku",
+      "code": "aze",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.46,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/circuits/hero/2026-r15-aze-hero.webp",
+        "bytes": 191582,
+        "sha256": "20020896f97d194783790a8f749fe8be140c9abe88330e7a151b74d30af07c61",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/circuits/mobile/2026-r15-aze-mobile.webp",
+        "bytes": 78896,
+        "sha256": "d3b7f732924cf4078e034e867cbabc33f070185e90875192e0d475524c9beb27",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/circuits/thumb/2026-r15-aze-thumb.webp",
+        "bytes": 30848,
+        "sha256": "81df35dc5676b0fe078a9d6dcdbe8f33f6df1c2c57385bbf3a32bf4ffe45e47b",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2026,
+      "eventId": "2026:r16",
+      "round": 16,
+      "circuitId": "sepang",
+      "code": "sep",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.43,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/circuits/hero/2026-r16-sep-hero.webp",
+        "bytes": 132480,
+        "sha256": "f0b066482fd7b5858099265c4590b11d5bb02e1e47c27a47631297400a82364f",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/circuits/mobile/2026-r16-sep-mobile.webp",
+        "bytes": 71916,
+        "sha256": "72fecd9a436c6f32452414c1f335d733928481ad3c4b441250df01120c1e3ae4",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/circuits/thumb/2026-r16-sep-thumb.webp",
+        "bytes": 22484,
+        "sha256": "857bb3e96a9fbca69c4b819d73430d2821cb271a38004d1676dee0b5f6929e69",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2026,
+      "eventId": "2026:r17",
+      "round": 17,
+      "circuitId": "marina-bay",
+      "code": "sgp",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.52,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/circuits/hero/2026-r17-sgp-hero.webp",
+        "bytes": 231532,
+        "sha256": "a6b3f7e55300a8787a21b75e40a96a3e3cdf435a01792fd765d46669397691c8",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/circuits/mobile/2026-r17-sgp-mobile.webp",
+        "bytes": 98684,
+        "sha256": "441895a4e8f9cde7b69e640adf3ebbf13fe1c656cdb00fe00cc12ec533aa9240",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/circuits/thumb/2026-r17-sgp-thumb.webp",
+        "bytes": 37688,
+        "sha256": "fd45f53df01fd165b11fa6ee5afa8d89d8b2cf933b48242fc9d8628be2ffbaea",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2026,
+      "eventId": "2026:r18",
+      "round": 18,
+      "circuitId": "cota",
+      "code": "usa",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.61,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/circuits/hero/2026-r18-usa-hero.webp",
+        "bytes": 143950,
+        "sha256": "391e491624adc0ad8c985c8cc2590de682f42ca291e6b12556744593b2ec3868",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/circuits/mobile/2026-r18-usa-mobile.webp",
+        "bytes": 63528,
+        "sha256": "85a3a4e972a5e235060a576186c1df54b9e34d67c34dfb49777a9ec4f460c3c5",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/circuits/thumb/2026-r18-usa-thumb.webp",
+        "bytes": 28704,
+        "sha256": "d3668bb5c1e353f010080e4b44ba64aad546059584a071d2eda81bfaff751a22",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2026,
+      "eventId": "2026:r19",
+      "round": 19,
+      "circuitId": "hermanos-rodriguez",
+      "code": "mex",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.55,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/circuits/hero/2026-r19-mex-hero.webp",
+        "bytes": 189520,
+        "sha256": "8990546cbc62072264c421a1db8005a1b1bcd2ea8f171302153af67a0a292e90",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/circuits/mobile/2026-r19-mex-mobile.webp",
+        "bytes": 75136,
+        "sha256": "07417fd4d612fd96d1f1a036e2c54527adfb94bed861e11fda2787796eff852c",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/circuits/thumb/2026-r19-mex-thumb.webp",
+        "bytes": 29928,
+        "sha256": "0265f1c9756f164375a94fb2c712a61bf3e6cc65cea009ea7fd30074c66679b1",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2026,
+      "eventId": "2026:r20",
+      "round": 20,
+      "circuitId": "interlagos",
+      "code": "bra",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.5,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/circuits/hero/2026-r20-bra-hero.webp",
+        "bytes": 161874,
+        "sha256": "1b521e0827ab2073ba2f88ec3da9296f7d70dccd9ae4c0145b6c405a9986bb56",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/circuits/mobile/2026-r20-bra-mobile.webp",
+        "bytes": 73628,
+        "sha256": "78d2931a591f9bade5c55274b83622340e8d5401803c7adea9da7698cb16bf52",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/circuits/thumb/2026-r20-bra-thumb.webp",
+        "bytes": 29966,
+        "sha256": "4b553d8ca95de08e584fed4f98a25bb82019730b5a881b5ec69dec4c85fc7918",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2026,
+      "eventId": "2026:r21",
+      "round": 21,
+      "circuitId": "las-vegas",
+      "code": "lvg",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.63,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/circuits/hero/2026-r21-lvg-hero.webp",
+        "bytes": 229776,
+        "sha256": "2cfa69951c10c7ad6e3e8e2de168e2d3513d7c9379890e5d887232fb5d8526aa",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/circuits/mobile/2026-r21-lvg-mobile.webp",
+        "bytes": 96358,
+        "sha256": "1c45a7785ae95ad1ef4fcd97904ea9d567ccabbb75147d80e17aa1590f7d534b",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/circuits/thumb/2026-r21-lvg-thumb.webp",
+        "bytes": 33502,
+        "sha256": "6fe00f1ae55e6ac838cdd9e144d5fb8765fa329b7dac55cc0d78fd05352f7d13",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2026,
+      "eventId": "2026:r22",
+      "round": 22,
+      "circuitId": "lusail",
+      "code": "qat",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.56,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/circuits/hero/2026-r22-qat-hero.webp",
+        "bytes": 161278,
+        "sha256": "5ff830780b7fc21fff08439203dedbd4129a1d36663f29195e3b702bc511edd0",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/circuits/mobile/2026-r22-qat-mobile.webp",
+        "bytes": 53288,
+        "sha256": "583bfef5dce92193024b1f2a4dc230b99c53476e7e3ead63116232c8e0c26c9b",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/circuits/thumb/2026-r22-qat-thumb.webp",
+        "bytes": 24548,
+        "sha256": "e84ce9a15ecd32d781a1efd1ac13655a726e9bb0898095179730d9b567409100",
+        "width": 720,
+        "height": 240
+      }
+    },
+    {
+      "season": 2026,
+      "eventId": "2026:r23",
+      "round": 23,
+      "circuitId": "yas-marina",
+      "code": "abu",
+      "assetStatus": "NEEDS_REVIEW",
+      "sourceQuality": "UNVERIFIED",
+      "focalPointX": 0.71,
+      "desktop": {
+        "sourceFile": ".local-assets/p5-review/circuits/hero/2026-r23-abu-hero.webp",
+        "bytes": 169538,
+        "sha256": "d68c2b477ebfdd9e6c27ea1946347bfe36c0527e3dba92bd2a7aa0408beb7ea0",
+        "width": 1920,
+        "height": 640
+      },
+      "mobile": {
+        "sourceFile": ".local-assets/p5-review/circuits/mobile/2026-r23-abu-mobile.webp",
+        "bytes": 84200,
+        "sha256": "d104e4ea493f67701f6da84fb054eab1c4fde3de32f1c349f309b0c5d13985c6",
+        "width": 900,
+        "height": 675
+      },
+      "thumbnail": {
+        "sourceFile": ".local-assets/p5-review/circuits/thumb/2026-r23-abu-thumb.webp",
+        "bytes": 26210,
+        "sha256": "3264b90b21c59cddb7624d7811036468bbd257ec3858d3b5924123c354c5dc54",
+        "width": 720,
+        "height": 240
+      }
+    }
+  ],
+  "drivers": [
+    {
+      "season": 2024,
+      "driverId": "verstappen",
+      "driverCode": "VER",
+      "teamId": "redbull",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons/2024-rbr-ver.webp",
+        "bytes": 10372,
+        "sha256": "9b906fa2093abdd1eaf87eda3720a0a32b93ae3a99a098f1a9eb42c1bb65de4b",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons-small/2024-rbr-ver.webp",
+        "bytes": 3094,
+        "sha256": "191a2182bedf86d13c9446a030e1f27e32ef010d1f7b43cfa47caad9c7b44202",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "norris",
+      "driverCode": "NOR",
+      "teamId": "mclaren",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons/2024-mcl-nor.webp",
+        "bytes": 10368,
+        "sha256": "bf6a376f9c7b8b4b75a6c36341007d56f164a36cfc64dd228cda4694306b1f91",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons-small/2024-mcl-nor.webp",
+        "bytes": 3138,
+        "sha256": "00e3bb922f14bbc681e37f2b1046a6b3709b81d4856dd44af9ca76ef1df5a352",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "leclerc",
+      "driverCode": "LEC",
+      "teamId": "ferrari",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons/2024-fer-lec.webp",
+        "bytes": 9944,
+        "sha256": "2f86e448e126c88c2439e387c205dbf281cd50a3900515c0b17566871fe23c7a",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons-small/2024-fer-lec.webp",
+        "bytes": 2944,
+        "sha256": "4e781fba5c0d160fdbfc556576ce600eadabe6dfa54dd6105bb557624e88f4c1",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "piastri",
+      "driverCode": "PIA",
+      "teamId": "mclaren",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons/2024-mcl-pia.webp",
+        "bytes": 10362,
+        "sha256": "6d235e683530512c5b5973ed6289a766eaf61b0793c1fe194de941afd91b48d5",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons-small/2024-mcl-pia.webp",
+        "bytes": 3108,
+        "sha256": "54d48ddeab387a3e0b0a8892762cc95f9fcf80ced0728b1cff647adc9da60e81",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "sainz",
+      "driverCode": "SAI",
+      "teamId": "ferrari",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons/2024-fer-sai.webp",
+        "bytes": 10212,
+        "sha256": "66324ba4fdf0d8522a42d0e441b51123cd05467f0463355c328dc4cf9db479db",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons-small/2024-fer-sai.webp",
+        "bytes": 2962,
+        "sha256": "d4501aa6abab6f12b74c127da5fe4ab2f48b761065febb5a36938c07530831df",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "russell",
+      "driverCode": "RUS",
+      "teamId": "mercedes",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons/2024-mer-rus.webp",
+        "bytes": 10382,
+        "sha256": "d3a941862e05a62c25163c8fe79fc11c2d3e47e136ecf13e99ee9209429108d4",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons-small/2024-mer-rus.webp",
+        "bytes": 3078,
+        "sha256": "18ae12333ca0be7a6388ca530082dd5748e4442c0c64b063562d9c8eae365347",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "hamilton",
+      "driverCode": "HAM",
+      "teamId": "mercedes",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons/2024-mer-ham.webp",
+        "bytes": 10130,
+        "sha256": "540d95cb0192b0ebecf908bca47f14c4574ea312585b375c46fc23efb2a703b3",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons-small/2024-mer-ham.webp",
+        "bytes": 3038,
+        "sha256": "be04685ae2326c887379d3088e7d184ea2dcd8778990b38bf9203b5ad4cd2399",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "perez",
+      "driverCode": "PER",
+      "teamId": "redbull",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons/2024-rbr-per.webp",
+        "bytes": 10628,
+        "sha256": "edb8b029387823351ff508261122a83bebe8c6bea98b04cc78dcf13f88b55198",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons-small/2024-rbr-per.webp",
+        "bytes": 3054,
+        "sha256": "f46136fb0e7a2603ee5ebe149e88feea73870a06276ea9319181c20806043e47",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "alonso",
+      "driverCode": "ALO",
+      "teamId": "astonmartin",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons/2024-amr-alo.webp",
+        "bytes": 10660,
+        "sha256": "f54f894e2c417b3f6027eefb2e74df7c44de124b45c7a2bb94964f3aeedd0767",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons-small/2024-amr-alo.webp",
+        "bytes": 3040,
+        "sha256": "b1a13c82438ec3527127de5ff1af210b8aec2b16e31d158a379d6a917a62c355",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "gasly",
+      "driverCode": "GAS",
+      "teamId": "alpine",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons/2024-alp-gas.webp",
+        "bytes": 10932,
+        "sha256": "01b0a8d1c5d238b709761f9c1bebd25cd467acf9b046a8ee36982c85225ea09b",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons-small/2024-alp-gas.webp",
+        "bytes": 3200,
+        "sha256": "acc776976234f2f9aec6d66ade524f727a2aa4f0e54840c3b77127e9dfc51dba",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "hulkenberg",
+      "driverCode": "HUL",
+      "teamId": "haas",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons/2024-haa-hul.webp",
+        "bytes": 9986,
+        "sha256": "1fcdc1743430f84c6a5fb0ed1f8b328234dcd3fb6ab2901c485b5f8b3a7d8903",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons-small/2024-haa-hul.webp",
+        "bytes": 2988,
+        "sha256": "0d5366e461d2b760fa609e223ff7b25a7f03645a0c37410aeb298fb2478c33b8",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "tsunoda",
+      "driverCode": "TSU",
+      "teamId": "racingbulls",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons/2024-rbs-tsu.webp",
+        "bytes": 10518,
+        "sha256": "afbe27776e495c7117c12cf16e2bc9d450349de786468e567b4d4f9d8c7c5bff",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons-small/2024-rbs-tsu.webp",
+        "bytes": 3136,
+        "sha256": "8fac5050be8eccbeff6821b12de31c4d1a1715226653a58473445ff2f3ff9b50",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "stroll",
+      "driverCode": "STR",
+      "teamId": "astonmartin",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons/2024-amr-str.webp",
+        "bytes": 10466,
+        "sha256": "7b00b6cedffc8364338a9a5b764340f07b547dacbc9228292d6788f54eb2fbaf",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons-small/2024-amr-str.webp",
+        "bytes": 3028,
+        "sha256": "95982b15514386628c478a12101ef4e05fdb56a2eae7df7252df7ba5880d2202",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "ocon",
+      "driverCode": "OCO",
+      "teamId": "alpine",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons/2024-alp-oco.webp",
+        "bytes": 10618,
+        "sha256": "98ea73cb304e3bed43ecf504e7999cad0a4abfc451d26feabd766bfa0fdfcaba",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons-small/2024-alp-oco.webp",
+        "bytes": 3186,
+        "sha256": "21d5b60d95dd0df672b15a617a28100f094a930002791643f37ea48536986f3e",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "magnussen",
+      "driverCode": "MAG",
+      "teamId": "haas",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons/2024-haa-mag.webp",
+        "bytes": 9920,
+        "sha256": "14e4b8fe4dc54a2589c883e1aced6b981fa9ecebe6270edb1750f68e13833bc7",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons-small/2024-haa-mag.webp",
+        "bytes": 2962,
+        "sha256": "d0919f1ae0c074e7f734fcf4c6871e0e06b226bf99c17b4d1bbe1ba627bc1e3e",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "albon",
+      "driverCode": "ALB",
+      "teamId": "williams",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons/2024-wil-alb.webp",
+        "bytes": 10676,
+        "sha256": "c517c6b43f453f315f1cf44240b181a007664175b0490c21fe62970db7a4305d",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons-small/2024-wil-alb.webp",
+        "bytes": 3162,
+        "sha256": "a782056d11aa8ad06c892522eb7897ffd9286d52dcdf8ed617814a428e702759",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "ricciardo",
+      "driverCode": "RIC",
+      "teamId": "racingbulls",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons/2024-rbs-ric.webp",
+        "bytes": 10652,
+        "sha256": "51ec9b06172c3cc2fd5203b387eb4fdb88f95c6b34c6463ea3c187d433aa4cea",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons-small/2024-rbs-ric.webp",
+        "bytes": 3114,
+        "sha256": "68a8a294631a8e52212b96a7d7c6189981fecb196face5e5f3ed361732c6c20d",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "bearman",
+      "driverCode": "BEA",
+      "teamId": "haas",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons/2024-haa-bea.webp",
+        "bytes": 10236,
+        "sha256": "70e1f1306b5666823962749b9dbbd1475184e70b256294456450725ea7306ce5",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons-small/2024-haa-bea.webp",
+        "bytes": 2988,
+        "sha256": "44dcd610f33f7e6d3e37ba135147b911f920fd3aef467c5e341c9ce4b35c2ff7",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "colapinto",
+      "driverCode": "COL",
+      "teamId": "williams",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons/2024-wil-col.webp",
+        "bytes": 11128,
+        "sha256": "c0caad60587034ef0aea95e8bd79ef76c20a45e68d7cb2f9e47df05a109a3297",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons-small/2024-wil-col.webp",
+        "bytes": 3236,
+        "sha256": "f4066dc11ecc50f5a9b6bb244e581517676ec5e0c5128d24adfaf4e54278b182",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "zhou",
+      "driverCode": "ZHO",
+      "teamId": "audi",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons/2024-ksa-zho.webp",
+        "bytes": 9824,
+        "sha256": "2d2d5a3b823b63b38a7f9d7ddb51ae4c989ef18c73988fa93969474a8d67900f",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons-small/2024-ksa-zho.webp",
+        "bytes": 2984,
+        "sha256": "d8f9bfed453ff20e013874373f437bcd0d6877b9d435df5b667871304b81a509",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "lawson",
+      "driverCode": "LAW",
+      "teamId": "racingbulls",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons/2024-rbs-law.webp",
+        "bytes": 10380,
+        "sha256": "99c4bb869a8c504426dcda08febafa86c0d4821ab752c2c7995e74e449dd785e",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons-small/2024-rbs-law.webp",
+        "bytes": 3080,
+        "sha256": "42857346afd4eefcb30e86492c3a3c86fa215a57c47c62a73d8b8340bfe53d74",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "bottas",
+      "driverCode": "BOT",
+      "teamId": "audi",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons/2024-ksa-bot.webp",
+        "bytes": 9688,
+        "sha256": "005cb2e71e680125d17d4fd4d3fec1a9b68f46989aa90ab294057390a5fa05aa",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons-small/2024-ksa-bot.webp",
+        "bytes": 3000,
+        "sha256": "4df9ba0b7e1eecef57a8a74d4ed8f95a88b15be5f44449d6eeaa8978db17eae3",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "sargeant",
+      "driverCode": "SAR",
+      "teamId": "williams",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons/2024-wil-sar.webp",
+        "bytes": 10654,
+        "sha256": "6c73a483b3017180c36ec5e0be1675925f7734fb89700429985a6d867f3f00ff",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons-small/2024-wil-sar.webp",
+        "bytes": 3146,
+        "sha256": "c0aaa057c0d83e14b45d8dce3c7801fe02d27e85fd14cbb362c859926d80688f",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2024,
+      "driverId": "doohan",
+      "driverCode": "DOO",
+      "teamId": "alpine",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons/2024-alp-doo.webp",
+        "bytes": 10802,
+        "sha256": "c44e863ab78ce37ac9f55d770f5a8893d7a05fba694ca78bd8be53fc2eb02c61",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2024/drivers/icons-small/2024-alp-doo.webp",
+        "bytes": 3170,
+        "sha256": "40c3af2ece4e6e2ee090a98a39a5988201c7a195845582f3300a359b50ff3732",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2025,
+      "driverId": "norris",
+      "driverCode": "NOR",
+      "teamId": "mclaren",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/drivers/icons/2025-mcl-nor.webp",
+        "bytes": 11008,
+        "sha256": "fbc484d580e8071f243d020de92e7beba8f9865581d83fa7d8a8485e751894a2",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/drivers/icons-small/2025-mcl-nor.webp",
+        "bytes": 3266,
+        "sha256": "4a5f0a3e8bc9f6fb62b6a46cfa37d3485f9fc5f267e72c21005a21e6cb92de6c",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2025,
+      "driverId": "verstappen",
+      "driverCode": "VER",
+      "teamId": "redbull",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/drivers/icons/2025-rbr-ver.webp",
+        "bytes": 10602,
+        "sha256": "254c8ac9b53d9e302d1721974cd38d17a62fd6755f81b4d6d2f04d24dcc47e24",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/drivers/icons-small/2025-rbr-ver.webp",
+        "bytes": 3174,
+        "sha256": "dffdcb86f054a0479f613d240e1ca6d103f14a71a17ee24e737804add47a62a6",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2025,
+      "driverId": "piastri",
+      "driverCode": "PIA",
+      "teamId": "mclaren",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/drivers/icons/2025-mcl-pia.webp",
+        "bytes": 10418,
+        "sha256": "6d423cd8e73dc3850abcedd4a59991c042afc426ce70045d6fc3a9ce9efae235",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/drivers/icons-small/2025-mcl-pia.webp",
+        "bytes": 3174,
+        "sha256": "4e98e616779141c51a720963faade1b2e833ebcc437e0e83fa79f88f5c3b40ea",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2025,
+      "driverId": "russell",
+      "driverCode": "RUS",
+      "teamId": "mercedes",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/drivers/icons/2025-mer-rus.webp",
+        "bytes": 10256,
+        "sha256": "d7daa1e5ece089c7811d4026e3c93ed70fef9cc81b3e8e34c41581463775b960",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/drivers/icons-small/2025-mer-rus.webp",
+        "bytes": 3098,
+        "sha256": "4dde5ce21a008f29cb22a81509e6b40fcec73a061d2b4d023543261ce4830e37",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2025,
+      "driverId": "leclerc",
+      "driverCode": "LEC",
+      "teamId": "ferrari",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/drivers/icons/2025-fer-lec.webp",
+        "bytes": 10332,
+        "sha256": "ea833f3f694ed1da827d03c655634f71915acaa01437cfb67aeb36724014ee25",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/drivers/icons-small/2025-fer-lec.webp",
+        "bytes": 3002,
+        "sha256": "3f45317315dc21e4b53ee269eb0cff3a84cb0cb54ab89f59bea6fea480d85ec7",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2025,
+      "driverId": "hamilton",
+      "driverCode": "HAM",
+      "teamId": "ferrari",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/drivers/icons/2025-fer-ham.webp",
+        "bytes": 10164,
+        "sha256": "3cce2a504a63aa65b75c1120ea1b8984cfbef822c93ce1e4c17faaf6889d5e84",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/drivers/icons-small/2025-fer-ham.webp",
+        "bytes": 2944,
+        "sha256": "ae577b590b14dc1be8df6af7d09e0f758825500ccc5039c7b0ab2086f2c679fb",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2025,
+      "driverId": "antonelli",
+      "driverCode": "ANT",
+      "teamId": "mercedes",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/drivers/icons/2025-mer-ant.webp",
+        "bytes": 11144,
+        "sha256": "01f8af0d045a6a5591f74a70bab25a3c81d0eee7d563dcbe7efa232f04a61010",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/drivers/icons-small/2025-mer-ant.webp",
+        "bytes": 3232,
+        "sha256": "0cb740fcab19c87bbed35e889a33916decf225fd211525b12f359dd09dcbfb21",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2025,
+      "driverId": "albon",
+      "driverCode": "ALB",
+      "teamId": "williams",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/drivers/icons/2025-wil-alb.webp",
+        "bytes": 10902,
+        "sha256": "3eba06663dcfa5f474803089c37649d0e07603d377ced4e61e4cee9a48027cb6",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/drivers/icons-small/2025-wil-alb.webp",
+        "bytes": 3182,
+        "sha256": "1cbb9ef83c25af2b00834951aba49dedfc434ef227837a56071d384635c3060b",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2025,
+      "driverId": "sainz",
+      "driverCode": "SAI",
+      "teamId": "williams",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/drivers/icons/2025-wil-sai.webp",
+        "bytes": 11022,
+        "sha256": "a1d88a05c2f5bcf2e8634bd79d9b914664b69310dbef71dd0425502b939f7f3a",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/drivers/icons-small/2025-wil-sai.webp",
+        "bytes": 3186,
+        "sha256": "1a65bab36cacdf269a6bab57fc8ffa141e77dcb6d2acbb0bd0639718f36ca43c",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2025,
+      "driverId": "alonso",
+      "driverCode": "ALO",
+      "teamId": "astonmartin",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/drivers/icons/2025-amr-alo.webp",
+        "bytes": 10860,
+        "sha256": "2b394d742d3efc449efa2363f2141be9ec7ac911d7d50c2340251565999c6629",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/drivers/icons-small/2025-amr-alo.webp",
+        "bytes": 3110,
+        "sha256": "21ced430233c534e8dd1683ca2c162721325f10ff1fb135ba2f82029fa8cd3dd",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2025,
+      "driverId": "hulkenberg",
+      "driverCode": "HUL",
+      "teamId": "audi",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/drivers/icons/2025-ksa-hul.webp",
+        "bytes": 10384,
+        "sha256": "f971f43835a254d60d052bc5d5febbb649a67f2b8b2bdd1d5abbd571a7a33a95",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/drivers/icons-small/2025-ksa-hul.webp",
+        "bytes": 3078,
+        "sha256": "3169c35797e4b2e077f2c83035da11a7c4fde2292dbf0111af86ed0be29e9460",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2025,
+      "driverId": "hadjar",
+      "driverCode": "HAD",
+      "teamId": "racingbulls",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/drivers/icons/2025-rbs-had.webp",
+        "bytes": 10638,
+        "sha256": "42321ce65e08806ec6e173b1f48841ee2f1788b17d8054828bc8ff5f97e2f815",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/drivers/icons-small/2025-rbs-had.webp",
+        "bytes": 3162,
+        "sha256": "fba5dc11dd28d0e257408576206488c0ac8eec87baaecd8fff270a7e5c002b17",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2025,
+      "driverId": "bearman",
+      "driverCode": "BEA",
+      "teamId": "haas",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/drivers/icons/2025-haa-bea.webp",
+        "bytes": 9964,
+        "sha256": "de111be58b75b3b5edaa266a160d2741c49f98f5ee528b2c365fac3161c06233",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/drivers/icons-small/2025-haa-bea.webp",
+        "bytes": 3006,
+        "sha256": "f2a96c7ae21116d250892895df36edc047b0e7d0a22d2b72ee7cc29e939ab76e",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2025,
+      "driverId": "lawson",
+      "driverCode": "LAW",
+      "teamId": "racingbulls",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/drivers/icons/2025-rbs-law.webp",
+        "bytes": 10976,
+        "sha256": "7871e2b0c1474560fdfca4c0eb7cde24fb55fa2aea85c50dd6ec6a3c8da228fb",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/drivers/icons-small/2025-rbs-law.webp",
+        "bytes": 3250,
+        "sha256": "1e14710875dbe23ff5dea130734798cebb8dbafbdbd1feb83f62345c213f711d",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2025,
+      "driverId": "ocon",
+      "driverCode": "OCO",
+      "teamId": "haas",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/drivers/icons/2025-haa-oco.webp",
+        "bytes": 9602,
+        "sha256": "b4790422d29924778b152dd7fe767f2b4269f7a07383bcc3fcde3b33eee68812",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/drivers/icons-small/2025-haa-oco.webp",
+        "bytes": 2972,
+        "sha256": "b6564f5ae0ee571da8bb6c92d9c3c3800fde5ec809fa5b05bb408408eb5fcbb4",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2025,
+      "driverId": "stroll",
+      "driverCode": "STR",
+      "teamId": "astonmartin",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/drivers/icons/2025-amr-str.webp",
+        "bytes": 10618,
+        "sha256": "2f25f5e2d1be71c94957110e13971415b8675939315b5e2585dce694435fa4bd",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/drivers/icons-small/2025-amr-str.webp",
+        "bytes": 3116,
+        "sha256": "6d8425f940654b04d4b0652db627e851a7a417401f6afde0e90d6f523cb8474a",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2025,
+      "driverId": "tsunoda",
+      "driverCode": "TSU",
+      "teamId": "redbull",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/drivers/icons/2025-rbr-tsu.webp",
+        "bytes": 10412,
+        "sha256": "9f73183c3471d0213679f97982fd855a9a4cb91777f92d0ee246dc8b613a4f5c",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/drivers/icons-small/2025-rbr-tsu.webp",
+        "bytes": 3050,
+        "sha256": "485620a1aa35ac5dc159ff948b138932c0df48ecfcd85655cbe76165ed5e0c7e",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2025,
+      "driverId": "gasly",
+      "driverCode": "GAS",
+      "teamId": "alpine",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/drivers/icons/2025-alp-gas.webp",
+        "bytes": 11126,
+        "sha256": "9fb752b9e25b6af690c510a915bb0b1f2222dc90073eee501e0e5d14eec022b1",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/drivers/icons-small/2025-alp-gas.webp",
+        "bytes": 3228,
+        "sha256": "aa5f1a3fe5f0bb3c9aa1beb8dad507dbf454d464b56b33dcd8e5811a0fa21d56",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2025,
+      "driverId": "bortoleto",
+      "driverCode": "BOR",
+      "teamId": "audi",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/drivers/icons/2025-ksa-bor.webp",
+        "bytes": 10416,
+        "sha256": "f680276c67247ea52b9371633654e7960c6b54598a521a0fcef32e0761dc521f",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/drivers/icons-small/2025-ksa-bor.webp",
+        "bytes": 3090,
+        "sha256": "c7bfe170425435206e1cee75ad9935f4c818c43e435f9731ef7d5812eaadbc6d",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2025,
+      "driverId": "colapinto",
+      "driverCode": "COL",
+      "teamId": "alpine",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/drivers/icons/2025-alp-col.webp",
+        "bytes": 11000,
+        "sha256": "f8287c11437645470fb86902013f148cf82aa97e81739840e0664a034ed62999",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/drivers/icons-small/2025-alp-col.webp",
+        "bytes": 3212,
+        "sha256": "b001d5e7b6396e766d97a1c66fb7fef2995fdf31162e7dac2de7fe59b61e6080",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2025,
+      "driverId": "doohan",
+      "driverCode": "DOO",
+      "teamId": "alpine",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/drivers/icons/2025-alp-doo.webp",
+        "bytes": 10782,
+        "sha256": "a461231899b0ad09a2d3dff149b6b35e9dda03aa0ff1d0f77bda2d1103cc68dd",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/Podium_EDS_2024_2025_Circuits_Driver_Icons_WebP/2025/drivers/icons-small/2025-alp-doo.webp",
+        "bytes": 3186,
+        "sha256": "b5b131454ad7c4e438207eb86253f1e5baa1967eed5fba7d83664239ba59b708",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2026,
+      "driverId": "antonelli",
+      "driverCode": "ANT",
+      "teamId": "mercedes",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons/2026-mer-ant.webp",
+        "bytes": 10220,
+        "sha256": "8ed2b3b2b004d7f44dee3d5f6a6160950848670605e0861882fe85b4974f86f3",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons-small/2026-mer-ant.webp",
+        "bytes": 3836,
+        "sha256": "5df24f852572b815cd828b10460d7bba66cf95cf14e474fe0a6ed41027cff652",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2026,
+      "driverId": "verstappen",
+      "driverCode": "VER",
+      "teamId": "redbull",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons/2026-rbr-ver.webp",
+        "bytes": 9710,
+        "sha256": "0c5cb617bcbb2ef0a691d2b57e17419b962312bc2dd307671d07bf6ef17d7337",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons-small/2026-rbr-ver.webp",
+        "bytes": 3738,
+        "sha256": "712f9909108420d1ace9e32579bcdaa140ad4f855836c96bac3a46bd1df3eda9",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2026,
+      "driverId": "hamilton",
+      "driverCode": "HAM",
+      "teamId": "ferrari",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons/2026-fer-ham.webp",
+        "bytes": 8966,
+        "sha256": "ed525302816409136ac5019eec060e7d1c25695e41382fbf00cad40e06ba658d",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons-small/2026-fer-ham.webp",
+        "bytes": 3610,
+        "sha256": "93e2fa5a5d25fb9992f1c36ad5c9843612001eb2a07f508312b9c606cb87eb17",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2026,
+      "driverId": "russell",
+      "driverCode": "RUS",
+      "teamId": "mercedes",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons/2026-mer-rus.webp",
+        "bytes": 9578,
+        "sha256": "1f1f35fa3fca0a8d20d9a133f1d74e5baa881cbfdb7a63f3bb4c6ed96a1fd056",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons-small/2026-mer-rus.webp",
+        "bytes": 3842,
+        "sha256": "3bccf62721fa960a3f3d6b3a557cc470c7f79011ed6cfae7ef48f7e25b658274",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2026,
+      "driverId": "leclerc",
+      "driverCode": "LEC",
+      "teamId": "ferrari",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons/2026-fer-lec.webp",
+        "bytes": 9558,
+        "sha256": "d979b8edba473825887787aee7e655d533d9b4076f3559a06515c51947d4747e",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons-small/2026-fer-lec.webp",
+        "bytes": 3686,
+        "sha256": "e3add7fd38d1e58b6795fee6600a6003e73042e138bd62a456a00da667ab0c64",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2026,
+      "driverId": "norris",
+      "driverCode": "NOR",
+      "teamId": "mclaren",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons/2026-mcl-nor.webp",
+        "bytes": 9816,
+        "sha256": "432b19e46a5b35b15f17cc362c23ec0bee7b44c3a90c1d1f07fd6da8be04e93b",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons-small/2026-mcl-nor.webp",
+        "bytes": 3890,
+        "sha256": "75f8e854fa6d2cd5de318f99c61d1544210d112c5f9d5415222d42dc2e33f351",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2026,
+      "driverId": "piastri",
+      "driverCode": "PIA",
+      "teamId": "mclaren",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons/2026-mcl-pia.webp",
+        "bytes": 9754,
+        "sha256": "315d093c8fcd32ee9b46580dd025f08e516e86bb9d1b13c25365be82d36fc279",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons-small/2026-mcl-pia.webp",
+        "bytes": 3886,
+        "sha256": "e3a5062b1eb0f15448d4b30c99c04bd02a411353d5d508d67e454b2e853b5528",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2026,
+      "driverId": "hadjar",
+      "driverCode": "HAD",
+      "teamId": "redbull",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons/2026-rbr-had.webp",
+        "bytes": 8952,
+        "sha256": "9911089479fb439b2e56b08a6f4d899919f02d1c8543d142d3e3de6644a5604c",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons-small/2026-rbr-had.webp",
+        "bytes": 3676,
+        "sha256": "2048f54dad8fdea7eac85f779828dc8969b2fcb7c7e9b5456234bc3dd7de6b09",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2026,
+      "driverId": "lawson",
+      "driverCode": "LAW",
+      "teamId": "racingbulls",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons/2026-rbs-law.webp",
+        "bytes": 9424,
+        "sha256": "c5948ab6a5089df81799c4ffc99587195834db092e5d8688a454066db289990d",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons-small/2026-rbs-law.webp",
+        "bytes": 3790,
+        "sha256": "d548877e7411e3097d95364b4c711b31ac14073ac3a93f886eccedc83b44d47a",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2026,
+      "driverId": "gasly",
+      "driverCode": "GAS",
+      "teamId": "alpine",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons/2026-alp-gas.webp",
+        "bytes": 9582,
+        "sha256": "edd256b8f68edf1cd11677640f4a5017bd3904bb76d918ad72aefa61b22a4765",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons-small/2026-alp-gas.webp",
+        "bytes": 3792,
+        "sha256": "543cf00e9b5d2f82c4dc659573ecdea4a90449629f39d5b642163b1f7b6d83bc",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2026,
+      "driverId": "lindblad",
+      "driverCode": "LIN",
+      "teamId": "racingbulls",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons/2026-rbs-lin.webp",
+        "bytes": 9086,
+        "sha256": "8eca644620474da702bf4207b666b50588e72e3c361a0dccc08563d2e7a640b7",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons-small/2026-rbs-lin.webp",
+        "bytes": 3676,
+        "sha256": "30d224dcf9236c5f3e80392d7d892d0aa569dd62eb37f076bb7a273ff95643b5",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2026,
+      "driverId": "colapinto",
+      "driverCode": "COL",
+      "teamId": "alpine",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons/2026-alp-col.webp",
+        "bytes": 9512,
+        "sha256": "df300c4c2e6fea6bdfd94b75e0f4cff949ee8b9943a36973c906683f4bc8836d",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons-small/2026-alp-col.webp",
+        "bytes": 3808,
+        "sha256": "d518d5ebf305851db28eb19a3280107e3a809943361973cf22814d33a8ea2eb9",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2026,
+      "driverId": "bearman",
+      "driverCode": "BEA",
+      "teamId": "haas",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons/2026-haa-bea.webp",
+        "bytes": 8948,
+        "sha256": "1de77d5ea227841d6398e290e30741b789af7e23e4bd2ce87b1dce1d99a455b8",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons-small/2026-haa-bea.webp",
+        "bytes": 3610,
+        "sha256": "d5868a1d66b7a164fa7383c09e87fb1467036175fa6ae1ea3f92ab86f3d1d721",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2026,
+      "driverId": "bortoleto",
+      "driverCode": "BOR",
+      "teamId": "audi",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons/2026-aud-bor.webp",
+        "bytes": 9124,
+        "sha256": "51c6e6d9ddb63d3cf805ab960ad14af4e4a9581083faf5b95b016fcee4d6fda3",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons-small/2026-aud-bor.webp",
+        "bytes": 3602,
+        "sha256": "dcaff2fb67a33246c2dda63ea2044031b1273e8bd28fcd1197a28f8a868eaa0e",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2026,
+      "driverId": "hulkenberg",
+      "driverCode": "HUL",
+      "teamId": "audi",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons/2026-aud-hul.webp",
+        "bytes": 9130,
+        "sha256": "e60517323ca3d922d1c47cf005d98820917b634de38dde333861c27aa7190cd6",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons-small/2026-aud-hul.webp",
+        "bytes": 3594,
+        "sha256": "370cf58a1a7ead62f0b73e39018f1b32bfe49c3caf6659eccd232bf01ee1dc09",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2026,
+      "driverId": "ocon",
+      "driverCode": "OCO",
+      "teamId": "haas",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons/2026-haa-oco.webp",
+        "bytes": 8572,
+        "sha256": "4c478a75b9fd73663582556287818028b722ed26857630a909e77726c435b107",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons-small/2026-haa-oco.webp",
+        "bytes": 3520,
+        "sha256": "29f7deff8b74d6cc78cdffc94e01676c20265435c886c0ccc57822f6882efcff",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2026,
+      "driverId": "alonso",
+      "driverCode": "ALO",
+      "teamId": "astonmartin",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons/2026-amr-alo.webp",
+        "bytes": 9900,
+        "sha256": "74e85d852589b628a1b5963f04f6c3313294f393879902c14b2740e0648059c7",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons-small/2026-amr-alo.webp",
+        "bytes": 3760,
+        "sha256": "b405f7bf95e115594696bf4be2ead866da4a11cf42cbfd1e7a05fc0c3db49b4a",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2026,
+      "driverId": "sainz",
+      "driverCode": "SAI",
+      "teamId": "williams",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons/2026-wil-sai.webp",
+        "bytes": 10226,
+        "sha256": "d2f9407e26ff4c79571d01b4a585b0d5105fb7bb8930026dc02dbd0c241e59b2",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons-small/2026-wil-sai.webp",
+        "bytes": 3802,
+        "sha256": "4bf865d667c9f593147b8c72f797ce134fab007fbb4fc57f0b5bbd1bc95bd958",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2026,
+      "driverId": "albon",
+      "driverCode": "ALB",
+      "teamId": "williams",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons/2026-wil-alb.webp",
+        "bytes": 9932,
+        "sha256": "fe2dd730f8cb12f049a20dec6e61261eeae0162988b344b65a7f471b52570bc8",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons-small/2026-wil-alb.webp",
+        "bytes": 3728,
+        "sha256": "3ddcf511741c7378894b024dff758c7aa814fc883bbe9b4904ea4a7ab1dc240e",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2026,
+      "driverId": "tsunoda",
+      "driverCode": "TSU",
+      "teamId": "racingbulls",
+      "standingsMember": false,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons/2026-rbs-tsu.webp",
+        "bytes": 9890,
+        "sha256": "7c8995064d42220a7c19d6f3e04bbe8a1e725d6aeac9b2c52540aea8f2c90875",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons-small/2026-rbs-tsu.webp",
+        "bytes": 3664,
+        "sha256": "bc58e1684105e60e86e95a5e2ed98e92916d0a7ddb930773059b006710ff1da8",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2026,
+      "driverId": "hirakawa",
+      "driverCode": "HIR",
+      "teamId": "haas",
+      "standingsMember": false,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons/2026-haa-hir.webp",
+        "bytes": 9300,
+        "sha256": "de0b8c64b69feeaf528a482ef1f0a52660b9422d4ee78f786b030111eeab34c0",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons-small/2026-haa-hir.webp",
+        "bytes": 3564,
+        "sha256": "b49b58846ad8dcfb330e753d0a5839b95fecf870cc89546834673855dc20ec11",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2026,
+      "driverId": "stroll",
+      "driverCode": "STR",
+      "teamId": "astonmartin",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons/2026-amr-str.webp",
+        "bytes": 9478,
+        "sha256": "803a411c4fade9f549f1ef5186b7fb4e935a56d769231101ccb5f9374a7dbf21",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons-small/2026-amr-str.webp",
+        "bytes": 3668,
+        "sha256": "6a756e5a730431c2c5c5ea7ce925538e11e3aae9421a72ddde77af4785a2fdb0",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2026,
+      "driverId": "bottas",
+      "driverCode": "BOT",
+      "teamId": "cadillac",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons/2026-cad-bot.webp",
+        "bytes": 9150,
+        "sha256": "57b760cd007664be0fe65ea136e6b9432c8dab7a46adb1601996bbf429d63ebd",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons-small/2026-cad-bot.webp",
+        "bytes": 3550,
+        "sha256": "bb7fdef69de72ea85088b46eab0e55c65afdd3a0087e32d174c3565c109b88a7",
+        "width": 72,
+        "height": 72
+      }
+    },
+    {
+      "season": 2026,
+      "driverId": "perez",
+      "driverCode": "PER",
+      "teamId": "cadillac",
+      "standingsMember": true,
+      "assetStatus": "NEEDS_REVIEW",
+      "full": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons/2026-cad-per.webp",
+        "bytes": 9570,
+        "sha256": "cf173061f8eb259e668a0f91060390019cf9182c07e74dce2083fabb515b4701",
+        "width": 192,
+        "height": 192
+      },
+      "small": {
+        "sourceFile": ".local-assets/p5-review/drivers/icons-small/2026-cad-per.webp",
+        "bytes": 3590,
+        "sha256": "0c4f1c09ef2ec2aa4d28303716098ffad7e521a1daab81411d9e86ca9e59501b",
+        "width": 72,
+        "height": 72
+      }
+    }
+  ]
+}

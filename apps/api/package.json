@@ -1,0 +1,15 @@
+{
+  "name": "@peds/api",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    "./jolpica": "./src/interfaces/http/jolpica.ts",
+    "./openf1": "./src/interfaces/http/openf1.ts",
+    "./worker": "./src/worker.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  }
+}

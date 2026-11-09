@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "sourceRegistryId": "synthetic-openf1-replay",
+  "captureId": "m4-phase1-complete-v1",
+  "completionObservedAtUtc": "2026-10-18T14:08:00Z",
+  "resultsObservedAtUtc": "2026-10-18T14:18:00Z",
+  "validationObservedAtUtc": "2026-10-18T14:20:00Z",
+  "raceControl": [
+    {
+      "meeting_key": 99001,
+      "session_key": 99002,
+      "date": "2026-10-18T14:07:30Z",
+      "category": "Flag",
+      "flag": "CHEQUERED",
+      "message": "Synthetic chequered observation"
+    }
+  ],
+  "results": [
+    {
+      "driver_number": 91,
+      "position": 1,
+      "number_of_laps": 58,
+      "duration": 7240.125,
+      "dns": false,
+      "dnf": false,
+      "dsq": false
+    },
+    {
+      "driver_number": 92,
+      "position": 2,
+      "number_of_laps": 58,
+      "duration": 7246.5,
+      "dns": false,
+      "dnf": false,
+      "dsq": false
+    },
+    {
+      "driver_number": 93,
+      "position": 3,
+      "number_of_laps": 57,
+      "duration": null,
+      "dns": false,
+      "dnf": false,
+      "dsq": false
+    }
+  ],
+  "drivers": [
+    { "driver_number": 91, "full_name": "Synthetic Driver Alpha" },
+    { "driver_number": 92, "full_name": "Synthetic Driver Beta" },
+    { "driver_number": 93, "full_name": "Synthetic Driver Gamma" }
+  ]
+}

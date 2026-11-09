@@ -1,0 +1,26 @@
+.p5-driver-icon {
+  display: inline-grid;
+  place-items: center;
+  width: var(--p5-icon-size);
+  height: var(--p5-icon-size);
+  flex: 0 0 auto;
+  overflow: hidden;
+  border: 2px solid var(--p5-icon-team);
+  border-radius: 50%;
+  background: #111820;
+  vertical-align: middle;
+}
+
+.p5-driver-icon img {
+  display: block;
+  width: 112%;
+  height: 112%;
+  max-width: none;
+  object-fit: cover;
+}
+
+.p5-driver-icon__fallback {
+  color: #f4f0e8;
+  font: 600 0.58rem/1 var(--peds-font-mono);
+  letter-spacing: 0;
+}

@@ -1,0 +1,40 @@
+{
+  "eventId": "2026-gp-bahrain",
+  "sessionId": "2026-gp-bahrain-race",
+  "type": "Race",
+  "startUtc": "2026-03-14T12:00:00Z",
+  "endUtc": "2026-03-14T14:00:00Z",
+  "driverResults": [
+    {
+      "driver": {
+        "driverId": "max_verstappen",
+        "fullName": "Max Verstappen",
+        "country": "Netherlands"
+      },
+      "position": 1,
+      "laps": 58,
+      "time": "1:31:45.123",
+      "points": 25,
+      "status": "Finished"
+    },
+    {
+      "driver": {
+        "driverId": "charles_leclerc",
+        "fullName": "Charles Leclerc",
+        "country": "Monaco"
+      },
+      "position": 2,
+      "laps": 58,
+      "time": "+3.452",
+      "points": 18,
+      "status": "Finished"
+    }
+  ],
+  "classificationStatus": "PROVISIONAL",
+  "source": {
+    "provider": "fixture",
+    "license": "SYNTHETIC",
+    "retrievedAtUtc": "2026-03-14T14:05:00Z",
+    "sourceReference": "synthetic:2026-gp-bahrain-race"
+  }
+}

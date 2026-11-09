@@ -1,0 +1,42 @@
+# Dependencies and generated outputs
+node_modules/
+dist/
+coverage/
+.vite/
+*.tsbuildinfo
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+*.local
+.dev.vars
+.wrangler/
+
+# Local-only candidate assets and evidence
+.local-assets/
+scratch/
+references/
+archives/
+source-assets/
+docs/PODIUM_EDS_IGNITION_V2_Review_Patch/
+apps/web/public/images/p5/
+apps/web/public/__p5-extra-2026/
+apps/web/public/__p5-seasonal/
+*.blend
+*.blend1
+*.mp4
+!apps/web/public/media/homepage/hero-h3-2.mp4
+*.webm
+
+# Logs, caches, IDE and OS files
+*.log
+.eslintcache
+.prettiercache
+.results-engine/
+.taste-skill/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+Desktop.ini

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-labelledby="title description">
+  <title id="title">Bahrain International Circuit engineering visualization</title>
+  <desc id="description">Original Podium EDS circuit visualization generated from the repository circuit path.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#07090f"/><stop offset="1" stop-color="#111927"/></linearGradient>
+    <pattern id="grid" width="36" height="36" patternUnits="userSpaceOnUse"><path d="M36 0H0V36" fill="none" stroke="#9db2c8" stroke-opacity=".08"/></pattern>
+    <filter id="glow"><feGaussianBlur stdDeviation="10"/></filter>
+  </defs>
+  <rect width="1200" height="675" fill="url(#bg)"/>
+  <rect width="1200" height="675" fill="url(#grid)"/>
+  <path d="M0 545 L1200 390 V675 H0Z" fill="#05070b" opacity=".76"/>
+  <g transform="translate(345 126) scale(1.02)">
+    <path d="M 120 280 L 105 180 Q 95 120 145 100 L 220 75 Q 265 60 300 90 L 335 130 Q 365 170 405 150 L 445 135 Q 465 125 455 165 L 430 225 Q 405 275 355 265 L 275 250 Q 225 240 185 270 L 120 280 Z" fill="none" stroke="#00f0ff" stroke-opacity=".24" stroke-width="34" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"/>
+    <path d="M 120 280 L 105 180 Q 95 120 145 100 L 220 75 Q 265 60 300 90 L 335 130 Q 365 170 405 150 L 445 135 Q 465 125 455 165 L 430 225 Q 405 275 355 265 L 275 250 Q 225 240 185 270 L 120 280 Z" fill="none" stroke="#e8eef5" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 120 280 L 105 180 Q 95 120 145 100 L 220 75 Q 265 60 300 90 L 335 130 Q 365 170 405 150 L 445 135 Q 465 125 455 165 L 430 225 Q 405 275 355 265 L 275 250 Q 225 240 185 270 L 120 280 Z" fill="none" stroke="#121925" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 120 280 L 105 180 Q 95 120 145 100 L 220 75 Q 265 60 300 90 L 335 130 Q 365 170 405 150 L 445 135 Q 465 125 455 165 L 430 225 Q 405 275 355 265 L 275 250 Q 225 240 185 270 L 120 280 Z" fill="none" stroke="#ff3028" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g font-family="Inter,Arial,sans-serif"><text x="64" y="76" fill="#ff3028" font-size="17" font-weight="800" letter-spacing="5">EDS CIRCUIT LAB // ROUND 00</text><text x="64" y="116" fill="#f4f7fa" font-size="28" font-weight="800">Bahrain International Circuit</text><text x="64" y="145" fill="#8293a8" font-size="14" letter-spacing="3">OFFLINE VECTOR STUDY · NO REMOTE IMAGERY</text></g>
+  <g transform="translate(64 590)" font-family="Inter,Arial,sans-serif"><rect width="390" height="2" fill="#00f0ff"/><text y="38" fill="#aab8c7" font-size="13" font-weight="700" letter-spacing="4">TRACK GEOMETRY / TELEMETRY CONTEXT</text></g>
+</svg>

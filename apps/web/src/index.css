@@ -1,0 +1,1181 @@
+@import 'tailwindcss';
+@config "../tailwind.config.js";
+
+/* Barlow Condensed is ~20% narrower than Arial Narrow, so a late font swap
+   rewrapped the Race Center hero title from one line to two and shifted the
+   hero by 44px (Results VI mobile CLS 0.13). These fallback faces scale the
+   local fonts to Barlow's measured advance widths (0.803 / 0.676) so line
+   counts stay stable while the webfont loads, on slow networks too.
+   ExtraBold Italic (the P4 hero display cut) runs 3.7% wider than the regular
+   calibration, so it gets its own faces; otherwise the VI Race Center title
+   flipped from two lines back to one during the swap at 1440. */
+@font-face {
+  font-family: 'Barlow Condensed Fallback';
+  src: local('Arial Narrow');
+  size-adjust: 80%;
+  font-weight: 100 900;
+}
+@font-face {
+  font-family: 'Barlow Condensed Arial Fallback';
+  src: local('Arial'), local('Helvetica'), local('Liberation Sans');
+  size-adjust: 68%;
+  font-weight: 100 900;
+}
+@font-face {
+  font-family: 'Barlow Condensed Fallback';
+  src: local('Arial Narrow');
+  size-adjust: 83%;
+  font-weight: 100 900;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'Barlow Condensed Arial Fallback';
+  src: local('Arial'), local('Helvetica'), local('Liberation Sans');
+  size-adjust: 70.5%;
+  font-weight: 100 900;
+  font-style: italic;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   GLOBAL BASE  —  Luxury White Automotive Studio
+   ───────────────────────────────────────────────────────────── */
+@layer base {
+  :root {
+    color-scheme: dark;
+
+    /* IGNITION canonical palette (P1-A) — the single source for phase tokens. */
+    --peds-color-carbon: #0a0c10;
+    --peds-color-ignition: #ff4a18;
+    --peds-color-racing-red: #e51b37;
+    --peds-color-ivory: #f4f0e8;
+    --peds-color-signal: #b7ff37;
+
+    /* Fiery F1 foundation: night-race carbon, ignition signal, brake-temperature highlights. */
+    --peds-color-canvas: #05070b;
+    --peds-color-surface: var(--peds-color-carbon);
+    --peds-color-surface-muted: #0d1422;
+    --peds-color-surface-raised: #131a27;
+    --peds-color-surface-overlay: #1a2333;
+    --peds-color-line: #2a3242;
+    --peds-color-line-strong: #465166;
+    --peds-color-text: var(--peds-color-ivory);
+    --peds-color-text-muted: #a8b0bf;
+    --peds-color-text-subtle: #7f899b;
+    --peds-color-scarlet: #ff4d37;
+    --peds-color-burnt-orange: #ff6a00;
+    --peds-color-brake-amber: #ffb347;
+    /* Legacy red roles remain unchanged in P1 while pages migrate. */
+    --peds-color-accent: #ff2a2a;
+    --peds-color-accent-strong: var(--peds-color-scarlet);
+    --peds-color-accent-soft: var(--peds-color-brake-amber);
+    --peds-color-focus: var(--peds-color-brake-amber);
+
+    /* Titanium editorial field: intentional light reading surface, never an implicit white theme. */
+    --peds-color-light-canvas: #e9e9e6;
+    --peds-color-light-surface: #f5f5f2;
+    --peds-color-light-raised: #fbfbf9;
+    --peds-color-light-line: #d2d3d0;
+    --peds-color-light-text: #111318;
+    --peds-color-light-muted: #5d626b;
+
+    --peds-font-display: 'Barlow Condensed',
+      'Barlow Condensed Fallback', 'Barlow Condensed Arial Fallback',
+      'Arial Narrow', sans-serif;
+    --peds-font-ui: 'Space Grotesk Variable', 'Space Grotesk', Arial, sans-serif;
+    --peds-font-body: 'Manrope Variable', Manrope, Arial, sans-serif;
+    --peds-font-mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+
+    --peds-space-1: 0.25rem;
+    --peds-space-2: 0.5rem;
+    --peds-space-3: 0.75rem;
+    --peds-space-4: 1rem;
+    --peds-space-6: 1.5rem;
+    --peds-space-8: 2rem;
+    --peds-space-12: 3rem;
+    --peds-space-16: 4rem;
+    --peds-space-24: 6rem;
+    --peds-grid-gutter: 1.5rem;
+    --peds-border-hairline: 1px;
+
+    --peds-container-content: 80rem;
+    --peds-container-wide: 90rem;
+    --peds-container-full: 120rem;
+    --peds-breakpoint-sm: 40rem;
+    --peds-breakpoint-md: 48rem;
+    --peds-breakpoint-lg: 64rem;
+    --peds-breakpoint-xl: 80rem;
+    --peds-breakpoint-2xl: 96rem;
+
+    --peds-radius-sm: 0.5rem;
+    --peds-radius-md: 0.75rem;
+    --peds-radius-lg: 1rem;
+    --peds-radius-xl: 1.5rem;
+    --peds-shadow-panel: 0 12px 32px rgba(0, 0, 0, 0.22);
+    --peds-shadow-elevated: 0 24px 64px rgba(0, 0, 0, 0.42);
+    --peds-shadow-accent: 0 12px 34px rgba(255, 42, 42, 0.28);
+
+    --peds-motion-fast: 140ms;
+    --peds-motion-base: 240ms;
+    --peds-motion-slow: 420ms;
+    --peds-motion-reduced: 0.01ms;
+    --peds-focus-ring-width: 2px;
+    --peds-focus-ring-offset: 3px;
+    --peds-focus-ring-color: var(--peds-color-focus);
+    --peds-ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
+    --peds-ease-emphasis: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    background: var(--peds-color-canvas);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--peds-color-canvas);
+    color: var(--peds-color-text);
+    font-family: var(--peds-font-body);
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    overflow-x: hidden;
+  }
+
+  :where(code, kbd, samp, pre, time, [data-numeric], .tabular-nums) {
+    font-family: var(--peds-font-mono);
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+
+  :where(button, input, select, textarea) {
+    font-family: var(--peds-font-ui);
+  }
+
+  /* Selection color — brand red */
+  ::selection {
+    background: var(--peds-color-accent);
+    color: #ffffff;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--peds-color-line-strong) var(--peds-color-canvas);
+  }
+
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: var(--peds-focus-ring-width) solid var(--peds-focus-ring-color);
+    outline-offset: var(--peds-focus-ring-offset);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   TYPOGRAPHY  —  Editorial + Precision Technical
+   ───────────────────────────────────────────────────────────── */
+@layer components {
+  /* Section overline label (Porsche/BMW style uppercase overline) */
+  .label-overline {
+    @apply text-[10px] font-ui tracking-widest3 uppercase text-f1red font-semibold;
+  }
+
+  /* Display headline — editorial Playfair serif in deep obsidian */
+  .heading-display {
+    @apply font-display text-studio-950 leading-tight tracking-tight;
+  }
+
+  /* Sub-heading */
+  .heading-section {
+    @apply font-ui font-medium text-studio-800 uppercase tracking-widest2 leading-none;
+  }
+
+  /* Shared display primitives — pages compose these instead of parallel scales. */
+  .peds-display-page {
+    @apply font-display uppercase text-peds-text;
+    font-size: clamp(2.5rem, 6vw / var(--peds-visual-zoom), 4.75rem);
+    font-weight: 800;
+    line-height: 0.98;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  .peds-eyebrow {
+    @apply font-ui uppercase text-peds-accent-soft;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.17em;
+    line-height: 1.4;
+  }
+
+  /* Technical spec label */
+  .spec-label {
+    @apply text-[10px] font-ui uppercase tracking-widest text-studio-500 font-medium;
+  }
+
+  /* Spec value */
+  .spec-value {
+    @apply text-sm font-mono font-semibold text-studio-950 tabular-nums;
+  }
+
+  /* Horizontal rule — accent red line */
+  .accent-line {
+    @apply h-px bg-f1red w-12 block;
+  }
+
+  /* ─── NAVBAR ─────────────────────────────────────────────── */
+  .nav-link {
+    @apply relative text-[11px] font-ui uppercase tracking-widest2 font-semibold text-studio-600
+           transition-colors duration-200 hover:text-studio-950
+           after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-f1red
+           after:transition-all after:duration-300 hover:after:w-full;
+  }
+
+  .nav-link-active {
+    @apply text-studio-950 after:w-full;
+  }
+
+  /* ─── BUTTONS ────────────────────────────────────────────── */
+  .btn-primary {
+    @apply inline-flex items-center gap-2.5 px-6 py-3 bg-f1red text-peds-canvas
+           text-[11px] uppercase tracking-widest font-ui font-semibold
+           shadow-sm transition-all duration-300 ease-premium
+           hover:bg-f1red-light active:bg-f1red-dark hover:shadow-md;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center gap-2.5 px-6 py-3 bg-white text-studio-900
+           border border-studio-300 text-[11px] uppercase tracking-widest font-ui font-semibold
+           shadow-subtle transition-all duration-300 ease-premium
+           hover:border-studio-950 hover:bg-studio-50;
+  }
+
+  /* ─── CARDS ──────────────────────────────────────────────── */
+  .model-card {
+    @apply bg-white border border-studio-300 overflow-hidden
+           transition-all duration-500 ease-premium cursor-pointer
+           shadow-subtle hover:shadow-luxury hover:border-studio-500;
+  }
+
+  /* ─── DIVIDER ────────────────────────────────────────────── */
+  .divider {
+    @apply border-t border-studio-200;
+  }
+
+  /* ─── STAT BLOCK ─────────────────────────────────────────── */
+  .stat-block {
+    @apply flex flex-col gap-1 py-3.5 border-b border-studio-200 last:border-b-0;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   LAYOUT UTILITIES
+   ───────────────────────────────────────────────────────────── */
+@layer utilities {
+  .page-container {
+    @apply mx-auto w-full max-w-peds-wide px-5 sm:px-8 lg:px-12 xl:px-16;
+  }
+
+  .page-section {
+    @apply py-20 md:py-28;
+  }
+
+  .hero-height {
+    height: calc(100svh / var(--peds-visual-zoom) - 64px);
+    min-height: 580px;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Solid signal red keeps editorial emphasis crisp at every contrast mode. */
+  .text-gradient-red {
+    color: var(--peds-color-accent-strong);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   CUSTOM SCROLLBAR
+   ───────────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: #f4f4f5;
+}
+::-webkit-scrollbar-thumb {
+  background: #d4d4d8;
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1aa;
+}
+
+canvas.r3f {
+  display: block;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   PODIUM CINEMATIC BRAND HERO
+   ───────────────────────────────────────────────────────────── */
+.podium-metal-text {
+  color: #ececec;
+  background: linear-gradient(
+    112deg,
+    #777 0%,
+    #f7f7f5 18%,
+    #858585 42%,
+    #fff 59%,
+    #6f6f72 82%,
+    #dedede 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 0.45px rgba(255, 255, 255, 0.35);
+  filter: drop-shadow(0 4px 2px rgba(0, 0, 0, 0.95)) drop-shadow(0 10px 24px rgba(0, 0, 0, 0.9));
+}
+
+.podium-copy {
+  isolation: isolate;
+}
+
+.podium-copy::before {
+  content: '';
+  position: absolute;
+  inset: -2rem -2.5rem;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.podium-copy-left::before {
+  background: linear-gradient(
+    90deg,
+    rgba(2, 2, 4, 0.76) 0%,
+    rgba(2, 2, 4, 0.42) 68%,
+    transparent 100%
+  );
+}
+
+.podium-copy-right::before {
+  background: linear-gradient(
+    270deg,
+    rgba(2, 2, 4, 0.76) 0%,
+    rgba(2, 2, 4, 0.42) 68%,
+    transparent 100%
+  );
+}
+
+.podium-hero-image {
+  filter: brightness(1.08) contrast(1.03) saturate(1.05);
+  animation: podiumHeroReveal 1.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.podium-hero-image.hero-3d-ready {
+  animation: none;
+  opacity: 0;
+}
+
+@keyframes podiumHeroReveal {
+  from {
+    opacity: 0;
+    transform: scale(1.035);
+    filter: brightness(0.4) blur(5px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+    filter: brightness(1.08) contrast(1.03) saturate(1.05) blur(0);
+  }
+}
+
+@media (max-width: 640px) {
+  .podium-hero-image {
+    object-position: 50% 66%;
+    animation: none;
+    filter: brightness(1.6) contrast(1.12) saturate(1.12);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   3D CAR ENTRANCE & KINETIC REVEAL ANIMATIONS
+   ───────────────────────────────────────────────────────────── */
+@keyframes f1CarEntrance3D {
+  0% {
+    opacity: 0;
+    transform: perspective(1400px) translate3d(60px, 80px, -340px) rotateX(24deg) rotateY(-22deg)
+      rotateZ(4deg) scale(0.75);
+    filter: blur(14px) brightness(1.3);
+  }
+  65% {
+    opacity: 1;
+    transform: perspective(1400px) translate3d(-10px, -8px, 30px) rotateX(-2deg) rotateY(2deg)
+      rotateZ(-0.5deg) scale(1.02);
+    filter: blur(0px) brightness(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: perspective(1400px) translate3d(0, 0, 0) rotateX(0deg) rotateY(0deg) rotateZ(0deg)
+      scale(1);
+    filter: blur(0px) brightness(1);
+  }
+}
+
+.animate-car-entrance {
+  animation: f1CarEntrance3D 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes floatGentle {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-7px) rotate(0.4deg);
+  }
+}
+
+.animate-float-gentle {
+  animation: floatGentle 5s ease-in-out infinite;
+}
+
+@keyframes pulseGlowCyan {
+  0%,
+  100% {
+    opacity: 0.35;
+    filter: drop-shadow(0 0 10px rgba(0, 161, 156, 0.4));
+  }
+  50% {
+    opacity: 0.85;
+    filter: drop-shadow(0 0 25px rgba(39, 244, 210, 0.8));
+  }
+}
+
+.animate-pulse-cyan {
+  animation: pulseGlowCyan 2.5s ease-in-out infinite;
+}
+
+@keyframes dashStreamline {
+  to {
+    stroke-dashoffset: -100;
+  }
+}
+
+.animate-streamline {
+  stroke-dasharray: 8, 12;
+  animation: dashStreamline 1.2s linear infinite;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   PAGE TRANSITIONS & TELEMETRY MICRO-ANIMATIONS
+   ───────────────────────────────────────────────────────────── */
+@keyframes pageEnterTransition {
+  0% {
+    opacity: 0;
+    transform: translateY(14px) scale(0.996);
+  }
+  100% {
+    opacity: 1;
+    transform: none; /* Reset transform so containing block doesn't trap fixed elements/modals! */
+  }
+}
+
+.animate-page-enter {
+  animation: pageEnterTransition 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalScaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: modalFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-scale-up {
+  animation: modalScaleUp 0.26s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes f1SpeedBarScan {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0.2;
+  }
+  25% {
+    opacity: 1;
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.animate-f1-speed-scan {
+  animation: f1SpeedBarScan 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes carSwitchFade {
+  0% {
+    opacity: 0.2;
+    transform: perspective(1200px) scale(0.95) translateY(10px);
+    filter: blur(8px);
+  }
+  60% {
+    filter: blur(1px);
+  }
+  100% {
+    opacity: 1;
+    transform: perspective(1200px) scale(1) translateY(0);
+    filter: blur(0px);
+  }
+}
+
+.animate-car-switch {
+  animation: carSwitchFade 0.48s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes metricPopIn {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-metric-pop {
+  animation: metricPopIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes pulseGlowRed {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.08);
+  }
+  50% {
+    box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.15);
+  }
+}
+
+.animate-glow-red {
+  animation: pulseGlowRed 2s infinite ease-in-out;
+}
+
+/* ─── LIVE HOME ENHANCEMENTS KEYFRAMES ─── */
+@keyframes digitSlide {
+  0% {
+    opacity: 0;
+    transform: translateY(60%);
+    filter: blur(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.animate-digit-slide {
+  animation: digitSlide 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes colonPulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.animate-colon-pulse {
+  animation: colonPulse 1s infinite ease-in-out;
+}
+
+@keyframes livePulseGlow {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  }
+  50% {
+    transform: scale(1.03);
+    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.15);
+  }
+}
+
+.animate-live-glow {
+  animation: livePulseGlow 1.6s infinite ease-in-out;
+}
+
+@keyframes kenBurnsSlow {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.08);
+  }
+}
+
+.animate-ken-burns {
+  animation: kenBurnsSlow 20s ease-in-out infinite alternate;
+}
+
+@keyframes speedLineDrift {
+  0% {
+    transform: translate(80%, -80%);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.08;
+  }
+  80% {
+    opacity: 0.08;
+  }
+  100% {
+    transform: translate(-100%, 100%);
+    opacity: 0;
+  }
+}
+
+.animate-speed-drift-1 {
+  animation: speedLineDrift 9s linear infinite;
+}
+
+.animate-speed-drift-2 {
+  animation: speedLineDrift 12s linear infinite 3s;
+}
+
+.animate-speed-drift-3 {
+  animation: speedLineDrift 7.5s linear infinite 5s;
+}
+
+@keyframes tickerMarquee {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.animate-ticker-marquee {
+  animation: tickerMarquee 45s linear infinite;
+  will-change: transform;
+}
+
+.animate-ticker-marquee:hover,
+.animate-ticker-marquee[data-paused='true'] {
+  animation-play-state: paused;
+}
+
+@keyframes championFlash {
+  0%,
+  100% {
+    color: inherit;
+    text-shadow: none;
+  }
+  50% {
+    color: #eab308;
+    text-shadow: 0 0 12px rgba(234, 179, 8, 0.8);
+  }
+}
+
+.animate-champion-flash {
+  animation: championFlash 0.35s ease-out 1;
+}
+
+@keyframes scanlineSweep {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  35% {
+    transform: translateX(200%);
+    opacity: 1;
+  }
+  36%,
+  100% {
+    transform: translateX(200%);
+    opacity: 0;
+  }
+}
+
+.animate-scanline-sweep {
+  animation: scanlineSweep 6s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+@keyframes digitalScoreFlicker {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  30% {
+    opacity: 0.4;
+  }
+  60% {
+    opacity: 0.85;
+  }
+  80% {
+    opacity: 0.5;
+  }
+}
+
+.animate-score-flicker {
+  animation: digitalScoreFlicker 0.35s ease-in-out 1;
+}
+
+/* ── F1 Cinematic Scene & Page Transitions ── */
+@keyframes f1SpeedWipe {
+  0% {
+    transform: translate3d(-100%, 0, 0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(200%, 0, 0);
+    opacity: 0;
+  }
+}
+
+.animate-f1-speed-wipe {
+  animation: f1SpeedWipe 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes f1FlashTint {
+  0% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.08;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.animate-f1-flash-tint {
+  animation: f1FlashTint 0.38s ease-out forwards;
+}
+
+@keyframes f1DepthEnter {
+  0% {
+    opacity: 0;
+    transform: perspective(1200px) translate3d(0, 16px, -24px) scale(0.99);
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: none; /* Reset transform to avoid trapping fixed descendants */
+  }
+}
+
+.animate-f1-depth-enter {
+  animation: f1DepthEnter 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ── 3D Interactive Card & Button Hover Depth ── */
+.hover-depth-3d {
+  transition:
+    transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.25s ease;
+  transform-style: preserve-3d;
+}
+
+.hover-depth-3d:hover {
+  transform: translate3d(0, -4px, 12px);
+  box-shadow: 0 14px 30px -8px rgba(0, 0, 0, 0.14);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --peds-motion-fast: var(--peds-motion-reduced);
+    --peds-motion-base: var(--peds-motion-reduced);
+    --peds-motion-slow: var(--peds-motion-reduced);
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-delay: 0ms !important;
+  }
+
+  .animate-ping,
+  .animate-pulse,
+  .animate-ticker-marquee,
+  .animate-float-gentle,
+  .animate-glow-red,
+  .animate-pulse-cyan,
+  .animate-streamline,
+  .animate-f1-speed-scan,
+  .animate-digit-slide,
+  .animate-colon-pulse,
+  .animate-live-glow,
+  .animate-ken-burns,
+  .animate-speed-drift-1,
+  .animate-speed-drift-2,
+  .animate-speed-drift-3,
+  .animate-champion-flash,
+  .animate-scanline-sweep,
+  .animate-score-flicker,
+  .animate-f1-speed-wipe,
+  .animate-f1-flash-tint,
+  .animate-f1-depth-enter {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .animate-fade-in,
+  .animate-scale-up,
+  .animate-page-enter,
+  .animate-slide-down,
+  .animate-slide-left,
+  .animate-car-entrance,
+  .animate-car-switch,
+  .animate-metric-pop {
+    animation: peds-reduced-fade 120ms ease-out both !important;
+    transform: none !important;
+  }
+
+  .hover-depth-3d,
+  .hover-depth-3d:hover {
+    transform: none !important;
+  }
+
+  .podium-hero-image {
+    animation: none !important;
+    transition: opacity 120ms ease-out !important;
+  }
+}
+
+@keyframes peds-reduced-fade {
+  from {
+    opacity: 0.72;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* R1 primary-route treatment. Scoped so secondary editorial and data pages keep their own palette. */
+.r1-primary.bg-studio-100,
+.r1-primary .bg-studio-100 {
+  background-color: #09090b;
+}
+
+.r1-primary .bg-white,
+.r1-primary .bg-studio-50 {
+  background-color: #16161b;
+}
+
+.r1-primary .text-studio-950,
+.r1-primary .text-studio-900,
+.r1-primary .text-studio-800 {
+  color: #f5f5f6;
+}
+
+.r1-primary .text-studio-700,
+.r1-primary .text-studio-600 {
+  color: #c4c4cd;
+}
+
+.r1-primary .text-studio-500,
+.r1-primary .text-studio-400 {
+  color: #a3a3ad;
+}
+
+.r1-primary .border-studio-100,
+.r1-primary .border-studio-200,
+.r1-primary .border-studio-300 {
+  border-color: #34343d;
+}
+
+.r1-primary .from-emerald-50\/60 {
+  background-image: linear-gradient(120deg, #143029, #16161b);
+}
+
+.r1-primary .bg-f1red,
+.r1-primary .bg-studio-900 {
+  color: #fff;
+}
+
+.r1-primary .r1-countdown {
+  background-color: #202027;
+  border-color: #4b4b55;
+}
+
+/* Explicit light surface mode for reference directories and detail sheets. */
+.peds-editorial-light {
+  color-scheme: light;
+  background-color: var(--peds-color-light-canvas);
+  color: var(--peds-color-light-text);
+}
+
+.peds-editorial-light.bg-studio-100,
+.peds-editorial-light .bg-studio-100 {
+  background-color: var(--peds-color-light-canvas);
+}
+
+.peds-editorial-light .bg-white,
+.peds-editorial-light .bg-studio-50 {
+  background-color: var(--peds-color-light-raised);
+}
+
+.peds-editorial-light :is(.border-studio-100, .border-studio-200, .border-studio-300) {
+  border-color: var(--peds-color-light-line);
+}
+
+.peds-editorial-light :is(.text-studio-950, .text-studio-900, .text-studio-800) {
+  color: var(--peds-color-light-text);
+}
+
+.peds-editorial-light :is(.text-studio-700, .text-studio-600, .text-studio-500) {
+  color: var(--peds-color-light-muted);
+}
+
+.peds-editorial-light * {
+  scrollbar-color: #8b9098 var(--peds-color-light-surface);
+}
+
+@media (max-width: 860px) {
+  .r1-mobile-hub .podium-hero-image {
+    top: 50%;
+    bottom: auto;
+    height: 38%;
+    object-fit: cover;
+    object-position: center;
+    filter: brightness(0.84) contrast(1.1) saturate(1.03);
+  }
+
+  .r1-mobile-hero {
+    background: linear-gradient(
+      180deg,
+      rgba(5, 5, 8, 0.97) 0%,
+      rgba(5, 5, 8, 0.88) 38%,
+      rgba(5, 5, 8, 0.15) 67%,
+      rgba(5, 5, 8, 0.72) 100%
+    );
+  }
+
+  .r1-mobile-hub .page-container {
+    max-width: 100%;
+  }
+
+  .r1-mobile-hub .r1-championship {
+    padding-top: 3rem;
+  }
+
+  .r1-mobile-hub #showroom > div {
+    max-width: 100%;
+  }
+
+  .r1-mobile-hub .r1-quick-hud {
+    top: min(calc(50svh / var(--peds-visual-zoom) - 1.5rem), 26.5rem);
+    bottom: auto;
+  }
+}
+
+/* F1 homepage editorial surfaces */
+.home-story { background: #0c0e13; color: #f7f7f7; padding-bottom: 5rem; }
+.home-data-details { border-block: 1px solid #41454c; }
+.home-data-details__summary { display: flex; align-items: center; justify-content: space-between; min-height: 74px; cursor: pointer; color: #f7f7f7; font-size: .8rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; list-style: none; }
+.home-data-details__summary::-webkit-details-marker { display: none; }
+.home-data-details__summary span:last-child { color: #ed4452; font-size: 1.4rem; line-height: 1; }
+.home-data-details[open] .home-data-details__summary span:last-child { transform: rotate(45deg); }
+.home-data-details__summary:hover { color: #ff6470; }
+.home-data-details__summary:focus-visible { outline: 2px solid #ff7180; outline-offset: -4px; }
+.home-data-details[open] > .page-container:last-of-type { padding-bottom: 4rem; }
+.home-section-index { color: #ff625d; font-size: .7rem; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; }
+.home-section-title { max-width: 18ch; margin-top: 1rem; font-family: var(--peds-font-display); font-size: clamp(2.4rem, 5vw / var(--peds-visual-zoom), 5.5rem); font-weight: 700; line-height: 1.02; letter-spacing: -.03em; text-wrap: balance; }
+.home-section-copy { max-width: 58ch; margin-top: 1.5rem; color: #c7cbd2; font-size: clamp(1rem, 1.25vw / var(--peds-visual-zoom), 1.15rem); line-height: 1.65; }
+.home-text-link { display: inline-flex; align-items: center; gap: .55rem; min-height: 44px; color: #fff; font-size: .8rem; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; text-decoration: underline; text-decoration-color: #e10600; text-underline-offset: .45em; transition: color 180ms ease, gap 180ms ease; }
+.home-text-link:hover { color: #ff625d; gap: .8rem; }
+.home-text-link:focus-visible, .home-editorial__article:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
+.home-engineering__copy .home-text-link { margin-top: 1.5rem; }
+.home-engineering { display: grid; grid-template-columns: minmax(0,.85fr) minmax(0,1.15fr); gap: 4rem; align-items: center; padding-top: 5rem; padding-bottom: 5rem; border-top: 1px solid #454950; }
+.home-engineering__topics { display: flex; flex-wrap: wrap; gap: .55rem 1.1rem; max-width: 44rem; margin-top: 1.5rem; color: #e3e5e9; font-size: .88rem; line-height: 1.5; }
+.home-engineering__topics li { display: inline-flex; align-items: center; gap: .5rem; }
+.home-engineering__topics li::before { content: ''; width: .32rem; height: .32rem; flex: none; border-radius: 50%; background: #ff625d; }
+.home-engineering__diagram { min-width: 0; padding: 1rem; background: #171b22; border: 1px solid #4b5059; }
+.home-engineering__diagram img { width: 100%; max-height: 30rem; object-fit: contain; }
+.home-engineering__labels { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: space-between; padding: .9rem .3rem .2rem; color: #c7cbd2; font-size: .68rem; font-weight: 800; letter-spacing: .1em; }
+.home-editorial { padding-top: 4rem; padding-bottom: 5rem; }
+.home-editorial__heading { display: flex; align-items: end; justify-content: space-between; gap: 2rem; }
+.home-editorial__grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 1.25rem; margin-top: 2.5rem; }
+.home-editorial__article { min-width: 0; text-align: left; color: #fff; background: #181b22; transition: background 180ms ease, transform 180ms ease; }
+.home-editorial__article:hover { background: #292d35; transform: translateY(-3px); }
+.home-editorial__article img { width: 100%; aspect-ratio: 16/10; object-fit: cover; }
+.home-editorial__article-title { display: block; padding: 1rem 1rem 0; font-size: 1.05rem; font-weight: 700; }
+.home-editorial__article-excerpt { display: block; min-height: 4.6rem; padding: .5rem 1rem 1rem; color: #c7cbd2; font-size: .875rem; line-height: 1.55; }
+.home-editorial__article svg { display: inline; margin-left: .7rem; color: #ff625d; }
+@media (max-width: 767px) {
+  .home-editorial__heading { align-items: start; flex-direction: column; }
+  .home-engineering { grid-template-columns: 1fr; gap: 2rem; }
+  .home-editorial__grid { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-text-link, .home-editorial__article { transition: none; }
+  .home-editorial__article:hover { transform: none; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   TEXT-ONLY ZOOM REFLOW (200% / 400%)
+   Text zoom multiplies rem-based chrome — page gutters, gaps, logo
+   boxes and control minimums grow with the text and push the header
+   and footer past the viewport. Structural sizes below are pinned in
+   px so the chrome reflows vertically instead of clipping or forcing
+   page-level horizontal scroll. The official logo artwork is never
+   altered, only the box it renders into.
+   ───────────────────────────────────────────────────────────── */
+[data-text-zoom="200"] .page-container { padding-inline: 20px; }
+[data-text-zoom="400"] .page-container { padding-inline: 12px; }
+
+/* A fixed bar cannot grow with wrapped text without covering content,
+   so at high zoom the header joins normal flow. */
+[data-text-zoom="200"] .h1-nav,
+[data-text-zoom="400"] .h1-nav {
+  position: relative;
+  top: auto;
+  height: auto;
+}
+
+[data-text-zoom="200"] .h1-nav__bar,
+[data-text-zoom="400"] .h1-nav__bar {
+  height: auto;
+  min-height: 64px;
+  padding-block: 8px;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+[data-text-zoom="200"] .peds-header-offset { padding-top: 20px; }
+[data-text-zoom="400"] .peds-header-offset { padding-top: 12px; }
+
+/* The desktop link row can no longer fit four-times text: reuse the
+   existing mobile menu so every destination stays reachable. */
+[data-text-zoom="200"] .h1-nav__desktop,
+[data-text-zoom="400"] .h1-nav__desktop { display: none; }
+[data-text-zoom="200"] .h1-nav__toggle,
+[data-text-zoom="400"] .h1-nav__toggle { display: flex; }
+
+[data-text-zoom="200"] .h1-nav .h1-nav__brand-logo { height: 56px; }
+[data-text-zoom="400"] .h1-nav .h1-nav__brand-logo { height: 64px; }
+[data-text-zoom="200"] .h1-nav__panel-top img { height: 56px; width: auto; }
+[data-text-zoom="400"] .h1-nav__panel-top img { height: 56px; width: auto; }
+
+[data-text-zoom="200"] .h1-nav .h1-nav__toggle,
+[data-text-zoom="400"] .h1-nav .h1-nav__toggle {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 6px;
+}
+
+[data-text-zoom="200"] .h1-nav__lang-option,
+[data-text-zoom="400"] .h1-nav__lang-option {
+  min-width: 40px;
+  min-height: 40px;
+  padding-inline: 6px;
+}
+
+/* The slide-over menu is a fixed 430px panel; at 400% its rem-based labels
+   were wider than the panel. Labels keep the project's 400% display cap and
+   may wrap, so every destination stays whole and tappable. */
+[data-text-zoom="200"] .h1-nav__mobile-eyebrow,
+[data-text-zoom="400"] .h1-nav__mobile-eyebrow {
+  flex-wrap: wrap;
+  gap: 2px 12px;
+}
+[data-text-zoom="400"] .h1-nav__mobile-eyebrow {
+  font-size: 12px;
+  letter-spacing: 0.14em;
+}
+[data-text-zoom="400"] .h1-nav__mobile-link {
+  min-width: 0;
+  font-size: 20px;
+  letter-spacing: 0.04em;
+  overflow-wrap: anywhere;
+}
+[data-text-zoom="400"] .h1-nav__mobile-sublist a {
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+[data-text-zoom="400"] .h1-nav__mobile-cta {
+  min-height: 48px;
+  padding-inline: 12px;
+  font-size: 18px;
+  letter-spacing: 0.06em;
+  white-space: normal;
+  text-align: start;
+}
+[data-text-zoom="400"] .h1-nav__mobile-secondary a { font-size: 14px; }
+
+[data-text-zoom="200"] #peds-credits > .page-container,
+[data-text-zoom="400"] #peds-credits > .page-container {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+}
+[data-text-zoom="200"] #peds-credits > .page-container { padding-block: 32px; }
+[data-text-zoom="400"] #peds-credits > .page-container { padding-block: 24px; }
+
+[data-text-zoom="200"] .footer-brand-logo { height: 48px; }
+[data-text-zoom="400"] .footer-brand-logo { height: 64px; }
+
+[data-text-zoom="400"] #peds-credits { overflow-wrap: anywhere; }
+
+/* Deep-linked hub routes keep the home placeholder in the stack; its
+   rem-based gutter and button padding alone exceeded a 390px viewport. */
+[data-text-zoom="400"] .r1-mobile-hub__placeholder {
+  padding-inline: 12px;
+  overflow-wrap: anywhere;
+}
+[data-text-zoom="400"] .r1-mobile-hub__placeholder > div {
+  min-width: 0;
+  max-width: 100%;
+}
+[data-text-zoom="400"] .r1-mobile-hub__placeholder button {
+  max-width: 100%;
+  padding-inline: 12px;
+  white-space: normal;
+}
+html[data-intro-active='true'] .peds-film-grain { display: none; }

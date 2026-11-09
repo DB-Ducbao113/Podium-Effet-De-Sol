@@ -1,0 +1,355 @@
+/*
+ * Home scroll floors — four pinned chapters.
+ * Inert by default: frames are display:contents so no-JS, lite/off quality,
+ * compact screens and text-zoom keep the exact original document flow.
+ * Only [data-home-motion='full'] (set by the journey engine) promotes frames
+ * into tall scroll floors with a sticky 100svh stage.
+ */
+.home-chapter-frame {
+  display: contents;
+}
+
+@media (prefers-reduced-motion: no-preference) and (min-width: 851px) and (min-height: 600px) {
+  .home-v3[data-home-motion="full"] .home-chapter-frame {
+    display: block;
+    position: relative;
+  }
+  .home-v3[data-home-motion="full"]
+    .home-chapter-frame[data-home-chapter-frame="launch-control"] {
+    height: calc(220vh / var(--peds-visual-zoom));
+    z-index: 1;
+  }
+  .home-v3[data-home-motion="full"]
+    .home-chapter-frame[data-home-chapter-frame="race-control"] {
+    height: calc(300vh / var(--peds-visual-zoom));
+    z-index: 2;
+  }
+  .home-v3[data-home-motion="full"]
+    .home-chapter-frame[data-home-chapter-frame="championship-overview"] {
+    height: calc(260vh / var(--peds-visual-zoom));
+    z-index: 3;
+  }
+  .home-v3[data-home-motion="full"]
+    .home-chapter-frame[data-home-chapter-frame="eds-explore"] {
+    height: calc(240vh / var(--peds-visual-zoom));
+    z-index: 4;
+  }
+
+  .home-v3[data-home-motion="full"]
+    .home-chapter-frame[data-home-chapter-frame]
+    > section {
+    position: sticky;
+    top: 0;
+    min-height: calc(100svh / var(--peds-visual-zoom));
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .home-v3[data-home-motion="full"]
+    .home-chapter-frame[data-home-chapter-frame="race-control"]
+    > section,
+  .home-v3[data-home-motion="full"]
+    .home-chapter-frame[data-home-chapter-frame="championship-overview"]
+    > section {
+    padding-top: 5.2rem;
+    padding-bottom: 2rem;
+    border-top: 1px solid rgba(255, 74, 24, 0.32);
+    box-shadow: 0 -18px 40px rgba(0, 0, 0, 0.45);
+  }
+  .home-v3[data-home-motion="full"]
+    .home-chapter-frame[data-home-chapter-frame="eds-explore"]
+    > section {
+    padding-top: 5rem;
+    padding-bottom: 1.5rem;
+    border-top: 1px solid rgba(255, 74, 24, 0.32);
+    box-shadow: 0 -18px 40px rgba(0, 0, 0, 0.45);
+    background: linear-gradient(180deg, #0a0c10, #080a0e);
+  }
+  .home-v3[data-home-motion="full"]
+    .home-chapter-frame[data-home-chapter-frame="championship-overview"]
+    > section {
+    background: linear-gradient(180deg, #0a0c10, #080a0e);
+  }
+  .home-v3[data-home-motion="full"]
+    .home-chapter-frame[data-home-chapter-frame="race-control"]
+    > section {
+    background: linear-gradient(
+      180deg,
+      var(--home-sky-top, #1b1030) 0%,
+      var(--home-sky-horizon, #0a0c10) 130%
+    );
+  }
+
+  /* 01 — launch: the car drifts up and grows while the copy recedes. */
+  .home-v3[data-home-motion="full"]
+    .home-chapter-frame[data-home-chapter-frame="launch-control"]
+    .r1-cinema__copy {
+    transform: translate3d(0, calc(var(--home-pin-progress, 0) * -24px), 0);
+  }
+  .home-v3[data-home-motion="full"]
+    .home-chapter-frame[data-home-chapter-frame="launch-control"]
+    .r1-cinema__scene {
+    transition: none;
+    transform: translate3d(
+        calc(var(--launch-x, 0px) * 0.25),
+        calc(var(--launch-y, 0px) * 0.25 + var(--home-pin-progress, 0) * -3%),
+        0
+      )
+      scale(calc(1 + var(--home-pin-progress, 0) * 0.04));
+  }
+  .home-v3[data-home-motion="full"]
+    .home-chapter-frame[data-home-chapter-frame="launch-control"]
+    .r1-cinema__scroll {
+    opacity: calc(
+      1 - clamp(0, calc((var(--home-pin-progress, 0) - 0.05) * 4), 1)
+    );
+  }
+  .home-v3[data-home-motion="full"]
+    .home-chapter-frame[data-home-chapter-frame="launch-control"]
+    .r1-cinema__energy-rail {
+    transform: scaleX(var(--home-pin-progress, 0));
+    transform-origin: left;
+  }
+
+  /* 02 — race weekend: session rows light up in sequence as the lap draws. */
+  .home-v3[data-home-motion="full"]
+    .home-chapter-frame[data-home-chapter-frame="race-control"]
+    .home-rc__session {
+    opacity: 0.4;
+    transform: translate3d(10px, 0, 0);
+    transition: none;
+  }
+  .home-v3[data-home-motion="full"]
+    .home-chapter-frame[data-home-chapter-frame="race-control"]
+    .home-rc__session[data-scrub-active="true"] {
+    opacity: 1;
+    transform: none;
+    border-color: rgba(255, 132, 89, 0.55);
+  }
+
+  /* 03 — title fight: point bars scrub with the scroll instead of one-shot reveal. */
+  .home-v3[data-home-motion="full"]
+    .home-chapter-frame[data-home-chapter-frame="championship-overview"]
+    .home-title-fight__scorebar {
+    transition: none;
+    transform: scaleX(
+      clamp(
+        0,
+        calc(
+          (
+              var(--home-pin-progress, 1) - 0.12 - var(--home-rank-order, 0) *
+                0.08
+            ) *
+            2.2
+        ),
+        1
+      )
+    );
+  }
+  .home-v3[data-home-motion="full"]
+    .home-chapter-frame[data-home-chapter-frame="championship-overview"]
+    .home-title-fight__rows
+    li:first-child::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: radial-gradient(
+      ellipse at 18% 50%,
+      rgba(232, 178, 58, 0.18),
+      transparent 72%
+    );
+    opacity: clamp(0, calc((var(--home-pin-progress, 1) - 0.8) * 8), 1);
+  }
+
+  /* 04 — explore: gateway cards fan in, then hand over to the pointer tilt. */
+  .home-v3[data-home-motion="full"]
+    .home-chapter-frame[data-home-chapter-frame="eds-explore"]
+    .eds-explore[data-revealed="true"]
+    .eds-explore__card {
+    animation: none;
+  }
+  .home-v3[data-home-motion="full"]
+    .home-chapter-frame[data-home-chapter-frame="eds-explore"]
+    .eds-explore__card {
+    --ex-q: clamp(
+      0.6,
+      calc(1 + var(--home-pin-progress, 0) * 0.9 - var(--ex-order, 0) * 0.16),
+      1
+    );
+    opacity: var(--ex-q);
+    transition: none;
+  }
+  .home-v3[data-home-motion="full"]
+    .home-chapter-frame[data-home-chapter-frame="eds-explore"]
+    .eds-explore__card:nth-child(1) {
+    --ex-rot: -4deg;
+  }
+  .home-v3[data-home-motion="full"]
+    .home-chapter-frame[data-home-chapter-frame="eds-explore"]
+    .eds-explore__card:nth-child(2) {
+    --ex-rot: 3deg;
+  }
+  .home-v3[data-home-motion="full"]
+    .home-chapter-frame[data-home-chapter-frame="eds-explore"]
+    .eds-explore__card:nth-child(3) {
+    --ex-rot: -2.5deg;
+  }
+  .home-v3[data-home-motion="full"]
+    .home-chapter-frame[data-home-chapter-frame="eds-explore"]
+    .eds-explore__card:nth-child(4) {
+    --ex-rot: 4.5deg;
+  }
+  .home-v3[data-home-motion="full"]
+    .home-chapter-frame[data-home-chapter-frame="eds-explore"]
+    .eds-explore__card:where(:not(:hover):not(:focus-visible)) {
+    transform: translate3d(0, calc((1 - var(--ex-q)) * 56px), 0)
+      rotate(calc((1 - var(--ex-q)) * var(--ex-rot, 0deg)));
+  }
+  .home-v3[data-home-motion="full"]
+    .home-chapter-frame[data-home-chapter-frame="eds-explore"]
+    .eds-explore__card:hover {
+    transition:
+      transform 300ms cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 220ms ease,
+      filter 300ms;
+  }
+  .home-v3[data-home-motion="full"]
+    .home-chapter-frame[data-home-chapter-frame="eds-explore"]:focus-within
+    .eds-explore__card {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* The pinned floors are taller than the original cards. Give the content its
+ * own dimensions and a small vertical travel; the page zoom stays untouched. */
+@media (prefers-reduced-motion: no-preference) and (min-width: 1200px) and (min-height: 600px) {
+  .home-v3[data-home-motion="full"]
+    :is(.home-rc__grid, .home-title-fight__grid, .eds-explore__grid) {
+    transform: translate3d(
+      0,
+      calc((0.5 - var(--home-pin-progress, 0.5)) * 32px),
+      0
+    );
+  }
+
+  html:not([data-text-zoom="200"]):not([data-text-zoom="400"])
+    .home-v3[data-home-motion="full"]
+    .home-rc__grid {
+    min-height: clamp(540px, 75svh / var(--peds-visual-zoom), 780px);
+    gap: 1.25rem;
+  }
+  html:not([data-text-zoom="200"]):not([data-text-zoom="400"])
+    .home-v3[data-home-motion="full"]
+    .home-rc__next {
+    padding: 2rem;
+  }
+  html:not([data-text-zoom="200"]):not([data-text-zoom="400"])
+    .home-v3[data-home-motion="full"]
+    .home-rc__map {
+    width: 38%;
+    min-height: 340px;
+  }
+  html:not([data-text-zoom="200"]):not([data-text-zoom="400"])
+    .home-v3[data-home-motion="full"]
+    .home-rc__identity
+    h3 {
+    font-size: clamp(2.25rem, 3vw / var(--peds-visual-zoom), 3.75rem);
+  }
+  .home-v3[data-home-motion="full"]
+    :is(.home-rc__location, .home-rc__race-time) {
+    font-size: 0.98rem;
+  }
+  .home-v3[data-home-motion="full"] .home-rc__timing {
+    padding: 1.5rem;
+  }
+  .home-v3[data-home-motion="full"] .home-rc__digits strong {
+    font-size: clamp(2.6rem, 3.2vw / var(--peds-visual-zoom), 3.5rem);
+  }
+  .home-v3[data-home-motion="full"] .home-rc__digits small {
+    font-size: 0.72rem;
+  }
+  .home-v3[data-home-motion="full"] .home-rc__sessions-head {
+    font-size: 0.72rem;
+  }
+  .home-v3[data-home-motion="full"] .home-rc__session {
+    font-size: 1rem;
+    padding: 0.65rem 0.7rem;
+  }
+  .home-v3[data-home-motion="full"] .home-rc__session-time {
+    font-size: 0.85rem;
+  }
+  .home-v3[data-home-motion="full"] .home-rc__session-state {
+    font-size: 0.68rem;
+  }
+  .home-v3[data-home-motion="full"] .home-rc__link {
+    font-size: 0.95rem;
+  }
+  .home-v3[data-home-motion="full"] .home-rc__result-meta {
+    font-size: 1.25rem;
+  }
+  .home-v3[data-home-motion="full"] .home-rc__winner {
+    font-size: 0.95rem;
+  }
+
+  html:not([data-text-zoom="200"]):not([data-text-zoom="400"])
+    .home-v3[data-home-motion="full"]
+    .home-title-fight__grid {
+    min-height: clamp(540px, 75svh / var(--peds-visual-zoom), 780px);
+    gap: 1.5rem;
+  }
+  html:not([data-text-zoom="200"]):not([data-text-zoom="400"])
+    .home-v3[data-home-motion="full"]
+    .home-title-fight__panel {
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+  }
+  .home-v3[data-home-motion="full"] .home-title-fight__rows {
+    display: grid;
+    grid-template-rows: repeat(3, minmax(0, 1fr));
+    flex: 1;
+  }
+  .home-v3[data-home-motion="full"] .home-title-fight__name {
+    font-size: 1.5rem;
+  }
+  .home-v3[data-home-motion="full"] .home-title-fight__rank {
+    font-size: 1.5rem;
+  }
+  html:not([data-text-zoom="200"]):not([data-text-zoom="400"])
+    .home-v3[data-home-motion="full"]
+    .home-title-fight__rows
+    strong {
+    font-size: 2.1rem;
+  }
+  .home-v3[data-home-motion="full"] .home-title-fight__panel-head > span {
+    font-size: 1.05rem;
+  }
+  html:not([data-text-zoom="200"]):not([data-text-zoom="400"])
+    .home-v3[data-home-motion="full"]
+    .home-live__heading
+    h2 {
+    font-size: clamp(2.2rem, 3vw / var(--peds-visual-zoom), 3.5rem);
+  }
+
+  .home-v3[data-home-motion="full"] .eds-explore__grid {
+    gap: 1.2rem;
+  }
+  html:not([data-text-zoom="200"]):not([data-text-zoom="400"])
+    .home-v3[data-home-motion="full"]
+    .eds-explore__card {
+    min-height: clamp(480px, 66svh / var(--peds-visual-zoom), 680px);
+    aspect-ratio: 0.82;
+  }
+  html:not([data-text-zoom="200"]):not([data-text-zoom="400"])
+    .home-v3[data-home-motion="full"]
+    .eds-explore__bottom
+    strong {
+    font-size: clamp(1.75rem, 2.2vw / var(--peds-visual-zoom), 2.7rem);
+  }
+  .home-v3[data-home-motion="full"] .eds-explore__number {
+    font-size: 0.9rem;
+  }
+}

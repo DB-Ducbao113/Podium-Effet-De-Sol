@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">Podium EDS independent driver data profile HAD</title>
+  <desc id="desc">Original abstract helmet graphic; it is not a portrait or endorsement image.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#080a0e"/><stop offset="1" stop-color="#1a2029"/></linearGradient>
+    <linearGradient id="shell" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffe3ed"/><stop offset=".52" stop-color="#ff6d9e"/><stop offset="1" stop-color="#171c24"/></linearGradient>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse"><path d="M48 0H0V48" fill="none" stroke="#fff" stroke-opacity=".05"/></pattern>
+  </defs>
+  <rect width="1200" height="675" fill="url(#bg)"/>
+  <rect width="1200" height="675" fill="url(#grid)"/>
+  <path d="M0 570L1200 390V675H0Z" fill="#ff6d9e" opacity=".12"/>
+  <g transform="translate(130 120)">
+    <path d="M88 326C61 288 48 239 52 186 60 77 139 10 244 20 345 30 410 104 404 211 400 283 363 340 304 374L127 374Z" fill="url(#shell)" stroke="#fff" stroke-opacity=".45" stroke-width="5"/>
+    <path d="M107 174C154 126 241 105 346 134L386 178C299 204 207 211 111 199Z" fill="#05070a" stroke="#ffe3ed" stroke-opacity=".7" stroke-width="5"/>
+    <path d="M128 374L304 374 364 448 70 448Z" fill="#0a0d12" stroke="#596371" stroke-width="5"/>
+    <path d="M91 294C162 334 269 338 363 287" fill="none" stroke="#ffe3ed" stroke-width="8" opacity=".75"/>
+    <circle cx="342" cy="249" r="13" fill="#ff6d9e"/>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif" fill="#fff">
+    <text x="610" y="118" font-size="22" font-weight="700" letter-spacing="7">PODIUM EDS / DRIVER DATA PROFILE</text>
+    <text x="610" y="265" font-size="172" font-weight="800" letter-spacing="-8">06</text>
+    <text x="620" y="328" fill="#ffe3ed" font-size="45" font-weight="800" letter-spacing="12">HAD</text>
+    <text x="620" y="394" fill="#9ba5b4" font-size="18" letter-spacing="4">ABSTRACT EDITORIAL IDENTIFIER</text>
+    <text x="620" y="430" fill="#9ba5b4" font-size="18" letter-spacing="4">NO LIKENESS • NO SPONSOR MARKS</text>
+    <text x="80" y="620" font-size="16" fill="#9ba5b4" letter-spacing="3">INDEPENDENT MOTORSPORT ENGINEERING ARCHIVE</text>
+  </g>
+</svg>

@@ -1,0 +1,64 @@
+/*
+ * VISUAL-ZOOM-01 — default desktop composition at 75% scale.
+ *
+ * The page is authored for a wide canvas and then rendered at 0.75, which is
+ * what a visitor sees when they set their browser zoom to 75%. Their own zoom
+ * control stays at 100%: only this document is scaled, never the user's
+ * setting, and no transform/scroll wrapper is introduced.
+ *
+ * CSS zoom does not rescale viewport units, so any size that has to reach a
+ * screen edge divides by --peds-visual-zoom (1 wherever this zoom is off).
+ * Typography is the one deliberate exception: the rem base is restored to
+ * 100% so text keeps the size it had before this layer instead of being
+ * compacted twice. Text zoom 200/400% drops the scale so the documented
+ * reflow minimums stay readable, and screens below 1180px are never miniaturized.
+ */
+:root {
+  --peds-visual-zoom: 1;
+}
+
+@supports (zoom: 0.75) {
+  @media (min-width: 1180px) {
+    html:not([data-text-zoom='200']):not([data-text-zoom='400']) {
+      --peds-visual-zoom: 0.75;
+      zoom: var(--peds-visual-zoom);
+
+      /*
+       * Density-02 compacts the rem base to 75% on its own. Left in place it
+       * multiplies with this scale (0.75 x 0.75) and body copy renders at
+       * 6.5px, which reads as miniaturized on the text-heavy pages. This scale
+       * already delivers the 75% composition, so the rem base goes back to
+       * 100% and type keeps the size it had before VISUAL-ZOOM-01.
+       */
+      font-size: 100%;
+    }
+
+    /* Tailwind viewport utilities resolve against the unzoomed viewport. */
+    html:not([data-text-zoom='200']):not([data-text-zoom='400']) :is(.min-h-screen, .min-h-dvh, .min-h-svh) {
+      min-height: calc(100vh / var(--peds-visual-zoom));
+    }
+    html:not([data-text-zoom='200']):not([data-text-zoom='400']) :is(.h-screen, .h-dvh, .h-svh) {
+      height: calc(100vh / var(--peds-visual-zoom));
+    }
+    html:not([data-text-zoom='200']):not([data-text-zoom='400']) :is(.max-h-screen, .max-h-dvh) {
+      max-height: calc(100vh / var(--peds-visual-zoom));
+    }
+    html:not([data-text-zoom='200']):not([data-text-zoom='400']) :is(.w-screen, .min-w-screen) {
+      width: calc(100vw / var(--peds-visual-zoom));
+    }
+
+    /*
+     * Media queries cannot be faked, so the two desktop bands that a real 75%
+     * zoom crosses earlier are mirrored here. 1550px and 1600px of layout are
+     * reached from 1180px and 1200px of viewport once this scale is active.
+     */
+    html:not([data-text-zoom='200']):not([data-text-zoom='400']) .p5-gallery-page .p5-driver-grid {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+    @media (min-width: 1200px) {
+      html:not([data-text-zoom='200']):not([data-text-zoom='400']) .f1hero {
+        --f1-fit-scale: .94;
+      }
+    }
+  }
+}

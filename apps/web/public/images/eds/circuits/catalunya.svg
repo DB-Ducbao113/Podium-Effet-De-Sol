@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-labelledby="title description">
+  <title id="title">Circuit de Barcelona-Catalunya engineering visualization</title>
+  <desc id="description">Original Podium EDS circuit visualization generated from the repository circuit path.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#07090f"/><stop offset="1" stop-color="#111927"/></linearGradient>
+    <pattern id="grid" width="36" height="36" patternUnits="userSpaceOnUse"><path d="M36 0H0V36" fill="none" stroke="#9db2c8" stroke-opacity=".08"/></pattern>
+    <filter id="glow"><feGaussianBlur stdDeviation="10"/></filter>
+  </defs>
+  <rect width="1200" height="675" fill="url(#bg)"/>
+  <rect width="1200" height="675" fill="url(#grid)"/>
+  <path d="M0 545 L1200 390 V675 H0Z" fill="#05070b" opacity=".76"/>
+  <g transform="translate(345 126) scale(1.02)">
+    <path d="M 120 290 L 100 200 Q 95 150 135 130 L 210 110 Q 255 100 270 135 L 285 175 Q 300 210 340 195 L 420 160 Q 460 140 450 100 L 435 60 Q 410 40 370 55 L 290 85 Q 240 105 210 80 L 180 55 Q 150 40 120 70 L 80 130 Q 50 180 70 230 L 120 290 Z" fill="none" stroke="#00f0ff" stroke-opacity=".24" stroke-width="34" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"/>
+    <path d="M 120 290 L 100 200 Q 95 150 135 130 L 210 110 Q 255 100 270 135 L 285 175 Q 300 210 340 195 L 420 160 Q 460 140 450 100 L 435 60 Q 410 40 370 55 L 290 85 Q 240 105 210 80 L 180 55 Q 150 40 120 70 L 80 130 Q 50 180 70 230 L 120 290 Z" fill="none" stroke="#e8eef5" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 120 290 L 100 200 Q 95 150 135 130 L 210 110 Q 255 100 270 135 L 285 175 Q 300 210 340 195 L 420 160 Q 460 140 450 100 L 435 60 Q 410 40 370 55 L 290 85 Q 240 105 210 80 L 180 55 Q 150 40 120 70 L 80 130 Q 50 180 70 230 L 120 290 Z" fill="none" stroke="#121925" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 120 290 L 100 200 Q 95 150 135 130 L 210 110 Q 255 100 270 135 L 285 175 Q 300 210 340 195 L 420 160 Q 460 140 450 100 L 435 60 Q 410 40 370 55 L 290 85 Q 240 105 210 80 L 180 55 Q 150 40 120 70 L 80 130 Q 50 180 70 230 L 120 290 Z" fill="none" stroke="#ff3028" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g font-family="Inter,Arial,sans-serif"><text x="64" y="76" fill="#ff3028" font-size="17" font-weight="800" letter-spacing="5">EDS CIRCUIT LAB // ROUND 07</text><text x="64" y="116" fill="#f4f7fa" font-size="28" font-weight="800">Circuit de Barcelona-Catalunya</text><text x="64" y="145" fill="#8293a8" font-size="14" letter-spacing="3">OFFLINE VECTOR STUDY · NO REMOTE IMAGERY</text></g>
+  <g transform="translate(64 590)" font-family="Inter,Arial,sans-serif"><rect width="390" height="2" fill="#00f0ff"/><text y="38" fill="#aab8c7" font-size="13" font-weight="700" letter-spacing="4">TRACK GEOMETRY / TELEMETRY CONTEXT</text></g>
+</svg>

@@ -1,0 +1,29 @@
+{
+  "eventId": "2026-gp-bahrain",
+  "sessionId": "2026-gp-bahrain-practice-1",
+  "type": "Practice",
+  "startUtc": "2026-03-13T12:00:00Z",
+  "endUtc": "2026-03-13T13:00:00Z",
+  "classificationStatus": "PROVISIONAL",
+  "driverResults": [
+    {
+      "driver": {
+        "driverId": "synthetic_driver_one",
+        "fullName": "Synthetic Driver One",
+        "country": null
+      },
+      "position": 1,
+      "laps": 20,
+      "time": "1:30.000",
+      "points": null,
+      "status": "Finished",
+      "penalties": []
+    }
+  ],
+  "source": {
+    "provider": "fixture",
+    "license": "SYNTHETIC",
+    "retrievedAtUtc": "2026-03-13T13:05:00Z",
+    "sourceReference": "synthetic:2026-gp-bahrain-practice-1"
+  }
+}

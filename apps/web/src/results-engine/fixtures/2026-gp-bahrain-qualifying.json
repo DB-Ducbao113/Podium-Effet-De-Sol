@@ -1,0 +1,29 @@
+{
+  "eventId": "2026-gp-bahrain",
+  "sessionId": "2026-gp-bahrain-qualifying",
+  "type": "Qualifying",
+  "startUtc": "2026-03-13T15:00:00Z",
+  "endUtc": "2026-03-13T15:45:00Z",
+  "classificationStatus": "PROVISIONAL",
+  "driverResults": [
+    {
+      "driver": {
+        "driverId": "synthetic_driver_one",
+        "fullName": "Synthetic Driver One",
+        "country": null
+      },
+      "position": 1,
+      "laps": 12,
+      "time": "1:29.000",
+      "points": null,
+      "status": "Finished",
+      "penalties": []
+    }
+  ],
+  "source": {
+    "provider": "fixture",
+    "license": "SYNTHETIC",
+    "retrievedAtUtc": "2026-03-13T15:50:00Z",
+    "sourceReference": "synthetic:2026-gp-bahrain-qualifying"
+  }
+}

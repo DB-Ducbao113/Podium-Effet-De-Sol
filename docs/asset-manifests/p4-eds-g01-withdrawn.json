@@ -1,0 +1,268 @@
+{
+  "disposalDate": "2026-11-04",
+  "note": "Owner-approved permanent disposal of quarantined EDS-G01 derivative plates",
+  "fileCount": 52,
+  "totalBytes": 3271860,
+  "files": [
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/plates-produced/hero-desktop-1600.avif",
+      "bytes": 14288,
+      "sha256": "4b2c5096f4cf5fa6a0799a953aebf1a26dc979dc0d3f30a5984ee135eb7b94e1"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/plates-produced/hero-desktop-1600.webp",
+      "bytes": 27338,
+      "sha256": "b030bb4eb6cfd1ab2672b068db6175c856f483627953edb45161aeb2d9c6c9b9"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/plates-produced/hero-desktop-640.avif",
+      "bytes": 4060,
+      "sha256": "5ddfcf8d9baba5f8cf4cbfe3bf622d294601b4cc38e2772868ca48f0ec32809c"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/plates-produced/hero-desktop-640.webp",
+      "bytes": 6294,
+      "sha256": "f0796967118ebc4f8c603eeb82e293335b762fbb20d2f46c990519cd47c583fb"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/plates-produced/hero-desktop-960.avif",
+      "bytes": 6622,
+      "sha256": "39bdae54e8a9a6a3d93238e1c7656c078e88706fdf577f7ecd1c65917a74ced2"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/plates-produced/hero-desktop-960.webp",
+      "bytes": 11554,
+      "sha256": "65c0b1f233a170c605a441296956e97252f7fbae41c9f10cf2879ab1023870e3"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/plates-produced/hero-mobile-1080.avif",
+      "bytes": 31464,
+      "sha256": "8bac74ef3b909722b2df10287814efb749aced655671619ad8cd0b744ddc3517"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/plates-produced/hero-mobile-1080.webp",
+      "bytes": 59608,
+      "sha256": "13751e2467dc438309f55038ab555741f899afd987488aeacab7aeeeb459b279"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/plates-produced/hero-mobile-480.avif",
+      "bytes": 7212,
+      "sha256": "19ef095b6ed4a22f2f2205a2a1066e023d69d061f656f07227ee67ad077025c5"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/plates-produced/hero-mobile-480.webp",
+      "bytes": 13110,
+      "sha256": "3989de83d8c60d6a798457e191723f7728323002b526369a95bec4120776023c"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/plates-produced/hero-mobile-720.avif",
+      "bytes": 13427,
+      "sha256": "24b92d7daebfda5660b035abb6781602c6a13431ab9ec3d1381d7bec30c04603"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/plates-produced/hero-mobile-720.webp",
+      "bytes": 25322,
+      "sha256": "ce1f289364836501f4cd828a10e23ab48779ba936935746a2d364b18d831c4d3"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/plates-produced/poster-amber-420.avif",
+      "bytes": 6740,
+      "sha256": "38da2f7019a4a65e4083709c81c30d646c3f2c16ba0468f11f6cc80ff0f73acd"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/plates-produced/poster-amber-420.webp",
+      "bytes": 12064,
+      "sha256": "a27b455324f2a0c347c85d99257aa1f55ab3373b52985162cc83f312be489e4d"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/plates-produced/poster-amber-600.avif",
+      "bytes": 10704,
+      "sha256": "f2ccf9c85154aaed44411ecaefafbe91806e4d4ab2cd7a5a55292f3ff00c76dc"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/plates-produced/poster-amber-600.webp",
+      "bytes": 20994,
+      "sha256": "c5a0e4a234b17218e9a6e0ebd4acdc2a247fa1980261be91554f361a9aa52354"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/plates-produced/poster-amber-900.avif",
+      "bytes": 21480,
+      "sha256": "3e9495a32dfc334d78db36e64e1a008f2c98f0ad40de527f4f9e554a798b4b44"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/plates-produced/poster-amber-900.webp",
+      "bytes": 42088,
+      "sha256": "85c742992376c5c6d81b56c37fc0aed5a4ced2e0cc623fa310b94b333579a347"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/plates-produced/poster-crimson-420.avif",
+      "bytes": 6394,
+      "sha256": "d197c9b02da3fd579315fb87f3110d199ca9be603a5b15531207d7fdf74052d8"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/plates-produced/poster-crimson-420.webp",
+      "bytes": 9676,
+      "sha256": "3f5f5f2999a687ebd9155d7601e7dd64346a320960f3cb73a372a87e49acef36"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/plates-produced/poster-crimson-600.avif",
+      "bytes": 9933,
+      "sha256": "4bce22eff133671e67ad8b1bc13b28a29ee9fc34529f6c5e428981c738e3d4b2"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/plates-produced/poster-crimson-600.webp",
+      "bytes": 16082,
+      "sha256": "5954d5c25181a7f4efb6fbf3482c9ddc0df1c51f80dec42aed7e3a2ec19b054b"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/plates-produced/poster-crimson-900.avif",
+      "bytes": 18747,
+      "sha256": "1bc7bde5d8ae7683421c73d2160fd9788ed732631ec0ecef065e52bc256b5a43"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/plates-produced/poster-crimson-900.webp",
+      "bytes": 32106,
+      "sha256": "acc0e52777fe690bf29067ef53c036ea86b5ac98e6d73235cd22caf72877b1ac"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/plates-produced/poster-emerald-420.avif",
+      "bytes": 6522,
+      "sha256": "4f7de12acc02f5084bfe9f8723cfa2340b4bfdb4c74680fd534a4a22bfdd4f14"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/plates-produced/poster-emerald-420.webp",
+      "bytes": 11980,
+      "sha256": "756ee8712dccf10097d563e5c0601e3c9433c386ee5d54a383234c7059d0b5b1"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/plates-produced/poster-emerald-600.avif",
+      "bytes": 10935,
+      "sha256": "22b2a89341fd9d38d5eb4846b862c6ff8600c6aa15bee35cfb124e454f695d8b"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/plates-produced/poster-emerald-600.webp",
+      "bytes": 20742,
+      "sha256": "5f5eb749da0f573ca60ed4e1bea60f209d567444a3df6a74151ed317b57ebe66"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/plates-produced/poster-emerald-900.avif",
+      "bytes": 22167,
+      "sha256": "97ac60164e8b7c599c84ab484b9d5cc689060f4eb01d61e5ad46da01d9a46c31"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/plates-produced/poster-emerald-900.webp",
+      "bytes": 43140,
+      "sha256": "3896d8bf577b913a804e23ae50e26c3218818b5f7936c96b3d676ce4e43d7899"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/plates-produced/poster-night-420.avif",
+      "bytes": 6279,
+      "sha256": "0528ff349dfa2682094f5bf0490711caf860ea0d5249fdcc0c6b22ad5302a8f1"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/plates-produced/poster-night-420.webp",
+      "bytes": 9428,
+      "sha256": "d97ae4c0bec3b0f90f9398bb1fbfe4f9597bf50abe863d3cd432b7f9fcf7e153"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/plates-produced/poster-night-600.avif",
+      "bytes": 10089,
+      "sha256": "b5fd418f40a5ff784de81c1d301be02aa6db208d91954088de43c6ada46fc52e"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/plates-produced/poster-night-600.webp",
+      "bytes": 16208,
+      "sha256": "c0a686f215034ea8b2ccdc5f8f84e68c73fbacaede1696944ca7a630bce9a36d"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/plates-produced/poster-night-900.avif",
+      "bytes": 19726,
+      "sha256": "7d73781a78913e16be4c7e3e0f197eee0453494085db512addb3cf1f7eb7a8f5"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/plates-produced/poster-night-900.webp",
+      "bytes": 32662,
+      "sha256": "3049ccf873a12624744a5076990e940a95877ad9b154debbcf0f14cbbcbf2f36"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/source-code/CinematicPlate.tsx",
+      "bytes": 2427,
+      "sha256": "9d1fc887e80be9cbb99d96ffdad804cf594beec65f930aae16a61bd142244c16"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/source-code/cinematicArtContract.test.ts",
+      "bytes": 1189,
+      "sha256": "6f2a7c187976540da69f99c1880ae462ab193fff5da3db0e60663281738be3f7"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/source-code/cinematicPlates.ts",
+      "bytes": 1298,
+      "sha256": "cca4b22823b8b49af7dedc815696d2362397d5e5e2a8eb385584671b9cc142bf"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/source-render/export-manifest.json",
+      "bytes": 4055,
+      "sha256": "10c7314f648c49923a40df604ea23c46cae44d4d4ca7783f414001f8449b1ba2"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/source-render/export.cjs",
+      "bytes": 3720,
+      "sha256": "cb468cc368cf4a68db17ff40c190183c3c59f82e552f92d2801405591c0972a8"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/source-render/plates/_crop-hero.png",
+      "bytes": 135791,
+      "sha256": "07d35b997adf95541e91b9487d363741cbf7e2c247dc2398e683b040c9e863d9"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/source-render/plates/_crop-wing.png",
+      "bytes": 132768,
+      "sha256": "583ae42587ed31bce9a91a899f59b181554fd57bdee9c6ca9f39779ff9b78a96"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/source-render/plates/hero-desktop.png",
+      "bytes": 427841,
+      "sha256": "bb0fa8a3f66e1eca7e2173a2c2059ef94e53b92f84e7d877786e48deb8bbdaa7"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/source-render/plates/hero-mobile.png",
+      "bytes": 356878,
+      "sha256": "c8305bceeff5d24b6326cce07f43feb0a045960594b22fb5cd0459bc4afcb2aa"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/source-render/plates/poster-amber.png",
+      "bytes": 381067,
+      "sha256": "93cdd2293c25188d8625c5258f1fab4dbad3be523e6ee92c021151c109b0d120"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/source-render/plates/poster-crimson.png",
+      "bytes": 368817,
+      "sha256": "907f8e11cb90c98dc55f239b773d18e52fd6b57f0029af09ddef33a53037c665"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/source-render/plates/poster-emerald.png",
+      "bytes": 414786,
+      "sha256": "e911c7070960279f79127b4ba9e6a65a66e46a2b35d874e2c14600cc3218e44b"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/source-render/plates/poster-night.png",
+      "bytes": 382475,
+      "sha256": "1112deabc42b0d8358105235d1950540fbc08e69504e7b8a658bb096cecfb6b1"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/source-render/render.cjs",
+      "bytes": 2343,
+      "sha256": "c24eec139a96d02c4734550245777f95e0030475f55ec85a29700c30abb0a367"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/source-render/scene.html",
+      "bytes": 18116,
+      "sha256": "424d495f581547ef43edb098491d52db08adcf7011264f5aae384ab99a3f0aee"
+    },
+    {
+      "path": "scratch/ignition/p4/quarantine/eds-g01-artwork/source-render/server.cjs",
+      "bytes": 1104,
+      "sha256": "def49d51ea868fba4240a48f20ab59cb77edde88948335bc66f5a43eac0eae90"
+    }
+  ]
+}

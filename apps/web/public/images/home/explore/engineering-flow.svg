@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="t d">
+<title id="t">Original engineering airflow concept</title><desc id="d">Abstract racing-car aero geometry, not a CFD simulation or verified vehicle model</desc>
+<defs>
+<linearGradient id="bg" x2="1" y2="1"><stop stop-color="#03080d"/><stop offset=".55" stop-color="#0a1823"/><stop offset="1" stop-color="#040508"/></linearGradient>
+<linearGradient id="stroke" x2="1" y2="0"><stop stop-color="#3c6476"/><stop offset=".52" stop-color="#c8f2ff"/><stop offset="1" stop-color="#318bba"/></linearGradient>
+<linearGradient id="flow" x2="1" y2="0"><stop stop-color="#21647d" stop-opacity="0"/><stop offset=".5" stop-color="#54dfff"/><stop offset="1" stop-color="#ff4a18" stop-opacity=".8"/></linearGradient>
+<pattern id="grid" width="62" height="62" patternUnits="userSpaceOnUse"><path d="M62 0H0V62" stroke="#70afce" stroke-opacity=".085" fill="none"/></pattern>
+<filter id="blur"><feGaussianBlur stdDeviation="22"/></filter>
+</defs>
+<rect width="1600" height="900" fill="url(#bg)"/><rect width="1600" height="900" fill="url(#grid)"/>
+<ellipse cx="900" cy="460" rx="600" ry="230" fill="#0b799c" opacity=".12" filter="url(#blur)"/>
+<g transform="translate(135 0)" fill="none" stroke="url(#stroke)" stroke-width="5" opacity=".9">
+<circle cx="380" cy="635" r="138"/><circle cx="1130" cy="635" r="138"/>
+<circle cx="380" cy="635" r="89" opacity=".38"/><circle cx="1130" cy="635" r="89" opacity=".38"/>
+<path d="M145 562L269 531 328 554 511 508 657 495 744 398 910 405 1012 502 1185 526 1301 495 1388 525 1395 576 1256 588M523 509L610 623H909L1082 557M646 495L744 402 908 409 966 485M720 407C761 326 869 323 928 403M250 552L149 574 164 594 263 590M1237 522L1378 484"/>
+<path d="M503 622H1036M373 501L328 367 195 342M1121 500L1198 361 1330 335" opacity=".5"/>
+</g>
+<g fill="none" stroke="url(#flow)" stroke-linecap="round">
+<path d="M-40 395C248 290 512 270 782 362S1252 389 1640 226" stroke-width="8"/>
+<path d="M-30 453C299 367 498 361 779 447S1272 461 1631 310" stroke-width="4" opacity=".75"/>
+<path d="M-50 506C210 467 499 453 778 550S1290 550 1640 420" stroke-width="3" opacity=".54"/>
+</g>
+<g stroke="#a9edff" stroke-opacity=".38"><path d="M80 180H1530M80 732H1530M150 120V790M1490 120V790" stroke-dasharray="8 18"/>
+<circle cx="530" cy="630" r="156" fill="none"/><path d="M530 457V802M345 630H720" opacity=".25"/></g>
+<path d="M0 830H1600" stroke="#ff4a18" stroke-opacity=".42" stroke-width="3"/>
+</svg>

@@ -1,0 +1,152 @@
+{
+  "status": "local-owner-review-only",
+  "season": 2026,
+  "sourceArchive": "peds-2026-all-11-teams-horizontal-gifs-fixed.zip",
+  "sourceArchiveSha256": "5c8979ae2286dadf4e12346bcb754e99b6d94675ee2ee1ce8edb936da6692c67",
+  "provenance": "Owner-supplied AI-generated team car GIF pack; exact 2026 liveries and trademark rights not verified. Do not publish without owner rights review.",
+  "assets": [
+    {
+      "slug": "ferrari",
+      "gif": {
+        "file": "gifs/ferrari-2026-side.gif",
+        "bytes": 566966,
+        "sha256": "9dc6c42cdb2a531038e7e62e7595dccd04a53fce42cb533f6f90431c57202631"
+      },
+      "poster": {
+        "file": "posters/ferrari-2026-side.webp",
+        "bytes": 21240,
+        "sha256": "22e35f0afc7514863d054c742974519799c726298a9928929e5fd67450716cd0"
+      }
+    },
+    {
+      "slug": "mercedes",
+      "gif": {
+        "file": "gifs/mercedes-2026-side.gif",
+        "bytes": 611925,
+        "sha256": "5ad1369e026f02c7e6c00670aae9de179b6f5ec2e2f3fe1d17ccd471aae5fedb"
+      },
+      "poster": {
+        "file": "posters/mercedes-2026-side.webp",
+        "bytes": 21320,
+        "sha256": "5c81f9082ca13d78dbd6fd3a52be2fb8bc055b4386460be66a2be8070dbb1279"
+      }
+    },
+    {
+      "slug": "mclaren",
+      "gif": {
+        "file": "gifs/mclaren-2026-side.gif",
+        "bytes": 705491,
+        "sha256": "4c3047c92e9c219bbca8f48b8fbaea001911c94fd28238bf5fa5df1e3d70ccd9"
+      },
+      "poster": {
+        "file": "posters/mclaren-2026-side.webp",
+        "bytes": 23488,
+        "sha256": "89db292aeffc45e258dd458091cf31b4889ef7ee20e69ded9a0141eddaa385d6"
+      }
+    },
+    {
+      "slug": "red-bull",
+      "gif": {
+        "file": "gifs/red-bull-2026-side.gif",
+        "bytes": 634932,
+        "sha256": "bbb88908c69843ab7c97568e3a1dece0c4816c27913bf85a3c76578a5202cea0"
+      },
+      "poster": {
+        "file": "posters/red-bull-2026-side.webp",
+        "bytes": 20144,
+        "sha256": "df8032ae99f0739a508ef0f106e96aebe558d50185213c53dc7c9ee6fb2adf01"
+      }
+    },
+    {
+      "slug": "aston-martin",
+      "gif": {
+        "file": "gifs/aston-martin-2026-side.gif",
+        "bytes": 551980,
+        "sha256": "8795906c5a42754be86525ac55377b9990c9b73c1f48af06ca9d6b933f578ca1"
+      },
+      "poster": {
+        "file": "posters/aston-martin-2026-side.webp",
+        "bytes": 21178,
+        "sha256": "c6390b7390cc2f48122b0fe9536bbc83e339bd07bf759c4be7702d0f366744f1"
+      }
+    },
+    {
+      "slug": "williams",
+      "gif": {
+        "file": "gifs/williams-2026-side.gif",
+        "bytes": 491399,
+        "sha256": "9507e40467bc47b2671b2c78affcfb80bf875fe2c48f29fc411822c5e6ae7074"
+      },
+      "poster": {
+        "file": "posters/williams-2026-side.webp",
+        "bytes": 16584,
+        "sha256": "ce8a3609926fd227337243114d353ef154f535ee51f6b78225338ecc7c30300c"
+      }
+    },
+    {
+      "slug": "audi",
+      "gif": {
+        "file": "gifs/audi-2026-side.gif",
+        "bytes": 568652,
+        "sha256": "41ebffc3be61ef9650622fdf75113be2b329abd7e9d8aee37e06386631d67398"
+      },
+      "poster": {
+        "file": "posters/audi-2026-side.webp",
+        "bytes": 19344,
+        "sha256": "3c588bf730cf69beaf12c60d5df5b948eaea89ca657a99318f7477c87dd57ae6"
+      }
+    },
+    {
+      "slug": "alpine",
+      "gif": {
+        "file": "gifs/alpine-2026-side.gif",
+        "bytes": 592148,
+        "sha256": "be829592b1bccec4c49e78ed51226c4877e6398f4158a2f6cde709a8158f5e70"
+      },
+      "poster": {
+        "file": "posters/alpine-2026-side.webp",
+        "bytes": 20644,
+        "sha256": "fb647d415e39b1f21b47cc39a516fac3ae4046c24c0575cfd1279fe017198caa"
+      }
+    },
+    {
+      "slug": "haas",
+      "gif": {
+        "file": "gifs/haas-2026-side.gif",
+        "bytes": 690787,
+        "sha256": "3dcdb27c5f3a7c76c63e8d33d8f7ab8fc2835dda9bf24fe7ef416aedbc1839b9"
+      },
+      "poster": {
+        "file": "posters/haas-2026-side.webp",
+        "bytes": 20290,
+        "sha256": "27cfaf15a0257b0bbcd85b805ad52d4a488c968eed10e3c9b95c5523ca00a583"
+      }
+    },
+    {
+      "slug": "racing-bulls",
+      "gif": {
+        "file": "gifs/racing-bulls-2026-side.gif",
+        "bytes": 581213,
+        "sha256": "22261918695cbbfed75f834132a6e6c31ef9a7431ce0d75279ce117978d3e1ce"
+      },
+      "poster": {
+        "file": "posters/racing-bulls-2026-side.webp",
+        "bytes": 21782,
+        "sha256": "3fb55671cfab907671a79166bb451c4b6fd5ed127f98d26f0c76a110004768de"
+      }
+    },
+    {
+      "slug": "cadillac",
+      "gif": {
+        "file": "gifs/cadillac-2026-side.gif",
+        "bytes": 716718,
+        "sha256": "b2589068fb377593d899167a725f4695616f68dcd8bed8e866b6e21ae089d068"
+      },
+      "poster": {
+        "file": "posters/cadillac-2026-side.webp",
+        "bytes": 20600,
+        "sha256": "87981fa1b6a580aabde02ca1ec4b6ef195121e773052931bc643fd840477efba"
+      }
+    }
+  ]
+}
