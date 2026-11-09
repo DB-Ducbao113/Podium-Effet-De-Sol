@@ -23,6 +23,7 @@ function fixture(){
    'p2_11_rear_toe_link.py','p2_12_toe_adjuster.py',
    'p2_12_constrained_kinematics.py','p2_13_rear_joint_prototype.py',
   ].map(name=>[name,'b'.repeat(64)])),
+  ownCadSourceSha256:'d'.repeat(64),
   step:'P214_split_spherical_joint_sleeve_prototypes.step',
   stepSha256:'c'.repeat(64),stepRoundtripSolids:16,
   openingFeasibility:{
