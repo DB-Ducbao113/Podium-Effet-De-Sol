@@ -1,5 +1,5 @@
 import {
- lazy,Suspense,useCallback,useEffect,useRef,useState,
+ lazy,Suspense,useCallback,useEffect,useMemo,useRef,useState,
  type ChangeEvent,
 } from 'react';
 import {Link} from 'react-router-dom';
@@ -18,6 +18,7 @@ import {readLocalAutoCadIndex,type AutoCadRow} from './localSourceIndex';
 import type {OwnerMeasuredFit} from '../assemblyPreview/ownerMeasuredFit';
 import type {RearVisualParts} from './rearVisualComposite';
 import type {InspectedCadPart} from './cadPartInspector';
+import CadPartBrowser from './CadPartBrowser';
 import './modelBAssembly.css';
 
 const Stage=lazy(()=>import('./ModelBAssemblyStage'));
@@ -44,6 +45,7 @@ export default function ModelBAssemblyPage(){
  const [measuredFit,setMeasuredFit]=useState<OwnerMeasuredFit|null>(null);
  const [rearComposite,setRearComposite]=useState<RearVisualParts|null>(null);
  const [inspectedPart,setInspectedPart]=useState<InspectedCadPart|null>(null);
+ const [catalogOpen,setCatalogOpen]=useState(false);
  const [reducedMotion,setReducedMotion]=useState(()=>{
    return typeof window!=='undefined'&&
      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -162,9 +164,13 @@ export default function ModelBAssemblyPage(){
  const handleFit=useCallback((fit:OwnerMeasuredFit|null)=>setMeasuredFit(fit),[]);
  const handleRearComposite=useCallback(
    (info:RearVisualParts|null)=>setRearComposite(info),[]);
- const handlePartInspect=useCallback((part:InspectedCadPart)=>setInspectedPart(part),[]);
+ const handlePartInspect=useCallback((part:InspectedCadPart)=>{
+   setInspectedPart(part);
+   setCatalogOpen(false);
+ },[]);
  const resetReady=useCallback((kind:SourceName)=>{
    setInspectedPart(null);
+   setCatalogOpen(false);
    setReady(previous=>{
      const next:Partial<Record<StageId,number>>={};
      if(previous['model-b']!==undefined)next['model-b']=previous['model-b'];
@@ -224,6 +230,9 @@ export default function ModelBAssemblyPage(){
  };
  const sourceCount=(corner?59:0)+(rearToe?19:0)+(splitRace?16:0);
  const cadLoaded=Boolean(corner)&&Boolean(ready.p28);
+ const p28PartIds=useMemo(()=>corner?.parts.map(x=>x.node)??[],[corner]);
+ const rearToePartIds=useMemo(()=>rearToe?.manifest.partIds??null,[rearToe]);
+ const splitPartIds=useMemo(()=>splitRace?.manifest.newPartNames??null,[splitRace]);
  const allRear=Boolean(rearToe&&splitRace&&ready['rear-toe']&&ready.p214);
  return <div className="mb-build">
    <a href="#mb-build-end" className="mb-build-skip">SKIP ASSEMBLY SEQUENCE</a>
@@ -277,6 +286,19 @@ export default function ModelBAssemblyPage(){
            </button>
          )}
        </nav>
+       {cadLoaded&&<button type="button" className="mb-build-catalog-trigger"
+         aria-expanded={catalogOpen} aria-controls="mb-build-catalog-mount"
+         onClick={()=>setCatalogOpen(value=>!value)}>
+         {catalogOpen?'CLOSE CAD PARTS':'EXPLORE REAL CAD PARTS'} <span>↗</span>
+       </button>}
+       <div id="mb-build-catalog-mount">
+         {catalogOpen&&cadLoaded&&<CadPartBrowser
+           p28PartIds={p28PartIds}
+           p212PartIds={rearToe&&ready['rear-toe']===19?rearToePartIds:null}
+           p214PartIds={splitRace&&ready.p214===16?splitPartIds:null}
+           onSelect={handlePartInspect}
+           onClose={()=>setCatalogOpen(false)}/>}
+       </div>
        {inspectedPart&&<aside className="mb-build-part-inspector"
           aria-label="Selected original CAD component" aria-live="polite"
           data-inspected-cad-part-id={inspectedPart.partId}>
