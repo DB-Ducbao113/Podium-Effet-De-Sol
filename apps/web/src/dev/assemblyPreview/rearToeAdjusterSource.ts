@@ -2,7 +2,7 @@ import { checkGlb, sha256, type Profile } from '../cadFirstScroll/cadSource';
 import { REAR_TOE_ALL_PARTS, REAR_TOE_NEW_PARTS } from './rearToeSource';
 
 export const REAR_TOE_ADJUSTER_SCHEMA =
-  'podium-eds.p2.cad-first.rear-toe-adjuster-static-proposal.v1';
+  'podium-eds.p2.cad-first.rear-toe-adjuster-threaded.v2';
 export const REPLACED_FIXED_ROD = REAR_TOE_NEW_PARTS[0];
 export const ADJUSTER_PARTS = [
   'P212_TOE_OUTER_RIGHT_HAND_THREADED_ROD_END',
@@ -39,11 +39,20 @@ export type ToeAdjusterManifest = {
   innerThreadHand: 'LEFT';
   externalHelicalCrestsModelled: true;
   pitchMm: number;
-  radialSleeveClearanceMm: number;
+  femaleSleeveMinorRadiusMm:number;
+  femaleThreadMajorRadiusMm:number;
+  femaleThreadGrooveDepthMm:number;
+  rodRootRadialClearanceMm:number;
+  threadCrestRadialClearanceMm:number;
+  sleeveOppositeHandGroovesModelled:true;
+  bothLocknutFemaleGroovesModelled:true;
+  nominalThreadPhaseMatched:true;
+  threadedRodSpanMm:number;
+  threadGeometryRevision:'P2.12-R2-BREP-GROOVED';
   sourceP28Modified: false;
   modelBSourceModified: false;
   actualChassisToeHardpointMeasured: false;
-  fullFemaleThreadProfileModelled: false;
+  fullFemaleThreadProfileModelled: true;
   mechanicalThreadEngagementCertified: false;
   toeAdjustmentTravelCertified: false;
   locknutTorqueCertified: false;
@@ -76,8 +85,9 @@ const exactNames=(input:unknown,expected:readonly string[]) =>
   new Set(input).size===expected.length &&
   input.every(id=>typeof id==='string' && expected.includes(id));
 
-/** Verify original 19-body P2.12 static proposal, never imply certified
- * female-thread engagement or a physical structural chassis mate.
+/** Verify the P2.12 threaded v2 source has real RH/LH female B-Rep groove
+ * topology. No claims about axial load, fatigue, locknut torque, toe travel
+ * or actual physical structural chassis mating.
  */
 export function readToeAdjusterManifest(input:unknown):ToeAdjusterManifest {
   if(!input || typeof input!=='object')
@@ -92,13 +102,25 @@ export function readToeAdjusterManifest(input:unknown):ToeAdjusterManifest {
     !exactNames(m.newPartIds,ADJUSTER_PARTS) ||
     m.outerThreadHand!=='RIGHT' || m.innerThreadHand!=='LEFT' ||
     m.externalHelicalCrestsModelled!==true ||
-    m.pitchMm!==2 || typeof m.radialSleeveClearanceMm!=='number' ||
-    !Number.isFinite(m.radialSleeveClearanceMm) ||
-    m.radialSleeveClearanceMm<=0 ||
-    m.radialSleeveClearanceMm>.5 ||
+    m.pitchMm!==2 ||
+    m.threadGeometryRevision!=='P2.12-R2-BREP-GROOVED' ||
+    m.sleeveOppositeHandGroovesModelled!==true ||
+    m.bothLocknutFemaleGroovesModelled!==true ||
+    m.nominalThreadPhaseMatched!==true ||
+    m.threadedRodSpanMm!==34 ||
+    !Number.isFinite(m.femaleSleeveMinorRadiusMm) ||
+    !Number.isFinite(m.femaleThreadMajorRadiusMm) ||
+    !Number.isFinite(m.femaleThreadGrooveDepthMm) ||
+    !Number.isFinite(m.rodRootRadialClearanceMm) ||
+    !Number.isFinite(m.threadCrestRadialClearanceMm) ||
+    Math.abs((m.femaleSleeveMinorRadiusMm??0)-9.05)>1e-5 ||
+    Math.abs((m.femaleThreadMajorRadiusMm??0)-10.08)>1e-5 ||
+    Math.abs((m.femaleThreadGrooveDepthMm??0)-1.03)>1e-5 ||
+    Math.abs((m.rodRootRadialClearanceMm??0)-.2)>1e-5 ||
+    Math.abs((m.threadCrestRadialClearanceMm??0)-.46)>1e-5 ||
     m.sourceP28Modified!==false || m.modelBSourceModified!==false ||
     m.actualChassisToeHardpointMeasured!==false ||
-    m.fullFemaleThreadProfileModelled!==false ||
+    m.fullFemaleThreadProfileModelled!==true ||
     m.mechanicalThreadEngagementCertified!==false ||
     m.toeAdjustmentTravelCertified!==false ||
     m.locknutTorqueCertified!==false ||
