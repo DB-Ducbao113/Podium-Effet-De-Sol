@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/immutability -- Three.js is an imperative render engine: useFrame and WebGL PMREM mutate viewer-owned scene objects, never React state. */
 import {useEffect,useMemo,useState,type RefObject} from 'react';
 import {Canvas,useFrame,useThree,type ThreeEvent} from '@react-three/fiber';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -437,7 +438,7 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
      }
    }
    const aspect=size.width/Math.max(1,size.height);
-   let cameraTarget=new THREE.Vector3(0,-.1,0);
+   const cameraTarget=new THREE.Vector3(0,-.1,0);
    let distance=8.6;
    let orbit=.0;
    if(!fit&&original?.probe){
