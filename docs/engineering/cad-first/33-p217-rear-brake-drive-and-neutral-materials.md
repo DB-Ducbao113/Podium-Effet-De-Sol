@@ -33,6 +33,26 @@ Model B body/livery and all owner-source asset bytes remain unchanged.
 | P2.17 glTF source nodes | **8/8 per quality** |
 | P2.16 + P2.17 source unittests | **11/11 PASS** |
 
+## Verified standalone 31-part rear-wheel review
+
+`tools/cad-first/p2_17_composite_review.py` combines the original 23 P2.16
+and eight P2.17 *mesh identities* only after validating their independent
+source-manifest SHA-256 hashes and the exact same neutral base RGB. The generated
+three review GLBs contain **31 distinct source-named meshes**, with HIGH
+63,364, BALANCED 45,232 and PERFORMANCE 40,564 triangles. These are
+rear-wheel-local study models **without the original Model B vehicle**, and
+are never fed into the production site or substituted for an unverified rear mate.
+
+```bash
+python tools/cad-first/p2_17_composite_review.py \
+  --p216-dir .local-assets/cad-first/p216-rear-wheel-end \
+  --p217-dir .local-assets/cad-first/p217-rear-brake-drive \
+  --out .local-assets/cad-first/p217-rear31-neutral-review
+```
+
+Review composition has an additional offline test that rejects tampered GLB
+binaries and checks original source node names, exact RGB and all three tiers.
+
 No binary CAD assets are committed to this public branch. Reproduce with:
 
 ```bash
