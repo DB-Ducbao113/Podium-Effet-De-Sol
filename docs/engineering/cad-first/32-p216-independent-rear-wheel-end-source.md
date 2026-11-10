@@ -24,7 +24,7 @@ until its separate native alignment and clearance gates pass.
 CadQuery B-Rep rear wheel-end**. It does not mutate Model B, the P2.8 front
 source, or the published rear component manifests.
 
-- One hollow rear slick tyre section, full width 450 mm, outer diameter 720 mm
+- One hollow rear slick tyre section, full width 450 mm, 405 mm flat tread span, outer diameter 720 mm
 - One separately authored rear wheel rim, 490.6 mm lip outside diameter,
   429.3 mm rear mounting width, ten B-Rep fused spokes
 - One source rear hub stub
@@ -64,9 +64,9 @@ The source was executed with CadQuery 2.8 / OpenCascade, trimesh and NumPy.
 | AABB-excluded pairs | 166 |
 | Exact native B-Rep Boolean intersection pairs | 87 |
 | Intersections over 0.05 mm³ | 0 |
-| HIGH GLB triangles | 58,276 |
-| BALANCED GLB triangles | 42,916 |
-| PERFORMANCE GLB triangles | 39,076 |
+| HIGH GLB triangles | 58,780 |
+| BALANCED GLB triangles | 43,420 |
+| PERFORMANCE GLB triangles | 39,580 |
 | GLB named nodes/watertightness | 23 / 23 per tier |
 | Source unittest gates | 6 / 6 PASS |
 
