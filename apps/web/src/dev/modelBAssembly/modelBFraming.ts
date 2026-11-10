@@ -63,10 +63,12 @@ export function frameOriginalModelB(
  const yFraction=canvasAspect<.85?.54:.80;
  let distance=0;
  for(let x=0;x<2;x++)for(let y=0;y<2;y++)for(let z=0;z<2;z++){
+   // Explicit tuple branch avoids unchecked numeric indexing of source
+   // bounds under strict TS and keeps all eight original car corners exact.
    const local:Vec=[
-      (bounds[x][0]-centre[0]/scale)*scale,
-      (bounds[y][1]-centre[1]/scale)*scale,
-      (bounds[z][2]-centre[2]/scale)*scale,
+      ((x?upper[0]:lower[0])-(lower[0]+upper[0])/2)*scale,
+      ((y?upper[1]:lower[1])-(lower[1]+upper[1])/2)*scale,
+      ((z?upper[2]:lower[2])-(lower[2]+upper[2])/2)*scale,
    ];
    const depth=dot(local,eye);
    const rightOffset=Math.abs(dot(local,right));
