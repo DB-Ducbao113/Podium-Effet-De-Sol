@@ -117,6 +117,8 @@ def capture(url:str,out:Path,p28:Path,quality:str='BALANCED',
             response=page.goto(url,wait_until='domcontentloaded',timeout=60000)
             if not response or response.status>=400:raise RuntimeError('DEV scroll route unavailable')
             page.get_by_text('OWNER MODEL B LOADED',exact=False).first.wait_for(timeout=90000)
+            if page.get_by_role('dialog',name='F1 Start Lights Preloader').count():
+                raise RuntimeError('Global PODIUM intro still covers original Model B CAD WebGL viewport')
             audit['modelBDecoded']=True
             owner_identity=page.locator(
                 '.mb-build-source-wrap[data-owner-model-b-git-blob-sha1="'
