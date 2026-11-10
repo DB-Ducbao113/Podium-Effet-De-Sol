@@ -26,9 +26,11 @@ describe('Original Model B source-locked scroll choreography',()=>{
      expect(visualShellOpacity(p,false)).toBe(1);
      expect(exteriorSeparation(p,false)).toBe(0);
    }
-   expect(visualShellOpacity(.50,true)).toBeLessThan(.15);
+   expect(visualShellOpacity(.50,true)).toBeGreaterThanOrEqual(.78);
    expect(visualShellOpacity(1,true)).toBeCloseTo(1);
-   expect(exteriorSeparation(.31,true)).toBeCloseTo(1);
+   expect(exteriorSeparation(.31,true)).toBeLessThanOrEqual(.18);
+   expect(exteriorSeparation(.31,true)).toBeGreaterThan(0);
+   expect(exteriorSeparation(.60,true)).toBe(0);
    expect(exteriorSeparation(1,true)).toBeCloseTo(0);
  });
  it('animates source hardware individually and assembles all parts at final pose',()=>{
@@ -44,6 +46,11 @@ describe('Original Model B source-locked scroll choreography',()=>{
    }
    expect(originalPartAssembly('P2_UPRIGHT_MAIN',.46))
      .toBeGreaterThan(originalPartAssembly('P2_TYRE_SLICK_BODY',.46));
+   expect(originalPartAssembly('P2_HUB_DRIVE_FACE',.57))
+     .toBeGreaterThan(originalPartAssembly('P2_RIM_FORGED_BARREL',.57));
+   expect(originalPartAssembly('P2_RIM_FORGED_BARREL',.68))
+     .toBeGreaterThan(originalPartAssembly('P2_TYRE_SLICK_BODY',.68));
+   expect(visualShellOpacity(.85,true)).toBeGreaterThan(.98);
    expect(rearSourceAssembly(.70,'toe','P212_TOE_OUTER_RIGHT_HAND_THREADED_ROD_END'))
      .toBeGreaterThan(rearSourceAssembly(.70,'joint','P214_UPPER_SPLIT_RACE_POSITIVE_X'));
    expect(rearSourceAssembly(1,'toe','foo')).toBe(1);
