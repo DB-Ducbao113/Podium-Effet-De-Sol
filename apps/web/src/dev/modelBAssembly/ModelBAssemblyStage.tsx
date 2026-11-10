@@ -18,6 +18,9 @@ import {pivotSourceMeshAtCentroid,applyVisualScrewSpin,
 import {rearVisualPartIds,type RearVisualParts} from './rearVisualComposite';
 import {ORIGINAL_MODEL_B_SOURCE,verifyOriginalModelBBinary} from './originalModelBSource';
 import {sourceOnlyModelBCamera} from './modelBSourceOnlyCamera';
+import {frameOriginalModelB} from './modelBFraming';
+import {applyCadViewerAppearance,cadPreviewAppearance,
+ type CadAppearance} from './cadPreviewMaterials';
 import {inspectOriginalCadMesh,type InspectedCadPart} from './cadPartInspector';
 import {locateSelectedCadMesh,sourceMeshWorldCentre,highlightSourceMaterials} from './cadFocus';
 import type {WheelId} from '../assemblyPreview/fourCornerLayout';
@@ -173,10 +176,16 @@ function useOriginalBody(onReady:Props['onReady'],onError:Props['onError']):Deco
  },[onReady,onError]);
  return body;
 }
-function copyMaterials(mesh:THREE.Mesh,store:THREE.Material[]){
+function copyMaterials(mesh:THREE.Mesh,store:THREE.Material[],
+    appearance?:CadAppearance){
  const input=Array.isArray(mesh.material)?mesh.material:[mesh.material];
  const copies=input.map(original=>{
    const m=original.clone();
+   if(appearance)applyCadViewerAppearance(m,appearance);
+   else if(m instanceof THREE.MeshStandardMaterial){
+     // Preview-only fill light: retain the author's GLB color/texture bytes.
+     m.envMapIntensity=Math.max(.85,m.envMapIntensity);
+   }
    m.transparent=true;
    m.depthWrite=true;
    store.push(m);
@@ -206,7 +215,8 @@ function createWheelVisual(
    const animatedScrew=kind==='p28'&&classifyP28Part(mesh.name)==='hardware'
      ?pivotSourceMeshAtCentroid(mesh):null;
    const target=animatedScrew?.root??mesh;
-   const materials=copyMaterials(mesh,ownedMaterials);
+   const materials=copyMaterials(mesh,ownedMaterials,
+     cadPreviewAppearance(mesh.name,kind));
    meshes.push({mesh,station,origin:kind,target,spin:animatedScrew,
      originalPosition:target.position.clone(),
      offset,name:mesh.name,kind,materials});
@@ -305,6 +315,7 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
  const fit=fitResult.fit;
  useEffect(()=>onFit(fit),[fit,onFit]);
  const shellScale=fit?.normalizedShellScale??OWNER_CALIBRATED_FALLBACK_SCALE;
+ const showroomWheelMask=useMemo(()=>({value:0}),[original,fit]);
  const [shellVisuals,setShellVisuals]=useState<{
    mesh:THREE.Mesh;origin:THREE.Vector3;offset:THREE.Vector3;
    baseOpacity:number;materials:THREE.Material[];
@@ -325,7 +336,7 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
      const box=new THREE.Box3().setFromObject(o);
      const center=box.getCenter(new THREE.Vector3());
      const extent=box.getSize(new THREE.Vector3()).length()*shellScale;
-     const strength=extent>2.3?0:.42+stablePartOffset(o.name)*27;
+     const strength=extent>2.3?0:.10+stablePartOffset(o.name)*5;
      // Only separate original bounded mesh pieces; giant chassis meshes
      // stay in place and become transparent. No invented structural pieces.
      const direction=new THREE.Vector3(
@@ -333,7 +344,8 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
      const offset=direction.multiplyScalar(strength/shellScale);
      if(fit&&corner){
        tmp.multiplyMatrices(reverse,o.matrixWorld);
-       for(const m of materials)addReversibleWheelWindow(m,tmp.clone(),fit);
+       for(const m of materials)
+         addReversibleWheelWindow(m,tmp.clone(),fit,showroomWheelMask);
      }
      records.push({mesh:o,origin:o.position.clone(),offset,
        baseOpacity:materials[0]?.opacity??1,materials});
@@ -344,7 +356,7 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
      for(const r of records)r.mesh.position.copy(r.origin);
      owned.forEach(m=>m.dispose());
    };
- },[original,fit,corner,shellScale]);
+ },[original,fit,corner,shellScale,showroomWheelMask]);
  const visual=useMemo(()=>{
    if(!p28||!fit)return null;
    return createWheelVisual(p28.model,fit,rear?.model??null,split?.model??null);
@@ -374,12 +386,16 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
  const cameraLook=useMemo(()=>new THREE.Vector3(),[]);
  useFrame((_,delta)=>{
    const desired=clamp01(progressRef.current??0);
-   const alpha=reducedMotion?1:1-Math.exp(-Math.min(delta,.06)*6.5);
+   const alpha=reducedMotion?1:1-Math.exp(-Math.min(delta,.06)*11);
    progress.current=THREE.MathUtils.lerp(progress.current,desired,alpha);
    const p=progress.current;
    const showCad=Boolean(visual);
    const shellOpacity=visualShellOpacity(p,showCad);
    const separation=exteriorSeparation(p,showCad);
+   // Preserve the four original showroom tyres until their exact CAD
+   // replacements start arriving, then hide duplicate dark tyre volumes.
+   showroomWheelMask.value=showCad?
+     originalPartAssembly('P2_TYRE_SLICK_BODY',p):0;
    for(const item of shellVisuals){
      item.mesh.position.copy(item.origin).addScaledVector(item.offset,separation);
      for(const material of item.materials){
@@ -396,10 +412,12 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
          .addScaledVector(item.offset,1-fraction);
        if(item.spin)applyVisualScrewSpin(item.spin,fraction,1.5);
        for(const m of item.materials){
-         m.opacity=Math.max(.055,fraction);
-         m.depthWrite=fraction>.92;
+         // Do not render unassembled 5.5%-opaque ghost tyres in front of
+         // the F1; reveal the real source only on its scheduled arrival.
+         m.opacity=Math.min(1,Math.max(0,fraction*3));
+         m.depthWrite=fraction>.94;
        }
-       item.mesh.visible=p>.235;
+       item.mesh.visible=fraction>.008;
      }
    }
    const aspect=size.width/Math.max(1,size.height);
@@ -449,10 +467,18 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
        // target: retain source-derived chapter camera instead.
      }
    }
+   if(original?.probe&&!selectedVisual&&
+     (p>=.85||(p>=.50&&p<.69))){
+     const framing=frameOriginalModelB(
+       original.probe.sourceBoundsM,shellScale,aspect,35,
+       [.72+orbit,.44,1]);
+     cameraTarget.set(...framing.targetM);
+     distance=Math.max(distance,framing.distanceM);
+   }
    targetLook.copy(cameraTarget);
    const orientation=new THREE.Vector3(.72+orbit,.44,1).normalize();
    targetPos.copy(cameraTarget).addScaledVector(orientation,distance);
-   const cameraAlpha=reducedMotion?1:1-Math.exp(-Math.min(delta,.06)*3.8);
+   const cameraAlpha=reducedMotion?1:1-Math.exp(-Math.min(delta,.06)*9.5);
    camera.position.lerp(targetPos,cameraAlpha);
    cameraLook.lerp(targetLook,cameraAlpha);
    camera.lookAt(cameraLook);
