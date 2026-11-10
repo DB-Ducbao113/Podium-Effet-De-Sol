@@ -1,6 +1,7 @@
+import neutralPalette from '../assemblyPreview/engineeringNeutralPalette.json';
 import * as THREE from 'three';
 import {
- classifyP28Part,materialForP28Part,type PartSystem,
+ classifyP28Part,type PartSystem,
 } from '../assemblyPreview/cadPresentation';
 
 export type CadAppearance={
@@ -25,21 +26,10 @@ export function cadPreviewAppearance(
      'rear-joint':name.includes('BEARING')?'bearing':
        name.includes('ROD')||name.includes('BOLT')||name.includes('NUT')?
        'hardware':'suspension';
- if(system==='tyre')
-   return {system,color:'#171b1f',roughness:.94,metalness:.015,envMapIntensity:.18};
- if(system==='rim')
-   return {system,color:'#67737d',roughness:.31,metalness:.77,envMapIntensity:.82};
- if(system==='carbon-brake')
-   return {system,color:'#353a41',roughness:.80,metalness:.23,envMapIntensity:.30};
- if(system==='caliper')
-   return {system,color:'#ab4e40',roughness:.43,metalness:.55,envMapIntensity:.59};
- if(system==='friction-pad')
-   return {system,color:'#514d47',roughness:.85,metalness:.12,envMapIntensity:.27};
- if(system==='rear-joint')
-   return {system,color:'#88939c',roughness:.30,metalness:.72,envMapIntensity:.70};
- const base=materialForP28Part(system);
- return {system,color:base.color,roughness:base.roughness,
-   metalness:base.metalness,envMapIntensity:system==='hardware'?.70:.56};
+ const preset=neutralPalette.presets[system];
+ return {system,color:neutralPalette.uniformColor,
+   roughness:preset.roughness,metalness:preset.metalness,
+   envMapIntensity:preset.envMapIntensity};
 }
 /** Must operate on a material CLONE, not the user-authored source material.
  * Preserve all the source textures, normal maps and transparency settings.
