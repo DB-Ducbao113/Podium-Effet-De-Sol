@@ -1,3 +1,5 @@
+import neutralPalette from './engineeringNeutralPalette.json';
+
 /**
  * Non-destructive visualization policy for project-authored 59-solid P2.8 CAD.
  * All native mesh positions and part identities are retained.
@@ -58,18 +60,10 @@ export function presentationForP28Part(name:string, mode:CornerPresentation):Par
 export type MaterialPreset={
   color:string;metalness:number;roughness:number;
 };
+/** Single, user-approved monochrome engineering palette. The source GLBs and
+ * original Model B exterior stay immutable; only viewer render materials change. */
 export function materialForP28Part(system:PartSystem):MaterialPreset{
-  switch(system){
-    case 'tyre':return {color:'#272d35',metalness:0,roughness:.91};
-    case 'rim':return {color:'#b7c6d2',metalness:.79,roughness:.31};
-    case 'carbon-brake':return {color:'#5a616d',metalness:.24,roughness:.71};
-    case 'caliper':return {color:'#ba5950',metalness:.55,roughness:.39};
-    case 'friction-pad':return {color:'#8c8175',metalness:.14,roughness:.87};
-    case 'bearing':return {color:'#b5c8d3',metalness:.84,roughness:.26};
-    case 'hardware':return {color:'#c1cbd6',metalness:.79,roughness:.25};
-    case 'suspension':return {color:'#69727c',metalness:.44,roughness:.52};
-    case 'upright':return {color:'#8f99a4',metalness:.7,roughness:.38};
-    case 'hub':return {color:'#a7abb3',metalness:.76,roughness:.33};
-    default:return {color:'#848e98',metalness:.48,roughness:.51};
-  }
+ const preset=neutralPalette.presets[system];
+ return {color:neutralPalette.uniformColor,
+   metalness:preset.metalness,roughness:preset.roughness};
 }
