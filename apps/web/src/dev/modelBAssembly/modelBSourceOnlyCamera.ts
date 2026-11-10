@@ -50,7 +50,7 @@ export function sourceOnlyModelBCamera(
  let offsetX=0;
  let offsetY=.08*spanY;
  let distance=spanX*1.88;
- let orbit=.10;
+ let orbit:number;
  if(p<.15){
    // Source-only full car reveal.
    orbit=.07+smooth(0,.15,p)*.25;
