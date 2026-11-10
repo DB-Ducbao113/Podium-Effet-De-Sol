@@ -69,6 +69,7 @@ def record(url:str,out:Path,frames:int=96,fps:int=16,
       'browserOriginalGlbHTTP200':False,
       'browserOriginalGlbDecodedAndHashVerified':False,
       'realWebglContextVerified':False,
+      'originalMobilePerspectiveFrameVerified':False,
       'originalCarOnly':True,
       'p28WheelCadLoaded':False,
       'fullAssemblyVerified':False,
@@ -168,6 +169,18 @@ def record(url:str,out:Path,frames:int=96,fps:int=16,
                                               'canvasFile':screenshot.name,
                                               'sha256':digest}
                     audit['canvasSha256'][str(i)]=digest
+                # The source-only owner car must ALSO fit the real mobile
+                # camera: the old review had the car completely outside 390px.
+                page.set_viewport_size({'width':390,'height':844})
+                seek(.94,1550)
+                page.locator('.mb-build-source-wrap'
+                    '[data-final-car-bounds-fit="true"]').wait_for(timeout=20000)
+                mobile=out/'owner-source-only-mobile-full-car.png'
+                canvas.screenshot(path=str(mobile))
+                audit['originalMobilePerspectiveFrameVerified']=True
+                audit['originalMobileCanvasSha256']=sha(mobile)
+                page.set_viewport_size({'width':1440,'height':900})
+                seek(.94,1250)
                 # Verify changes in the 3D canvas independently of HTML titles.
                 if len(set(audit['canvasSha256'].values()))<5:
                     raise RuntimeError('Original source camera did not visually change in Chromium')
