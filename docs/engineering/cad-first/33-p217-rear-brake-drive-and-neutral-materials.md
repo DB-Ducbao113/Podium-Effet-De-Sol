@@ -31,7 +31,7 @@ Model B body/livery and all owner-source asset bytes remain unchanged.
 | P2.17 BALANCED mesh triangles | **1,812** |
 | P2.17 PERFORMANCE mesh triangles | **984** |
 | P2.17 glTF source nodes | **8/8 per quality** |
-| P2.16 + P2.17 source unittests | **11/11 PASS** |
+| P2.16 + P2.17 source/composite unittests | **12/12 PASS** |
 
 ## Verified standalone 31-part rear-wheel review
 
@@ -56,7 +56,10 @@ binaries and checks original source node names, exact RGB and all three tiers.
 No binary CAD assets are committed to this public branch. Reproduce with:
 
 ```bash
-python -m unittest -v tools/cad-first/test_p2_16_rear_wheel_end.py tools/cad-first/test_p2_17_rear_brake_drive.py
+cd tools/cad-first
+python -m unittest -v test_p2_16_rear_wheel_end.py test_p2_17_rear_brake_drive.py test_p2_17_composite_review.py
+cd ../..
+python tools/cad-first/p2_16_rear_wheel_end.py --out .local-assets/cad-first/p216-rear-wheel-end
 python tools/cad-first/p2_17_rear_brake_drive.py --out .local-assets/cad-first/p217-rear-brake-drive
 ```
 
