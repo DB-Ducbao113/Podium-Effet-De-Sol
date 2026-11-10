@@ -1,8 +1,8 @@
 # P2.16 — Independent rear wheel-end native CAD, source-first (HOLD)
 
 Date: 2026-11-10  
-Branch: \`work/engineering-four-corners-local\`  
-Review route: \`/engineering/model-b-build\` (unchanged)  
+Branch: `work/engineering-four-corners-local`  
+Review route: `/engineering/model-b-build` (unchanged)  
 No GitHub Actions, PR, merge or production deployment.
 
 ## Why this was authored
@@ -20,7 +20,7 @@ until its separate native alignment and clearance gates pass.
 
 ## New authored source
 
-\`tools/cad-first/p2_16_rear_wheel_end.py\` builds an **independent native
+`tools/cad-first/p2_16_rear_wheel_end.py` builds an **independent native
 CadQuery B-Rep rear wheel-end**. It does not mutate Model B, the P2.8 front
 source, or the published rear component manifests.
 
@@ -54,7 +54,7 @@ project-authored provisional geometry. A dimensional fit to a P2.9 proposed
 ## Executed offline quality gates — exact authored Python source
 
 The source was executed with CadQuery 2.8 / OpenCascade, trimesh and NumPy.
-\`tools/cad-first/test_p2_16_rear_wheel_end.py\` contains six unittest gates.
+`tools/cad-first/test_p2_16_rear_wheel_end.py` contains six unittest gates.
 
 | Gate | Measured result |
 |---|---:|
@@ -71,15 +71,15 @@ The source was executed with CadQuery 2.8 / OpenCascade, trimesh and NumPy.
 | Source unittest gates | 6 / 6 PASS |
 
 All 3 GLB tiers and the STEP + hash manifest were generated **outside GitHub**
-in the offline review environment. Do not commit \`.step\`, \`.glb\`, or the
+in the offline review environment. Do not commit `.step`, `.glb`, or the
 private Model B scene binaries to the public repository.
 
 Run from an installed local Python environment:
 
-\`\`\`bash
+```bash
 python -m unittest -v tools/cad-first/test_p2_16_rear_wheel_end.py
 python tools/cad-first/p2_16_rear_wheel_end.py --out .local-assets/cad-first/p216-rear-wheel-end
-\`\`\`
+```
 
 The output directory must be empty; source export refuses overwriting earlier
 CAD evidence. The tests are independent of GitHub Actions.
