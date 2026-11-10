@@ -215,3 +215,50 @@
  .mb-build-rail button,.mb-build-rail button i,
  .mb-build-end-links a,.mb-build-end-links button{transition:none!important}
 }
+
+
+/* P2.15 original owner F1 visual repair — keep the 3D vehicle visible.
+ * This layout reserves copy in the upper/left edge and lets the full WebGL
+ * canvas reach the mobile viewport. No source model geometry is changed. */
+.mb-build-content{
+ top:43%;
+ left:clamp(38px,5.4vw,100px);
+ width:min(33vw,470px);
+}
+.mb-build-content h1{
+ font-size:clamp(52px,6.4vw,106px);
+ line-height:.93;
+ text-shadow:0 4px 28px rgba(2,5,9,.55);
+}
+.mb-build-copy{max-width:320px}
+.mb-build-shade{
+ background:linear-gradient(90deg,rgba(5,11,20,.81) 0%,rgba(5,11,20,.44) 24%,
+ rgba(5,11,20,0) 51%),
+ linear-gradient(0deg,rgba(7,16,27,.88) 0%,transparent 16%,transparent 79%,
+ rgba(5,12,23,.38) 100%);
+}
+@media(max-width:1000px){
+ .mb-build-content{left:6vw;width:min(38vw,410px)}
+ .mb-build-content h1{font-size:clamp(46px,7.2vw,90px)}
+}
+@media(max-width:640px){
+ .mb-build-webgl{top:0;bottom:0;opacity:1}
+ .mb-build-shade{
+  background:linear-gradient(180deg,rgba(4,11,20,.67) 0%,
+   rgba(4,11,20,.36) 25%,transparent 43%,
+   transparent 73%,rgba(4,11,20,.80) 91%);
+ }
+ .mb-build-content{
+  top:11%;left:22px;transform:none;
+  width:min(300px,calc(100vw - 90px));
+ }
+ .mb-build-content h1{
+  font-size:clamp(39px,9.4vw,57px);
+  line-height:.97;
+  max-width:292px;
+ }
+ .mb-build-eyebrow{font-size:8px;margin-bottom:10px}
+ .mb-build-copy{font-size:11px;line-height:1.5;max-width:270px;margin-top:10px}
+ .mb-build-status{margin-top:10px;font-size:8px;max-width:270px}
+ .mb-build-rail{right:12px;top:62%}
+}
