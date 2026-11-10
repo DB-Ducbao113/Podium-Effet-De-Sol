@@ -9,7 +9,7 @@ import cadquery as cq
 import trimesh
 
 from p2_16_rear_wheel_end import (
-    PREFIX, QUALITY, TYRE_DIAMETER_MM, TYRE_WIDTH_MM,
+    PREFIX, QUALITY, TYRE_DIAMETER_MM, TYRE_WIDTH_MM, TYRE_TREAD_WIDTH_MM,
     REAR_UPRIGHT_PROPOSAL_BORE_RADIUS_MM, axial_ring,
     build, pair_audit, parts,
 )
@@ -34,6 +34,9 @@ class TestP216NativeRearWheelEnd(unittest.TestCase):
         self.assertAlmostEqual(bbox.xlen, TYRE_DIAMETER_MM, delta=.001)
         self.assertAlmostEqual(bbox.ylen, TYRE_DIAMETER_MM, delta=.001)
         self.assertAlmostEqual(bbox.zlen, TYRE_WIDTH_MM, delta=.001)
+        self.assertTrue(any(face.geomType() == 'CYLINDER' and
+                            abs(face.BoundingBox().zlen - TYRE_TREAD_WIDTH_MM) < .01
+                            for face in tyre.Faces()))
         self.assertAlmostEqual(self.catalog[PREFIX+'FORGED_RIM_10_SPOKE'].BoundingBox().xlen,
                                490.6, delta=.001)
 
