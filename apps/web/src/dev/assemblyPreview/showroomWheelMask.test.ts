@@ -48,6 +48,24 @@ describe('reversible original Model B wheel window', () => {
     expect(material.version).toBeGreaterThan(0); // Recompile the modified shader.
   });
 
+  it('keeps real showroom tyres until source CAD arrives, then masks all original tyre depth', () => {
+    const material=new THREE.MeshStandardMaterial();
+    const fade={value:0};
+    addReversibleWheelWindow(material,new THREE.Matrix4(),measured,fade);
+    const shader=shaderStub();
+    material.onBeforeCompile(
+      shader as Parameters<typeof material.onBeforeCompile>[0],
+      {} as THREE.WebGLRenderer,
+    );
+    expect(shader.uniforms.pedsWheelMaskAmount).toBe(fade);
+    expect(shader.fragmentShader).toContain('threshold<pedsWheelMaskAmount');
+    expect(shader.fragmentShader).toContain('max(2.5,1.24*pedsWheelRadius[wheel])');
+    fade.value=1;
+    expect(shader.uniforms.pedsWheelMaskAmount.value).toBe(1);
+    expect(shader.fragmentShader).toContain('discard;');
+    material.dispose();
+  });
+
   it('fails closed rather than silently rendering duplicates with an unknown shader', () => {
     const material = new THREE.MeshStandardMaterial();
     addReversibleWheelWindow(material, new THREE.Matrix4(), measured);
