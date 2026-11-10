@@ -28,6 +28,7 @@ PREFIX = 'P216_REAR_'
 QUALITY = {'HIGH': (.04, .10), 'BALANCED': (.18, .26), 'PERFORMANCE': (.50, .50)}
 TYRE_DIAMETER_MM = 720.0
 TYRE_WIDTH_MM = 450.0
+TYRE_TREAD_WIDTH_MM = 405.0
 RIM_LIP_DIAMETER_MM = 490.6
 RIM_MOUNTING_WIDTH_MM = 429.3
 # The exact P2.9 proposal bore is r=71.5 mm, z=-150..-74 mm.
@@ -55,9 +56,10 @@ def rear_tyre() -> cq.Shape:
     # shoulder/sidewall approximations and a hollow internal air envelope.
     # The bead never intersects the separately modeled rim.
     section = [
-        (250, -212), (270, -221), (309, -225), (337, -210),
-        (354, -184), (360, -155), (360, 155), (354, 184),
-        (337, 210), (309, 225), (270, 221), (250, 212),
+        (250, -212), (270, -221), (309, -225), (330, -220),
+        (345, -214), (355, -207), (360, -TYRE_TREAD_WIDTH_MM / 2),
+        (360, TYRE_TREAD_WIDTH_MM / 2), (355, 207), (345, 214),
+        (330, 220), (309, 225), (270, 221), (250, 212),
         (248, 203), (251, 196), (272, 197), (309, 199),
         (330, 186), (344, 158), (348, 103), (350, 0),
         (348, -103), (344, -158), (330, -186), (309, -199),
@@ -212,6 +214,7 @@ def build(out: Path, export_all: bool = True) -> dict[str, Any]:
         'unitsSTEP': 'mm', 'unitsGLB': 'm',
         'referenceDimensionsMm': {
             'tyreDiameter': TYRE_DIAMETER_MM, 'tyreOverallWidth': TYRE_WIDTH_MM,
+            'tyreTreadWidth': TYRE_TREAD_WIDTH_MM,
             'rimLipDiameter': RIM_LIP_DIAMETER_MM, 'rimMountingWidth': RIM_MOUNTING_WIDTH_MM,
             'proposedP29CarrierBearingBoreRadius': REAR_UPRIGHT_PROPOSAL_BORE_RADIUS_MM,
         },
