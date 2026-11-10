@@ -52,7 +52,7 @@ export function frameOriginalModelB(
  if(dimensions[0]<3.5||dimensions[0]>7||
     dimensions[1]>3||dimensions[2]>3.4)
    throw Error('Unexpected owner Model B dimensions; no made-up camera fit');
- const eye=norm([...cameraDirection]);
+ const eye=norm([cameraDirection[0],cameraDirection[1],cameraDirection[2]]);
  const right=norm(cross([0,1,0],eye));
  const up=norm(cross(eye,right));
  const tanY=Math.tan(fovDeg*Math.PI/360);
