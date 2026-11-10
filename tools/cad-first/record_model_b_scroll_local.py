@@ -18,6 +18,7 @@ import time
 from typing import Any
 
 from record_four_corners_local import verify
+from verify_model_b_final_visibility import enforce as require_visible_final_car
 
 CHAPTERS=('THE MACHINE.','EVERY LAYER.','BUILT FROM THE CORE.',
           'FOUR CORNERS.','THE DETAILS LOCK IN.','MODEL B. REASSEMBLED.')
@@ -83,6 +84,10 @@ def capture(url:str,out:Path,p28:Path,quality:str='BALANCED',
       'formerBearingProxiesSuppressedPerStation':None,
       'browserJSExceptions':[],'webglErrors':[],'sourceImportErrors':[],
       'chapterScreenshots':{},'chapterCanvasSHA256':{},'renderedFrames':0,'videoFile':None,
+      'realMobileFinalVehicleVisible':False,
+      'realDesktopFinalVehicleVisible':False,
+      'sourceBoundsFitMobile':False,
+      'sourceBoundsFitDesktop':False,
       'mechanicalG2':'HOLD','genuineRearMechanicalAssemblyCertified':False,
       'allSixChaptersConfirmed':False,
       'originalCadCatalogSelectionVerified':False,
@@ -205,7 +210,7 @@ def capture(url:str,out:Path,p28:Path,quality:str='BALANCED',
 
             sources=[]
             for index,(progress,title) in enumerate(zip(SAMPLE_PROGRESS,CHAPTERS)):
-                seek(progress,250)
+                seek(progress,950)
                 actual=page.locator('.mb-build-content h1').inner_text().strip()
                 if actual!=title:
                     raise RuntimeError(f'Original source scene chapter {index}: {actual!r} != {title!r}')
@@ -224,6 +229,31 @@ def capture(url:str,out:Path,p28:Path,quality:str='BALANCED',
             if len(set(audit['chapterCanvasSHA256'].values()))<4:
                 raise RuntimeError('Real WebGL CANVAS stayed visually static across the scroll; no fake MP4 allowed')
             audit['allSixChaptersConfirmed']=True
+
+            # A changing HTML heading or a few white floating wheel pixels
+            # are NOT proof that Model B is in frame. At 390×844, require
+            # the original body bounds to fit and a real WebGL canvas
+            # screenshot to have foreground across the centre, then retest
+            # at desktop. The old review's blank mobile final is rejected.
+            page.set_viewport_size({'width':390,'height':844})
+            seek(.94,1650)
+            page.locator('.mb-build-source-wrap'
+                '[data-final-car-bounds-fit="true"]').wait_for(timeout=20000)
+            mobile_image=out/'final-mobile-source-visible.png'
+            canvas.screenshot(path=str(mobile_image))
+            audit['mobileFinalCanvasPixelProof']=require_visible_final_car(mobile_image)
+            audit['realMobileFinalVehicleVisible']=True
+            audit['sourceBoundsFitMobile']=True
+            page.set_viewport_size({'width':1440,'height':900})
+            seek(.94,1500)
+            page.locator('.mb-build-source-wrap'
+                '[data-final-car-bounds-fit="true"]').wait_for(timeout=20000)
+            desktop_image=out/'final-desktop-source-visible.png'
+            canvas.screenshot(path=str(desktop_image))
+            audit['desktopFinalCanvasPixelProof']=require_visible_final_car(
+                desktop_image,require_mobile=False)
+            audit['realDesktopFinalVehicleVisible']=True
+            audit['sourceBoundsFitDesktop']=True
 
             # Exercise the same genuine source inspector used by raycasting
             # directly on original P2.8 meshes. The catalog is populated
