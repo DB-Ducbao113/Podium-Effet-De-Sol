@@ -89,6 +89,7 @@ def main()->None:
         invoke(sys.executable,TOOLS/"test_p2_14_split_spherical_race.py",timeout=150)
         invoke(sys.executable,TOOLS/"test_stage_model_b_scroll_assets.py",timeout=70)
         invoke(sys.executable,TOOLS/"test_verify_original_model_b_asset.py",timeout=30)
+        invoke(sys.executable,TOOLS/"test_verify_model_b_final_visibility.py",timeout=45)
         invoke(sys.executable,TOOLS/"test_compose_rear31_visual.py",timeout=70)
         invoke(sys.executable,TOOLS/"test_rebuild_owner_p28.py",timeout=150)
         invoke(sys.executable,TOOLS/"test_audit_assembly_mesh.py",timeout=150)
@@ -662,7 +663,9 @@ def main()->None:
                    "src/dev/modelBAssembly/cadPartCatalog.test.ts",
                    "src/dev/modelBAssembly/cadFocus.test.ts",
                    "src/dev/modelBAssembly/originalModelBSource.test.ts",
-                   "src/dev/modelBAssembly/modelBSourceOnlyCamera.test.ts",timeout=300)
+                   "src/dev/modelBAssembly/modelBSourceOnlyCamera.test.ts",
+                   "src/dev/modelBAssembly/modelBFraming.test.ts",
+                   "src/dev/modelBAssembly/cadPreviewMaterials.test.ts",timeout=300)
             invoke(npm,"run","build","--workspace=@peds/web",timeout=900)
             gate("LOCAL_WEB_LINT_TYPES_TESTS_BUILD","PASS")
         # Copy private checked CAD only into .local-assets (gitignored).
@@ -797,6 +800,10 @@ def main()->None:
             or scroll.get("originalCadCatalogSelectionVerified") is not True
             or scroll.get("sourceCadFocusCameraVisualChanged") is not True
             or scroll.get("selectedOriginalCadPartId")!="P2_TYRE_SLICK_BODY"
+            or scroll.get("realMobileFinalVehicleVisible") is not True
+            or scroll.get("realDesktopFinalVehicleVisible") is not True
+            or scroll.get("sourceBoundsFitMobile") is not True
+            or scroll.get("sourceBoundsFitDesktop") is not True
             or scroll.get("allSixChaptersConfirmed") is not True
             or scroll.get("renderedFrames")!=96
             or len(scroll.get("chapterCanvasSHA256",{}))!=6
