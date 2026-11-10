@@ -92,6 +92,25 @@ central bands, **FAIL**, as desired. Independent synthetic pixel
 fixture controls PASS/FAIL correctly. This demonstrates the old
 mobile issue is detected rather than silently accepted.
 
+## P2.15.1 — real cause of the reported mobile intro screenshot
+
+The attached \`full-mobile-middle.png\` was not a CAD scene at all. It was the
+global \`F1StartLightsPreloader\` splash displaying the large PODIUM wordmark
+and Bỏ qua / Skip control. This overlay was mounted by
+\`DocumentIntroController\`, not by the Model B 3D route.
+
+\`documentIntroState.ts\` now bypasses the global document intro **only**
+when the exact pathname is \`/engineering/model-b-build\` or
+\`/engineering/assembly-preview\`. Home/showroom onboarding remains
+unchanged. Its new Vitest regression checks exact route matching.
+
+Both local Chromium recorders refuse browser evidence if the global
+\`F1 Start Lights Preloader\` dialog still covers the actual car scene.
+The source-only recorder also waits for final mobile geometry framing.
+
+**Note:** No new post-patch Chromium browser session ran in this assistant
+container. The old ZIP footage is not a validation of this code.
+
 ## Lint and local review limitations
 
 The supplied \`lint-final2.log\` named React-Hooks immutability warnings
