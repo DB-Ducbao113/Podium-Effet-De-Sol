@@ -715,6 +715,7 @@ def main()->None:
             or showroom.get("browserOriginalGlbHTTP200") is not True
             or showroom.get("browserOriginalGlbDecodedAndHashVerified") is not True
             or showroom.get("realWebglContextVerified") is not True
+            or showroom.get("originalMobilePerspectiveFrameVerified") is not True
             or len(showroom.get("chapters",{}))!=6
             or len(set(showroom.get("canvasSha256",{}).values()))<5
             or showroom.get("framesCaptured")!=96
