@@ -18,7 +18,7 @@ import {pivotSourceMeshAtCentroid,applyVisualScrewSpin,
 import {rearVisualPartIds,type RearVisualParts} from './rearVisualComposite';
 import {ORIGINAL_MODEL_B_SOURCE,verifyOriginalModelBBinary} from './originalModelBSource';
 import {sourceOnlyModelBCamera} from './modelBSourceOnlyCamera';
-import {frameOriginalModelB} from './modelBFraming';
+import {frameOriginalModelB,originalModelBFitsFrame} from './modelBFraming';
 import {applyCadViewerAppearance,cadPreviewAppearance,
  type CadAppearance} from './cadPreviewMaterials';
 import {inspectOriginalCadMesh,type InspectedCadPart} from './cadPartInspector';
@@ -39,6 +39,7 @@ type Props={
  onReady:(which:'model-b'|'p28'|'rear-toe'|'p214',meshCount:number)=>void;
  onFit:(value:OwnerMeasuredFit|null)=>void;
  onRearComposite:(value:RearVisualParts|null)=>void;
+ onFramingVerified:(fit:boolean|null)=>void;
  onInspect:(part:InspectedCadPart)=>void;
  selectedPart:InspectedCadPart|null;
  onError:(message:string)=>void;
@@ -296,7 +297,7 @@ function StudioLights(){
   <pointLight position={[1.5,2,-3]} intensity={32} distance={12} color="#8aaeff"/>
  </>;
 }
-function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRace,onReady,onFit,onRearComposite,onInspect,selectedPart,onError}:Props){
+function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRace,onReady,onFit,onRearComposite,onFramingVerified,onInspect,selectedPart,onError}:Props){
  const {camera,size}=useThree();
  const original=useOriginalBody(onReady,onError);
  const originalPartNames=useMemo(()=>corner?.parts.map(x=>x.node)??[],[corner]);
@@ -316,6 +317,16 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
  useEffect(()=>onFit(fit),[fit,onFit]);
  const shellScale=fit?.normalizedShellScale??OWNER_CALIBRATED_FALLBACK_SCALE;
  const showroomWheelMask=useMemo(()=>({value:0}),[original,fit]);
+ const analyticFinalFrame=useMemo(()=>{
+   if(!original?.probe)return null;
+   const aspect=size.width/Math.max(1,size.height);
+   const pose=frameOriginalModelB(
+     original.probe.sourceBoundsM,shellScale,aspect,35,[.88,.44,1]);
+   return originalModelBFitsFrame(
+     original.probe.sourceBoundsM,shellScale,aspect,35,pose);
+ },[original,size.width,size.height,shellScale]);
+ useEffect(()=>onFramingVerified(analyticFinalFrame),
+   [analyticFinalFrame,onFramingVerified]);
  const [shellVisuals,setShellVisuals]=useState<{
    mesh:THREE.Mesh;origin:THREE.Vector3;offset:THREE.Vector3;
    baseOpacity:number;materials:THREE.Material[];
@@ -375,6 +386,11 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
      onError('Selected original CAD material highlight failed: '+String(error));
    }
  },[visual,selectedPart,onError]);
+ const macroFastener=useMemo(()=>visual?.meshes.find(item=>
+   item.station==='front-positive-z'&&item.kind==='p28'&&
+   classifyP28Part(item.name)==='hardware')??null,[visual]);
+ const macroRearJoint=useMemo(()=>visual?.meshes.find(item=>
+   item.station==='rear-positive-z'&&item.kind==='joint')??null,[visual]);
  const selectedVisual=useMemo(()=>{
    if(!visual||!selectedPart)return null;
    try{return locateSelectedCadMesh(visual.meshes,selectedPart);}
@@ -451,6 +467,21 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
        cameraTarget.set(.05,-.1,0);distance=7.7;orbit=-.15;
      }
      if(aspect<.8)distance*=1.45;
+   }
+   // Source-authored macro shots. Never look at an invented bolt or fake
+   // bearing: the camera follows the actual decoded GLB mesh centroids.
+   if(!selectedVisual&&macroFastener&&p>=.45&&p<.54){
+     try{
+       cameraTarget.copy(sourceMeshWorldCentre(macroFastener.mesh));
+       distance=.92;
+       orbit=.09;
+     }catch{/* Preserve chapter camera on invalid source mesh. */}
+   }else if(!selectedVisual&&macroRearJoint&&p>=.74&&p<.83){
+     try{
+       cameraTarget.copy(sourceMeshWorldCentre(macroRearJoint.mesh));
+       distance=1.36;
+       orbit=-.13;
+     }catch{/* Preserve chapter camera on invalid source mesh. */}
    }
    // Focus moves with the actual animated source geometry. Its original
    // GLB mesh vertices can be offset from Object3D.position, so target the
