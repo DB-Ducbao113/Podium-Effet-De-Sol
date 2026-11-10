@@ -41,14 +41,18 @@ export function frameOriginalModelB(
    throw Error('Invalid Model B original source frame inputs');
  const [lower,upper]=bounds;
  if([...lower,...upper].some(v=>!Number.isFinite(v))||
-    upper.some((v,i)=>v<=lower[i]))
+    upper[0]<=lower[0]||upper[1]<=lower[1]||upper[2]<=lower[2])
    throw Error('Invalid original owner Model B source bounds');
  const centre:Vec=[
    (lower[0]+upper[0])*scale/2,
    (lower[1]+upper[1])*scale/2,
    (lower[2]+upper[2])*scale/2,
  ];
- const dimensions=upper.map((v,i)=>(v-lower[i])*scale);
+ const dimensions:Vec=[
+   (upper[0]-lower[0])*scale,
+   (upper[1]-lower[1])*scale,
+   (upper[2]-lower[2])*scale,
+ ];
  if(dimensions[0]<3.5||dimensions[0]>7||
     dimensions[1]>3||dimensions[2]>3.4)
    throw Error('Unexpected owner Model B dimensions; no made-up camera fit');
