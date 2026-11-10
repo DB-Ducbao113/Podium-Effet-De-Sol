@@ -1,0 +1,67 @@
+{
+  "schema": "peds.engineering.neutral-materials.v1",
+  "uniformColor": "#87929d",
+  "policy": "All authored CAD parts share one neutral base color; only PBR reflectance varies. Original Model B source livery remains untouched.",
+  "presets": {
+    "tyre": {
+      "metalness": 0.02,
+      "roughness": 0.93,
+      "envMapIntensity": 0.2
+    },
+    "rim": {
+      "metalness": 0.76,
+      "roughness": 0.34,
+      "envMapIntensity": 0.79
+    },
+    "carbon-brake": {
+      "metalness": 0.25,
+      "roughness": 0.79,
+      "envMapIntensity": 0.31
+    },
+    "caliper": {
+      "metalness": 0.66,
+      "roughness": 0.42,
+      "envMapIntensity": 0.63
+    },
+    "friction-pad": {
+      "metalness": 0.11,
+      "roughness": 0.86,
+      "envMapIntensity": 0.27
+    },
+    "bearing": {
+      "metalness": 0.83,
+      "roughness": 0.27,
+      "envMapIntensity": 0.78
+    },
+    "hardware": {
+      "metalness": 0.79,
+      "roughness": 0.3,
+      "envMapIntensity": 0.72
+    },
+    "suspension": {
+      "metalness": 0.58,
+      "roughness": 0.49,
+      "envMapIntensity": 0.52
+    },
+    "upright": {
+      "metalness": 0.73,
+      "roughness": 0.4,
+      "envMapIntensity": 0.66
+    },
+    "hub": {
+      "metalness": 0.8,
+      "roughness": 0.34,
+      "envMapIntensity": 0.69
+    },
+    "other": {
+      "metalness": 0.56,
+      "roughness": 0.48,
+      "envMapIntensity": 0.51
+    },
+    "rear-joint": {
+      "metalness": 0.82,
+      "roughness": 0.29,
+      "envMapIntensity": 0.75
+    }
+  }
+}
