@@ -1,7 +1,7 @@
 # P2.25 — SHA-verified rear51 source mesh review
 
 Date: 2026-11-10
-Branch: \`work/engineering-four-corners-local\`
+Branch: `work/engineering-four-corners-local`
 Status: **51 ORIGINAL-DERIVED GLB REVIEW PASS / REAL 71-BREP AUDIT NOT RUN / MECHANICAL G2 HOLD**
 
 ## Scope
@@ -15,10 +15,10 @@ There are **32 shared old source IDs**. Keeping only the 11 original P2.19 suspe
 
 ## Actual shape revisions
 
-All three LOD files independently compare mesh geometry identity using \`trimesh.identifier_hash\`:
+All three LOD files independently compare mesh geometry identity using `trimesh.identifier_hash`:
 
 - 27 shared P2.19/P2.23 mesh shapes are unchanged;
-- 5 shared shapes were revised: \`P216_REAR_BRAKE_DISC_VENTED\`, \`P216_REAR_HUB_STUB\`, \`P217_REAR_BEARING_DUST_SEAL\`, \`P217_REAR_ROTOR_HAT_SPACER\`, \`P218_REAR_MALE_HELICAL_SPINDLE_EXTENSION\`;
+- 5 shared shapes were revised: `P216_REAR_BRAKE_DISC_VENTED`, `P216_REAR_HUB_STUB`, `P217_REAR_BEARING_DUST_SEAL`, `P217_REAR_ROTOR_HAT_SPACER`, `P218_REAR_MALE_HELICAL_SPINDLE_EXTENSION`;
 - 8 P2.21 rotor-hat studs are new;
 - 11 P2.19 independent rear suspension parts are retained unchanged.
 
@@ -33,7 +33,7 @@ The change ledger is **mesh shape evidence**, not a native B-Rep topology identi
 | P2.25 HIGH named mesh count / triangle count | 51 / **110,866** |
 | P2.25 BALANCED named mesh count / triangle count | 51 / **57,428** |
 | P2.25 PERFORMANCE named mesh count / triangle count | 51 / **42,380** |
-| Unified PBR base color | \`#87929D\` on every mesh in all tiers |
+| Unified PBR base color | `#87929D` on every mesh in all tiers |
 | 11 suspension × 40 rear mesh cross-pairs | **440** |
 | AABB-separated pairs | **405** |
 | AABB candidates requiring exact CAD verification | **35** |
@@ -47,9 +47,9 @@ The 35 AABB candidates are *potential* overlaps, not confirmed mesh intersection
 
 ## Reproduce locally without GitHub Actions
 
-Extract \`PEDS_P225_Real_Rear51_Neutral_GLBS_QA.zip\`. It includes original source input manifests and six original source GLBs, the three real P2.25 review GLBs, a manifest with SHA-256, unit tests, the original 2-arm STEP B-Rep audit log and a SHA-256 file list.
+Extract `PEDS_P225_Real_Rear51_Neutral_GLBS_QA.zip`. It includes original source input manifests and six original source GLBs, the three real P2.25 review GLBs, a manifest with SHA-256, unit tests, the original 2-arm STEP B-Rep audit log and a SHA-256 file list.
 
-\`\`\`bash
+```bash
 python tools/cad-first/p2_25_rear51_mesh_review.py \
   --p219-rear43 .local-assets/cad-first/p225-sources/rear43 \
   --p223-rear40 .local-assets/cad-first/p225-sources/rear40 \
@@ -57,7 +57,7 @@ python tools/cad-first/p2_25_rear51_mesh_review.py \
 
 PEDS_P225_SOURCES=.local-assets/cad-first/p225-sources \
 PYTHONPATH=tools/cad-first python -m unittest -v test_p2_25_rear51_mesh_review
-\`\`\`
+```
 
 The output directory must be new. Any bad source hash, nonwatertight mesh, wrong source ID, color drift or changed revision identity aborts before publishing.
 
