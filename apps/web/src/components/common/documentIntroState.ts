@@ -1,8 +1,17 @@
 import { INTRO_SEEN_STORAGE_KEY } from './F1StartLightsPreloader';
 import { isDocumentReload } from './documentReload';
 
+/** A direct engineering CAD URL must show its real WebGL model immediately.
+ * The global brand splash previously covered mobile Model B QA captures.
+ * Do not change the site's normal homepage/racing intro.
+ */
+export function isEngineeringCadReviewPath(pathname:string):boolean {
+  return pathname==='/engineering/model-b-build' ||
+    pathname==='/engineering/assembly-preview';
+}
 export function shouldShowDocumentIntro(): boolean {
   if (typeof window === 'undefined') return false;
+  if(isEngineeringCadReviewPath(window.location.pathname))return false;
 
   // 1. Respect prefers-reduced-motion
   if (window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches) {
