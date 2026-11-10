@@ -96,7 +96,6 @@ function EngineeringStudioEnvironment() {
     invalidate();
     return()=>{
       // Restore the previous Three.js environment on teardown.
-      // eslint-disable-next-line react-hooks/immutability
       scene.environment=previous;
       env.dispose();
       pmrem.dispose();
