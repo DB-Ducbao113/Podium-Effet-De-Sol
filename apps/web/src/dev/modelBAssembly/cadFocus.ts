@@ -42,10 +42,7 @@ export function highlightSourceMaterials(
 ):()=>void{
  const restorations:{material:THREE.MeshStandardMaterial;emissive:THREE.Color;
    intensity:number}[]=[];
- let focus:SourceFocusItem|null;
- try{
-  focus=locateSelectedCadMesh(items,picked);
- }catch(error){throw error;}
+ const focus=locateSelectedCadMesh(items,picked);
  if(!focus)return ()=>{};
  const seen=new Set<THREE.Material>();
  for(const material of focus.materials){
