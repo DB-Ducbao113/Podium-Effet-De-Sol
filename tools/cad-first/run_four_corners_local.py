@@ -664,6 +664,7 @@ def main()->None:
                    "src/dev/modelBAssembly/cadFocus.test.ts",
                    "src/dev/modelBAssembly/originalModelBSource.test.ts",
                    "src/dev/modelBAssembly/modelBSourceOnlyCamera.test.ts",
+                   "src/components/common/documentIntroState.test.ts",
                    "src/dev/modelBAssembly/modelBFraming.test.ts",
                    "src/dev/modelBAssembly/cadPreviewMaterials.test.ts",timeout=300)
             invoke(npm,"run","build","--workspace=@peds/web",timeout=900)
