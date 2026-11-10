@@ -26,9 +26,20 @@ The original P2.19 revised upper/lower A-arms retain ownership. P2.12's identica
 
 Native OpenCascade B-Rep interference gate enumerates **1,953 nominal-pose pairs**. The 820 pairings exclusively among 41 retained prior source bodies inherit P2.19's independently required static PASS. The remaining **1,133 potentially changed pairs** are screened with AABB and exact B-Rep Boolean intersection whenever their AABBs overlap. Any overlap greater than 0.05 mm3, failed Boolean or invalid solid causes HOLD. This is deliberately *not* a dynamic joint, structural load path or Model B chassis proof.
 
+## Optional standalone GLB review (strictly gated)
+
+`tools/cad-first/p2_20_native_review_export.py` creates a source-named **63-mesh BALANCED GLB** with one shared neutral base RGB `#87929D`, only after the exact Git blob checks and the actual 63-body B-Rep static audit PASS. It does not substitute any Model B source geometry. It refuses to emit a 63-body GLB when the native source fit fails. The output remains inside a local review folder and is never copied into production/public assets.
+
+```bash
+PYTHONPATH=tools/cad-first python -m unittest -v tools/cad-first/test_p2_20_native_review_export.py
+PYTHONPATH=tools/cad-first python tools/cad-first/p2_20_native_review_export.py --out .local-assets/cad-first/p220-rear63-native-neutral
+```
+
+This assistant sandbox ran the preview exporter only against **synthetic negative/positive-control B-Rep objects**; real 63-part output has NOT been generated. Combined P2.20 logic and preview tests: **5/5 PASS** (synthetic fixture/algorithm scope only). Do not call the 63-body native authoring a mechanical PASS.
+
 ## Executed checks in this assistant environment
 
-- 4/4 P2.20 unit tests **PASS** with clearly labeled synthetic/native CadQuery negative-control geometry.
+- 5/5 P2.20 unit tests **PASS** with clearly labeled synthetic/native CadQuery negative-control geometry.
 - Tests verify exact 41 + 6 + 16 source counts and the no-duplicate source ownership rule.
 - Tests verify deliberately colliding new-versus-existing CAD body is detected by an actual native B-Rep Boolean operation.
 - Tests verify unexpected/missing Git source hashes are refused before an assembly claim.
