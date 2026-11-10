@@ -24,6 +24,33 @@ import numpy as np
 import trimesh
 
 SCHEMA = 'podium-eds.cad-first.p216-independent-rear-wheel-end.v1'
+PALETTE_PATH = (Path(__file__).resolve().parents[2] / 'apps/web/src/dev/assemblyPreview/engineeringNeutralPalette.json')
+
+
+def neutral_palette():
+    payload = json.loads(PALETTE_PATH.read_text(encoding='utf-8'))
+    rgb = payload.get('uniformColor', '')
+    if payload.get('schema') != 'peds.engineering.neutral-materials.v1' or len(rgb) != 7 or not rgb.startswith('#'):
+        raise ValueError('CAD viewer neutral palette missing or malformed')
+    try:
+        rgba = [int(rgb[i:i + 2], 16) for i in (1, 3, 5)] + [255]
+    except ValueError as error:
+        raise ValueError('Invalid engineering neutral palette RGB') from error
+    for role in ('tyre', 'rim', 'carbon-brake', 'caliper', 'friction-pad', 'bearing', 'hardware', 'suspension', 'upright', 'hub', 'other', 'rear-joint'):
+        values = payload.get('presets', {}).get(role)
+        if not values or any(not 0 <= values[k] <= 1 for k in ('metalness', 'roughness', 'envMapIntensity')):
+            raise ValueError('Invalid shared CAD material profile: ' + role)
+    return payload, rgba
+
+
+def rear_part_material_role(name: str) -> str:
+    if 'TYRE' in name: return 'tyre'
+    if 'RIM' in name: return 'rim'
+    if 'DISC' in name: return 'carbon-brake'
+    if 'BEARING' in name: return 'bearing'
+    if 'LOCK' in name: return 'hardware'
+    if 'HUB' in name: return 'hub'
+    return 'other'
 PREFIX = 'P216_REAR_'
 QUALITY = {'HIGH': (.04, .10), 'BALANCED': (.18, .26), 'PERFORMANCE': (.50, .50)}
 TYRE_DIAMETER_MM = 720.0
@@ -144,6 +171,7 @@ def pair_audit(catalog: dict[str, cq.Shape], threshold: float = .05) -> dict[str
 
 def to_glb(catalog: dict[str, cq.Shape], path: Path, linear: float, angular: float) -> dict[str, Any]:
     scene = trimesh.Scene()
+    palette, rgba = neutral_palette()
     total_triangles = 0
     for name, solid in catalog.items():
         if 'BEARING_BALL_' in name:
@@ -163,14 +191,8 @@ def to_glb(catalog: dict[str, cq.Shape], path: Path, linear: float, angular: flo
             mesh.merge_vertices(digits_vertex=7)
         if not mesh.is_watertight or not mesh.is_winding_consistent or not len(mesh.faces):
             raise ValueError('Invalid GLB tessellation/winding for ' + name)
-        if 'TYRE' in name:
-            rgba, metal, rough = [28, 30, 33, 255], 0.0, .84
-        elif 'DISC' in name:
-            rgba, metal, rough = [69, 72, 74, 255], .18, .63
-        elif 'RIM' in name:
-            rgba, metal, rough = [77, 82, 89, 255], .73, .3
-        else:
-            rgba, metal, rough = [183, 192, 197, 255], .76, .29
+        preset = palette['presets'][rear_part_material_role(name)]
+        metal, rough = preset['metalness'], preset['roughness']
         mesh.visual = trimesh.visual.TextureVisuals(
             material=trimesh.visual.material.PBRMaterial(
                 name=name, baseColorFactor=rgba, metallicFactor=metal,
@@ -206,6 +228,8 @@ def build(out: Path, export_all: bool = True) -> dict[str, Any]:
             profiles[profile] = {'file': path.name, **to_glb(catalog, path, linear, angular)}
     manifest = {
         'schema': SCHEMA, 'originalCADSource': True, 'notFrontProxy': True,
+        'materialPaletteSchema': neutral_palette()[0]['schema'],
+        'materialBaseColor': neutral_palette()[0]['uniformColor'],
         'status': 'NATIVE_REAR_CAD_SOURCE_STATIC_ONLY_G2_HOLD',
         'manufacturingAuthenticityClaim': False, 'ownerModelBRearEnvelopeMeasured': False,
         'rearWheelStationMated': False, 'rearUprightChassisMateCertified': False,
