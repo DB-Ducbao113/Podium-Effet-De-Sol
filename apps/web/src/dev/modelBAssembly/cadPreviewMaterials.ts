@@ -11,12 +11,10 @@ export type CadAppearance={
  metalness:number;
  envMapIntensity:number;
 };
-/** Studio PBR palette on CLONED viewer materials; no original GLB/STEP
- * material or geometry bytes are changed. Source identity remains inspectable.
- *
- * The uploaded review exposed WHITE tyres/rims from unmodified GLB default
- * materials. Real slick rubber is dark and nonmetallic; a rim is separately
- * darker metallic aluminium, not the same pale PBR shader as the tyre.
+/** A single neutral grey base color for every CAD part in the Model B build.
+ * Tyres, rims, brakes and hardware are differentiated by roughness/metalness,
+ * never by separate accent colors. Original GLB/STEP and Model B livery remain
+ * immutable; this policy applies only to cloned viewer materials.
  */
 export function cadPreviewAppearance(
  name:string,origin:'p28'|'rear-toe'|'joint',
