@@ -295,6 +295,7 @@ function StudioLights(){
   <ambientLight intensity={.65}/>
   <directionalLight position={[4,7,7]} intensity={3.8} color="#e2f1ff"/>
   <directionalLight position={[-6,3,-5]} intensity={2.8} color="#fa8257"/>
+  <directionalLight position={[1,6,-8]} intensity={2.4} color="#f7e5cd"/>
   <pointLight position={[1.5,2,-3]} intensity={32} distance={12} color="#8aaeff"/>
  </>;
 }
@@ -499,7 +500,8 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
        // target: retain source-derived chapter camera instead.
      }
    }
-   if(original?.probe&&!selectedVisual&&
+   const hardwareMacroActive=Boolean(macroFastener&&p>=.45&&p<.54);
+   if(original?.probe&&!selectedVisual&&!hardwareMacroActive&&
      (p>=.85||(p>=.50&&p<.69))){
      const framing=frameOriginalModelB(
        original.probe.sourceBoundsM,shellScale,aspect,35,
@@ -553,7 +555,7 @@ export default function ModelBAssemblyStage(props:Props){
     onCreated={({gl})=>{
       gl.outputColorSpace=THREE.SRGBColorSpace;
       gl.toneMapping=THREE.ACESFilmicToneMapping;
-      gl.toneMappingExposure=1.18;
+      gl.toneMappingExposure=1.32;
     }}>
     <color attach="background" args={['#080e18']}/>
     <ModelBAnimationScene {...props}/>
