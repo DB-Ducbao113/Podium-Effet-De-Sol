@@ -49,6 +49,7 @@ export default function ModelBAssemblyPage(){
  const [ready,setReady]=useState<Partial<Record<StageId,number>>>({});
  const [measuredFit,setMeasuredFit]=useState<OwnerMeasuredFit|null>(null);
  const [rearComposite,setRearComposite]=useState<RearVisualParts|null>(null);
+ const [finalCarFitsScreen,setFinalCarFitsScreen]=useState<boolean|null>(null);
  const [inspectedPart,setInspectedPart]=useState<InspectedCadPart|null>(null);
  const [catalogOpen,setCatalogOpen]=useState(false);
  const [reducedMotion,setReducedMotion]=useState(()=>{
@@ -170,6 +171,8 @@ export default function ModelBAssemblyPage(){
  const handleFit=useCallback((fit:OwnerMeasuredFit|null)=>setMeasuredFit(fit),[]);
  const handleRearComposite=useCallback(
    (info:RearVisualParts|null)=>setRearComposite(info),[]);
+ const handleFraming=useCallback(
+   (fits:boolean|null)=>setFinalCarFitsScreen(fits),[]);
  const handlePartInspect=useCallback((part:InspectedCadPart)=>{
    setInspectedPart(part);
    setCatalogOpen(false);
@@ -273,6 +276,7 @@ export default function ModelBAssemblyPage(){
               reducedMotion={reducedMotion}
               onReady={handleReady} onFit={handleFit}
               onRearComposite={handleRearComposite}
+              onFramingVerified={handleFraming}
               onInspect={handlePartInspect} selectedPart={inspectedPart}
               onError={handleError}/>
          </Suspense>
@@ -354,6 +358,8 @@ export default function ModelBAssemblyPage(){
          data-owner-model-b-git-file-bytes={
            ready['model-b']?ORIGINAL_MODEL_B_SOURCE.bytes:0}
          data-original-model-b-wheel-fit={measuredFit?.wheels.length===4&&cadLoaded?'true':'false'}
+         data-final-car-bounds-fit={finalCarFitsScreen===null?'pending':
+           finalCarFitsScreen?'true':'false'}
          data-wheel-station-count={measuredFit?.wheels.length??0}
          data-rear-composite-cad-parts={rearComposite?.count??0}
          data-rear-legacy-bearing-proxies-hidden={
