@@ -11,7 +11,7 @@ import trimesh
 from p2_16_rear_wheel_end import (
     PREFIX, QUALITY, TYRE_DIAMETER_MM, TYRE_WIDTH_MM, TYRE_TREAD_WIDTH_MM,
     REAR_UPRIGHT_PROPOSAL_BORE_RADIUS_MM, axial_ring,
-    build, pair_audit, parts,
+    build, pair_audit, parts, neutral_palette, rear_part_material_role,
 )
 
 
@@ -54,6 +54,13 @@ class TestP216NativeRearWheelEnd(unittest.TestCase):
         self.assertEqual(result['exactBrepPairs'] + result['broadphaseExcluded'], 253)
         self.assertFalse(result['mechanicalG2Certified'])
 
+    def test_uniform_color_across_all_cad_roles(self):
+        palette, rgba = neutral_palette()
+        self.assertEqual(palette['schema'], 'peds.engineering.neutral-materials.v1')
+        self.assertEqual(rgba, [135, 146, 157, 255])
+        self.assertEqual({rear_part_material_role(name) for name in self.catalog} >=
+                         {'tyre', 'rim', 'hub', 'bearing', 'hardware', 'carbon-brake'}, True)
+
     def test_glb_and_step_export_roundtrip(self):
         with tempfile.TemporaryDirectory() as directory:
             out = Path(directory) / 'rear-source'
@@ -73,6 +80,11 @@ class TestP216NativeRearWheelEnd(unittest.TestCase):
                 self.assertTrue(all(mesh.is_watertight and mesh.is_winding_consistent
                                     for mesh in data.geometry.values()))
                 self.assertAlmostEqual(data.extents[2], .45, delta=.001)
+                material_colors = {
+                    tuple(int(v) for v in mesh.visual.material.baseColorFactor)
+                    for mesh in data.geometry.values()
+                }
+                self.assertEqual(material_colors, {(135, 146, 157, 255)})
                 triangles.append(record['triangles'])
             self.assertGreater(triangles[0], triangles[1])
             self.assertGreater(triangles[1], triangles[2])
