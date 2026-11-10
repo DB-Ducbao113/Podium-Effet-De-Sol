@@ -48,23 +48,32 @@ export function chapterAt(progress:number):AssemblyChapter{
 export function visualShellOpacity(progress:number,hasCornerCad:boolean):number{
   const p=clamp01(progress);
   if(!hasCornerCad)return 1;
-  const off=smoothStep(.12,.29,p);
-  const back=smoothStep(.79,.94,p);
-  return Math.max(.12,1-.87*off+.87*back);
+  // The previous 13% shell opacity made the actual owner F1 virtually
+  // disappear for three chapters. Retain its silhouette while source
+  // wheel components enter and restore full opacity at final assembly.
+  const off=smoothStep(.15,.28,p);
+  const back=smoothStep(.70,.88,p);
+  return 1-.22*off*(1-back);
 }
 export function exteriorSeparation(progress:number,hasCornerCad:boolean):number{
   if(!hasCornerCad)return 0;
   const p=clamp01(progress);
-  return smoothStep(.12,.30,p)*(1-smoothStep(.72,.91,p));
+  // Architectural disclosure only. Large fake body explosions made the
+  // authentic F1 vanish into scattered dark meshes; use a short controlled
+  // 18% separation early in the engineering reveal, then return to source.
+  return .18*smoothStep(.15,.28,p)*(1-smoothStep(.31,.50,p));
 }
 export type P28BuildSystem='hardware'|'bearing'|'upright'|'suspension'|'hub'|
   'carbon-brake'|'friction-pad'|'caliper'|'rim'|'tyre'|'other';
 const WINDOWS:Record<P28BuildSystem,readonly [number,number]>={
-  upright:[.30,.41],suspension:[.32,.47],bearing:[.34,.46],
-  hub:[.39,.51],'carbon-brake':[.42,.54],
-  'friction-pad':[.45,.57],caliper:[.46,.58],
-  rim:[.50,.64],tyre:[.55,.69],
-  hardware:[.60,.74],other:[.40,.57],
+  // Demonstrable source-mesh order. Hold completed inner parts while outer
+  // layers arrive: upright -> bearing/structure -> hub -> carbon rotor ->
+  // fastening -> brake hardware -> rim -> slick. This is not a verified
+  // constrained mechanical insertion/torque procedure.
+  upright:[.29,.40],suspension:[.34,.45],bearing:[.36,.47],
+  hub:[.41,.52],'carbon-brake':[.45,.56],
+  hardware:[.43,.62],'friction-pad':[.50,.60],caliper:[.52,.63],
+  rim:[.60,.70],tyre:[.67,.78],other:[.37,.53],
 };
 export function stablePartOffset(name:string):number{
   let hash=2166136261>>>0;
@@ -87,16 +96,18 @@ export function wheelOffset(name:string,station:'front'|'rear'):[number,number,n
   const system=classifyP28Part(name);
   const side=station==='front'?1:-1;
   const offsets:Record<PartSystem,[number,number,number]>={
-    tyre:[.04,1.10,.42*side],rim:[-.16,.72,.32*side],
-    'carbon-brake':[-.05,.30,.36*side],
-    caliper:[.35,-.15,.28*side],
-    'friction-pad':[.29,-.15,.41*side],
-    bearing:[-.22,.12,.38*side],
-    hardware:[-.18,.04,.70*side],
-    suspension:[-.65,-.29,-.50*side],
-    upright:[-.35,-.16,.22*side],
-    hub:[-.19,.12,.29*side],
-    other:[-.25,.23,.30*side],
+    // Local offsets are visual reveal distances, never fabricated source
+    // hardpoints. Keep all parts near their true source final transforms.
+    tyre:[.03,.24,.20*side],rim:[-.04,.17,.15*side],
+    'carbon-brake':[-.02,.10,.12*side],
+    caliper:[.11,-.05,.10*side],
+    'friction-pad':[.09,-.05,.12*side],
+    bearing:[-.08,.04,.12*side],
+    hardware:[-.06,.015,.17*side],
+    suspension:[-.16,-.08,-.13*side],
+    upright:[-.12,-.04,.08*side],
+    hub:[-.09,.04,.11*side],
+    other:[-.08,.06,.08*side],
   };
   return offsets[system];
 }
