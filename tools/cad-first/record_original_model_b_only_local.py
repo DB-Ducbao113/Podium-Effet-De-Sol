@@ -115,6 +115,8 @@ def record(url:str,out:Path,frames:int=96,fps:int=16,
                 if not response or response.status!=200:
                     raise RuntimeError('Original Model B DEV route HTTP error')
                 page.get_by_text('OWNER MODEL B LOADED',exact=False).first.wait_for(timeout=90000)
+                if page.get_by_role('dialog',name='F1 Start Lights Preloader').count():
+                    raise RuntimeError('PODIUM fullscreen intro obscures actual original Model B Chromium proof')
                 selector=(
                     '.mb-build-source-wrap'
                     '[data-owner-model-b-git-blob-sha1="'+GIT_SHA+'"]'
