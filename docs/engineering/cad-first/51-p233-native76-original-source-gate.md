@@ -1,61 +1,64 @@
-# P2.33/54 — Native rear76 original-source integration gate (HOLD)
+# P2.33/54 — Original-source rear76 B-Rep: nominal static PASS, mechanical G2 HOLD
 
 Date: 2026-11-11  
 Branch: `work/engineering-four-corners-local`  
-**Status: implementation + fixture regression PASS; real original 76-native-B-Rep union NOT EXECUTED; mechanical G2 HOLD.**
+**Status: REAL ORIGINAL 76-SOLID CAD STATIC PASS; original whole-car Model B / dynamics / manufacture NOT certified.**
 
-## Executed evidence
+## Important update from the previous P2.33 HOLD
 
-The assistant's CAD runtime has the genuine original **P2.31 56-solid STEP** with SHA-256 `e09a949f8827be01f9c0e50fc9b9c781b302642f3b40ea432836fe16d7eac284` and source-name bijection mapping. The native OpenCascade importer read all 56 B-Reps. It preserves **54 original source B-Reps** after deleting precisely two old P2.10 bearing proxies. The proposed owner union contains **six new P2.11/P2.12 toe pieces** plus **16 P2.14 split-race components**, yielding **76 independent source IDs**.
+The earlier version of this report documented only an algorithmic fixture. Its original-source runtime blocker is **now resolved** in the local CAD review environment. The complete authoring modules P2.9–P2.14 were transferred from this repository, and each of the seven original files was checked against its approved **Git blob SHA-1** (not approximate geometric reconstructions). The main authoring process imported and executed actual `p2_12_toe_adjuster.all_parts()` and `p2_14_split_spherical_race.source_parts()` with the genuine P2.31 56-solid STEP.
 
-The local P2.33 regression tests used these 54 genuine old B-Reps with 22 **synthetic non-overlapping boxes** for the new components. This deliberately scoped test verifies source identity, pair accounting, collision-detection negative and positive controls, SHA-256 tamper rejection and fail-closed behavior. **8/8 local tests PASS**. It is *not* a real 76-body fit test or proof of the incoming CAD geometry.
+The original P2.31 STEP SHA-256 was `e09a949f8827be01f9c0e50fc9b9c781b302642f3b40ea432836fe16d7eac284`. The source union removes two old P2.10 bearing proxies, retains 54 previous genuinely authored B-Reps, adds six genuine P2.11/P2.12 toe parts and 16 genuine P2.14 split-race parts. It retains the previously corrected P2.19 A-arms and P2.29 machined upright; it does not duplicate P2.9/P2.10 source IDs.
 
-| Original source / native QA | Result |
-|---|---|
-| Real P2.31 source STEP SHA-256 and 56-part name-map import | **PASS** |
-| Real retained native old source bodies | **54** |
-| Original P2.11–P2.14 executable authoring files in this local runtime | **MISSING** |
-| Source-owner migration | 54 retained + 6 toe + 16 split = **76 IDs** |
-| Full source candidate pair count | **2,850** |
-| Previously certified retained old-old pairs | **1,431** |
-| New or affected pairs requiring native B-Rep check | **1,419** |
-| 54 genuine source + 22 artificial control box audit | **1,419 AABB exclusions; only algorithmic fixture** |
-| Deliberate OpenCascade overlapping-solid control | **Detected** |
-| Original 76 B-Rep source-native OpenCascade Boolean audit | **NOT RUN** |
-| Original 76-body STEP/GLB export | **NOT PRODUCED** |
-| Original Model B full car | **NOT AVAILABLE IN THIS REVIEW** |
-| Mechanical G2 | **HOLD** |
+## Actual local native OpenCascade audit (2026-11-11)
 
-## GitHub implementation
+| Verified native source gate | Result |
+|---|---:|
+| Original Git-authored CAD files with byte-exact SHA-1 | **7 / 7 PASS** |
+| Original P2.31 imported solids | 56 |
+| Retained original B-Rep solids after bearing proxy removal | 54 |
+| New original toe source parts | 6 |
+| New original P2.14 split-bearing source parts | 16 |
+| **Source-authenticated unique native solids** | **76** |
+| All unordered part pairs | 2,850 |
+| Previously checked retained old-old pairs | 1,431 |
+| New/changed pair candidates | **1,419** |
+| New pairs AABB-separated | **1,334** |
+| New pairs checked with exact OpenCascade B-Rep Booleans | **85** |
+| Positive intersection volumes > 0.05 mm³ | **0** |
+| Native Boolean errors | **0** |
+| Native STEP independent roundtrip | **76 / 76 valid solids** |
+| One-to-one original source name → STEP solid mapping | **76 / 76** |
 
-`tools/cad-first/p2_33_real_rear76_gate.py` is a strict original-source integration CLI. It:
+Original native STEP: `P233_original_rear76_native_static.step`  
+STEP SHA-256: `2807bfc253f2afaf76172fac06ed259051f970518bc3a3765c6c84e40438aa62`.
 
-1. Verifies the exact Git blob SHA-1 IDs of all **seven P2.9–P2.14 authoring modules**, before imports or output.
-2. Imports the pinned genuine P2.31 56-solid STEP and source-name mapping.
-3. **Executes original** `p2_12_toe_adjuster.all_parts()` and `p2_14_split_spherical_race.source_parts()` only when those complete source files are present and authenticated.
-4. Removes four deprecated P2.10/P2.11 bearing proxies, retains corrected P2.19 arms and P2.29 upright, and ensures shared source IDs are not duplicated.
-5. Carries forward only the verified **1,431** pairs of unchanged 54-source B-Reps, then AABB-excludes or exact-OpenCascade-checks every one of **1,419 new/affected pairs**.
-6. Writes a failure audit with actual conflicting source IDs if interference occurs. Only after PASS can it emit a new 76-solid STEP, roundtrip-validity evidence and a source-name index; the original car remains excluded.
+This is a real **nominal static source shape** audit. The check inherits only the 1,431 previously verified unchanged B-Rep pairs; it screens all 1,419 affected new pairs and reports all 85 exact checks. A static no-overlap result is not proof of fastening, load transfer, manufacturing tolerances, kinematic clearance or a physically buildable assembly.
 
-It does **not** invent missing toe rods, bearings or connector geometries, or force GLB tessellation to hide failed native solids.
+## Three new 76-mesh neutral source visual previews
 
-## Reproduce on the full source checkout (without GitHub Actions)
+A separate GLB composer takes **54 verified prior P2.29 source-view meshes** and tessellates the **22 newly authored original P2.12/P2.14 B-Reps**. Every GLB contains 76 independently named watertight meshes with one neutral engineering-gray base material `#87929D`.
 
-```bash
-python tools/cad-first/p2_33_real_rear76_gate.py \
-  --p231-step .local-assets/cad-first/P231_rear56_original_native_static.step \
-  --p231-name-map .local-assets/cad-first/P231_step56_source_name_map.json \
-  --source-root tools/cad-first \
-  --out .local-assets/cad-first/p233-authentic-rear76 \
-  --export-step
-```
+| Source viewer LOD | Triangle count | SHA-256 |
+|---|---:|---|
+| HIGH | 190,906 | `cc58518cd0e064af187aa32601504381150f2a9095b64e6b401fdb53f8a43ed0` |
+| BALANCED | 131,652 | `2f28fa1d45ac8a384c90fec90b0cd75fa351b9710093ac71d41fa19fd1b90936` |
+| PERFORMANCE | 114,746 | `19983334a23828a2d022b6e054e1c693afe911d3bfbe72569ffb136b4419739b` |
 
-Do not treat `--export-step` as guaranteed to succeed: exact source Booleans may reveal interference requiring a later geometry patch, and no output occurs when authoring sources are absent or changed. Locally, the real-source attempt stopped at missing `p2_11_rear_toe_link.py` **before any 76-part STEP/GLB was created**.
+P2.29 mesh source correspondence and this 76-mesh preview do **not** independently establish manufacturing accuracy. All original Model B complete-vehicle meshes are excluded.
 
-A separate, extended regression implementation, a genuine P2.31 native STEP, source map, logs, 8 tests and SHA-256 manifests are in the P2.33 ZIP handoff.
+## Real output tests and reproducible handoff
 
-## Remaining blocker and patch numbering
+The updated user handoff `PEDS_P233_Authentic_Rear76_Native_STEP_3GLB_StaticPASS_G2HOLD.zip` contains 7 authentic source scripts, P2.31 input STEP and source index, tested real P2.33 native authoring/GLB scripts, 76-solid STEP, full native collision JSON report and named source map, P2.29 viewer inputs, three 76-part GLBs, original-source check and regression logs, README and SHA256SUMS.
 
-**P2.33/54 remains the active patch**, not P2.34. Completion of P2.33 requires running the verified upstream source B-Reps together with the P2.31 native STEP, solving any real 76-body interference and verifying a true named 76-body STEP output. Thereafter P2.34 addresses inner CV connection and P2.39+ the original owner's Model B chassis. P2.54 is an acceptance *target*, not guaranteed end or effort percentage.
+Archive integrity: **30/30 SHA-256 checks PASS**, ZIP CRC pass. Unpacked into a clean directory, **17/17 regression tests PASS, zero skips** (8 earlier algorithmic source-owner tests + 6 authentic STEP/native tests + 3 authentic GLB tests).
 
-No GitHub Actions, merge, deployment, PR or replacement exterior F1 model.
+The exact locally executed scripts are included in the handoff ZIP. The GitHub working branch also carries the P2.33 original source-integration gate and original-source QA. No GitHub Actions were executed.
+
+## G2/Model B blocker remains
+
+No source-authenticated original full-car Model B GLB/STEP or actual chassis/gearbox hardpoint registration is included in this rear-corner package. No continuous wheel spin, suspension bump/toe/roll, CV articulation, brake load, locknut/fastener retention, thread preload/fatigue, front axle/four-corner assembly, or browser-video scrolling QA has passed. Do not interpret nominal rear76 static PASS as the finished F1 car.
+
+**P2.33/54 static CAD milestone COMPLETE. Mechanical G2 HOLD. Next P2.34/54: real inner CV interface and driving/articulation checks. P2.54 remains the conditional overall acceptance target, not a percentage-complete claim.**
+
+No GitHub Actions, merge, deployment, PR or original Model B source mutation.
