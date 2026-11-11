@@ -24,8 +24,8 @@ The source-first execution authenticates 11 upstream source Git blobs; rebuilds 
 | Native Boolean errors | **0** |
 | Original source STEP roundtrip | **56/56 valid solids** |
 | Unique source ID ↔ STEP solid index mappings | **56/56** |
-| Source/geometry regression tests from clean ZIP | **9/9 PASS, 0 skips** |
-| SHA-256 checksum entries from clean ZIP | **36/36 valid** |
+| Source/geometry regression tests from clean ZIP | **12/12 PASS, 0 skips** |
+| SHA-256 checksum entries from clean ZIP | **41/41 valid** |
 
 Native STEP SHA-256: \`e09a949f8827be01f9c0e50fc9b9c781b302642f3b40ea432836fe16d7eac284\`.
 
@@ -56,3 +56,7 @@ PYTHONPATH=tools/cad-first python tools/cad-first/p2_31_step_name_map.py --p231-
 **Mechanical G2 HOLD:** P2.12/P2.14 original source toe/split-race fit remains to be integrated, projected full rear owner count is still 76 (not tested). Original Model B chassis and four wheel stations are unavailable in this source review, and real brake/gearbox/CV torque retention, suspension bump/toe/roll clearance, browser animation and video QA are incomplete.
 
 **Progress:** **P2.31/54**, with P2.54 a provisional acceptance target rather than an effort percentage or guaranteed endpoint. Next: **P2.32/54** — authentic P2.11–P2.14 source ownership and bearing-replacement audit, then full native 76-solid gate. No merge, deploy or GitHub Actions.
+
+## Repo cross-check and handoff status
+
+The byte-verified executable `tools/cad-first/p2_31_rear56_native_crosscheck.py` and its `test_p2_31_rear56_native_crosscheck.py` live on this branch. They re-check 412 newly affected native pairs directly from the SHA-pinned P2.30 48-part STEP and original P2.10 source. Its **3/3 tests PASS**. The full 56-source STEP authoring, name mapping, existing-GLB correspondence and source-integrity harness are included in the separately delivered P2.31 ZIP; its **9/9 tests PASS**. Both suites passed together from the clean extracted final ZIP: **12/12**, with **41/41** source-file SHA-256 checks. The GitHub cross-check does not, by itself, generate the full named 56-body STEP; use the full authoring script in the handoff for that output.
