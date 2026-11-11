@@ -2,7 +2,7 @@
 
 Updated: 2026-11-11. Branch: `work/engineering-four-corners-local`.
 
-**Current patch: P2.32/54. P2.54 is a proposed acceptance target, not a guaranteed release or a percent-complete claim.** Discovery of missing Model B source, original native CAD discrepancies, new engineering requirements or failed QA may require additional patches. Patch number is not a calibrated measure of project effort.
+**Current patch: P2.33/54. P2.54 is a proposed acceptance target, not a guaranteed release or a percent-complete claim.** Discovery of missing Model B source, original native CAD discrepancies, new engineering requirements or failed QA may require additional patches. Patch number is not a calibrated measure of project effort.
 
 ## The 25-gate path through P2.54
 
@@ -11,7 +11,7 @@ Updated: 2026-11-11. Branch: `work/engineering-four-corners-local`.
 | P2.30 | 48 source B-Reps: 46 P2.29 + two P2.19 source A-arms; 1,128 static pairs; 48-solid STEP | DONE (static only) |
 | P2.31 | Authenticate final eight P2.10 bodies and certify the nominal original rear56 source STEP (1,540 pairs) | DONE (56-BRep static only) |
 | P2.32 | Review original P2.11–P2.14 Git blobs, reconcile 76 source IDs, run 62-BRep partial upper/lower split-race formula preflight | DONE (source ownership; original full source runtime still pending) |
-| P2.33 | Run projected 76-owner-body native source union and exact nominal static intersections; export 76-body STEP/GLB only after PASS | Planned |
+| P2.33 | Authenticate & run real 76-body P2.12/P2.14 native union; 1,419 new B-Rep pairs; export STEP only on PASS | IN PROGRESS — gate implemented; original 76 run blocked by missing local native source files |
 | P2.34 | Design and verify inner driveshaft/CV joint mechanical connection, motion envelope, interface datums | Planned |
 | P2.35 | Real caliper load path, fastener threads/retention and spindle axial bearing preload gates | Planned |
 | P2.36 | Coupled rear bump, roll, toe, wheel-spin and articulation clearance sweeps | Planned |
@@ -57,3 +57,7 @@ Updated: 2026-11-11. Branch: `work/engineering-four-corners-local`.
 ## P2.32 verification update (2026-11-11)
 
 P2.31 authentic 56-native static STEP PASS. P2.32 source review verifies 76 unique part names after retaining 54, adding six toe parts and 16 split-race parts. Real native B-Rep preflight with 54 authentic P2.31 source bodies and eight reconstructed P2.14 upper/lower source-formula bodies: 460 newly affected pair checks (418 AABB excluded, 42 exact OpenCascade Booleans), zero significant overlaps. This 62-body provisional STEP is explicitly NOT an authentic P2.14 source export. The complete executable P2.11–P2.14 source files were read and hash-reviewed on connected GitHub but not available to the local sandbox, so the complete 76-body mechanical native check remains NOT RUN. P2.54 is still a conditional acceptance target, not an effort-completion percentage.
+
+## P2.33 update (2026-11-11)
+
+The source-pinned P2.33 76-body native integration gate is committed and a local 8/8 regression with genuine P2.31 native STEP and 22 **synthetic collision-control shapes** passed. The full original 76-body source Booleans have **not** been run in the offline CAD environment because P2.11–P2.14 executable source files are absent there, though GitHub source hashes are known. This is not a mechanical PASS. Current patch remains **P2.33/54 (in progress)** until 76 real source bodies are verified and exported. P2.54 remains a conditional target.
