@@ -2,7 +2,7 @@
 
 Updated: 2026-11-11. Branch: `work/engineering-four-corners-local`.
 
-**Current patch: P2.33/54 (authentic rear76 nominal CAD static PASS); NEXT P2.34/54. P2.54 is a proposed acceptance target, not a guaranteed release or a percent-complete claim.** Discovery of missing Model B source, original native CAD discrepancies, new engineering requirements or failed QA may require additional patches. Patch number is not a calibrated measure of project effort.
+**Current patch: P2.34/54 — authentic rear76 rigid inboard coupling static PASS, functional CV still HOLD. P2.54 is a proposed acceptance target, not a guaranteed release or a percent-complete claim.** Discovery of missing Model B source, original native CAD discrepancies, new engineering requirements or failed QA may require additional patches. Patch number is not a calibrated measure of project effort.
 
 ## The 25-gate path through P2.54
 
@@ -12,7 +12,7 @@ Updated: 2026-11-11. Branch: `work/engineering-four-corners-local`.
 | P2.31 | Authenticate final eight P2.10 bodies and certify the nominal original rear56 source STEP (1,540 pairs) | DONE (56-BRep static only) |
 | P2.32 | Review original P2.11–P2.14 Git blobs, reconcile 76 source IDs, run 62-BRep partial upper/lower split-race formula preflight | DONE (source ownership; original full source runtime still pending) |
 | P2.33 | Execute exact Git-authored P2.12/P2.14, audit 76 B-Reps / 1,419 affected pairs and export source-named STEP plus neutral GLBs | DONE — 76 native nominal static PASS; mechanical G2 HOLD |
-| P2.34 | Design and verify inner driveshaft/CV joint mechanical connection, motion envelope, interface datums | Planned |
+| P2.34 | Real rear76 inboard shaft–CV-housing connection; CV articulation, axial retention and load-envelope gates | IN PROGRESS — actual four-key rigid mate nominal static PASS; articulated CV/retention NOT DONE |
 | P2.35 | Real caliper load path, fastener threads/retention and spindle axial bearing preload gates | Planned |
 | P2.36 | Coupled rear bump, roll, toe, wheel-spin and articulation clearance sweeps | Planned |
 | P2.37 | Revalidate front axle CAD to same B-Rep/provenance and LOD standard | Planned |
@@ -65,3 +65,7 @@ The source-pinned P2.33 76-body native integration gate is committed and a local
 ## P2.33 real source-native completion (2026-11-11)
 
 The seven exact original P2.9–P2.14 Git-authored modules were recovered into the local CadQuery runtime and checked byte-for-byte against their Git blob SHA-1 values. Actual original P2.12 and P2.14 geometry was executed with the P2.31 genuine 56-source-BRep STEP to produce **76 distinct original source-native B-Reps**. Of the **1,419 newly affected pairs**, **1,334 were AABB-separated** and **85 exact OpenCascade B-Rep Booleans** were run, with **zero significant overlaps and zero Boolean errors**. A new 76-solid STEP was independently read back (76/76 valid, source-name map 76/76); SHA-256 `2807bfc253f2afaf76172fac06ed259051f970518bc3a3765c6c84e40438aa62`. Three source-named neutral `#87929D` GLBs at HIGH/BALANCED/PERFORMANCE levels were also exported from prior 54 source preview parts and the new 22 authentic P2.12/P2.14 BReps. **17/17 regression tests PASS from clean ZIP.** P2.33's static CAD deliverable is DONE; progress advances to **P2.34/54**. Actual Model B full-car chassis fit, four corners, dynamic suspension, fastener/drive load paths, browser scroll and full-car video are still unverified; mechanical G2 remains HOLD. P2.54 is still a conditional target, not a guarantee or effort percentage.
+
+## P2.34 real B-Rep source update (2026-11-11)
+
+The 76 named original-source CAD solids from P2.33 were preserved while the two real P2.17-derived shaft and CV-housing B-Reps were machined with a four-key/four-keyway rigid torque-indexing interface and a one-sided shaft seating shoulder. Original 2.6 mm minimum separation changed to 0 mm at the shoulder, with zero nominal solid intersection; deliberate ±2° relative rotation produces ~10.296118 mm³ geometric collision. The incremental gate inherits 2,701 old unaffected source pairs and explicitly checks 149 affected pairs (141 AABB-separated; eight real OpenCascade B-Rep Booleans; zero significant collisions); rebuilt STEP validates 76/76 solids and named indexing 76/76. Three GLBs retain 76 closed `#87929D` meshes. Nine tests PASS. **This is not a functioning articulating CV joint**: the original P2.17 housing is only an annular prototype, and neither axial positive retention, rated torque nor the original Model B gearbox and dynamic suspension mate has been verified. P2.34 remains IN PROGRESS until the actual articulated CV and retention criteria pass; do not advance to P2.35 solely on this rigid static gate. P2.54 remains a conditional overall target.
