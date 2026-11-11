@@ -47,7 +47,7 @@ The revised carrier-to-upright and carrier-to-caliper minimum native B-Rep dista
 | Cross-source VTK collision hits | **0** |
 | Original/source handoff tests in clean extracted ZIP | **7/7 PASS, 0 skips** |
 | Uniform CAD base color | **#87929D** |
-| Signed bundle checksum entries | **36/36 verified** |
+| Bundle SHA-256 checksum entries | **36/36 verified** |
 
 The P2.29 review script reads the SHA-256 verified prior P2.28 source review and P2.29 native seven-mesh outputs. It replaces exactly **two** old source mesh IDs (P29 upright, P217 caliper), adds exactly **five** new part IDs (one carrier and four bolts), leaving **56 independently named 3D meshes** without visual duplication. It does not mutate the original Model B or source P2.9/P2.17/P2.28 files.
 
