@@ -14,7 +14,11 @@ export function checkedPlacement(value: Placement): Placement {
     [...value.translationM, ...value.rotationDeg].some(v => !Number.isFinite(v) || Math.abs(v) > 10000)) {
     throw new Error('Invalid P2.8 placement coordinates');
   }
-  return value;
+  return {
+    translationM: [...value.translationM] as [number, number, number],
+    rotationDeg: [...value.rotationDeg] as [number, number, number],
+    displayedAtBodyCenter: value.displayedAtBodyCenter,
+  };
 }
 /**
  * Centers are graphics-only initial placement helpers, NOT physical mates.
@@ -24,7 +28,8 @@ export function initialStagingPosition(
   bodyMin: [number, number, number], bodyMax: [number, number, number],
   cornerMin: [number, number, number],
 ): [number, number, number] {
-  if ([...bodyMin, ...bodyMax, ...cornerMin].some(v=>!Number.isFinite(v))) throw Error('Invalid preview bounds');
+  if ([...bodyMin, ...bodyMax, ...cornerMin].some(v=>!Number.isFinite(v)) ||
+      bodyMin.some((min,i)=>min>bodyMax[i])) throw Error('Invalid preview bounds');
   return [
     bodyMax[0] + 0.6 - cornerMin[0],
     bodyMin[1] - cornerMin[1],
