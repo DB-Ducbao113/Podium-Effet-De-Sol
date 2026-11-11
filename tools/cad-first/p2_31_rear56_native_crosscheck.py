@@ -90,7 +90,6 @@ def run(p230_dir:Path,out:Path)->dict:
     (out/'P231_rear56_native_crosscheck.json').write_text(json.dumps(report,indent=2)+'\n')
     return report
 
-
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--p230-dir',type=Path,required=True)
     p.add_argument('--out',type=Path,required=True)
