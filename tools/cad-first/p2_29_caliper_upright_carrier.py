@@ -204,5 +204,5 @@ def build(out:Path)->dict:
 
 if __name__=='__main__':
     cli=argparse.ArgumentParser()
-    cli.add_argument('--out',required=True,type=Path)
+    cli.add_argument('--out',type=Path,required=True)
     print(json.dumps(build(cli.parse_args().out),indent=2))
