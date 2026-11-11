@@ -73,6 +73,7 @@ def native_measure(parts,bend,shaft_phase,cup_phase,grid_step=.2,grid_radius=.4)
                       'nativeDistanceEvaluations':len(results)*12},
             'candidateCountMeetingExploratoryScreen':sum(r['classification']['exploratoryCandidate'] for r in results),
             'bestCandidate':winner,'baselineCandidate':results[0],
+            'screenPassingCandidates':[r for r in results if r['classification']['exploratoryCandidate']],
             'originalCADModified':False,'cageRotationSolved':False,
             'jointBallTrajectoryAcrossBendAndPhaseSolved':False,
             'constantVelocityOrTorqueCertified':False,'mechanicalG2Certified':False,
