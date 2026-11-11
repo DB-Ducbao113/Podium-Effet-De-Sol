@@ -25,8 +25,8 @@ The ring is a provisional geometrical retention feature, not a fatigue-qualified
 | Significant nominal overlaps over 0.05 mm³ | **0** |
 | Boolean errors | **0** |
 | Full STEP independent roundtrip and source ID index | **77/77** |
-| Source-hash authenticated tests from clean ZIP | **9/9 PASS** |
-| ZIP SHA-256 items | **30/30 valid** |
+| Source-hash authenticated tests from clean ZIP | **12/12 PASS** |
+| ZIP SHA-256 items | **34/34 valid** |
 
 **Axial nominal clearances:** circlip to shaft groove root 0.15 mm, circlip to CV housing face 0.30 mm. No significant native overlap at the nominal pose.
 
@@ -38,6 +38,6 @@ The ring is a provisional geometrical retention feature, not a fatigue-qualified
 
 Three source-named neutral `#87929D` 77-mesh watertight GLB previews have **193,014 / 132,752 / 115,564 triangles** (HIGH/BALANCED/PERFORMANCE). They reuse 75 SHA-pinned original P2.34 preview meshes and retessellate only the native grooved shaft and independent C-ring. A VTK offscreen image renders the actual three B-Reps in seated and deliberately separated inspection poses.
 
-The user handoff `PEDS_P234B_Rear77_Axial_Retainer_CAD_STEP_GLBS_QA.zip` contains all original SHA-pinned P2.34 input STEP/GLB source, new 77 B-Rep STEP, 77 source ID map, three 77 source GLBs, authoring/QA code, screen and actual QA logs. No GitHub Actions were used.
+The byte-matched repository CLI `tools/cad-first/p2_34b_repo_native_retainer.py` and original-source test `tools/cad-first/test_p2_34b_repo_native_retainer.py` are on this branch (3/3 PASS). A separate full native/three-LOD view QA inside the handoff runs 9/9 PASS. Combined from clean extracted handoff: 12/12 PASS, 34 SHA-256 files verified. The repository CLI uses the exact P2.34 SHA-pinned STEP and exports its own 77-native STEP/name index. The user handoff `PEDS_P234B_Rear77_Axial_Retainer_CAD_STEP_GLBS_QA.zip` contains all original SHA-pinned P2.34 input STEP/GLB source, new 77 B-Rep STEP, 77 source ID map, three 77 source GLBs, authoring/QA code, screen and actual QA logs. No GitHub Actions were used.
 
 **P2.34/54 remains IN PROGRESS.** The real Rzeppa/tripod/other angularly articulating CV design, axial retention material/load verification, gearbox flange, chassis source registration, suspension sweep and original full-car Model B browser scroll are still missing. P2.54 is a conditional acceptance target, not a percent-complete claim. No merge/deploy or original car source mutation.
