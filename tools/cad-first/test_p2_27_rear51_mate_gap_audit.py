@@ -1,5 +1,6 @@
 """P2.27 authentic source and fail-closed distance bound regression."""
 import json
+import os
 from pathlib import Path
 import tempfile
 import shutil
@@ -7,9 +8,13 @@ import unittest
 import trimesh
 from p2_27_rear51_mate_gap_audit import audit,verified_scene,distance_bracket_mm,MATES
 
-DATA=Path(__file__).resolve().parent/'source'
+DATA=Path(os.environ.get('PEDS_P227_SOURCE_DIR', str(Path(__file__).resolve().parent/'source')))
 
 class TestP227Gaps(unittest.TestCase):
+ @classmethod
+ def setUpClass(cls):
+  if not (DATA/'P225_rear51_source_manifest.json').is_file():
+   raise unittest.SkipTest('Authentic P2.25 GLB package unavailable; no synthetic source fallback')
  def test_51_real_names_and_sha(self):
   meshes,_=verified_scene(DATA)
   self.assertEqual(len(meshes),51)
