@@ -45,7 +45,7 @@ class TestP234cSource84(unittest.TestCase):
  def test_incorrect_part_ownership_is_rejected(self):
   original=actual_source(SOURCE)
   incomplete={k:v for k,v in original.items() if k!='P217_REAR_CV_HOUSING_PROTOTYPE'}
-  with self.assertRaisesRegex((ValueError,KeyError),''):
+  with self.assertRaises(ValueError):
    audit_pairs(incomplete,{**incomplete,**new_parts(original)})
 
 if __name__=='__main__':unittest.main(verbosity=2)
