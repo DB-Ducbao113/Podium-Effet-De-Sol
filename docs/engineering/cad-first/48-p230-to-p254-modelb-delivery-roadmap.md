@@ -2,15 +2,15 @@
 
 Updated: 2026-11-11. Branch: `work/engineering-four-corners-local`.
 
-**Current patch: P2.30/54. P2.54 is a proposed acceptance target, not a guaranteed release or a percent-complete claim.** Discovery of missing Model B source, original native CAD discrepancies, new engineering requirements or failed QA may require additional patches. Patch number is not a calibrated measure of project effort.
+**Current patch: P2.32/54. P2.54 is a proposed acceptance target, not a guaranteed release or a percent-complete claim.** Discovery of missing Model B source, original native CAD discrepancies, new engineering requirements or failed QA may require additional patches. Patch number is not a calibrated measure of project effort.
 
 ## The 25-gate path through P2.54
 
 | Patch | Acceptance deliverable | Status |
 |---|---|---|
 | P2.30 | 48 source B-Reps: 46 P2.29 + two P2.19 source A-arms; 1,128 static pairs; 48-solid STEP | DONE (static only) |
-| P2.31 | Retrieve and authenticate remaining 8 P2.10 native bushes/pins/bearings; run full current 56-body OpenCascade gate | Planned |
-| P2.32 | Retrieve exact P2.11/P2.12/P2.13/P2.14 native authoring sources and source ID / bearing/proxy replacement QA | Planned |
+| P2.31 | Authenticate final eight P2.10 bodies and certify the nominal original rear56 source STEP (1,540 pairs) | DONE (56-BRep static only) |
+| P2.32 | Review original P2.11–P2.14 Git blobs, reconcile 76 source IDs, run 62-BRep partial upper/lower split-race formula preflight | DONE (source ownership; original full source runtime still pending) |
 | P2.33 | Run projected 76-owner-body native source union and exact nominal static intersections; export 76-body STEP/GLB only after PASS | Planned |
 | P2.34 | Design and verify inner driveshaft/CV joint mechanical connection, motion envelope, interface datums | Planned |
 | P2.35 | Real caliper load path, fastener threads/retention and spindle axial bearing preload gates | Planned |
@@ -53,3 +53,7 @@ Updated: 2026-11-11. Branch: `work/engineering-four-corners-local`.
 7. No GitHub Actions, merge, deployment or PR automation without a separate explicit instruction.
 
 **Mechanical G2 HOLD** until all real original-source constraints and dynamics are verified. Finish means acceptance criteria passing, not merely reaching patch number 54.
+
+## P2.32 verification update (2026-11-11)
+
+P2.31 authentic 56-native static STEP PASS. P2.32 source review verifies 76 unique part names after retaining 54, adding six toe parts and 16 split-race parts. Real native B-Rep preflight with 54 authentic P2.31 source bodies and eight reconstructed P2.14 upper/lower source-formula bodies: 460 newly affected pair checks (418 AABB excluded, 42 exact OpenCascade Booleans), zero significant overlaps. This 62-body provisional STEP is explicitly NOT an authentic P2.14 source export. The complete executable P2.11–P2.14 source files were read and hash-reviewed on connected GitHub but not available to the local sandbox, so the complete 76-body mechanical native check remains NOT RUN. P2.54 is still a conditional acceptance target, not an effort-completion percentage.
