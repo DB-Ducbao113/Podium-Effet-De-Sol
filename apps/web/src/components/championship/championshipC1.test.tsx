@@ -67,7 +67,7 @@ describe("C1 championship presentation", () => {
     expect(html).toContain('href="/season/2026?tab=results&amp;round=1"');
     expect(html).not.toContain('data-experience="world-tour-v6"');
   });
-    it("filters rounds by schedule state and exposes the next race", () => {
+  it("filters rounds by schedule state and exposes the next race", () => {
     const now = Date.now();
     const completedRounds = CALENDAR_2026.filter(
       (race) => getCalendarRaceState(race, now) === "completed",
@@ -101,7 +101,7 @@ describe("C1 championship presentation", () => {
       expect(upcoming).toContain("Open Race Center");
       expect(
         upcoming.includes("Lights out in") ||
-          upcoming.includes("Race in progress"),
+        upcoming.includes("Race in progress"),
       ).toBe(true);
     } else {
       expect(upcoming).toContain("Season complete");
@@ -139,13 +139,12 @@ describe("C1 championship presentation", () => {
     expect(html).not.toContain("c1-points-track");
   });
 
-  it("selects the local historical standings thumbnail for 2024 and 2025", () => {
+  it("does not rely on removed local historical standings review routes", () => {
     const visualSource = readFileSync(
-      "src/utils/p5Extended2026Visuals.ts",
+      "src/utils/extended2026Visuals.ts",
       "utf8",
     );
-    expect(visualSource).toContain("historicalStandingsHero");
-    expect(visualSource).toContain("/__p5-historical-standings/${season}.webp");
+    expect(visualSource).not.toContain("/__p5-historical-standings/");
   });
   it("renders directory portraits with accessible labels", () => {
     const teams = render(<ChampionshipDirectory season={2026} kind="teams" />);
@@ -154,7 +153,7 @@ describe("C1 championship presentation", () => {
     expect(teams).toContain('aria-label="P1 ');
     const drivers = render(<ChampionshipDirectory season={2026} kind="drivers" />);
     expect(drivers).toContain("<picture");
-    expect(drivers).toContain("Portrait of ");
+    expect(drivers).toContain("2026 concept artwork");
     expect(drivers).toContain('aria-label="P1 ');
   });
   it("derives Sprint and normal weekend sessions from the calendar", () => {
@@ -164,11 +163,11 @@ describe("C1 championship presentation", () => {
     );
     expect(
       sprint.includes("Sprint Qualifying") ||
-        sprint.includes("Phân hạng Sprint"),
+      sprint.includes("Phân hạng Sprint"),
     ).toBe(true);
     expect(
       sprint.includes("Practice 2</button>") ||
-        sprint.includes("Thử nghiệm 2 (FP2)</button>"),
+      sprint.includes("Thử nghiệm 2 (FP2)</button>"),
     ).toBe(false);
   });
 });

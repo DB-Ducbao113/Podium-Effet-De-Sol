@@ -734,14 +734,14 @@
   background: #111720;
   box-shadow: 0 12px 24px #0008;
 }
-/* Below the desktop control bar the page-tab/season card stacks to ~155px; if it
-   also pinned, the chrome would take 42% of a phone viewport and cover the
-   classification header. Only the round rail and session tabs stay pinned. */
+/* The Results control bar (section tabs + season) scrolls away at every width so
+   it never overlaps the pinned round rail; only the rail and session tabs stick.
+   On a phone the stacked chrome would otherwise cover the classification head. */
+.c1-results-active .f4-controls {
+  position: static;
+  top: auto;
+}
 @media (max-width: 1279px) {
-  .c1-results-active .f4-controls {
-    position: static;
-    top: auto;
-  }
   .c1-results-active .rc-pinned-controls {
     top: 64px;
   }
@@ -1661,7 +1661,6 @@
   color: var(--rc-ivory);
   font-family: var(--peds-font-display);
   font-size: clamp(1.5rem, 2.6cqi, 2.15rem);
-  font-style: italic;
   font-weight: 800;
   line-height: 1;
   letter-spacing: 0.005em;
@@ -2065,9 +2064,6 @@
 }
 
 
-/* P4 cinematic EDS-G01 artwork removed 2026-11-01 by owner directive.
-   Composition falls back to the schematic-only hero/round layout above. */
-
 .rc-hero-now {
   display: flex;
   flex-wrap: wrap;
@@ -2154,7 +2150,6 @@
 }
 .rc-hero h2 {
   font-size: clamp(2.6rem, 8.6cqi, 6.6rem);
-  font-style: italic;
   font-weight: 800;
   line-height: 0.86;
   letter-spacing: -0.03em;
@@ -2180,7 +2175,7 @@
 }
 .rc-hero-tagline strong {
   color: var(--rc-ivory);
-  font: italic 700 clamp(1rem, 2cqi, 1.55rem) / 1 var(--peds-font-display);
+  font: 700 clamp(1rem, 2cqi, 1.55rem) / 1 var(--peds-font-display);
   letter-spacing: 0.005em;
 }
 .rc-hero-now {
@@ -2299,7 +2294,7 @@
   display: block;
   overflow: hidden;
   color: var(--rc-ivory);
-  font: 600 0.74rem/1.25 var(--peds-font-ui);
+  font: 600 0.78rem/1.25 var(--peds-font-ui);
   letter-spacing: 0.005em;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -2380,7 +2375,6 @@
 }
 .rc-round-hero h3 {
   font-size: clamp(1.8rem, 5.2cqi, 3.3rem);
-  font-style: italic;
   font-weight: 800;
   line-height: 0.92;
   letter-spacing: -0.022em;
@@ -2580,7 +2574,7 @@
 }
 .rc-race-center .c11-driver .rc-driver-text > span {
   color: #b6c0ca;
-  font-size: 0.67rem;
+  font-size: 0.75rem;
   line-height: 1.2;
 }
 .rc-race-center .c11-table .c11-team a {
@@ -2681,7 +2675,7 @@
   color: #14181d;
 }
 .rc-race-center .c11-table tbody tr[data-podium="3"] .rc-rank {
-  background: linear-gradient(160deg, #e2ab7c, #a4652f);
+  background: linear-gradient(160deg, #e2ab7c, #ab6f36);
   color: #190f08;
 }
 

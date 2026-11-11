@@ -315,7 +315,7 @@ export const FullscreenCarStage: React.FC = React.memo(() => {
             onClick={() => {
               navigate('/showroom');
             }}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-f1red text-white text-xs font-bold uppercase tracking-wider hover:bg-f1red/90 shadow-lg hover:shadow-f1red/30 cursor-pointer"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-peds-ignition text-peds-carbon text-xs font-bold uppercase tracking-wider hover:bg-peds-accent-strong shadow-lg hover:shadow-f1red/30 cursor-pointer"
           >
             <Sparkles className="w-3.5 h-3.5" />
             <span>{lang === 'vi' ? 'Khám Phá Showroom 3D' : 'Explore 3D Showroom'}</span>
@@ -389,7 +389,7 @@ export const FullscreenCarStage: React.FC = React.memo(() => {
                   {/* Background Sliced Image with Vignette */}
                   <img
                     src={car.imageUrl}
-                    alt={`${car.name} editorial profile with an original Podium EDS-G01 study`}
+                    alt={`${car.name} editorial profile with an original Podium EDS vehicle study`}
                     className={`absolute inset-0 w-full h-full object-cover object-center filter contrast-125 group-hover:scale-110 transition-all duration-700 ${
                       !isAnyActive
                         ? 'brightness-[0.45] group-hover:brightness-[0.7]'
@@ -480,7 +480,7 @@ export const FullscreenCarStage: React.FC = React.memo(() => {
                       {isExpanded && (
                         <img
                           src={car.imageUrl}
-                          alt={`${car.name} editorial profile with an original Podium EDS-G01 study`}
+                          alt={`${car.name} editorial profile with an original Podium EDS vehicle study`}
                           className="max-h-full max-w-full object-contain filter drop-shadow-[0_30px_45px_rgba(0,0,0,0.95)] hover:scale-102 transition-transform duration-500 ease-out animate-ken-burns"
                           loading="eager"
                           decoding="async"

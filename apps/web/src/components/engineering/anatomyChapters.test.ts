@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ANATOMY_CHAPTERS, getAnatomyChapter } from "./anatomyChapters";
-import { MODEL_B_HOTSPOTS } from "../../dev/commercial-b/modelBExperience";
+import { MODEL_B_HOTSPOTS } from "../showroom/model-b/modelBExperience";
 
 describe("engineering anatomy chapter contract", () => {
   it("covers each verified approximate Model B hotspot exactly once", () => {

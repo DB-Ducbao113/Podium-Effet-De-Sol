@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Gauge, Ruler, Settings2, Weight, Box } from 'lucide-react';
-import { getCarById } from '../../data/cars';
+import { getCarById, resolveTechnicalHighlights } from '../../data/cars';
 import { TEAMS_DATA } from '../../data/teams';
 import { getTeamSeasonProfile } from '../../data/teamSeasons';
 import { useNavigationStore } from '../../store/useNavigationStore';
@@ -30,31 +30,32 @@ export const CarDetailPage: React.FC = () => {
   const team = TEAMS_DATA[car.teamId];
   const seasonProfile = getTeamSeasonProfile(car.teamId, car.season);
   const specs = car.officialSpecs;
+  const resolvedHighlights = resolveTechnicalHighlights(car.technicalHighlights, lang);
   const highlights = [
     [
       lang === 'vi' ? 'Hệ thống treo trước' : 'Front suspension',
-      car.technicalHighlights?.frontSuspension,
+      resolvedHighlights?.frontSuspension,
     ],
     [
       lang === 'vi' ? 'Hệ thống treo sau' : 'Rear suspension',
-      car.technicalHighlights?.rearSuspension,
+      resolvedHighlights?.rearSuspension,
     ],
     [
       lang === 'vi' ? 'Triết lý khí động học' : 'Aerodynamic philosophy',
-      car.technicalHighlights?.aeroPhilosophy,
+      resolvedHighlights?.aeroPhilosophy,
     ],
     [
       lang === 'vi' ? 'Hiệu ứng mặt đất' : 'Ground effect',
-      car.technicalHighlights?.groundEffectNotes,
+      resolvedHighlights?.groundEffectNotes,
     ],
     [
       lang === 'vi' ? 'Kết cấu khung gầm' : 'Chassis construction',
-      car.technicalHighlights?.chassisConstruction,
+      resolvedHighlights?.chassisConstruction,
     ],
   ].filter(([, value]) => Boolean(value));
 
   return (
-    <div className="peds-car-detail peds-editorial-light min-h-[calc(70vh_/_var(--peds-visual-zoom))] bg-studio-100 py-10 sm:py-16">
+    <div className="peds-car-detail min-h-[calc(70vh_/_var(--peds-visual-zoom))] bg-studio-950 py-10 sm:py-16">
       <div className="page-container space-y-8">
         <div className="flex items-center gap-3">
           <button
@@ -65,7 +66,7 @@ export const CarDetailPage: React.FC = () => {
                 navigate(`/teams/${car.teamId}?season=${car.season}`);
               }
             }}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-studio-200 text-xs font-bold uppercase tracking-wider text-studio-700 hover:text-f1red hover:border-f1red transition-all shadow-xs cursor-pointer active:scale-95"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs font-bold uppercase tracking-wider text-studio-200 hover:text-f1red hover:border-f1red transition-all cursor-pointer active:scale-95"
           >
             <ArrowLeft className="h-4 w-4" />
             <span>{lang === 'vi' ? 'Quay lại' : 'Back'}</span>
@@ -73,19 +74,19 @@ export const CarDetailPage: React.FC = () => {
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-studio-400">
             <Link
               to={`/teams/${car.teamId}?season=${car.season}`}
-              className="hover:text-f1red transition-colors text-studio-500"
+              className="hover:text-f1red transition-colors text-studio-300"
             >
               {team.name} ({car.season})
             </Link>
             <span>/</span>
-            <span className="text-studio-900">{car.name}</span>
+            <span className="text-white">{car.name}</span>
           </div>
         </div>
         <header className="relative min-h-[360px] overflow-hidden rounded-3xl bg-studio-950 text-white">
           {car.heroImage && (
             <img
               src={car.heroImage}
-              alt={`${car.name} editorial profile illustrated with the original Podium EDS-G01 concept`}
+              alt={`${car.name} editorial profile illustrated with an original Podium EDS vehicle study`}
               decoding="async"
               className="absolute inset-0 h-full w-full object-cover opacity-55"
               onError={(event) => {
@@ -126,7 +127,7 @@ export const CarDetailPage: React.FC = () => {
               </Link>
               <Link
                 to={`/showroom?team=${car.teamId}`}
-                className="inline-flex items-center gap-2 rounded-lg bg-f1red hover:bg-red-600 px-4 py-2.5 text-xs font-black uppercase tracking-wider text-white shadow-lg hover:shadow-f1red/30 transition-all hover:scale-105"
+                className="inline-flex items-center gap-2 rounded-lg bg-peds-ignition hover:bg-peds-accent-strong px-4 py-2.5 text-xs font-black uppercase tracking-wider text-peds-carbon shadow-lg hover:shadow-f1red/30 transition-all hover:scale-105"
               >
                 <Box className="w-4 h-4" />
                 <span>{lang === 'vi' ? 'Xem trong Showroom 3D' : 'View in 3D Showroom'}</span>
@@ -178,14 +179,14 @@ export const CarDetailPage: React.FC = () => {
               />
             </div>
           ) : (
-            <p className="rounded-2xl border border-dashed border-studio-300 bg-white p-5 text-sm text-studio-600">
+            <p className="rounded-2xl border border-dashed border-white/15 bg-white/5 p-5 text-sm text-studio-300">
               {lang === 'vi'
                 ? 'Thông số kỹ thuật chi tiết chưa được xác minh cho mẫu xe này.'
                 : 'Detailed technical specifications have not been verified for this car.'}
             </p>
           )}
           {specs && (
-            <p className="text-[11px] text-studio-500">
+            <p className="text-[11px] text-studio-400">
               {lang === 'vi'
                 ? 'Thông số được hiển thị theo dữ liệu mẫu của dự án.'
                 : 'Specifications are shown as provided in the project dataset.'}
@@ -194,7 +195,7 @@ export const CarDetailPage: React.FC = () => {
         </section>
 
         <section className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr]">
-          <div className="rounded-2xl bg-studio-950 p-6 text-white sm:p-8">
+          <div className="rounded-2xl border border-white/10 bg-studio-900 p-6 text-white sm:p-8">
             <p className="text-xs font-bold uppercase tracking-widest text-f1red">
               {lang === 'vi' ? 'Đội ngũ phát triển' : 'Engineering'}
             </p>
@@ -231,23 +232,23 @@ export const CarDetailPage: React.FC = () => {
           <div className="space-y-4">
             <div>
               <p className="text-xs font-bold uppercase tracking-widest text-f1red">
-                Engineering notes
+                {lang === 'vi' ? 'Ghi chú kỹ thuật' : 'Engineering notes'}
               </p>
               <h2 className="font-display text-2xl font-black uppercase sm:text-3xl">
                 {lang === 'vi' ? 'Điểm kỹ thuật' : 'Technical highlights'}
               </h2>
             </div>
-            <div className="divide-y divide-studio-200 rounded-2xl border border-studio-200 bg-white px-5 shadow-subtle">
+            <div className="divide-y divide-white/10 rounded-2xl border border-white/10 bg-white/5 px-5">
               {highlights.map(([label, value]) => (
                 <div key={label} className="py-4">
-                  <h3 className="text-xs font-black uppercase tracking-wide text-studio-500">
+                  <h3 className="text-xs font-black uppercase tracking-wide text-studio-300">
                     {label}
                   </h3>
-                  <p className="mt-1 text-sm leading-relaxed text-studio-800">{value}</p>
+                  <p className="mt-1 text-sm leading-relaxed text-studio-100">{value}</p>
                 </div>
               ))}
               {!highlights.length && (
-                <p className="py-4 text-sm text-studio-500">
+                <p className="py-4 text-sm text-studio-400">
                   {lang === 'vi'
                     ? 'Chưa có ghi chú kỹ thuật đã xác minh.'
                     : 'No verified technical notes available.'}
@@ -266,11 +267,11 @@ const Spec: React.FC<{ icon: React.ReactNode; label: string; value: string }> = 
   label,
   value,
 }) => (
-  <div className="rounded-2xl border border-studio-200 bg-white p-5 shadow-subtle">
+  <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
     <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-f1red/10 text-f1red">
       {React.cloneElement(icon as React.ReactElement, { className: 'h-4 w-4' })}
     </span>
     <p className="mt-4 text-[10px] font-black uppercase tracking-widest text-studio-400">{label}</p>
-    <p className="mt-1 text-sm font-bold leading-relaxed text-studio-900">{value}</p>
+    <p className="mt-1 text-sm font-bold leading-relaxed text-white">{value}</p>
   </div>
 );

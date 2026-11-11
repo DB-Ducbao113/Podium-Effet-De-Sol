@@ -27,8 +27,12 @@ export const CARS_2026: CarSpec[] = [
       rearSuspension: 'Integrated carbon push-rod',
       aeroPhilosophy:
         'Quy chuẩn 2026: Cánh gió chủ động Active Aero (X-Mode đường thẳng & Z-Mode vào cua).',
+      aeroPhilosophyEn:
+        '2026 rules: active aerodynamics (Active Aero), with X-Mode on straights and Z-Mode for corners.',
       groundEffectNotes:
         'Sàn xe phẳng hơn theo luật 2026 nhằm giảm tối đa luồng khí nhiễu (dirty air) cho xe bám đuổi.',
+      groundEffectNotesEn:
+        'The flatter 2026 floor is designed to limit dirty air for cars running in a slipstream.',
       chassisConstruction: 'Ultra-rigid carbon honeycomb meeting 2026 FIA impact limits',
     },
     descriptionVi:
@@ -64,8 +68,12 @@ export const CARS_2026: CarSpec[] = [
       rearSuspension: 'Compact pull-rod aero packaging',
       aeroPhilosophy:
         'Hệ thống cánh trước và cánh sau chuyển đổi chủ động Z-Mode / X-Mode điều khiển điện tử.',
+      aeroPhilosophyEn:
+        'Front and rear wings switch electronically between Z-Mode and X-Mode configurations.',
       groundEffectNotes:
         'Thiết kế đáy sàn thu gọn 100mm theo tiêu chuẩn FIA 2026, triệt tiêu vệt khí cuộn sau đuôi xe.',
+      groundEffectNotesEn:
+        'The floor is shortened by 100 mm to FIA 2026 standards, removing the turbulent wake behind the car.',
       chassisConstruction: 'Scuderia Ferrari lightweight modular carbon cell',
     },
     descriptionVi:
@@ -102,8 +110,12 @@ export const CARS_2026: CarSpec[] = [
       rearSuspension: 'Push-rod multi-link',
       aeroPhilosophy:
         'Triết lý khí động học hẹp hơn 100mm, giảm 30% lực cản tổng thể khi kích hoạt chế độ X-Mode.',
+      aeroPhilosophyEn:
+        'A more than 100 mm narrower aerodynamic concept, cutting overall drag by 30% in X-Mode.',
       groundEffectNotes:
         'Bộ khuếch tán gầm sau thu nhỏ theo quy chuẩn mới, gia tăng cơ hội vượt xe cận chiến.',
+      groundEffectNotesEn:
+        'A smaller rear diffuser under the new regulations improves close-quarters overtaking chances.',
       chassisConstruction: 'Molded carbon fiber composite monocoque',
     },
     descriptionVi:
@@ -139,7 +151,11 @@ export const CARS_2026: CarSpec[] = [
       frontSuspension: 'Pull-rod high anti-dive',
       rearSuspension: 'Push-rod aero-profiled',
       aeroPhilosophy: 'Hốc gió khí động học tích hợp tối ưu làm mát động cơ điện công suất lớn.',
+      aeroPhilosophyEn:
+        'An integrated aerodynamic intake tuned for cooling the high-power electric motor.',
       groundEffectNotes: 'Sàn xe thế hệ mới thích ứng tức thời theo trạng thái cánh gió chủ động.',
+      groundEffectNotesEn:
+        'A next-generation floor that responds instantly to the state of the active wings.',
       chassisConstruction: 'Red Bull carbon composite sandwich',
     },
     descriptionVi:
@@ -176,8 +192,12 @@ export const CARS_2026: CarSpec[] = [
       rearSuspension: 'Push-rod inboard dampers',
       aeroPhilosophy:
         'Khí động học thích ứng thông minh (Active Aero) với khả năng triệt tiêu lực cản tối đa trên đường thẳng.',
+      aeroPhilosophyEn:
+        'Adaptive Active Aero able to minimise drag to its full extent on straights.',
       groundEffectNotes:
         'Kiểm soát luồng khí gầm xe đồng bộ hoàn toàn với hệ thống thu hồi năng lượng điện.',
+      groundEffectNotesEn:
+        'Underfloor airflow control is fully synchronised with the electrical energy recovery system.',
       chassisConstruction: 'High-strength carbon composite',
     },
     descriptionVi:
@@ -214,7 +234,11 @@ export const CARS_2026: CarSpec[] = [
       rearSuspension: 'Push-rod',
       aeroPhilosophy:
         'Vorsprung durch Technik: Thiết kế nguyên khối sắc sảo tối ưu hóa cho hệ quy chuẩn 2026.',
+      aeroPhilosophyEn:
+        'Vorsprung durch Technik: a sharp, monocoque-driven design optimised for the 2026 regulations.',
       groundEffectNotes: 'Đường hầm gầm khí động học phát triển tại Neuburg và Hinwil.',
+      groundEffectNotesEn:
+        'The aerodynamic underfloor tunnel was developed at Neuburg and Hinwil.',
       chassisConstruction: 'Audi carbon fibre composite',
     },
     descriptionVi:

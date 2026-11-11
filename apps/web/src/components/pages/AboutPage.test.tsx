@@ -63,6 +63,25 @@ describe('About page display heading', () => {
   });
 });
 
+describe('About page dark surface contract', () => {
+  beforeEach(() => useNavigationStore.setState({ lang: 'en' }));
+
+  it('does not render light feature cards on the dark site', () => {
+    const html = renderAbout('en');
+    expect(html).not.toContain('bg-white border border-studio-200');
+    expect(html).not.toMatch(/class="[^"]*(^|\s)bg-white(\s|")/);
+    expect(html).toContain('bg-white/5 border border-white/10');
+  });
+
+  it('uses vector icons instead of emoji chips', () => {
+    const html = renderAbout('en');
+    expect(html).not.toMatch(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u);
+    expect(html).toContain('lucide-palette');
+    expect(html).toContain('lucide-users');
+    expect(html).toContain('lucide-zap');
+  });
+});
+
 describe('IGNITION palette contract', () => {
   it('keeps the approved canonical values and pairings legible', () => {
     expect(token('peds-color-carbon')).toBe('#0a0c10');

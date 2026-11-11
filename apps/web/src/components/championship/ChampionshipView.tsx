@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { isChampionshipJourneyRoute } from "../../championshipJourneyRoute";
 import { useChampionshipStore } from "../../store/useChampionshipStore";
 import { useNavigationStore } from "../../store/useNavigationStore";
@@ -18,9 +18,12 @@ import {
 import { SectionHeading } from "../ui/SectionHeading";
 import { Tooltip } from "../ui/Tooltip";
 import { Button } from "../ui/Button";
+import { Tabs } from "../ui/Tabs";
 import { AdSlot } from "../ui/AdSlot";
 import "./championshipF4.css";
 import "./championshipC1.css";
+
+type ChampionshipTab = "standings" | "calendar" | "results" | "teams" | "drivers";
 
 interface ChampionshipViewProps {
   season: SeasonYear;
@@ -35,10 +38,12 @@ export const ChampionshipView: React.FC<ChampionshipViewProps> = ({
 }) => {
   const { lang } = useNavigationStore();
   const location = useLocation();
+  const navigate = useNavigate();
   const {
     setSelectedSeason,
     activeSubTab,
     standingsCategory,
+    setStandingsCategory,
     syncMeta,
     syncSeasonData,
   } = useChampionshipStore();
@@ -74,10 +79,28 @@ export const ChampionshipView: React.FC<ChampionshipViewProps> = ({
           ? "teams-directory"
           : activeSubTab;
   const adReview =
-    new URLSearchParams(window.location.search).get("design-review") === "ads";
+    new URLSearchParams(location.search).get("design-review") === "ads";
   const immersiveJourney =
-    (activeSubTab === "results" || activeSubTab === "calendar") &&
+    activeSubTab === "calendar" &&
     isChampionshipJourneyRoute(location.pathname, location.search);
+
+  // Mirrors the global navbar order: the Results group first, then Standings.
+  const sectionTabs: { value: ChampionshipTab; label: string }[] = [
+    { value: "results", label: strings.tabResults },
+    { value: "calendar", label: strings.tabCalendar },
+    { value: "standings", label: strings.tabStandings },
+    { value: "teams", label: strings.tabTeams },
+    { value: "drivers", label: strings.tabDrivers },
+  ];
+  const goToTab = (tab: ChampionshipTab) => {
+    const params = new URLSearchParams({ tab });
+    if (tab === "standings") params.set("category", standingsCategory);
+    navigate(`/season/${season}?${params.toString()}`);
+  };
+  const goToCategory = (category: "drivers" | "constructors") => {
+    setStandingsCategory(category);
+    navigate(`/season/${season}?tab=standings&category=${category}`);
+  };
 
   const SEASONS: SeasonYear[] = [2026, 2025, 2024];
   useEffect(() => {
@@ -126,8 +149,28 @@ export const ChampionshipView: React.FC<ChampionshipViewProps> = ({
           />
         </div>
 
-        {!immersiveJourney && <div className="f4-controls" aria-label={lang === "vi" ? "Điều khiển mùa giải" : "Season controls"}>
+        {!immersiveJourney && <div className="f4-controls" aria-label={lang === "vi" ? "Điều khiển giải đấu" : "Championship controls"}>
+          <div className="f4-tabs-row">
+            <Tabs
+              items={sectionTabs}
+              value={activeSubTab}
+              onValueChange={goToTab}
+              ariaLabel={lang === "vi" ? "Các mục giải đấu" : "Championship sections"}
+              idBase="championship-section"
+              scrollCueLabel={lang === "vi" ? "Cuộn để xem thêm mục" : "Scroll for more sections"}
+            />
+          </div>
           <div className="f4-season-row">
+            {activeSubTab === "standings" && (
+              <div className="f4-category-toggle" role="group" aria-label={lang === "vi" ? "Loại bảng xếp hạng" : "Standings category"}>
+                <button type="button" aria-pressed={standingsCategory === "drivers"} onClick={() => goToCategory("drivers")}>
+                  {lang === "vi" ? "Tay đua" : "Drivers"}
+                </button>
+                <button type="button" aria-pressed={standingsCategory === "constructors"} onClick={() => goToCategory("constructors")}>
+                  {lang === "vi" ? "Đội đua" : "Constructors"}
+                </button>
+              </div>
+            )}
             <span className="f4-season-label">{lang === 'vi' ? 'Mùa giải' : 'Season'}</span>
             <div className="f4-season-switcher" role="group" aria-label={lang === 'vi' ? 'Chọn mùa giải' : 'Choose season'}>
               {SEASONS.map((seasonOption) => (

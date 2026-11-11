@@ -78,14 +78,11 @@ describe("commercial visual isolation", () => {
       "utf8",
     );
 
-    expect(viteSource).toMatch(/apply:\s*["']serve["']/);
-    expect(viteSource).toContain("PEDS_MODEL_B_PATH");
-    expect(viteSource).toContain(
-      "../../source-assets/models/model-b/model-b-eds-optimized-v1.glb",
-    );
-    expect(viteSource).toContain(
-      "2D0091661DACE5D6C61AEBF898B4974644B44E43A5E8D10F602685C1631610A2",
-    );
+    expect(viteSource).not.toContain("/__peds-review/");
+    expect(viteSource).not.toContain("/__itm-i2");
+    expect(viteSource).not.toContain("/__p5-historical-standings");
+    expect(viteSource).not.toContain("/__peds-home-explore");
+    expect(viteSource).not.toContain(".local-assets");
     expect(showroomSource).toContain("import.meta.env.DEV");
     expect(showroomSource).toContain("import('./ModelBShowroom')");
     expect(showroomSource).toContain("<ModelBShowroom headingLevel={headingLevel} />");

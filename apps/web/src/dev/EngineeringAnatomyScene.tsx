@@ -8,12 +8,12 @@ import {
 } from "../components/showroom/CameraController";
 import { ANATOMY_CHAPTERS } from "../components/engineering/anatomyChapters";
 import { useReducedMotion } from "../hooks/useReducedMotion";
-import type { QualityProfile } from "./commercial-b/adaptiveController";
-import { FrameMetricsCollector } from "./commercial-b/frameMetrics";
-import { QUALITY_PROFILES } from "./commercial-b/qualityProfiles";
-import { applyModelBLivery } from "./commercial-b/modelBMaterials";
-import { MODEL_B_LIVERIES } from "./commercial-b/modelBExperience";
-import { disposeModelB, loadModelB } from "./commercial-b/modelBLoader";
+import type { QualityProfile } from "../components/showroom/model-b/adaptiveController";
+import { FrameMetricsCollector } from "../components/showroom/model-b/frameMetrics";
+import { QUALITY_PROFILES } from "../components/showroom/model-b/qualityProfiles";
+import { applyModelBLivery } from "../components/showroom/model-b/modelBMaterials";
+import { MODEL_B_LIVERIES } from "../components/showroom/model-b/modelBExperience";
+import { disposeModelB, loadModelB } from "../components/showroom/model-b/modelBLoader";
 
 export interface AnatomySceneMetrics {
   medianFps: number;
@@ -194,7 +194,7 @@ export default function EngineeringAnatomyScene({
   const selected = ANATOMY_CHAPTERS.find((chapter) => chapter.id === chapterId);
   const dpr = Math.min(
     (typeof window === "undefined" ? 1 : window.devicePixelRatio) *
-      QUALITY_PROFILES[profile].renderScale,
+    QUALITY_PROFILES[profile].renderScale,
     2,
   );
   return (

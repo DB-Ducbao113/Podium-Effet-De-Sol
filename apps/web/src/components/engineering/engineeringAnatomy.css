@@ -31,7 +31,7 @@
   max-width: 12ch;
   font-family: var(--peds-font-body);
   font-size: clamp(3.5rem, 7.2vw / var(--peds-visual-zoom), 7.5rem);
-  font-weight: 900;
+  font-weight: 800;
   line-height: 0.9;
   letter-spacing: -0.06em;
   text-wrap: balance;
@@ -65,7 +65,7 @@
   transform: translateY(-2px);
 }
 .anatomy-hero__count { border-left: 1px solid #414957; padding: 2rem; }
-.anatomy-hero__count strong { display: block; font-family: var(--peds-font-body); font-size: clamp(5rem, 8vw / var(--peds-visual-zoom), 8rem); font-weight: 900; line-height: .9; letter-spacing: -.06em; }
+.anatomy-hero__count strong { display: block; font-family: var(--peds-font-body); font-size: clamp(5rem, 8vw / var(--peds-visual-zoom), 8rem); font-weight: 800; line-height: .9; letter-spacing: -.06em; }
 .anatomy-hero__count strong span { color: var(--anatomy-accent); }
 .anatomy-hero__count > span { display: block; margin-top: 1rem; color: #c5cdd4; font-size: .75rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
 .anatomy-hero .anatomy-hero__count p { max-width: 35ch; margin-top: 1.5rem; color: #b4bac4; font-size: .9rem; line-height: 1.7; }

@@ -69,7 +69,7 @@ const indexContent = `<main><h1>Engineering Insights</h1>${articles.map((article
 const indexHtml = replaceMeta(shell, {
   title: 'Engineering Insights | Podium EDS',
   description:
-    'Chuyên đề kỹ thuật xe đua song ngữ về khí động học, hybrid và động lực học xe qua nguyên mẫu EDS-G01.',
+    'Chuyên đề kỹ thuật xe đua song ngữ về khí động học, hybrid và động lực học xe qua sơ đồ khái niệm.',
   route: '/engineering',
   image: articles[0].socialImage,
   imageAlt: 'Podium EDS Engineering Insights',

@@ -5,12 +5,12 @@ export type ButtonSize = 'sm' | 'md' | 'lg' | 'icon';
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    'border-transparent bg-peds-ignition text-peds-carbon shadow-peds-ignition hover:bg-peds-burnt-orange',
+    'border-transparent bg-peds-ignition text-peds-carbon shadow-peds-ignition hover:bg-peds-accent-strong',
   secondary:
     'border-peds-line bg-peds-surface-raised text-peds-text shadow-peds-panel hover:border-peds-line-strong hover:bg-peds-surface-overlay',
   ghost:
     'border-transparent bg-transparent text-peds-text-muted hover:bg-white/7 hover:text-peds-text',
-  danger: 'border-peds-racing-red bg-peds-racing-red text-white hover:brightness-90',
+  danger: 'border-peds-error bg-peds-error text-white hover:brightness-90',
 };
 
 const sizeClasses: Record<ButtonSize, string> = {

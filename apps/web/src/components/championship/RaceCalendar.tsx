@@ -169,7 +169,7 @@ export const RaceCalendar: React.FC<RaceCalendarProps> = React.memo(({ season })
         {nextRace ? (
           <button
             onClick={handleJumpToNextRace}
-            className="inline-flex min-h-11 items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-f1red/10 hover:bg-f1red text-f1red hover:text-white border border-f1red/20 hover:border-f1red text-xs font-bold transition-all shadow-2xs group cursor-pointer shrink-0"
+            className="inline-flex min-h-11 items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-f1red/10 hover:bg-peds-ignition text-f1red hover:text-peds-carbon border border-f1red/20 hover:border-f1red text-xs font-bold transition-all shadow-2xs group cursor-pointer shrink-0"
             title={
               isVi
                 ? `Chuyển tới chặng kế tiếp: Vòng ${nextRace.round} (${nextRace.name})`
@@ -251,7 +251,7 @@ export const RaceCalendar: React.FC<RaceCalendarProps> = React.memo(({ season })
                   <div
                     className={`w-10 h-10 rounded-lg flex flex-col items-center justify-center shrink-0 font-bold ${
                       isCurrent || (isNext && hasPracticeData)
-                        ? 'bg-f1red text-white'
+                        ? 'bg-peds-ignition text-peds-carbon'
                         : isCompleted
                           ? 'bg-studio-100 text-studio-600'
                           : 'bg-studio-900 text-white'

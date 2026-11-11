@@ -8,7 +8,9 @@
 .f4-championship .championship-page-title { font-family: var(--peds-font-display); }
 .f4-championship .f4-controls {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-start;
+  gap: 0.4rem 0.75rem;
   min-width: 0;
   position: sticky;
   top: 66px;
@@ -18,6 +20,30 @@
   background: rgba(5, 8, 13, 0.84);
   backdrop-filter: blur(12px);
 }
+.f4-tabs-row {
+  display: flex;
+  flex: 1 1 100%;
+  min-width: 0;
+}
+.f4-category-toggle {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.15rem;
+  min-width: 0;
+}
+.f4-category-toggle button {
+  min-height: 44px;
+  padding: 0.5rem 0.85rem;
+  border-bottom: 2px solid transparent;
+  color: #b6c0cc;
+  background: transparent;
+  font: 700 0.8rem/1 var(--peds-font-ui);
+  transition: color 150ms ease, border-color 150ms ease;
+}
+.f4-category-toggle button:hover { color: #f4f0e8; }
+.f4-category-toggle button[aria-pressed="true"] { color: #f4f0e8; border-color: #ff4a18; }
+.f4-category-toggle button:focus-visible { outline: 2px solid #ff4a18; outline-offset: -2px; }
 @media (max-width: 560px) {
   .f4-championship .f4-controls {
     top: 60px;

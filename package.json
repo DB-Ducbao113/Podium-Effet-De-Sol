@@ -12,6 +12,7 @@
   ],
   "scripts": {
     "dev": "npm run dev --workspace=@peds/web",
+    "preview:r5": "node tools/qa/preview-r5.mjs",
     "cloudflare:dev": "npm run dev --workspace=@peds/web",
     "cloudflare:local": "npm run build && wrangler dev --local",
     "cloudflare:dry-run": "wrangler deploy --dry-run --env=\"\" --outdir .wrangler/dry-run",
@@ -23,8 +24,8 @@
     "build": "npm run build --workspace=@peds/web",
     "sync:2026": "npm run sync:2026 --workspace=@peds/jobs --",
     "sync:sessions": "npm run sync:sessions --workspace=@peds/jobs --",
-    "security:secrets": "node tools/scan-secrets.mjs",
-    "security:assets": "node tools/check-public-boundary.mjs",
+    "security:secrets": "node tools/ci/scan-secrets.mjs",
+    "security:assets": "node tools/ci/check-public-boundary.mjs",
     "security:audit": "npm audit --audit-level=high",
     "verify": "npm run lint && npm run typecheck && npm run test && npm run security:secrets && npm run security:assets && npm run build && npm run cloudflare:dry-run"
   },

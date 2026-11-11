@@ -1,0 +1,46 @@
+{
+  "title": "Showroom opening film — production",
+  "description": "Owner-provided showroom intro poster and tunnel film encoded for the production public tree.",
+  "release": "production",
+  "releasedAt": "2026-11-10",
+  "approval": "Owner approved release of the local review artwork for the production build.",
+  "totalFiles": 3,
+  "totalBytes": 2639454,
+  "files": [
+    {
+      "group": "showroom-intro",
+      "publicPath": "/media/showroom/intro-poster.webp",
+      "publicFile": "apps/web/public/media/showroom/intro-poster.webp",
+      "sourceFile": ".local-assets/showroom-intro-v3/intro-poster.webp",
+      "bytes": 67618,
+      "sha256": "cd97e18974f63490899ab2136d3e83ccea20797fae9fdba1a61df36106b7cd68",
+      "type": "image/webp",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "group": "showroom-intro",
+      "publicPath": "/media/showroom/intro-tunnel-720.webm",
+      "publicFile": "apps/web/public/media/showroom/intro-tunnel-720.webm",
+      "sourceFile": ".local-assets/showroom-intro-v3/intro-tunnel-720.webm",
+      "bytes": 1546796,
+      "sha256": "9a8632759a621a9929add94d77adce0135e57476e371025504f93daa275942e6",
+      "type": "video/webm",
+      "width": 1280,
+      "height": 720,
+      "durationSeconds": 8.625
+    },
+    {
+      "group": "showroom-intro",
+      "publicPath": "/media/showroom/intro-tunnel-540.mp4",
+      "publicFile": "apps/web/public/media/showroom/intro-tunnel-540.mp4",
+      "sourceFile": ".local-assets/showroom-intro-v3/intro-tunnel-540.mp4",
+      "bytes": 1025040,
+      "sha256": "54f5f601471aa2749c98d6af5cea9b14adf44728a99c4ca09c70854532f7b98c",
+      "type": "video/mp4",
+      "width": 960,
+      "height": 540,
+      "durationSeconds": 8.667
+    }
+  ]
+}

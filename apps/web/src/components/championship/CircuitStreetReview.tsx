@@ -99,7 +99,7 @@ export const CircuitStreetReview: React.FC<CircuitStreetReviewProps> = ({
                 onClick={() => setActiveIndex(idx)}
                 className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
                   isActive
-                    ? 'bg-f1red text-white shadow-xs'
+                    ? 'bg-peds-ignition text-peds-carbon shadow-xs'
                     : 'bg-studio-950 text-studio-400 hover:text-white hover:bg-studio-850 border border-studio-800'
                 }`}
               >
@@ -147,7 +147,7 @@ export const CircuitStreetReview: React.FC<CircuitStreetReviewProps> = ({
                 href={streetViewUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-2.5 py-1 rounded-lg bg-black/80 hover:bg-f1red backdrop-blur-md border border-white/20 hover:border-f1red text-white font-mono text-[11px] font-bold flex items-center gap-1 transition-all shadow-md"
+                className="px-2.5 py-1 rounded-lg bg-black/80 hover:bg-peds-ignition backdrop-blur-md border border-white/20 hover:border-f1red text-white hover:text-peds-carbon font-mono text-[11px] font-bold flex items-center gap-1 transition-all shadow-md"
                 title={isVi ? 'Mở Google Street View 360°' : 'Open Google Street View 360°'}
               >
                 <span>Street View</span>
@@ -295,7 +295,7 @@ export const CircuitStreetReview: React.FC<CircuitStreetReviewProps> = ({
               <button
                 type="button"
                 onClick={() => setIsPhotoExpanded(false)}
-                className="absolute top-3 right-3 p-2 rounded-xl bg-black/80 hover:bg-f1red text-white backdrop-blur-md transition-all cursor-pointer"
+                className="absolute top-3 right-3 p-2 rounded-xl bg-black/80 hover:bg-peds-ignition text-white hover:text-peds-carbon backdrop-blur-md transition-all cursor-pointer"
                 title={isVi ? 'Đóng' : 'Close'}
               >
                 <X className="w-4 h-4" />
@@ -315,7 +315,7 @@ export const CircuitStreetReview: React.FC<CircuitStreetReviewProps> = ({
                 href={streetViewUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-3 py-1.5 rounded-lg bg-f1red text-white text-xs font-mono font-bold flex items-center gap-1.5"
+                className="px-3 py-1.5 rounded-lg bg-peds-ignition text-peds-carbon text-xs font-mono font-bold flex items-center gap-1.5"
               >
                 <span>Street View 360°</span>
                 <ExternalLink className="w-3.5 h-3.5" />

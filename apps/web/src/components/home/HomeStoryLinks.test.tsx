@@ -25,7 +25,7 @@ const render = () => renderToStaticMarkup(
 describe('Homepage Explore cinematic gateways', () => {
   it('links the four main destinations and keeps deep results/standings in their own section', () => {
     const html = render();
-    for (const target of ['/showroom', '/engineering', '/drivers', '/teams']) {
+    for (const target of ['/showroom', '/engineering/car-anatomy', '/drivers', '/teams']) {
       expect(html).toContain(`href="${target}"`);
     }
     expect((html.match(/eds-explore__card--/g) ?? []).length).toBe(4);
@@ -33,22 +33,19 @@ describe('Homepage Explore cinematic gateways', () => {
     expect(html).not.toContain('href="/season/2026?tab=standings"');
   });
 
-  it('uses only local DEV review assets when available', () => {
-    const html = render();
-    for (const id of ['showroom', 'engineering', 'drivers', 'teams']) {
-      expect(html).toContain(`src="/__peds-home-explore/${id}.webp"`);
-    }
-  });
-
-  it('retains safe public fallback assets and car-anatomy route in production', () => {
+  it('uses the restored Explore artwork cleanly below-card labels without text overlapping images', () => {
+    const devHtml = render();
+    expect(devHtml).not.toContain('/__peds-home-explore/');
     vi.stubEnv('DEV', false);
-    const html = render();
-    expect(html).toContain('href="/engineering/car-anatomy"');
-    expect(html).not.toContain('src="/__peds-home-explore/');
-    expect(html).toContain('rc-hero-1344.webp');
-    expect(html).toContain('engineering-flow.svg');
-    expect(html).toContain('driver-helmet.svg');
-    expect(html).toContain('team-garage.svg');
+    const prodHtml = render();
+    expect(prodHtml).toContain('href="/engineering/car-anatomy"');
+    expect(prodHtml).not.toContain('src="/__peds-home-explore/');
+    expect(prodHtml).toContain('/images/championship/template/rc-hero-1344.webp');
+    expect(prodHtml).toContain('/images/home/explore/engineering.webp');
+    expect(prodHtml).toContain('/images/home/explore/drivers.webp');
+    expect(prodHtml).toContain('/images/home/explore/teams.webp');
+    // Text footer bar renders outside the artwork media wrapper
+    expect(prodHtml).toContain('</span><span class="eds-explore__bottom">');
   });
 
   it('keeps bilingual card labels short and all four decorative images accessible', () => {

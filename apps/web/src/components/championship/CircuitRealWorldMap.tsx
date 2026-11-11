@@ -186,7 +186,7 @@ export const CircuitRealWorldMap: React.FC<CircuitRealWorldMapProps> = ({
             <button
               type="button"
               onClick={() => setLayer('technical')}
-              className={`px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold flex items-center gap-1.5 transition-all cursor-pointer ${layer === 'technical' ? 'bg-f1red text-white' : 'text-studio-400 hover:text-white hover:bg-studio-800/60'}`}
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold flex items-center gap-1.5 transition-all cursor-pointer ${layer === 'technical' ? 'bg-peds-ignition text-peds-carbon' : 'text-studio-400 hover:text-white hover:bg-studio-800/60'}`}
             >
               <Layers className="w-3 h-3" />
               <span>{isVi ? 'Kỹ Thuật' : 'Technical'}</span>

@@ -119,7 +119,7 @@ export function JourneyWorldMap({
         </svg>
       </div>
       <div className="rcj-map-key" aria-hidden="true" style={{ opacity: markerOpacity }}>
-        <span><i /> {lang === 'vi' ? 'Chặng đang xem' : 'Current round'}</span>
+        <span><span className="rcj-map-key-dot" /> {lang === 'vi' ? 'Chặng đang xem' : 'Current round'}</span>
         <span>{points.length} {lang === 'vi' ? 'điểm đua' : 'locations'}</span>
       </div>
       {selected && markersInteractive && <aside className="rcj-map-selection" role="region"

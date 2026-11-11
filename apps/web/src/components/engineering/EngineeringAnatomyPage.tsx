@@ -18,11 +18,11 @@ import {
   AdaptiveQualityController,
   type GraphicsMode,
   type QualityProfile,
-} from "../../dev/commercial-b/adaptiveController";
+} from "../showroom/model-b/adaptiveController";
 import {
   persistGraphicsMode,
   readGraphicsMode,
-} from "../../dev/commercial-b/graphicsPreference";
+} from "../showroom/model-b/graphicsPreference";
 import {
   ANATOMY_CHAPTERS,
   getAnatomyChapter,
@@ -132,15 +132,15 @@ function StaticStage({
         src="/images/eds/engineering/ground-effect-flow.svg"
         alt={
           lang === "vi"
-            ? "Sơ đồ khái niệm luồng khí dưới sàn của EDS-G01, không phải hình học Model B"
-            : "EDS-G01 conceptual underfloor airflow diagram, not Model B geometry"
+            ? "Sơ đồ khái niệm luồng khí dưới sàn, không phải hình học Model B"
+            : "Conceptual underfloor airflow diagram, not Model B geometry"
         }
       />
       <p role="status">{message}</p>
       <small>
         {lang === "vi"
-          ? "Sơ đồ EDS-G01 · không phải Model B"
-          : "EDS-G01 diagram · not Model B"}
+          ? "Sơ đồ khái niệm · không phải Model B"
+          : "Conceptual diagram · not Model B"}
       </small>
     </div>
   );
@@ -624,8 +624,8 @@ export default function EngineeringAnatomyPage() {
                   {canShowScene && loadState !== "error" && !contextLost
                     ? "Model B"
                     : lang === "vi"
-                      ? "Sơ đồ EDS-G01"
-                      : "EDS-G01 diagram"}{" "}
+                      ? "Sơ đồ khái niệm"
+                      : "Conceptual diagram"}{" "}
                   ·{" "}
                   {focusedId
                     ? chapter.name[lang]

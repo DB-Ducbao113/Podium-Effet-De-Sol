@@ -68,8 +68,10 @@ describe("MiniRaceLeaderboard", () => {
         />
       </MemoryRouter>,
     );
-    expect(html).toContain("/__peds-mini-race/gifs/red-bull-2026-side.gif");
-    expect(html).toContain("/__peds-mini-race/posters/red-bull-2026-side.webp");
+    expect(html).toContain("/images/mini-race/gifs/red-bull-2026-side.gif");
+    expect(html).toContain(
+      "/images/mini-race/posters/red-bull-2026-side.webp",
+    );
     expect(html).toContain("prefers-reduced-motion: reduce");
     expect(html).not.toContain("Mini car asset reserved");
   });
@@ -85,8 +87,10 @@ describe("MiniRaceLeaderboard", () => {
         />
       </MemoryRouter>,
     );
-    expect(html).toContain("/__peds-mini-race/2025/mclaren-2025.gif");
-    expect(html).toContain("/__peds-mini-race/posters/2025/mclaren-2025.webp");
+    expect(html).toContain("/images/mini-race/2025/mclaren-2025.gif");
+    expect(html).toContain(
+      "/images/mini-race/posters/2025/mclaren-2025.webp",
+    );
     expect(html).toContain(
       "Championship points, not GP positions. 2025 cars are illustrations; numbers and logos may differ.",
     );

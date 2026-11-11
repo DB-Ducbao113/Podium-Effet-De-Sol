@@ -202,7 +202,7 @@ export function RaceCalendarJourney({ season }: { season: SeasonYear }) {
               </nav>
             </div>
           </header>
-          {tab === 'results' && <div className="rcj-season-controls" role="group" aria-label={vi ? 'Chọn mùa giải' : 'Choose season'}>
+          {tab === 'calendar' && <div className="rcj-season-controls" role="group" aria-label={vi ? 'Chọn mùa giải' : 'Choose season'}>
             <span>{vi ? 'Mùa giải' : 'Season'}</span>
             {[2026, 2025, 2024].map((year) =>
               <Link key={year} to={`/season/${year}?tab=${tab}`} aria-current={season === year ? 'page' : undefined}>{year}</Link>)}

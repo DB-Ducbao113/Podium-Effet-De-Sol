@@ -2,7 +2,7 @@
 .home-engineering { position: relative; z-index: 2; padding-block: clamp(40px, 6vw / var(--peds-visual-zoom), 84px); }
 .home-engineering__header { max-width: 740px; }
 .home-engineering__eyebrow { color: #ff875a; font: 700 10px/1.4 var(--peds-font-mono); letter-spacing: .17em; }
-.home-engineering__header h2 { margin: 12px 0 0; color: #f6f0e9; font: italic 900 clamp(2.5rem, 5vw / var(--peds-visual-zoom), 5.4rem)/.93 var(--peds-font-display); }
+.home-engineering__header h2 { margin: 12px 0 0; color: #f6f0e9; font: 800 clamp(2.5rem, 5vw / var(--peds-visual-zoom), 5.4rem)/.93 var(--peds-font-display); }
 .home-engineering__header h2 em { color: #ff6935; font-style: inherit; }
 .home-engineering__header p { max-width: 55ch; margin: 18px 0 0; color: #bfced9; font-size: clamp(.9rem, 1vw / var(--peds-visual-zoom), 1.05rem); line-height: 1.68; }
 .home-engineering__stage {
@@ -49,7 +49,7 @@
 .home-engineering__inspector-info a:focus-visible { outline:3px solid #f7cb87;outline-offset:3px; }
 .home-engineering__inspector-info { margin-top:auto; padding-top:23px; }
 .home-engineering__inspector-info > span { color:#7cbdd6; font:600 9px/1.4 var(--peds-font-mono); letter-spacing:.13em; }
-.home-engineering__inspector-info h3 { color:#fff; margin:9px 0 0; font:italic 800 1.9rem/1 var(--peds-font-display); }
+.home-engineering__inspector-info h3 { color:#fff; margin:9px 0 0; font:800 1.9rem/1 var(--peds-font-display); }
 .home-engineering__inspector-info p { color:#b7c9d6;line-height:1.7;font-size:13px;min-height:60px;margin:12px 0 0; }
 .home-engineering__inspector-info a { display:inline-flex;align-items:center;gap:9px;min-height:44px;color:#ffab80;font:700 11px/1.3 var(--peds-font-ui);text-decoration:none;margin-top:9px; }
 .home-engineering__inspector-info a:hover { color:white; }

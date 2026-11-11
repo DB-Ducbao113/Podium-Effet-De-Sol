@@ -14,6 +14,7 @@ import './homeHeroV7.css';
 
 export function PodiumBrandHero() {
   const lang = useNavigationStore((state) => state.lang);
+  const isVi = lang === 'vi';
   const navigate = useNavigate();
   const reducedMotion = useReducedMotion();
   const nextRace = useNextRace();
@@ -94,16 +95,16 @@ export function PodiumBrandHero() {
         <div className="r1-cinema__copy">
           <p className="r1-cinema__eyebrow" data-launch-reveal>
             <span aria-hidden="true" className="r1-cinema__slashes">///</span>
-            THE F1 EXPERIENCE
+            {isVi ? 'TRẢI NGHIỆM F1' : 'THE F1 EXPERIENCE'}
           </p>
           <h1 id="podium-hero-title" className="r1-cinema__title" data-launch-reveal>
-            <span>RACE</span>
-            <span>BEYOND</span>
-            <span className="r1-cinema__title-accent">LIMITS.</span>
+            <span>{isVi ? 'Đua' : 'Race'}</span>{' '}
+            <span>{isVi ? 'vượt' : 'beyond'}</span>{' '}
+            <span className="r1-cinema__title-accent">{isVi ? 'Giới hạn.' : 'Limits.'}</span>
           </h1>
           <div className="r1-cinema__actions" data-launch-reveal>
             <button type="button" className="r1-cinema__primary" onClick={() => navigate('/season/2026?tab=results')}>
-              {lang === 'vi' ? 'Mùa giải 2026' : 'Explore season'} <ArrowRight size={18} aria-hidden="true" />
+              {isVi ? 'Mùa giải 2026' : 'Explore season'} <ArrowRight size={18} aria-hidden="true" />
             </button>
             <button type="button" className="r1-cinema__secondary" onClick={() => navigate('/showroom')}>
               <Move3d size={18} aria-hidden="true" /> Showroom 3D
@@ -120,7 +121,7 @@ export function PodiumBrandHero() {
         <HomeCommandStrip race={nextRace} />
       </div>
       <button type="button" className="r1-cinema__scroll" onClick={() => goTo('race-control')}>
-        <span>{lang === 'vi' ? 'Khám phá' : 'Scroll to explore'}</span><ArrowDown size={16} aria-hidden="true" />
+        <span>{isVi ? 'Khám phá' : 'Scroll to explore'}</span><ArrowDown size={16} aria-hidden="true" />
       </button>
       <div className="r1-cinema__energy-rail" aria-hidden="true" />
     </section>

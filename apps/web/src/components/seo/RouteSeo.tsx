@@ -125,12 +125,11 @@ const routeCopy = (pathname: string, lang: 'vi' | 'en', modelBReview = false) =>
 };
 
 export const RouteSeo = () => {
-  const { pathname, search } = useLocation();
+  const { pathname } = useLocation();
   const routePath = normalizeRoutePath(pathname);
   const lang = useNavigationStore((state) => state.lang);
   useEffect(() => {
-    const requestedModel = new URLSearchParams(search).get('model');
-    const modelBReview = import.meta.env.DEV && routePath === '/showroom' && requestedModel !== 'eds-g01' && requestedModel !== 'eds-g02';
+    const modelBReview = import.meta.env.DEV && routePath === '/showroom';
     const copy = routeCopy(routePath, lang, modelBReview);
     const canonicalUrl = CONFIGURED_SITE_URL ? `${CONFIGURED_SITE_URL}${routePath}` : null;
     const imageUrl = CONFIGURED_SITE_URL
@@ -213,6 +212,6 @@ export const RouteSeo = () => {
       script.text = JSON.stringify(schema);
       document.head.appendChild(script);
     }
-  }, [lang, routePath, search]);
+  }, [lang, routePath]);
   return null;
 };

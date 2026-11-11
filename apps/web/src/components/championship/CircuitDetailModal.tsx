@@ -8,7 +8,7 @@ import { CircuitRealWorldMap } from './CircuitRealWorldMap';
 import { circuitVisual2026For } from '../../utils/circuitVisualAssets2026';
 import { CircuitPhoto } from './CircuitPhoto';
 import { SeasonalCircuitPhoto } from './SeasonalCircuitPhoto';
-import { P5_SEASONAL_REVIEW_ENABLED, resolveCircuitVisual } from '../../utils/p5SeasonalVisuals';
+import { SEASONAL_ART_ENABLED, resolveCircuitVisual } from '../../utils/seasonalVisuals';
 import type { SeasonYear } from '../../types';
 
 interface CircuitDetailModalProps {
@@ -22,7 +22,7 @@ export const CircuitDetailModal: React.FC<CircuitDetailModalProps> = ({ circuit,
   const { lang } = useNavigationStore();
   const isVi = lang === 'vi';
   const visual = circuitVisual2026For(season ?? 0, circuit.id);
-  const preview = P5_SEASONAL_REVIEW_ENABLED && season && eventRound
+  const preview = SEASONAL_ART_ENABLED && season && eventRound
     ? resolveCircuitVisual(season as SeasonYear, eventRound)
     : undefined;
 
@@ -63,7 +63,7 @@ export const CircuitDetailModal: React.FC<CircuitDetailModalProps> = ({ circuit,
             </span>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider px-2 py-0.5 rounded bg-f1red text-white">
+                <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider px-2 py-0.5 rounded bg-peds-ignition text-peds-carbon">
                   {isVi ? `Vòng ${eventRound ?? circuit.round}` : `Round ${eventRound ?? circuit.round}`}
                 </span>
                 <span className="text-xs text-studio-400 font-medium">
@@ -91,10 +91,10 @@ export const CircuitDetailModal: React.FC<CircuitDetailModalProps> = ({ circuit,
         {(preview || visual) && (
           <figure className="relative mx-4 mt-4 sm:mx-5 lg:mx-6 h-40 sm:h-56 overflow-hidden rounded-xl bg-studio-900">
             {preview && season && eventRound
-              ? <SeasonalCircuitPhoto season={season as SeasonYear} round={eventRound} className="block h-full w-full object-cover" fallback="/images/p4/template/cal-hero-1344.webp" sizes="(max-width: 768px) 100vw, 960px" />
-              : <CircuitPhoto visual={visual} className="block h-full w-full object-cover" fallback="/images/p4/template/cal-hero-1344.webp" sizes="(max-width: 768px) 100vw, 960px" />}
+              ? <SeasonalCircuitPhoto season={season as SeasonYear} round={eventRound} className="block h-full w-full object-cover" fallback="/images/championship/template/cal-hero-1344.webp" sizes="(max-width: 768px) 100vw, 960px" />
+              : <CircuitPhoto visual={visual} className="block h-full w-full object-cover" fallback="/images/championship/template/cal-hero-1344.webp" sizes="(max-width: 768px) 100vw, 960px" />}
             <figcaption className="absolute bottom-0 inset-x-0 px-4 py-2 text-xs text-white bg-gradient-to-t from-black/90 to-transparent">
-              {preview ? (isVi ? 'Ảnh minh họa AI · xem trước local' : 'AI illustration · local preview') : visual && <>{isVi ? 'Ảnh đường đua' : 'Circuit photo'} · <a className="underline" href={visual.sourcePage} target="_blank" rel="noreferrer">{visual.credit}</a> · <a className="underline" href={visual.licenseUrl} target="_blank" rel="noreferrer">{visual.license}</a> · {isVi ? 'đã cắt' : 'cropped'}</>}
+              {preview ? (isVi ? 'Ảnh minh họa AI' : 'AI illustration') : visual && <>{isVi ? 'Ảnh đường đua' : 'Circuit photo'} · <a className="underline" href={visual.sourcePage} target="_blank" rel="noreferrer">{visual.credit}</a> · <a className="underline" href={visual.licenseUrl} target="_blank" rel="noreferrer">{visual.license}</a> · {isVi ? 'đã cắt' : 'cropped'}</>}
             </figcaption>
           </figure>
         )}

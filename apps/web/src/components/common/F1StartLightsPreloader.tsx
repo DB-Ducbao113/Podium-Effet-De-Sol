@@ -176,8 +176,10 @@ export const F1StartLightsPreloader: React.FC<F1StartLightsPreloaderProps> = ({
                     : 'STAND BY FOR START'}
               </p>
               <div className="podium-intro__count" aria-hidden="true">
-                <span>{String(litColumns).padStart(2, '0')}</span>
-                <i />
+                <span className="podium-intro__count-value">
+                  {String(litColumns).padStart(2, '0')}
+                </span>
+                <span className="podium-intro__count-rule" />
                 05
               </div>
             </div>
@@ -186,7 +188,7 @@ export const F1StartLightsPreloader: React.FC<F1StartLightsPreloaderProps> = ({
             <>
               <div className="podium-intro__speed" aria-hidden="true">
                 {[0, 1, 2, 3, 4, 5].map((line) => (
-                  <i key={line} style={{ '--line': line } as React.CSSProperties} />
+                  <span key={line} style={{ '--line': line } as React.CSSProperties} />
                 ))}
               </div>
               {phase === 'launch' && (

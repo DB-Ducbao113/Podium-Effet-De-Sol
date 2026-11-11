@@ -27,8 +27,12 @@ export const CARS_2024: CarSpec[] = [
       frontSuspension: 'Pull-rod actuated wishbone & torsion spring',
       rearSuspension: 'Push-rod multi-link aerodynamic geometry',
       aeroPhilosophy: 'Hốc gió đảo ngược Overbite độc đáo kết hợp hai rãnh xả nhiệt lưng gù lớn.',
+      aeroPhilosophyEn:
+        'A distinctive inverted Overbite intake paired with twin cooling slots behind the large airbox.',
       groundEffectNotes:
         'Đường hầm Venturi đáy sàn tạo lực hút cực lớn với độ ổn định cao trên mọi dải tốc độ.',
+      groundEffectNotesEn:
+        'The floor Venturi tunnel generates very strong downforce with high stability across the whole speed range.',
       chassisConstruction: 'Molded carbon fiber composite monocoque honeycomb',
     },
     descriptionVi:
@@ -64,8 +68,12 @@ export const CARS_2024: CarSpec[] = [
       frontSuspension: 'Pull-rod front assembly',
       rearSuspension: 'Push-rod rear packaging',
       aeroPhilosophy: 'Thắt eo Coke-Bottle khí động học sâu với bề mặt carbon trần siêu nhẹ.',
+      aeroPhilosophyEn:
+        'A deep Coke-Bottle aerodynamic waist built from ultra-light bare carbon.',
       groundEffectNotes:
         'Sàn xe dải rộng mang lại độ bám đường đỉnh cao từ cua chậm đến cua tốc độ cao.',
+      groundEffectNotesEn:
+        'The wide floor delivers peak mechanical grip from slow corners through to high-speed bends.',
       chassisConstruction: 'McLaren carbon-fibre composite monocoque',
     },
     descriptionVi:
@@ -102,8 +110,12 @@ export const CARS_2024: CarSpec[] = [
       rearSuspension: 'Pull-rod compact configuration',
       aeroPhilosophy:
         'Máng trượt sidepod hạ thấp hướng luồng khí trực tiếp vào bộ dầm cánh sau beam wing.',
+      aeroPhilosophyEn:
+        'Lowered sidepod channels feed the airflow directly into the rear beam wing assembly.',
       groundEffectNotes:
         'Kênh Venturi dốc đều về bộ khuếch tán diffuser giữ lực ép ổn định khi xe phanh dốc.',
+      groundEffectNotesEn:
+        'A constant Venturi channel into the diffuser keeps downforce stable under braking.',
       chassisConstruction: 'Carbon-fibre and honeycomb composite structure',
     },
     descriptionVi:
@@ -140,8 +152,12 @@ export const CARS_2024: CarSpec[] = [
       rearSuspension: 'Push-rod inboard spring damper',
       aeroPhilosophy:
         'Mũi xe Arrow vuốt nhọn, loại bỏ hoàn toàn triết lý zeropod cũ để đón nhận cấu trúc sidepod truyền thống.',
+      aeroPhilosophyEn:
+        'A sharply tapered Arrow nose drops the zero-pod concept entirely in favour of a conventional sidepod layout.',
       groundEffectNotes:
         'Hầm Venturi cải tiến triệt tiêu hiện tượng nảy gầm porpoising của thế hệ trước.',
+      groundEffectNotesEn:
+        'The revised Venturi tunnel removes the porpoising floor oscillation of the previous generation.',
       chassisConstruction: 'Carbon-fibre and Kevlar composite monocoque',
     },
     descriptionVi:

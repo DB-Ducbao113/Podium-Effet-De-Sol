@@ -44,7 +44,7 @@
   line-height: 1.2;
 }
 .peds-compact-studio__model-badge strong { flex: none; font-size: 10px; letter-spacing: .12em; }
-.peds-compact-studio__model-badge > span:nth-child(2) { color: var(--peds-ui-accent); font-weight: 900; }
+.peds-compact-studio__model-badge > span:nth-child(2) { color: var(--peds-ui-accent); font-weight: 800; }
 .peds-compact-studio__model-paint { text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
 .peds-compact-studio__actions { display: flex; flex-wrap: nowrap; align-items: center; gap: 7px; margin-left: auto; }
 .peds-compact-studio__quality {
@@ -67,11 +67,11 @@
   border: 1px solid var(--peds-ui-border);
   border-radius: 10px;
   padding: 9px 12px;
-  min-height: 37px;
+  min-height: 44px;
   color: #f4f5f7;
   background: rgba(13,17,23,.88);
   backdrop-filter: blur(12px);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 750;
   cursor: pointer;
 }
@@ -128,10 +128,10 @@
 .peds-compact-studio__paint-choice:hover { background: rgba(255,255,255,.10); }
 .peds-compact-studio__paint-choice.is-selected { border-color: var(--peds-ui-accent); background: rgba(215,44,69,.14); }
 .peds-compact-studio__swatch { display: flex; flex: none; width: 24px; height: 24px; border-radius: 50%; border: 1px solid rgba(255,255,255,.35); overflow: hidden; }
-.peds-compact-studio__swatch i { flex: 1; min-width: 0; }
+.peds-compact-studio__swatch span { flex: 1; min-width: 0; }
 .peds-compact-studio__paint-name { min-width: 0; font-size: 10px; font-weight: 600; line-height: 1.3; }
 .peds-compact-studio__check { margin-left: auto; color: #ff7a8d; }
-.peds-compact-studio__advanced-panel { display: flex; flex-direction: column; height: min(300px, calc(100% - 146px)); overflow: hidden; }
+.peds-compact-studio__advanced-panel { display: flex; flex-direction: column; height: min(440px, calc(100% - 146px)); overflow: hidden; }
 .peds-compact-studio__advanced-heading { flex: none; }
 .peds-compact-studio__tabs { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 5px; padding: 10px; background: #12161c; border-bottom: 1px solid rgba(255,255,255,.08); flex: none; }
 .peds-compact-studio__tabs button {
@@ -169,10 +169,11 @@
   left: 50%;
   transform: translateX(-50%);
   max-width: calc(100% - 24px);
-  max-height: 62px;
+  max-height: 64px;
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: thin;
+  scrollbar-color: rgba(215,44,69,.7) rgba(255,255,255,.06);
   border: 1px solid var(--peds-ui-border);
   border-radius: 12px;
   background: rgba(13,17,23,.9);
@@ -180,6 +181,33 @@
 }
 .peds-compact-studio__camera > * { position: static !important; transform: none !important; display: flex; width: max-content; min-width: max-content; }
 .peds-compact-studio button:focus-visible { outline: 2px solid #f44b64; outline-offset: 2px; }
+
+/* Stage vignette focuses the car and deepens the carbon edges without a GPU pass. */
+.peds-stage-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 90% at 50% 38%, transparent 42%, rgba(4,6,10,.55) 100%),
+    linear-gradient(to top, rgba(4,6,10,.5), transparent 32%);
+}
+
+/* Scrollbars wear the studio palette instead of the browser default. */
+.peds-compact-studio__camera::-webkit-scrollbar,
+.peds-compact-studio__floating::-webkit-scrollbar,
+.peds-compact-studio__advanced-content::-webkit-scrollbar { height: 6px; width: 6px; }
+.peds-compact-studio__camera::-webkit-scrollbar-track,
+.peds-compact-studio__floating::-webkit-scrollbar-track,
+.peds-compact-studio__advanced-content::-webkit-scrollbar-track { background: rgba(255,255,255,.05); }
+.peds-compact-studio__camera::-webkit-scrollbar-thumb,
+.peds-compact-studio__floating::-webkit-scrollbar-thumb,
+.peds-compact-studio__advanced-content::-webkit-scrollbar-thumb { background: rgba(215,44,69,.65); border-radius: 999px; }
+.peds-compact-studio__camera::-webkit-scrollbar-thumb:hover,
+.peds-compact-studio__floating::-webkit-scrollbar-thumb:hover,
+.peds-compact-studio__advanced-content::-webkit-scrollbar-thumb:hover { background: rgba(244,75,100,.85); }
+.peds-compact-studio__floating,
+.peds-compact-studio__advanced-content { scrollbar-width: thin; scrollbar-color: rgba(215,44,69,.65) rgba(255,255,255,.05); }
 @media (max-width: 1024px) {
   .peds-compact-studio__camera { bottom: 80px; }
 }
@@ -189,10 +217,10 @@
   .peds-compact-studio__model-badge strong { font-size: 9px; }
   .peds-compact-studio__quality { display: none; }
   .peds-compact-studio__actions { gap: 4px; }
-  .peds-compact-studio__action { min-height: 36px; gap: 4px; padding: 8px; font-size: 10px; }
+  .peds-compact-studio__action { min-height: 44px; gap: 4px; padding: 8px; font-size: 11px; }
   .peds-compact-studio__floating { right: 8px; top: 54px; bottom: auto; width: min(360px, calc(100% - 16px)); max-height: 210px; }
   .peds-compact-studio__paint-panel { max-height: 210px; }
-  .peds-compact-studio__advanced-panel { height: 210px; }
+  .peds-compact-studio__advanced-panel { height: min(320px, calc(100% - 146px)); }
   .peds-compact-studio__camera { bottom: 80px; width: calc(100% - 16px); max-width: calc(100% - 16px); max-height: none; overflow: visible; }
   .peds-compact-studio__camera > * { flex-wrap: wrap; justify-content: center; width: 100%; min-width: 0; }
 }

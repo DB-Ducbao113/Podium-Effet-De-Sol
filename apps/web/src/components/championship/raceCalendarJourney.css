@@ -508,8 +508,8 @@ html:has(.rcj--immersive) { scroll-behavior: auto; }
   font: 600 10px var(--peds-font-mono, monospace);
   letter-spacing: .04em;
 }
-.rcj-map-key span { display: inline-flex; gap: 6px; align-items: center; }
-.rcj-map-key i { width: 7px; height: 7px; background: #ff4a18; border-radius: 50%; }
+.rcj-map-key > span { display: inline-flex; gap: 6px; align-items: center; }
+.rcj-map-key-dot { width: 7px; height: 7px; background: #ff4a18; border-radius: 50%; }
 /* Borderless, low-contrast glass HUD — a quiet part of the atlas, not a card. */
 .rcj-map-selection {
   position: absolute;

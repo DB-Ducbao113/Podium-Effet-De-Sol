@@ -12,13 +12,13 @@ function render(tab: "calendar" | "results") {
 }
 
 describe("journey season navigation", () => {
-  it("leaves Calendar to the page-level sticky selector", () => {
-    expect(render("calendar")).not.toContain("rcj-season-controls");
+  it("keeps a season selector inside the immersive Calendar globe stage", () => {
+    const html = render("calendar");
+    expect(html).toContain("rcj-season-controls");
+    expect(html).toContain('href="/season/2025?tab=calendar"');
   });
 
-  it("keeps a season selector inside the immersive Results stage", () => {
-    const html = render("results");
-    expect(html).toContain("rcj-season-controls");
-    expect(html).toContain('href="/season/2025?tab=results"');
+  it("leaves the Results table to the page-level season selector", () => {
+    expect(render("results")).not.toContain("rcj-season-controls");
   });
 });

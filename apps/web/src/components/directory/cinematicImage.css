@@ -1,0 +1,417 @@
+/* Cinematic driver photography state layers. All transitions are 180–350 ms. */
+
+.p5-cinematic {
+  display: block;
+}
+
+.p5-cinematic img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.p5-cinematic-race img {
+  object-position: center 44%;
+}
+
+.p5-cinematic-action img {
+  object-position: 58% center;
+}
+
+/* ------------------------------------------------ standings podium race ---- */
+
+.p5-podium-media {
+  transition: opacity 260ms ease;
+}
+
+.p5-podium-race {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 260ms ease;
+}
+
+.p5-podium-race .p5-cinematic {
+  width: 100%;
+  height: 100%;
+}
+
+.p5-podium-race .p5-cinematic img {
+  filter: saturate(0.9) contrast(1.06) brightness(0.94);
+}
+
+/* The race plate is brighter than the portrait; this keeps podium copy legible. */
+.p5-podium-race::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(0deg, #05070b 8%, rgba(5, 7, 11, 0.9) 34%, rgba(5, 7, 11, 0.2) 66%, rgba(5, 7, 11, 0.04) 100%),
+    linear-gradient(90deg, color-mix(in srgb, var(--team-primary, var(--team)) 16%, transparent), transparent 55%);
+  pointer-events: none;
+}
+
+.p5-podium-card:hover .p5-podium-race,
+.p5-podium-card:focus-visible .p5-podium-race {
+  opacity: 1;
+}
+
+.p5-podium-card:hover .p5-podium-media,
+.p5-podium-card:focus-visible .p5-podium-media {
+  opacity: 0;
+}
+
+/* -------------------------------------------------------- driver profile ---- */
+
+.p5-profile-stage {
+  position: relative;
+}
+
+.p5-profile-stage--cinematic {
+  border: 1px solid color-mix(in srgb, var(--team-primary, var(--team)) 36%, rgba(244, 240, 232, 0.16));
+  border-radius: 30px;
+  overflow: hidden;
+  background: #05070b;
+}
+
+.p5-profile-stage--cinematic .p5-profile-hero {
+  border: 0;
+  border-radius: 30px 30px 0 0;
+}
+
+.p5-profile-action-section {
+  display: grid;
+  grid-template-columns: minmax(0, 58fr) minmax(0, 42fr);
+  border-top: 1px solid color-mix(in srgb, var(--team-primary, var(--team)) 26%, rgba(244, 240, 232, 0.14));
+  background: #05070b;
+}
+
+.p5-profile-action-media {
+  position: relative;
+  margin: 0;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #05070b;
+}
+
+.p5-profile-action-media .p5-cinematic,
+.p5-profile-action-media img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.p5-profile-action-media img {
+  object-position: 50% 42%;
+  filter: saturate(0.94) contrast(1.05);
+}
+
+.p5-profile-action-media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(90deg, rgba(5, 7, 11, 0.38), transparent 30%),
+    linear-gradient(0deg, rgba(5, 7, 11, 0.4), transparent 44%);
+  pointer-events: none;
+}
+
+.p5-profile-action-copy {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  padding: clamp(1.3rem, 3vw / var(--peds-visual-zoom), 2.6rem);
+  background:
+    radial-gradient(120% 90% at 100% 0%, color-mix(in srgb, var(--team-primary, var(--team)) 18%, transparent), transparent 62%),
+    #070a10;
+}
+
+.p5-profile-action-copy> :not(.p5-profile-action-number) {
+  position: relative;
+  z-index: 1;
+}
+
+.p5-profile-action-number {
+  position: absolute;
+  top: -0.4rem;
+  right: 0.1rem;
+  z-index: 0;
+  font-family: var(--peds-font-display);
+  font-size: clamp(5.5rem, 13vw / var(--peds-visual-zoom), 10rem);
+  font-weight: 800;
+  line-height: 0.8;
+  color: transparent;
+  -webkit-text-stroke: 1px color-mix(in srgb, var(--team-primary, var(--team)) 44%, rgba(244, 240, 232, 0.16));
+  opacity: 0.62;
+  pointer-events: none;
+}
+
+.p5-profile-action-copy .p5-kicker {
+  color: var(--p5-amber, #f4b860);
+}
+
+.p5-profile-action-copy h2 {
+  margin: 0;
+  font-family: var(--peds-font-display);
+  font-size: clamp(1.5rem, 2.8vw / var(--peds-visual-zoom), 2.5rem);
+  font-weight: 800;
+  line-height: 0.95;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.p5-profile-action-credit {
+  margin: 0;
+  font-family: var(--peds-font-mono);
+  font-size: 0.62rem;
+  line-height: 1.5;
+  color: rgba(244, 240, 232, 0.62);
+}
+
+.p5-profile-action-credit a {
+  color: rgba(244, 240, 232, 0.84);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.p5-profile-hero[data-cinematic='true'] .p5-profile-portrait {
+  width: min(54%, 720px);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 15%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 15%);
+}
+
+.p5-profile-portrait-still {
+  position: absolute;
+  inset: 0;
+  transition: opacity 260ms ease;
+}
+
+.p5-profile-portrait-still .p5-portrait,
+.p5-profile-portrait-still .p5-portrait img,
+.p5-profile-portrait-still .p5-portrait-fallback {
+  width: 100%;
+  height: 100%;
+}
+
+.p5-profile-portrait-race {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 260ms ease;
+}
+
+.p5-profile-portrait-race .p5-cinematic {
+  width: 100%;
+  height: 100%;
+}
+
+.p5-profile-portrait-race .p5-cinematic img {
+  object-position: center 28%;
+  filter: saturate(0.88) contrast(1.06);
+}
+
+.p5-profile-portrait[data-mode='race'] .p5-profile-portrait-still {
+  opacity: 0;
+}
+
+.p5-profile-portrait[data-mode='race'] .p5-profile-portrait-race {
+  opacity: 1;
+}
+
+.p5-mode-toggle {
+  border: 1px solid var(--p5-line-strong, rgba(244, 240, 232, 0.22));
+  background: rgba(244, 240, 232, 0.06);
+  color: var(--p5-text, #f4f0e8);
+  cursor: pointer;
+  transition: border-color 200ms ease, background 200ms ease, color 200ms ease;
+}
+
+.p5-mode-toggle:hover,
+.p5-mode-toggle:focus-visible {
+  border-color: var(--p5-amber, #f4b860);
+}
+
+.p5-mode-toggle[aria-pressed='true'] {
+  border-color: var(--team, var(--team-primary, var(--p5-amber, #f4b860)));
+  background: color-mix(in srgb, var(--team, var(--p5-amber, #f4b860)) 22%, transparent);
+  color: var(--p5-text, #f4f0e8);
+}
+
+.p5-cinematic-credit {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 1.1rem;
+  margin: 0.75rem 0 0;
+  padding: 0 0.2rem;
+  font-family: var(--peds-font-mono);
+  font-size: 0.6rem;
+  line-height: 1.5;
+  color: rgba(244, 240, 232, 0.58);
+}
+
+.p5-cinematic-credit-label {
+  color: var(--p5-muted, #a4adb5);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.p5-cinematic-credit a {
+  color: rgba(244, 240, 232, 0.76);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.p5-cinematic-credit a:hover {
+  color: var(--p5-text, #f4f0e8);
+}
+
+/* ------------------------------------------------------------ team duo ---- */
+
+.p5-team-hero-lineup.p5-team-hero-duo {
+  justify-self: start;
+  width: fit-content;
+  margin: 0 clamp(1.4rem, 3vw / var(--peds-visual-zoom), 2.4rem) clamp(1.4rem, 3vw / var(--peds-visual-zoom), 2.2rem);
+  gap: 0;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--team-primary, var(--team)) 48%, rgba(244, 240, 232, 0.22));
+  border-radius: 16px;
+  overflow: hidden;
+  background: #0a0e15;
+  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.42);
+}
+
+.p5-team-hero-driver-media {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: #0a0e15;
+}
+
+.p5-team-hero-duo .p5-team-hero-driver {
+  width: clamp(7.5rem, 12vw / var(--peds-visual-zoom), 10.5rem);
+  border: 0;
+  border-radius: 0;
+}
+
+.p5-team-hero-duo .p5-team-hero-driver+.p5-team-hero-driver {
+  border-left: 1px solid color-mix(in srgb, var(--team-primary, var(--team)) 34%, rgba(244, 240, 232, 0.18));
+}
+
+.p5-team-hero-duo .p5-team-hero-driver .p5-cinematic,
+.p5-team-hero-duo .p5-team-hero-driver .p5-cinematic img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.p5-team-hero-race {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 240ms ease;
+}
+
+.p5-team-hero-race .p5-cinematic {
+  width: 100%;
+  height: 100%;
+}
+
+.p5-team-hero-race .p5-cinematic img {
+  filter: saturate(0.88) contrast(1.06) brightness(0.96);
+}
+
+.p5-team-hero-driver:hover .p5-team-hero-race,
+.p5-team-hero-driver:focus-visible .p5-team-hero-race {
+  opacity: 1;
+}
+
+.p5-team-hero-driver:hover .p5-portrait,
+.p5-team-hero-driver:focus-visible .p5-portrait {
+  opacity: 0;
+}
+
+.p5-team-hero-driver .p5-portrait {
+  transition: opacity 240ms ease;
+}
+
+/* ------------------------------------------------------------- responsive ---- */
+
+@media (max-width: 760px) {
+  .p5-podium-card {
+    height: 350px;
+  }
+
+  .p5-profile-hero[data-cinematic='true'] {
+    min-height: 640px;
+  }
+
+  .p5-profile-stage--cinematic {
+    border-radius: 22px;
+  }
+
+  .p5-profile-stage--cinematic .p5-profile-hero {
+    border-radius: 22px 22px 0 0;
+  }
+
+  .p5-profile-action-section {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .p5-profile-action-media {
+    aspect-ratio: 4 / 5;
+  }
+
+  .p5-profile-action-copy {
+    gap: 0.45rem;
+    padding: 1.2rem;
+  }
+
+  .p5-profile-action-copy h2 {
+    font-size: clamp(1.45rem, 7vw / var(--peds-visual-zoom), 2rem);
+  }
+
+  .p5-profile-hero[data-cinematic='true'] .p5-profile-portrait {
+    width: 64%;
+    height: 58%;
+    inset: 0 0 auto auto;
+    opacity: 1;
+    -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 72%, transparent 100%);
+    mask-image: linear-gradient(180deg, #000 0%, #000 72%, transparent 100%);
+  }
+
+  .p5-team-hero-lineup.p5-team-hero-duo {
+    align-self: flex-start;
+    margin: 0 1.15rem 1.25rem;
+    padding: 0;
+  }
+
+  .p5-team-hero-duo .p5-team-hero-driver {
+    width: clamp(6rem, 30vw / var(--peds-visual-zoom), 8rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .p5-podium-race,
+  .p5-podium-media,
+  .p5-profile-portrait-still,
+  .p5-profile-portrait-race,
+  .p5-team-hero-race,
+  .p5-team-hero-driver .p5-portrait {
+    transition: none;
+  }
+}

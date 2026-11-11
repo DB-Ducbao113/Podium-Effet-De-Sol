@@ -4,7 +4,7 @@ import { ArrowUpRight, ChevronDown, Menu, X } from 'lucide-react';
 import { useNavigationStore } from '../../store/useNavigationStore';
 import { OfficialBrandLogo } from '../common/OfficialBrandLogo';
 import { isPrimaryPath, useMobileHub } from '../../hooks/useMobileHub';
-import { buildNavItems, type NavItem } from './navItems';
+import { buildDesktopNavItems, buildNavItems, type NavItem } from './navItems';
 import './navbarH1.css';
 import './navbarV4.css';
 
@@ -22,12 +22,11 @@ export const Navbar = memo(function Navbar() {
   const [dismissedDropdown, setDismissedDropdown] = useState<string | null>(null);
   const menuToggleRef = useRef<HTMLButtonElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
-  const insideMachineTrialEnabled = import.meta.env.DEV;
   const season = Number(location.pathname.match(/^\/season\/(2024|2025|2026)(?:\/|$)/)?.[1] ?? 2026) as 2024 | 2025 | 2026;
 
   const items = useMemo<NavItem[]>(
-    () => buildNavItems(lang, insideMachineTrialEnabled, season),
-    [lang, insideMachineTrialEnabled, season],
+    () => buildNavItems(lang, false, season),
+    [lang, season],
   );
 
   const tab = new URLSearchParams(location.search).get('tab');
@@ -50,8 +49,6 @@ export const Navbar = memo(function Navbar() {
         return location.pathname === '/'
           ? hubHash !== '#showroom' && hubHash !== '#giai-dau'
           : onHub && hubHash === '#home';
-      case 'championship':
-        return seasonSection === 'results' || seasonSection === 'standings' || (onHub && hubHash === '#giai-dau');
       case 'results':
         return seasonSection === 'results';
       case 'standings':
@@ -69,32 +66,13 @@ export const Navbar = memo(function Navbar() {
     }
   };
   const isChildActive = (to: string) => to === currentUrl;
-  // Keep one desktop menu structure across routes; links still target the selected season.
-  const resultsItem = items.find((item) => item.id === 'results')!;
-  const standingsItem = items.find((item) => item.id === 'standings')!;
-  const driversItem = items.find((item) => item.id === 'drivers')!;
-  const teamsItem = items.find((item) => item.id === 'teams')!;
-  const engineeringItem = items.find((item) => item.id === 'engineering')!;
-  const overviewItem = items.find((item) => item.id === 'overview')!;
+  // The desktop bar mirrors the mobile menu: Results and Standings stay two
+  // separate destinations instead of collapsing into one Championship entry.
   const homeDesktop = location.pathname === '/';
-  const desktopItems: NavItem[] = [
-    { ...overviewItem, label: isVi ? 'Trang chủ' : 'Home' },
-    {
-      id: 'championship',
-      label: isVi ? 'Giải đấu' : 'Championship',
-      to: isActive('standings') ? standingsItem.to : resultsItem.to,
-      icon: resultsItem.icon,
-      children: [
-        { id: 'champ-results', label: resultsItem.label, to: resultsItem.to },
-        ...resultsItem.children!,
-        ...standingsItem.children!,
-      ],
-    },
-    { id: 'showroom', label: 'Showroom', to: '/showroom', icon: overviewItem.icon },
-    engineeringItem,
-    teamsItem,
-    driversItem,
-  ];
+  const desktopItems = useMemo<NavItem[]>(
+    () => buildDesktopNavItems(items, lang),
+    [items, lang],
+  );
 
   const showroomActive = isActive('showroom');
 

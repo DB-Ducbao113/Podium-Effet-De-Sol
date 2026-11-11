@@ -3,7 +3,6 @@ import { useThree, useFrame } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import * as THREE from 'three';
-import type { HotspotItem } from '../../data/showroom/hotspotsData';
 
 export type CameraPreset =
   | 'overview'
@@ -22,7 +21,10 @@ export type CameraPreset =
   | 'top';
 
 interface CameraControllerProps {
-  activeHotspot: Pick<HotspotItem, 'cameraPos' | 'cameraTarget'> | null;
+  activeHotspot: {
+    cameraPos: [number, number, number];
+    cameraTarget: [number, number, number];
+  } | null;
   cameraPreset?: CameraPreset | null;
   presetTrigger?: number; // Increment to force re-transition even if same preset is clicked
   autoRotate: boolean;

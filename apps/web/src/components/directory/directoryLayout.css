@@ -1,0 +1,345 @@
+/*
+ * P5-R1 / THE GRID + TEAM GARAGE
+ * Unified visual hierarchy across 2024–2026. Local images remain uncommitted.
+ * This file overrides only the directory, never Driver/Team detail view.
+ */
+.p5-gallery-page .p5-gallery-inner {
+  width: min(calc(100% - 2.4rem), 1510px);
+}
+
+.p5-gallery-page .p5-gallery-hero,
+.p5-gallery-page .p5-drivers-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 0.94fr) minmax(0, 1.06fr);
+  align-items: stretch;
+  gap: 0;
+  min-height: clamp(235px, 23vw / var(--peds-visual-zoom), 295px);
+  padding: 0;
+  border-radius: 16px;
+}
+
+.p5-gallery-page .p5-gallery-hero h1 {
+  font-size: clamp(2.65rem, 4.6vw / var(--peds-visual-zoom), 4.1rem);
+  line-height: 1.08;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.p5-gallery-page .p5-drivers-hero h1 {
+  font-size: clamp(3.2rem, 5.6vw / var(--peds-visual-zoom), 5.1rem);
+  line-height: 1.02;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.p5-gallery-page .p5-controls {
+  gap: 12px;
+  margin-block: 14px 18px;
+  border-radius: 10px;
+  background: rgba(10, 16, 25, .9);
+}
+
+.p5-gallery-page.p5-gallery-page-drivers .p5-controls {
+  position: static;
+  width: 100%;
+  margin: 14px 0 18px;
+}
+
+.p5-gallery-page .p5-controls :is(input, select) {
+  min-height: 44px;
+}
+
+.p5-gallery-page .p5-driver-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(9px, 1vw / var(--peds-visual-zoom), 14px);
+}
+
+.p5-gallery-page .p5-driver-card--directory {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: auto;
+  min-height: 0;
+  aspect-ratio: auto;
+  overflow: hidden;
+  border-radius: 11px;
+  background: linear-gradient(155deg,
+      color-mix(in srgb, var(--team-primary, var(--team)) 30%, #0d1720),
+      #080c12 77%);
+}
+
+.p5-gallery-page .p5-driver-card--directory::after,
+.p5-gallery-page .p5-driver-card--directory .p5-driver-card-tint {
+  display: none;
+}
+
+.p5-gallery-page .p5-driver-card--directory .p5-driver-card-backdrop {
+  inset: 0 0 auto;
+  height: 75%;
+  opacity: .8;
+  pointer-events: none;
+}
+
+.p5-gallery-page .p5-driver-card-visual {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 683 / 437;
+  overflow: hidden;
+  border-bottom: 1px solid color-mix(in srgb, var(--team-primary, var(--team)) 35%, rgba(255, 255, 255, .12));
+  background: linear-gradient(140deg,
+      color-mix(in srgb, var(--team-primary, var(--team)) 33%, #111d2c),
+      #0b111b 78%);
+}
+
+.p5-gallery-page .p5-driver-card--generated .p5-driver-card-visual {
+  aspect-ratio: 1.05;
+}
+
+.p5-gallery-page .p5-driver-card--generated .p5-portrait--generated img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 28%;
+}
+
+.p5-gallery-page .p5-driver-card-visual :is(.p5-portrait, .p5-portrait-fallback, .p5-driver-card-visual-art) {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+.p5-gallery-page .p5-driver-card-visual img,
+.p5-gallery-page .p5-driver-card-visual-art img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center center;
+  filter: none;
+  transform: none;
+  transition: transform 420ms cubic-bezier(.2, .7, .2, 1);
+}
+
+.p5-gallery-page .p5-driver-card-visual .p5-portrait img {
+  object-position: center 28%;
+}
+
+.p5-gallery-page .p5-driver-card--directory:hover .p5-driver-card-visual img,
+.p5-gallery-page .p5-driver-card--directory:focus-within .p5-driver-card-visual img {
+  transform: scale(1.035);
+  filter: none;
+}
+
+.p5-gallery-page .p5-driver-card-visual .p5-portrait-fallback {
+  background: radial-gradient(ellipse at center, color-mix(in srgb, var(--team-primary, var(--team)) 34%, #203344), #090f18 73%);
+  color: rgba(244, 240, 232, .64);
+}
+
+.p5-gallery-page .p5-driver-card-visual .p5-portrait-fallback>span {
+  font: 800 clamp(2.7rem, 5vw / var(--peds-visual-zoom), 5.8rem)/1 var(--peds-font-display);
+}
+
+.p5-gallery-page .p5-driver-card--directory .p5-driver-card-body {
+  position: relative;
+  inset: auto;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 132px;
+  padding: 13px 15px 14px;
+  background: linear-gradient(125deg, color-mix(in srgb, var(--team-primary, var(--team)) 12%, #0c1119), #080b12 76%);
+}
+
+.p5-gallery-page .p5-driver-card--directory .p5-driver-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.p5-gallery-page .p5-driver-card--directory .p5-driver-card-rank {
+  position: static;
+  inset: auto;
+  flex: none;
+  padding: 3px 8px;
+  border: 1px solid rgba(244, 240, 232, .2);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .05);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-shadow: none;
+}
+
+.p5-gallery-page .p5-driver-card--directory .p5-driver-card-team {
+  min-width: 0;
+  margin: 0;
+  padding-right: 0;
+  font-family: var(--peds-font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: color-mix(in srgb, var(--team, #e1e8ef) 70%, #e5edf2);
+}
+
+.p5-gallery-page .p5-driver-card--directory h2 {
+  min-width: 0;
+  line-height: 1.15;
+  gap: 2px;
+  margin: 0;
+}
+
+.p5-gallery-page .p5-driver-card--directory .p5-driver-card-first {
+  font-family: var(--peds-font-ui);
+  font-size: 12px;
+  font-weight: 500;
+  color: #b8c9d7;
+}
+
+.p5-gallery-page .p5-driver-card--directory .p5-driver-card-last {
+  font-family: var(--peds-font-hand);
+  font-size: clamp(1.45rem, 2.05vw / var(--peds-visual-zoom), 2rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
+}
+
+.p5-gallery-page .p5-driver-card--directory .p5-driver-card-meta {
+  margin-top: auto;
+  padding-top: 13px;
+  font-size: 10px;
+  color: #cad5dc;
+}
+
+.p5-gallery-page .p5-driver-card--directory .p5-driver-card-action {
+  margin-top: 9px;
+  font-size: 9px;
+}
+
+.p5-gallery-page .p5-driver-card--directory .p5-driver-card-arrow {
+  width: 20px;
+  height: 20px;
+}
+
+.p5-gallery-page .p5-team-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(12px, 1.35vw / var(--peds-visual-zoom), 18px);
+}
+
+/* Garage card anatomy lives in p5TeamGarage.css so the embedded teams tab
+   (championship directory) renders the exact same card. */
+
+/* 2024/2025 and empty-image cards retain the exact same layout and identity. */
+@media (min-width: 1550px) {
+  .p5-gallery-page .p5-driver-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1050px) {
+  .p5-gallery-page .p5-driver-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .p5-gallery-page .p5-team-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+
+  .p5-gallery-page .p5-gallery-hero,
+  .p5-gallery-page .p5-drivers-hero {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+  }
+}
+
+@media (max-width: 690px) {
+  .p5-gallery-page .p5-gallery-inner {
+    width: min(calc(100% - 1.2rem), 1510px);
+  }
+
+  .p5-gallery-page .p5-driver-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .p5-gallery-page .p5-drivers-hero,
+  .p5-gallery-page .p5-gallery-hero {
+    min-height: 0;
+    padding: 0;
+    border-radius: 12px;
+  }
+
+  .p5-gallery-page .p5-driver-card--directory {
+    border-radius: 8px;
+  }
+
+  .p5-gallery-page .p5-driver-card--directory .p5-driver-card-body {
+    padding: 10px;
+    min-height: 125px;
+  }
+
+  .p5-gallery-page .p5-driver-card--directory .p5-driver-card-last {
+    font-size: clamp(1.05rem, 4.9vw / var(--peds-visual-zoom), 1.5rem);
+  }
+
+  .p5-gallery-page .p5-driver-card--directory .p5-driver-card-number {
+    font-size: 2.5rem;
+  }
+
+  .p5-gallery-page .p5-driver-card--directory .p5-driver-card-meta {
+    font-size: 9px;
+  }
+
+  .p5-gallery-page .p5-driver-card--directory .p5-driver-card-team {
+    font-size: 8px;
+  }
+}
+
+@media (max-width: 380px) {
+  .p5-gallery-page .p5-driver-card--directory .p5-driver-card-action {
+    font-size: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .p5-gallery-page .p5-driver-card--directory,
+  .p5-gallery-page .p5-driver-card--directory img {
+    transition: none;
+  }
+
+  .p5-gallery-page .p5-driver-card--directory:hover {
+    transform: none;
+  }
+}
+
+/* Stronger than the site-wide Density-02 override; card anatomy stays stable. */
+@media (min-width: 1180px) {
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .p5-gallery-page .p5-driver-grid .p5-driver-card--directory {
+    aspect-ratio: auto;
+    border-radius: 11px;
+  }
+}

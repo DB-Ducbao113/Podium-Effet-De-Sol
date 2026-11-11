@@ -114,33 +114,33 @@ describe("C1.1 simplified profiles and results", () => {
   });
 
   it("renders licensed P5 portraits and sourced standings in directories and profiles", () => {
-    for (const html of [
-      render(
-        "/season/2026?tab=teams",
-        <ChampionshipDirectory season={2026} kind="teams" />,
-      ),
-      render(
-        "/season/2026?tab=drivers",
-        <ChampionshipDirectory season={2026} kind="drivers" />,
-      ),
-    ]) {
-      expect(html).toContain("/images/p5/concepts-2026/headshots/");
+    const teams = render(
+      "/season/2026?tab=teams",
+      <ChampionshipDirectory season={2026} kind="teams" />,
+    );
+    const drivers = render(
+      "/season/2026?tab=drivers",
+      <ChampionshipDirectory season={2026} kind="drivers" />,
+    );
+    for (const html of [teams, drivers]) {
       expect(html).toContain("<picture");
       expect(html).toContain("owner-provided concepts");
       expect(html).toContain("PTS");
       expect(html).not.toContain("c1-points-track");
     }
+    expect(teams).toContain("/images/concepts-2026/headshots/");
+    expect(drivers).toContain("/images/concepts-2026/drivers/");
 
     for (const html of [
       render("/teams/ferrari?season=2026", <TeamDetailPage />),
       render("/drivers/leclerc?season=2026", <DriverDetailPage />),
     ]) {
-      expect(html).toContain("/images/p5/concepts-2026/headshots/");
+      expect(html).toContain("/images/concepts-2026/headshots/");
       expect(html).toContain("PTS");
       expect(html).not.toContain("c1-points-track");
     }
 
     expect(render("/drivers/leclerc?season=2026", <DriverDetailPage />)).toContain("2026 AI illustration");
-    expect(render("/season/2025?tab=drivers", <ChampionshipDirectory season={2025} kind="drivers" />)).toContain("/images/p5/generated-portraits/");
+    expect(render("/season/2025?tab=drivers", <ChampionshipDirectory season={2025} kind="drivers" />)).toContain("/images/driver-portraits-ai/");
   });
 });

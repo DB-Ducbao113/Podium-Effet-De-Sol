@@ -1,20 +1,33 @@
 import { OrbitControls } from '@react-three/drei';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Canvas, useFrame, useThree, type ThreeEvent } from '@react-three/fiber';
+import { animate } from 'animejs';
 import { MeshoptDecoder } from 'meshoptimizer';
 import { POSTER_URL } from './assetPaths';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
-import type { AssemblyManifest, Lang, LifecycleEvent, QualityProfile, RuntimeMetrics, StageEvidence } from './types';
+import type { AssemblyManifest, CadRenderMode, Lang, LifecycleEvent, QualityProfile, RuntimeMetrics, StageEvidence } from './types';
 import { assemblyDetachmentAt, componentDetachmentAt, offstageProgressAt, offstageSpecFor, type CameraPose, type OffstageDirection } from './storyboard';
+import { CAD_EDGE_THRESHOLD_DEG, resolvePickComponentId } from './cadPresentation';
 import { installResourceProbe, noteRender, setResourcePhase, trackGeometry, trackMaterial, trackModelGeometries } from './resourceProbe';
 
 const PROFILE = { HIGH: { dpr: [1, 1.5] as [number, number], shadows: true, aa: true }, BALANCED: { dpr: [1, 1.35] as [number, number], shadows: true, aa: true }, PERFORMANCE: { dpr: [.8, .8] as [number, number], shadows: false, aa: false } };
 const DIAGNOSTIC_MODE=import.meta.env.DEV?new URLSearchParams(location.search).get('f3Mode'):null;
 const L1_FRAMELOOP=import.meta.env.DEV?new URLSearchParams(location.search).get('l1FrameLoop'):null;
 const focusMaterialByBase = new WeakMap<THREE.Material, THREE.Material>();
+const xrayMaterialByBase = new WeakMap<THREE.Material, THREE.Material>();
 const baseMaterialsByMesh = new WeakMap<THREE.Mesh, THREE.Material | THREE.Material[]>();
+const cadEdgesByMesh = new WeakMap<THREE.Mesh, THREE.LineSegments>();
+
+interface CadEdgePalette {
+  context: THREE.LineBasicMaterial;
+  dimmed: THREE.LineBasicMaterial;
+  xray: THREE.LineBasicMaterial;
+  active: THREE.LineBasicMaterial;
+  hover: THREE.LineBasicMaterial;
+}
+const cadPaletteByModel = new WeakMap<THREE.Object3D, CadEdgePalette>();
 const convert = ([x, y, z]: [number, number, number]) => new THREE.Vector3(x, z, -y);
 const resolveNode=(root:THREE.Object3D,name:string)=>root.getObjectByName(name)??root.getObjectByName(THREE.PropertyBinding.sanitizeNodeName(name));
 const l1Mark=(name:string,detail?:Record<string,unknown>)=>{if(import.meta.env.DEV)(window as Window & {__ITM_L1_MARK__?:(name:string,detail?:Record<string,unknown>)=>void}).__ITM_L1_MARK__?.(name,detail);};
@@ -47,20 +60,33 @@ function ContextGuard({ onContextLost }: { onContextLost: (lost: boolean) => voi
   return null;
 }
 
-function Model({ model, manifest, scrollProgress, cutaway, selectedAssembly, selectedComponent, isolation, isolationScope, ghost, storyFocusStrength, cameraPose }: { model: THREE.Group; manifest: AssemblyManifest; scrollProgress: number; cutaway: boolean; selectedAssembly: string; selectedComponent: string; isolation: boolean; isolationScope: 'assembly'|'component'; ghost: boolean; storyFocusStrength:number;cameraPose:CameraPose }) {
+function Model({ model, manifest, scrollProgress, cutaway, selectedAssembly, selectedComponent, hoveredComponent, isolation, isolationScope, ghost, storyFocusStrength, renderMode, cameraPose, onHoverComponent, onPickComponent }: { model: THREE.Group; manifest: AssemblyManifest; scrollProgress: number; cutaway: boolean; selectedAssembly: string; selectedComponent: string; hoveredComponent: string | null; isolation: boolean; isolationScope: 'assembly'|'component'; ghost: boolean; storyFocusStrength:number; renderMode: CadRenderMode; cameraPose:CameraPose; onHoverComponent?: (id: string | null) => void; onPickComponent?: (id: string) => void }) {
   const {invalidate,size}=useThree();
   const baselines = useRef(new Map<string, { p: THREE.Vector3; q: THREE.Quaternion; s: THREE.Vector3 }>());
   const nodes = useRef(new Map<string,THREE.Object3D>());
   const offsets = useRef(new Map<string,THREE.Vector3>());
   const localCounts = useRef(new Map<string,number>());
+  const meshOwnerMap = useRef(new WeakMap<THREE.Object3D, string>());
   const materials = useRef(new WeakMap<THREE.Mesh, THREE.Material | THREE.Material[]>());
   const materialStates=useRef(new WeakMap<THREE.Material,{opacity:number;transparent:boolean;depthWrite:boolean}>());
+  const cadPulseRef = useRef<ReturnType<typeof animate> | null>(null);
   const ghostMaterial = useMemo(() => new THREE.MeshBasicMaterial({color:'#9ba9b3',transparent:true,opacity:.075,depthWrite:false}), []);
   useEffect(() => () => ghostMaterial.dispose(), [ghostMaterial]);
   useEffect(() => {
     baselines.current.clear();nodes.current.clear();offsets.current.clear();localCounts.current.clear();
+    meshOwnerMap.current = new WeakMap();
+    const byNodeName = new Map(manifest.components.map(c => [c.node, c.id]));
     for (const item of [...manifest.assemblies, ...manifest.components]) { const node = resolveNode(model,item.node); if (node) {nodes.current.set(item.node,node);baselines.current.set(item.node, { p: node.position.clone(), q: node.quaternion.clone(), s: node.scale.clone() });offsets.current.set(item.node,convert('globalExplodedOffset' in item?item.globalExplodedOffset:item.explodedOffset));} }
     for (const item of manifest.components) localCounts.current.set(item.parentAssemblyId,(localCounts.current.get(item.parentAssemblyId)??0)+1);
+    model.traverse((obj) => {
+      if (!(obj instanceof THREE.Mesh)) return;
+      let cursor: THREE.Object3D | null = obj;
+      while (cursor && cursor !== model) {
+        const compId = byNodeName.get(cursor.name);
+        if (compId) { meshOwnerMap.current.set(obj, compId); break; }
+        cursor = cursor.parent;
+      }
+    });
     const skin=model.getObjectByName('CHASSIS_CORE');if(skin)nodes.current.set('CHASSIS_CORE',skin);
   }, [manifest, model]);
   const offstageOffset=useCallback((node:THREE.Object3D,id:string)=>{
@@ -81,7 +107,7 @@ function Model({ model, manifest, scrollProgress, cutaway, selectedAssembly, sel
     l1Mark('scene-transform-start',{scrollProgress:progress});
     manifest.assemblies.forEach((item) => { const node = nodes.current.get(item.node); const base = baselines.current.get(item.node); const offset=offsets.current.get(item.node); if (!node || !base||!offset) return; const phase = assemblyDetachmentAt(progress,item.id); node.position.copy(base.p).addScaledVector(offset, phase);const stageOffset=offstageOffset(node,item.id);if(stageOffset)node.position.add(stageOffset); node.quaternion.copy(base.q); node.scale.copy(base.s); });
     const assemblyIds=new Set(manifest.assemblies.map(item=>item.id));
-    for (const item of manifest.components) { const node = nodes.current.get(item.node); const base = baselines.current.get(item.node);const offset=offsets.current.get(item.node); if (!node || !base||!offset) continue; const phase=componentDetachmentAt(progress,item.parentAssemblyId,item.animationOrder,localCounts.current.get(item.parentAssemblyId)??1); node.position.copy(base.p).addScaledVector(offset, phase);if(!assemblyIds.has(item.parentAssemblyId)){const stageOffset=offstageOffset(node,item.parentAssemblyId);if(stageOffset)node.position.add(stageOffset);} node.quaternion.copy(base.q); if (item.explodedRotationEuler[1]) node.rotateZ(-item.explodedRotationEuler[1] * phase); node.scale.copy(base.s); }
+    for (const item of manifest.components) { const node = nodes.current.get(item.node); const base = baselines.current.get(item.node);const offset=offsets.current.get(item.node); if (!node || !base||!offset) continue; const orderIndex=typeof item.explodeOrder==='number'?Math.max(0,item.explodeOrder-1):item.animationOrder; const phase=componentDetachmentAt(progress,item.parentAssemblyId,orderIndex,localCounts.current.get(item.parentAssemblyId)??1,item.disassemblyWindow); node.position.copy(base.p).addScaledVector(offset, phase);if(!assemblyIds.has(item.parentAssemblyId)){const stageOffset=offstageOffset(node,item.parentAssemblyId);if(stageOffset)node.position.add(stageOffset);} node.quaternion.copy(base.q); if (item.explodedRotationEuler[1]) node.rotateZ(-item.explodedRotationEuler[1] * phase); node.scale.copy(base.s); }
     const sourceSkin = nodes.current.get('CHASSIS_CORE'); if (sourceSkin) sourceSkin.visible = !cutaway;
     l1Mark('scene-transform-applied',{scrollProgress:progress});
   }, [cutaway, manifest,offstageOffset]);
@@ -91,8 +117,9 @@ function Model({ model, manifest, scrollProgress, cutaway, selectedAssembly, sel
     l1Mark('r3f-invalidate-model',{scrollProgress});
   }, [applyProgress, invalidate, scrollProgress]);
   useEffect(() => {
-    for (const item of manifest.components) resolveNode(model,item.node)?.traverse((object) => { if (!(object instanceof THREE.Mesh)) return; const list = Array.isArray(object.material) ? object.material : [object.material]; for (const material of list) if (material instanceof THREE.MeshStandardMaterial) { const active = item.id === selectedComponent; material.emissive.set(active ? '#7f0f20' : '#000'); material.emissiveIntensity = active ? .25 : 0; } });
-  }, [manifest, model, selectedComponent]);
+    for (const item of manifest.components) resolveNode(model,item.node)?.traverse((object) => { if (!(object instanceof THREE.Mesh)) return; const list = Array.isArray(object.material) ? object.material : [object.material]; for (const material of list) if (material instanceof THREE.MeshStandardMaterial) { const active = item.id === selectedComponent || item.id === hoveredComponent; material.emissive.set(item.id === hoveredComponent ? '#185462' : active ? '#7f0f20' : '#000'); material.emissiveIntensity = item.id === hoveredComponent ? .22 : active ? .14 : 0; } });
+    invalidate();
+  }, [manifest, model, selectedComponent, hoveredComponent, invalidate]);
   useEffect(() => {
     const targetNodes = storyFocusStrength>0&&!isolation
       ? [...manifest.assemblies.filter(item=>item.id===selectedAssembly).map(item=>item.node),...manifest.components.filter(item=>item.id===selectedComponent||item.parentAssemblyId===selectedAssembly).map(item=>item.node)]
@@ -101,10 +128,17 @@ function Model({ model, manifest, scrollProgress, cutaway, selectedAssembly, sel
       : [...manifest.assemblies.filter(item => item.id === selectedAssembly).map(item => item.node), ...manifest.components.filter(item => item.parentAssemblyId === selectedAssembly).map(item => item.node)];
     const targets = new Set(targetNodes.filter((name): name is string => Boolean(name)).map(name => resolveNode(model,name)).filter((object): object is THREE.Object3D => Boolean(object)));
     const belongs = (mesh: THREE.Object3D) => { let cursor: THREE.Object3D | null = mesh; while(cursor && cursor !== model) { if(targets.has(cursor)) return true; cursor=cursor.parent; } return false; };
+    const cadPalette = cadPaletteByModel.get(model);
     model.traverse(object => {
-      if (!(object instanceof THREE.Mesh)) { object.visible = true; return; }
+      if (!(object instanceof THREE.Mesh)) {
+        if (!(object instanceof THREE.LineSegments)) object.visible = true;
+        return;
+      }
       if (!materials.current.has(object)) materials.current.set(object,object.material);
       const selected = belongs(object);
+      const compId = meshOwnerMap.current.get(object) ?? null;
+      const isActiveComp = compId !== null && compId === selectedComponent;
+      const isHoveredComp = compId !== null && compId === hoveredComponent;
       const original=materials.current.get(object)!;
       for(const material of Array.isArray(original)?original:[original]){
         if(!materialStates.current.has(material))materialStates.current.set(material,{opacity:material.opacity,transparent:material.transparent,depthWrite:material.depthWrite});
@@ -113,15 +147,112 @@ function Model({ model, manifest, scrollProgress, cutaway, selectedAssembly, sel
         if(focus)focus.opacity=base.opacity*(1-storyFocusStrength);
       }
       const focused=storyFocusStrength>0&&!isolation&&!selected;
-      const focusMaterials=(Array.isArray(original)?original:[original]).map(material=>focusMaterialByBase.get(material)??material);
-      object.material = isolation&&ghost&&!selected ? ghostMaterial : focused&&DIAGNOSTIC_MODE!=='no-transparency' ? Array.isArray(original)?focusMaterials:focusMaterials[0] : original;
+      const listOrig = Array.isArray(original) ? original : [original];
+      const focusMaterials=listOrig.map(material=>focusMaterialByBase.get(material)??material);
+      const xrayMaterials=listOrig.map(material=>xrayMaterialByBase.get(material)??material);
+
+      let resolvedMat: THREE.Material | THREE.Material[];
+      if (isolation && ghost && !selected) {
+        resolvedMat = ghostMaterial;
+      } else if (renderMode === 'wireframe') {
+        // Keep focused/isolated target slightly solid in wireframe so structure stands out clearly inside the X-Ray hull
+        if (isolation && selected) resolvedMat = original;
+        else {
+          for (const xm of xrayMaterials) {
+            if (xm instanceof THREE.MeshStandardMaterial) {
+              xm.opacity = isActiveComp || isHoveredComp ? 0.34 : focused ? 0.06 : 0.14;
+            }
+          }
+          resolvedMat = Array.isArray(original) ? xrayMaterials : xrayMaterials[0];
+        }
+      } else {
+        resolvedMat = focused && DIAGNOSTIC_MODE !== 'no-transparency'
+          ? (Array.isArray(original) ? focusMaterials : focusMaterials[0])
+          : original;
+      }
+
+      object.material = resolvedMat;
       object.visible = storyFocusStrength>.98&&!isolation ? selected : !isolation || selected || ghost;
+
+      const cadLines = cadEdgesByMesh.get(object);
+      if (cadLines && cadPalette) {
+        const showHoverEdge = renderMode === 'pbr' && isHoveredComp;
+        const showCadOverlay = renderMode !== 'pbr' || showHoverEdge;
+        cadLines.visible = object.visible && showCadOverlay;
+        if (cadLines.visible) {
+          cadLines.material = isHoveredComp
+            ? cadPalette.hover
+            : isActiveComp
+            ? cadPalette.active
+            : focused
+            ? cadPalette.dimmed
+            : renderMode === 'wireframe'
+            ? cadPalette.xray
+            : cadPalette.context;
+        }
+      }
     });
     const skin=model.getObjectByName('CHASSIS_CORE');
     if(skin && !isolation) skin.visible=!cutaway;
     invalidate();
-  }, [model,manifest,selectedAssembly,selectedComponent,isolation,isolationScope,ghost,storyFocusStrength,cutaway,ghostMaterial,invalidate]);
-  return <primitive object={model} />;
+  }, [model,manifest,selectedAssembly,selectedComponent,hoveredComponent,isolation,isolationScope,ghost,storyFocusStrength,cutaway,renderMode,ghostMaterial,invalidate]);
+
+  // Subtle Anime.js pulse sweep when activating CAD overlays or selecting a component in CAD modes
+  useEffect(() => {
+    cadPulseRef.current?.pause();
+    const cadPalette = cadPaletteByModel.get(model);
+    if (!cadPalette || renderMode === 'pbr') return;
+    const baseTarget = renderMode === 'wireframe' ? 0.58 : 0.26;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      cadPalette.context.opacity = 0.26;
+      cadPalette.xray.opacity = 0.58;
+      cadPalette.active.opacity = 0.96;
+      invalidate();
+      return;
+    }
+    const pulse = { factor: 0.25 };
+    cadPulseRef.current = animate(pulse, {
+      factor: 1,
+      duration: 520,
+      ease: 'outCubic',
+      onUpdate: () => {
+        if (renderMode === 'wireframe') cadPalette.xray.opacity = baseTarget * pulse.factor;
+        else cadPalette.context.opacity = baseTarget * pulse.factor;
+        cadPalette.active.opacity = 0.52 + 0.44 * pulse.factor;
+        invalidate();
+      },
+    });
+    return () => { cadPulseRef.current?.pause(); };
+  }, [model, renderMode, selectedComponent, invalidate]);
+
+  const resolvePickId = useCallback((event: ThreeEvent<PointerEvent | MouseEvent>): string | null => {
+    return resolvePickComponentId(
+      event.intersections,
+      (obj) => meshOwnerMap.current.get(obj),
+      { modelRoot: model, renderMode, cutaway },
+    );
+  }, [model, renderMode, cutaway]);
+
+  const handlePointerMove = useCallback((event: ThreeEvent<PointerEvent>) => {
+    const id = resolvePickId(event);
+    if (id) event.stopPropagation();
+    onHoverComponent?.(id);
+  }, [resolvePickId, onHoverComponent]);
+
+  const handlePointerOut = useCallback(() => {
+    onHoverComponent?.(null);
+  }, [onHoverComponent]);
+
+  const handleClick = useCallback((event: ThreeEvent<MouseEvent>) => {
+    // Ignore orbit drags (> 5px screen movement between pointerdown and click)
+    if (event.delta > 5) return;
+    const id = resolvePickId(event);
+    if (!id) return;
+    event.stopPropagation();
+    onPickComponent?.(id);
+  }, [resolvePickId, onPickComponent]);
+
+  return <primitive object={model} onPointerMove={handlePointerMove} onPointerOut={handlePointerOut} onClick={handleClick} />;
 }
 
 function AttachmentConnectors({ manifest, progress, cue }: { manifest: AssemblyManifest; progress: number; cue:boolean }) {
@@ -146,14 +277,14 @@ function AttachmentConnectors({ manifest, progress, cue }: { manifest: AssemblyM
 }
 
 function MechanicalConnectors({ manifest, selectedAssembly, progress }: { manifest: AssemblyManifest; selectedAssembly: string; progress: number }) {
-  const parts=useMemo(()=>manifest.components.filter(item=>item.parentAssemblyId===selectedAssembly&&(item.id.includes('HUB')||item.id.includes('BRAKE')||item.id.includes('RADIATOR')||item.id.includes('COOLANT')||item.id.includes('ENGINE')||item.id.includes('GEARBOX'))).map(item=>({order:item.animationOrder,start:convert(item.pivotWorld),offset:convert(item.explodedOffset)})),[manifest,selectedAssembly]);
+  const parts=useMemo(()=>manifest.components.filter(item=>item.parentAssemblyId===selectedAssembly&&(item.id.includes('HUB')||item.id.includes('BRAKE')||item.id.includes('RADIATOR')||item.id.includes('COOLANT')||item.id.includes('ENGINE')||item.id.includes('GEARBOX'))).map(item=>({order:typeof item.explodeOrder==='number'?Math.max(0,item.explodeOrder-1):item.animationOrder,disassemblyWindow:item.disassemblyWindow,start:convert(item.pivotWorld),offset:convert(item.explodedOffset)})),[manifest,selectedAssembly]);
   const geometry=useMemo(()=>{const result=new THREE.BufferGeometry();result.setAttribute('position',new THREE.BufferAttribute(new Float32Array(parts.length*6),3));result.boundingSphere=new THREE.Sphere(new THREE.Vector3(),100);trackGeometry(result,`mechanical-lines:${selectedAssembly}`,'connector');return result;},[parts,selectedAssembly]);
   useEffect(() => () => geometry.dispose(), [geometry]);
   useEffect(() => {
     const attribute=geometry.getAttribute('position') as THREE.BufferAttribute;
     const values=attribute.array as Float32Array;
     parts.forEach((item, index) => {
-      const phase=componentDetachmentAt(progress,selectedAssembly,item.order,parts.length);
+      const phase=componentDetachmentAt(progress,selectedAssembly,item.order,parts.length,item.disassemblyWindow);
       const {start,offset}=item;
       values.set([start.x,start.y,start.z,start.x+offset.x*phase,start.y+offset.y*phase,start.z+offset.z*phase],index*6);
     });
@@ -232,11 +363,12 @@ function Camera({model,pose,mode,controls,inspectFocusNodes,storyFocusNodes,sele
   return null;
 }
 
-function Scene(props: { model: THREE.Group; manifest: AssemblyManifest; scrollProgress: number; cutaway: boolean; selectedAssembly: string; selectedComponent: string; isolation:boolean; isolationScope:'assembly'|'component';ghost:boolean;storyFocusStrength:number;attachmentCue:boolean;cameraPose:CameraPose;cameraMode:'story'|'inspect';lightIntensity:number;profile: QualityProfile;onMetrics: (m: RuntimeMetrics) => void;onRenderSample:(time:number,ms:number)=>void;onContextLost: (lost: boolean) => void;onUserOrbit:()=>void }) {
+function Scene(props: { model: THREE.Group; manifest: AssemblyManifest; scrollProgress: number; cutaway: boolean; selectedAssembly: string; selectedComponent: string; hoveredComponent: string | null; isolation:boolean; isolationScope:'assembly'|'component';ghost:boolean;storyFocusStrength:number; renderMode: CadRenderMode; attachmentCue:boolean;cameraPose:CameraPose;cameraMode:'story'|'inspect';lightIntensity:number;profile: QualityProfile;onMetrics: (m: RuntimeMetrics) => void;onRenderSample:(time:number,ms:number)=>void;onContextLost: (lost: boolean) => void;onUserOrbit:()=>void;onHoverComponent?: (id: string | null) => void;onPickComponent?: (id: string) => void }) {
   const controls = useRef<OrbitControlsImpl>(null);
   const storyFocusNodes=useMemo(()=>{const selected=props.manifest.components.find(item=>item.id===props.selectedComponent)?.node;return props.storyFocusStrength>0&&selected?[selected]:assemblyNodeNames(props.manifest,props.selectedAssembly);},[props.manifest,props.selectedAssembly,props.selectedComponent,props.storyFocusStrength]);
   const inspectFocusNodes=useMemo(()=>!props.isolation?[]:props.isolationScope==='component'?[props.manifest.components.find(item=>item.id===props.selectedComponent)?.node].filter((name):name is string=>Boolean(name)):assemblyNodeNames(props.manifest,props.selectedAssembly),[props.isolation,props.isolationScope,props.manifest,props.selectedAssembly,props.selectedComponent]);
-  return <><color attach="background" args={['#08090b']} /><ambientLight intensity={.38*props.lightIntensity} /><hemisphereLight args={['#e5edf5', '#0b0d11', 1.16*props.lightIntensity]} /><directionalLight color="#fff3e8" intensity={3.15*props.lightIntensity} position={[4.5, 7, 4]} castShadow={PROFILE[props.profile].shadows} /><directionalLight color="#d32642" intensity={(props.isolation?.18:.78)*props.lightIntensity} position={[0, 2.4, -6]} /><directionalLight color="#bfd8ef" intensity={1.28*props.lightIntensity} position={[-4, 4.5, -2.5]} /><Model {...props} />{DIAGNOSTIC_MODE!=='no-connectors'&&<><AttachmentConnectors manifest={props.manifest} progress={props.isolation||props.storyFocusStrength>0?0:props.scrollProgress} cue={props.attachmentCue&&!props.isolation}/><MechanicalConnectors manifest={props.manifest} selectedAssembly={props.selectedAssembly} progress={props.isolation?0:props.scrollProgress} /></>}<OrbitControls ref={controls} makeDefault enabled={props.cameraMode==='inspect'} minDistance={.7} maxDistance={30} enablePan={false} onStart={props.onUserOrbit} /><Camera model={props.model} pose={props.cameraPose} mode={props.cameraMode} controls={controls} inspectFocusNodes={inspectFocusNodes} storyFocusNodes={storyFocusNodes} selectedAssembly={props.selectedAssembly} scrollProgress={props.scrollProgress} /><Metrics onMetrics={props.onMetrics} onSample={props.onRenderSample} /><ContextGuard onContextLost={props.onContextLost} /></>;
+  const bg = props.renderMode === 'wireframe' ? '#060a10' : '#08090b';
+  return <><color attach="background" args={[bg]} /><ambientLight intensity={.38*props.lightIntensity} /><hemisphereLight args={['#e5edf5', '#0b0d11', 1.16*props.lightIntensity]} /><directionalLight color="#fff3e8" intensity={3.15*props.lightIntensity} position={[4.5, 7, 4]} castShadow={PROFILE[props.profile].shadows} /><directionalLight color="#d32642" intensity={(props.isolation?.18:.78)*props.lightIntensity} position={[0, 2.4, -6]} /><directionalLight color="#bfd8ef" intensity={1.28*props.lightIntensity} position={[-4, 4.5, -2.5]} /><Model {...props} />{DIAGNOSTIC_MODE!=='no-connectors'&&<><AttachmentConnectors manifest={props.manifest} progress={props.isolation||props.storyFocusStrength>0?0:props.scrollProgress} cue={props.attachmentCue&&!props.isolation}/><MechanicalConnectors manifest={props.manifest} selectedAssembly={props.selectedAssembly} progress={props.isolation?0:props.scrollProgress} /></>}<OrbitControls ref={controls} makeDefault enabled={props.cameraMode==='inspect'} minDistance={.7} maxDistance={30} enablePan={false} onStart={props.onUserOrbit} /><Camera model={props.model} pose={props.cameraPose} mode={props.cameraMode} controls={controls} inspectFocusNodes={inspectFocusNodes} storyFocusNodes={storyFocusNodes} selectedAssembly={props.selectedAssembly} scrollProgress={props.scrollProgress} /><Metrics onMetrics={props.onMetrics} onSample={props.onRenderSample} /><ContextGuard onContextLost={props.onContextLost} /></>;
 }
 
 function info(gl: THREE.WebGLRenderer): import('./types').RendererInfo { const c = gl.getContext(); const e = c.getExtension('WEBGL_debug_renderer_info'); const vendor = String(c.getParameter(c.VENDOR)); const renderer = String(c.getParameter(c.RENDERER)); const unmaskedVendor = e ? String(c.getParameter(e.UNMASKED_VENDOR_WEBGL)) : vendor; const unmaskedRenderer = e ? String(c.getParameter(e.UNMASKED_RENDERER_WEBGL)) : renderer; return { vendor, renderer, unmaskedVendor, unmaskedRenderer, hardwareAccelerated: !/swiftshader|software|llvmpipe/i.test(unmaskedRenderer) }; }
@@ -244,16 +376,30 @@ function info(gl: THREE.WebGLRenderer): import('./types').RendererInfo { const c
 function disposeModel(model: THREE.Object3D, reason = 'model-dispose') {
   setResourcePhase(reason);
   model.traverse((object) => {
+    if (object instanceof THREE.LineSegments && object.userData.pedsCadEdge) {
+      object.geometry?.dispose();
+      return;
+    }
     if (!(object instanceof THREE.Mesh)) return;
     object.geometry?.dispose();
     const original=baseMaterialsByMesh.get(object)??object.material;
     const materials = Array.isArray(original) ? original : [original];
     for (const material of materials) {
       focusMaterialByBase.get(material)?.dispose();
+      xrayMaterialByBase.get(material)?.dispose();
       for (const value of Object.values(material)) if (value instanceof THREE.Texture) value.dispose();
       material.dispose();
     }
   });
+  const cadPalette = cadPaletteByModel.get(model);
+  if (cadPalette) {
+    cadPalette.context.dispose();
+    cadPalette.dimmed.dispose();
+    cadPalette.xray.dispose();
+    cadPalette.active.dispose();
+    cadPalette.hover.dispose();
+    cadPaletteByModel.delete(model);
+  }
   setResourcePhase('idle');
 }
 
@@ -284,7 +430,7 @@ function prepareFocusVariants(render: (scene: THREE.Object3D, camera: THREE.Came
   return performance.now()-started;
 }
 
-export default function ThreeStage(props: { modelUrl: string; manifest: AssemblyManifest; scrollProgress:number;cutaway: boolean; selectedAssembly: string; selectedComponent: string;isolation:boolean;isolationScope:'assembly'|'component';ghost:boolean;storyFocusStrength:number;attachmentCue:boolean;cameraPose:CameraPose;cameraMode:'story'|'inspect';lightIntensity:number; profile: QualityProfile;lang:Lang;restarting:boolean;onReady: (ms: number) => void; onMetrics: (m: RuntimeMetrics) => void; onEvidence: (e: StageEvidence) => void; onContextLost: (lost: boolean) => void; onProfileDisplayed: (profile: QualityProfile) => void; onLoadError: () => void; onRetryStart: () => void;onUserOrbit:()=>void }) {
+export default function ThreeStage(props: { modelUrl: string; manifest: AssemblyManifest; scrollProgress:number;cutaway: boolean; selectedAssembly: string; selectedComponent: string; hoveredComponent: string | null; isolation:boolean;isolationScope:'assembly'|'component';ghost:boolean;storyFocusStrength:number; renderMode: CadRenderMode; attachmentCue:boolean;cameraPose:CameraPose;cameraMode:'story'|'inspect';lightIntensity:number; profile: QualityProfile;lang:Lang;restarting:boolean;onReady: (ms: number) => void; onMetrics: (m: RuntimeMetrics) => void; onEvidence: (e: StageEvidence) => void; onContextLost: (lost: boolean) => void; onProfileDisplayed: (profile: QualityProfile) => void; onLoadError: () => void; onRetryStart: () => void;onUserOrbit:()=>void;onHoverComponent?: (id: string | null) => void;onPickComponent?: (id: string) => void }) {
   const [model, setModel] = useState<THREE.Group | null>(null);
   const [visualReady, setVisualReady] = useState(false);
   const needsFocusPreparation = useRef(false);
@@ -411,6 +557,20 @@ export default function ThreeStage(props: { modelUrl: string; manifest: Assembly
           return;
         }
         record({ at: performance.now(), type: 'material-prep-start', profile });
+        const cadPalette: CadEdgePalette = {
+          context: new THREE.LineBasicMaterial({ color: '#42d8ea', transparent: true, opacity: 0.26, depthWrite: false }),
+          dimmed: new THREE.LineBasicMaterial({ color: '#2b7d8e', transparent: true, opacity: 0.08, depthWrite: false }),
+          xray: new THREE.LineBasicMaterial({ color: '#39dcf0', transparent: true, opacity: 0.58, depthWrite: false }),
+          active: new THREE.LineBasicMaterial({ color: '#ff425f', transparent: true, opacity: 0.96, depthWrite: false }),
+          hover: new THREE.LineBasicMaterial({ color: '#ccfaff', transparent: true, opacity: 0.94, depthWrite: false }),
+        };
+        trackMaterial(cadPalette.context);
+        trackMaterial(cadPalette.dimmed);
+        trackMaterial(cadPalette.xray);
+        trackMaterial(cadPalette.active);
+        trackMaterial(cadPalette.hover);
+        cadPaletteByModel.set(gltf.scene, cadPalette);
+
         gltf.scene.traverse((object) => {
           object.visible = true;
           if (!(object instanceof THREE.Mesh)) return;
@@ -418,9 +578,42 @@ export default function ThreeStage(props: { modelUrl: string; manifest: Assembly
           object.receiveShadow = true;
           const list = Array.isArray(object.material) ? object.material : [object.material];
           const cloned = list.map((material) => material.clone());
-          for(const material of cloned){const focus=material.clone();focus.transparent=true;focus.depthWrite=false;focusMaterialByBase.set(material,focus);trackMaterial(focus);}
+          for (const material of cloned) {
+            const focus = material.clone();
+            focus.transparent = true;
+            focus.depthWrite = false;
+            focusMaterialByBase.set(material, focus);
+            trackMaterial(focus);
+
+            const xray = new THREE.MeshStandardMaterial({
+              color: '#0e2836',
+              emissive: '#092430',
+              emissiveIntensity: 0.42,
+              roughness: 0.38,
+              metalness: 0.15,
+              transparent: true,
+              opacity: 0.14,
+              depthWrite: false,
+            });
+            xrayMaterialByBase.set(material, xray);
+            trackMaterial(xray);
+          }
           object.material = Array.isArray(object.material) ? cloned : cloned[0];
-          baseMaterialsByMesh.set(object,object.material);
+          baseMaterialsByMesh.set(object, object.material);
+
+          if (object.geometry) {
+            const edgeGeom = new THREE.EdgesGeometry(object.geometry, CAD_EDGE_THRESHOLD_DEG);
+            trackGeometry(edgeGeom, `${object.name || 'mesh'}:cad-edges`, `model:${profile}:${sequence}`);
+            const cadLines = new THREE.LineSegments(edgeGeom, cadPalette.context);
+            cadLines.name = '__peds_cad_edges__';
+            cadLines.userData.pedsCadEdge = true;
+            cadLines.visible = false;
+            cadLines.castShadow = false;
+            cadLines.receiveShadow = false;
+            cadLines.raycast = () => {};
+            object.add(cadLines);
+            cadEdgesByMesh.set(object, cadLines);
+          }
         });
         record({ at: performance.now(), type: 'material-prep-ready', profile });
         record({ at: performance.now(), type: 'decode-ready', profile });
@@ -553,5 +746,5 @@ export default function ThreeStage(props: { modelUrl: string; manifest: Assembly
     }
     canvasStats.current = { width: gl.domElement.width, height: gl.domElement.height, dpr: gl.getPixelRatio(), shadowEnabled: config.shadows };
     props.onEvidence(evidence);
-  }}><Scene model={model} manifest={props.manifest} scrollProgress={props.scrollProgress} cutaway={props.cutaway} storyFocusStrength={props.storyFocusStrength} selectedAssembly={props.selectedAssembly} selectedComponent={props.selectedComponent} isolation={props.isolation} isolationScope={props.isolationScope} ghost={props.ghost} attachmentCue={props.attachmentCue} cameraPose={props.cameraPose} cameraMode={props.cameraMode} lightIntensity={props.lightIntensity} profile={props.profile} onMetrics={props.onMetrics} onRenderSample={(time,ms)=>{renderSamples.current.push({time,ms});if(renderSamples.current.length>5000)renderSamples.current.shift();}} onUserOrbit={props.onUserOrbit} onContextLost={(lost) => { record({ at: performance.now(), type: lost ? 'context-lost' : 'context-restored', profile: displayedProfile.current ?? undefined }); if(lost)setVisualReady(false);else needsFocusPreparation.current=true; props.onContextLost(lost); }} /></Canvas>{!visualReady&&<div className="loading-state" role="status"><img src={POSTER_URL} alt={props.lang==='vi'?'Ảnh xem trước Model B; mô hình tương tác đang được chuẩn bị':'Model B still preview; interactive model is being prepared'}/><div><strong>{props.lang==='vi'?`Đang chuẩn bị ${props.profile}…`:`Preparing ${props.profile}...`}</strong><span>{props.lang==='vi'?'Mô hình tương tác sẽ hiện sau khung hình đầu tiên':'The interactive model appears after its first rendered frame'}</span></div></div>}</>;
+  }}><Scene model={model} manifest={props.manifest} scrollProgress={props.scrollProgress} cutaway={props.cutaway} storyFocusStrength={props.storyFocusStrength} renderMode={props.renderMode} selectedAssembly={props.selectedAssembly} selectedComponent={props.selectedComponent} hoveredComponent={props.hoveredComponent} isolation={props.isolation} isolationScope={props.isolationScope} ghost={props.ghost} attachmentCue={props.attachmentCue} cameraPose={props.cameraPose} cameraMode={props.cameraMode} lightIntensity={props.lightIntensity} profile={props.profile} onMetrics={props.onMetrics} onRenderSample={(time,ms)=>{renderSamples.current.push({time,ms});if(renderSamples.current.length>5000)renderSamples.current.shift();}} onUserOrbit={props.onUserOrbit} onHoverComponent={props.onHoverComponent} onPickComponent={props.onPickComponent} onContextLost={(lost) => { record({ at: performance.now(), type: lost ? 'context-lost' : 'context-restored', profile: displayedProfile.current ?? undefined }); if(lost)setVisualReady(false);else needsFocusPreparation.current=true; props.onContextLost(lost); }} /></Canvas>{!visualReady&&<div className="loading-state" role="status"><img src={POSTER_URL} alt={props.lang==='vi'?'Ảnh xem trước Model B; mô hình tương tác đang được chuẩn bị':'Model B still preview; interactive model is being prepared'}/><div><strong>{props.lang==='vi'?`Đang chuẩn bị ${props.profile}…`:`Preparing ${props.profile}...`}</strong><span>{props.lang==='vi'?'Mô hình tương tác sẽ hiện sau khung hình đầu tiên':'The interactive model appears after its first rendered frame'}</span></div></div>}</>;
 }

@@ -1,14 +1,14 @@
 import { useNavigationStore } from "../../store/useNavigationStore";
 import type { SeasonYear } from "../../types";
 import {
-  P5DriverGrid,
-  P5PortraitCredit,
-  P5TeamGrid,
-} from "../p5/P5DirectorySurfaces";
-import { useP5SeasonData } from "../p5/useP5ChampionshipData";
-import { useP5Reveal } from "../p5/useP5Reveal";
-import "../p5/p5.css";
-import "../p5/p5TeamGarage.css";
+  DriverGrid,
+  PortraitCredits,
+  TeamGrid,
+} from "../directory/DirectorySurfaces";
+import { useSeasonDirectoryData } from "../directory/useSeasonDirectoryData";
+import { useDirectoryReveal } from "../directory/useDirectoryReveal";
+import "../directory/directory.css";
+import "../directory/teamGarage.css";
 
 export function ChampionshipDirectory({
   season,
@@ -19,10 +19,10 @@ export function ChampionshipDirectory({
 }) {
   const lang = useNavigationStore((state) => state.lang);
   const isDrivers = kind === "drivers";
-  const { standings } = useP5SeasonData(season);
+  const { standings } = useSeasonDirectoryData(season);
   const teams = [...standings.constructors].sort((a, b) => a.rank - b.rank);
   const drivers = [...standings.drivers].sort((a, b) => a.rank - b.rank);
-  const revealRef = useP5Reveal<HTMLElement>(`embedded-${kind}-${season}`);
+  const revealRef = useDirectoryReveal<HTMLElement>(`embedded-${kind}-${season}`);
 
   return (
     <section
@@ -55,14 +55,14 @@ export function ChampionshipDirectory({
         </p>
       </div>
       {isDrivers ? (
-        <P5DriverGrid
+        <DriverGrid
           rows={drivers}
           season={season}
           lang={lang}
           emptyLabel={lang === "vi" ? "Chưa có tay đua trong dữ liệu mùa này." : "No drivers are available for this season."}
         />
       ) : (
-        <P5TeamGrid
+        <TeamGrid
           rows={teams}
           season={season}
           lang={lang}
@@ -70,7 +70,7 @@ export function ChampionshipDirectory({
           emptyLabel={lang === "vi" ? "Chưa có đội đua trong dữ liệu mùa này." : "No teams are available for this season."}
         />
       )}
-      <P5PortraitCredit lang={lang} driverIds={standings.drivers.map((driver) => driver.driverId)} season={season} />
+      <PortraitCredits lang={lang} driverIds={standings.drivers.map((driver) => driver.driverId)} season={season} />
     </section>
   );
 }

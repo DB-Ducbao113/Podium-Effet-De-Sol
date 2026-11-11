@@ -45,12 +45,37 @@ async function route(
         },
       });
     }
+    const fetchSite = request.headers.get("Sec-Fetch-Site")?.toLowerCase();
+    const fetchMode = request.headers.get("Sec-Fetch-Mode")?.toLowerCase();
+    const fetchDest = request.headers.get("Sec-Fetch-Dest")?.toLowerCase();
+    if (fetchSite === "cross-site") {
+      return new Response("Cross-origin model access denied", {
+        status: 403,
+        headers: {
+          "Content-Type": "text/plain; charset=utf-8",
+          "Cache-Control": "no-store",
+          "X-Robots-Tag": "noindex, noimageindex, nosnippet",
+        },
+      });
+    }
+    if (fetchDest === "document" || fetchMode === "navigate") {
+      return new Response("Direct model navigation forbidden", {
+        status: 403,
+        headers: {
+          "Content-Type": "text/plain; charset=utf-8",
+          "Cache-Control": "no-store",
+          "X-Robots-Tag": "noindex, noimageindex, nosnippet",
+        },
+      });
+    }
     const asset = await environment.ASSETS.fetch(request);
     const response = new Response(asset.body, asset);
     response.headers.set(
       "Cache-Control",
       "public, max-age=31536000, immutable",
     );
+    response.headers.set("X-Robots-Tag", "noindex, noimageindex, nosnippet");
+    response.headers.set("Cross-Origin-Resource-Policy", "same-origin");
     return response;
   }
   if (!pathname.startsWith("/api/")) {

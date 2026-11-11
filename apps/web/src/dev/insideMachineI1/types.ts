@@ -1,5 +1,6 @@
-export type Lang = 'vi' | 'en';
-export type QualityProfile = 'HIGH' | 'BALANCED' | 'PERFORMANCE';
+export type Lang = "vi" | "en";
+export type QualityProfile = "HIGH" | "BALANCED" | "PERFORMANCE";
+export type CadRenderMode = "pbr" | "hybrid" | "wireframe";
 
 export interface SemanticBase {
   id: string;
@@ -13,7 +14,7 @@ export interface SemanticBase {
 }
 
 export interface AssemblyRecord extends SemanticBase {
-  type: 'wheel' | 'wing' | 'bodywork' | 'underbody';
+  type: "wheel" | "wing" | "bodywork" | "underbody";
   globalExplodedOffset: [number, number, number];
   globalExplodedRotationEuler: [number, number, number];
   componentIds: string[];
@@ -25,6 +26,9 @@ export interface AssemblyComponent extends SemanticBase {
   explodedRotationEuler: [number, number, number];
   animationOrder: number;
   materialReferences: string[];
+  explodeOrder?: number;
+  disassemblyWindow?: [number, number];
+  isClosedSolid?: boolean;
 }
 
 export interface AssemblyManifest {
@@ -35,7 +39,7 @@ export interface AssemblyManifest {
   components: AssemblyComponent[];
   internalSystems?: Array<{
     id: string;
-    parent: 'CHASSIS_CORE';
+    parent: "CHASSIS_CORE";
     pivotWorld: [number, number, number];
     componentIds: string[];
     label: Record<Lang, string>;
@@ -52,30 +56,110 @@ export interface AssemblyManifest {
 }
 
 export interface RuntimeMetrics {
-  loadMs: number; fps: number; onePercentLowFps: number; p95FrameMs: number;
-  drawCalls: number; triangles: number; geometries: number; textures: number; samples: number;
+  loadMs: number;
+  fps: number;
+  onePercentLowFps: number;
+  p95FrameMs: number;
+  drawCalls: number;
+  triangles: number;
+  geometries: number;
+  textures: number;
+  samples: number;
 }
 
 export interface LifecycleEvent {
   at: number;
-  type: 'profile-request' | 'fetch-start' | 'fetch-ready' | 'decode-start' | 'parse-ready' | 'material-prep-start' | 'material-prep-ready' | 'decode-ready' | 'shader-precompile-start' | 'shader-precompile-ready' | 'focus-first-render-prepared' | 'swap' | 'first-render' | 'stale-dispose' | 'previous-dispose-start' | 'previous-dispose' | 'load-error' | 'context-lost' | 'context-restored';
+  type:
+    | "profile-request"
+    | "fetch-start"
+    | "fetch-ready"
+    | "decode-start"
+    | "parse-ready"
+    | "material-prep-start"
+    | "material-prep-ready"
+    | "decode-ready"
+    | "shader-precompile-start"
+    | "shader-precompile-ready"
+    | "focus-first-render-prepared"
+    | "swap"
+    | "first-render"
+    | "stale-dispose"
+    | "previous-dispose-start"
+    | "previous-dispose"
+    | "load-error"
+    | "context-lost"
+    | "context-restored";
   profile?: QualityProfile;
   detail?: string;
 }
 
 export interface RendererInfo {
-  vendor: string; renderer: string; unmaskedVendor: string; unmaskedRenderer: string; hardwareAccelerated: boolean;
+  vendor: string;
+  renderer: string;
+  unmaskedVendor: string;
+  unmaskedRenderer: string;
+  hardwareAccelerated: boolean;
 }
 
 export interface StageEvidence {
-  getTransforms: () => Record<string, { position: number[]; quaternion: number[]; scale: number[]; finite: boolean }>;
+  getTransforms: () => Record<
+    string,
+    {
+      position: number[];
+      quaternion: number[];
+      scale: number[];
+      finite: boolean;
+    }
+  >;
   getRendererInfo: () => RendererInfo;
-  getScreenBounds: (scope?: 'model' | 'active-assembly' | 'active-component') => { minX: number; minY: number; maxX: number; maxY: number; width: number; height: number; viewportWidth: number; viewportHeight: number; clipped: boolean };
-  getSemanticBounds?: (id:string) => { minX: number; minY: number; maxX: number; maxY: number; width: number; height: number; viewportWidth: number; viewportHeight: number; clipped: boolean;outside:boolean };
+  getScreenBounds: (
+    scope?: "model" | "active-assembly" | "active-component",
+  ) => {
+    minX: number;
+    minY: number;
+    maxX: number;
+    maxY: number;
+    width: number;
+    height: number;
+    viewportWidth: number;
+    viewportHeight: number;
+    clipped: boolean;
+  };
+  getSemanticBounds?: (id: string) => {
+    minX: number;
+    minY: number;
+    maxX: number;
+    maxY: number;
+    width: number;
+    height: number;
+    viewportWidth: number;
+    viewportHeight: number;
+    clipped: boolean;
+    outside: boolean;
+  };
   getLifecycle: () => LifecycleEvent[];
-  getStageState: () => { displayedProfile: QualityProfile | null; requestedProfile: QualityProfile; loading: boolean; hasVisibleModel: boolean; stageRenders: number };
-  getCanvasStats: () => { width: number; height: number; dpr: number; shadowEnabled: boolean };
-  getRuntimeDetails: () => { programs: number; drawCalls: number; triangles: number; geometries: number; textures: number; dpr: number; shadowMapEnabled: boolean };
+  getStageState: () => {
+    displayedProfile: QualityProfile | null;
+    requestedProfile: QualityProfile;
+    loading: boolean;
+    hasVisibleModel: boolean;
+    stageRenders: number;
+  };
+  getCanvasStats: () => {
+    width: number;
+    height: number;
+    dpr: number;
+    shadowEnabled: boolean;
+  };
+  getRuntimeDetails: () => {
+    programs: number;
+    drawCalls: number;
+    triangles: number;
+    geometries: number;
+    textures: number;
+    dpr: number;
+    shadowMapEnabled: boolean;
+  };
   getRenderSamples?: () => { time: number; ms: number }[];
   getCamera?: () => { position: number[]; target: number[] } | null;
 }

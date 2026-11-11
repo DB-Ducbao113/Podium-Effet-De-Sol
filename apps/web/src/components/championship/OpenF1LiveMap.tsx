@@ -589,7 +589,7 @@ export const OpenF1LiveMap: React.FC<OpenF1LiveMapProps> = ({ lang }) => {
           <button
             type="button"
             onClick={() => setIsPlaying(!isPlaying)}
-            className="p-2 rounded-lg bg-f1red hover:bg-f1red/90 text-white transition-all cursor-pointer shadow-md"
+            className="p-2 rounded-lg bg-peds-ignition hover:bg-peds-accent-strong text-peds-carbon transition-all cursor-pointer shadow-md"
             title={isPlaying ? 'Tạm dừng' : 'Tiếp tục'}
           >
             {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
@@ -611,7 +611,7 @@ export const OpenF1LiveMap: React.FC<OpenF1LiveMapProps> = ({ lang }) => {
                 type="button"
                 onClick={() => setPlaybackSpeed(spd)}
                 className={`px-2 py-1 rounded text-[10px] font-mono font-bold transition-all cursor-pointer ${
-                  playbackSpeed === spd ? 'bg-f1red text-white' : 'text-studio-400 hover:text-white'
+                  playbackSpeed === spd ? 'bg-peds-ignition text-peds-carbon' : 'text-studio-400 hover:text-white'
                 }`}
               >
                 {spd}x

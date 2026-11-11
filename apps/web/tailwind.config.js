@@ -28,8 +28,20 @@ export default {
           'burnt-orange': 'var(--peds-color-burnt-orange)',
           'brake-amber': 'var(--peds-color-brake-amber)',
           focus: 'var(--peds-color-focus)',
+          // Ignition accent ramp — the single accent of the system.
+          flame: {
+            300: 'var(--peds-flame-300)',
+            400: 'var(--peds-flame-400)',
+            500: 'var(--peds-flame-500)',
+            600: 'var(--peds-flame-600)',
+            wash: 'var(--peds-flame-wash)',
+          },
+          ok: 'var(--peds-color-ok)',
+          error: 'var(--peds-color-error)',
         },
         // Luxury White Studio Palette (Porsche / BMW clean gallery aesthetic)
+        // DEPRECATED — light-theme ramp kept only for pages that have not been
+        // migrated to the semantic --peds-color-* roles yet (Slice 5).
         studio: {
           50: '#ffffff',
           100: '#fafafa',
@@ -43,19 +55,37 @@ export default {
           900: '#18181b',
           950: '#09090b',
         },
+        // DEPRECATED — legacy red brand alias. Kept until every consumer
+        // migrates to the semantic --peds-color-* roles.
         f1red: {
-          DEFAULT: 'var(--peds-color-accent)',
-          dark: '#c91010',
-          light: 'var(--peds-color-scarlet)',
-          muted: '#ffe3dc',
+          DEFAULT: 'var(--peds-color-ignition)',
+          dark: 'var(--peds-flame-600)',
+          light: 'var(--peds-color-accent-strong)',
+          muted: 'var(--peds-color-accent-wash)',
         },
+      },
+      fontSize: {
+        'peds-display': 'var(--peds-text-display)',
+        'peds-h1': 'var(--peds-text-h1)',
+        'peds-h2': 'var(--peds-text-h2)',
+        'peds-body': 'var(--peds-text-body)',
+        'peds-label': 'var(--peds-text-label)',
+        'peds-data': 'var(--peds-text-data)',
       },
       fontFamily: {
         sans: ['var(--peds-font-body)'],
         body: ['var(--peds-font-body)'],
         ui: ['var(--peds-font-ui)'],
+        script: ['var(--peds-font-script)'],
+        hand: ['var(--peds-font-hand)'],
         display: ['var(--peds-font-display)'],
+        editorial: ['var(--peds-font-editorial)'],
         mono: ['var(--peds-font-mono)'],
+      },
+      // The display face stops at 800. `font-black` is remapped so it cannot
+      // request a weight the shipped font does not carry.
+      fontWeight: {
+        black: '800',
       },
       maxWidth: {
         'peds-content': 'var(--peds-container-content)',

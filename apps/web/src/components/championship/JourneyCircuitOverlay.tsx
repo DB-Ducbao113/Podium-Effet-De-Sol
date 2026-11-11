@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import type { GrandPrixRound, SeasonYear, WeekendSession } from "../../types";
-import { getSeasonCircuit } from "../../utils/p5SeasonalVisuals";
+import { getSeasonCircuit } from "../../utils/seasonalVisuals";
 import {
   formatLatitude,
   formatLongitude,

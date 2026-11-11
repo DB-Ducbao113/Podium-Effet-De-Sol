@@ -4,7 +4,7 @@ import { TEAMS_DATA } from '../data/teams';
 import { DRIVERS_DATA } from '../data/drivers';
 
 describe('original visual asset routing', () => {
-  it('routes team cards to original EDS-G01 studies', () => {
+  it('routes team cards to original Podium EDS vehicle studies', () => {
     expect(getOriginalTeamVisualAsset('ferrari')).toBe('/images/eds/vehicle-studies/ferrari.svg');
   });
 

@@ -10,6 +10,8 @@ import {
 } from 'lucide-react';
 import { CameraController, type CameraPreset } from './CameraController';
 import { CompactShowroomLayout } from './CompactShowroomLayout';
+import { StageFloor, StageLights, StudioEnvironment } from './ShowroomStage';
+import { STAGE_COLORS, STAGE_LIGHTING, getStageFloorSettings } from './showroomStageConfig';
 import { ErrorBoundary } from '../common/ErrorBoundary';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import { useNavigationStore } from '../../store/useNavigationStore';
@@ -19,18 +21,18 @@ import {
   type GraphicsMode,
   type ProfileTransition,
   type QualityProfile,
-} from '../../dev/commercial-b/adaptiveController';
-import { FrameMetricsCollector, type FrameMetrics } from '../../dev/commercial-b/frameMetrics';
+} from './model-b/adaptiveController';
+import { FrameMetricsCollector, type FrameMetrics } from './model-b/frameMetrics';
 import {
   GRAPHICS_MODE_STORAGE_KEY,
   persistGraphicsMode,
   readGraphicsMode,
-} from '../../dev/commercial-b/graphicsPreference';
-import { QUALITY_PROFILES } from '../../dev/commercial-b/qualityProfiles';
-import { applyModelBLivery } from '../../dev/commercial-b/modelBMaterials';
-import { MODEL_B_HOTSPOTS, MODEL_B_LIVERIES, type ModelBHotspot, type ModelBLivery } from '../../dev/commercial-b/modelBExperience';
-import { disposeModelB, loadModelB } from '../../dev/commercial-b/modelBLoader';
-import { getModelBPaintStorage, persistModelBPaint, readModelBPaint } from '../../dev/commercial-b/paintPreference';
+} from './model-b/graphicsPreference';
+import { QUALITY_PROFILES } from './model-b/qualityProfiles';
+import { applyModelBLivery } from './model-b/modelBMaterials';
+import { MODEL_B_HOTSPOTS, MODEL_B_LIVERIES, type ModelBHotspot, type ModelBLivery } from './model-b/modelBExperience';
+import { disposeModelB, loadModelB } from './model-b/modelBLoader';
+import { getModelBPaintStorage, persistModelBPaint, readModelBPaint } from './model-b/paintPreference';
 
 function setShowroomCameraFov(camera: THREE.PerspectiveCamera, fov: number) {
   camera.fov = fov;
@@ -49,6 +51,14 @@ function ShowroomCameraFraming() {
 
 const MODES: GraphicsMode[] = ['AUTO', 'HIGH', 'BALANCED', 'PERFORMANCE'];
 const CAMERA_PRESETS: CameraPreset[] = ['overview', 'front', 'side', 'cockpit', 'rear', 'top'];
+const CAMERA_LABELS: Record<string, { vi: string; en: string }> = {
+  overview: { vi: 'Tổng quan', en: 'Overview' },
+  front: { vi: 'Trước', en: 'Front' },
+  side: { vi: 'Cạnh', en: 'Side' },
+  cockpit: { vi: 'Buồng lái', en: 'Cockpit' },
+  rear: { vi: 'Sau', en: 'Rear' },
+  top: { vi: 'Trên', en: 'Top' },
+};
 
 interface LoadEvidence {
   fetchMs: number;
@@ -631,7 +641,7 @@ export const CommercialBReviewShowroom: React.FC<{ headingLevel?: 'h1' | 'h2' }>
   };
 
   return (
-    <main className="bg-[#111417] text-white" data-testid="model-b-showroom">
+    <section className="bg-[#111417] text-white" data-testid="model-b-showroom">
       <header className="border-b border-white/10 bg-[#171b21] px-4 py-3">
         <div className="page-container">
           <div className="flex flex-wrap items-center justify-between gap-4">
@@ -666,16 +676,16 @@ export const CommercialBReviewShowroom: React.FC<{ headingLevel?: 'h1' | 'h2' }>
                 type="button"
                 aria-pressed={cameraPreset === preset && !selectedHotspot}
                 onClick={() => selectPreset(preset)}
-                className={`min-h-9 rounded-lg px-2 py-1.5 text-[10px] font-bold uppercase focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#cf2539] ${cameraPreset === preset && !selectedHotspot ? 'bg-[#cf2539] text-white' : 'text-[#c5cdd4] hover:bg-white/10'}`}
+                className={`min-h-11 rounded-lg px-3 py-2 text-[11px] font-bold uppercase tracking-wide focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#cf2539] ${cameraPreset === preset && !selectedHotspot ? 'bg-[#cf2539] text-white' : 'text-[#c5cdd4] hover:bg-white/10'}`}
               >
-                {preset}
+                {lang === 'vi' ? CAMERA_LABELS[preset].vi : CAMERA_LABELS[preset].en}
               </button>
             ))}
             <button
               type="button"
               aria-pressed={autoRotate}
               onClick={() => setAutoRotate((value) => !value)}
-              className={`min-h-9 rounded-lg px-2 py-1.5 text-[10px] font-bold uppercase focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#cf2539] ${autoRotate ? 'bg-white/10 text-white' : 'text-[#c5cdd4] hover:bg-white/10'}`}
+              className={`min-h-11 rounded-lg px-3 py-2 text-[11px] font-bold uppercase tracking-wide focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#cf2539] ${autoRotate ? 'bg-white/10 text-white' : 'text-[#c5cdd4] hover:bg-white/10'}`}
             >
               {autoRotate ? (
                 <Pause className="mr-1 inline h-3 w-3" aria-hidden="true" />
@@ -696,7 +706,7 @@ export const CommercialBReviewShowroom: React.FC<{ headingLevel?: 'h1' | 'h2' }>
                 setZoomDirection('in');
                 setZoomTrigger((value) => value + 1);
               }}
-              className="min-h-9 rounded-lg px-2 py-1.5 text-[10px] font-bold uppercase text-[#c5cdd4] hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#cf2539]"
+              className="min-h-11 rounded-lg px-3 py-2 text-[11px] font-bold uppercase tracking-wide text-[#c5cdd4] hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#cf2539]"
             >
               Zoom +
             </button>
@@ -706,14 +716,14 @@ export const CommercialBReviewShowroom: React.FC<{ headingLevel?: 'h1' | 'h2' }>
                 setZoomDirection('out');
                 setZoomTrigger((value) => value + 1);
               }}
-              className="min-h-9 rounded-lg px-2 py-1.5 text-[10px] font-bold uppercase text-[#c5cdd4] hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#cf2539]"
+              className="min-h-11 rounded-lg px-3 py-2 text-[11px] font-bold uppercase tracking-wide text-[#c5cdd4] hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#cf2539]"
             >
               Zoom −
             </button>
             <button
               type="button"
               onClick={resetCamera}
-              className="min-h-9 rounded-lg px-2 py-1.5 text-[10px] font-bold uppercase text-[#c5cdd4] hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#cf2539]"
+              className="min-h-11 rounded-lg px-3 py-2 text-[11px] font-bold uppercase tracking-wide text-[#c5cdd4] hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#cf2539]"
             >
               Reset
             </button>
@@ -769,7 +779,7 @@ export const CommercialBReviewShowroom: React.FC<{ headingLevel?: 'h1' | 'h2' }>
           </section>
         )}
       >
-        <div ref={stageRef} className="relative h-full min-w-0 overflow-hidden bg-[#111417]" aria-label="Formula 1 2022 Car Model B canvas" aria-busy={!modelLoaded && !loadError} data-testid="commercial-b-stage">
+        <div ref={stageRef} className="relative h-full min-w-0 overflow-hidden bg-[#0b0e13]" aria-label="Formula 1 2022 Car Model B canvas" aria-busy={!modelLoaded && !loadError} data-testid="commercial-b-stage">
           <ErrorBoundary fallback={<ReviewFallback lang={lang} />}>
             <Canvas
               dpr={Math.min(window.devicePixelRatio * scale, 2)}
@@ -784,15 +794,11 @@ export const CommercialBReviewShowroom: React.FC<{ headingLevel?: 'h1' | 'h2' }>
               }}
               className="h-full w-full cursor-grab active:cursor-grabbing"
             >
-              <color attach="background" args={['#1b2026']} />
-              <hemisphereLight args={['#e7edf7', '#20252b', lighting === 'dramatic' ? 1.25 : 1.75]} />
-              <directionalLight color="#fff7ee" intensity={lighting === 'dramatic' ? 4 : 3.1} position={[12, 18, 15]} />
-              <directionalLight color="#b9c8dd" intensity={lighting === 'dramatic' ? 2 : 2.6} position={[-12, 8, -14]} />
-              <directionalLight color="#eef4ff" intensity={lighting === 'dramatic' ? 2.6 : 2.2} position={[-15, 18, 8]} />
-              <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.02, 0]}>
-                <planeGeometry args={[200, 200]} />
-                <meshBasicMaterial color="#1b2026" toneMapped={false} />
-              </mesh>
+              <color attach="background" args={[STAGE_COLORS.background]} />
+              <fog attach="fog" args={[STAGE_COLORS.fog, 12, 26]} />
+              <StudioEnvironment intensity={STAGE_LIGHTING[lighting].environment} />
+              <StageLights mode={lighting} />
+              <StageFloor profile={profile} />
               <FrozenCommercialModel
                 livery={livery}
                 onLoaded={handleLoaded}
@@ -801,12 +807,12 @@ export const CommercialBReviewShowroom: React.FC<{ headingLevel?: 'h1' | 'h2' }>
               {hotspotsVisible && modelLoaded && <ModelBMarkers selected={selectedHotspot?.id ?? null} cameraPreset={cameraPreset} onSelect={selectHotspot} lang={lang} />}
               <ContactShadows
                 position={[0, 0.015, 0]}
-                opacity={0.22}
+                opacity={STAGE_LIGHTING[lighting].contactOpacity}
                 scale={6}
                 blur={2.4}
                 far={3.5}
                 frames={1}
-                resolution={profile === 'HIGH' ? 256 : 128}
+                resolution={getStageFloorSettings(profile).contactShadowResolution}
                 color="#000000"
               />
               <ReviewContextGuard
@@ -834,6 +840,7 @@ export const CommercialBReviewShowroom: React.FC<{ headingLevel?: 'h1' | 'h2' }>
               />
             </Canvas>
           </ErrorBoundary>
+          <div className="peds-stage-vignette" aria-hidden="true" />
           {!modelLoaded && !loadError && (
             <div
               className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-[#080a0e]/70"
@@ -871,7 +878,7 @@ export const CommercialBReviewShowroom: React.FC<{ headingLevel?: 'h1' | 'h2' }>
           </details>
         </div>
       </CompactShowroomLayout>
-    </main>
+    </section>
   );
 };
 

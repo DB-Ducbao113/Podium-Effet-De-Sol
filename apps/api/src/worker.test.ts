@@ -35,13 +35,58 @@ describe("Cloudflare Worker router", () => {
   it("serves only the approved production model through the asset binding", async () => {
     const env = environment("approved-glb");
     const response = await worker.fetch(
-      new Request("https://podium.example/models/model-b-eds-optimized-v1.glb"),
+      new Request(
+        "https://podium.example/models/model-b-eds-optimized-v1.glb",
+        {
+          headers: {
+            "Sec-Fetch-Site": "same-origin",
+            "Sec-Fetch-Mode": "cors",
+            "Sec-Fetch-Dest": "empty",
+          },
+        },
+      ),
       env,
     );
     expect(response.status).toBe(200);
     expect(response.headers.get("Cache-Control")).toContain("immutable");
+    expect(response.headers.get("X-Robots-Tag")).toContain("noindex");
+    expect(response.headers.get("Cross-Origin-Resource-Policy")).toBe(
+      "same-origin",
+    );
     await expect(response.text()).resolves.toBe("approved-glb");
     expect(env.ASSETS.fetch).toHaveBeenCalledOnce();
+  });
+
+  it("blocks cross-site scraping and direct browser navigation to .glb assets", async () => {
+    const env = environment("approved-glb");
+    const crossSite = await worker.fetch(
+      new Request(
+        "https://podium.example/models/model-b-eds-optimized-v1.glb",
+        {
+          headers: { "Sec-Fetch-Site": "cross-site" },
+        },
+      ),
+      env,
+    );
+    expect(crossSite.status).toBe(403);
+    expect(crossSite.headers.get("Cache-Control")).toBe("no-store");
+
+    const directNav = await worker.fetch(
+      new Request(
+        "https://podium.example/models/model-b-eds-optimized-v1.glb",
+        {
+          headers: {
+            "Sec-Fetch-Site": "none",
+            "Sec-Fetch-Mode": "navigate",
+            "Sec-Fetch-Dest": "document",
+          },
+        },
+      ),
+      env,
+    );
+    expect(directNav.status).toBe(403);
+    expect(directNav.headers.get("X-Robots-Tag")).toContain("noindex");
+    expect(env.ASSETS.fetch).not.toHaveBeenCalled();
   });
 
   it("returns an explicit JSON 404 for unknown API routes", async () => {

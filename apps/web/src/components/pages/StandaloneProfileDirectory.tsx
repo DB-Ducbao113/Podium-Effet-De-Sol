@@ -1,23 +1,23 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { DRIVERS_DATA } from "../../data/drivers";
 import { getTeamSeasonProfile } from "../../data/teamSeasons";
 import { useNavigationStore } from "../../store/useNavigationStore";
-import type { SeasonYear } from "../../types";
+import { isSeasonYear, type SeasonYear } from "../../types";
 import {
-  P5DriverGrid,
-  P5DriversHero,
-  P5GalleryHero,
-  P5PortraitCredit,
-  P5TeamGrid,
-} from "../p5/P5DirectorySurfaces";
-import { useP5SeasonData } from "../p5/useP5ChampionshipData";
-import { useP5Reveal } from "../p5/useP5Reveal";
-import "../p5/p5.css";
-import "../p5/p5DirectoryV2.css";
-import "../p5/p5TeamGarage.css";
-import { P5DriverIcon } from '../p5/P5DriverIcon';
-import { P5_SEASONAL_REVIEW_ENABLED, packageOnlyDriverVisuals } from '../../utils/p5SeasonalVisuals';
+  DriverGrid,
+  DriversHero,
+  GalleryHero,
+  PortraitCredits,
+  TeamGrid,
+} from "../directory/DirectorySurfaces";
+import { useSeasonDirectoryData } from "../directory/useSeasonDirectoryData";
+import { useDirectoryReveal } from "../directory/useDirectoryReveal";
+import "../directory/directory.css";
+import "../directory/directoryLayout.css";
+import "../directory/teamGarage.css";
+import { DriverIcon } from '../directory/DriverIcon';
+import { SEASONAL_ART_ENABLED, packageOnlyDriverVisuals } from '../../utils/seasonalVisuals';
 
 const SEASONS: SeasonYear[] = [2026, 2025, 2024];
 
@@ -32,12 +32,22 @@ export function StandaloneProfileDirectory({
 }) {
   const lang = useNavigationStore((state) => state.lang);
   const isDrivers = kind === "drivers";
-  const [season, setSeason] = useState<SeasonYear>(initialSeason);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const urlSeason = searchParams.get("season");
+  const resolvedSeason = isSeasonYear(urlSeason) ? (Number(urlSeason) as SeasonYear) : initialSeason;
+  const [season, setSeason] = useState<SeasonYear>(resolvedSeason);
   const [query, setQuery] = useState("");
-  useEffect(() => setSeason(initialSeason), [initialSeason]);
+  useEffect(() => setSeason(resolvedSeason), [resolvedSeason]);
+
+  const changeSeason = (next: SeasonYear) => {
+    setSeason(next);
+    const params = new URLSearchParams(searchParams);
+    params.set("season", String(next));
+    setSearchParams(params, { replace: true });
+  };
 
   const normalized = query.trim().toLocaleLowerCase();
-  const { standings } = useP5SeasonData(season);
+  const { standings } = useSeasonDirectoryData(season);
   const drivers = [...standings.drivers]
     .sort((a, b) => a.rank - b.rank)
     .filter((driver) => {
@@ -80,32 +90,34 @@ export function StandaloneProfileDirectory({
   const creditIds = isDrivers
     ? drivers.map((driver) => driver.driverId)
     : standings.drivers.map((driver) => driver.driverId);
-  const packageOnlyIcons = isDrivers && P5_SEASONAL_REVIEW_ENABLED
+  const packageOnlyIcons = isDrivers && SEASONAL_ART_ENABLED
     ? packageOnlyDriverVisuals(season, standings.drivers.map((driver) => driver.driverId))
     : [];
-  const revealRef = useP5Reveal<HTMLElement>(`${kind}-${season}`);
+  const revealRef = useDirectoryReveal<HTMLDivElement>(`${kind}-${season}`);
 
   return (
-    <main
+    <div
       ref={revealRef}
       className={`p5-gallery-page${isDrivers && !hideHeader ? ' p5-gallery-page-drivers' : ''}`}
     >
       <div className="p5-gallery-inner">
         {!hideHeader && isDrivers && (
-          <P5DriversHero
+          <DriversHero
             season={season}
             driverCount={standings.drivers.length}
             teamCount={standings.constructors.length}
+            drivers={standings.drivers}
             lang={lang}
           />
         )}
 
         {!hideHeader && !isDrivers && (
-          <P5GalleryHero
+          <GalleryHero
             kind={kind}
             season={season}
             driverCount={standings.drivers.length}
             teamCount={standings.constructors.length}
+            drivers={standings.drivers}
             lang={lang}
           />
         )}
@@ -141,7 +153,7 @@ export function StandaloneProfileDirectory({
               {lang === "vi" ? "Mùa giải" : "Season"}
               <select
                 value={season}
-                onChange={(event) => setSeason(Number(event.target.value) as SeasonYear)}
+                onChange={(event) => changeSeason(Number(event.target.value) as SeasonYear)}
               >
                 {SEASONS.map((year) => (
                   <option key={year} value={year}>{year}</option>
@@ -155,9 +167,9 @@ export function StandaloneProfileDirectory({
         </div>
 
         {isDrivers ? (
-          <P5DriverGrid rows={drivers} season={season} lang={lang} emptyLabel={emptyLabel} />
+          <DriverGrid rows={drivers} season={season} lang={lang} emptyLabel={emptyLabel} />
         ) : (
-          <P5TeamGrid
+          <TeamGrid
             rows={teams}
             season={season}
             lang={lang}
@@ -173,7 +185,7 @@ export function StandaloneProfileDirectory({
             <div className="p5-package-icons-list">
               {packageOnlyIcons.map((visual) => (
                 <span key={visual.driverId}>
-                  <P5DriverIcon season={season} driverId={visual.driverId} teamId={visual.teamId} size={44} />
+                  <DriverIcon season={season} driverId={visual.driverId} teamId={visual.teamId} size={44} />
                   <strong>{DRIVERS_DATA[visual.driverId]?.name ?? (visual.driverId === 'hirakawa' ? 'Ryo Hirakawa' : visual.driverId)}</strong>
                 </span>
               ))}
@@ -181,7 +193,7 @@ export function StandaloneProfileDirectory({
           </aside>
         )}
 
-        <P5PortraitCredit lang={lang} driverIds={creditIds} season={season} />
+        <PortraitCredits lang={lang} driverIds={creditIds} season={season} />
 
         <div className="p5-footer-links p5-gallery-links">
           <Link to={`/season/${season}?tab=${isDrivers ? "standings&category=drivers" : "standings&category=constructors"}`}>
@@ -198,6 +210,6 @@ export function StandaloneProfileDirectory({
           </Link>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

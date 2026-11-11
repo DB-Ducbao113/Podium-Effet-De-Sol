@@ -35,25 +35,19 @@ export const EngineeringArticlePage: React.FC = () => {
         <div className="page-container py-10 md:py-16">
           <Link
             to="/engineering"
-            className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-white/70 hover:text-cyan-200"
+            className="inline-flex items-center gap-2 font-ui text-xs font-semibold tracking-wide text-white/75 hover:text-cyan-200"
           >
             <ArrowLeft className="h-4 w-4" /> Engineering Insights
           </Link>
           <div className="mt-10 grid items-end gap-10 lg:grid-cols-[1.05fr_.95fr]">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.24em] text-cyan-200">
+              <p className="font-ui text-xs font-semibold tracking-wider text-cyan-200">
                 {article.topic[lang]}
               </p>
-              <h1
-                className={`mt-4 text-balance text-4xl uppercase sm:text-6xl ${
-                  lang === 'vi'
-                    ? 'font-body font-bold leading-[1.2] tracking-normal'
-                    : 'font-display font-black leading-[1.08]'
-                }`}
-              >
+              <h1 className="mt-4 text-balance font-editorial text-4xl font-semibold leading-[1.12] sm:text-5xl lg:text-[3.5rem]">
                 {article.title[lang]}
               </h1>
-              <p className="mt-7 max-w-3xl text-lg leading-8 text-white/70">
+              <p className="mt-6 max-w-3xl font-body text-lg leading-8 text-white/75">
                 {article.standfirst[lang]}
               </p>
               <div className="mt-6 flex flex-wrap items-center gap-4 text-xs text-white/70">
@@ -82,17 +76,11 @@ export const EngineeringArticlePage: React.FC = () => {
                 <span className="font-mono text-xs text-red-300">
                   {String(index + 1).padStart(2, '0')}
                 </span>
-                <h2
-                  className={`text-2xl uppercase sm:text-3xl ${
-                    lang === 'vi'
-                      ? 'font-body font-bold leading-[1.2] tracking-normal'
-                      : 'font-display font-black leading-tight'
-                  }`}
-                >
+                <h2 className="font-editorial text-2xl font-semibold leading-snug tracking-tight sm:text-3xl">
                   {section.heading[lang]}
                 </h2>
               </div>
-              <div className="space-y-5 text-[17px] leading-8 text-white/72">
+              <div className="space-y-5 font-body text-[17px] leading-8 text-white/80">
                 {section.paragraphs[lang].map((paragraph) => (
                   <p key={paragraph}>{paragraph}</p>
                 ))}
@@ -101,10 +89,10 @@ export const EngineeringArticlePage: React.FC = () => {
           ))}
 
           <section className="rounded-3xl border border-cyan-300/20 bg-cyan-300/[0.045] p-6 sm:p-8">
-            <h2 className="font-display text-xl font-black uppercase">
-              {lang === 'vi' ? 'Khám phá trên EDS-G01' : 'Explore on EDS-G01'}
+            <h2 className="font-editorial text-2xl font-semibold">
+              {lang === 'vi' ? 'Khám phá trên Model B' : 'Explore on Model B'}
             </h2>
-            <p className="mt-3 text-sm leading-6 text-white/60">
+            <p className="mt-3 font-body text-sm leading-6 text-white/70">
               {lang === 'vi'
                 ? 'Mở trực tiếp hotspot tương ứng trong Showroom. Các mô tả trình bày nguyên lý và ý đồ hình học, không phải dữ liệu thử nghiệm.'
                 : 'Open the corresponding hotspot in the Showroom. Descriptions explain principles and geometric intent, not test data.'}
@@ -114,7 +102,7 @@ export const EngineeringArticlePage: React.FC = () => {
                 <Link
                   key={hotspot}
                   to={`/showroom?hotspot=${hotspot}`}
-                  className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-cyan-300/25 bg-black/20 px-4 text-xs font-bold text-cyan-100 hover:bg-cyan-300/10"
+                  className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-cyan-300/25 bg-black/20 px-4 font-ui text-xs font-semibold text-cyan-100 hover:bg-cyan-300/10"
                 >
                   <Eye className="h-4 w-4" /> {HOTSPOT_LABELS[hotspot]?.[lang] ?? hotspot}
                 </Link>
@@ -123,7 +111,7 @@ export const EngineeringArticlePage: React.FC = () => {
           </section>
 
           <section className="mt-12 border-t border-white/10 pt-10">
-            <h2 className="font-display text-xl font-black uppercase">
+            <h2 className="font-editorial text-2xl font-semibold">
               {lang === 'vi' ? 'Nguồn kỹ thuật' : 'Technical sources'}
             </h2>
             <p className="mt-3 text-sm leading-6 text-white/70">

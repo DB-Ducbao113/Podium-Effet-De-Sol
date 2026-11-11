@@ -18,9 +18,9 @@ describe('Homepage Cinematic V7', () => {
     expect(html).not.toContain('hero-h3-2.mp4');
     expect(html).not.toContain('hero-h3-2-poster.png');
     expect(html).not.toContain('TOKYO DRIFT');
-    expect(html).toContain('RACE');
-    expect(html).toContain('BEYOND');
-    expect(html).toContain('LIMITS.');
+    expect(html).toContain('Race');
+    expect(html).toContain('beyond');
+    expect(html).toContain('Limits.');
     expect(html).toContain('LAUNCH CONTROL');
     expect(html).toContain('data-home-instruments');
     expect(html).toContain('peds-aero01-car.webp');

@@ -12,10 +12,9 @@ type Gateway = {
   to: string;
   label: string;
   Icon: typeof Box;
+  image: string;
   fallback: string;
 };
-
-const REVIEW_ROOT = '/__peds-home-explore';
 
 function handlePointerMove(event: PointerEvent<HTMLAnchorElement>) {
   if (event.pointerType !== 'mouse' && event.pointerType !== 'pen') return;
@@ -42,7 +41,6 @@ function clearPointer(event: PointerEvent<HTMLAnchorElement>) {
 
 export function HomeStoryLinks() {
   const lang = useNavigationStore((state) => state.lang);
-  const localReview = import.meta.env.DEV;
   const { ref, isRevealed } = useReveal(0.1);
   const gridRef = useRef<HTMLDivElement>(null);
   const [activeCard, setActiveCard] = useState(0);
@@ -53,7 +51,7 @@ export function HomeStoryLinks() {
     const cards = Array.from(grid.children) as HTMLElement[];
     const nearest = cards.reduce((best, card, index) =>
       Math.abs(card.offsetLeft - grid.offsetLeft - grid.scrollLeft) <
-      Math.abs(cards[best].offsetLeft - grid.offsetLeft - grid.scrollLeft) ? index : best, 0);
+        Math.abs(cards[best].offsetLeft - grid.offsetLeft - grid.scrollLeft) ? index : best, 0);
     setActiveCard(nearest);
   };
 
@@ -68,21 +66,21 @@ export function HomeStoryLinks() {
     setActiveCard(index);
   };
 
-  // Gallery backgrounds: local-only, identity-checked owner review.
-  // No model, trademark, video or extra racing data is introduced in production.
   const cards: Gateway[] = [
     {
       id: 'showroom',
       to: '/showroom',
       label: 'Showroom 3D',
       Icon: Move3d,
-      fallback: '/images/p4/template/rc-hero-1344.webp',
+      image: '/images/championship/template/rc-hero-1344.webp',
+      fallback: '/images/championship/template/rc-hero-1344.webp',
     },
     {
       id: 'engineering',
-      to: localReview ? '/engineering' : '/engineering/car-anatomy',
+      to: '/engineering/car-anatomy',
       label: lang === 'vi' ? 'Kỹ thuật' : 'Engineering',
       Icon: Box,
+      image: '/images/home/explore/engineering.webp',
       fallback: '/images/home/explore/engineering-flow.svg',
     },
     {
@@ -90,6 +88,7 @@ export function HomeStoryLinks() {
       to: '/drivers',
       label: lang === 'vi' ? 'Tay đua' : 'Drivers',
       Icon: Users,
+      image: '/images/home/explore/drivers.webp',
       fallback: '/images/home/explore/driver-helmet.svg',
     },
     {
@@ -97,6 +96,7 @@ export function HomeStoryLinks() {
       to: '/teams',
       label: lang === 'vi' ? 'Đội đua' : 'Teams',
       Icon: Shield,
+      image: '/images/home/explore/teams.webp',
       fallback: '/images/home/explore/team-garage.svg',
     },
   ];
@@ -117,7 +117,7 @@ export function HomeStoryLinks() {
         <span className="eds-explore__header-rule" aria-hidden="true" />
       </header>
       <div className="eds-explore__grid" ref={gridRef} onScroll={updateActiveCard}>
-        {cards.map(({ id, to, label, Icon, fallback }, index) => (
+        {cards.map(({ id, to, label, Icon, image, fallback }, index) => (
           <Link
             key={id}
             to={to}
@@ -128,7 +128,7 @@ export function HomeStoryLinks() {
           >
             <span className="eds-explore__art" aria-hidden="true">
               <img
-                src={localReview ? `${REVIEW_ROOT}/${id}.webp` : fallback}
+                src={image}
                 alt=""
                 loading="lazy"
                 decoding="async"
@@ -138,18 +138,17 @@ export function HomeStoryLinks() {
                   }
                 }}
               />
-            </span>
-            <span className="eds-explore__grid-lines" aria-hidden="true" />
-            <span className="eds-explore__light-pass" aria-hidden="true" />
-            <span className="eds-explore__number" aria-hidden="true">
-              {String(index + 1).padStart(2, '0')}
+              <span className="eds-explore__light-pass" aria-hidden="true" />
             </span>
             <span className="eds-explore__bottom">
+              <span className="eds-explore__number" aria-hidden="true">
+                {String(index + 1).padStart(2, '0')}
+              </span>
               <span className="eds-explore__icon" aria-hidden="true">
-                <Icon size={22} strokeWidth={1.8} />
+                <Icon size={20} strokeWidth={1.8} />
               </span>
               <strong>{label}</strong>
-              <ArrowUpRight className="eds-explore__arrow" size={23} aria-hidden="true" />
+              <ArrowUpRight className="eds-explore__arrow" size={20} aria-hidden="true" />
             </span>
           </Link>
         ))}

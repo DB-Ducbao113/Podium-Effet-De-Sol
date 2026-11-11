@@ -302,11 +302,11 @@ export function F1HeroStage() {
       </div>
       <div className="f1hero__telemetry">
         <span>VECTOR FIELD</span>
-        <span className="f1hero__telemetry-bars"><i /><i /><i /><i /><i /></span>
+        <span className="f1hero__telemetry-bars"><span /><span /><span /><span /><span /></span>
         <span className="f1hero__telemetry-state">ACTIVE</span>
       </div>
       <div className="f1hero__microcopy">
-        <span>AERO-01 <i /> CINEMATIC STUDY</span>
+        <span>GROUND EFFECT <span className="f1hero__microcopy-dot" /> CINEMATIC STUDY</span>
         <span>MOVE POINTER / HOLD TO REV</span>
       </div>
     </div>

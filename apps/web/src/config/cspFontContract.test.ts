@@ -17,21 +17,30 @@ describe('CSP font delivery contract', () => {
     expect(viteConfig).toMatch(/\? false : undefined/);
   });
 
-  it('matches display fallback metrics to Barlow Condensed so a late swap cannot reflow', () => {
+  it('matches display fallback metrics to the shipped display face so a late swap cannot reflow', () => {
     expect(globalCss).toMatch(
-      /@font-face\s*\{\s*font-family:\s*'Barlow Condensed Fallback';\s*src:\s*local\('Arial Narrow'\);\s*size-adjust:\s*80%;/,
+      /@font-face\s*\{\s*font-family:\s*'PEDS Display Fallback';\s*src:\s*local\('Arial'\), local\('Helvetica'\), local\('Liberation Sans'\);\s*size-adjust:\s*100%;/,
     );
     expect(globalCss).toMatch(
-      /@font-face\s*\{\s*font-family:\s*'Barlow Condensed Arial Fallback';\s*src:\s*local\('Arial'\), local\('Helvetica'\), local\('Liberation Sans'\);\s*size-adjust:\s*68%;/,
+      /--peds-font-script:\s*'Corinthia',\s*'Dancing Script Variable', cursive;/,
     );
     expect(globalCss).toMatch(
-      /--peds-font-display:\s*'Barlow Condensed',\s*'Barlow Condensed Fallback',\s*'Barlow Condensed Arial Fallback',\s*'Arial Narrow',\s*sans-serif;/,
+      /--peds-font-hand:\s*'Dancing Script Variable',\s*'Corinthia', cursive;/,
     );
     expect(globalCss).toMatch(
-      /@font-face\s*\{\s*font-family:\s*'Barlow Condensed Fallback';\s*src:\s*local\('Arial Narrow'\);\s*size-adjust:\s*83%;\s*font-weight:\s*100 900;\s*font-style:\s*italic;/,
+      /--peds-font-editorial:\s*'Cormorant Garamond Variable', Georgia, 'Times New Roman', serif;/,
     );
     expect(globalCss).toMatch(
-      /@font-face\s*\{\s*font-family:\s*'Barlow Condensed Arial Fallback';\s*src:\s*local\('Arial'\), local\('Helvetica'\), local\('Liberation Sans'\);\s*size-adjust:\s*70\.5%;\s*font-weight:\s*100 900;\s*font-style:\s*italic;/,
+      /--peds-font-display:\s*'Quicksand Variable',\s*'PEDS Display Fallback', Arial, sans-serif;/,
     );
+    expect(globalCss).toMatch(
+      /--peds-font-ui:\s*'Quicksand Variable',\s*'PEDS Display Fallback', Arial, sans-serif;/,
+    );
+    expect(globalCss).toMatch(
+      /--peds-font-body:\s*'Nunito Variable', 'Quicksand Variable', Arial, sans-serif;/,
+    );
+    // The shipped families do not emit synthetic italic cuts.
+    expect(globalCss).not.toMatch(/font-style\s*:\s*italic/);
+    expect(globalCss).not.toMatch(/\b(?:Barlow Condensed|Space Grotesk|Plus Jakarta Sans|Manrope|Lexend|Lora|Be Vietnam Pro)\b/i);
   });
 });

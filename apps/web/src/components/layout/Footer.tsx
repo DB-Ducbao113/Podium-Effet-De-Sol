@@ -11,13 +11,12 @@ export const Footer = memo(function Footer() {
   const strings = t[lang].footer;
   const nav = t[lang].nav;
   const isVi = lang === 'vi';
-  const insideMachineTrialEnabled = import.meta.env.DEV;
   const quickLinks = [
     { to: '/season/2026', label: nav.championship },
     { to: '/showroom', label: 'Showroom 3D' },
     {
-      to: insideMachineTrialEnabled ? '/engineering' : '/engineering/car-anatomy',
-      label: insideMachineTrialEnabled ? 'Inside the Machine' : isVi ? 'Giải phẫu xe' : 'Car anatomy',
+      to: '/engineering/car-anatomy',
+      label: isVi ? 'Giải phẫu xe' : 'Car anatomy',
     },
     { to: '/teams', label: isVi ? 'Đội đua' : 'Teams' },
     { to: '/drivers', label: isVi ? 'Tay đua' : 'Drivers' },

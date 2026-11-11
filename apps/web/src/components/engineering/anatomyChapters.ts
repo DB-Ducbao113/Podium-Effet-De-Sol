@@ -1,4 +1,4 @@
-import { MODEL_B_HOTSPOTS } from "../../dev/commercial-b/modelBExperience";
+import { MODEL_B_HOTSPOTS } from "../showroom/model-b/modelBExperience";
 
 export interface AnatomyChapter {
   id: string;

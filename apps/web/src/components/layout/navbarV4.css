@@ -69,8 +69,9 @@
   min-height: 44px;
   padding: 0 clamp(.65rem,.8vw / var(--peds-visual-zoom),1rem);
   color: #acbac7;
-  font: 700 clamp(.71rem,.8vw / var(--peds-visual-zoom),.84rem)/1 var(--peds-font-display);
-  letter-spacing: .058em;
+  font: 600 clamp(.84rem,.88vw / var(--peds-visual-zoom),.95rem)/1.1 var(--peds-font-ui);
+  letter-spacing: .015em;
+  text-transform: none;
   transition: color 190ms ease, text-shadow 190ms ease;
 }
 .h1-nav--v4 .h1-nav__link::after {
@@ -138,8 +139,8 @@
   clip-path: none;
   background: #ff4a18;
   color: #0a0c10;
-  font: 800 .74rem/1 var(--peds-font-display);
-  letter-spacing: .055em;
+  font: 700 .78rem/1 var(--peds-font-ui);
+  letter-spacing: .025em;
   box-shadow: 0 0 18px rgba(255,74,24,.16);
   transition: box-shadow 220ms ease,transform 220ms ease,background 220ms ease;
 }
@@ -193,8 +194,9 @@
 .h1-nav--v4 .h1-nav__mobile-group:hover { background: rgba(255,74,24,.06); }
 .h1-nav--v4 .h1-nav__mobile-link {
   font-family: var(--peds-font-display);
-  font-size: 1.17rem;
-  letter-spacing: .06em;
+  font-size: 1.55rem;
+  font-weight: 700;
+  letter-spacing: 0;
 }
 .h1-nav--v4 .h1-nav__mobile-cta { border-radius: 7px; }
 @media (min-width: 1180px) {

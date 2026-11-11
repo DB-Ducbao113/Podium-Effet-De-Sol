@@ -1,10 +1,19 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { DetailedRaceResult } from '../../types';
 import { useNavigationStore } from '../../store/useNavigationStore';
 import { formatDateStr } from '../../utils/dateUtils';
 import { getTeamTextColor } from '../../utils/teamColors';
 import { X, Trophy, Zap, Flag, Calendar, MapPin, ShieldCheck, Award } from 'lucide-react';
+
+const FOCUSABLE_SELECTOR = [
+  'a[href]',
+  'button:not([disabled])',
+  'textarea:not([disabled])',
+  'input:not([disabled])',
+  'select:not([disabled])',
+  '[tabindex]:not([tabindex="-1"])',
+].join(',');
 
 interface RaceClassificationModalProps {
   race: DetailedRaceResult | null;
@@ -17,29 +26,78 @@ export const RaceClassificationModal: React.FC<RaceClassificationModalProps> = (
 }) => {
   const { lang } = useNavigationStore();
   const isVi = lang === 'vi';
+  const panelRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef(onClose);
 
-  // Close on Escape key
   useEffect(() => {
-    if (!race) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+    closeRef.current = onClose;
+  }, [onClose]);
+
+  // Dialog behaviour: lock the page behind, move focus inside, keep Tab inside,
+  // and hand focus back to whatever opened the modal.
+  useEffect(() => {
+    if (!race || typeof document === 'undefined') return;
+
+    const previousFocus =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const panel = panelRef.current;
+    panel?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeRef.current();
+        return;
+      }
+      if (event.key !== 'Tab' || !panel) return;
+      const focusable = Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR));
+      if (!focusable.length) {
+        event.preventDefault();
+        panel.focus();
+        return;
+      }
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [race, onClose]);
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', handleKeyDown);
+      // The trigger usually leaves the DOM with the route it opened, so fall back
+      // to the page landmark instead of dropping the keyboard user on the body.
+      if (previousFocus?.isConnected) {
+        previousFocus.focus();
+        return;
+      }
+      document.querySelector<HTMLElement>('main')?.focus();
+    };
+  }, [race]);
 
   if (!race) return null;
 
-  return createPortal(
+  const modal = (
     <div
       className="fixed inset-0 z-[9999] bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in"
       role="dialog"
       aria-modal="true"
-      aria-label={`${race.grandPrix} race classification`}
+      aria-labelledby="race-classification-title"
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-5xl bg-studio-950 border border-white/15 rounded-3xl shadow-2xl overflow-hidden my-auto max-h-[calc(92vh_/_var(--peds-visual-zoom))] flex flex-col text-white animate-scale-up"
+        ref={panelRef}
+        tabIndex={-1}
+        className="relative w-full max-w-5xl bg-studio-950 border border-white/15 rounded-3xl shadow-2xl overflow-hidden my-auto max-h-[calc(92vh_/_var(--peds-visual-zoom))] flex flex-col text-white animate-scale-up outline-none"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top Accent Strip */}
@@ -67,7 +125,10 @@ export const RaceClassificationModal: React.FC<RaceClassificationModalProps> = (
               )}
             </div>
 
-            <h3 className="font-display text-xl sm:text-2xl font-black uppercase text-white tracking-wide">
+            <h3
+              id="race-classification-title"
+              className="font-display text-xl sm:text-2xl font-black uppercase text-white tracking-wide"
+            >
               {race.grandPrix}
             </h3>
 
@@ -90,7 +151,7 @@ export const RaceClassificationModal: React.FC<RaceClassificationModalProps> = (
           <button
             onClick={onClose}
             className="p-2 rounded-xl text-studio-400 hover:text-white hover:bg-white/10 transition-colors shrink-0"
-            aria-label="Close"
+            aria-label={isVi ? 'Đóng' : 'Close'}
           >
             <X className="w-5 h-5" />
           </button>
@@ -138,23 +199,23 @@ export const RaceClassificationModal: React.FC<RaceClassificationModalProps> = (
             <table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-white/5 border-b border-white/10 text-studio-400 uppercase tracking-wider text-[10px] font-bold">
-                  <th className="py-3 px-4 w-12 text-center">{isVi ? 'Hạng' : 'Pos'}</th>
-                  <th className="py-3 px-3 w-12 text-center">{isVi ? 'Số' : 'No'}</th>
-                  <th className="py-3 px-4">{isVi ? 'Tay Đua' : 'Driver'}</th>
-                  <th className="py-3 px-4">{isVi ? 'Đội Đua' : 'Constructor'}</th>
-                  <th className="py-3 px-3 text-center">{isVi ? 'Số Vòng' : 'Laps'}</th>
-                  <th className="py-3 px-4 text-right">
+                  <th scope="col" className="py-3 px-4 w-12 text-center">{isVi ? 'Hạng' : 'Pos'}</th>
+                  <th scope="col" className="py-3 px-3 w-12 text-center">{isVi ? 'Số' : 'No'}</th>
+                  <th scope="col" className="py-3 px-4">{isVi ? 'Tay Đua' : 'Driver'}</th>
+                  <th scope="col" className="py-3 px-4">{isVi ? 'Đội Đua' : 'Constructor'}</th>
+                  <th scope="col" className="py-3 px-3 text-center">{isVi ? 'Số Vòng' : 'Laps'}</th>
+                  <th scope="col" className="py-3 px-4 text-right">
                     {isVi ? 'Thời Gian / Cách Biệt' : 'Time / Gap'}
                   </th>
-                  <th className="py-3 px-4 text-right">{isVi ? 'Điểm (PTS)' : 'Points'}</th>
+                  <th scope="col" className="py-3 px-4 text-right">{isVi ? 'Điểm (PTS)' : 'Points'}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5 font-medium">
                 {race.entries.map((entry) => {
                   const isPodium = entry.position >= 1 && entry.position <= 3;
-                  const isDNF =
-                    entry.status.toLowerCase().includes('dnf') ||
-                    entry.status.toLowerCase().includes('dns');
+                  // Lap-down finishes ('+1 Lap') stay in the time column; only a
+                  // retirement reason reads as a non-finish.
+                  const isNonFinish = /dnf|dns|dsq|retired|accident/i.test(entry.status);
 
                   return (
                     <tr
@@ -188,14 +249,16 @@ export const RaceClassificationModal: React.FC<RaceClassificationModalProps> = (
                       </td>
 
                       {/* Driver Name */}
-                      <td className="py-3 px-4 font-bold flex items-center gap-2">
-                        {entry.position === 1 && (
-                          <Trophy className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                        )}
-                        <span
-                          style={{ color: getTeamTextColor(entry.teamId || entry.teamName, true) }}
-                        >
-                          {entry.driverName}
+                      <td className="py-3 px-4 font-bold">
+                        <span className="inline-flex items-center gap-2">
+                          {entry.position === 1 && (
+                            <Trophy className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                          )}
+                          <span
+                            style={{ color: getTeamTextColor(entry.teamId || entry.teamName, true) }}
+                          >
+                            {entry.driverName}
+                          </span>
                         </span>
                       </td>
 
@@ -220,7 +283,7 @@ export const RaceClassificationModal: React.FC<RaceClassificationModalProps> = (
 
                       {/* Time / Gap / Status */}
                       <td className="py-3 px-4 text-right font-mono">
-                        {isDNF ? (
+                        {isNonFinish ? (
                           <span className="text-red-400 font-bold uppercase">{entry.status}</span>
                         ) : (
                           <span
@@ -266,8 +329,9 @@ export const RaceClassificationModal: React.FC<RaceClassificationModalProps> = (
           </button>
         </div>
       </div>
-    </div>,
-    document.body,
+    </div>
   );
+
+  return typeof document === 'undefined' ? modal : createPortal(modal, document.body);
 };
 export default RaceClassificationModal;

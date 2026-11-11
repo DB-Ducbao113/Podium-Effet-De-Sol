@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import type { GrandPrixRound } from '../../types';
 import { findCircuitByName } from '../../data/championship/circuitsData';
-import { getSeasonCircuit } from '../../utils/p5SeasonalVisuals';
+import { getSeasonCircuit } from '../../utils/seasonalVisuals';
 import { smoothstep } from './journey/homeJourneyMath';
 import { subscribeHomeScrub } from './journey/homeScrubRegistry';
 

@@ -38,14 +38,3 @@ export const DRIVER_PORTRAIT_CREDIT: Record<string, DriverPortraitCredit> = {
   tsunoda: { credit: 'Jen Ross', license: 'CC BY 2.0', licenseUrl: 'https://creativecommons.org/licenses/by/2.0', sourcePage: 'https://commons.wikimedia.org/wiki/File:Yuki_Tsunoda,_Alpha_Tauri,_British_GP,_Silverstone_2021_(51350028354)_(cropped).jpg' },
   zhou: { credit: 'Dorian Schuster (XaviYuahanda)', license: 'CC BY-SA 4.0', licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0', sourcePage: 'https://commons.wikimedia.org/wiki/File:Zhou_Guanyu_at_the_2022_Austrian_Grand_Prix.jpg' },
 };
-
-export const driverPortraitAvailable = (driverId?: string): boolean =>
-  Boolean(driverId && DRIVER_PORTRAIT_CREDIT[driverId]);
-
-export const driverPortraitSrcSet = (driverId: string, format: 'avif' | 'webp'): string =>
-  [480, 720, 960]
-    .map((width) => `/images/p5/portraits/${driverId}-${width}.${format} ${width}w`)
-    .join(', ');
-
-export const driverPortraitSrc = (driverId: string): string =>
-  `/images/p5/portraits/${driverId}-720.webp`;

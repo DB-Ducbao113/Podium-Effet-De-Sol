@@ -1,6 +1,6 @@
 // Venue photography for the Race Center round hero.
 // Provenance and licence records: docs/asset-manifests/p4-venue-heroes.json
-// Runtime plates: apps/web/public/images/p4/venues/
+// Runtime plates: apps/web/public/images/championship/venues/
 
 export type VenueHero = {
   venue: string;
@@ -201,5 +201,5 @@ export const venueHeroFor = (circuitId?: string): VenueHero | undefined =>
 
 export const venueHeroSrcSet = (venue: string, orientation: "land" | "port", format: "avif" | "webp"): string =>
   orientation === "land"
-    ? `/images/p4/venues/${venue}-land-960.${format} 960w, /images/p4/venues/${venue}-land-1600.${format} 1600w`
-    : `/images/p4/venues/${venue}-port-600.${format} 600w, /images/p4/venues/${venue}-port-900.${format} 900w`;
+    ? `/images/championship/venues/${venue}-land-960.${format} 960w, /images/championship/venues/${venue}-land-1600.${format} 1600w`
+    : `/images/championship/venues/${venue}-port-600.${format} 600w, /images/championship/venues/${venue}-port-900.${format} 900w`;

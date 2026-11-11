@@ -11,7 +11,12 @@ export default defineConfig([
     '**/node_modules/**',
     '**/.vite/**',
     '**/coverage/**',
+    '**/.wrangler/**',
     '.local-assets/**',
+    '**/scratch/**',
+    'source-assets/**',
+    'references/**',
+    '.results-engine/**',
   ]),
   {
     files: ['**/*.{js,jsx,ts,tsx,mjs}'],

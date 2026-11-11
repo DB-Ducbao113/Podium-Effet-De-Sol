@@ -316,16 +316,16 @@
 }
 .sr-intro-title {
   margin: 0.9rem 0 0;
-  font:
-    400 clamp(2.1rem, 4.6vw / var(--peds-visual-zoom), 3.6rem)/1.08 Georgia,
-    "Times New Roman",
-    serif;
-  letter-spacing: 0;
+  font-family: var(--peds-font-display);
+  font-size: clamp(2.1rem, 4.6vw / var(--peds-visual-zoom), 3.6rem);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
   text-shadow: 0 4px 30px var(--peds-color-canvas);
 }
 .sr-intro-title em {
   color: var(--peds-color-ignition);
-  font-style: italic;
+  font-style: normal;
 }
 .sr-intro-open {
   display: inline-flex;

@@ -1,4 +1,4 @@
-import { CarSpec, SeasonYear } from '../../types';
+import { CarSpec, Language, SeasonYear, TechnicalHighlights } from '../../types';
 import { CARS_2026 } from './2026';
 import { CARS_2025 } from './2025';
 import { CARS_2024 } from './2024';
@@ -30,3 +30,21 @@ export const CARS_MAP: Record<string, CarSpec> = ALL_CARS.reduce((acc, car) => {
 }, {} as Record<string, CarSpec>);
 
 export const CARS_DATA = CARS_MAP;
+
+export const resolveTechnicalHighlights = (
+  highlights: Partial<TechnicalHighlights> | undefined,
+  lang: Language,
+): Partial<TechnicalHighlights> | undefined => {
+  if (!highlights) return undefined;
+  return {
+    ...highlights,
+    aeroPhilosophy:
+      lang === 'vi'
+        ? highlights.aeroPhilosophy
+        : highlights.aeroPhilosophyEn || highlights.aeroPhilosophy,
+    groundEffectNotes:
+      lang === 'vi'
+        ? highlights.groundEffectNotes
+        : highlights.groundEffectNotesEn || highlights.groundEffectNotes,
+  };
+};

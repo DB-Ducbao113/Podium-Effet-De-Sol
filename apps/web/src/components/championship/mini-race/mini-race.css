@@ -13,10 +13,11 @@
   border-bottom: 1px solid #313b49;
 }
 .mini-race__heading h2 {
-  font-family: var(--peds-font-display);
-  font-size: clamp(1.8rem, 3vw / var(--peds-visual-zoom), 3rem);
-  line-height: 1;
-  text-transform: uppercase;
+  font-family: var(--peds-font-hand);
+  font-size: clamp(2.1rem, 3.3vw / var(--peds-visual-zoom), 3.1rem);
+  font-weight: 700;
+  line-height: 1.12;
+  text-transform: none;
 }
 .mini-race__heading p,
 .mini-race__note {
@@ -74,7 +75,9 @@
   outline-offset: 2px;
 }
 .mini-race__rank {
-  color: var(--mini-race-team);
+  /* Team primaries include near-black navy; as text they drop under 2:1 on the
+     lane. The team hue stays on the car and progress bar, the rank uses ink. */
+  color: var(--peds-color-text);
   font-family: var(--peds-font-display);
   font-size: 1.4rem;
 }

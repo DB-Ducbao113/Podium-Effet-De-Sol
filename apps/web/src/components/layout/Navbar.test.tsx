@@ -43,35 +43,58 @@ describe('V5 grouped global navigation', () => {
     expect(html).not.toContain('/season/2026?tab=drivers');
   });
 
-  it('shows the same six desktop destinations on Home and other routes', () => {
+  it('shows the same desktop destinations on Home and other routes', () => {
     const html = renderAt('/');
-    expect(html).toContain('Championship');
+    expect(html).toContain('Results');
+    expect(html).toContain('Standings');
     expect(html).toContain('Showroom');
-    expect(html).toContain('h1-nav-dropdown-championship');
+    expect(html).toContain('h1-nav-dropdown-results');
+    expect(html).toContain('h1-nav-dropdown-standings');
     expect(html).toContain('href="/teams"');
     expect(html).toContain('href="/season/2026?tab=calendar"');
     const desktop = html.match(/<nav class="h1-nav__desktop"[\s\S]*?<\/nav>/)?.[0] ?? '';
-    expect((desktop.match(/h1-nav__group/g) ?? []).length).toBeGreaterThanOrEqual(6);
+    expect((desktop.match(/h1-nav__group/g) ?? []).length).toBeGreaterThanOrEqual(7);
     expect(desktop).not.toContain('The Grid');
     const season = renderAt('/season/2026?tab=results');
     expect(season).not.toContain('The Grid');
     expect(season).toContain('href="/showroom"');
   });
 
-  it('does not repeat the same destination within a desktop submenu', () => {
+  it('keeps Results and Standings as two separate desktop destinations, like the mobile menu', () => {
     const html = renderAt('/');
-    const championship = html.match(/data-nav-id="championship"[\s\S]*?id="h1-nav-dropdown-championship"[\s\S]*?<\/div><\/div>/)?.[0] ?? '';
-    const childLinks = [...championship.matchAll(/class="h1-nav__sub"[^>]*href="([^"]+)"/g)];
-    expect(childLinks.length).toBeGreaterThan(0);
-    expect(new Set(childLinks.map((match) => match[1])).size).toBe(childLinks.length);
+    const desktop = html.match(/<nav class="h1-nav__desktop"[\s\S]*?<\/nav>/)?.[0] ?? '';
+    const primary = [...desktop.matchAll(/class="h1-nav__link"[^>]*><span>([^<]+)<\/span>/g)].map((match) => match[1]);
+    expect(primary).toEqual(['Home', 'Results', 'Standings', 'Showroom', 'Engineering', 'Teams', 'Drivers']);
+    expect(primary).not.toContain('Championship');
+    const shared = buildNavItems('en', true);
+    const results = shared.find((item) => item.id === 'results')!;
+    const standings = shared.find((item) => item.id === 'standings')!;
+    expect(primary).toContain(results.label);
+    expect(primary).toContain(standings.label);
+    expect(primary.indexOf(results.label)).toBeLessThan(primary.indexOf(standings.label));
   });
 
-  it('does not list generic Standings beside the two championship classifications', () => {
+  it('does not repeat the same destination within a desktop submenu', () => {
+    const html = renderAt('/');
+    for (const id of ['results', 'standings']) {
+      const group = html.match(new RegExp(`data-nav-id="${id}"[\\s\\S]*?id="h1-nav-dropdown-${id}"[\\s\\S]*?</div></div>`))?.[0] ?? '';
+      const childLinks = [...group.matchAll(/class="h1-nav__sub"[^>]*href="([^"]+)"/g)];
+      expect(childLinks.length).toBeGreaterThan(0);
+      expect(new Set(childLinks.map((match) => match[1])).size).toBe(childLinks.length);
+    }
+  });
+
+  it('keeps race results and the championship classifications in separate submenus', () => {
     const html = renderAt('/season/2026?tab=standings&category=drivers');
-    const championship = html.match(/data-nav-id="championship"[\s\S]*?id="h1-nav-dropdown-championship"[\s\S]*?<\/div><\/div>/)?.[0] ?? '';
-    expect(championship).not.toContain('>Standings</a>');
-    expect(championship).toContain("Drivers&#x27; championship");
-    expect(championship).toContain("Constructors&#x27; championship");
+    const results = html.match(/data-nav-id="results"[\s\S]*?id="h1-nav-dropdown-results"[\s\S]*?<\/div><\/div>/)?.[0] ?? '';
+    const standings = html.match(/data-nav-id="standings"[\s\S]*?id="h1-nav-dropdown-standings"[\s\S]*?<\/div><\/div>/)?.[0] ?? '';
+    expect(results).toContain('Race results');
+    expect(results).toContain('Calendar');
+    expect(results).not.toContain('championship');
+    expect(standings).toContain("Drivers&#x27; championship");
+    expect(standings).toContain("Constructors&#x27; championship");
+    expect(standings).not.toContain('Race results');
+    expect(standings).not.toContain('Calendar');
   });
 
   it('renders the official PODIUM EDS logo with an accessible home label', () => {
@@ -143,13 +166,12 @@ describe('P2 active navigation state', () => {
   });
 });
 
-describe('Inside the Machine Engineering integration', () => {
-  it('is the default Engineering target in local development', () => {
+describe('Engineering navigation integration', () => {
+  it('links directly to /engineering without requiring local trial assets', () => {
     const html = renderAt();
     expect(html).toContain('href="/engineering"');
-    expect(html).toContain('Inside the Machine');
+    expect(html).not.toContain('Inside the Machine');
     expect(html).not.toContain('Engineering insights');
     expect(html).not.toContain('Previous car anatomy');
-    expect(html).not.toContain('/engineering/car-anatomy');
   });
 });

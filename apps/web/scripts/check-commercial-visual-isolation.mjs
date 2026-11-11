@@ -16,6 +16,31 @@ const approvedHeroMedia = [
   },
 ];
 
+// Owner-approved Showroom opening film, released to production on 10/11/2026.
+const approvedShowroomIntroMedia = [
+  {
+    path: 'media/showroom/intro-poster.webp',
+    bytes: 67618,
+    sha256: 'CD97E18974F63490899AB2136D3E83CCEA20797FAE9FDBA1A61DF36106B7CD68',
+  },
+  {
+    path: 'media/showroom/intro-tunnel-720.webm',
+    bytes: 1546796,
+    sha256: '9A8632759A621A9929ADD94D77ADCE0135E57476E371025504F93DAA275942E6',
+  },
+  {
+    path: 'media/showroom/intro-tunnel-540.mp4',
+    bytes: 1025040,
+    sha256: '54F5F601471AA2749C98D6AF5CEA9B14ADF44728A99C4CA09C70854532F7B98C',
+  },
+];
+
+const approvedVideoPaths = new Set(
+  [...approvedHeroMedia, ...approvedShowroomIntroMedia]
+    .map((asset) => asset.path)
+    .filter((assetPath) => assetPath.endsWith('.mp4')),
+);
+
 const projectRoot = process.cwd();
 const showroomRoot = path.join(projectRoot, 'src/components/showroom');
 const sourceEntry = path.join(showroomRoot, 'ShowroomView.tsx');
@@ -172,7 +197,7 @@ try {
   if (error.code !== 'ENOENT') throw error;
   artifactViolations.push(`${modelBAsset.path} -> missing from production build`);
 }
-for (const asset of approvedHeroMedia) {
+for (const asset of [...approvedHeroMedia, ...approvedShowroomIntroMedia]) {
   const filePath = path.join(clientAssetsDir, asset.path);
   try {
     const bytes = await fs.readFile(filePath);
@@ -191,8 +216,14 @@ for (const asset of approvedHeroMedia) {
 const videoArtifacts = artifactPaths
   .filter((filePath) => filePath.endsWith('.mp4'))
   .map((filePath) => path.relative(clientAssetsDir, filePath).replaceAll('\\', '/'));
-if (videoArtifacts.length !== 1 || videoArtifacts[0] !== approvedHeroMedia[0].path) {
-  heroMediaViolations.push(`Unexpected production video artifacts: ${videoArtifacts.join(', ') || 'none'}`);
+const unexpectedVideos = videoArtifacts.filter(
+  (artifactPath) => !approvedVideoPaths.has(artifactPath),
+);
+if (unexpectedVideos.length) {
+  heroMediaViolations.push(`Unexpected production video artifacts: ${unexpectedVideos.join(', ')}`);
+}
+if (!videoArtifacts.includes(approvedHeroMedia[0].path)) {
+  heroMediaViolations.push(`Missing approved Homepage film: ${approvedHeroMedia[0].path}`);
 }
 
 if (sourceViolations.length || artifactViolations.length || heroMediaViolations.length) {
@@ -205,7 +236,7 @@ if (sourceViolations.length || artifactViolations.length || heroMediaViolations.
         ? `Forbidden commercial artifact tokens:\n${artifactViolations.join('\n')}`
         : '',
       heroMediaViolations.length
-        ? `Approved Homepage film verification:\n${heroMediaViolations.join('\n')}`
+        ? `Approved production media verification:\n${heroMediaViolations.join('\n')}`
         : '',
     ]
       .filter(Boolean)

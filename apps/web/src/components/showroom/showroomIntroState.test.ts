@@ -203,51 +203,43 @@ describe("showroom intro copy", () => {
   });
 });
 
-describe("showroom intro review media manifest", () => {
+describe("showroom intro production media manifest", () => {
   const manifest = JSON.parse(
     readFileSync(
-      "../../docs/asset-manifests/showroom-intro-v3-review.json",
+      "../../docs/asset-manifests/showroom-intro-production.json",
       "utf8",
     ),
   ) as {
     release: string;
-    assets: { file: string; type: string; bytes: number; sha256: string }[];
+    files: { publicPath: string; type: string; bytes: number; sha256: string }[];
   };
 
-  it("holds the media for local DEV review and lists exactly the three extracted files", () => {
-    expect(manifest.release).toBe("hold");
-    expect(manifest.assets.map((asset) => asset.file).sort()).toEqual([
+  it("publishes the media for production and lists exactly the three released files", () => {
+    expect(manifest.release).toBe("production");
+    expect(manifest.files.map((asset) => asset.publicPath.split("/").pop()).sort()).toEqual([
       "intro-poster.webp",
       "intro-tunnel-540.mp4",
       "intro-tunnel-720.webm",
     ]);
-    for (const asset of manifest.assets) {
+    for (const asset of manifest.files) {
       expect(asset.bytes).toBeGreaterThan(0);
       expect(asset.sha256).toMatch(/^[a-f0-9]{64}$/);
     }
   });
 
-  it("serves the media only from the validated DEV route, never from public", () => {
+  it("serves the released media from the production public tree", () => {
     for (const url of Object.values(SHOWROOM_INTRO_MEDIA)) {
-      expect(url.startsWith("/__peds-showroom-intro/")).toBe(true);
+      expect(url.startsWith("/media/showroom/")).toBe(true);
       expect(existsSync(resolve(process.cwd(), "public", url.slice(1)))).toBe(
-        false,
+        true,
       );
     }
   });
 
-  it("validates local bytes and hashes when the review assets are present", () => {
-    for (const asset of manifest.assets) {
-      const file = resolve(
-        process.cwd(),
-        "../..",
-        ".local-assets/showroom-intro-v3",
-        asset.file,
-      );
-      if (process.env.PEDS_VERIFY_LOCAL_ASSETS === "1") {
-        expect(existsSync(file), asset.file).toBe(true);
-      }
-      if (!existsSync(file)) continue;
+  it("verifies published bytes and hashes against the production manifest", () => {
+    for (const asset of manifest.files) {
+      const file = resolve(process.cwd(), "public", asset.publicPath.slice(1));
+      expect(existsSync(file), asset.publicPath).toBe(true);
       const bytes = readFileSync(file);
       expect(bytes.length).toBe(asset.bytes);
       expect(createHash("sha256").update(bytes).digest("hex")).toBe(
@@ -258,26 +250,23 @@ describe("showroom intro review media manifest", () => {
 });
 
 describe("showroom intro production isolation", () => {
-  it("gates the intro behind import.meta.env.DEV in ShowroomView", () => {
+  it("enables the intro for the production build in ShowroomView", () => {
     const source = readFileSync(
       "src/components/showroom/ShowroomView.tsx",
       "utf8",
     );
+    expect(source).toContain("const SHOWROOM_INTRO_ENABLED: boolean = true;");
+    expect(source).toContain("React.lazy(() => import('./ShowroomIntroV3'))");
     expect(source).toContain(
-      "import.meta.env.DEV\n  ? React.lazy(() => import('./ShowroomIntroV3'))",
+      "const introEnabled = SHOWROOM_INTRO_ENABLED && ShowroomIntroV3 !== null;",
     );
-    expect(source).toContain("const introEnabled = import.meta.env.DEV");
     expect(source).not.toContain("import './showroomIntroV3.css'");
   });
 
-  it("serves the review media through a serve-only Vite plugin", () => {
+  it("serves the released media from the public tree instead of a DEV-only route", () => {
     const vite = readFileSync("vite.config.ts", "utf8");
-    expect(vite).toContain("peds-showroom-intro-review-assets");
-    expect(vite).toContain("/__peds-showroom-intro");
-    const plugin = vite.slice(vite.indexOf("const showroomIntroReviewPlugin"));
-    expect(plugin.slice(0, plugin.indexOf("configureServer"))).toMatch(
-      /apply:\s*"serve"/,
-    );
+    expect(vite).not.toContain("peds-showroom-intro-review-assets");
+    expect(vite).not.toContain("/__peds-showroom-intro");
   });
 
   it("styles the replay control in the always-loaded route CSS, not the lazy intro chunk", () => {

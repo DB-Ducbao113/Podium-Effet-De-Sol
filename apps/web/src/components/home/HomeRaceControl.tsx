@@ -66,7 +66,7 @@ export function HomeRaceControl({ race }: { race?: GrandPrixRound }) {
     <section id="race-control" ref={sectionRef} className="page-container home-rc" aria-labelledby="home-rc-title">
       <header className="home-live__heading">
         <span className="home-live__slash" aria-hidden="true">///</span>
-        <h2 id="home-rc-title">RACE CONTROL</h2>
+        <h2 id="home-rc-title">{lang === 'vi' ? 'Điều khiển chặng đua' : 'Race Control'}</h2>
         <span className="home-live__rule" aria-hidden="true" />
         <Link to="/season/2026?tab=calendar" aria-label={lang === 'vi' ? 'Mở lịch đua' : 'Open calendar'}>
           <ArrowUpRight size={22} aria-hidden="true" />

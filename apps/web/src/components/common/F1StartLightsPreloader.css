@@ -88,7 +88,7 @@
 
 .podium-intro__signature strong {
   font-size: 20px;
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: -0.07em;
 }
 
@@ -213,10 +213,10 @@
   letter-spacing: 0.12em;
 }
 
-.podium-intro__count span {
+.podium-intro__count-value {
   color: var(--intro-red);
 }
-.podium-intro__count i {
+.podium-intro__count-rule {
   width: 40px;
   height: 1px;
   background: #ffffff20;
@@ -261,8 +261,7 @@
   display: block;
   font-size: clamp(42px, 11.5vw / var(--peds-visual-zoom), 170px);
   line-height: 1;
-  font-style: italic;
-  font-weight: 950;
+  font-weight: 800;
   letter-spacing: -0.045em;
   word-spacing: 0.08em;
   white-space: nowrap;
@@ -284,7 +283,7 @@
   opacity: 0.65;
 }
 
-.podium-intro__speed i {
+.podium-intro__speed span {
   position: absolute;
   top: calc(18% + var(--line) * 13%);
   width: 100%;
@@ -294,7 +293,7 @@
   animation-delay: calc(var(--line) * 15ms);
 }
 
-.podium-intro__speed i:nth-child(even) {
+.podium-intro__speed span:nth-child(even) {
   height: 1px;
   background: #ffffff80;
 }
@@ -338,7 +337,7 @@
 }
 
 /* One pass keeps the cue active without a full-screen repaint loop. */
-.podium-intro[data-phase='launch'] .podium-intro__speed i {
+.podium-intro[data-phase='launch'] .podium-intro__speed span {
   animation: podiumSpeedStreak 0.6s linear both;
   animation-delay: calc(var(--line) * 60ms);
 }
@@ -359,7 +358,7 @@
 
 .podium-intro__launch-brand strong {
   font-size: clamp(58px, 12vw / var(--peds-visual-zoom), 170px);
-  font-weight: 950;
+  font-weight: 800;
   letter-spacing: -0.08em;
   line-height: 1;
 }
@@ -394,13 +393,13 @@
   border-radius: 4px;
   color: #b2b3b8;
   background: #07080b;
-  font-size: 10px;
+  font-size: 12px;
   cursor: pointer;
 }
 
 .podium-intro__skip span {
-  color: #62656e;
-  font-size: 9px;
+  color: #8b919b;
+  font-size: 11px;
 }
 .podium-intro__skip:hover {
   color: #fff;
@@ -428,8 +427,8 @@
   justify-content: space-between;
   border-top: 1px solid #ffffff12;
   padding-top: 16px;
-  color: #62656e;
-  font-size: 8px;
+  color: #8b919b;
+  font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.18em;
   animation: podiumGridWake var(--intro-grid-wake-duration, 1s) ease-out both;
@@ -547,7 +546,7 @@
   .podium-intro__launch-brand > span {
     animation: none;
   }
-  .podium-intro[data-phase='launch'] .podium-intro__speed i {
+  .podium-intro[data-phase='launch'] .podium-intro__speed span {
     animation: none;
     opacity: 0.35;
   }

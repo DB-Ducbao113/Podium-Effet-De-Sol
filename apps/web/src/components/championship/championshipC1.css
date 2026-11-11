@@ -2303,11 +2303,6 @@
   }
 }
 
-/* P4 cinematic EDS-G01 artwork removed 2026-11-01 by owner directive.
-   The Calendar now uses only model-free template artwork and repository
-   circuit schematics, each labelled illustrative. */
-
-
 /* 400% text zoom: the standings panel is embedded in the Home hub, where its
    rem padding and 2rem/4.4rem row tracks could not shrink inside
    .c1-standings' overflow:hidden — the header was clipped and the row body

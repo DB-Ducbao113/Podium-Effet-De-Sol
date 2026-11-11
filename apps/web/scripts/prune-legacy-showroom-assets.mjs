@@ -13,6 +13,8 @@ const legacyTargets = [
   'dist/images/showroom/pirelli_tires.webp',
   'dist/images/showroom/halo_safety.webp',
   'dist/images/showroom/sidepods_cooling.webp',
+  'dist/images/showroom/eds-g01',
+  'dist/images/eds/editorial',
   'dist/images/teams',
   'dist/images/drivers',
   'dist/images/circuits',
@@ -65,17 +67,8 @@ const originalDriverProfiles = [
 ];
 const requiredOriginalAssets = [
   'dist/models/model-b-eds-optimized-v1.glb',
-  'dist/images/showroom/eds-g01/schematic.svg',
-  'dist/images/showroom/eds-g01/wings.svg',
-  'dist/images/showroom/eds-g01/drs.svg',
-  'dist/images/showroom/eds-g01/power_unit.svg',
-  'dist/images/showroom/eds-g01/halo.svg',
-  'dist/images/showroom/eds-g01/sidepods.svg',
-  'dist/images/showroom/eds-g01/tires.svg',
-  'dist/images/showroom/eds-g01/floor.svg',
   ...originalTeamStudies.map((id) => `dist/images/eds/vehicle-studies/${id}.svg`),
   ...originalDriverProfiles.map((id) => `dist/images/eds/driver-profiles/${id}.svg`),
-  'dist/images/eds/editorial/eds-g01-hero.svg',
   ...[
     'albert-park',
     'shanghai',

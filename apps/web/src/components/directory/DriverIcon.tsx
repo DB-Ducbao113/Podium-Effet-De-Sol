@@ -1,0 +1,47 @@
+import { useState, type CSSProperties } from 'react';
+import type { SeasonYear } from '../../types';
+import { getTeamTextColor } from '../../utils/teamColors';
+import { driverPreviewUrl, resolveDriverVisual } from '../../utils/seasonalVisuals';
+import './driverIcon.css';
+
+type Props = {
+  season: SeasonYear;
+  driverId: string;
+  code?: string;
+  teamId?: string;
+  size?: number;
+  className?: string;
+};
+
+/** Compact, decorative image; the adjacent driver name remains the accessible label. */
+export function DriverIcon({ season, driverId, code, teamId, size = 40, className = '' }: Props) {
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
+  const visual = resolveDriverVisual(season, driverId);
+  const full = driverPreviewUrl(visual, 'full');
+  const small = driverPreviewUrl(visual, 'small');
+  const color = getTeamTextColor(teamId ?? visual?.teamId, true);
+  const selectedSrc = size <= 36 ? small : full;
+  const available = Boolean(full && small && selectedSrc && failedSrc !== selectedSrc);
+  return (
+    <span
+      className={`p5-driver-icon ${className}`.trim()}
+      style={{ '--p5-icon-size': `${size}px`, '--p5-icon-team': color } as CSSProperties}
+      data-p5-review-image={available ? 'ai-illustration' : undefined}
+      aria-hidden="true"
+    >
+      {available ? (
+        <img
+          src={selectedSrc}
+          srcSet={`${small} 72w, ${full} 192w`}
+          sizes={`${size}px`}
+          alt=""
+          width={192}
+          height={192}
+          loading="lazy"
+          decoding="async"
+          onError={() => setFailedSrc(selectedSrc ?? null)}
+        />
+      ) : <span className="p5-driver-icon__fallback">{(code || driverId).slice(0, 3).toUpperCase()}</span>}
+    </span>
+  );
+}

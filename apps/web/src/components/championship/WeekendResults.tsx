@@ -3,9 +3,9 @@ import { animate, createScope } from "animejs";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Calendar, CheckCircle2, Clock, Timer } from "lucide-react";
 import { getCalendarBySeason } from "../../data/championship";
-import { getSeasonCircuit, P5_SEASONAL_REVIEW_ENABLED, resolveCircuitVisual } from "../../utils/p5SeasonalVisuals";
+import { getSeasonCircuit, SEASONAL_ART_ENABLED, resolveCircuitVisual } from "../../utils/seasonalVisuals";
 import { SeasonalCircuitPhoto } from "./SeasonalCircuitPhoto";
-import { P5DriverIcon } from "../p5/P5DriverIcon";
+import { DriverIcon } from "../directory/DriverIcon";
 import openF1SessionResults from "../../data/championship/openF1SessionResults2026.json";
 import { getRaceResults } from "../../data/championship/results";
 import {
@@ -135,7 +135,7 @@ const templateSrcSet = (
   format: "avif" | "webp",
 ) =>
   widths
-    .map((width) => `/images/p4/template/${stem}-${width}.${format} ${width}w`)
+    .map((width) => `/images/championship/template/${stem}-${width}.${format} ${width}w`)
     .join(", ");
 const PLATE_WIDTHS = [640, 1024, 1600] as const;
 
@@ -148,8 +148,8 @@ function DriverCell({
 }) {
   const name = (
     <>
-      {P5_SEASONAL_REVIEW_ENABLED
-        ? <P5DriverIcon season={season} driverId={row.driverId} code={row.driverCode} teamId={row.teamId} size={28} />
+      {SEASONAL_ART_ENABLED
+        ? <DriverIcon season={season} driverId={row.driverId} code={row.driverCode} teamId={row.teamId} size={28} />
         : <span className="rc-driver-mark" aria-hidden="true">{(row.driverCode || row.driverName).slice(0, 3).toUpperCase()}</span>}
       <span className="rc-driver-text">
         <strong>{row.driverCode || row.driverName}</strong>
@@ -365,7 +365,7 @@ export function WeekendResults({ season }: { season: SeasonYear }) {
     : null;
   if (!race || !selectedSession) return null;
   const selectedCircuit = getSeasonCircuit(season, round);
-  const seasonalReview = P5_SEASONAL_REVIEW_ENABLED && !!resolveCircuitVisual(season, round);
+  const seasonalReview = SEASONAL_ART_ENABLED && !!resolveCircuitVisual(season, round);
   const venuePlate = venuePlateFor(selectedCircuit?.id);
   const venueHero = !seasonalReview && (season !== 2026 || circuitVisual2026For(season, selectedCircuit?.id))
     ? venueHeroFor(selectedCircuit?.id)
@@ -592,7 +592,7 @@ export function WeekendResults({ season }: { season: SeasonYear }) {
         key={`${season}-${round}`}
       >
         {seasonalReview ? (
-          <SeasonalCircuitPhoto key={`${season}-${round}`} season={season} round={round} wrapperClassName="rc-round-media" className="rc-round-img" eager fallback={`/images/p4/template/venue-${venuePlate}-1024.webp`} sizes="(min-width: 90rem) 90rem, 100vw" />
+          <SeasonalCircuitPhoto key={`${season}-${round}`} season={season} round={round} wrapperClassName="rc-round-media" className="rc-round-img" eager fallback={`/images/championship/template/venue-${venuePlate}-1024.webp`} sizes="(min-width: 90rem) 90rem, 100vw" />
         ) : <picture className="rc-round-media" aria-hidden="true">
           {venueHero ? (
             <>
@@ -620,7 +620,7 @@ export function WeekendResults({ season }: { season: SeasonYear }) {
               />
               <img
                 className="rc-round-img"
-                src={`/images/p4/venues/${venueHero.venue}-land-1600.webp`}
+                src={`/images/championship/venues/${venueHero.venue}-land-1600.webp`}
                 alt=""
                 width={1600}
                 height={900}
@@ -642,7 +642,7 @@ export function WeekendResults({ season }: { season: SeasonYear }) {
               />
               <img
                 className="rc-round-img"
-                src={`/images/p4/template/venue-${venuePlate}-1024.webp`}
+                src={`/images/championship/template/venue-${venuePlate}-1024.webp`}
                 alt=""
                 width={1024}
                 height={585}
@@ -689,7 +689,7 @@ export function WeekendResults({ season }: { season: SeasonYear }) {
             </span>
           </p>
           {seasonalReview ? (
-            <p className="rc-round-art-note">{lang === 'vi' ? 'Ảnh minh họa AI · xem trước local' : 'AI illustration · local preview'}</p>
+            <p className="rc-round-art-note">{lang === 'vi' ? 'Ảnh minh họa AI' : 'AI illustration'}</p>
           ) : venueHero ? (
             <p className="rc-round-art-note">
               <span className="rc-round-place">{venueHero.place}</span>

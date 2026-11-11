@@ -22,3 +22,23 @@ export const buildNavItems = (lang: 'vi' | 'en', insideMachineTrialEnabled: bool
   ] : undefined },
   ];
 };
+
+// The horizontal bar shows the same destinations in the same order everywhere it
+// is rendered, so a page that draws its own menu bar cannot drift from the site.
+export const buildDesktopNavItems = (items: NavItem[], lang: 'vi' | 'en'): NavItem[] => {
+  const overview = items.find((item) => item.id === 'overview')!;
+  const results = items.find((item) => item.id === 'results')!;
+  const standings = items.find((item) => item.id === 'standings')!;
+  const engineering = items.find((item) => item.id === 'engineering')!;
+  const teams = items.find((item) => item.id === 'teams')!;
+  const drivers = items.find((item) => item.id === 'drivers')!;
+  return [
+    { ...overview, label: lang === 'vi' ? 'Trang chủ' : 'Home' },
+    results,
+    standings,
+    { id: 'showroom', label: 'Showroom', to: '/showroom', icon: overview.icon },
+    engineering,
+    teams,
+    drivers,
+  ];
+};

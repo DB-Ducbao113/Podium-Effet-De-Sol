@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { CircuitData } from '../../types/circuit';
 import { findCircuitByName } from '../../data/championship/circuitsData';
-import { getSeasonCircuit } from '../../utils/p5SeasonalVisuals';
+import { getSeasonCircuit } from '../../utils/seasonalVisuals';
 import type { SeasonYear } from '../../types';
 import { useNavigationStore } from '../../store/useNavigationStore';
 import { CircuitDetailModal } from './CircuitDetailModal';
@@ -156,7 +156,7 @@ export const CircuitTrackMap: React.FC<CircuitTrackMapProps> = React.memo(
                 e.stopPropagation();
                 setIsModalOpen(true);
               }}
-              className="absolute top-0.5 right-0.5 p-0.5 sm:p-1 rounded bg-studio-950/85 hover:bg-f1red text-studio-400 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer border border-studio-700/80 hover:border-f1red"
+              className="absolute top-0.5 right-0.5 p-0.5 sm:p-1 rounded bg-studio-950/85 hover:bg-peds-ignition text-studio-400 hover:text-peds-carbon opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer border border-studio-700/80 hover:border-f1red"
               title={isVi ? 'Xem review khúc cua' : 'Expand corner review'}
               aria-label="Expand circuit corners review"
             >
@@ -283,7 +283,7 @@ export const CircuitTrackMap: React.FC<CircuitTrackMapProps> = React.memo(
             <button
               data-open-circuit-detail={circuit.id}
               onClick={() => setIsModalOpen(true)}
-              className="w-full py-1.5 px-3 rounded-lg bg-studio-800 hover:bg-f1red text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs border border-studio-700 hover:border-f1red"
+              className="w-full py-1.5 px-3 rounded-lg bg-studio-800 hover:bg-peds-ignition text-white hover:text-peds-carbon text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs border border-studio-700 hover:border-f1red"
             >
               <Maximize2 className="w-3.5 h-3.5" />
               <span>{isVi ? 'Xem Toàn Bộ Review Khúc Cua' : 'View Full Corner Review'}</span>

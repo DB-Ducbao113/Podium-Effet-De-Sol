@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { SeasonYear } from '../../types';
-import { circuitPreviewUrl, resolveCircuitVisual } from '../../utils/p5SeasonalVisuals';
+import { circuitPreviewUrl, resolveCircuitVisual } from '../../utils/seasonalVisuals';
 
 type Props = {
   season: SeasonYear;

@@ -4,9 +4,9 @@ export type ShowroomIntroPhase = "gate" | "playing" | "entered";
 export type ShowroomIntroTier = "T0" | "T1" | "T2";
 
 export const SHOWROOM_INTRO_MEDIA = {
-  poster: "/__peds-showroom-intro/intro-poster.webp",
-  webm: "/__peds-showroom-intro/intro-tunnel-720.webm",
-  mp4: "/__peds-showroom-intro/intro-tunnel-540.mp4",
+  poster: "/media/showroom/intro-poster.webp",
+  webm: "/media/showroom/intro-tunnel-720.webm",
+  mp4: "/media/showroom/intro-tunnel-540.mp4",
 } as const;
 
 /** Measured from the owner-supplied encodes: WebM 8.625s, MP4 8.667s. */

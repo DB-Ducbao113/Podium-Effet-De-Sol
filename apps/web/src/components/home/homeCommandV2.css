@@ -46,9 +46,11 @@
 .home-v3 .eds-explore__grid::-webkit-scrollbar-thumb:hover { background: var(--peds-color-burnt-orange); }
 
 /* ---- Launch Control: gradient CTAs + instrument strip ----------------- */
+/* The primary CTA stays inside the ignition ramp: the racing-red stop put the
+   carbon label at 4.2:1 and introduced a second hue into the accent system. */
 .r1-cinema--v7 .r1-cinema__primary {
-  background: linear-gradient(100deg, var(--peds-color-ignition), var(--peds-color-burnt-orange) 55%, var(--peds-color-racing-red));
-  color: #0a0c10;
+  background: linear-gradient(100deg, var(--peds-flame-500), var(--peds-flame-400) 55%, var(--peds-flame-300));
+  color: var(--peds-color-carbon);
   box-shadow: 0 12px 30px rgba(255, 74, 24, .3);
 }
 .r1-cinema--v7 .r1-cinema__secondary {
@@ -107,7 +109,7 @@
 .home-command__cell--leader .home-command__cell-head svg { color: var(--peds-color-brake-amber); }
 .home-command__cell--progress .home-command__cell-head svg { color: #65c5e6; }
 .home-command__value {
-  font: italic 800 clamp(1.05rem, 1.5vw / var(--peds-visual-zoom), 1.5rem)/1 var(--peds-font-display);
+  font: 800 clamp(1.05rem, 1.5vw / var(--peds-visual-zoom), 1.5rem)/1 var(--peds-font-display);
   letter-spacing: -.01em;
   text-transform: uppercase;
   color: var(--peds-color-ivory);

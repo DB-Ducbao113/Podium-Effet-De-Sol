@@ -168,7 +168,7 @@ type Props = {
   onDismissed: () => void;
 };
 
-/** DEV-only gate and tunnel film in front of the existing Showroom. */
+/** Released gate and tunnel film in front of the existing Showroom. */
 export default function ShowroomIntroV3({
   lang,
   tier,

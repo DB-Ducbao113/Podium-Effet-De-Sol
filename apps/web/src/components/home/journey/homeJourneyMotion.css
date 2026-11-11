@@ -69,7 +69,7 @@
   position: absolute;
   right: 1%;
   bottom: 7%;
-  font: italic 900 clamp(8rem, 24vw / var(--peds-visual-zoom), 24rem)/.7 var(--peds-font-display);
+  font: 800 clamp(8rem, 24vw / var(--peds-visual-zoom), 24rem)/.7 var(--peds-font-display);
   letter-spacing: -.06em;
   color: rgba(191,214,226,.055);
   opacity: .8;
@@ -252,7 +252,7 @@
   bottom: 9px;
   left: 15px;
   color: rgba(242,246,250,.85);
-  font: italic 800 31px/1 var(--peds-font-display);
+  font: 800 31px/1 var(--peds-font-display);
   text-shadow: 0 0 28px rgba(255,94,45,.19);
 }
 .home-rc__map-index small {

@@ -5,21 +5,21 @@ import {
 } from "./championshipJourneyRoute";
 
 describe("Championship journey scroll policy", () => {
-  it("uses the immersive map route for results, including a saved focus round", () => {
-    expect(isChampionshipJourneyRoute("/season/2026", "?tab=results")).toBe(
+  it("uses the immersive globe route for calendar, including a saved focus round", () => {
+    expect(isChampionshipJourneyRoute("/season/2026", "?tab=calendar")).toBe(
       true,
     );
     expect(
-      isChampionshipJourneyRoute("/season/2026", "?tab=results&focus=9"),
+      isChampionshipJourneyRoute("/season/2026", "?tab=calendar&focus=9"),
     ).toBe(true);
   });
 
-  it("keeps the calendar on its original 2D layout, never the globe journey", () => {
-    expect(isChampionshipJourneyRoute("/season/2026", "?tab=calendar")).toBe(
+  it("keeps results on the detailed table layout, never the globe journey", () => {
+    expect(isChampionshipJourneyRoute("/season/2026", "?tab=results")).toBe(
       false,
     );
     expect(
-      isChampionshipJourneyRoute("/season/2026", "?tab=calendar&focus=9"),
+      isChampionshipJourneyRoute("/season/2026", "?tab=results&focus=9"),
     ).toBe(false);
   });
 
@@ -49,7 +49,7 @@ describe("Championship journey scroll policy", () => {
 
   it("keeps round details and filtered views outside the map policy", () => {
     expect(
-      isChampionshipJourneyRoute("/season/2026", "?tab=results&round=9"),
+      isChampionshipJourneyRoute("/season/2026", "?tab=calendar&round=9"),
     ).toBe(false);
     expect(
       isChampionshipJourneyRoute(
@@ -58,8 +58,13 @@ describe("Championship journey scroll policy", () => {
       ),
     ).toBe(false);
     expect(
+      isChampionshipJourneyRoute("/season/2026", "?tab=results&round=9"),
+    ).toBe(false);
+    expect(
       isChampionshipJourneyRoute("/season/2026", "?tab=results&view=classic"),
     ).toBe(false);
-    expect(isChampionshipJourneyRoute("/showroom", "?tab=results")).toBe(false);
+    expect(isChampionshipJourneyRoute("/showroom", "?tab=calendar")).toBe(
+      false,
+    );
   });
 });

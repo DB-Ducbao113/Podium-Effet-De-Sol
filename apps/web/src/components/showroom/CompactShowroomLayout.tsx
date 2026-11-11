@@ -197,7 +197,7 @@ export const CompactShowroomLayout: React.FC<CompactShowroomLayoutProps> = ({
                 }}
               >
                 <span className="peds-compact-studio__swatch" aria-hidden="true">
-                  {paint.colors.map((color, index) => <i key={index} style={{ background: color }} />)}
+                  {paint.colors.map((color, index) => <span key={index} style={{ background: color }} />)}
                 </span>
                 <span className="peds-compact-studio__paint-name">{paint.name}</span>
                 {selectedPaintId === paint.id && <span className="peds-compact-studio__check" aria-hidden="true">✓</span>}

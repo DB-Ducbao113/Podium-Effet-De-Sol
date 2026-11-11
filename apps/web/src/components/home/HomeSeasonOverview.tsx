@@ -26,7 +26,7 @@ export function HomeSeasonOverview() {
     >
       <header className="home-live__heading">
         <span className="home-live__slash" aria-hidden="true">///</span>
-        <h2 id="home-title-fight-heading">THE TITLE FIGHT</h2>
+        <h2 id="home-title-fight-heading">{lang === 'vi' ? 'Cuộc đua ngôi vô địch' : 'The Title Fight'}</h2>
         <span className="home-live__rule" aria-hidden="true" />
         <span className="home-title-fight__year">TOP 3 / 2026</span>
       </header>

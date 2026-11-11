@@ -27,7 +27,7 @@ function VisibleShowroom({ load, onOpen }: { load: boolean; onOpen: () => void }
           <span className="relative m-6 inline-block rounded-lg border border-white/20 bg-black/60 px-3 py-2 text-xs font-bold text-white">
             Model B Showroom
           </span>
-          <button type="button" onClick={onOpen} className="relative mx-6 block rounded-lg bg-f1red px-4 py-3 text-sm font-bold text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-white">
+          <button type="button" onClick={onOpen} className="relative mx-6 block rounded-lg bg-peds-ignition px-4 py-3 text-sm font-bold text-peds-carbon focus-visible:outline focus-visible:outline-2 focus-visible:outline-white">
             Open 3D Showroom
           </button>
         </div>

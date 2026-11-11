@@ -56,32 +56,18 @@ describe("Results data selection against the live season data", () => {
     expect(html).toContain(`ROUND ${String(latest).padStart(2, "0")}`);
   });
 
-  it("presents the season map and scroll route by default", () => {
+  it("presents the detailed per-round classification table by default", () => {
     const html = render("/season/2026?tab=results");
-    expect(html).toContain("WORLD TOUR");
-    expect(html).toContain('data-map-mode="all-rounds"');
-    expect(html).toContain('data-route-lines="false"');
-    expect(html).toContain('data-round-label="R01"');
-    expect(html).toContain('data-round-label="R23"');
-    expect(html).toContain('data-experience="world-tour-v6"');
-    expect(html).not.toContain('aria-label="Watch intro"');
-    expect(html).not.toContain("rcj-journey-intro");
-    expect(html).not.toContain("rcj-view-details");
-    expect(html).toContain("data-view-details");
-    expect(html).toContain('href="/season/2026?tab=results&amp;round=1"');
-    expect(html).toContain("View results");
-    expect(html).toContain('href="/season/2026?tab=calendar"');
-    expect(html).toMatch(
-      /aria-current="page" href="\/season\/2026\?tab=results"[^>]*>Results<\/a>/,
-    );
-    expect(html).toContain("rcj-scroll-beat");
-    expect(html).toContain("rcj-stage-title");
-    expect(html).not.toContain("ONE YEAR.");
-    expect(html).not.toContain("Season Journey");
-    expect(html).not.toContain("Detailed view");
-    expect(html).not.toContain('class="rcj-chapter"');
+    expect(html).toContain('class="c11-table');
+    expect(html).toContain('class="rc-round-rail"');
+    expect(html).toContain("rounds with results");
+    expect(html).toContain(`ROUND ${String(latest).padStart(2, "0")}`);
+    expect(html).not.toContain("WORLD TOUR");
+    expect(html).not.toContain('data-experience="world-tour-v6"');
+    expect(html).not.toContain("rcj-scroll-beat");
+    expect(html).not.toContain("rcj-season-controls");
   });
-  it("switches the map navigation between Results and Calendar routes", () => {
+  it("keeps the globe journey on Calendar with its own season selector", () => {
     const calendarHtml = renderToStaticMarkup(
       <MemoryRouter initialEntries={["/season/2026?tab=calendar"]}>
         <RaceCalendarJourney season={2026} />
@@ -96,7 +82,9 @@ describe("Results data selection against the live season data", () => {
     );
     expect(calendarHtml).toContain("View weekend");
     expect(calendarHtml).toContain('data-map-mode="all-rounds"');
-    expect(calendarHtml).not.toContain('rcj-season-controls');
+    expect(calendarHtml).toContain('data-experience="world-tour-v6"');
+    expect(calendarHtml).toContain('rcj-season-controls');
+    expect(calendarHtml).toContain('href="/season/2025?tab=calendar"');
     expect(calendarHtml).not.toContain('aria-label="Watch intro"');
     expect(calendarHtml).not.toContain('rcj-film');
   });

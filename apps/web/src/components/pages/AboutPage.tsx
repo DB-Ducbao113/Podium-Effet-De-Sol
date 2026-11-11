@@ -9,10 +9,12 @@ import {
   ArrowLeft,
   ExternalLink,
   User,
+  Users,
   Heart,
   Layers,
   Palette,
   Compass,
+  Zap,
 } from 'lucide-react';
 import { useNavigationStore } from '../../store/useNavigationStore';
 
@@ -26,7 +28,7 @@ export const AboutPage: React.FC = () => {
       <div className="mb-6">
         <Link
           to="/"
-          className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-studio-500 hover:text-f1red transition-colors"
+          className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-studio-400 hover:text-f1red transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           {isVi ? 'Quay lại Trang chủ' : 'Back to Home'}
@@ -34,19 +36,19 @@ export const AboutPage: React.FC = () => {
       </div>
 
       {/* Hero Header */}
-      <header className="border-b border-studio-200 pb-8 mb-10">
+      <header className="border-b border-white/10 pb-8 mb-10">
         <div className="flex flex-wrap items-center gap-2 mb-3">
-          <span className="inline-block text-xs font-black uppercase tracking-widest text-f1red bg-f1red/10 px-3 py-1 rounded-full">
+          <span className="inline-block font-ui text-xs font-semibold tracking-wide text-f1red bg-f1red/10 px-3 py-1 rounded-full">
             {isVi ? 'Giới thiệu Dự án & Kiến trúc' : 'Project Architecture & Creator'}
           </span>
-          <span className="inline-block text-xs font-bold uppercase tracking-wider text-studio-600 bg-studio-200/70 px-3 py-1 rounded-full">
+          <span className="inline-block font-ui text-xs font-medium tracking-wide text-studio-300 bg-white/5 px-3 py-1 rounded-full">
             {isVi ? 'Nền tảng độc lập' : 'Independent platform'}
           </span>
         </div>
         <h1 className="peds-display-page">
           PODIUM — Effet de Sol
         </h1>
-        <p className="mt-4 text-base sm:text-lg text-peds-text-muted max-w-3xl leading-relaxed">
+        <p className="mt-4 font-body text-base sm:text-lg text-peds-text-muted max-w-3xl leading-relaxed">
           {isVi
             ? 'Không gian trải nghiệm 3D tương tác và trung tâm lưu trữ dữ liệu chuyên sâu dành riêng cho kỷ nguyên khí động học hiệu ứng mặt đất Formula 1 (2022–2026).'
             : 'Interactive 3D technical showcase and championship data archive dedicated to the Formula 1 Ground Effect era (2022–2026).'}
@@ -61,7 +63,7 @@ export const AboutPage: React.FC = () => {
           </div>
           <div className="flex-1">
             <div className="flex flex-wrap items-center gap-3">
-              <h2 className="font-display text-2xl font-bold uppercase tracking-wide">BaoBungBu</h2>
+              <h2 className="font-script text-4xl font-bold leading-none text-white">BaoBungBu</h2>
               <span className="text-xs px-2.5 py-0.5 rounded-full bg-white/10 text-studio-300 font-mono">
                 {isVi ? 'Tác giả & Nhà phát triển' : 'Creator & Lead Developer'}
               </span>
@@ -88,17 +90,17 @@ export const AboutPage: React.FC = () => {
       {/* Grid: Architecture & Technical Decisions */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
         {/* Card 1: 3D Geometry & Procedural Livery */}
-        <section className="bg-white border border-studio-200 rounded-2xl p-6 sm:p-8 shadow-sm flex flex-col justify-between">
+        <section className="bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-8 flex flex-col justify-between">
           <div>
             <div className="w-10 h-10 rounded-xl bg-f1red/10 text-f1red flex items-center justify-center mb-5">
               <Box className="w-5 h-5" />
             </div>
-            <h3 className="font-display text-xl font-bold uppercase text-studio-900 mb-3">
+            <h3 className="font-editorial text-2xl font-semibold text-white mb-3">
               {isVi
                 ? 'Kiến trúc 3D & Tối ưu Hiệu năng'
                 : '3D Architecture & Performance Engineering'}
             </h3>
-            <div className="text-sm text-studio-600 leading-relaxed space-y-3">
+            <div className="text-sm text-studio-300 leading-relaxed space-y-3">
               <p>
                 {isVi
                   ? 'Showroom dùng Three.js và React Three Fiber để trình bày mẫu xe tương tác. Cảnh 3D được tải theo nhu cầu và có chế độ chất lượng phù hợp với thiết bị.'
@@ -111,22 +113,22 @@ export const AboutPage: React.FC = () => {
               </p>
             </div>
           </div>
-          <div className="mt-6 pt-4 border-t border-studio-100 flex items-center gap-2 text-xs font-semibold text-studio-500 font-mono">
+          <div className="mt-6 pt-4 border-t border-white/10 flex items-center gap-2 text-xs font-semibold text-studio-400 font-mono">
             <Cpu className="w-4 h-4 text-f1red" />
             <span>WebGL · Three.js · React Three Fiber · PBR Materials</span>
           </div>
         </section>
 
         {/* Card 2: Live Data & Engine */}
-        <section className="bg-white border border-studio-200 rounded-2xl p-6 sm:p-8 shadow-sm flex flex-col justify-between">
+        <section className="bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-8 flex flex-col justify-between">
           <div>
-            <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-600 flex items-center justify-center mb-5">
+            <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center mb-5">
               <Database className="w-5 h-5" />
             </div>
-            <h3 className="font-display text-xl font-bold uppercase text-studio-900 mb-3">
+            <h3 className="font-editorial text-2xl font-semibold text-white mb-3">
               {isVi ? 'Cơ sở Dữ liệu & Tự động Hóa' : 'Automated Data Pipeline & Telemetry'}
             </h3>
-            <div className="text-sm text-studio-600 leading-relaxed space-y-3">
+            <div className="text-sm text-studio-300 leading-relaxed space-y-3">
               <p>
                 {isVi
                   ? 'Lịch thi đấu, kết quả từng vòng phân hạng và bảng xếp hạng giải đua được đồng bộ hóa từ Jolpica Ergast F1 API — cơ sở dữ liệu mở uy tín phục vụ cộng đồng đua xe thế giới.'
@@ -139,9 +141,9 @@ export const AboutPage: React.FC = () => {
               </p>
             </div>
           </div>
-          <div className="mt-6 pt-4 border-t border-studio-100 flex items-center justify-between text-xs font-semibold text-studio-500 font-mono">
+          <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-xs font-semibold text-studio-400 font-mono">
             <span className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-blue-500" />
+              <Sparkles className="w-4 h-4 text-blue-400" />
               <span>Jolpica Ergast API · CI/CD Sync</span>
             </span>
             <a
@@ -157,36 +159,39 @@ export const AboutPage: React.FC = () => {
       </div>
 
       {/* Card 3: Transformative Fan Tribute Art */}
-      <section className="bg-white border border-studio-200 rounded-2xl p-6 sm:p-8 shadow-sm mb-12">
+      <section className="bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-8 mb-12">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-600 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center">
             <Palette className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-display text-xl font-bold uppercase text-studio-900">
+            <h3 className="font-editorial text-2xl font-semibold text-white">
               {isVi ? 'Bộ sưu tập Nghệ thuật Chuyển thể' : 'Bespoke Transformative Art Archive'}
             </h3>
-            <p className="text-xs text-studio-500 font-mono">
+            <p className="text-xs text-studio-400 font-mono">
               {isVi
                 ? 'Tránh vi phạm bản quyền phóng viên báo chí'
                 : 'Replacing unverified press imagery with original fan art'}
             </p>
           </div>
         </div>
-        <p className="text-sm text-studio-600 leading-relaxed mb-4">
+        <p className="text-sm text-studio-300 leading-relaxed mb-4">
           {isVi
             ? 'Nhằm giải quyết dứt điểm các rủi ro liên quan đến bản quyền ảnh chụp từ bên thứ ba (Pinterest/báo chí), PODIUM — Effet de Sol đã và đang thay thế toàn bộ hình ảnh tay đua bằng các tác phẩm tranh poster nghệ thuật chuyển thể (Bespoke Transformative Fan Tribute Art). Mỗi poster là một tác phẩm đồ họa thể thao độc bản, kết hợp ánh sáng studio kịch tính, số hiệu và nhận diện phong cách của từng tay đua.'
             : 'To respect intellectual property and eliminate reliance on unverified editorial wire photos, PODIUM — Effet de Sol features custom transformative fan tribute art posters for each driver. Each artwork combines high-impact typography, studio rim lighting, dynamic racing helmets, and motion-blurred cars to celebrate the sporting legends of the paddock.'}
         </p>
-        <div className="flex flex-wrap gap-2 text-xs font-mono text-studio-500">
-          <span className="px-2.5 py-1 rounded-md bg-studio-100 text-studio-700">
-            🎨 Transformative Fan Tribute
+        <div className="flex flex-wrap gap-2 text-xs font-mono text-studio-300">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/5">
+            <Palette className="w-3.5 h-3.5 text-f1red" aria-hidden="true" />
+            {isVi ? 'Tranh tôn vinh chuyển thể' : 'Transformative Fan Tribute'}
           </span>
-          <span className="px-2.5 py-1 rounded-md bg-studio-100 text-studio-700">
-            🏎️ 11 Teams / 22 Drivers
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/5">
+            <Users className="w-3.5 h-3.5 text-f1red" aria-hidden="true" />
+            {isVi ? '11 đội / 22 tay đua' : '11 Teams / 22 Drivers'}
           </span>
-          <span className="px-2.5 py-1 rounded-md bg-studio-100 text-studio-700">
-            ⚡ 8K High Impact Style
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/5">
+            <Zap className="w-3.5 h-3.5 text-f1red" aria-hidden="true" />
+            {isVi ? 'Phong cách 8K mạnh mẽ' : '8K High Impact Style'}
           </span>
         </div>
       </section>
@@ -219,8 +224,8 @@ export const AboutPage: React.FC = () => {
           </p>
           <p>
             {isVi
-              ? '4. NGUỒN MÔ HÌNH 3D: EDS-G01 là nguyên mẫu do dự án Podium EDS tự xây dựng bằng generator tham số có thể tái tạo. Mô hình thương mại không tải hình học C42, logo đội đua hoặc đồ họa nhà tài trợ.'
-              : '4. 3D MODEL SOURCE: EDS-G01 is an original Podium EDS prototype built with a reproducible parametric generator. The commercial experience does not load C42 geometry, constructor logos, or sponsor artwork.'}
+              ? '4. NGUỒN MÔ HÌNH 3D: Showroom dùng Model B — “Formula 1 2022 Car” của Luis Adrian V. (CC BY 4.0), được Podium EDS thay vật liệu, bỏ texture, hợp nhất cảnh và nén Meshopt; nguồn và ghi công hiển thị ngay trong Showroom. Trải nghiệm thương mại không tải hình học C42, logo đội đua hoặc đồ họa nhà tài trợ.'
+              : '4. 3D MODEL SOURCE: The Showroom uses Model B — “Formula 1 2022 Car” by Luis Adrian V. (CC BY 4.0), modified by Podium EDS with replaced materials, removed textures, a consolidated scene and Meshopt compression; source and attribution are shown in the Showroom. The commercial experience does not load C42 geometry, constructor logos, or sponsor artwork.'}
           </p>
         </div>
       </section>
@@ -229,14 +234,14 @@ export const AboutPage: React.FC = () => {
       <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
         <Link
           to="/showroom"
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-f1red text-white text-xs font-black uppercase tracking-wider hover:bg-red-700 transition-colors shadow-md"
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-peds-ignition text-peds-carbon text-xs font-black uppercase tracking-wider hover:bg-peds-accent-strong transition-colors shadow-md"
         >
           <Compass className="w-4 h-4" />
           {isVi ? 'Trải nghiệm 3D Showroom' : 'Explore 3D Showroom'}
         </Link>
         <Link
           to="/season/2026"
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-studio-200 text-studio-900 text-xs font-black uppercase tracking-wider hover:bg-studio-300 transition-colors"
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/10 text-white text-xs font-black uppercase tracking-wider hover:bg-white/15 transition-colors border border-white/15"
         >
           <Layers className="w-4 h-4" />
           {isVi ? 'Bảng xếp hạng Mùa giải 2026' : '2026 Championship Hub'}

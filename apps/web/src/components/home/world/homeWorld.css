@@ -146,7 +146,7 @@
 .v9-lab__title {
   max-width: 830px;
   margin: 18px 0 0;
-  font: italic 900 clamp(3.3rem, 7.2vw / var(--peds-visual-zoom), 7.8rem)/.88 var(--peds-font-display);
+  font: 800 clamp(3.3rem, 7.2vw / var(--peds-visual-zoom), 7.8rem)/.88 var(--peds-font-display);
   letter-spacing: -.035em;
 }
 .v9-lab__title em { color: #ff713f; font-style: inherit; }

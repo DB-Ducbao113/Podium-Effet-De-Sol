@@ -25,6 +25,7 @@ export function isChampionshipJourneyRoute(
   pathname: string,
   search: string,
 ): boolean {
-  // The immersive globe journey belongs to Results only; Calendar keeps its original 2D layout.
-  return championshipTab(pathname, search) === "results";
+  // The immersive globe journey belongs to Calendar only; Results is the
+  // detailed per-round classification table and keeps the normal page layout.
+  return championshipTab(pathname, search) === "calendar";
 }

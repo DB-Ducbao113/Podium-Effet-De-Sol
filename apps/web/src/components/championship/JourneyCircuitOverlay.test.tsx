@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 import { getCalendarBySeason } from "../../data/championship";
-import { getSeasonCircuit } from "../../utils/p5SeasonalVisuals";
+import { getSeasonCircuit } from "../../utils/seasonalVisuals";
 import { JourneyCircuitOverlay } from "./JourneyCircuitOverlay";
 import {
   formatLatitude,

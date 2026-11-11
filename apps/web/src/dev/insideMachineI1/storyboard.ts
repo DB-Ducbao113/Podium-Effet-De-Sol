@@ -1,3 +1,4 @@
+import { createTimeline } from 'animejs';
 import type { Lang } from './types';
 
 export type StoryPhase='MODEL_ONLY'|'LOCATE'|'DETACH'|'FOCUS'|'EXPLAIN_ENTER'|'EXPLAIN_HOLD'|'EXPLAIN_EXIT'|'TRANSITION_NEXT'|'EXPLODED_OVERVIEW'|'REASSEMBLY';
@@ -136,9 +137,51 @@ export const offstageSpecFor=(id:string)=>OFFSTAGE_BY_ID.get(id)??null;
 export function offstageProgressAt(progress:number,id:string){const spec=OFFSTAGE_BY_ID.get(id);if(!spec)return 0;const p=clamp(progress);if(p<=spec.departure[0]||p>=spec.arrival[1])return 0;if(p<spec.departure[1])return smoother((p-spec.departure[0])/(spec.departure[1]-spec.departure[0]));if(spec.spotlight){if(p<spec.spotlight.arrival[0])return 1;if(p<spec.spotlight.arrival[1])return 1-smoother((p-spec.spotlight.arrival[0])/(spec.spotlight.arrival[1]-spec.spotlight.arrival[0]));if(p<=spec.spotlight.departure[0])return 0;if(p<spec.spotlight.departure[1])return smoother((p-spec.spotlight.departure[0])/(spec.spotlight.departure[1]-spec.spotlight.departure[0]));}const arrivalPhase=spec.staging?.hold??1;if(spec.staging&&p>=spec.staging.start&&p<spec.arrival[0]){if(p<spec.staging.end)return mix(1,spec.staging.hold,smoother((p-spec.staging.start)/(spec.staging.end-spec.staging.start)));return spec.staging.hold;}if(p<=spec.arrival[0])return 1;return arrivalPhase*(1-smoother((p-spec.arrival[0])/(spec.arrival[1]-spec.arrival[0])));}
 const ASSEMBLY_WINDOWS:Record<string,MotionWindow>={FRONT_LEFT_WHEEL:{detachStart:.055,detachEnd:.095,returnStart:.986,returnEnd:.992},FRONT_WING:{detachStart:.235,detachEnd:.275,returnStart:.968,returnEnd:.976},LEFT_SIDEPOD:{detachStart:.41,detachEnd:.45,returnStart:.953,returnEnd:.961},REAR_WING:{detachStart:.27,detachEnd:.38,returnStart:.961,returnEnd:.974},FRONT_RIGHT_WHEEL:{detachStart:.31,detachEnd:.44,returnStart:.984,returnEnd:.99},REAR_LEFT_WHEEL:{detachStart:.48,detachEnd:.61,returnStart:.978,returnEnd:.984},REAR_RIGHT_WHEEL:{detachStart:.50,detachEnd:.63,returnStart:.976,returnEnd:.983},COCKPIT_HALO:{detachStart:.54,detachEnd:.64,returnStart:.947,returnEnd:.958},RIGHT_SIDEPOD:{detachStart:.45,detachEnd:.57,returnStart:.951,returnEnd:.961},FLOOR_DIFFUSER:{detachStart:.61,detachEnd:.72,returnStart:.905,returnEnd:.917}};
 const COMPONENT_WINDOWS:Record<string,MotionWindow>={FRONT_LEFT_WHEEL:{detachStart:.063,detachEnd:.112,returnStart:.984,returnEnd:.991},FRONT_WING:{detachStart:.242,detachEnd:.292,returnStart:.965,returnEnd:.975},LEFT_SIDEPOD:{detachStart:.415,detachEnd:.462,returnStart:.95,returnEnd:.96},COOLING_LEFT:{detachStart:.425,detachEnd:.47,returnStart:.932,returnEnd:.945},COOLING_RIGHT:{detachStart:.49,detachEnd:.62,returnStart:.936,returnEnd:.947},POWERTRAIN:{detachStart:.585,detachEnd:.64,returnStart:.917,returnEnd:.932},REAR_WING:{detachStart:.28,detachEnd:.44,returnStart:.961,returnEnd:.973},FRONT_RIGHT_WHEEL:{detachStart:.33,detachEnd:.51,returnStart:.984,returnEnd:.99},REAR_LEFT_WHEEL:{detachStart:.50,detachEnd:.66,returnStart:.976,returnEnd:.983},REAR_RIGHT_WHEEL:{detachStart:.52,detachEnd:.68,returnStart:.976,returnEnd:.983},COCKPIT_HALO:{detachStart:.55,detachEnd:.66,returnStart:.947,returnEnd:.957},RIGHT_SIDEPOD:{detachStart:.47,detachEnd:.60,returnStart:.95,returnEnd:.96},FLOOR_DIFFUSER:{detachStart:.62,detachEnd:.73,returnStart:.905,returnEnd:.916}};
-const phaseWindow=(progress:number,window:MotionWindow)=>{if(progress<=window.detachStart||progress>=window.returnEnd)return 0;if(progress<window.detachEnd)return smooth((progress-window.detachStart)/(window.detachEnd-window.detachStart));if(progress<=window.returnStart)return 1;return 1-smooth((progress-window.returnStart)/(window.returnEnd-window.returnStart));};
-export const assemblyDetachmentAt=(progress:number,id:string)=>phaseWindow(clamp(progress),ASSEMBLY_WINDOWS[id]??{detachStart:.38,detachEnd:.68,returnStart:.82,returnEnd:.93});
-export const componentDetachmentAt=(progress:number,parentId:string,order:number,count:number)=>{const base=COMPONENT_WINDOWS[parentId]??{detachStart:.40,detachEnd:.70,returnStart:.81,returnEnd:.92};const rank=count>1?clamp(order/Math.max(1,count-1)):0;const detachSpan=base.detachEnd-base.detachStart;const returnSpan=base.returnEnd-base.returnStart;return phaseWindow(clamp(progress),{detachStart:base.detachStart+rank*detachSpan*.28,detachEnd:base.detachEnd,returnStart:base.returnStart+(1-rank)*returnSpan*.2,returnEnd:base.returnEnd});};
+const TIMELINE_DURATION_MS=10000;
+const windowTimelineCache=new Map<string,{tl:ReturnType<typeof createTimeline>;target:{detach:number}}>();
+const animeDetachmentWindow=(progress:number,window:MotionWindow)=>{
+  const p=clamp(progress);
+  if(p<=window.detachStart||p>=window.returnEnd)return 0;
+  const ds=Number(window.detachStart.toFixed(5));
+  const de=Math.max(ds+0.0002,Number(window.detachEnd.toFixed(5)));
+  const rs=Math.max(de,Number(window.returnStart.toFixed(5)));
+  const re=Math.max(rs+0.0002,Number(window.returnEnd.toFixed(5)));
+  const key=`${ds}:${de}:${rs}:${re}`;
+  let entry=windowTimelineCache.get(key);
+  if(!entry){
+    const target={detach:0};
+    const startMs=ds*TIMELINE_DURATION_MS;
+    const detachMs=Math.max(1,(de-ds)*TIMELINE_DURATION_MS);
+    const holdMs=Math.max(0,(rs-de)*TIMELINE_DURATION_MS);
+    const returnMs=Math.max(1,(re-rs)*TIMELINE_DURATION_MS);
+    const tl=createTimeline({autoplay:false}).add(target,{
+      detach:[
+        {from:0,to:1,duration:detachMs,ease:'inOutSine'},
+        ...(holdMs>0?[{to:1,duration:holdMs,ease:'linear' as const}]:[]),
+        {to:0,duration:returnMs,ease:'inOutSine'},
+      ],
+    },startMs);
+    entry={tl,target};
+    windowTimelineCache.set(key,entry);
+  }
+  entry.tl.seek(p*TIMELINE_DURATION_MS);
+  return clamp(entry.target.detach);
+};
+export const assemblyDetachmentAt=(progress:number,id:string)=>animeDetachmentWindow(progress,ASSEMBLY_WINDOWS[id]??{detachStart:.38,detachEnd:.68,returnStart:.82,returnEnd:.93});
+export const componentDetachmentAt=(progress:number,parentId:string,order:number,count:number,manifestWindow?:[number,number])=>{
+  const base=COMPONENT_WINDOWS[parentId]??{detachStart:.40,detachEnd:.70,returnStart:.81,returnEnd:.92};
+  const rank=count>1?clamp(order/Math.max(1,count-1)):0;
+  const manifestStart=manifestWindow?clamp(manifestWindow[0]):rank;
+  const leadFactor=mix(rank,manifestStart,manifestWindow?0.35:0);
+  const detachSpan=base.detachEnd-base.detachStart;
+  const returnSpan=base.returnEnd-base.returnStart;
+  return animeDetachmentWindow(progress,{
+    detachStart:base.detachStart+leadFactor*detachSpan*.28,
+    detachEnd:base.detachEnd,
+    returnStart:base.returnStart+(1-leadFactor)*returnSpan*.2,
+    returnEnd:base.returnEnd,
+  });
+};
 export const reassemblyWaveAt=(progress:number)=>REASSEMBLY_WAVES.find(wave=>progress>=wave.start&&progress<wave.end)??null;
 export const beatAt=(progress:number)=>SCROLL_BEATS.find(item=>clamp(progress)<item.scrollEnd)??SCROLL_BEATS[SCROLL_BEATS.length-1];
 export const beatProgressAt=(progress:number,item=beatAt(progress))=>clamp((clamp(progress)-item.scrollStart)/Math.max(.0001,item.scrollEnd-item.scrollStart));
@@ -151,3 +194,54 @@ export const progressForChapter=(index:number)=>{
   return first.scrollStart+Math.min(.002,(first.scrollEnd-first.scrollStart)*.1);
 };
 export const progressForBeat=(beatId:string)=>{const item=SCROLL_BEATS.find(candidate=>candidate.beatId===beatId);return item?(item.hold[0]+item.hold[1])/2:0;};
+
+export interface ExplanationStaggerState {
+  titleProgress: number;
+  summaryProgress: number;
+  functionProgress: number;
+  sourceProgress: number;
+  titleBlockProgress: number;
+}
+
+const explanationProxy: ExplanationStaggerState = {
+  titleProgress: 0,
+  summaryProgress: 0,
+  functionProgress: 0,
+  sourceProgress: 0,
+  titleBlockProgress: 0,
+};
+
+const explanationTimeline = createTimeline({
+  autoplay: false,
+  defaults: { ease: 'outCubic' },
+})
+  .add(explanationProxy, { titleProgress: 1, duration: 340 }, 0)
+  .add(explanationProxy, { summaryProgress: 1, duration: 420 }, 160)
+  .add(explanationProxy, { functionProgress: 1, duration: 400 }, 360)
+  .add(explanationProxy, { sourceProgress: 1, duration: 420 }, 580)
+  .add(explanationProxy, { titleBlockProgress: 1, duration: 600 }, 0);
+
+export function evaluateExplanationTimeline(
+  explanationProgress: number,
+  reducedMotion = false,
+): ExplanationStaggerState {
+  const clamped = clamp(explanationProgress);
+  if (reducedMotion) {
+    const bin = clamped > 0.01 ? 1 : 0;
+    return {
+      titleProgress: bin,
+      summaryProgress: bin,
+      functionProgress: bin,
+      sourceProgress: bin,
+      titleBlockProgress: 1,
+    };
+  }
+  explanationTimeline.seek(clamped * 1000);
+  return {
+    titleProgress: explanationProxy.titleProgress,
+    summaryProgress: explanationProxy.summaryProgress,
+    functionProgress: explanationProxy.functionProgress,
+    sourceProgress: explanationProxy.sourceProgress,
+    titleBlockProgress: explanationProxy.titleBlockProgress,
+  };
+}

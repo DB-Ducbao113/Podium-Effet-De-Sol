@@ -36,7 +36,7 @@ export function HomeCommandStrip({ race }: { race?: GrandPrixRound }) {
       </Link>
       <div className="home-command__cell home-command__cell--progress">
         <span className="home-command__cell-head"><Gauge size={14} aria-hidden="true" /> {vi ? 'TIẾN ĐỘ MÙA' : 'SEASON PROGRESS'}</span>
-        <strong className="home-command__value"><span data-numeric>{completedRounds}</span><i>/</i>{totalRounds}</strong>
+        <strong className="home-command__value"><span data-numeric>{completedRounds}</span><span>/</span>{totalRounds}</strong>
         <span className="home-command__bar" aria-hidden="true"><span style={{ width: `${progress}%` }} /></span>
         <span className="home-command__meta">{vi ? `${progress}% chặng đã hoàn thành` : `${progress}% rounds complete`}</span>
       </div>

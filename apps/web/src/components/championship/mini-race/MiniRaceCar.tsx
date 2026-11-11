@@ -39,13 +39,12 @@ export function MiniRaceCar({
 }) {
   const [failed, setFailed] = useState(false);
   const isHistoricalSeason = season === 2024 || season === 2025;
-  const slug = import.meta.env.DEV
-    ? season === 2026
+  const slug =
+    season === 2026
       ? teamSlugs[teamId]
       : isHistoricalSeason
         ? historicalTeamSlugs[teamId]
-        : undefined
-    : undefined;
+        : undefined;
   const gifPath = slug
     ? season === 2026
       ? `gifs/${slug}-2026-side.gif`
@@ -64,11 +63,11 @@ export function MiniRaceCar({
         <picture>
           <source
             media="(prefers-reduced-motion: reduce)"
-            srcSet={`/__peds-mini-race/${posterPath}`}
+            srcSet={`/images/mini-race/${posterPath}`}
             type="image/webp"
           />
           <img
-            src={`/__peds-mini-race/${gifPath}`}
+            src={`/images/mini-race/${gifPath}`}
             alt=""
             width={600}
             height={240}

@@ -39,7 +39,7 @@ import { CircuitTrace } from './CircuitTrace';
 import { CircuitPhoto } from './CircuitPhoto';
 import { SeasonalCircuitPhoto } from './SeasonalCircuitPhoto';
 import { circuitVisual2026For } from '../../utils/circuitVisualAssets2026';
-import { getSeasonCircuit, P5_SEASONAL_REVIEW_ENABLED, resolveCircuitVisual, circuitPreviewUrl } from '../../utils/p5SeasonalVisuals';
+import { getSeasonCircuit, SEASONAL_ART_ENABLED, resolveCircuitVisual, circuitPreviewUrl } from '../../utils/seasonalVisuals';
 import { TimezoneSelector } from './TimezoneSelector';
 import { relevantRound } from '../../utils/relevantRace';
 import { resolveCalendarEntry } from './calendarNavigation';
@@ -408,7 +408,7 @@ export function ChampionshipCalendar({ season }: { season: SeasonYear }) {
   );
   const nextCircuit = nextRace ? getSeasonCircuit(season, nextRace.round) : undefined;
   const nextVisual = circuitVisual2026For(season, nextCircuit?.id);
-  const reviewNext = nextRace && P5_SEASONAL_REVIEW_ENABLED && !!resolveCircuitVisual(season, nextRace.round);
+  const reviewNext = nextRace && SEASONAL_ART_ENABLED && !!resolveCircuitVisual(season, nextRace.round);
   const previousCircuit = previousRace
     ? getSeasonCircuit(season, previousRace.round)
     : undefined;
@@ -474,22 +474,22 @@ export function ChampionshipCalendar({ season }: { season: SeasonYear }) {
             >
               <figure className="cal-next-visual">
                 {reviewNext ? (
-                  <SeasonalCircuitPhoto key={`${season}-${nextRace.round}`} season={season} round={nextRace.round} sizes="(max-width: 760px) 100vw, 760px" fallback="/images/p4/template/cal-next-1200.webp" />
+                  <SeasonalCircuitPhoto key={`${season}-${nextRace.round}`} season={season} round={nextRace.round} sizes="(max-width: 760px) 100vw, 760px" fallback="/images/championship/template/cal-next-1200.webp" />
                 ) : nextVisual ? (
-                  <CircuitPhoto key={nextVisual.circuitId} visual={nextVisual} sizes="(max-width: 760px) 100vw, 760px" fallback="/images/p4/template/cal-next-1200.webp" />
+                  <CircuitPhoto key={nextVisual.circuitId} visual={nextVisual} sizes="(max-width: 760px) 100vw, 760px" fallback="/images/championship/template/cal-next-1200.webp" />
                 ) : <picture>
                   <source
                     type="image/avif"
-                    srcSet="/images/p4/template/cal-next-800.avif 800w, /images/p4/template/cal-next-1200.avif 1200w"
+                    srcSet="/images/championship/template/cal-next-800.avif 800w, /images/championship/template/cal-next-1200.avif 1200w"
                     sizes="(max-width: 760px) 100vw, 760px"
                   />
                   <source
                     type="image/webp"
-                    srcSet="/images/p4/template/cal-next-800.webp 800w, /images/p4/template/cal-next-1200.webp 1200w"
+                    srcSet="/images/championship/template/cal-next-800.webp 800w, /images/championship/template/cal-next-1200.webp 1200w"
                     sizes="(max-width: 760px) 100vw, 760px"
                   />
                   <img
-                    src="/images/p4/template/cal-next-1200.webp"
+                    src="/images/championship/template/cal-next-1200.webp"
                     alt=""
                     width={1200}
                     height={800}
@@ -499,7 +499,7 @@ export function ChampionshipCalendar({ season }: { season: SeasonYear }) {
                 </picture>}
                 <figcaption>
                   {reviewNext
-                    ? (lang === 'vi' ? 'Ảnh minh họa AI · xem trước local' : 'AI illustration · local preview')
+                    ? (lang === 'vi' ? 'Ảnh minh họa AI' : 'AI illustration')
                     : nextVisual
                     ? <><a href={nextVisual.sourcePage} target="_blank" rel="noreferrer">{nextVisual.credit}</a> · <a href={nextVisual.licenseUrl} target="_blank" rel="noreferrer">{nextVisual.license}</a> · {lang === 'vi' ? 'đã cắt' : 'cropped'}</>
                     : lang === 'vi'
@@ -791,16 +791,16 @@ export function ChampionshipCalendar({ season }: { season: SeasonYear }) {
                 <picture aria-hidden="true">
                   <source
                     type="image/avif"
-                    srcSet="/images/p4/template/cal-editorial-640.avif 640w, /images/p4/template/cal-editorial-1000.avif 1000w"
+                    srcSet="/images/championship/template/cal-editorial-640.avif 640w, /images/championship/template/cal-editorial-1000.avif 1000w"
                     sizes="(max-width: 760px) 100vw, 420px"
                   />
                   <source
                     type="image/webp"
-                    srcSet="/images/p4/template/cal-editorial-640.webp 640w, /images/p4/template/cal-editorial-1000.webp 1000w"
+                    srcSet="/images/championship/template/cal-editorial-640.webp 640w, /images/championship/template/cal-editorial-1000.webp 1000w"
                     sizes="(max-width: 760px) 100vw, 420px"
                   />
                   <img
-                    src="/images/p4/template/cal-editorial-1000.webp"
+                    src="/images/championship/template/cal-editorial-1000.webp"
                     alt=""
                     width={1000}
                     height={750}
@@ -843,14 +843,14 @@ export function ChampionshipCalendar({ season }: { season: SeasonYear }) {
               {previousRace && (
                 <article className="cal-racecard" data-kind="previous">
                   <figure className="cal-racecard-media" aria-hidden="true">
-                    {P5_SEASONAL_REVIEW_ENABLED ? <SeasonalCircuitPhoto season={season} round={previousRace.round} fallback={`/images/p4/template/venue-${previousPlate}-1024.webp`} sizes="(max-width: 760px) 100vw, 260px" /> : <picture>
+                    {SEASONAL_ART_ENABLED ? <SeasonalCircuitPhoto season={season} round={previousRace.round} fallback={`/images/championship/template/venue-${previousPlate}-1024.webp`} sizes="(max-width: 760px) 100vw, 260px" /> : <picture>
                       <source
                         type="image/avif"
-                        srcSet={`/images/p4/template/venue-${previousPlate}-640.avif 640w, /images/p4/template/venue-${previousPlate}-1024.avif 1024w`}
+                        srcSet={`/images/championship/template/venue-${previousPlate}-640.avif 640w, /images/championship/template/venue-${previousPlate}-1024.avif 1024w`}
                         sizes="(max-width: 760px) 100vw, 260px"
                       />
                       <img
-                        src={`/images/p4/template/venue-${previousPlate}-1024.webp`}
+                        src={`/images/championship/template/venue-${previousPlate}-1024.webp`}
                         alt=""
                         width={1024}
                         height={585}
@@ -915,14 +915,14 @@ export function ChampionshipCalendar({ season }: { season: SeasonYear }) {
               {upcomingRace && (
                 <article className="cal-racecard" data-kind="upcoming">
                   <figure className="cal-racecard-media" aria-hidden="true">
-                    {P5_SEASONAL_REVIEW_ENABLED ? <SeasonalCircuitPhoto season={season} round={upcomingRace.round} fallback={`/images/p4/template/venue-${upcomingPlate}-1024.webp`} sizes="(max-width: 760px) 100vw, 260px" /> : <picture>
+                    {SEASONAL_ART_ENABLED ? <SeasonalCircuitPhoto season={season} round={upcomingRace.round} fallback={`/images/championship/template/venue-${upcomingPlate}-1024.webp`} sizes="(max-width: 760px) 100vw, 260px" /> : <picture>
                       <source
                         type="image/avif"
-                        srcSet={`/images/p4/template/venue-${upcomingPlate}-640.avif 640w, /images/p4/template/venue-${upcomingPlate}-1024.avif 1024w`}
+                        srcSet={`/images/championship/template/venue-${upcomingPlate}-640.avif 640w, /images/championship/template/venue-${upcomingPlate}-1024.avif 1024w`}
                         sizes="(max-width: 760px) 100vw, 260px"
                       />
                       <img
-                        src={`/images/p4/template/venue-${upcomingPlate}-1024.webp`}
+                        src={`/images/championship/template/venue-${upcomingPlate}-1024.webp`}
                         alt=""
                         width={1024}
                         height={585}
@@ -1016,7 +1016,7 @@ export function ChampionshipCalendar({ season }: { season: SeasonYear }) {
               const expanded = expandedRound === race.round;
               const circuit = getSeasonCircuit(season, race.round);
               const detailVisual = circuitVisual2026For(season, circuit?.id);
-              const reviewVisual = P5_SEASONAL_REVIEW_ENABLED ? resolveCircuitVisual(season, race.round) : undefined;
+              const reviewVisual = SEASONAL_ART_ENABLED ? resolveCircuitVisual(season, race.round) : undefined;
               const sessions = ORDER.filter((key) =>
                 Boolean(race.sessions[key]),
               );
@@ -1084,9 +1084,9 @@ export function ChampionshipCalendar({ season }: { season: SeasonYear }) {
                       {(reviewVisual || detailVisual) && (
                         <figure className="cal-detail-photo">
                           {reviewVisual
-                            ? <SeasonalCircuitPhoto season={season} round={race.round} fallback="/images/p4/template/cal-hero-1344.webp" sizes="(max-width: 760px) 100vw, 900px" />
-                            : <CircuitPhoto visual={detailVisual} fallback="/images/p4/template/cal-hero-1344.webp" sizes="(max-width: 760px) 100vw, 900px" />}
-                          <figcaption>{reviewVisual ? (lang === 'vi' ? 'Ảnh minh họa AI · xem trước local' : 'AI illustration · local preview') : detailVisual && <>{lang === 'vi' ? 'Ảnh đường đua' : 'Circuit photo'} · <a href={detailVisual.sourcePage} target="_blank" rel="noreferrer">{detailVisual.credit}</a> · <a href={detailVisual.licenseUrl} target="_blank" rel="noreferrer">{detailVisual.license}</a> · {lang === 'vi' ? 'đã cắt' : 'cropped'}</>}</figcaption>
+                            ? <SeasonalCircuitPhoto season={season} round={race.round} fallback="/images/championship/template/cal-hero-1344.webp" sizes="(max-width: 760px) 100vw, 900px" />
+                            : <CircuitPhoto visual={detailVisual} fallback="/images/championship/template/cal-hero-1344.webp" sizes="(max-width: 760px) 100vw, 900px" />}
+                          <figcaption>{reviewVisual ? (lang === 'vi' ? 'Ảnh minh họa AI' : 'AI illustration') : detailVisual && <>{lang === 'vi' ? 'Ảnh đường đua' : 'Circuit photo'} · <a href={detailVisual.sourcePage} target="_blank" rel="noreferrer">{detailVisual.credit}</a> · <a href={detailVisual.licenseUrl} target="_blank" rel="noreferrer">{detailVisual.license}</a> · {lang === 'vi' ? 'đã cắt' : 'cropped'}</>}</figcaption>
                         </figure>
                       )}
                       <div className="cal-detail-top">

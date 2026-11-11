@@ -1,27 +1,27 @@
 import { Link } from 'react-router-dom';
 import { ExternalLink } from 'lucide-react';
 import { getStandings } from '../../data/championship';
-import { roundsWithResults } from '../../utils/p5Data';
+import { roundsWithResults } from '../../utils/podiumStats';
 import type { SeasonYear } from '../../types';
 import { useChampionshipStore } from '../../store/useChampionshipStore';
 import { useNavigationStore } from '../../store/useNavigationStore';
 import {
-  P5_STANDINGS_CONSTRUCTORS_VENUE,
-  P5_STANDINGS_DRIVERS_VENUE,
-} from '../../utils/p5TeamAtmosphere';
+  STANDINGS_CONSTRUCTORS_VENUE,
+  STANDINGS_DRIVERS_VENUE,
+} from '../../utils/teamAtmosphere';
 import { venueHeroFor, venueHeroSrcSet } from '../../utils/venueHeroes';
-import { extra2026Hero, historicalStandingsHero } from '../../utils/p5Extended2026Visuals';
-import { P5ExtraArtwork } from '../p5/P5ExtraArtwork';
-import { useP5Reveal } from '../p5/useP5Reveal';
+import { extra2026Hero } from '../../utils/extended2026Visuals';
+import { ExtraArtwork } from '../directory/ExtraArtwork';
+import { useDirectoryReveal } from '../directory/useDirectoryReveal';
 import { MiniRaceLeaderboard } from './mini-race/MiniRaceLeaderboard';
-import '../p5/p5.css';
+import '../directory/directory.css';
 
 function HeroBackdrop({ venue, alt }: { venue: string; alt: string }) {
   return (
     <picture className="p5-hero-media" aria-hidden="true">
       <source type="image/avif" srcSet={venueHeroSrcSet(venue, 'land', 'avif')} sizes="(max-width: 900px) 100vw, 1440px" />
       <source type="image/webp" srcSet={venueHeroSrcSet(venue, 'land', 'webp')} sizes="(max-width: 900px) 100vw, 1440px" />
-      <img src={`/images/p4/venues/${venue}-land-1600.webp`} alt={alt} loading="eager" decoding="async" />
+      <img src={`/images/championship/venues/${venue}-land-1600.webp`} alt={alt} loading="eager" decoding="async" />
     </picture>
   );
 }
@@ -36,11 +36,11 @@ export function ChampionshipStandings({ season }: { season: SeasonYear }) {
   const title = isDrivers
     ? (lang === 'vi' ? 'BXH Tay đua' : 'Driver standings')
     : (lang === 'vi' ? 'BXH Đội đua' : 'Constructor standings');
-  const venueId = isDrivers ? P5_STANDINGS_DRIVERS_VENUE : P5_STANDINGS_CONSTRUCTORS_VENUE;
+  const venueId = isDrivers ? STANDINGS_DRIVERS_VENUE : STANDINGS_CONSTRUCTORS_VENUE;
   const venue = venueHeroFor(venueId);
-  const reviewHero = historicalStandingsHero(season) ?? extra2026Hero('championship', season);
+  const reviewHero = extra2026Hero('championship', season);
   const rounds = roundsWithResults(season, detailedResults[season]);
-  const revealRef = useP5Reveal<HTMLElement>(`${season}-${standingsCategory}-${Math.round(rows[0]?.points ?? 0)}`);
+  const revealRef = useDirectoryReveal<HTMLElement>(`${season}-${standingsCategory}-${Math.round(rows[0]?.points ?? 0)}`);
   const leaderDriver = current.drivers[0];
   const leaderTeam = current.constructors[0];
 
@@ -52,7 +52,7 @@ export function ChampionshipStandings({ season }: { season: SeasonYear }) {
       data-motion-engine="p5"
     >
       <header className="p5-hero p5-standings-hero">
-        <P5ExtraArtwork artwork={reviewHero} className="p5-hero-media" eager fallback={<HeroBackdrop
+        <ExtraArtwork artwork={reviewHero} className="p5-hero-media" eager fallback={<HeroBackdrop
           venue={venueId}
           alt={venue ? `${venue.place} · ${lang === 'vi' ? 'ảnh minh họa' : 'illustrative venue photo'}` : ''}
         />} />
@@ -62,17 +62,19 @@ export function ChampionshipStandings({ season }: { season: SeasonYear }) {
             {season} <span aria-hidden="true">/</span>{' '}
             {lang === 'vi' ? `${rounds} VÒNG CÓ KẾT QUẢ` : `${rounds} ROUNDS WITH RESULTS`}
           </p>
-          <h1 className="p5-mega">
+          <h2 className="p5-mega">
             {isDrivers ? (
               <>
-                DRIVERS<span className="p5-mega-line">CHAMPIONSHIP</span>
+                {lang === 'vi' ? 'Xếp hạng' : 'Drivers'}
+                <span className="p5-mega-line">{lang === 'vi' ? 'Tay đua' : 'Championship'}</span>
               </>
             ) : (
               <>
-                CONSTRUCTORS<span className="p5-mega-line">CHAMPIONSHIP</span>
+                {lang === 'vi' ? 'Xếp hạng' : 'Constructors'}
+                <span className="p5-mega-line">{lang === 'vi' ? 'Đội đua' : 'Championship'}</span>
               </>
             )}
-          </h1>
+          </h2>
           <p className="p5-hero-lead">
             {isDrivers ? (
               lang === 'vi'
@@ -84,7 +86,7 @@ export function ChampionshipStandings({ season }: { season: SeasonYear }) {
                 : leaderTeam ? `${leaderTeam.teamName} leads · ${leaderTeam.points} pts` : 'Standings unavailable'
             )}
           </p>
-          {reviewHero ? <p className="p5-photo-credit p5-photo-credit-inline">{lang === 'vi' ? 'Ảnh minh họa AI · xem trước local' : 'AI illustration · local preview'}</p> : venue && (
+          {reviewHero ? <p className="p5-photo-credit p5-photo-credit-inline">{lang === 'vi' ? 'Ảnh minh họa AI' : 'AI illustration'}</p> : venue && (
             <p className="p5-photo-credit p5-photo-credit-inline">
               {lang === 'vi' ? 'Ảnh minh họa' : 'Illustrative photo'}: {venue.place} ·{' '}
               <a href={venue.sourcePage} target="_blank" rel="noopener noreferrer">

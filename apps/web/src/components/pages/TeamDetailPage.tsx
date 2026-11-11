@@ -1,5 +1,5 @@
 import { Link, useParams, useSearchParams } from 'react-router-dom';
-import { getCarsBySeason } from '../../data/cars';
+import { getCarsBySeason, resolveTechnicalHighlights } from '../../data/cars';
 import { TEAMS_DATA } from '../../data/teams';
 import { getTeamSeasonProfile } from '../../data/teamSeasons';
 import { getSeasonDriverNumber } from '../../data/championship/raceClassificationHelper';
@@ -7,56 +7,36 @@ import { DRIVERS_DATA } from '../../data/drivers';
 import { useNavigationStore } from '../../store/useNavigationStore';
 import type { SeasonYear, TeamId } from '../../types';
 import { getDriverCinematic } from '../../utils/driverCinematic';
-import { podiumForm, type PodiumFormEntry } from '../../utils/p5Data';
-import { P5_TEAM_VENUE } from '../../utils/p5TeamAtmosphere';
+import { podiumForm } from '../../utils/podiumStats';
+import { TEAM_VENUE } from '../../utils/teamAtmosphere';
 import { getTeamTextColor } from '../../utils/teamColors';
 import { venueHeroFor, venueHeroSrcSet } from '../../utils/venueHeroes';
-import { P5RaceImage } from '../p5/P5CinematicImage';
-import { P5PortraitCredit } from '../p5/P5DirectorySurfaces';
-import { P5Portrait } from '../p5/P5Portrait';
-import { P5ExtraArtwork } from '../p5/P5ExtraArtwork';
-import { extra2026TeamPoster } from '../../utils/p5Extended2026Visuals';
+import { DriverRaceImage } from '../directory/CinematicImage';
+import { PortraitCredits } from '../directory/DirectorySurfaces';
+import { FormBadges } from '../directory/FormBadges';
+import { DriverPortrait } from '../directory/DriverPortrait';
+import { ExtraArtwork } from '../directory/ExtraArtwork';
+import { extra2026TeamPoster } from '../../utils/extended2026Visuals';
 import { teamConcept2026, teamConceptWidth2026 } from '../../utils/f1VisualAssets2026';
-import { useP5SeasonData } from '../p5/useP5ChampionshipData';
-import { useP5Reveal } from '../p5/useP5Reveal';
-import '../p5/p5.css';
+import { useSeasonDirectoryData } from '../directory/useSeasonDirectoryData';
+import { useDirectoryReveal } from '../directory/useDirectoryReveal';
+import '../directory/directory.css';
 
 const SEASONS: SeasonYear[] = [2026, 2025, 2024];
-
-function FormBadges({ entries, lang }: { entries: PodiumFormEntry[]; lang: 'vi' | 'en' }) {
-  return (
-    <span className="p5-form" aria-label={lang === 'vi' ? 'Chuỗi 5 vòng gần nhất' : 'Last five rounds'}>
-      {entries.map((entry) => (
-        <span
-          key={entry.round}
-          className="p5-form-cell"
-          data-pos={entry.position ?? 0}
-          title={entry.position
-            ? lang === 'vi' ? `Vòng ${entry.round}: P${entry.position}` : `Round ${entry.round}: P${entry.position}`
-            : entry.source === 'detailed'
-              ? lang === 'vi' ? `Vòng ${entry.round}: không có podium` : `Round ${entry.round}: no podium`
-              : lang === 'vi' ? `Vòng ${entry.round}: không có trong tóm tắt top 3` : `Round ${entry.round}: not in the podium summary`}
-        >
-          {entry.position ? `P${entry.position}` : '–'}
-        </span>
-      ))}
-    </span>
-  );
-}
 
 export function TeamDetailPage() {
   const { teamId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const lang = useNavigationStore((state) => state.lang);
-  const revealRef = useP5Reveal<HTMLElement>(`${teamId ?? 'missing'}-${searchParams.get('season') ?? ''}`);
+  const revealRef = useDirectoryReveal<HTMLDivElement>(`${teamId ?? 'missing'}-${searchParams.get('season') ?? ''}`);
   const requested = Number(searchParams.get('season'));
   const season: SeasonYear = requested === 2025 || requested === 2024 ? requested : 2026;
-  const { standings: seasonStandings, detailedResults } = useP5SeasonData(season);
+  const { standings: seasonStandings, detailedResults } = useSeasonDirectoryData(season);
   const team = teamId && teamId in TEAMS_DATA ? TEAMS_DATA[teamId as TeamId] : undefined;
 
   if (!team) {
     return (
-      <main ref={revealRef} className="p5-profile">
+      <div ref={revealRef} className="p5-profile">
         <div className="p5-profile-inner">
           <div className="p5-empty-state">
             <h1>{lang === 'vi' ? 'Không tìm thấy đội đua' : 'Team not found'}</h1>
@@ -66,7 +46,7 @@ export function TeamDetailPage() {
             </div>
           </div>
         </div>
-      </main>
+      </div>
     );
   }
 
@@ -89,15 +69,15 @@ export function TeamDetailPage() {
     '--team-primary': team.primaryColor || color,
     '--team-accent': team.accentColor || color,
   } as React.CSSProperties;
-  const venueId = P5_TEAM_VENUE[team.id] || 'silverstone';
+  const venueId = TEAM_VENUE[team.id] || 'silverstone';
   const venue = venueHeroFor(venueId);
   const carDescription = lang === 'vi'
     ? car?.descriptionVi || car?.descriptionEn
     : car?.descriptionEn || car?.descriptionVi;
-  const highlights = car?.technicalHighlights;
+  const highlights = resolveTechnicalHighlights(car?.technicalHighlights, lang);
 
   return (
-    <main ref={revealRef} className="p5-profile" style={identity}>
+    <div ref={revealRef} className="p5-profile" style={identity}>
       <div className="p5-profile-inner">
         <nav className="p5-profile-top" aria-label={lang === 'vi' ? 'Điều hướng hồ sơ' : 'Profile navigation'}>
           <Link className="p5-profile-back" to={`/teams?season=${season}`}>
@@ -117,18 +97,22 @@ export function TeamDetailPage() {
         </nav>
 
         <header className="p5-team-hero" data-p5-reveal>
-          {teamConcept2026(team.id, season) && <span className="p5-concept-car p5-concept-car--profile" aria-hidden="true"><img src={teamConcept2026(team.id, season)} alt="" width={teamConceptWidth2026(team.id)} height={235} loading="eager" /></span>}
-          {(season === 2024 || season === 2025) ? <span className="p5-hero-media p5-generated-team-hero" aria-hidden="true">{drivers.slice(0, 2).map((driver) => <P5Portrait key={driver.driverId} season={season} driverId={driver.driverId} alt="" eager />)}</span> : <picture className="p5-hero-media" aria-hidden="true">
-            <source type="image/avif" srcSet={venueHeroSrcSet(venueId, 'land', 'avif')} sizes="(max-width: 900px) 100vw, 1440px" />
-            <source type="image/webp" srcSet={venueHeroSrcSet(venueId, 'land', 'webp')} sizes="(max-width: 900px) 100vw, 1440px" />
-            <img src={`/images/p4/venues/${venueId}-land-1600.webp`} alt="" loading="eager" decoding="async" />
-          </picture>}
+          <div className="p5-team-hero-stage" aria-hidden="true">
+            {(season === 2024 || season === 2025) ? <span className="p5-hero-media p5-generated-team-hero">{drivers.slice(0, 2).map((driver) => <DriverPortrait key={driver.driverId} season={season} driverId={driver.driverId} alt="" eager />)}</span> : <picture className="p5-hero-media">
+              <source type="image/avif" srcSet={venueHeroSrcSet(venueId, 'land', 'avif')} sizes="(max-width: 900px) 100vw, 1440px" />
+              <source type="image/webp" srcSet={venueHeroSrcSet(venueId, 'land', 'webp')} sizes="(max-width: 900px) 100vw, 1440px" />
+              <img src={`/images/championship/venues/${venueId}-land-1600.webp`} alt="" loading="eager" decoding="async" />
+            </picture>}
+            {teamConcept2026(team.id, season) && <span className="p5-concept-car p5-concept-car--profile"><img src={teamConcept2026(team.id, season)} alt="" width={teamConceptWidth2026(team.id)} height={235} loading="eager" /></span>}
+          </div>
           <span className="p5-hero-scrim" aria-hidden="true" />
-          <span className="p5-team-hero-rank" aria-hidden="true">
-            {constructor ? String(constructor.rank).padStart(2, '0') : '—'}
-          </span>
           <div className="p5-team-hero-copy">
-            <p className="p5-kicker">{season} <span aria-hidden="true">/</span> CONSTRUCTOR</p>
+            <div className="p5-team-hero-kicker-row">
+              <p className="p5-kicker">{season} <span aria-hidden="true">/</span> CONSTRUCTOR</p>
+              <span className="p5-team-hero-rank">
+                P{constructor ? String(constructor.rank).padStart(2, '0') : '—'}
+              </span>
+            </div>
             <h1>{team.name}</h1>
             <p className="p5-profile-subtitle">{profile?.fullName || team.fullName}</p>
             <p className="p5-profile-summary">
@@ -150,6 +134,16 @@ export function TeamDetailPage() {
                 </>
               )}
             </p>}
+            <div className="p5-profile-actions">
+              {car && (
+                <Link className="p5-cta" to={`/cars/${car.id}`}>
+                  {lang === 'vi' ? 'Chi tiết xe' : 'Car detail'} →
+                </Link>
+              )}
+              <Link className="p5-cta p5-cta--accent" to={`/season/${season}?tab=standings&category=constructors`}>
+                {lang === 'vi' ? 'Bảng xếp hạng đội đua' : 'Constructor standings'} →
+              </Link>
+            </div>
           </div>
           <div className="p5-team-hero-lineup p5-team-hero-duo" aria-label={lang === 'vi' ? 'Tay đua của đội' : 'Team drivers'}>
             {drivers.map((driver) => {
@@ -161,23 +155,25 @@ export function TeamDetailPage() {
                   key={driver.driverId}
                   to={`/drivers/${driver.driverId}?season=${season}`}
                 >
-                  <P5Portrait
-                    driverId={driver.driverId}
-                    season={season}
-                    alt={lang === 'vi' ? `Chân dung ${driver.driverName}` : `Portrait of ${driver.driverName}`}
-                    number={number}
-                    sizes="(max-width: 760px) 30vw, 11vw"
-                  />
-                  {cinematic && (
-                    <span className="p5-team-hero-race" aria-hidden="true">
-                      <P5RaceImage
-                        driverId={driver.driverId}
-                        season={season}
-                        alt=""
-                        sizes="(max-width: 760px) 30vw, 11vw"
-                      />
-                    </span>
-                  )}
+                  <span className="p5-team-hero-driver-media">
+                    <DriverPortrait
+                      driverId={driver.driverId}
+                      season={season}
+                      alt={lang === 'vi' ? `Chân dung ${driver.driverName}` : `Portrait of ${driver.driverName}`}
+                      number={number}
+                      sizes="(max-width: 760px) 30vw, 11vw"
+                    />
+                    {cinematic && (
+                      <span className="p5-team-hero-race" aria-hidden="true">
+                        <DriverRaceImage
+                          driverId={driver.driverId}
+                          season={season}
+                          alt=""
+                          sizes="(max-width: 760px) 30vw, 11vw"
+                        />
+                      </span>
+                    )}
+                  </span>
                   <span className="p5-team-hero-driver-label">
                     <strong>{driver.driverCode}</strong>
                     <small>{number ? `#${number}` : driver.countryFlag}</small>
@@ -193,10 +189,10 @@ export function TeamDetailPage() {
             <div className="p5-extra-review-copy">
               <p className="p5-kicker">2026 / {lang === 'vi' ? 'BỘ ẢNH CONCEPT' : 'CONCEPT ARTWORK'}</p>
               <h2>{team.name}</h2>
-              <p>{lang === 'vi' ? 'Ảnh minh họa AI để xem trước local. Gương mặt, logo, số xe và chi tiết xe trong ảnh chưa được xác minh.' : 'AI illustration for local preview. Faces, marks, numbers and car details in the image are unverified.'}</p>
+              <p>{lang === 'vi' ? 'Ảnh minh họa AI. Gương mặt, logo, số xe và chi tiết xe trong ảnh chưa được xác minh.' : 'AI illustration. Faces, marks, numbers and car details in the image are unverified.'}</p>
             </div>
             <figure className="p5-extra-review-grid">
-              <P5ExtraArtwork artwork={reviewPoster} alt={lang === 'vi' ? `Tranh concept đội ${team.name}` : `${team.name} concept poster`} />
+              <ExtraArtwork artwork={reviewPoster} alt={lang === 'vi' ? `Tranh concept đội ${team.name}` : `${team.name} concept poster`} />
             </figure>
           </section>
         )}
@@ -243,7 +239,7 @@ export function TeamDetailPage() {
                     to={`/drivers/${driver.driverId}?season=${season}`}
                     style={identity}
                   >
-                    <P5Portrait
+                    <DriverPortrait
                       driverId={driver.driverId}
                       season={season}
                       alt={lang === 'vi' ? `Chân dung ${driver.driverName}` : `Portrait of ${driver.driverName}`}
@@ -277,8 +273,6 @@ export function TeamDetailPage() {
             <p>{lang === 'vi' ? 'Chỉ dữ liệu đã có trong kho dự án' : 'Verified project data only'}</p>
           </div>
           <dl className="p5-facts" data-p5-reveal>
-            <div><dt>{lang === 'vi' ? 'Vị trí' : 'Position'}</dt><dd>{constructor ? `P${constructor.rank}` : '—'}</dd></div>
-            <div><dt>{lang === 'vi' ? 'Điểm' : 'Points'}</dt><dd>{constructor?.points ?? '—'}</dd></div>
             <div><dt>{lang === 'vi' ? 'Khoảng cách tới đầu' : 'Gap to leader'}</dt><dd>{gap === null ? '—' : gap === 0 ? (lang === 'vi' ? 'Dẫn đầu' : 'Leader') : `−${gap} ${lang === 'vi' ? 'điểm' : 'pts'}`}</dd></div>
             <div><dt>{lang === 'vi' ? 'Động cơ' : 'Power unit'}</dt><dd>{profile?.powerUnit || team.powerUnit}</dd></div>
             <div><dt>{lang === 'vi' ? 'Cơ sở' : 'Base'}</dt><dd>{profile?.base || team.base}</dd></div>
@@ -288,7 +282,7 @@ export function TeamDetailPage() {
           </dl>
           <div className="p5-form-row" data-p5-reveal>
             <span>{lang === 'vi' ? 'Chuỗi 5 vòng gần nhất' : 'Last five rounds'}</span>
-            <FormBadges entries={form} lang={lang} />
+            <FormBadges entries={form} lang={lang} scope="team" />
           </div>
           <p className="p5-spec-note">
             {lang === 'vi'
@@ -328,8 +322,8 @@ export function TeamDetailPage() {
                 <ul className="p5-spec-highlights">
                   {highlights?.frontSuspension && <li><strong>{lang === 'vi' ? 'Treo trước' : 'Front suspension'}</strong>{highlights.frontSuspension}</li>}
                   {highlights?.rearSuspension && <li><strong>{lang === 'vi' ? 'Treo sau' : 'Rear suspension'}</strong>{highlights.rearSuspension}</li>}
-                  {lang === 'vi' && highlights?.aeroPhilosophy && <li><strong>Khí động học</strong>{highlights.aeroPhilosophy}</li>}
-                  {lang === 'vi' && highlights?.groundEffectNotes && <li><strong>Hiệu ứng mặt đất</strong>{highlights.groundEffectNotes}</li>}
+                  {highlights?.aeroPhilosophy && <li><strong>{lang === 'vi' ? 'Khí động học' : 'Aerodynamics'}</strong>{highlights.aeroPhilosophy}</li>}
+                  {highlights?.groundEffectNotes && <li><strong>{lang === 'vi' ? 'Hiệu ứng mặt đất' : 'Ground effect'}</strong>{highlights.groundEffectNotes}</li>}
                   {highlights?.chassisConstruction && <li><strong>{lang === 'vi' ? 'Khung xe' : 'Chassis'}</strong>{highlights.chassisConstruction}</li>}
                 </ul>
               </div>
@@ -342,11 +336,11 @@ export function TeamDetailPage() {
           <p className="p5-spec-note">
             {lang === 'vi'
               ? 'Thông số lấy từ bộ dữ liệu xe của dự án. Kích thước ngoài dữ liệu và lịch sử đội đua không được suy diễn.'
-              : 'Specifications come from the project’s car dataset. Aerodynamic and ground-effect notes exist only in Vietnamese in that dataset and are omitted here rather than machine-translated; dimensions and team history are not invented.'}
+              : 'Specifications come from the project’s car dataset. Aerodynamic and ground-effect notes are translated from the Vietnamese dataset entries; dimensions and team history are not invented.'}
           </p>
         </section>
 
-        <P5PortraitCredit lang={lang} driverIds={drivers.map((driver) => driver.driverId)} season={season} />
+        <PortraitCredits lang={lang} driverIds={drivers.map((driver) => driver.driverId)} season={season} />
 
         <div className="p5-footer-links p5-gallery-links">
           {car && <Link to={`/cars/${car.id}`}>{lang === 'vi' ? 'Chi tiết xe' : 'Car detail'} →</Link>}
@@ -355,6 +349,6 @@ export function TeamDetailPage() {
           <Link to={`/teams?season=${season}`}>{lang === 'vi' ? 'Tất cả đội đua' : 'All teams'} →</Link>
         </div>
       </div>
-    </main>
+    </div>
   );
 }
