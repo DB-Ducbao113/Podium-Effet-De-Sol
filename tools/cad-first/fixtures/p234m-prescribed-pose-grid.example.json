@@ -1,0 +1,51 @@
+{
+  "schema": "peds.cad-first.p234m-prescribed-pose-grid.v1",
+  "notes": "Exploratory phase inputs only, not native geometry measurements",
+  "poses": [
+    {
+      "bendDeg": -10,
+      "shaftSpinDeg": 0,
+      "cupSpinDeg": 0
+    },
+    {
+      "bendDeg": -10,
+      "shaftSpinDeg": 0.5,
+      "cupSpinDeg": 0.5
+    },
+    {
+      "bendDeg": -10,
+      "shaftSpinDeg": 1,
+      "cupSpinDeg": 1
+    },
+    {
+      "bendDeg": 0,
+      "shaftSpinDeg": 0,
+      "cupSpinDeg": 0
+    },
+    {
+      "bendDeg": 0,
+      "shaftSpinDeg": 0.5,
+      "cupSpinDeg": 0.5
+    },
+    {
+      "bendDeg": 0,
+      "shaftSpinDeg": 1,
+      "cupSpinDeg": 1
+    },
+    {
+      "bendDeg": 10,
+      "shaftSpinDeg": 0,
+      "cupSpinDeg": 0
+    },
+    {
+      "bendDeg": 10,
+      "shaftSpinDeg": 0.5,
+      "cupSpinDeg": 0.5
+    },
+    {
+      "bendDeg": 10,
+      "shaftSpinDeg": 1,
+      "cupSpinDeg": 1
+    }
+  ]
+}
