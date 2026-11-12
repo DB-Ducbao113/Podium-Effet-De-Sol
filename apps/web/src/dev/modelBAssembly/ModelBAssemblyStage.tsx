@@ -31,7 +31,8 @@ import {sourceMaterialFrame,type SourceMaterialState} from './sourceShellMateria
 import {applyCadViewerAppearance,cadPreviewAppearance,
  type CadAppearance} from './cadPreviewMaterials';
 import {inspectOriginalCadMesh,type InspectedCadPart} from './cadPartInspector';
-import {locateSelectedCadMesh,sourceMeshWorldCentre,highlightSourceMaterials} from './cadFocus';
+import {locateSelectedCadMesh,sourceMeshWorldCentre,sourceMeshWorldFocusBounds,highlightSourceMaterials} from './cadFocus';
+import {sourceCadFocusDistance} from './sourceCadFocusFraming';
 import type {WheelId} from '../assemblyPreview/fourCornerLayout';
 import {
  clamp01,exteriorSeparation,originalPartAssembly,rearSourceAssembly,
@@ -519,8 +520,23 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
  useEffect(()=>{
    if(selection.error)
      onError('Original source CAD X-ray focus rejected: '+selection.error);
-   onFocusVerified(selectedVisual?selectedPart:null);
- },[selection.error,selectedVisual,selectedPart,onFocusVerified,onError]);
+   if(!selectedVisual||!selectedPart){
+     onFocusVerified(null);
+     return;
+   }
+   try{
+     const bound=sourceMeshWorldFocusBounds(selectedVisual.mesh);
+     const hardware=selectedVisual.kind==='p28'&&
+       classifyP28Part(selectedVisual.name)==='hardware';
+     sourceCadFocusDistance(bound.size,
+       size.width/Math.max(1,size.height),35,hardware);
+     onFocusVerified(selectedPart);
+   }catch(error){
+     onFocusVerified(null);
+     onError('Original source CAD focus geometry rejected: '+String(error));
+   }
+ },[selection.error,selectedVisual,selectedPart,
+   size.width,size.height,onFocusVerified,onError]);
  const progress=useMemo(()=>({current:0}),[]);
  const targetPos=useMemo(()=>new THREE.Vector3(7,3,9),[]);
  const targetLook=useMemo(()=>new THREE.Vector3(),[]);
@@ -633,16 +649,19 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
    // Focus moves with the actual animated source geometry. Its original
    // GLB mesh vertices can be offset from Object3D.position, so target the
    // real mesh bounding-box centre, not a guessed chassis hardpoint.
-   if(selectedVisual&&p>.24){
+   // Focus the selected native CAD geometry at ANY scroll chapter.
+   // The old p>.24 condition left early-source selections unframed while
+   // the page incorrectly indicated successful X-ray inspection.
+   if(selectedVisual){
      try{
-       const centre=sourceMeshWorldCentre(selectedVisual.mesh);
-       cameraTarget.copy(centre);
-       distance=selectedVisual.kind==='p28'&&
-         classifyP28Part(selectedVisual.name)==='hardware' ? 0.52 : 1.4;
+       const bound=sourceMeshWorldFocusBounds(selectedVisual.mesh);
+       const hardware=selectedVisual.kind==='p28'&&
+         classifyP28Part(selectedVisual.name)==='hardware';
+       cameraTarget.set(...bound.center);
+       distance=sourceCadFocusDistance(bound.size,aspect,35,hardware);
        orbit=.14;
      }catch{
-       // Geometry failing provenance must never become a fictional camera
-       // target: retain source-derived chapter camera instead.
+       // Invalid original source geometry cannot supply a fake focus target.
      }
    }
    const hardwareMacroActive=Boolean(macroFastener&&p>=.45&&p<.54);
