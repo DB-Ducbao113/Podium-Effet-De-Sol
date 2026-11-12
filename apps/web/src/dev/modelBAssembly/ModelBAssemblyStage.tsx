@@ -21,7 +21,8 @@ import {ORIGINAL_MODEL_B_SOURCE,verifyOriginalModelBBinary} from './originalMode
 import {sourceOnlyModelBCamera} from './modelBSourceOnlyCamera';
 import {frameOriginalModelB,originalModelBFitsFrame} from './modelBFraming';
 import {buildOwnerSourceParticles,ownerParticleOpacity} from './ownerSourceParticles';
-import {sourceBodyMeshKey,sourceBodyVisualDisplacement} from './sourceOnlyMeshMotion';
+import {sourceBodyMeshKey,sourceBodyMeshPhase,sourceBodyVisualDisplacement} from './sourceOnlyMeshMotion';
+import {sourceBodyWorldRevealStrength,worldDeltaToParentLocal} from './sourceWorldReveal';
 import {accessibleAssemblyFraction,accessibleShellOpacity} from './accessibleAssemblyPose';
 import {sourceMaterialFrame,type SourceMaterialState} from './sourceShellMaterialState';
 import {applyCadViewerAppearance,cadPreviewAppearance,
@@ -367,23 +368,25 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
      const materials=copyMaterials(o,owned);
      const box=new THREE.Box3().setFromObject(o);
      const center=box.getCenter(new THREE.Vector3());
-     const extent=box.getSize(new THREE.Vector3()).length()*shellScale;
-     const strength=extent>2.3?0:.10+stablePartOffset(o.name)*5;
-     // Only separate original bounded mesh pieces; giant chassis meshes
-     // stay in place and become transparent. No invented structural pieces.
+     // Box3.setFromObject has ALREADY applied the mesh's world transform,
+     // including shellScale. A second scale multiplication was incorrect.
+     const extent=box.getSize(new THREE.Vector3()).length();
+     // Duplicate/unnamed GLB nodes keep distinct deterministic phases.
+     const sourceKey=sourceBodyMeshKey(o.name,meshOrdinal++);
+     const strength=sourceBodyWorldRevealStrength(
+       extent,sourceBodyMeshPhase(sourceKey));
+     // Existing GLB body mesh nodes only; giant chassis surfaces remain fixed.
      const direction=new THREE.Vector3(
        center.x>0?1:-1,center.y>0?.7:-.5,center.z>=0?1:-1);
-     // Convert a world-oriented reveal vector into this mesh's parent
-     // coordinate frame. Nested GLB nodes can be rotated/scaled.
-     const offset=direction.multiplyScalar(strength/shellScale);
+     // Offset expressed in WORLD metres, then mapped into the mesh's
+     // parent-local coordinate frame exactly once (also handles shellScale).
+     const offset=direction.multiplyScalar(strength);
      if(o.parent){
-       const parentInverse=o.parent.matrixWorld.clone().invert();
-       const zero=new THREE.Vector3().applyMatrix4(parentInverse);
-       offset.applyMatrix4(parentInverse).sub(zero);
+       const inverse=o.parent.matrixWorld.clone().invert();
+       const [x,y,z]=worldDeltaToParentLocal(
+         [offset.x,offset.y,offset.z],inverse.elements);
+       offset.set(x,y,z);
      }
-     // glTF nodes may have duplicate or blank names. The source traversal
-     // ordinal is stable for a decoded GLB and gives each mesh its own phase.
-     const sourceKey=sourceBodyMeshKey(o.name,meshOrdinal++);
      if(fit&&corner){
        tmp.multiplyMatrices(reverse,o.matrixWorld);
        for(const m of materials)
