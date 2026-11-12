@@ -150,7 +150,7 @@ export const ChampionshipView: React.FC<ChampionshipViewProps> = ({
         </div>
 
         {!immersiveJourney && <div className="f4-controls" aria-label={lang === "vi" ? "Điều khiển giải đấu" : "Championship controls"}>
-          {activeSubTab !== "results" && <div className="f4-tabs-row">
+          {activeSubTab !== "results" && activeSubTab !== "calendar" && <div className="f4-tabs-row">
             <Tabs
               items={sectionTabs}
               value={activeSubTab}

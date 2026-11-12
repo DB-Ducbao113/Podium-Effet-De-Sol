@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { animate, createScope } from 'animejs';
 import {
   ArrowRight,
   CalendarDays,
@@ -32,7 +31,6 @@ import {
 } from '../../utils/raceSchedule';
 import { useNavigationStore } from '../../store/useNavigationStore';
 import { useMotionGate } from '../../hooks/useMotionGate';
-import { afterIntro } from '../../utils/afterIntro';
 import { getTeamIdentityStyle } from '../../utils/teamColors';
 import { VENUE_PLATE_LABEL, venuePlateFor } from '../../utils/venueArtwork';
 import { CircuitTrace } from './CircuitTrace';
@@ -44,6 +42,7 @@ import { TimezoneSelector } from './TimezoneSelector';
 import { relevantRound } from '../../utils/relevantRace';
 import { resolveCalendarEntry } from './calendarNavigation';
 import './championshipC1.css';
+import './calendarCinematicV5.css';
 import { BackToJourney, RaceCalendarJourney } from './RaceCalendarJourney';
 
 const ORDER: RaceSessionKey[] = [
@@ -118,7 +117,6 @@ export function ChampionshipCalendar({ season }: { season: SeasonYear }) {
   const deepLinkKey =
     autoScrollRound === null ? null : `${season}:${autoScrollRound}`;
   const scrolledDeepLinkKey = useRef<string | null>(null);
-  const rootRef = useRef<HTMLElement | null>(null);
   const roundsRef = useRef<HTMLDivElement | null>(null);
   const motionEnabled = useMotionGate();
   const completedCount = calendar.filter(
@@ -181,87 +179,6 @@ export function ChampionshipCalendar({ season }: { season: SeasonYear }) {
     });
     return () => window.cancelAnimationFrame(frame);
   }, [expandedRound, requestedRound, detailHost]);
-
-  useEffect(() => {
-    const root = rootRef.current;
-    if (!root || !motionEnabled) return;
-
-    const scope = createScope({ root });
-    let observer: IntersectionObserver | null = null;
-    let cancelled = false;
-    let started = false;
-
-    const reveal = (group: Element) => {
-      if (cancelled) return;
-      const kind = group.getAttribute('data-cal-group');
-      scope.add(() => {
-        if (kind === 'hero') {
-          animate(group.querySelectorAll('.cal-hero-copy > *, .cal-hero-visual'), {
-            opacity: [0.35, 1],
-            translateY: [18, 0],
-            duration: 560,
-            ease: 'out(4)',
-            delay: (_: unknown, index = 0) => index * 60,
-          });
-          const media = group.querySelector('.cal-hero-media');
-          if (media) {
-            animate(media, {
-              opacity: [0.55, 1],
-              scale: [1.04, 1],
-              duration: 700,
-              ease: 'out(3)',
-            });
-          }
-        } else if (kind === 'next') {
-          animate(group.querySelectorAll('.cal-next-copy > *, .cal-next-side > *'), {
-            opacity: [0.35, 1],
-            translateY: [16, 0],
-            duration: 520,
-            ease: 'out(4)',
-            delay: (_: unknown, index = 0) => 80 + index * 55,
-          });
-        } else if (kind === 'rail') {
-          animate(Array.from(group.querySelectorAll('.c1-round')).slice(0, 12), {
-            opacity: [0.4, 1],
-            translateY: [10, 0],
-            duration: 380,
-            ease: 'out(4)',
-            delay: (_: unknown, index = 0) => index * 26,
-          });
-        }
-      });
-    };
-
-    const start = () => {
-      if (cancelled || started) return;
-      started = true;
-      const groups = Array.from(root.querySelectorAll('[data-cal-group]'));
-      const hero = groups.find((group) => group.getAttribute('data-cal-group') === 'hero');
-      if (hero) reveal(hero);
-      const rest = groups.filter((group) => group !== hero);
-      if (!('IntersectionObserver' in window)) {
-        rest.forEach(reveal);
-        return;
-      }
-      observer = new IntersectionObserver((entries) => {
-        for (const entry of entries) {
-          if (!entry.isIntersecting) continue;
-          reveal(entry.target);
-          observer?.unobserve(entry.target);
-        }
-      }, { threshold: 0.18 });
-      rest.forEach((group) => observer?.observe(group));
-    };
-
-    const cancelIntroGate = afterIntro(start);
-
-    return () => {
-      cancelled = true;
-      cancelIntroGate();
-      observer?.disconnect();
-      scope.revert();
-    };
-  }, [motionEnabled, journeyMode]);
 
   useEffect(() => {
     if (
@@ -435,15 +352,15 @@ export function ChampionshipCalendar({ season }: { season: SeasonYear }) {
       {!journeyMode && <BackToJourney season={season} tab="calendar" round={requestedRound} />}
       {journeyMode ? <RaceCalendarJourney season={season} /> : (
     <section
-      ref={rootRef}
-      className="c1-calendar"
-      data-motion-engine={motionEnabled ? 'animejs' : 'static'}
+      className="c1-calendar cal-v5__detail"
+      data-motion-engine={motionEnabled ? 'css-scroll' : 'static'}
       aria-label={lang === 'vi' ? 'Lịch thi đấu' : 'Race calendar'}
     >
-      <header className="results-simple-head">
-        <div>
-          <h2>{lang === 'vi' ? 'Lịch thi đấu' : 'Race calendar'}</h2>
-          <p>{completedCount}/{calendar.length} {lang === 'vi' ? 'chặng đã qua' : 'rounds completed'}</p>
+      <header className="results-simple-head cal-v5__detail-head">
+        <div className="cal-v5__detail-copy">
+          <span className="cal-v5__eyebrow">{lang === 'vi' ? 'LỊCH ĐUA FORMULA 1' : 'FORMULA 1 CALENDAR'} / {season}</span>
+          <h2>{lang === 'vi' ? <>Lịch <em>chặng đua.</em></> : <>The race <em>calendar.</em></>}</h2>
+          <p>{completedCount}/{calendar.length} {lang === 'vi' ? 'chặng đã qua' : 'rounds completed'} · {lang === 'vi' ? 'Chọn chặng để xem lịch phiên đua' : 'Select a round for the full weekend schedule'}</p>
         </div>
         <div className="c1-calendar-actions">
           <details className="cal-timezone-more">

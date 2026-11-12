@@ -1,0 +1,472 @@
+/*
+ * PEDS / Calendar Cinematic V5.4
+ * Two modes with one visual vocabulary:
+ * - World Tour: existing scroll-driven 2D/3D map, coloured atmospheric lighting.
+ * - Weekend detail: sourced photographs, functional round rail and readable schedule.
+ * Only presentation changes; no changes to venue data, APIs or WebGL camera.
+ */
+
+/* WORLD TOUR — daylight-to-sunset bands and subtle lens lighting. */
+.cal-v5__world {
+  --cal-v5-cream:#f4efe5;
+  --cal-v5-coral:#ffbd91;
+  --cal-v5-teal:#b8e0db;
+  background:linear-gradient(150deg,#173c52,#36435a 47%,#713e48);
+  color:var(--cal-v5-cream);
+}
+.cal-v5__world .rcj-content {
+  background:linear-gradient(140deg,#163b4e 0%,#28485a 46%,#674351 100%);
+}
+.cal-v5__world .rcj-map-stage {
+  background:
+    radial-gradient(ellipse 55% 70% at 73% 56%,rgba(225,152,101,.26),transparent 82%),
+    radial-gradient(ellipse 64% 62% at 10% 28%,rgba(51,161,174,.31),transparent 83%),
+    linear-gradient(130deg,#12384a,#29566a 43%,#493c54 76%,#6d3d49);
+}
+.cal-v5__world .cal-v5__ambient {
+  position:absolute;
+  inset:0;
+  z-index:1;
+  isolation:isolate;
+  overflow:hidden;
+  pointer-events:none;
+}
+.cal-v5__world .cal-v5__ambient > span {
+  position:absolute;
+  inset:-9%;
+  display:block;
+  will-change:opacity,transform;
+}
+.cal-v5__world .cal-v5__ambient--warm {
+  opacity:var(--cal-v5-warm,.4);
+  background:
+    radial-gradient(ellipse 52% 54% at 92% 67%,rgba(245,128,69,.43),transparent 77%),
+    linear-gradient(160deg,transparent 54%,rgba(190,77,75,.18) 85%,transparent);
+  transform:translate3d(var(--cal-v5-shift,0px),0,0);
+}
+.cal-v5__world .cal-v5__ambient--blue {
+  opacity:var(--cal-v5-blue,.4);
+  background:radial-gradient(ellipse 58% 69% at 12% 33%,rgba(55,185,196,.34),transparent 79%);
+  transform:translate3d(calc(var(--cal-v5-shift,0px) * -.6),0,0);
+}
+.cal-v5__world .cal-v5__ambient--violet {
+  opacity:var(--cal-v5-violet,.35);
+  background:radial-gradient(ellipse 58% 66% at 75% 13%,rgba(176,95,150,.27),transparent 82%);
+  transform:translate3d(calc(var(--cal-v5-shift,0px) * .35),0,0);
+}
+.cal-v5__world .rcj-map-stage::after {
+  background:
+    linear-gradient(180deg,rgba(13,36,48,.64),transparent 30%,transparent 62%,rgba(18,37,49,.69)),
+    radial-gradient(ellipse at 50% 48%,transparent 42%,rgba(9,27,41,.31));
+}
+.cal-v5__world .rcj-stage-top {
+  padding:clamp(1.1rem,2.8vw / var(--peds-visual-zoom),2.8rem);
+  align-items:flex-start;
+}
+.cal-v5__world .rcj-stage-heading {
+  max-width:min(60%,800px);
+  min-width:0;
+}
+.cal-v5__world .rcj-stage-kicker {
+  color:#f7d5ba;
+  font:700 .66rem/1.4 var(--peds-font-mono);
+  letter-spacing:.18em;
+}
+.cal-v5__world .rcj-stage-title {
+  max-width:100%;
+  margin-top:.75rem;
+  color:#fff5e9;
+  font:650 clamp(3rem,5.4vw / var(--peds-visual-zoom),6rem)/.97 var(--peds-font-ui);
+  letter-spacing:-.058em;
+  text-transform:none;
+  text-wrap:balance;
+}
+.cal-v5__world .rcj-stage-title em {
+  display:block;
+  margin-top:.04em;
+  color:#f8d8be;
+  font-family:var(--peds-font-editorial);
+  font-weight:500;
+  font-style:italic;
+  letter-spacing:-.05em;
+}
+.cal-v5__stage-caption {
+  max-width:37ch;
+  margin-top:1rem;
+  color:#e2e5df;
+  font:500 clamp(.79rem,.99vw / var(--peds-visual-zoom),.96rem)/1.5 var(--peds-font-body);
+}
+.cal-v5__stage-tools {
+  display:flex;
+  align-items:center;
+  gap:.7rem;
+  pointer-events:auto;
+}
+.cal-v5__full-list {
+  display:inline-flex;
+  align-items:center;
+  gap:.6rem;
+  min-height:44px;
+  padding:.5rem .8rem;
+  border:1px solid rgba(245,225,208,.6);
+  background:rgba(25,52,65,.79);
+  color:#fff5e8;
+  font:650 .73rem/1.3 var(--peds-font-ui);
+  text-decoration:none;
+}
+.cal-v5__full-list:hover,
+.cal-v5__zoom:hover {
+  border-color:#f9e2cc;
+  background:#294c58;
+  color:#fff;
+}
+.cal-v5__zoom {
+  min-width:44px;
+  min-height:44px;
+  border:1px solid rgba(245,225,208,.6);
+  background:rgba(25,52,65,.79);
+  color:#fff4e8;
+  font-size:1.3rem;
+  cursor:pointer;
+}
+.cal-v5__world .rcj-season-controls {
+  color:#fff0e1;
+  text-shadow:0 2px 12px #0d2431;
+}
+.cal-v5__world .rcj-season-controls a {
+  color:#e3e5dc;
+  border-color:transparent;
+}
+.cal-v5__world .rcj-season-controls a[aria-current="page"] {
+  border-bottom-color:#ffc89e;
+  color:#fff7ea;
+}
+.cal-v5__world .rcj-journey-intro {
+  left:clamp(1.25rem,5.4vw / var(--peds-visual-zoom),5rem);
+  bottom:clamp(160px,21vh / var(--peds-visual-zoom),255px);
+  max-width:min(670px,82%);
+}
+.cal-v5__world .rcj-journey-intro span {color:#ffd9ba;}
+.cal-v5__world .rcj-journey-intro p {
+  font:650 clamp(2.7rem,5.2vw / var(--peds-visual-zoom),6.2rem)/.99 var(--peds-font-ui);
+  letter-spacing:-.058em;
+  text-transform:none;
+  color:#fff4e9;
+}
+.cal-v5__world .rcj-journey-intro p em {
+  font-family:var(--peds-font-editorial);
+  font-weight:500;
+  font-style:italic;
+  color:#ffe2c7;
+}
+.cal-v5__world .rcj-journey-intro small {color:#e7eae5;}
+.cal-v5__world .rcj-stage-data {
+  background:linear-gradient(90deg,rgba(22,43,55,.92),rgba(22,43,55,.58),transparent);
+}
+.cal-v5__world .rcj-stage-counter {
+  color:#ffcb9f;
+  font:650 clamp(2.4rem,3.6vw / var(--peds-visual-zoom),4rem)/1 var(--peds-font-editorial);
+}
+.cal-v5__world .rcj-stage-active strong {
+  color:#fff7e9;
+  font:700 clamp(1.2rem,2vw / var(--peds-visual-zoom),2.1rem)/1.07 var(--peds-font-ui);
+  text-transform:none;
+  letter-spacing:-.03em;
+}
+.cal-v5__world .rcj-stage-active span {color:#d8e8e5;}
+.cal-v5__world .rcj-globe-details {
+  color:#ffcbab;
+  border-color:rgba(255,191,150,.55);
+}
+.cal-v5__world .rcj-globe-details:hover {color:#fff5e9;border-color:#fff5e9;}
+.cal-v5__world .rcj-nav {
+  background:linear-gradient(0deg,rgba(15,36,49,.97),rgba(15,36,49,.78) 74%,transparent);
+}
+.cal-v5__world .rcj-progress {background:rgba(237,228,215,.27);}
+.cal-v5__world .rcj-progress>span {background:linear-gradient(90deg,#79ccc9,#ffbf8e);}
+.cal-v5__world .rcj-rounds button[aria-current="step"] span {
+  background:#ffd0a5;
+  box-shadow:0 0 10px rgba(250,188,142,.4);
+}
+.cal-v5__world .rcj-nav select {
+  background:rgba(31,62,76,.89);
+  border:1px solid rgba(222,235,232,.28);
+  border-radius:0;
+  color:#f6efe5;
+}
+.cal-v5__world :is(a,button,select):focus-visible {
+  outline:3px solid #ffe0a7;
+  outline-offset:3px;
+}
+@media(max-width:760px) {
+  .cal-v5__world .rcj-stage-top {padding:1rem;}
+  .cal-v5__world .rcj-stage-heading {max-width:61%;}
+  .cal-v5__world .rcj-stage-title {font-size:clamp(1.9rem,7.9vw,3.5rem);}
+  .cal-v5__world .rcj-stage-title em {display:inline;}
+  .cal-v5__world .rcj-stage-kicker {font-size:.58rem;}
+  .cal-v5__stage-caption {font-size:.7rem;max-width:29ch;margin-top:.4rem;}
+  .cal-v5__stage-tools {gap:.25rem;}
+  .cal-v5__full-list {min-height:40px;font-size:.66rem;padding:.4rem .55rem;}
+  .cal-v5__zoom {min-height:40px;min-width:40px;}
+  .cal-v5__world .rcj-season-controls {
+    top:clamp(122px,15vh,150px);
+    left:1rem;
+    gap:0;
+  }
+  .cal-v5__world .rcj-season-controls > span {margin-right:.3rem;}
+  .cal-v5__world .rcj-season-controls a,
+  .cal-v5__world .rcj-season-controls button {min-width:38px;min-height:40px;padding:.35rem;}
+  .cal-v5__world .rcj-journey-intro {left:1rem;bottom:170px;max-width:calc(100% - 2rem);}
+  .cal-v5__world .rcj-journey-intro p {font-size:clamp(2.2rem,8.5vw,3.7rem);}
+  .cal-v5__world .rcj-stage-active strong {font-size:clamp(1.06rem,4.5vw,1.65rem);}
+}
+
+/* CLASSIC CALENDAR — readable editorial tools, sourced venue image and schedule. */
+.f4-championship.c1-calendar-active:not(.is-journey) {
+  padding-top:clamp(.65rem,1.5vw,1.2rem);
+  background:
+    radial-gradient(ellipse 66% 38% at 91% 0%,rgba(201,121,100,.21),transparent 75%),
+    linear-gradient(120deg,#173b49 0%,#31495a 47%,#5b3947);
+}
+.f4-championship.c1-calendar-active .c1-page-intro {display:none;}
+.f4-championship.c1-calendar-active:not(.is-journey) .f4-controls {
+  background:linear-gradient(95deg,#203f4a,#503b49);
+  border:0;border-bottom:1px solid rgba(244,226,212,.3);
+  box-shadow:none;
+  padding:.75rem clamp(.9rem,2vw,1.6rem);
+}
+.f4-championship.c1-calendar-active:not(.is-journey) .f4-panel {margin-top:0;}
+.f4-championship.c1-calendar-active .f4-season-switcher .is-active {
+  border-bottom-color:#ffd4ab;
+  color:#fff2e7;
+}
+.f4-championship .cal-v5__detail {
+  background:linear-gradient(140deg,#163544,#365366 61%,#64404b);
+  border:0;border-radius:0;color:#f5eee6;
+}
+.cal-v5__detail .cal-v5__detail-head {
+  display:flex;align-items:center;justify-content:space-between;
+  gap:1rem 2rem;
+  padding:clamp(1.2rem,2.7vw / var(--peds-visual-zoom),2.7rem);
+  border-bottom:1px solid rgba(248,219,189,.29);
+  background:
+    radial-gradient(ellipse 55% 110% at 97% 0%,rgba(233,143,102,.23),transparent 77%),
+    linear-gradient(120deg,#1d4555,#394656 65%,#68404d);
+}
+.cal-v5__detail-copy {max-width:750px;min-width:0;display:grid;gap:.55rem;}
+.cal-v5__eyebrow {
+  color:#ffd5b3;
+  font:700 .7rem/1.3 var(--peds-font-mono);
+  letter-spacing:.15em;
+}
+.cal-v5__detail .cal-v5__detail-head h2 {
+  color:#fff0e3;
+  font:650 clamp(2.1rem,4vw / var(--peds-visual-zoom),4.4rem)/.99 var(--peds-font-ui);
+  letter-spacing:-.053em;
+  text-transform:none;
+}
+.cal-v5__detail .cal-v5__detail-head h2 em {
+  color:#ffd9b6;
+  font:500 italic 1em/1 var(--peds-font-editorial);
+}
+.cal-v5__detail .cal-v5__detail-head p {
+  color:#e0e8e5;
+  font:500 .84rem/1.5 var(--peds-font-body);
+}
+.cal-v5__detail .c1-calendar-actions {
+  flex-wrap:wrap;
+  align-items:center;
+  gap:.7rem;
+}
+.cal-v5__detail .cal-v5__detail-head :is(button,summary) {
+  min-height:44px;
+  border:1px solid rgba(250,221,196,.51);
+  border-radius:0;
+  background:rgba(21,55,67,.65);
+  color:#fff4e5;
+}
+.cal-v5__detail .cal-layout {
+  gap:1.15rem;
+  padding:1.15rem;
+  border-radius:0;
+  background:linear-gradient(125deg,#204553,#465c62 58%,#6a4a50);
+}
+.cal-v5__detail .cal-rail {
+  border:1px solid rgba(226,230,218,.29);
+  border-radius:0;
+  background:#1c3a47;
+}
+.cal-v5__detail .cal-filters {
+  background:#1b3946;
+  border-bottom:1px solid rgba(217,231,222,.29);
+}
+.cal-v5__detail .cal-filter {
+  border:1px solid rgba(216,230,220,.37);
+  border-radius:0;
+  background:#2c4d58;
+  color:#e5efed;
+  font:650 .73rem/1.25 var(--peds-font-ui);
+  letter-spacing:0;
+}
+.cal-v5__detail .cal-filter:hover {background:#426572;color:#fff;}
+.cal-v5__detail .cal-filter[aria-pressed="true"] {
+  background:#f5e9d7;
+  color:#21343c;
+  border-color:#f5e9d7;
+}
+.cal-v5__detail .cal-filter[aria-pressed="true"] span {color:#38505a;}
+.cal-v5__detail .c1-round {background:#234652;border-bottom-color:#46616c;}
+.cal-v5__detail .c1-round:nth-child(even) {background:#294b56;}
+.cal-v5__detail .c1-round:is(:hover,:focus-within) {background:#365e6b;}
+.cal-v5__detail .c1-round[data-relevant="true"],
+.cal-v5__detail .c1-round[data-state="current"] {
+  background:linear-gradient(90deg,rgba(245,164,105,.22),rgba(37,73,83,.94));
+  box-shadow:inset 3px 0 #ffd0a3;
+}
+.cal-v5__detail .c1-round-number {color:#ffd4b0;}
+.cal-v5__detail .c1-round-identity strong {color:#f5f2e9;}
+.cal-v5__detail .cal-round-date,
+.cal-v5__detail .c1-round-identity small {color:#d1dfdd;}
+
+/* The NEXT RACE photo is the visual centre, never inflated beyond its frame. */
+.cal-v5__detail .cal-next {
+  border:1px solid rgba(255,228,207,.25);
+  border-radius:0;
+  background:linear-gradient(125deg,#214756,#704551);
+  overflow:hidden;
+}
+.cal-v5__detail .cal-next-visual img {
+  display:block;
+  width:100%;height:100%;
+  object-fit:cover;
+  transform:none!important;
+  animation:none!important;
+  filter:saturate(1.07) contrast(1.03);
+}
+.cal-v5__detail .cal-next-visual::after {
+  background:
+    linear-gradient(90deg,rgba(16,36,45,.94),rgba(22,45,54,.68) 45%,rgba(103,56,60,.24) 75%),
+    linear-gradient(0deg,rgba(25,34,43,.8),transparent 64%);
+}
+.cal-v5__detail .cal-next h3 {
+  color:#fff2e6;
+  font:650 clamp(2rem,4.5cqi,4.4rem)/1 var(--peds-font-editorial);
+  letter-spacing:-.05em;
+  text-transform:none;
+}
+.cal-v5__detail .cal-next-eyebrow,
+.cal-v5__detail .cal-next-dates {color:#ffd6ae;}
+.cal-v5__detail .cal-next-cta {
+  border-radius:0;
+  background:#f5e7d3;
+  color:#243843;
+}
+.cal-v5__detail .cal-next-cta:hover {background:#fff3e3;color:#162b35;}
+.cal-v5__detail .cal-next-secondary {border-radius:0;}
+.cal-v5__detail .cal-next-side {
+  background:linear-gradient(0deg,rgba(34,51,65,.35),transparent);
+}
+
+/* Parchment schedule rows create an intentional break from the dark map stage. */
+.cal-v5__detail .cal-weekend {
+  border:1px solid #d4d3ca;
+  border-radius:0;
+  background:#f0ebe0;
+  color:#172b34;
+}
+.cal-v5__detail .cal-weekend .cal-section-head h3,
+.cal-v5__detail .cal-weekend .cal-section-eyebrow,
+.cal-v5__detail .cal-weekend .cal-weekend-note {color:#2e444c;}
+.cal-v5__detail .cal-session-card {
+  background:#faf7f0;
+  border:1px solid #d4d5cf;
+  border-radius:0;
+  color:#24353e;
+}
+.cal-v5__detail .cal-session-card :is(strong,small,.cal-session-day,.cal-session-time,.cal-session-state) {
+  color:#283f49;
+}
+.cal-v5__detail .cal-session-card[data-state="live"] {
+  border-color:#c27a55;
+  background:#f5e5d6;
+}
+.cal-v5__detail .cal-racecard {
+  border:1px solid rgba(241,227,209,.35);
+  border-radius:0;
+  background:linear-gradient(135deg,#244c58,#503c50);
+}
+.cal-v5__detail .cal-racecard h3 {
+  font-family:var(--peds-font-editorial);
+  font-size:clamp(1.2rem,2.2cqi,2rem);
+  font-weight:600;
+  text-transform:none;
+}
+.cal-v5__detail .cal-racecard-media img {
+  object-fit:cover;
+  transform:none!important;
+}
+.cal-v5__detail .cal-racecard:is(:hover,:focus-within) .cal-racecard-media img {
+  transform:none!important;
+}
+.cal-v5__detail :is(button,summary,a):focus-visible {
+  outline:3px solid #ffe1a7;
+  outline-offset:3px;
+}
+/* Fully reversible enter/hold/exit; do not animate interactive rail rows. */
+@supports (animation-timeline:view()) {
+  @media (prefers-reduced-motion:no-preference) {
+    .cal-v5__detail :is(.cal-v5__detail-copy,.cal-next-copy,.cal-next-side,.cal-section-head,.cal-racecard-body,.cal-selected-heading) {
+      animation:cal-v5-in-out linear both;
+      animation-timeline:view(block);
+      animation-range:cover 0% cover 100%;
+    }
+    .cal-v5__detail .cal-next-visual::before {
+      content:"";
+      position:absolute;inset:0;z-index:1;pointer-events:none;
+      background:linear-gradient(110deg,transparent 25%,rgba(241,182,137,.2) 49%,transparent 68%);
+      animation:cal-v5-light linear both;
+      animation-timeline:view(block);
+      animation-range:cover 0% cover 100%;
+    }
+  }
+}
+@keyframes cal-v5-in-out {
+  0% {opacity:.55;transform:translate3d(-32px,24px,0);}
+  24%,76% {opacity:1;transform:none;}
+  100% {opacity:.55;transform:translate3d(32px,-24px,0);}
+}
+@keyframes cal-v5-light {
+  0% {opacity:0;transform:translate3d(-14%,0,0);}
+  30%,70% {opacity:.75;transform:none;}
+  100% {opacity:0;transform:translate3d(14%,0,0);}
+}
+@media (max-width:860px) {
+  .cal-v5__detail .cal-layout {padding:.75rem;gap:.85rem;}
+  .cal-v5__detail .cal-v5__detail-head {padding:1.4rem 1rem;}
+  .cal-v5__detail .cal-v5__detail-head h2 {font-size:clamp(2.1rem,8vw,3.7rem);}
+  .cal-v5__detail .cal-next h3 {font-size:clamp(2.3rem,6.5vw,3.4rem);}
+}
+@media (max-width:390px) {
+  .cal-v5__world .rcj-stage-heading {max-width:59%;}
+  .cal-v5__world .rcj-stage-title {font-size:clamp(1.8rem,7.6vw,2.3rem);}
+  .cal-v5__stage-caption {display:none;}
+  .cal-v5__detail .cal-v5__detail-head {flex-direction:column;align-items:stretch;}
+  .cal-v5__detail .cal-next h3 {font-size:clamp(2.2rem,10vw,3.2rem);}
+}
+@media (prefers-reduced-motion:reduce) {
+  .cal-v5__world .cal-v5__ambient > span {opacity:.22!important;transform:none!important;will-change:auto;}
+  .cal-v5__detail *, .cal-v5__detail *::before, .cal-v5__detail *::after {
+    animation:none!important;
+    transition:none!important;
+  }
+}
+.f4-championship[data-text-zoom="200"] .cal-v5__detail *,
+.f4-championship[data-text-zoom="400"] .cal-v5__detail * {animation:none!important;}
+.f4-championship[data-text-zoom="400"] .cal-v5__detail-head h2 {
+  font-size:28px!important;
+  line-height:1.15;
+  overflow-wrap:anywhere;
+}
+.f4-championship[data-text-zoom="400"] .cal-v5__detail .cal-layout {
+  grid-template-columns:minmax(0,1fr);
+}
