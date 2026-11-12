@@ -3,6 +3,7 @@ import {
  MODEL_B_CHAPTERS,chapterAt,clamp01,smoothStep,
  visualShellOpacity,exteriorSeparation,originalPartAssembly,
  rearSourceAssembly,stablePartOffset,wheelOffset,sourceMateStatus,
+ originalBodySourceOnlySeparation,
 } from './modelBAssemblyTimeline';
 describe('Original Model B source-locked scroll choreography',()=>{
  it('covers the full scroll without gaps, forward and reverse',()=>{
@@ -32,6 +33,24 @@ describe('Original Model B source-locked scroll choreography',()=>{
    expect(exteriorSeparation(.31,true)).toBeGreaterThan(0);
    expect(exteriorSeparation(.60,true)).toBe(0);
    expect(exteriorSeparation(1,true)).toBeCloseTo(0);
+ });
+ it('P2.35A source-only original mesh travels, settles and reverses deterministically',()=>{
+   expect(originalBodySourceOnlySeparation(0)).toBe(0);
+   expect(originalBodySourceOnlySeparation(.12)).toBe(0);
+   expect(originalBodySourceOnlySeparation(.30)).toBeCloseTo(.70);
+   expect(originalBodySourceOnlySeparation(.50)).toBeCloseTo(.70);
+   expect(originalBodySourceOnlySeparation(.75))
+     .toBeGreaterThan(0);
+   expect(originalBodySourceOnlySeparation(.75))
+     .toBeLessThan(.70);
+   expect(originalBodySourceOnlySeparation(.84)).toBe(0);
+   expect(originalBodySourceOnlySeparation(1)).toBe(0);
+   expect(originalBodySourceOnlySeparation(Number.NaN)).toBe(0);
+   for(let i=0;i<=100;i++){
+     const fraction=originalBodySourceOnlySeparation(i/100);
+     expect(fraction).toBeGreaterThanOrEqual(0);
+     expect(fraction).toBeLessThanOrEqual(.70);
+   }
  });
  it('animates source hardware individually and assembles all parts at final pose',()=>{
    const parts=[
