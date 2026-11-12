@@ -106,6 +106,47 @@ describe('P2.44 original source CAD vertex-dot assembly',()=>{
   expect(layer.sampleCount).toBe(300);
   layer.dispose();geometry.dispose();material.dispose();
  });
+ it('allows the same authentic bolt to switch between build dots and inspection dots without leaks',()=>{
+  const {mesh,geometry,material}=originalMesh(800);
+  const construction=buildSourceCadVertexDots(mesh,256);
+  const inspection=buildSourceCadVertexDots(mesh,450,true);
+  expect(mesh.children).toContain(construction.points);
+  expect(mesh.children).toContain(inspection.points);
+  expect(mesh.children).toHaveLength(2);
+  inspection.dispose();
+  expect(mesh.children).toEqual([construction.points]);
+  expect(geometry.getAttribute('position').count).toBe(800);
+  const newInspection=buildSourceCadVertexDots(mesh,300,true);
+  expect(mesh.children).toHaveLength(2);
+  construction.dispose();
+  expect(mesh.children).toEqual([newInspection.points]);
+  newInspection.dispose();
+  expect(mesh.children).toHaveLength(0);
+  expect(geometry.getAttribute('position').count).toBe(800);
+  geometry.dispose();material.dispose();
+ });
+ it('handles genuine interleaved GLB vertex buffers without changing their stride or metadata',()=>{
+  const packed=new THREE.InterleavedBuffer(new Float32Array([
+    0,0,0,47, 1,2,3,48, 2,0,4,49, 0,4,0,50,
+  ]),4);
+  const geom=new THREE.BufferGeometry();
+  const attr=new THREE.InterleavedBufferAttribute(packed,3,0);
+  geom.setAttribute('position',attr);
+  const mat=new THREE.MeshBasicMaterial();
+  const mesh=new THREE.Mesh(geom,mat);
+  const layer=buildSourceCadVertexDots(mesh,256,true);
+  expect(layer.sampleCount).toBe(4);
+  const dots=layer.points.geometry.getAttribute('position');
+  for(let i=0;i<4;i++){
+   expect(dots.getX(i)).toBe(attr.getX(i));
+   expect(dots.getY(i)).toBe(attr.getY(i));
+   expect(dots.getZ(i)).toBe(attr.getZ(i));
+  }
+  expect(attr.data.stride).toBe(4);
+  layer.dispose();
+  expect(mesh.geometry.getAttribute('position')).toBe(attr);
+  geom.dispose();mat.dispose();
+ });
  it('releases ONLY viewer-owned point geometry and does not dispose CAD source',()=>{
   const {mesh,geometry,material,positions}=originalMesh();
   const layer=buildSourceCadVertexDots(mesh,256);
