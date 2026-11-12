@@ -606,7 +606,7 @@
       color-mix(in srgb,var(--team-color,#ffcf8d) 24%,transparent),transparent 70%),
     linear-gradient(145deg,rgba(68,39,48,.86),rgba(21,41,52,.94));
 }
-.results-v5 .c11-classification,
+.rc-race-center.results-v5 .c11-classification,
 .results-v5 .c11-table-wrap {
   background:
     radial-gradient(ellipse 70% 100% at 98% 0%,rgba(34,141,152,.21),transparent 73%),

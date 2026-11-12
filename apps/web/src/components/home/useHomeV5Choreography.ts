@@ -32,7 +32,7 @@ const entries: ReadonlyArray<[string,HomeV5Effect]> = [
   ['#eds-explore .eds-explore__number','number'],
   ['#eds-explore .eds-explore__bottom strong','rise'],
 ];
-type Target={node:HTMLElement; section:HTMLElement; offset:number; height:number; kind:HomeV5Effect; order:number; lastProgress?:number};
+type Target={node:HTMLElement; section:HTMLElement; offset:number; height:number; kind:HomeV5Effect; order:number; lastEnter?:number; lastExit?:number};
 const sectionQuery='#race-control, #championship-overview, .home-v5__editorial, #eds-explore';
 
 /**
@@ -77,8 +77,13 @@ export function useHomeV5Choreography(ref:RefObject<HTMLElement|null>) {
       // Write only when progress changes: offscreen/stable elements cost nothing.
       // Motion is tied to absolute scroll position, so backwards remains exact.
       for(const {target,value} of values) {
-        if(target.lastProgress!==undefined&&Math.abs(target.lastProgress-value.progress)<.001)continue;
-        target.lastProgress=value.progress;
+        // Both phases are required: before-entry and after-exit have
+        // visibility=0 but deliberately opposite slide/mask positions.
+        if(target.lastEnter!==undefined&&target.lastExit!==undefined&&
+          Math.abs(target.lastEnter-value.enter)<.001&&
+          Math.abs(target.lastExit-value.exit)<.001)continue;
+        target.lastEnter=value.enter;
+        target.lastExit=value.exit;
         const node=target.node;
         node.style.setProperty('--v5-anim-x',value.x.toFixed(1)+'px');
         node.style.setProperty('--v5-anim-y',value.y.toFixed(1)+'px');

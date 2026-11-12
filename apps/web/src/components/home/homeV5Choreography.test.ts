@@ -65,6 +65,8 @@ describe('Home V5.1 scroll transitions', () => {
     expect(css).toContain('object-fit: contain');
     expect(css).toContain('home-title-fight');
     expect(css).toContain('animation:none!important');
+    expect(hook).toContain('target.lastEnter-value.enter');
+    expect(hook).toContain('target.lastExit-value.exit');
     expect(css).not.toMatch(/scale\(1\.[2-9]/);
   });
 });
