@@ -182,12 +182,12 @@ try{
     JSON.stringify({layout,source,chapterDifference:difference,
      selectedOriginalCadPart:selected,xrayFrameDifference:focusDifference,
      frames:rows},null,2)+'\n');
-   console.log('PASS '+layout.label+': 94 source meshes, 4 mounted wheel stations, 31 rear mesh sources per station, 4 old proxies removed, 8 real WebGL frames, part browser.');
+   console.log('PASS '+layout.label+': 94 source meshes, 4 mounted wheel stations, exact part IDs, 31 rear mesh sources per station, 4 old proxies removed, 8 chapter frames + 1 original CAD X-ray inspection frame.');
   }finally{
    await page.close();
   }
  }
- console.log('PASS P2.38A full source-CAD visual review: '+shots+' screenshots in '+destination);
+ console.log('PASS P2.38/P2.39 original source-CAD visual review: '+shots+' screenshots in '+destination);
 }finally{
  await browser.close();
 }
