@@ -15,12 +15,18 @@ export function addReversibleWheelWindow(
   meshToSourceRoot:THREE.Matrix4,
   fit:OwnerMeasuredFit,
   maskAmount:{value:number}={value:1},
+  /** Optional per-source-wheel values in the original fit.wheels order. */
+  wheelMaskAmounts?:{value:number[]},
 ):void{
   if(fit.wheels.length!==4)throw Error('Four original source wheel positions required');
   if(fit.wheels.some(w=>w.centerSourceUnits.length!==3 ||
       w.centerSourceUnits.some(v=>!Number.isFinite(v)) ||
       !Number.isFinite(w.outerRadiusSourceUnits) || w.outerRadiusSourceUnits<=0))
     throw Error('Invalid original source wheel position or radius');
+  if(wheelMaskAmounts&&
+     (wheelMaskAmounts.value.length!==4||
+      wheelMaskAmounts.value.some(v=>!Number.isFinite(v)||v<0||v>1)))
+    throw Error('Invalid per-wheel original Model B showroom mask');
   const positions=fit.wheels.map(w=>new THREE.Vector3(...w.centerSourceUnits));
   const radii=fit.wheels.map(w=>w.outerRadiusSourceUnits*1.12);
   const original=material.onBeforeCompile.bind(material);
@@ -30,6 +36,8 @@ export function addReversibleWheelWindow(
     shader.uniforms.pedsWheelCenters={value:positions};
     shader.uniforms.pedsWheelRadius={value:radii};
     shader.uniforms.pedsWheelMaskAmount=maskAmount;
+    if(wheelMaskAmounts)
+      shader.uniforms.pedsWheelMaskAmounts=wheelMaskAmounts;
     const vertexMarker='#include <begin_vertex>';
     const fragmentMarker='#include <clipping_planes_fragment>';
     if(!shader.vertexShader.includes(vertexMarker)||
@@ -47,13 +55,16 @@ export function addReversibleWheelWindow(
       'uniform vec3 pedsWheelCenters[4];\n'+
       'uniform float pedsWheelRadius[4];\n'+
       'uniform float pedsWheelMaskAmount;\n'+
+        (wheelMaskAmounts?'uniform float pedsWheelMaskAmounts[4];\\n':'')+
       shader.fragmentShader.replace(fragmentMarker,
         fragmentMarker+'\n'+
         'for (int wheel=0;wheel<4;wheel++) {\n'+
         '  vec3 local=vPedsSourcePosition-pedsWheelCenters[wheel];\n'+
         '  if (length(local.xy)<pedsWheelRadius[wheel] && abs(local.z)<max(2.5,1.24*pedsWheelRadius[wheel])) {\n'+
         '    float threshold=fract(sin(dot(gl_FragCoord.xy,vec2(12.9898,78.233)))*43758.5453);\n'+
-        '    if (threshold<pedsWheelMaskAmount) discard;\n'+
+        '    if (threshold<'+
+          (wheelMaskAmounts?'pedsWheelMaskAmounts[wheel]':'pedsWheelMaskAmount')+
+          ') discard;\\n'+
         '  }\n'+
         '}\n');
   };
