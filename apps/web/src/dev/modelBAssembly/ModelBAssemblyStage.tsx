@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/immutability -- Three.js is an imperative render engine: useFrame and WebGL PMREM mutate viewer-owned scene objects, never React state. */
-import {useEffect,useMemo,useRef,useState,type RefObject} from 'react';
+import {useCallback,useEffect,useMemo,useRef,useState,type RefObject} from 'react';
 import {Canvas,useFrame,useThree,type ThreeEvent} from '@react-three/fiber';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 import {MeshoptDecoder} from 'meshoptimizer';
@@ -549,7 +549,7 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
  const buildSourceDots=useRef<NativeBuildDots[]>([]);
  const selectedSourceDots=useRef<SourceCadVertexDots|null>(null);
  const renderEvidence=useRef(createSourceCadRenderEvidence());
- const reportActualSourceCadDraw=(kind:SourceCadRenderKind,
+ const reportActualSourceCadDraw=useCallback((kind:SourceCadRenderKind,
    layer:SourceCadVertexDots)=>{
    const canvas=gl.domElement;
    try{
@@ -567,7 +567,7 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
    }catch{
      canvas.dataset.pedsModelBRenderEvidence='INVALID';
    }
- };
+ },[gl]);
  useEffect(()=>{
    if(!visual){
      buildSourceDots.current=[];
@@ -626,7 +626,7 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
      if(buildSourceDots.current===layers)buildSourceDots.current=[];
      for(const item of layers)item.layer.dispose();
    };
- },[visual,onSourceCadDotsReady,onError]);
+ },[visual,onSourceCadDotsReady,onError,reportActualSourceCadDraw]);
  useEffect(()=>{
    if(!selectedVisual){selectedSourceDots.current=null;return;}
    let layer:SourceCadVertexDots|null=null;
@@ -645,7 +645,7 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
      if(selectedSourceDots.current===layer)selectedSourceDots.current=null;
      layer?.dispose();
    };
- },[selectedVisual,onError]);
+ },[selectedVisual,onError,reportActualSourceCadDraw]);
  const lastReportedXray=useRef<string|null>(null);
  useEffect(()=>{
    if(selection.error)
