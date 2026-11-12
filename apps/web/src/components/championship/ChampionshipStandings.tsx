@@ -78,7 +78,7 @@ export function ChampionshipStandings({ season }: { season: SeasonYear }) {
           </h2>
           <div className="standings-v5__snapshot" aria-label={lang === 'vi' ? 'Tổng quan xếp hạng' : 'Standings snapshot'}>
             <div className="standings-v5__leader">
-              <span>{lang === 'vi' ? 'DẪN ĐẦU BẢNG' : 'CURRENT P1'}</span>
+              <span>{lang === 'vi' ? 'VỊ TRÍ P1' : 'STANDINGS P1'}</span>
               <strong>{leaderName ?? (lang === 'vi' ? 'Chưa có dữ liệu' : 'Unavailable')}</strong>
             </div>
             <dl className="standings-v5__facts">
