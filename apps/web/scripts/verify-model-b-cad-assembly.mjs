@@ -46,8 +46,10 @@ const steps=[
  {label:'01-cutaway',progress:.22},
  {label:'02-wheel-core',progress:.42},
  {label:'03-four-corners',progress:.62},
+ {label:'04-wheel-stagger',progress:.735},
  {label:'04-rear-joints',progress:.78},
  {label:'05-final-car',progress:.94},
+ {label:'reverse-wheel-stagger',progress:.735},
  {label:'reverse-02',progress:.42},
  {label:'reverse-00',progress:0},
 ];
@@ -151,6 +153,10 @@ try{
     images.get('02-wheel-core'),images.get('05-final-car'));
    if(difference<.002)
     throw Error('Wheel build and full-car source CAD frames are visually identical');
+   const staggerDifference=await modelBFrameDifference(
+    images.get('04-wheel-stagger'),images.get('04-rear-joints'));
+   if(staggerDifference<.002)
+    throw Error('Four-wheel stagger has no visible CAD source progression');
    const partButton=page.getByRole('button',{name:/EXPLORE REAL CAD PARTS/});
    await partButton.click();
    const list=page.locator('.mb-build-catalog-row');
@@ -210,9 +216,10 @@ try{
    await writeFile(join(destination,layout.label+'-audit.json'),
     JSON.stringify({layout,source,chapterDifference:difference,
      selectedOriginalCadPart:selected,xrayFrameDifference:focusDifference,
+     fourWheelStaggerDifference:staggerDifference,
      xrayClearDifference:restoredDifference,progressBefore,
      progressFocused,progressRestored,frames:rows},null,2)+'\n');
-   console.log('PASS '+layout.label+': 94 source meshes, 4 mounted wheel stations, exact part IDs, 31 rear mesh sources per station, 4 old proxies removed, 8 chapter frames + 1 early-chapter CAD X-ray + 1 restored frame.');
+   console.log('PASS '+layout.label+': 94 source meshes, 4 mounted wheel stations, exact part IDs, 31 rear mesh sources per station, 4 old proxies removed, 10 chapter frames including reversible wheel stagger + 1 early-chapter CAD X-ray + 1 restored frame.');
   }finally{
    await page.close();
   }
