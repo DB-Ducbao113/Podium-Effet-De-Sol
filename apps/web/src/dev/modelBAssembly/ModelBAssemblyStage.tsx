@@ -21,7 +21,7 @@ import {ORIGINAL_MODEL_B_SOURCE,verifyOriginalModelBBinary} from './originalMode
 import {sourceOnlyModelBCamera} from './modelBSourceOnlyCamera';
 import {frameOriginalModelB,originalModelBFitsFrame} from './modelBFraming';
 import {buildOwnerSourceParticles,ownerParticleOpacity} from './ownerSourceParticles';
-import {sourceBodyMeshKey,sourceBodyMeshSeparation} from './sourceOnlyMeshMotion';
+import {sourceBodyMeshKey,sourceBodyVisualDisplacement} from './sourceOnlyMeshMotion';
 import {sourceMaterialFrame,type SourceMaterialState} from './sourceShellMaterialState';
 import {applyCadViewerAppearance,cadPreviewAppearance,
  type CadAppearance} from './cadPreviewMaterials';
@@ -436,7 +436,7 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
    progress.current=THREE.MathUtils.lerp(progress.current,desired,alpha);
    const p=progress.current;
    if(ownerParticles){
-     const opacity=ownerParticleOpacity(p);
+     const opacity=reducedMotion?0:ownerParticleOpacity(p);
      ownerParticles.points.visible=opacity>.005;
      if(opacity>.005)ownerParticles.setAssemblyProgress(p);
      ownerParticles.points.material.opacity=opacity;
@@ -451,8 +451,8 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
    showroomWheelMask.value=showCad?
      originalPartAssembly('P2_TYRE_SLICK_BODY',p):0;
    for(const item of shellVisuals){
-     const meshSeparation=showCad?separation:
-       sourceBodyMeshSeparation(p,item.sourceKey);
+     const meshSeparation=sourceBodyVisualDisplacement(
+       p,item.sourceKey,showCad,reducedMotion,separation);
      item.mesh.position.copy(item.origin).addScaledVector(item.offset,meshSeparation);
      item.materials.forEach((material,index)=>{
        const state=sourceMaterialFrame(item.materialStates[index],shellOpacity);
