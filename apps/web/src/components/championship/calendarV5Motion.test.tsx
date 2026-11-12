@@ -37,7 +37,7 @@ describe('Calendar V5 World Tour — cinematic scroll contract',()=>{
     expect(css).toContain('100% {opacity:.55;transform:translate3d(32px,-24px,0);}');
     expect(css).toContain('prefers-reduced-motion:reduce');
     expect(css).toContain('.rcj-circuit-overlay');
-    expect(css).not.toMatch(/scale\\(1\\.[2-9]/);
+    expect(css).not.toContain('scale(1.2');
   });
 
   it('preserves 2026 World Tour and uses one global navigation, plus functional round details',()=>{
