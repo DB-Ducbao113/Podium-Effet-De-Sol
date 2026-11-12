@@ -155,6 +155,11 @@ try{
    await partButton.click();
    const list=page.locator('.mb-build-catalog-row');
    await list.first().waitFor({state:'visible',timeout:12000});
+   // After reverse-00, the selected original part must focus at the current
+   // scroll chapter. The old catalog incorrectly jumped to progress .95.
+   const progressBefore=Number(await page.locator('.mb-build-scrubber').inputValue());
+   if(!Number.isFinite(progressBefore)||progressBefore>20)
+    throw Error('P2.40 X-ray must start at the early reveal chapter');
    await list.first().click();
    const inspector=page.locator('.mb-build-part-inspector');
    await inspector.waitFor({state:'visible',timeout:12000});
@@ -166,6 +171,9 @@ try{
     const el=document.querySelector('.mb-build-source-wrap');
     return el?.getAttribute('data-model-b-cad-xray-active')==='true';
    },undefined,{timeout:12000});
+   const progressFocused=Number(await page.locator('.mb-build-scrubber').inputValue());
+   if(Math.abs(progressFocused-progressBefore)>12)
+    throw Error('Selecting original CAD source hijacked the user scroll position');
    // Save a real selected CAD mesh close-up, not merely the inspector text.
    await page.waitForTimeout(800);
    const focusPng=await canvas.screenshot();
@@ -177,17 +185,37 @@ try{
    await writeFile(join(destination,layout.label+'-selected-cad-xray.png'),
      focusPng);
    shots++;
+   // P2.40: clearing the focus must restore ordinary scroll-driven body and
+   // CAD material visibility, without changing the chapter or source meshes.
+   await page.getByRole('button',{name:'Clear selected CAD part'}).click();
+   await page.waitForFunction(()=>{
+    const el=document.querySelector('.mb-build-source-wrap');
+    return el?.getAttribute('data-model-b-cad-xray-active')==='false';
+   },undefined,{timeout:12000});
+   const progressRestored=Number(await page.locator('.mb-build-scrubber').inputValue());
+   if(Math.abs(progressRestored-progressBefore)>12)
+    throw Error('Clearing CAD X-ray changed the scroll position');
+   await page.waitForTimeout(900);
+   const restoredPng=await canvas.screenshot();
+   assertModelBFrameVisible(await analyzeModelBFrame(restoredPng));
+   const restoredDifference=await modelBFrameDifference(focusPng,restoredPng);
+   if(restoredDifference<.002)
+    throw Error('Clearing X-ray did not visually restore original scroll scene');
+   await writeFile(join(destination,layout.label+'-cad-focus-cleared.png'),
+     restoredPng);
+   shots++;
    if(errors.length)throw Error('Browser JavaScript errors: '+errors.join(' ; '));
    await writeFile(join(destination,layout.label+'-audit.json'),
     JSON.stringify({layout,source,chapterDifference:difference,
      selectedOriginalCadPart:selected,xrayFrameDifference:focusDifference,
-     frames:rows},null,2)+'\n');
-   console.log('PASS '+layout.label+': 94 source meshes, 4 mounted wheel stations, exact part IDs, 31 rear mesh sources per station, 4 old proxies removed, 8 chapter frames + 1 original CAD X-ray inspection frame.');
+     xrayClearDifference:restoredDifference,progressBefore,
+     progressFocused,progressRestored,frames:rows},null,2)+'\n');
+   console.log('PASS '+layout.label+': 94 source meshes, 4 mounted wheel stations, exact part IDs, 31 rear mesh sources per station, 4 old proxies removed, 8 chapter frames + 1 early-chapter CAD X-ray + 1 restored frame.');
   }finally{
    await page.close();
   }
  }
- console.log('PASS P2.38/P2.39 original source-CAD visual review: '+shots+' screenshots in '+destination);
+ console.log('PASS P2.40 source-CAD four-wheel and reversible X-ray visual review: '+shots+' screenshots in '+destination);
 }finally{
  await browser.close();
 }
