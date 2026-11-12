@@ -8,7 +8,6 @@ import argparse
 import hashlib
 import json
 import os
-import shutil
 import stat
 import sys
 from pathlib import Path
@@ -79,28 +78,67 @@ def locate(roots, pins=None, max_files=25000, max_file_bytes=500_000_000):
             'mechanicalG2Certified': False,
             'status': 'SOURCE_BYTES_FOUND_NOT_MECHANICAL_ACCEPTANCE' if all(matched.values()) else 'PINNED_SOURCE_NOT_FOUND_G2_HOLD'}
 
+def _copy_verified(source, destination, expected_sha):
+    """No-follow source open, exclusive output, and digest during bounded copy."""
+    nofollow = getattr(os, 'O_NOFOLLOW', 0)
+    if not nofollow:
+        raise RuntimeError('Platform lacks O_NOFOLLOW; refusing source staging')
+    fd = os.open(source, os.O_RDONLY | nofollow)
+    try:
+        before = os.fstat(fd)
+        if not stat.S_ISREG(before.st_mode):
+            raise ValueError('Original source is not a regular file')
+        h = hashlib.sha256()
+        with os.fdopen(os.dup(fd), 'rb') as reader:
+            with destination.open('xb') as writer:
+                while True:
+                    chunk = reader.read(1024 * 1024)
+                    if not chunk:
+                        break
+                    h.update(chunk)
+                    writer.write(chunk)
+        after = os.fstat(fd)
+        if ((before.st_dev, before.st_ino, before.st_size, before.st_mtime_ns) !=
+                (after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns)):
+            raise ValueError('Source mutated during verified copy')
+        if h.hexdigest() != expected_sha or sha(destination) != expected_sha:
+            raise ValueError('Source bytes changed during verified copy')
+    finally:
+        os.close(fd)
+
+
 def stage(report, destination, pins=None):
-    """Copy only byte-verified originals to an entirely new native input directory."""
+    """Stage canonical names using exclusive files and no-follow source handles.
+
+    Refuse symlink destination parents, never follow source symlinks and only
+    clean up files created by this invocation on failure.
+    """
     pins = PINS if pins is None else dict(pins)
     target = Path(destination)
     if target.exists() or target.is_symlink():
         raise FileExistsError('Refuses overwrite or destination symlink')
+    for parent in target.parents:
+        if parent.is_symlink():
+            raise ValueError('Destination has symlinked parent')
     matches = report.get('sourceMatches', {})
     if set(matches) != set(pins) or not all(isinstance(matches[k], list) and matches[k] for k in pins):
         raise ValueError('Incomplete original source matches')
     chosen = {}
     for name, digest in pins.items():
+        if Path(name).name != name or name in ('.', '..'):
+            raise ValueError('Unsafe canonical destination filename')
         options = sorted(set(matches[name]))
         valid = [p for p in options if Path(p).is_file() and not Path(p).is_symlink() and sha(p) == digest]
         if not valid:
             raise ValueError('Original source changed since scan: ' + name)
         chosen[name] = valid[0]
     target.mkdir(parents=True, exist_ok=False)
+    created = []
     try:
         for name, original in chosen.items():
-            shutil.copyfile(original, target / name, follow_symlinks=False)
-            if sha(target / name) != pins[name]:
-                raise ValueError('Source changed during copy: ' + name)
+            dest = target / name
+            created.append(dest)
+            _copy_verified(original, dest, pins[name])
         output = {'schema': SCHEMA,
                   'stagedFiles': {name: {'sourcePath': chosen[name], 'sha256': pins[name]}
                                   for name in pins},
@@ -108,11 +146,17 @@ def stage(report, destination, pins=None):
                   'nativeSTEPGeometryValidated': False,
                   'mechanicalG2Certified': False,
                   'status': 'ORIGINAL_BYTES_STAGED_FOR_NATIVE_VERIFICATION_G2_HOLD'}
-        (target / 'P234AD_source_provenance.json').write_text(json.dumps(output, indent=2) + '\n', encoding='utf-8')
+        manifest = target / 'P234AD_source_provenance.json'
+        created.append(manifest)
+        with manifest.open('x', encoding='utf-8') as stream:
+            stream.write(json.dumps(output, indent=2) + '\n')
         return output
     except Exception:
-        shutil.rmtree(target)
+        for file in reversed(created):
+            file.unlink(missing_ok=True)
+        target.rmdir()  # Never recursively delete an unexpected directory tree.
         raise
+
 
 def main():
     p = argparse.ArgumentParser()
