@@ -1,5 +1,5 @@
 import {describe,expect,it} from 'vitest';
-import {sourceBodyMeshPhase,sourceBodyMeshSeparation} from './sourceOnlyMeshMotion';
+import {sourceBodyMeshKey,sourceBodyMeshPhase,sourceBodyMeshSeparation} from './sourceOnlyMeshMotion';
 
 const names=[
  'MODEL_B_BODY_LEFT','MODEL_B_BODY_RIGHT','MODEL_B_FRONT_WING',
@@ -35,6 +35,21 @@ describe('P2.35B source-only original Model B mesh staging',()=>{
    expect(amount).toBeLessThanOrEqual(.7+1e-9);
    expect(amount).toBe(sourceBodyMeshSeparation(progress,name));
   }
+ });
+ it('assigns independent stable keys to duplicate or blank owner GLB mesh names',()=>{
+  const keys=[sourceBodyMeshKey('',0),sourceBodyMeshKey('',1),
+    sourceBodyMeshKey('Wheel',2),sourceBodyMeshKey('Wheel',3)];
+  expect(new Set(keys).size).toBe(4);
+  expect(keys).toEqual(['#0','#1','Wheel#2','Wheel#3']);
+  expect(sourceBodyMeshPhase(keys[0])).not.toBe(sourceBodyMeshPhase(keys[1]));
+  for(const key of keys){
+   expect(sourceBodyMeshSeparation(0,key)).toBe(0);
+   expect(sourceBodyMeshSeparation(1,key)).toBe(0);
+  }
+ });
+ it('rejects invalid source ordinals',()=>{
+  for(const ordinal of [-1,NaN,Infinity,1.5,Number.MAX_SAFE_INTEGER+1])
+   expect(()=>sourceBodyMeshKey('mesh',ordinal)).toThrow(/ordinal/);
  });
  it('refuses nonfinite scroll input by restoring the source pose',()=>{
   for(const name of names)for(const p of [NaN,Infinity,-Infinity])
