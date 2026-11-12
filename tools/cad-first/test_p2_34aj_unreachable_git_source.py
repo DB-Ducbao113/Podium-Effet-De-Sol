@@ -1,8 +1,6 @@
 """P2.34AJ unit tests, real local Git objects with synthetic source bytes."""
 import hashlib,subprocess,tempfile,unittest
 from pathlib import Path
-from unittest.mock import patch
-import types
 import p2_34aj_unreachable_git_source as aj
 
 def git(root,*args,stdin=None):
@@ -38,16 +36,37 @@ class UnreachableTests(unittest.TestCase):
         self.assertFalse(r['allExactSourceBlobsFound'])
         self.assertEqual(r['lfsPointers'][0]['originalFile'],'step')
     def test_restoration_rechecks_exact_dangling_blobs(self):
+        """Actual AJ -> AG -> on-disk bytes; no mocks, no source-owner claim."""
         for content in self.data.values():self.add_unreachable(content)
         r=aj.inspect(self.repo,self.pins)
-        def fake_ag_restore(repo,dest,inventory,pins):
-            for name,matches in inventory['matches'].items():
-                data=subprocess.run(['git','-C',str(repo),'cat-file','blob',matches[0]['blobSHA']],
-                                    capture_output=True,check=True).stdout
-                if hashlib.sha256(data).hexdigest()!=pins[name]:raise ValueError('SHA mismatch')
-            return {'validated':True}
-        with patch.dict('sys.modules',{'p2_34ag_git_blob_restore':types.SimpleNamespace(restore=fake_ag_restore)}):
-            self.assertTrue(aj.restore_exact_blobs(self.repo,self.repo/'new',r,self.pins)['validated'])
+        out=self.repo.parent/'restored-original-names'
+        result=aj.restore_exact_blobs(self.repo,out,r,self.pins)
+        self.assertEqual(result['sourceFileCount'],3)
+        self.assertFalse(result['mechanicalG2Certified'])
+        for name,content in self.data.items():
+            staged=out/name
+            self.assertEqual(staged.read_bytes(),content)
+            self.assertEqual(hashlib.sha256(staged.read_bytes()).hexdigest(),self.pins[name])
+        self.assertTrue((out/'P234AG_git_restore_audit.json').is_file())
+
+    def test_tampered_aj_inventory_does_not_restore(self):
+        for content in self.data.values():self.add_unreachable(content)
+        r=aj.inspect(self.repo,self.pins)
+        r['matches']['step'][0]['blobSHA']=r['matches']['audit'][0]['blobSHA']
+        out=self.repo.parent/'tampered-output'
+        with self.assertRaisesRegex(ValueError,'Exact source SHA mismatch'):
+            aj.restore_exact_blobs(self.repo,out,r,self.pins)
+        self.assertFalse(out.exists())
+
+    def test_aj_restoration_refuses_existing_destination(self):
+        for content in self.data.values():self.add_unreachable(content)
+        r=aj.inspect(self.repo,self.pins)
+        out=self.repo.parent/'existing-output';out.mkdir()
+        (out/'owner-file').write_text('DO NOT DELETE')
+        with self.assertRaises(FileExistsError):
+            aj.restore_exact_blobs(self.repo,out,r,self.pins)
+        self.assertEqual((out/'owner-file').read_text(),'DO NOT DELETE')
+
     def test_invalid_aj_evidence_rejected(self):
         with self.assertRaisesRegex(ValueError,'schema'):
             aj.restore_exact_blobs(self.repo,self.repo/'new',{'schema':'tampered'},self.pins)
