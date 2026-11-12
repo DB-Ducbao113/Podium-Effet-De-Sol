@@ -21,13 +21,13 @@ describe("Championship in-page navigation", () => {
     });
   });
 
-  it("exposes every championship section in one segmented tab rail", () => {
+  it("does not duplicate the global navbar in Standings", () => {
     const html = render("/season/2026?tab=standings");
-    for (const tab of ["standings", "calendar", "results", "teams", "drivers"]) {
-      expect(html).toContain(`data-championship-tab="${tab}"`);
-    }
-    expect(html).toContain('aria-label="Championship sections"');
-    expect(html).toContain('id="championship-section-tab-standings"');
+    expect(html).not.toContain('data-championship-tab="standings"');
+    expect(html).not.toContain('aria-label="Championship sections"');
+    expect(html).toContain('f4-category-toggle');
+    expect(html).toContain('data-season-option="2026"');
+    expect(html).toContain('p5-standings-v5');
   });
 
   it("does not repeat the global navbar on Results, but preserves season controls", () => {

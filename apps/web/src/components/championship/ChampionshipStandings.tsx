@@ -12,9 +12,10 @@ import {
 import { venueHeroFor, venueHeroSrcSet } from '../../utils/venueHeroes';
 import { extra2026Hero } from '../../utils/extended2026Visuals';
 import { ExtraArtwork } from '../directory/ExtraArtwork';
-import { useDirectoryReveal } from '../directory/useDirectoryReveal';
+import { useMotionGate } from '../../hooks/useMotionGate';
 import { MiniRaceLeaderboard } from './mini-race/MiniRaceLeaderboard';
 import '../directory/directory.css';
+import './standingsCinematicV5.css';
 
 function HeroBackdrop({ venue, alt }: { venue: string; alt: string }) {
   return (
@@ -40,16 +41,21 @@ export function ChampionshipStandings({ season }: { season: SeasonYear }) {
   const venue = venueHeroFor(venueId);
   const reviewHero = extra2026Hero('championship', season);
   const rounds = roundsWithResults(season, detailedResults[season]);
-  const revealRef = useDirectoryReveal<HTMLElement>(`${season}-${standingsCategory}-${Math.round(rows[0]?.points ?? 0)}`);
+  const motionEnabled = useMotionGate();
+  const leaderPoints = rows[0]?.points ?? null;
+  const runnerUpPoints = rows[1]?.points ?? null;
+  const pointsGap = leaderPoints !== null && runnerUpPoints !== null
+    ? Math.max(0, leaderPoints - runnerUpPoints) : null;
+  const leaderName = isDrivers ? current.drivers[0]?.driverName : current.constructors[0]?.teamName;
   const leaderDriver = current.drivers[0];
   const leaderTeam = current.constructors[0];
 
   return (
     <section
-      ref={revealRef}
-      className="p5-standings"
+      className="p5-standings p5-standings-v5"
+      data-standings-category={standingsCategory}
       aria-label={title}
-      data-motion-engine="p5"
+      data-motion-engine={motionEnabled ? 'css-scroll' : 'static'}
     >
       <header className="p5-hero p5-standings-hero">
         <ExtraArtwork artwork={reviewHero} className="p5-hero-media" eager fallback={<HeroBackdrop
@@ -57,35 +63,35 @@ export function ChampionshipStandings({ season }: { season: SeasonYear }) {
           alt={venue ? `${venue.place} · ${lang === 'vi' ? 'ảnh minh họa' : 'illustrative venue photo'}` : ''}
         />} />
         <span className="p5-hero-scrim" aria-hidden="true" />
-        <div className="p5-hero-inner" data-p5-reveal>
+        <div className="p5-hero-inner">
           <p className="p5-kicker">
             {season} <span aria-hidden="true">/</span>{' '}
             {lang === 'vi' ? `${rounds} VÒNG CÓ KẾT QUẢ` : `${rounds} ROUNDS WITH RESULTS`}
           </p>
           <h2 className="p5-mega">
-            {isDrivers ? (
-              <>
-                {lang === 'vi' ? 'Xếp hạng' : 'Drivers'}
-                <span className="p5-mega-line">{lang === 'vi' ? 'Tay đua' : 'Championship'}</span>
-              </>
-            ) : (
-              <>
-                {lang === 'vi' ? 'Xếp hạng' : 'Constructors'}
-                <span className="p5-mega-line">{lang === 'vi' ? 'Đội đua' : 'Championship'}</span>
-              </>
-            )}
+            {lang === 'vi' ? 'Bảng xếp hạng' : 'Championship'}
+            <span className="p5-mega-line">
+              {isDrivers
+                ? (lang === 'vi' ? 'Tay đua.' : 'Drivers.')
+                : (lang === 'vi' ? 'Đội đua.' : 'Constructors.')}
+            </span>
           </h2>
-          <p className="p5-hero-lead">
-            {isDrivers ? (
-              lang === 'vi'
-                ? leaderDriver ? `${leaderDriver.driverName} dẫn đầu · ${leaderDriver.points} điểm` : 'Chưa có xếp hạng'
-                : leaderDriver ? `${leaderDriver.driverName} leads · ${leaderDriver.points} pts` : 'Standings unavailable'
-            ) : (
-              lang === 'vi'
-                ? leaderTeam ? `${leaderTeam.teamName} dẫn đầu · ${leaderTeam.points} điểm` : 'Chưa có xếp hạng'
-                : leaderTeam ? `${leaderTeam.teamName} leads · ${leaderTeam.points} pts` : 'Standings unavailable'
-            )}
-          </p>
+          <div className="standings-v5__snapshot" aria-label={lang === 'vi' ? 'Tổng quan xếp hạng' : 'Standings snapshot'}>
+            <div className="standings-v5__leader">
+              <span>{lang === 'vi' ? 'DẪN ĐẦU BẢNG' : 'CURRENT P1'}</span>
+              <strong>{leaderName ?? (lang === 'vi' ? 'Chưa có dữ liệu' : 'Unavailable')}</strong>
+            </div>
+            <dl className="standings-v5__facts">
+              <div>
+                <dt>{lang === 'vi' ? 'Điểm' : 'Points'}</dt>
+                <dd>{leaderPoints ?? '—'}</dd>
+              </div>
+              <div>
+                <dt>{lang === 'vi' ? 'Cách P2' : 'Lead to P2'}</dt>
+                <dd>{pointsGap ?? '—'}</dd>
+              </div>
+            </dl>
+          </div>
           {reviewHero ? <p className="p5-photo-credit p5-photo-credit-inline">{lang === 'vi' ? 'Ảnh minh họa AI' : 'AI illustration'}</p> : venue && (
             <p className="p5-photo-credit p5-photo-credit-inline">
               {lang === 'vi' ? 'Ảnh minh họa' : 'Illustrative photo'}: {venue.place} ·{' '}
