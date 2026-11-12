@@ -619,3 +619,95 @@
   .home-v5 .home-command__cell:first-child,
   .home-v5 .home-command__cell:last-child { transform:none!important; }
 }
+
+
+/* V5.3 SCENE PALETTE — image-led colour, not a uniform black/cream website.
+ * Ambient lighting shifts with the same reversible hero scroll progress. */
+.home-v5 .r1-cinema--v7 {
+  background:
+    radial-gradient(ellipse 52% 75% at 84% 55%,
+      rgba(218,99,46,.26), transparent 71%),
+    radial-gradient(ellipse 53% 84% at 3% 90%,
+      rgba(26,99,135,.32), transparent 76%),
+    linear-gradient(123deg,#091522 0%,#15202a 44%,#35202a 100%);
+}
+.home-v5 .r1-cinema--v7::before {
+  background:
+    radial-gradient(ellipse 42% 59% at
+      calc(76% - var(--v5-ambient-x,0px)) 40%,
+      rgba(235,143,87,.25), transparent 75%),
+    linear-gradient(90deg,transparent 15%,rgba(255,212,165,.065) 53%,transparent 85%);
+  opacity:1;
+  pointer-events:none;
+}
+.home-v5 .r1-cinema--v7::after {display:none;}
+.home-v5 .home-v3__content {
+  background:
+    linear-gradient(180deg,#f4eadb 0%,#e6e3d8 27%,#ccdcd9 54%,#e9ddd0 75%,#e2d6c9 100%);
+}
+/* Each major chapter changes its atmosphere, not simply its card backgrounds. */
+.home-v5 .home-rc {
+  position:relative;
+  background:
+    radial-gradient(ellipse at 90% 8%,rgba(177,89,53,.14),transparent 47%),
+    linear-gradient(135deg,#f5eddf,#dfebea 88%);
+}
+.home-v5 .home-title-fight {
+  position:relative;
+  isolation:isolate;
+  background:
+    radial-gradient(ellipse 72% 110% at 94% 0%,rgba(23,145,160,.23),transparent 70%),
+    radial-gradient(ellipse 48% 80% at 2% 100%,rgba(150,65,63,.34),transparent 75%),
+    linear-gradient(120deg,#102737,#17424a 54%,#40232f);
+}
+.home-v5 .home-title-fight .home-live__heading h2,
+.home-v5 .home-title-fight .home-live__heading > a {
+  color:#f5eee3;
+}
+.home-v5 .home-title-fight .home-live__rule {background:rgba(245,239,228,.35);}
+.home-v5 .home-title-fight__year {color:#ddd2be;}
+.home-v5 .home-title-fight__panel {
+  background:linear-gradient(140deg,#f6f0e5,#e6e8e5);
+  border-color:rgba(255,255,255,.32);
+}
+.home-v5 .home-v5__editorial {
+  position:relative;
+  isolation:isolate;
+  background:
+    radial-gradient(ellipse at 100% 25%,rgba(169,66,76,.17),transparent 58%),
+    linear-gradient(115deg,#f5e5d8,#e3e4de 85%);
+}
+.home-v5 .home-v5__editorial-art {
+  background:linear-gradient(150deg,#102c3b,#361f32);
+}
+.home-v5 .eds-explore {
+  position:relative;
+  isolation:isolate;
+  background:
+    radial-gradient(ellipse at 83% 10%,rgba(217,126,69,.24),transparent 55%),
+    linear-gradient(125deg,#ead7c5,#d9e3df 54%,#d9c3bc);
+}
+.home-v5 .eds-explore__header h2 {color:#182631;}
+.home-v5 .eds-explore__header-rule {background:rgba(29,51,60,.27);}
+
+/* Scrub controls entry AND exit, so reversing the wheel is visible.
+ * Disable one-shot legacy reveals that otherwise override CSS variables. */
+.home-v5[data-v5-choreo='active'] [data-v5-effect] {
+  animation:none!important;
+  transition:none!important;
+  backface-visibility:hidden;
+}
+.home-v5[data-v5-choreo='active'] .h25-reveal,
+.home-v5[data-v5-choreo='active'] .eds-explore[data-revealed='true'] {
+  animation:none!important;
+}
+@media (max-width:860px) {
+  .home-v5 .home-title-fight,
+  .home-v5 .home-v5__editorial,
+  .home-v5 .eds-explore {background-size:cover;}
+  /* Keep touch interaction readable; motion uses the 26px lite envelope. */
+}
+@media (prefers-reduced-motion:reduce) {
+  .home-v5 .r1-cinema--v7::before {background:none;}
+  .home-v5 [data-v5-effect] {opacity:1!important;transform:none!important;clip-path:none!important;}
+}

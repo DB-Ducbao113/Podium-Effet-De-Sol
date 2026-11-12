@@ -75,6 +75,7 @@ export function PodiumBrandHero() {
       root.style.setProperty('--v5-scene-three', motion.third.toFixed(3));
       root.style.setProperty('--v5-shift', motion.shift.toFixed(1) + 'px');
       root.style.setProperty('--v5-progress', motion.progress.toFixed(3));
+      root.style.setProperty('--v5-ambient-x',(motion.progress*55).toFixed(1)+'px');
       // Readable hero title/CTA and verified instrument values stay visible
       // while their spatial position responds to the same scroll coordinate.
       root.style.setProperty('--v5-copy-x',(-16*motion.progress).toFixed(1)+'px');
@@ -112,7 +113,7 @@ export function PodiumBrandHero() {
       delete root.dataset.v5Scene;
       for (const property of [
         '--v5-scene-one', '--v5-scene-two', '--v5-scene-three',
-        '--v5-shift', '--v5-progress',
+        '--v5-shift', '--v5-progress', '--v5-ambient-x',
         '--v5-copy-x','--v5-copy-y','--v5-stat-x','--v5-stat-x-negative',
         '--v5-first-x','--v5-first-mask','--v5-second-x',
         '--v5-second-mask-left','--v5-second-mask-right',

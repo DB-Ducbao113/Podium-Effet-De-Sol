@@ -32,7 +32,7 @@ const entries: ReadonlyArray<[string,HomeV5Effect]> = [
   ['#eds-explore .eds-explore__number','number'],
   ['#eds-explore .eds-explore__bottom strong','rise'],
 ];
-type Target={node:HTMLElement; section:HTMLElement; offset:number; kind:HomeV5Effect; order:number; lastProgress?:number};
+type Target={node:HTMLElement; section:HTMLElement; offset:number; height:number; kind:HomeV5Effect; order:number; lastProgress?:number};
 const sectionQuery='#race-control, #championship-overview, .home-v5__editorial, #eds-explore';
 
 /**
@@ -72,7 +72,7 @@ export function useHomeV5Choreography(ref:RefObject<HTMLElement|null>) {
         target,
         value:sampleV5Item(
           (sections.get(target.section)??0)+target.offset+Math.min(5,target.order)*(lite?4:10),
-          innerHeight,target.kind,lite),
+          innerHeight,target.kind,lite,target.height),
       }));
       // Write only when progress changes: offscreen/stable elements cost nothing.
       // Motion is tied to absolute scroll position, so backwards remains exact.
@@ -100,7 +100,8 @@ export function useHomeV5Choreography(ref:RefObject<HTMLElement|null>) {
           if(!section)return;
           let rect=sectionRects.get(section);
           if(!rect) {rect=section.getBoundingClientRect();sectionRects.set(section,rect);}
-          targets.push({node,section,offset:node.getBoundingClientRect().top-rect.top,kind,order});
+          const box=node.getBoundingClientRect();
+          targets.push({node,section,offset:box.top-rect.top,height:box.height,kind,order});
         });
       }
       for(const {node,kind} of targets)node.dataset.v5Effect=kind;
@@ -117,6 +118,8 @@ export function useHomeV5Choreography(ref:RefObject<HTMLElement|null>) {
     });
     mutation?.observe(root,{childList:true,subtree:true});
     const onVisibility=()=>{if(!document.hidden)schedule();};
+    const sizeObserver=typeof ResizeObserver==='undefined'?null:new ResizeObserver(scheduleRebuild);
+    sizeObserver?.observe(root);
 
     window.addEventListener('scroll',schedule,{passive:true});
     window.addEventListener('resize',scheduleRebuild,{passive:true});
@@ -126,6 +129,7 @@ export function useHomeV5Choreography(ref:RefObject<HTMLElement|null>) {
     rebuild();
     return ()=>{
       mutation?.disconnect();
+      sizeObserver?.disconnect();
       window.removeEventListener('scroll',schedule);
       window.removeEventListener('resize',scheduleRebuild);
       reduced.removeEventListener('change',scheduleRebuild);

@@ -36,6 +36,18 @@ describe('Home V5.1 scroll transitions', () => {
     expect(sampleV5Item(1400,900,'left',true).x).toBe(-26);
     expect(sampleV5Item(1400,900,'left').x).toBe(-92);
     expect(sampleV5Item(1400,900,'number').bottom).toBe(95);
+    // Below -> visible -> above -> visible -> below, both directions.
+    for (const kind of ['left','right','rise','number','wipe-left','wipe-right'] as const) {
+      const before=sampleV5Item(1400,900,kind,false,120);
+      const inside=sampleV5Item(170,900,kind,false,120);
+      const past=sampleV5Item(-420,900,kind,false,120);
+      expect(before.progress).toBe(0);
+      expect(inside.progress).toBe(1);
+      expect(past.progress).toBe(0);
+      expect(past.exit).toBe(1);
+      expect(sampleV5Item(170,900,kind,false,120)).toEqual(inside);
+      expect(sampleV5Item(1400,900,kind,false,120)).toEqual(before);
+    }
   });
 
   it('keeps the implementation scoped to Home and retains real repo assets',()=>{
@@ -51,6 +63,8 @@ describe('Home V5.1 scroll transitions', () => {
     for(const token of ['race-control','championship-overview','eds-explore','prefers-reduced-motion'])
       expect(hook).toContain(token);
     expect(css).toContain('object-fit: contain');
+    expect(css).toContain('home-title-fight');
+    expect(css).toContain('animation:none!important');
     expect(css).not.toMatch(/scale\(1\.[2-9]/);
   });
 });
