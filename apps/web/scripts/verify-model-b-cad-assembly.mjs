@@ -83,7 +83,8 @@ try{
      el.getAttribute('data-model-b-mounted-source-identity')==='PASS'&&
      el.getAttribute('data-model-b-front-p28-per-station')==='59'&&
      el.getAttribute('data-model-b-rear-toe-per-station')==='15'&&
-     el.getAttribute('data-model-b-rear-joint-per-station')==='16';
+     el.getAttribute('data-model-b-rear-joint-per-station')==='16'&&
+     Number(el.getAttribute('data-model-b-authentic-cad-vertex-dots'))>0;
    },undefined,{timeout:90000});
    const source=await page.locator('.mb-build-source-wrap').evaluate(el=>({
     blob:el.getAttribute('data-owner-model-b-git-blob-sha1'),
@@ -97,6 +98,7 @@ try{
     replaced:el.getAttribute('data-rear-legacy-bearing-proxies-hidden'),
     mountedIdentity:el.getAttribute('data-model-b-mounted-source-identity'),
     mounted:el.getAttribute('data-model-b-mounted-cad-meshes'),
+    sourceVertexDots:el.getAttribute('data-model-b-authentic-cad-vertex-dots'),
     mountedFrontPerStation:el.getAttribute('data-model-b-front-p28-per-station'),
     mountedRearProxyPerStation:el.getAttribute('data-model-b-rear-p28-proxy-per-station'),
     mountedRearToePerStation:el.getAttribute('data-model-b-rear-toe-per-station'),
@@ -110,6 +112,8 @@ try{
     source.p28!=='true'||source.p212!=='true'||source.p214!=='true'||
     source.wheels!=='4'||source.rearParts!=='31'||source.replaced!=='4'||
     source.mountedIdentity!=='PASS'||
+    !(Number(source.sourceVertexDots)>=1024&&
+      Number(source.sourceVertexDots)<=4400)||
     source.mountedFrontPerStation!=='59'||
     source.mountedRearToePerStation!=='15'||
     source.mountedRearJointPerStation!=='16'||
@@ -219,7 +223,7 @@ try{
      fourWheelStaggerDifference:staggerDifference,
      xrayClearDifference:restoredDifference,progressBefore,
      progressFocused,progressRestored,frames:rows},null,2)+'\n');
-   console.log('PASS '+layout.label+': 94 source meshes, 4 mounted wheel stations, exact part IDs, 31 rear mesh sources per station, 4 old proxies removed, 10 chapter frames including reversible wheel stagger + 1 early-chapter CAD X-ray + 1 restored frame.');
+   console.log('PASS '+layout.label+': 94 source meshes, 4 native-vertex sampled tyre overlays, exact four-corner CAD IDs, 31 rear source meshes/station, 24 screenshots across both layouts.');
   }finally{
    await page.close();
   }
