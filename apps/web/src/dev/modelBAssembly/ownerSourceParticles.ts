@@ -2,6 +2,7 @@
  * Samples existing mesh positions only. No fabricated geometry or CAD acceptance.
  */
 import * as THREE from 'three';
+import {sourceSampleIndices} from './ownerParticleSampling';
 
 export type OwnerSourceParticles={
  points:THREE.Points<THREE.BufferGeometry,THREE.PointsMaterial>;
@@ -33,27 +34,30 @@ export function buildOwnerSourceParticles(root:THREE.Group,budget=7200):OwnerSou
  const inverse=root.matrixWorld.clone().invert();
  const point=new THREE.Vector3();
  const values:number[]=[];
- const limit=Math.min(total,budget);
+ const indices=sourceSampleIndices(total,budget);
  let globalIndex=0;
+ let cursor=0;
  let meshesWithSamples=0;
  for(const mesh of source){
   const attr=mesh.geometry.getAttribute('position') as
     THREE.BufferAttribute|THREE.InterleavedBufferAttribute;
   transform.multiplyMatrices(inverse,mesh.matrixWorld);
+  const end=globalIndex+attr.count;
   let sampled=false;
-  for(let index=0;index<attr.count;index++,globalIndex++){
-   // Globally bounded, proportionally distributed, deterministic picks.
-   // No per-mesh minimum that can overflow the requested GPU budget.
-   if(Math.floor((globalIndex+1)*limit/total)===
-      Math.floor(globalIndex*limit/total))continue;
-   point.set(attr.getX(index),attr.getY(index),attr.getZ(index))
+  // Visit only globally selected indices in this mesh. The prior implementation
+  // visited every vertex even for a 7,200-point sample of a multi-million GLB.
+  while(cursor<indices.length&&indices[cursor]<end){
+   const local=indices[cursor]-globalIndex;
+   point.set(attr.getX(local),attr.getY(local),attr.getZ(local))
      .applyMatrix4(transform);
    if(!Number.isFinite(point.x)||!Number.isFinite(point.y)||
       !Number.isFinite(point.z))
      throw Error('Original Model B contains nonfinite sampled vertices');
    values.push(point.x,point.y,point.z);
    sampled=true;
+   cursor++;
   }
+  globalIndex=end;
   if(sampled)meshesWithSamples++;
  }
  if(values.length===0)throw Error('Original Model B mesh vertices nonfinite');
