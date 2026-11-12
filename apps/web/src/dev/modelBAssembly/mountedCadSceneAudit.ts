@@ -16,6 +16,8 @@ export type MountedCadSceneAudit={
  rearToePerStation:0|15|19;
  rearJointPerStation:0|16;
  mountedMeshInstances:number;
+ /** Populated only after manifest IDs AND attached source nodes are inspected. */
+ sourceNamesExact?:true;
  rearUsesFrontSourceWheelEndProxy:true;
  genuineRearSuspensionAvailable:false;
  mechanicalMateCertified:false;
