@@ -55,7 +55,7 @@ export function addReversibleWheelWindow(
       'uniform vec3 pedsWheelCenters[4];\n'+
       'uniform float pedsWheelRadius[4];\n'+
       'uniform float pedsWheelMaskAmount;\n'+
-        (wheelMaskAmounts?'uniform float pedsWheelMaskAmounts[4];\\n':'')+
+        (wheelMaskAmounts?'uniform float pedsWheelMaskAmounts[4];\n':'')+
       shader.fragmentShader.replace(fragmentMarker,
         fragmentMarker+'\n'+
         'for (int wheel=0;wheel<4;wheel++) {\n'+
@@ -64,7 +64,7 @@ export function addReversibleWheelWindow(
         '    float threshold=fract(sin(dot(gl_FragCoord.xy,vec2(12.9898,78.233)))*43758.5453);\n'+
         '    if (threshold<'+
           (wheelMaskAmounts?'pedsWheelMaskAmounts[wheel]':'pedsWheelMaskAmount')+
-          ') discard;\\n'+
+          ') discard;\n'+
         '  }\n'+
         '}\n');
   };
