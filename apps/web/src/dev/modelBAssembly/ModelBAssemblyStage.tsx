@@ -22,7 +22,7 @@ import {sourceOnlyModelBCamera} from './modelBSourceOnlyCamera';
 import {frameOriginalModelB,originalModelBFitsFrame} from './modelBFraming';
 import {buildOwnerSourceParticles,ownerParticleOpacity} from './ownerSourceParticles';
 import {sourceBodyMeshKey,sourceBodyMeshPhase,sourceBodyVisualDisplacement} from './sourceOnlyMeshMotion';
-import {sourceBodyWorldRevealStrength,sourceMeshOwnWorldBounds,worldDeltaToParentLocal} from './sourceWorldReveal';
+import {sourceBodyWorldRevealStrength,sourceMeshOwnWorldBounds,sourceMeshRevealWorldDirection,worldDeltaToParentLocal} from './sourceWorldReveal';
 import {accessibleAssemblyFraction,accessibleShellOpacity} from './accessibleAssemblyPose';
 import {sourceMaterialFrame,type SourceMaterialState} from './sourceShellMaterialState';
 import {applyCadViewerAppearance,cadPreviewAppearance,
@@ -393,13 +393,13 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
        onError('Original Model B source mesh bounds rejected ('+
          sourceKey+'): '+String(error));
      }
-     // Existing GLB geometry only; giant chassis surfaces remain fixed.
-     const direction=new THREE.Vector3(
-       center.x>0?1:-1,center.y>0?.7:-.5,center.z>=0?1:-1);
-     // Offset expressed in WORLD metres, then mapped into the mesh's
-     // parent-local coordinate frame exactly once (also handles shellScale).
-     const offset=direction.multiplyScalar(strength);
-     if(o.parent){
+     // An exact unit direction makes strength the actual world-metre
+     // visual travel distance, independent of the selected octant.
+     const direction=sourceMeshRevealWorldDirection(
+       [center.x,center.y,center.z]);
+     const offset=new THREE.Vector3(...direction).multiplyScalar(strength);
+     // Giant meshes stay fixed and do not need parent matrix inversions.
+     if(o.parent&&strength>0){
        const inverse=o.parent.matrixWorld.clone().invert();
        const [x,y,z]=worldDeltaToParentLocal(
          [offset.x,offset.y,offset.z],inverse.elements);
