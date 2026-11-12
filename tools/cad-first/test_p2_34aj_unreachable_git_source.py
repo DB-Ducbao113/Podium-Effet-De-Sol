@@ -39,7 +39,7 @@ class UnreachableTests(unittest.TestCase):
         """Actual AJ -> AG -> on-disk bytes; no mocks, no source-owner claim."""
         for content in self.data.values():self.add_unreachable(content)
         r=aj.inspect(self.repo,self.pins)
-        out=self.repo.parent/'restored-original-names'
+        out=self.repo/'restored-original-names'
         result=aj.restore_exact_blobs(self.repo,out,r,self.pins)
         self.assertEqual(result['sourceFileCount'],3)
         self.assertFalse(result['mechanicalG2Certified'])
@@ -53,7 +53,7 @@ class UnreachableTests(unittest.TestCase):
         for content in self.data.values():self.add_unreachable(content)
         r=aj.inspect(self.repo,self.pins)
         r['matches']['step'][0]['blobSHA']=r['matches']['audit'][0]['blobSHA']
-        out=self.repo.parent/'tampered-output'
+        out=self.repo/'tampered-output'
         with self.assertRaisesRegex(ValueError,'Exact source SHA mismatch'):
             aj.restore_exact_blobs(self.repo,out,r,self.pins)
         self.assertFalse(out.exists())
@@ -61,7 +61,7 @@ class UnreachableTests(unittest.TestCase):
     def test_aj_restoration_refuses_existing_destination(self):
         for content in self.data.values():self.add_unreachable(content)
         r=aj.inspect(self.repo,self.pins)
-        out=self.repo.parent/'existing-output';out.mkdir()
+        out=self.repo/'existing-output';out.mkdir()
         (out/'owner-file').write_text('DO NOT DELETE')
         with self.assertRaises(FileExistsError):
             aj.restore_exact_blobs(self.repo,out,r,self.pins)
