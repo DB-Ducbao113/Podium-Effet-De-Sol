@@ -20,6 +20,7 @@ import {rearVisualPartIds,type RearVisualParts} from './rearVisualComposite';
 import {ORIGINAL_MODEL_B_SOURCE,verifyOriginalModelBBinary} from './originalModelBSource';
 import {sourceOnlyModelBCamera} from './modelBSourceOnlyCamera';
 import {frameOriginalModelB,originalModelBFitsFrame} from './modelBFraming';
+import {buildOwnerSourceParticles,ownerParticleOpacity} from './ownerSourceParticles';
 import {applyCadViewerAppearance,cadPreviewAppearance,
  type CadAppearance} from './cadPreviewMaterials';
 import {inspectOriginalCadMesh,type InspectedCadPart} from './cadPartInspector';
@@ -303,6 +304,12 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
  const {camera,size}=useThree();
  const original=useOriginalBody(onReady,onError);
  const originalPartNames=useMemo(()=>corner?.parts.map(x=>x.node)??[],[corner]);
+ const ownerParticles=useMemo(()=>{
+   if(!original)return null;
+   try{return buildOwnerSourceParticles(original.model);}
+   catch(error){onError('Verified Model B vertex layer rejected: '+String(error));return null;}
+ },[original,onError]);
+ useEffect(()=>()=>{ownerParticles?.dispose();},[ownerParticles]);
  const p28=useLocalSource(corner,originalPartNames,'P2.8',onReady,onError,'p28');
  const rearToeNames=useMemo(()=>rearToe?.manifest.partIds??[],[rearToe]);
  const rear=useLocalSource(rearToe,rearToeNames,'P2.12',onReady,onError,'rear-toe');
@@ -407,6 +414,11 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
    const alpha=reducedMotion?1:1-Math.exp(-Math.min(delta,.06)*11);
    progress.current=THREE.MathUtils.lerp(progress.current,desired,alpha);
    const p=progress.current;
+   if(ownerParticles){
+     const opacity=ownerParticleOpacity(p);
+     ownerParticles.points.visible=opacity>.005;
+     ownerParticles.points.material.opacity=opacity;
+   }
    const showCad=Boolean(visual);
    const shellOpacity=visualShellOpacity(p,showCad);
    const separation=exteriorSeparation(p,showCad);
@@ -522,6 +534,7 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
    <StudioLights/>
    {original&&<group name="model-b-owner-exterior" scale={shellScale}>
      <primitive object={original.model}/>
+     {ownerParticles&&<primitive object={ownerParticles.points}/>}
    </group>}
    {visual&&<primitive object={visual.root}
      onClick={(event:ThreeEvent<MouseEvent>)=>{
