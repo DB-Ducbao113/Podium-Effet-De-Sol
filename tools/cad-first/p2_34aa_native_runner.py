@@ -79,9 +79,10 @@ def run(source,grid,out_dir,execute_m=False,execute_n=False):
             out_dir.mkdir(parents=True,exist_ok=False)
             report['nativeExecutionStarted']=True
             result=m_run(source,grid,m_file)
-            quality=check_m_report(result,PINS['P234E_source84_revised_six_ball_clearance.step'],report['poseGridSHA256'])
-            report['p234mReview']=quality
-            report['p234mSHA256']=hashfile(m_file)
+            from p2_34ac_persisted_evidence_gate import check_m,check_n
+            verified_m=check_m(result,m_file,report['poseGridSHA256'])
+            report.update(verified_m)
+            quality=verified_m['p234mReview']
             report['completedStages'].append('M')
             if execute_n:
                 if not quality['trackPrototypeEligible']:
@@ -91,9 +92,9 @@ def run(source,grid,out_dir,execute_m=False,execute_n=False):
                     handoff=inspect_files(m_file,grid)
                     report['p234abHandoff']=handoff
                     from p2_34n_track_candidate import build as n_build
-                    n_build(source,m_file,out_dir/N_DIR)
+                    audit=n_build(source,m_file,out_dir/N_DIR)
+                    report.update(check_n(audit,out_dir/N_DIR,m_file,PINS))
                     report['completedStages'].append('N')
-                    report['p234nCandidateSHA256']=hashfile(out_dir/N_DIR/'P234N_source84_track_cut_PROTOTYPE.step')
         except Exception as e:
             report['blockedReasons'].append('NATIVE_EXECUTION_FAILED:'+type(e).__name__+':'+str(e))
     report['status']='NATIVE_STAGED_SOURCE_RUN_G2_HOLD' if report['completedStages'] else 'BLOCKED_SOURCE_OR_EXECUTION_G2_HOLD'
