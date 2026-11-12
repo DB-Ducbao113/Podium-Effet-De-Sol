@@ -135,6 +135,10 @@ try{
    const images=new Map();
    const rows=[];
    for(const step of steps){
+    const previousR3fFrame=await canvas.evaluate(el=>{
+     const raw=el.dataset.pedsModelBRenderFrame;
+     return raw===undefined?0:Number(raw);
+    });
     await page.evaluate(fraction=>{
      const track=document.querySelector('.mb-build-track');
      if(!track)throw Error('Model B scroll track absent');
@@ -148,7 +152,20 @@ try{
      return slider instanceof HTMLInputElement&&
       Math.abs(Number(slider.value)/1000-fraction)<.012;
     },step.progress,{timeout:6000});
-    await page.waitForTimeout(800);
+    // The DOM scrubber reaches the target before R3F's smoothed camera.
+    // Require the actual Model B THREE scene AND camera to settle in at
+    // least two subsequent frames before inspecting native CAD pixels.
+    await page.waitForFunction(({target,firstFrame})=>{
+     const el=document.querySelector('.mb-build-stage canvas');
+     if(!(el instanceof HTMLCanvasElement))return false;
+     const frame=Number(el.dataset.pedsModelBRenderFrame);
+     const progress=Number(el.dataset.pedsModelBSceneProgress);
+     const cameraError=Number(el.dataset.pedsModelBCameraErrorM);
+     return el.dataset.pedsModelBSceneSettled==='true'&&
+       Number.isSafeInteger(frame)&&frame>=firstFrame+2&&
+       Number.isFinite(progress)&&Math.abs(progress-target)<=.004&&
+       Number.isFinite(cameraError)&&cameraError<=.015;
+    },{target:step.progress,firstFrame:previousR3fFrame},{timeout:18000});
     // P2.47: distinguish scheduled drawRange counts from real Three.js
     // onAfterRender callbacks. A range request alone is NOT GPU evidence.
     const dots=await canvas.evaluate(el=>{
@@ -177,8 +194,13 @@ try{
     });
     const sha256=createHash('sha256').update(png).digest('hex');
     images.set(step.label,png);
+    const converged=await canvas.evaluate(el=>({
+     actualSceneProgress:Number(el.dataset.pedsModelBSceneProgress),
+     cameraErrorM:Number(el.dataset.pedsModelBCameraErrorM),
+     sceneSettled:el.dataset.pedsModelBSceneSettled,
+    }));
     rows.push({step:step.label,progress:step.progress,sha256,
-     actualGpuDotDraw:dots,
+     actualSceneConvergence:converged,actualGpuDotDraw:dots,
      foregroundFraction:audit.foregroundFraction,bounds:audit.bounds});
     await writeFile(join(destination,layout.label+'-'+step.label+'.png'),png);
     shots++;
@@ -226,8 +248,13 @@ try{
    const progressFocused=Number(await page.locator('.mb-build-scrubber').inputValue());
    if(Math.abs(progressFocused-progressBefore)>12)
     throw Error('Selecting original CAD source hijacked the user scroll position');
-   // Save a real selected CAD mesh close-up, not merely the inspector text.
-   await page.waitForTimeout(800);
+   // The source part can be verified while the camera is still flying
+   // toward it; wait for actual 3D camera convergence before the PNG.
+   await page.waitForFunction(()=>{
+    const el=document.querySelector('.mb-build-stage canvas');
+    return el?.dataset.pedsModelBSceneSettled==='true'&&
+      Number(el.dataset.pedsModelBCameraErrorM)<=.015;
+   },undefined,{timeout:18000});
    const xrayDotCount=await canvas.evaluate(el=>{
     const scheduled=el.dataset.pedsModelBInspectionCadDots;
     const rendered=el.dataset.pedsModelBRenderedInspectionDots;
@@ -260,7 +287,12 @@ try{
    const progressRestored=Number(await page.locator('.mb-build-scrubber').inputValue());
    if(Math.abs(progressRestored-progressBefore)>12)
     throw Error('Clearing CAD X-ray changed the scroll position');
-   await page.waitForTimeout(900);
+   await page.waitForFunction(()=>{
+    const el=document.querySelector('.mb-build-stage canvas');
+    return el?.dataset.pedsModelBSceneSettled==='true'&&
+      Number(el.dataset.pedsModelBCameraErrorM)<=.015&&
+      Number(el.dataset.pedsModelBRenderedInspectionDots)===0;
+   },undefined,{timeout:18000});
    const selectedPointsAfterClear=await canvas.evaluate(el=>{
     const value=el.dataset.pedsModelBRenderedInspectionDots;
     return value===undefined?NaN:Number(value);
