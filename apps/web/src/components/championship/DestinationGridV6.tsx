@@ -1,10 +1,9 @@
 import { ArrowUpRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { GrandPrixRound, SeasonYear } from '../../types';
-import './destinationGridV6.css';
 
 type Mode = 'results'|'calendar';
-export type DestinationState = 'verified'|'awaiting'|'current'|'upcoming';
+export type DestinationState = 'verified'|'completed'|'awaiting'|'current'|'upcoming';
 export type DestinationItem = GrandPrixRound & { destinationState?: DestinationState };
 type Props = {
   season: SeasonYear;
@@ -15,6 +14,7 @@ type Props = {
 
 const labelState: Record<DestinationState,{vi:string;en:string}>={
   verified:{vi:'Đã có kết quả',en:'Results available'},
+  completed:{vi:'Đã diễn ra',en:'Completed weekend'},
   awaiting:{vi:'Chờ kết quả',en:'Awaiting results'},
   current:{vi:'Đang diễn ra',en:'Current weekend'},
   upcoming:{vi:'Sắp tới',en:'Upcoming'},

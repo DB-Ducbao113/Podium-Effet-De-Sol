@@ -356,7 +356,7 @@ export function ChampionshipCalendar({ season }: { season: SeasonYear }) {
         <DestinationGridV6 season={season} lang={lang} mode="calendar"
           items={calendar.map((race):DestinationItem=>({
             ...race,
-            destinationState:states.get(race.round)==='completed'?'verified':
+            destinationState:states.get(race.round)==='completed'?'completed':
               states.get(race.round)==='current'?'current':'upcoming',
           }))}/>
       ) : (
