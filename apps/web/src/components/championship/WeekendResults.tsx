@@ -42,6 +42,8 @@ import {
   resolveResultSession,
 } from "./resultSelection";
 import "./championshipC11.css";
+import "./resultsV5.css";
+import { ResultsV5Podium } from "./ResultsV5Podium";
 
 const SHORT: Record<ResultSessionKey, string> = {
   fp1: "FP1",
@@ -458,13 +460,22 @@ export function WeekendResults({ season }: { season: SeasonYear }) {
   return (
     <section
       ref={shellRef}
-      className="c11-results rc-race-center"
+      className="c11-results rc-race-center results-v5"
       data-motion-engine={motionEnabled ? "animejs" : "static"}
       aria-label={lang === "vi" ? "Trung tâm kết quả đua" : "Race Center"}
     >
       <header className="results-simple-head">
-        <h2>{lang === "vi" ? "Kết quả chặng" : "Race results"}</h2>
-        <p>{resultsRoundCount}/{calendar.length} {lang === "vi" ? "chặng có kết quả" : "rounds with results"}</p>
+        <div className="results-v5__intro">
+          <span className="results-v5__eyebrow">{lang === "vi" ? "LƯU TRỮ GIẢI ĐUA" : "RACE ARCHIVE"} / {season}</span>
+          <h2>{lang === "vi" ? <>Kết quả <em>chặng đua.</em></> : <>Race <em>results.</em></>}</h2>
+          <p className="results-v5__lede">{lang === "vi" ? "Chọn chặng và phiên để xem bảng phân hạng từ nguồn dữ liệu đã xác minh." : "Explore sourced classifications by round and session."}</p>
+          <a className="results-v5__jump" href="#c11-classification">{lang === "vi" ? "Đến bảng phân hạng" : "View classification"} <span aria-hidden="true">↘</span></a>
+        </div>
+        <div className="results-v5__total" aria-label={lang === "vi" ? `${resultsRoundCount} trên ${calendar.length} chặng có kết quả` : `${resultsRoundCount} of ${calendar.length} rounds with results`}>
+          <strong>{String(resultsRoundCount).padStart(2,"0")}</strong>
+          <span>/{String(calendar.length).padStart(2,"0")}</span>
+          <small>{lang === "vi" ? "chặng có kết quả" : "rounds with results"}</small>
+        </div>
       </header>
       <div className="c11-pinned-controls rc-pinned-controls">
         <div
@@ -719,6 +730,9 @@ export function WeekendResults({ season }: { season: SeasonYear }) {
           )}
         </div>
       </header>
+      {(isRace || isSprint) && classification && !classification.partial && classificationPresentation === "final" && (
+        <ResultsV5Podium rows={classification.rows} season={season} lang={lang} sprint={isSprint}/>
+      )}
       <div
         id="c11-classification"
         role="tabpanel"
