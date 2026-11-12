@@ -39,6 +39,15 @@ describe("Championship in-page navigation", () => {
     expect(html).toContain('data-championship-refresh');
   });
 
+  it("leaves calendar to global navigation and preserves the immersive route", () => {
+    useChampionshipStore.setState({activeSubTab:"calendar"});
+    const html = render("/season/2026?tab=calendar");
+    expect(html).not.toContain('data-championship-tab="calendar"');
+    expect(html).not.toContain('aria-label="Championship sections"');
+    expect(html).toContain('cal-v5__world');
+    expect(html).toContain('All rounds');
+  });
+
   it("offers a drivers/constructors toggle on standings", () => {
     const html = render("/season/2026?tab=standings&category=drivers");
     expect(html).toContain("f4-category-toggle");

@@ -109,6 +109,8 @@ export function RaceCalendarJourney({ season }: { season: SeasonYear }) {
     '--cal-v5-blue': backdrop.blue.toFixed(3),
     '--cal-v5-violet': backdrop.violet.toFixed(3),
     '--cal-v5-shift': backdrop.shift.toFixed(1) + 'px',
+    '--cal-v5-shift-blue': (-backdrop.shift*.6).toFixed(1) + 'px',
+    '--cal-v5-shift-violet': (backdrop.shift*.35).toFixed(1) + 'px',
   } as CSSProperties;
   const activeGeo = active ? resolveCircuit(active) : null;
 

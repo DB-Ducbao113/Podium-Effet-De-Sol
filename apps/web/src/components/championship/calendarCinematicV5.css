@@ -47,12 +47,12 @@
 .cal-v5__world .cal-v5__ambient--blue {
   opacity:var(--cal-v5-blue,.4);
   background:radial-gradient(ellipse 58% 69% at 12% 33%,rgba(55,185,196,.34),transparent 79%);
-  transform:translate3d(calc(var(--cal-v5-shift,0px) * -.6),0,0);
+  transform:translate3d(var(--cal-v5-shift-blue,0px),0,0);
 }
 .cal-v5__world .cal-v5__ambient--violet {
   opacity:var(--cal-v5-violet,.35);
   background:radial-gradient(ellipse 58% 66% at 75% 13%,rgba(176,95,150,.27),transparent 82%);
-  transform:translate3d(calc(var(--cal-v5-shift,0px) * .35),0,0);
+  transform:translate3d(var(--cal-v5-shift-violet,0px),0,0);
 }
 .cal-v5__world .rcj-map-stage::after {
   background:
@@ -415,16 +415,8 @@
 /* Fully reversible enter/hold/exit; do not animate interactive rail rows. */
 @supports (animation-timeline:view()) {
   @media (prefers-reduced-motion:no-preference) {
-    .cal-v5__detail :is(.cal-v5__detail-copy,.cal-next-copy,.cal-next-side,.cal-section-head,.cal-racecard-body,.cal-selected-heading) {
+    .cal-v5__detail :is(.cal-v5__detail-copy,.cal-feature,.cal-weekend,.cal-cards .cal-racecard,.cal-selected-host) {
       animation:cal-v5-in-out linear both;
-      animation-timeline:view(block);
-      animation-range:cover 0% cover 100%;
-    }
-    .cal-v5__detail .cal-next-visual::before {
-      content:"";
-      position:absolute;inset:0;z-index:1;pointer-events:none;
-      background:linear-gradient(110deg,transparent 25%,rgba(241,182,137,.2) 49%,transparent 68%);
-      animation:cal-v5-light linear both;
       animation-timeline:view(block);
       animation-range:cover 0% cover 100%;
     }
@@ -434,11 +426,6 @@
   0% {opacity:.55;transform:translate3d(-32px,24px,0);}
   24%,76% {opacity:1;transform:none;}
   100% {opacity:.55;transform:translate3d(32px,-24px,0);}
-}
-@keyframes cal-v5-light {
-  0% {opacity:0;transform:translate3d(-14%,0,0);}
-  30%,70% {opacity:.75;transform:none;}
-  100% {opacity:0;transform:translate3d(14%,0,0);}
 }
 @media (max-width:860px) {
   .cal-v5__detail .cal-layout {padding:.75rem;gap:.85rem;}
@@ -469,4 +456,10 @@
 }
 .f4-championship[data-text-zoom="400"] .cal-v5__detail .cal-layout {
   grid-template-columns:minmax(0,1fr);
+}
+
+/* Selected interactive content stays fully visible on keyboard focus. */
+.cal-v5__detail :is(.cal-feature,.cal-cards .cal-racecard,.cal-selected-host):focus-within {
+  opacity:1!important;
+  transform:none!important;
 }
