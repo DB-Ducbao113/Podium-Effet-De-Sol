@@ -22,7 +22,7 @@ import {sourceOnlyModelBCamera} from './modelBSourceOnlyCamera';
 import {frameOriginalModelB,originalModelBFitsFrame} from './modelBFraming';
 import {buildOwnerSourceParticles,ownerParticleOpacity} from './ownerSourceParticles';
 import {sourceBodyMeshKey,sourceBodyMeshPhase,sourceBodyVisualDisplacement} from './sourceOnlyMeshMotion';
-import {sourceBodyWorldRevealStrength,worldDeltaToParentLocal} from './sourceWorldReveal';
+import {sourceBodyWorldRevealStrength,sourceMeshOwnWorldBounds,worldDeltaToParentLocal} from './sourceWorldReveal';
 import {accessibleAssemblyFraction,accessibleShellOpacity} from './accessibleAssemblyPose';
 import {sourceMaterialFrame,type SourceMaterialState} from './sourceShellMaterialState';
 import {applyCadViewerAppearance,cadPreviewAppearance,
@@ -366,16 +366,25 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
        opacity:material.opacity,depthWrite:material.depthWrite,
      }));
      const materials=copyMaterials(o,owned);
-     const box=new THREE.Box3().setFromObject(o);
-     const center=box.getCenter(new THREE.Vector3());
-     // Box3.setFromObject has ALREADY applied the mesh's world transform,
-     // including shellScale. A second scale multiplication was incorrect.
-     const extent=box.getSize(new THREE.Vector3()).length();
+     // Three.js Box3.setFromObject includes child meshes, which caused
+     // small authentic body pieces to inherit a giant chassis extent.
+     // Measure THIS source geometry only, after its exact world matrix.
+     if(!o.geometry.boundingBox)o.geometry.computeBoundingBox();
+     const ownBox=o.geometry.boundingBox;
      // Duplicate/unnamed GLB nodes keep distinct deterministic phases.
      const sourceKey=sourceBodyMeshKey(o.name,meshOrdinal++);
-     const strength=sourceBodyWorldRevealStrength(
-       extent,sourceBodyMeshPhase(sourceKey));
-     // Existing GLB body mesh nodes only; giant chassis surfaces remain fixed.
+     let strength=0;
+     const center=new THREE.Vector3();
+     if(ownBox&&!ownBox.isEmpty()){
+       const measured=sourceMeshOwnWorldBounds(
+         [ownBox.min.x,ownBox.min.y,ownBox.min.z],
+         [ownBox.max.x,ownBox.max.y,ownBox.max.z],
+         o.matrixWorld.elements);
+       center.set(...measured.center);
+       strength=sourceBodyWorldRevealStrength(
+         measured.diagonal,sourceBodyMeshPhase(sourceKey));
+     }
+     // Existing GLB geometry only; giant chassis surfaces remain fixed.
      const direction=new THREE.Vector3(
        center.x>0?1:-1,center.y>0?.7:-.5,center.z>=0?1:-1);
      // Offset expressed in WORLD metres, then mapped into the mesh's
