@@ -16,7 +16,7 @@ import {
 import {chapterAt,clamp01,MODEL_B_CHAPTERS} from './modelBAssemblyTimeline';
 import {modelBChapterTruth} from './modelBChapterTruth';
 import {modelBSourceCoverage} from './modelBSourceCoverage';
-import {assemblyScrollTop} from './assemblyScrubPosition';
+import {assemblyScrollTop,assemblyScrollProgress} from './assemblyScrubPosition';
 import {readLocalAutoCadIndex,type AutoCadRow} from './localSourceIndex';
 import {ORIGINAL_MODEL_B_SOURCE} from './originalModelBSource';
 import type {OwnerMeasuredFit} from '../assemblyPreview/ownerMeasuredFit';
@@ -134,8 +134,9 @@ export default function ModelBAssemblyPage(){
      const node=track.current;
      if(!node)return;
      const rect=node.getBoundingClientRect();
-     const max=Math.max(1,rect.height-window.innerHeight);
-     const next=clamp01(-rect.top/max);
+     const absoluteTop=window.scrollY+rect.top;
+     const next=assemblyScrollProgress(absoluteTop,rect.height,
+       window.innerHeight,window.scrollY);
      progressRef.current=next;
      setProgress(prior=>Math.abs(prior-next)>.002?next:prior);
    };
@@ -160,22 +161,24 @@ export default function ModelBAssemblyPage(){
  const scrubTo=useCallback((fraction:number)=>{
    const node=track.current;
    if(!node)return;
-   const top=window.scrollY+node.getBoundingClientRect().top;
-   const y=assemblyScrollTop(top,node.getBoundingClientRect().height,
-     window.innerHeight,fraction);
+   const rect=node.getBoundingClientRect();
+   const top=window.scrollY+rect.top;
+   const bounded=clamp01(fraction);
+   const y=assemblyScrollTop(top,rect.height,
+     window.innerHeight,bounded);
    // Direct manipulation must not lag behind an in-flight smooth chapter jump.
    window.scrollTo({top:y,behavior:'instant'});
-   progressRef.current=fraction;
-   setProgress(fraction);
+   progressRef.current=bounded;
+   setProgress(bounded);
  },[]);
  const jumpTo=useCallback((index:number)=>{
    const node=track.current;
    const chapter=MODEL_B_CHAPTERS[index];
    if(!node||!chapter)return;
-   const top=window.scrollY+node.getBoundingClientRect().top;
-   const length=Math.max(1,node.getBoundingClientRect().height-window.innerHeight);
-   window.scrollTo({top:top+length*chapter.start,
-      behavior:reducedMotion?'instant':'smooth'});
+   const rect=node.getBoundingClientRect();
+   const top=window.scrollY+rect.top;
+   const y=assemblyScrollTop(top,rect.height,window.innerHeight,chapter.start);
+   window.scrollTo({top:y,behavior:reducedMotion?'instant':'smooth'});
  },[reducedMotion]);
  const handleReady=useCallback((id:StageId,meshCount:number)=>{
    setReady(old=>old[id]===meshCount?old:{...old,[id]:meshCount});
