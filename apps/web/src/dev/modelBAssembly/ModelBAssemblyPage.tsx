@@ -56,6 +56,7 @@ export default function ModelBAssemblyPage(){
  const [finalCarFitsScreen,setFinalCarFitsScreen]=useState<boolean|null>(null);
  const [inspectedPart,setInspectedPart]=useState<InspectedCadPart|null>(null);
  const [focusedCadPart,setFocusedCadPart]=useState<InspectedCadPart|null>(null);
+ const [xrayRenderedCadPart,setXrayRenderedCadPart]=useState<InspectedCadPart|null>(null);
  const [catalogOpen,setCatalogOpen]=useState(false);
  const [reducedMotion,setReducedMotion]=useState(()=>{
    return typeof window!=='undefined'&&
@@ -200,6 +201,8 @@ export default function ModelBAssemblyPage(){
  },[]);
  const handleFocusVerified=useCallback(
    (part:InspectedCadPart|null)=>setFocusedCadPart(part),[]);
+ const handleXrayRenderVerified=useCallback(
+   (part:InspectedCadPart|null)=>setXrayRenderedCadPart(part),[]);
  const handleCatalogSelect=useCallback((part:InspectedCadPart)=>{
    // P2.40: inspect the original selected part at ANY chapter without
    // hijacking the user's scrollbar. The source-only CAD camera focuses
@@ -211,6 +214,7 @@ export default function ModelBAssemblyPage(){
    setMountedCadAudit(null);
    setInspectedPart(null);
    setFocusedCadPart(null);
+   setXrayRenderedCadPart(null);
    setCatalogOpen(false);
    setReady(previous=>{
      const next:Partial<Record<StageId,number>>={};
@@ -278,10 +282,15 @@ export default function ModelBAssemblyPage(){
  });
  const mountedSceneVerified=mountedCadAudit?.sourceNamesExact===true;
  const cadLoaded=coverage.p28Verified&&mountedSceneVerified;
- const xrayFocusVerified=Boolean(inspectedPart&&focusedCadPart&&
+ const focusGeometryVerified=Boolean(inspectedPart&&focusedCadPart&&
    inspectedPart.partId===focusedCadPart.partId&&
    inspectedPart.wheelStation===focusedCadPart.wheelStation&&
    inspectedPart.origin===focusedCadPart.origin);
+ const xrayCompositingVerified=Boolean(inspectedPart&&xrayRenderedCadPart&&
+   inspectedPart.partId===xrayRenderedCadPart.partId&&
+   inspectedPart.wheelStation===xrayRenderedCadPart.wheelStation&&
+   inspectedPart.origin===xrayRenderedCadPart.origin);
+ const xrayFocusVerified=focusGeometryVerified&&xrayCompositingVerified;
  const p28PartIds=useMemo(()=>corner?.parts.map(x=>x.node)??[],[corner]);
  const rearToePartIds=useMemo(()=>rearToe?.manifest.partIds??null,[rearToe]);
  const splitPartIds=useMemo(()=>splitRace?.manifest.newPartNames??null,[splitRace]);
@@ -308,6 +317,7 @@ export default function ModelBAssemblyPage(){
               onMountedCadAudit={handleMountedCadAudit}
               onFramingVerified={handleFraming}
               onInspect={handlePartInspect} onFocusVerified={handleFocusVerified}
+              onXrayRenderVerified={handleXrayRenderVerified}
               selectedPart={inspectedPart}
               onError={handleError}/>
          </Suspense>
@@ -410,6 +420,7 @@ export default function ModelBAssemblyPage(){
          data-model-b-scene-truth={truth.kind}
          data-model-b-source-review-stage={coverage.stage}
          data-model-b-cad-verified-meshes={coverage.verifiedCadMeshes}
+         data-model-b-cad-xray-compositing={xrayCompositingVerified?'PASS':'OFF'}
          data-model-b-cad-xray-active={xrayFocusVerified?'true':'false'}
          data-model-b-mounted-source-identity={mountedSceneVerified?'PASS':
            coverage.p28Verified?'HOLD':'NOT_LOADED'}
