@@ -23,6 +23,7 @@ import {frameOriginalModelB,originalModelBFitsFrame} from './modelBFraming';
 import {buildOwnerSourceParticles,ownerParticleOpacity} from './ownerSourceParticles';
 import {sourceBodyMeshKey,sourceBodyMeshPhase,sourceBodyVisualDisplacement} from './sourceOnlyMeshMotion';
 import {auditMountedCadScene,type MountedCadSceneAudit} from './mountedCadSceneAudit';
+import {auditMountedCadIdentity} from './mountedCadIdentity';
 import {sourceBodyWorldRevealStrength,sourceMeshOwnWorldBounds,sourceMeshRevealWorldDirection,worldDeltaToParentLocal} from './sourceWorldReveal';
 import {accessibleAssemblyFraction,accessibleShellOpacity} from './accessibleAssemblyPose';
 import {sourceMaterialFrame,type SourceMaterialState} from './sourceShellMaterialState';
@@ -431,13 +432,36 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
  useEffect(()=>{
    if(!visual){onMountedCadAudit(null);return;}
    try{
-     onMountedCadAudit(auditMountedCadScene(visual.meshes));
+     const countAudit=auditMountedCadScene(visual.meshes);
+     const rearVisibleNames=new Set(visual.rearComposite?.visiblePartNames??[]);
+     const exact=auditMountedCadIdentity(visual.meshes,{
+       frontP28:originalPartNames,
+       rearP28:originalPartNames.filter(name=>
+         visibleInFourCornerPreview(name,'rear')),
+       rearToe:rear?rearToeNames.filter(name=>rearVisibleNames.has(name)):[],
+       rearJoint:split?P214_PARTS:[],
+     });
+     if(countAudit.mountedMeshInstances!==exact.checkedSourceMeshInstances)
+       throw Error('Mounted Model B source mesh count/name mismatch');
+     // Every approved visual mesh must exist in the actual scene tree.
+     // Merely passing a manifest/count is insufficient when a cloned wheel
+     // is accidentally detached, or a source geometry is empty.
+     for(const item of visual.meshes){
+       let node:THREE.Object3D|null=item.mesh;
+       while(node&&node!==visual.root)node=node.parent;
+       const position=item.mesh.geometry.getAttribute('position');
+       if(node!==visual.root||!position||position.itemSize!==3||
+          position.count<3)
+         throw Error('Original mounted CAD mesh detached/empty: '+
+           item.station+'/'+item.name);
+     }
+     onMountedCadAudit({...countAudit,sourceNamesExact:true});
    }catch(error){
      onMountedCadAudit(null);
      onError('Mounted original Model B CAD scene validation failed: '+
        String(error));
    }
- },[visual,onMountedCadAudit,onError]);
+ },[visual,originalPartNames,rearToeNames,rear,split,onMountedCadAudit,onError]);
  useEffect(()=>()=>{
    if(!visual)return;
    visual.ownedMaterials.forEach(m=>m.dispose());
