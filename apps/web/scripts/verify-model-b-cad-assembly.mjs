@@ -169,7 +169,8 @@ try{
     throw Error('Original CAD source part inspection did not preserve G2 truth');
    await page.waitForFunction(()=>{
     const el=document.querySelector('.mb-build-source-wrap');
-    return el?.getAttribute('data-model-b-cad-xray-active')==='true';
+    return el?.getAttribute('data-model-b-cad-xray-active')==='true'&&
+      el.getAttribute('data-model-b-cad-xray-compositing')==='PASS';
    },undefined,{timeout:12000});
    const progressFocused=Number(await page.locator('.mb-build-scrubber').inputValue());
    if(Math.abs(progressFocused-progressBefore)>12)
@@ -190,7 +191,8 @@ try{
    await page.getByRole('button',{name:'Clear selected CAD part'}).click();
    await page.waitForFunction(()=>{
     const el=document.querySelector('.mb-build-source-wrap');
-    return el?.getAttribute('data-model-b-cad-xray-active')==='false';
+    return el?.getAttribute('data-model-b-cad-xray-active')==='false'&&
+      el.getAttribute('data-model-b-cad-xray-compositing')==='OFF';
    },undefined,{timeout:12000});
    const progressRestored=Number(await page.locator('.mb-build-scrubber').inputValue());
    if(Math.abs(progressRestored-progressBefore)>12)
