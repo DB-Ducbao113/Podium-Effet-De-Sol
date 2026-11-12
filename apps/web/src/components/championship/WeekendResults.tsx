@@ -279,8 +279,8 @@ export function WeekendResults({ season }: { season: SeasonYear }) {
 
   if (round === null) {
     return (
-      <section className="c11-results">
-        <div className="c11-empty" role="status">
+      <section className="c11-results rc-race-center results-v5">
+        <div className="c11-empty results-v5__empty" role="status">
           {lang === "vi"
             ? "Chưa có vòng đua nào có phân hạng đã xác minh."
             : "No round has a verified classification yet."}
@@ -574,6 +574,16 @@ export function WeekendResults({ season }: { season: SeasonYear }) {
                 height={900}
                 loading="eager"
                 decoding="async"
+                onError={(event) => {
+                  const img = event.currentTarget;
+                  if (img.dataset.fallback === "true") {
+                    img.style.opacity = "0";
+                    return;
+                  }
+                  img.dataset.fallback = "true";
+                  img.parentElement?.querySelectorAll("source").forEach((node) => node.remove());
+                  img.src = `/images/championship/template/venue-${venuePlate}-1024.webp`;
+                }}
               />
             </>
           ) : (
@@ -596,6 +606,16 @@ export function WeekendResults({ season }: { season: SeasonYear }) {
                 height={585}
                 loading="lazy"
                 decoding="async"
+                onError={(event) => {
+                  const img = event.currentTarget;
+                  if (img.dataset.fallback === "true") {
+                    img.style.opacity = "0";
+                    return;
+                  }
+                  img.dataset.fallback = "true";
+                  img.parentElement?.querySelectorAll("source").forEach((node) => node.remove());
+                  img.src = `/images/championship/template/venue-${venuePlate}-1024.webp`;
+                }}
               />
             </>
           )}
