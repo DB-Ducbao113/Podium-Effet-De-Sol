@@ -53,6 +53,7 @@ export default function ModelBAssemblyPage(){
  const [measuredFit,setMeasuredFit]=useState<OwnerMeasuredFit|null>(null);
  const [rearComposite,setRearComposite]=useState<RearVisualParts|null>(null);
  const [mountedCadAudit,setMountedCadAudit]=useState<MountedCadSceneAudit|null>(null);
+ const [sampledCadVertexPoints,setSampledCadVertexPoints]=useState(0);
  const [finalCarFitsScreen,setFinalCarFitsScreen]=useState<boolean|null>(null);
  const [inspectedPart,setInspectedPart]=useState<InspectedCadPart|null>(null);
  const [focusedCadPart,setFocusedCadPart]=useState<InspectedCadPart|null>(null);
@@ -193,6 +194,8 @@ export default function ModelBAssemblyPage(){
    (info:RearVisualParts|null)=>setRearComposite(info),[]);
  const handleMountedCadAudit=useCallback(
    (audit:MountedCadSceneAudit|null)=>setMountedCadAudit(audit),[]);
+ const handleSourceCadDots=useCallback((samples:number)=>
+   setSampledCadVertexPoints(samples),[]);
  const handleFraming=useCallback(
    (fits:boolean|null)=>setFinalCarFitsScreen(fits),[]);
  const handlePartInspect=useCallback((part:InspectedCadPart)=>{
@@ -212,6 +215,7 @@ export default function ModelBAssemblyPage(){
  },[handlePartInspect]);
  const resetReady=useCallback((kind:SourceName)=>{
    setMountedCadAudit(null);
+   setSampledCadVertexPoints(0);
    setInspectedPart(null);
    setFocusedCadPart(null);
    setXrayRenderedCadPart(null);
@@ -318,6 +322,7 @@ export default function ModelBAssemblyPage(){
               onFramingVerified={handleFraming}
               onInspect={handlePartInspect} onFocusVerified={handleFocusVerified}
               onXrayRenderVerified={handleXrayRenderVerified}
+              onSourceCadDotsReady={handleSourceCadDots}
               selectedPart={inspectedPart}
               onError={handleError}/>
          </Suspense>
@@ -352,6 +357,9 @@ export default function ModelBAssemblyPage(){
              <span> · REAR WHEEL ENDS: FRONT-SOURCE PROXY</span>}
            {mountedSceneVerified&&mountedCadAudit&&<span> · SCENE: {mountedCadAudit.mountedMeshInstances}
              {' '}SOURCE MESH INSTANCES / 4 WHEELS</span>}
+           {sampledCadVertexPoints>0&&
+             <span> · ORIGINAL P2.8 VERTEX DOTS:
+               {' '}{sampledCadVertexPoints} SAMPLED</span>}
          </p>
        </section>
        <nav className="mb-build-rail" aria-label="Model B assembly chapters">
@@ -426,6 +434,7 @@ export default function ModelBAssemblyPage(){
            coverage.p28Verified?'HOLD':'NOT_LOADED'}
          data-model-b-mounted-cad-meshes={mountedSceneVerified?
            mountedCadAudit?.mountedMeshInstances??0:0}
+         data-model-b-authentic-cad-vertex-dots={sampledCadVertexPoints}
          data-model-b-front-p28-per-station={mountedCadAudit?.frontP28PerStation??0}
          data-model-b-rear-p28-proxy-per-station={mountedCadAudit?.rearFrontSourceProxyPerStation??0}
          data-model-b-rear-toe-per-station={mountedCadAudit?.rearToePerStation??0}
