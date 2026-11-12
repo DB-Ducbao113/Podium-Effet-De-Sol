@@ -6,6 +6,7 @@ import * as THREE from 'three';
 export type OwnerSourceParticles={
  points:THREE.Points<THREE.BufferGeometry,THREE.PointsMaterial>;
  dispose:()=>void;
+ setAssemblyProgress:(progress:number)=>void;
  sampleCount:number;
  sampledMeshCount:number;
 };
@@ -48,7 +49,32 @@ export function buildOwnerSourceParticles(root:THREE.Group,budget=7200):OwnerSou
  }
  if(values.length===0)throw Error('Original Model B mesh vertices nonfinite');
  const geometry=new THREE.BufferGeometry();
- geometry.setAttribute('position',new THREE.Float32BufferAttribute(values,3));
+ // Immutable targets come only from the decoded GLB. Movement is visual:
+ // no point is interpreted as a new mechanical/CAD source part.
+ const targets=new Float32Array(values);
+ const renderPositions=new Float32Array(targets);
+ const positionAttribute=new THREE.BufferAttribute(renderPositions,3);
+ geometry.setAttribute('position',positionAttribute);
+ const halfSpan=Math.max(1,geometryFromPositionsSpan(targets)*.1);
+ const offsets=new Float32Array(targets.length);
+ for(let i=0;i<targets.length/3;i++){
+  // Fixed, repeatable particle travel; no random seeded source geometry.
+  const a=i*2.399963229728653;
+  const r=halfSpan*(.2+.8*((i*37)%101)/100);
+  offsets[i*3]=Math.cos(a)*r;
+  offsets[i*3+1]=Math.sin(a*1.37)*r*.68;
+  offsets[i*3+2]=Math.sin(a)*r;
+ }
+ let previousFraction=-1;
+ const setAssemblyProgress=(progress:number)=>{
+  const fraction=ownerParticleAssemblyFraction(progress);
+  if(fraction===previousFraction)return;
+  previousFraction=fraction;
+  const separation=1-fraction;
+  for(let j=0;j<targets.length;j++)
+   renderPositions[j]=targets[j]+offsets[j]*separation;
+  positionAttribute.needsUpdate=true;
+ };
  geometry.computeBoundingSphere();
  const material=new THREE.PointsMaterial({
   color:'#87929d',size:.073,sizeAttenuation:true,transparent:true,
@@ -58,8 +84,27 @@ export function buildOwnerSourceParticles(root:THREE.Group,budget=7200):OwnerSou
  points.name='verified-model-b-source-cad-vertices';
  points.frustumCulled=false;
  points.visible=false;
+ setAssemblyProgress(0);
  return {points,sampleCount:values.length/3,sampledMeshCount:source.length,
+         setAssemblyProgress,
          dispose:()=>{geometry.dispose();material.dispose();}};
+}
+
+function geometryFromPositionsSpan(positions:Float32Array):number{
+ let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity,minZ=Infinity,maxZ=-Infinity;
+ for(let i=0;i<positions.length;i+=3){
+  minX=Math.min(minX,positions[i]);maxX=Math.max(maxX,positions[i]);
+  minY=Math.min(minY,positions[i+1]);maxY=Math.max(maxY,positions[i+1]);
+  minZ=Math.min(minZ,positions[i+2]);maxZ=Math.max(maxZ,positions[i+2]);
+ }
+ return Math.hypot(maxX-minX,maxY-minY,maxZ-minZ);
+}
+
+/** Deterministic source-vertex convergence; 1 means exact original vertices. */
+export function ownerParticleAssemblyFraction(progress:number):number{
+ const p=Number.isFinite(progress)?Math.max(0,Math.min(1,progress)):0;
+ const t=Math.max(0,Math.min(1,(p-.12)/.58));
+ return t*t*(3-2*t);
 }
 
 /** Chapter-local accent: never claims mechanical fit and never obscures final car. */
