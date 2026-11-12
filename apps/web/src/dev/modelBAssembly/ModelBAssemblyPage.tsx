@@ -201,20 +201,12 @@ export default function ModelBAssemblyPage(){
  const handleFocusVerified=useCallback(
    (part:InspectedCadPart|null)=>setFocusedCadPart(part),[]);
  const handleCatalogSelect=useCallback((part:InspectedCadPart)=>{
+   // P2.40: inspect the original selected part at ANY chapter without
+   // hijacking the user's scrollbar. The source-only CAD camera focuses
+   // directly on its authenticated geometry and the selected mesh temporarily
+   // adopts its authored final pose for viewing.
    handlePartInspect(part);
-   // A source-only part selected from the index at chapter 00 would be
-   // visually hidden by the staged build timeline. Move forward to an
-   // assembled-but-still-real-source review frame; direct WebGL clicks
-   // never change the user's scroll position.
-   if(progressRef.current<.85){
-     const node=track.current;
-     if(!node)return;
-     const top=window.scrollY+node.getBoundingClientRect().top;
-     const length=Math.max(1,node.getBoundingClientRect().height-window.innerHeight);
-     window.scrollTo({top:top+length*.95,
-       behavior:reducedMotion?'instant':'smooth'});
-   }
- },[handlePartInspect,reducedMotion]);
+ },[handlePartInspect]);
  const resetReady=useCallback((kind:SourceName)=>{
    setMountedCadAudit(null);
    setInspectedPart(null);
