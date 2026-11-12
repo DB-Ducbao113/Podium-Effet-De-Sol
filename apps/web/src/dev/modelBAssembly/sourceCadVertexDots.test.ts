@@ -82,6 +82,7 @@ describe('P2.44 original source CAD vertex-dot assembly',()=>{
   expect(layer.points.material.depthTest).toBe(false);
   expect(layer.points.material.depthWrite).toBe(false);
   expect(layer.points.renderOrder).toBe(850);
+  expect(layer.points.geometry.drawRange).toEqual({start:0,count:0});
   expect(layer.points.visible).toBe(false);
   expect(mesh.geometry.getAttribute('position').count).toBe(9000);
   layer.dispose();geometry.dispose();material.dispose();
@@ -96,6 +97,24 @@ describe('P2.44 original source CAD vertex-dot assembly',()=>{
   expect(layer.points.visible).toBe(false);
   layer.dispose();geometry.dispose();material.dispose();
  });
+ it('P2.46 keeps source GLB position buffer unchanged while reverse drawRange is scrubbed',()=>{
+  const {mesh,geometry,material,positions}=originalMesh(900);
+  const original=Array.from(positions);
+  const layer=buildSourceCadVertexDots(mesh,700);
+  const dotBuffer=layer.points.geometry.getAttribute('position').array;
+  for(let i=0;i<=700;i++){
+    layer.points.geometry.setDrawRange(0,i);
+    expect(layer.points.geometry.getAttribute('position').array)
+      .toBe(dotBuffer);
+  }
+  for(let i=700;i>=0;i--){
+    layer.points.geometry.setDrawRange(0,i);
+    expect(layer.points.geometry.drawRange.count).toBe(i);
+  }
+  expect(Array.from(positions)).toEqual(original);
+  expect(geometry.getAttribute('position').array).toBe(positions);
+  layer.dispose();geometry.dispose();material.dispose();
+ });
  it('renders selected source bolt points above its own CAD material only',()=>{
   const {mesh,geometry,material}=originalMesh();
   const layer=buildSourceCadVertexDots(mesh,300,true);
@@ -103,6 +122,7 @@ describe('P2.44 original source CAD vertex-dot assembly',()=>{
   expect(layer.points.renderOrder).toBe(1002);
   expect(layer.points.material.depthTest).toBe(false);
   expect(layer.points.material.depthWrite).toBe(false);
+  expect(layer.points.geometry.drawRange).toEqual({start:0,count:300});
   expect(layer.sampleCount).toBe(300);
   layer.dispose();geometry.dispose();material.dispose();
  });
