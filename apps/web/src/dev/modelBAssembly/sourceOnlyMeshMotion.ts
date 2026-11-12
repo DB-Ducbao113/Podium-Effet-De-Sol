@@ -21,3 +21,10 @@ export function sourceBodyMeshSeparation(progress:number,name:string):number{
  const inbound=1-smooth(.60+.08*phase,.76+.08*phase,p);
  return .70*outbound*inbound;
 }
+
+/** Source traversal identity distinguishes unnamed and duplicate-name GLB nodes. */
+export function sourceBodyMeshKey(name:string,ordinal:number):string{
+ if(!Number.isSafeInteger(ordinal)||ordinal<0)
+  throw Error('Invalid source mesh ordinal');
+ return name+'#'+ordinal;
+}
