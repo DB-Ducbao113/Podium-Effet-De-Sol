@@ -19,6 +19,7 @@
   --dir6-hair: #c8c4ba;
   --dir6-dark: #121514;
   --dir6-deep: #0b0f0e;
+  --dir6-driver-field: #151b19;
   --dir6-coral: #d16a49;
   background: var(--dir6-paper);
   color: var(--dir6-ink);
@@ -262,7 +263,7 @@
   min-width:0;
   min-height:138px;
   padding:15px 17px 16px;
-  background:linear-gradient(145deg,color-mix(in srgb,var(--driver-editorial) 22%,#171e1a),#111816 85%);
+  background:linear-gradient(145deg,color-mix(in srgb,var(--driver-editorial) 22%,#171e1a),var(--dir6-driver-field,#151b19) 85%);
 }
 .p5-driver-card--directory .p5-driver-card-top {
   display:flex;align-items:center;justify-content:space-between;
