@@ -22,6 +22,7 @@ import {sourceOnlyModelBCamera} from './modelBSourceOnlyCamera';
 import {frameOriginalModelB,originalModelBFitsFrame} from './modelBFraming';
 import {buildOwnerSourceParticles,ownerParticleOpacity} from './ownerSourceParticles';
 import {sourceBodyMeshKey,sourceBodyMeshSeparation} from './sourceOnlyMeshMotion';
+import {sourceMaterialFrame,type SourceMaterialState} from './sourceShellMaterialState';
 import {applyCadViewerAppearance,cadPreviewAppearance,
  type CadAppearance} from './cadPreviewMaterials';
 import {inspectOriginalCadMesh,type InspectedCadPart} from './cadPartInspector';
@@ -343,7 +344,7 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
    [analyticFinalFrame,onFramingVerified]);
  const [shellVisuals,setShellVisuals]=useState<{
    mesh:THREE.Mesh;origin:THREE.Vector3;offset:THREE.Vector3;
-   sourceKey:string;baseOpacity:number;materials:THREE.Material[];
+   sourceKey:string;materialStates:SourceMaterialState[];materials:THREE.Material[];
  }[]>([]);
  useEffect(()=>{
    const body=original?.model;
@@ -358,6 +359,10 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
    body.traverse(o=>{
      if(!(o instanceof THREE.Mesh))return;
      saved.set(o,o.material);
+     const originals=Array.isArray(o.material)?o.material:[o.material];
+     const materialStates=originals.map(material=>({
+       opacity:material.opacity,depthWrite:material.depthWrite,
+     }));
      const materials=copyMaterials(o,owned);
      const box=new THREE.Box3().setFromObject(o);
      const center=box.getCenter(new THREE.Vector3());
@@ -384,7 +389,7 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
          addReversibleWheelWindow(m,tmp.clone(),fit,showroomWheelMask);
      }
      records.push({mesh:o,origin:o.position.clone(),offset,sourceKey,
-       baseOpacity:materials[0]?.opacity??1,materials});
+       materialStates,materials});
    });
    setShellVisuals(records);
    return()=>{
@@ -449,10 +454,11 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
      const meshSeparation=showCad?separation:
        sourceBodyMeshSeparation(p,item.sourceKey);
      item.mesh.position.copy(item.origin).addScaledVector(item.offset,meshSeparation);
-     for(const material of item.materials){
-       material.opacity=item.baseOpacity*shellOpacity;
-       material.depthWrite=shellOpacity>.92;
-     }
+     item.materials.forEach((material,index)=>{
+       const state=sourceMaterialFrame(item.materialStates[index],shellOpacity);
+       material.opacity=state.opacity;
+       material.depthWrite=state.depthWrite;
+     });
    }
    if(visual){
      for(const item of visual.meshes){
