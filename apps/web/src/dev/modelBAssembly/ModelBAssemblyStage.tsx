@@ -21,6 +21,7 @@ import {ORIGINAL_MODEL_B_SOURCE,verifyOriginalModelBBinary} from './originalMode
 import {sourceOnlyModelBCamera} from './modelBSourceOnlyCamera';
 import {frameOriginalModelB,originalModelBFitsFrame} from './modelBFraming';
 import {buildOwnerSourceParticles,ownerParticleOpacity} from './ownerSourceParticles';
+import {sourceBodyMeshSeparation} from './sourceOnlyMeshMotion';
 import {applyCadViewerAppearance,cadPreviewAppearance,
  type CadAppearance} from './cadPreviewMaterials';
 import {inspectOriginalCadMesh,type InspectedCadPart} from './cadPartInspector';
@@ -28,7 +29,7 @@ import {locateSelectedCadMesh,sourceMeshWorldCentre,highlightSourceMaterials} fr
 import type {WheelId} from '../assemblyPreview/fourCornerLayout';
 import {
  clamp01,exteriorSeparation,originalPartAssembly,rearSourceAssembly,
- visualShellOpacity,wheelOffset,stablePartOffset,originalBodySourceOnlySeparation,
+ visualShellOpacity,wheelOffset,stablePartOffset,
 } from './modelBAssemblyTimeline';
 
 type ProgressRef=RefObject<number>;
@@ -428,14 +429,15 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
    const shellOpacity=visualShellOpacity(p,showCad);
    // P2.35 source-only mode still animates the owner's existing body mesh
    // nodes, rather than showing a motionless exterior until private CAD loads.
-   const separation=showCad?exteriorSeparation(p,true):
-     originalBodySourceOnlySeparation(p);
+   const separation=showCad?exteriorSeparation(p,true):0;
    // Preserve the four original showroom tyres until their exact CAD
    // replacements start arriving, then hide duplicate dark tyre volumes.
    showroomWheelMask.value=showCad?
      originalPartAssembly('P2_TYRE_SLICK_BODY',p):0;
    for(const item of shellVisuals){
-     item.mesh.position.copy(item.origin).addScaledVector(item.offset,separation);
+     const meshSeparation=showCad?separation:
+       sourceBodyMeshSeparation(p,item.mesh.name);
+     item.mesh.position.copy(item.origin).addScaledVector(item.offset,meshSeparation);
      for(const material of item.materials){
        material.opacity=item.baseOpacity*shellOpacity;
        material.depthWrite=shellOpacity>.92;
