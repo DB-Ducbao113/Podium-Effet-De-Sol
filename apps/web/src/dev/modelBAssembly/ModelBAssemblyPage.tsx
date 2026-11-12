@@ -15,6 +15,7 @@ import {
 } from '../assemblyPreview/splitRaceSource';
 import {chapterAt,clamp01,MODEL_B_CHAPTERS} from './modelBAssemblyTimeline';
 import {modelBChapterTruth} from './modelBChapterTruth';
+import {assemblyScrollTop} from './assemblyScrubPosition';
 import {readLocalAutoCadIndex,type AutoCadRow} from './localSourceIndex';
 import {ORIGINAL_MODEL_B_SOURCE} from './originalModelBSource';
 import type {OwnerMeasuredFit} from '../assemblyPreview/ownerMeasuredFit';
@@ -155,6 +156,17 @@ export default function ModelBAssemblyPage(){
    });
    return()=>{animation.revert();};
  },[chapter.id,reducedMotion]);
+ const scrubTo=useCallback((fraction:number)=>{
+   const node=track.current;
+   if(!node)return;
+   const top=window.scrollY+node.getBoundingClientRect().top;
+   const y=assemblyScrollTop(top,node.getBoundingClientRect().height,
+     window.innerHeight,fraction);
+   // Direct manipulation must not lag behind an in-flight smooth chapter jump.
+   window.scrollTo({top:y,behavior:'instant'});
+   progressRef.current=fraction;
+   setProgress(fraction);
+ },[]);
  const jumpTo=useCallback((index:number)=>{
    const node=track.current;
    const chapter=MODEL_B_CHAPTERS[index];
@@ -432,9 +444,11 @@ export default function ModelBAssemblyPage(){
          </div>
          <div className="mb-build-progress">
            <span>SCROLL TO ASSEMBLE</span>
-           <div role="progressbar" aria-label="Model B visual assembly sequence" aria-valuenow={Math.round(progress*100)}
-             aria-valuemin={0} aria-valuemax={100}
-             className="mb-build-trackbar"><i style={{transform:'scaleX('+progress+')'}}/></div>
+           <input type="range" className="mb-build-scrubber"
+             aria-label="Scrub Model B assembly animation"
+             min={0} max={1000} step={1}
+             value={Math.round(progress*1000)}
+             onChange={event=>scrubTo(Number(event.currentTarget.value)/1000)}/>
            <span>{String(Math.round(progress*100)).padStart(3,'0')}%</span>
          </div>
          <div className="mb-build-footright">
