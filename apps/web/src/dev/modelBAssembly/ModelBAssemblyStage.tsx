@@ -37,7 +37,7 @@ import {sourceCadFocusDistance} from './sourceCadFocusFraming';
 import type {WheelId} from '../assemblyPreview/fourCornerLayout';
 import {
  clamp01,exteriorSeparation,originalPartAssembly,rearSourceAssembly,
- visualShellOpacity,wheelOffset,stablePartOffset,
+ visualShellOpacity,wheelOffset,stablePartOffset,originalPartAssemblyAtStation,
 } from './modelBAssemblyTimeline';
 
 type ProgressRef=RefObject<number>;
@@ -347,6 +347,8 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
  useEffect(()=>onFit(fit),[fit,onFit]);
  const shellScale=fit?.normalizedShellScale??OWNER_CALIBRATED_FALLBACK_SCALE;
  const showroomWheelMask=useMemo(()=>({value:0}),[original,fit]);
+ const showroomWheelMaskByStation=useMemo(
+   ()=>({value:[0,0,0,0]}),[original,fit]);
  const analyticFinalFrame=useMemo(()=>{
    if(!original?.probe)return null;
    const aspect=size.width/Math.max(1,size.height);
@@ -421,7 +423,8 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
      if(fit&&corner){
        tmp.multiplyMatrices(reverse,o.matrixWorld);
        for(const m of materials)
-         addReversibleWheelWindow(m,tmp.clone(),fit,showroomWheelMask);
+         addReversibleWheelWindow(m,tmp.clone(),fit,showroomWheelMask,
+           showroomWheelMaskByStation);
      }
      records.push({mesh:o,origin:o.position.clone(),offset,sourceKey,
        materialStates,materials});
@@ -432,7 +435,8 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
      for(const r of records)r.mesh.position.copy(r.origin);
      owned.forEach(m=>m.dispose());
    };
- },[original,fit,corner,shellScale,showroomWheelMask]);
+ },[original,fit,corner,shellScale,showroomWheelMask,
+   showroomWheelMaskByStation]);
  const visual=useMemo(()=>{
    if(!p28||!fit)return null;
    return createWheelVisual(p28.model,fit,rear?.model??null,split?.model??null);
@@ -570,9 +574,22 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
    const separation=showCad?exteriorSeparation(p,true):0;
    // Preserve the four original showroom tyres until their exact CAD
    // replacements start arriving, then hide duplicate dark tyre volumes.
+   // Keep the existing global mask for older viewer uses, but real four-
+   // corner shell shader masks follow the exact measured wheel station.
    showroomWheelMask.value=showCad?
      inspecting?1:accessibleAssemblyFraction(
        originalPartAssembly('P2_TYRE_SLICK_BODY',p),reducedMotion):0;
+   if(showCad&&fit){
+     for(let index=0;index<fit.wheels.length;index++){
+       const measured=fit.wheels[index];
+       const station=(measured.station+'-'+
+         (measured.side===1?'positive':'negative')+'-z') as WheelId;
+       showroomWheelMaskByStation.value[index]=inspecting?1:
+         accessibleAssemblyFraction(
+           originalPartAssemblyAtStation('P2_TYRE_SLICK_BODY',p,station),
+           reducedMotion);
+     }
+   }else showroomWheelMaskByStation.value.fill(0);
    for(const item of shellVisuals){
      const meshSeparation=sourceBodyVisualDisplacement(
        p,item.sourceKey,showCad,reducedMotion,separation);
@@ -586,7 +603,7 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
    if(visual){
      for(const item of visual.meshes){
        const authoredFraction=item.kind==='p28'?
-         originalPartAssembly(item.name,p):
+         originalPartAssemblyAtStation(item.name,p,item.station):
          rearSourceAssembly(p,item.kind==='rear-toe'?'toe':'joint',item.name);
        const nativeFraction=accessibleAssemblyFraction(
          authoredFraction,reducedMotion);
