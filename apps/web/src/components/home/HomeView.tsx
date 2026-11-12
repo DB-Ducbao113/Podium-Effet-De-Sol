@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { AdSlot } from "../ui/AdSlot";
 import { HomeRaceControl } from "./HomeRaceControl";
@@ -9,6 +9,7 @@ import { HomeCinematicBackground } from "./HomeCinematicBackground";
 import { chapterScrollTarget } from "./journey/homeChapterScroll";
 import { HomeEngineeringReveal } from "./engineering/HomeEngineeringReveal";
 import { useNextRace } from "./useNextRace";
+import { useHomeV5Choreography } from "./useHomeV5Choreography";
 import { useNavigationStore } from "../../store/useNavigationStore";
 import "./homepageH1.css";
 import "./homeLandingV3.css";
@@ -23,6 +24,8 @@ export function HomeView({ worldPreview = false }: { worldPreview?: boolean }) {
   const nextRace = useNextRace();
   const lang = useNavigationStore((state) => state.lang);
   const isVi = lang === "vi";
+  const homeRef = useRef<HTMLDivElement>(null);
+  useHomeV5Choreography(homeRef);
 
   useEffect(() => {
     if (location.hash !== "#championship-overview") return;
@@ -39,7 +42,7 @@ export function HomeView({ worldPreview = false }: { worldPreview?: boolean }) {
     import.meta.env.DEV && searchParams.get("design-review") === "ads";
 
   return (
-    <div className="r1-primary r1-home h1-home home-v3 home-v5 min-h-screen bg-studio-100">
+    <div ref={homeRef} className="r1-primary r1-home h1-home home-v3 home-v5 min-h-screen bg-studio-100">
       {!worldPreview && <HomeCinematicBackground />}
       <div className="home-v5__scrolly" data-home-v5-scroll>
         <PodiumBrandHero />

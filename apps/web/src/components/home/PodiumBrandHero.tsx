@@ -10,6 +10,7 @@ import { HomeCommandStrip } from './HomeCommandStrip';
 import { useNextRace } from './useNextRace';
 import { chapterScrollTarget } from './journey/homeChapterScroll';
 import { getV5HeroMotion } from './homeV5Motion';
+import { sampleV5Scene } from './homeV5Choreography';
 import './podiumHeroR1.css';
 import './homeHeroV7.css';
 
@@ -74,6 +75,23 @@ export function PodiumBrandHero() {
       root.style.setProperty('--v5-scene-three', motion.third.toFixed(3));
       root.style.setProperty('--v5-shift', motion.shift.toFixed(1) + 'px');
       root.style.setProperty('--v5-progress', motion.progress.toFixed(3));
+      const transition = sampleV5Scene(motion.progress);
+      const values: Record<string, string> = {
+        '--v5-first-x': transition.firstX.toFixed(1)+'px',
+        '--v5-first-mask': transition.firstMask.toFixed(1)+'%',
+        '--v5-second-x': transition.secondX.toFixed(1)+'px',
+        '--v5-second-mask-left': transition.secondMaskLeft.toFixed(1)+'%',
+        '--v5-second-mask-right': transition.secondMaskRight.toFixed(1)+'%',
+        '--v5-third-x': transition.thirdX.toFixed(1)+'px',
+        '--v5-third-mask': transition.thirdMask.toFixed(1)+'%',
+        '--v5-photo2-opacity': transition.photo2Opacity.toFixed(3),
+        '--v5-photo2-clip': transition.photo2Clip.toFixed(1)+'%',
+        '--v5-photo2-x': transition.photo2X.toFixed(1)+'px',
+        '--v5-photo3-opacity': transition.photo3Opacity.toFixed(3),
+        '--v5-photo3-clip': transition.photo3Clip.toFixed(1)+'%',
+        '--v5-photo3-x': transition.photo3X.toFixed(1)+'px',
+      };
+      for(const [key,value] of Object.entries(values))root.style.setProperty(key,value);
     };
     const schedule = () => {
       if (raf === 0) raf = requestAnimationFrame(update);
@@ -89,6 +107,11 @@ export function PodiumBrandHero() {
       for (const property of [
         '--v5-scene-one', '--v5-scene-two', '--v5-scene-three',
         '--v5-shift', '--v5-progress',
+        '--v5-first-x','--v5-first-mask','--v5-second-x',
+        '--v5-second-mask-left','--v5-second-mask-right',
+        '--v5-third-x','--v5-third-mask',
+        '--v5-photo2-opacity','--v5-photo2-clip','--v5-photo2-x',
+        '--v5-photo3-opacity','--v5-photo3-clip','--v5-photo3-x',
       ]) root.style.removeProperty(property);
     };
   }, [reducedMotion]);
@@ -163,6 +186,22 @@ export function PodiumBrandHero() {
           <div className="r1-cinema__scene-heading" aria-hidden="true">
             <span>LAUNCH CONTROL</span>
             <span>EDS / 01</span>
+          </div>
+          <div className="home-v5__transition-plates" aria-hidden="true">
+            <div className="home-v5__transition-plate home-v5__transition-plate--engineering">
+              <img src="/images/home/explore/engineering.webp" alt="" width="1600" height="900" decoding="async"
+                onError={(event) => {
+                  if (!event.currentTarget.src.endsWith("engineering-flow.svg"))
+                    event.currentTarget.src="/images/home/explore/engineering-flow.svg";
+                }} />
+            </div>
+            <div className="home-v5__transition-plate home-v5__transition-plate--drivers">
+              <img src="/images/home/explore/drivers.webp" alt="" width="1600" height="900" decoding="async"
+                onError={(event) => {
+                  if (!event.currentTarget.src.endsWith("driver-helmet.svg"))
+                    event.currentTarget.src="/images/home/explore/driver-helmet.svg";
+                }} />
+            </div>
           </div>
           <HomeRacePulseScene />
           <div className="home-v5__narrative" aria-hidden="true">
