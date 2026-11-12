@@ -261,6 +261,10 @@ try{
    const progressBefore=Number(await page.locator('.mb-build-scrubber').inputValue());
    if(!Number.isFinite(progressBefore)||progressBefore>20)
     throw Error('P2.40 X-ray must start at the early reveal chapter');
+   const beforeSelectFrame=await canvas.evaluate(el=>{
+    const value=el.dataset.pedsModelBRenderFrame;
+    return value===undefined?NaN:Number(value);
+   });
    await list.first().click();
    const inspector=page.locator('.mb-build-part-inspector');
    await inspector.waitFor({state:'visible',timeout:12000});
@@ -278,11 +282,24 @@ try{
     throw Error('Selecting original CAD source hijacked the user scroll position');
    // The source part can be verified while the camera is still flying
    // toward it; wait for actual 3D camera convergence before the PNG.
-   await page.waitForFunction(()=>{
+   await page.waitForFunction(previousFrame=>{
     const el=document.querySelector('.mb-build-webgl canvas');
-    return el?.dataset.pedsModelBSceneSettled==='true'&&
-      Number(el.dataset.pedsModelBCameraErrorM)<=.015;
-   },undefined,{timeout:18000});
+    if(!(el instanceof HTMLCanvasElement))return false;
+    const read=name=>el.dataset[name]===undefined?
+      NaN:Number(el.dataset[name]);
+    const frame=read('pedsModelBRenderFrame');
+    const issued=read('pedsModelBTargetIssuedFrame');
+    const scheduled=read('pedsModelBInspectionCadDots');
+    const rendered=read('pedsModelBRenderedInspectionDots');
+    return el.dataset.pedsModelBSceneSettled==='true'&&
+      Number.isSafeInteger(frame)&&Number.isSafeInteger(issued)&&
+      issued>previousFrame&&frame>=issued+2&&
+      read('pedsModelBCameraErrorM')<=.015&&
+      Number.isSafeInteger(scheduled)&&
+      Number.isSafeInteger(rendered)&&rendered>0&&
+      rendered<=scheduled&&
+      el.dataset.pedsModelBRenderEvidence==='OBSERVED';
+   },beforeSelectFrame,{timeout:18000});
    const xrayDotCount=await canvas.evaluate(el=>{
     const scheduled=el.dataset.pedsModelBInspectionCadDots;
     const rendered=el.dataset.pedsModelBRenderedInspectionDots;
@@ -304,8 +321,12 @@ try{
    await writeFile(join(destination,layout.label+'-selected-cad-xray.png'),
      focusPng);
    shots++;
-   // P2.40: clearing the focus must restore ordinary scroll-driven body and
-   // CAD material visibility, without changing the chapter or source meshes.
+   // P2.50: a cleared inspection requires an entirely new source
+   // target epoch, not the last settled frame of the selected component.
+   const beforeClearFrame=await canvas.evaluate(el=>{
+    const value=el.dataset.pedsModelBRenderFrame;
+    return value===undefined?NaN:Number(value);
+   });
    await page.getByRole('button',{name:'Clear selected CAD part'}).click();
    await page.waitForFunction(()=>{
     const el=document.querySelector('.mb-build-source-wrap');
@@ -315,12 +336,20 @@ try{
    const progressRestored=Number(await page.locator('.mb-build-scrubber').inputValue());
    if(Math.abs(progressRestored-progressBefore)>12)
     throw Error('Clearing CAD X-ray changed the scroll position');
-   await page.waitForFunction(()=>{
+   await page.waitForFunction(previousFrame=>{
     const el=document.querySelector('.mb-build-webgl canvas');
-    return el?.dataset.pedsModelBSceneSettled==='true'&&
-      Number(el.dataset.pedsModelBCameraErrorM)<=.015&&
-      Number(el.dataset.pedsModelBRenderedInspectionDots)===0;
-   },undefined,{timeout:18000});
+    if(!(el instanceof HTMLCanvasElement))return false;
+    const read=name=>el.dataset[name]===undefined?
+      NaN:Number(el.dataset[name]);
+    const frame=read('pedsModelBRenderFrame');
+    const issued=read('pedsModelBTargetIssuedFrame');
+    return el.dataset.pedsModelBSceneSettled==='true'&&
+      Number.isSafeInteger(frame)&&Number.isSafeInteger(issued)&&
+      issued>previousFrame&&frame>=issued+2&&
+      read('pedsModelBCameraErrorM')<=.015&&
+      read('pedsModelBRenderedInspectionDots')===0&&
+      read('pedsModelBInspectionCadDots')===0;
+   },beforeClearFrame,{timeout:18000});
    const selectedPointsAfterClear=await canvas.evaluate(el=>{
     const value=el.dataset.pedsModelBRenderedInspectionDots;
     return value===undefined?NaN:Number(value);
