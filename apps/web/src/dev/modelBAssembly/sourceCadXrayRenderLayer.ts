@@ -35,3 +35,21 @@ export function sourceCadXrayRenderLayer(
  return {depthTest:false,
    renderOrder:Math.max(SOURCE_CAD_XRAY_RENDER_ORDER,originalRenderOrder+1)};
 }
+
+/** The UI may only advertise verified X-ray after a real R3F useFrame
+ * applies the selected source CAD compositing state to the actual materials.
+ * A valid manifest, selected source ID or camera target alone is not enough.
+ */
+export function sourceCadXrayFrameVerified(
+ visible:boolean,renderOrder:number,
+ materials:readonly {
+   depthTest:boolean;
+   depthWrite:boolean;
+   opacity:number;
+ }[],
+):boolean{
+ return visible&&renderOrder>=SOURCE_CAD_XRAY_RENDER_ORDER&&
+   materials.length>0&&
+   materials.every(m=>!m.depthTest&&m.depthWrite&&
+     Number.isFinite(m.opacity)&&m.opacity>=.99&&m.opacity<=1);
+}
