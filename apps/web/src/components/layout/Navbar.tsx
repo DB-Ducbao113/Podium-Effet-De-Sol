@@ -76,6 +76,50 @@ export const Navbar = memo(function Navbar() {
 
   const showroomActive = isActive('showroom');
 
+  // Prototype V5: keep legacy treatment on Showroom/Engineering while
+  // editorial pages use Paper/Night according to the actual route.
+  const protectedRoute = /^(\/showroom|\/engineering|\/gallery)(\/|$)/.test(location.pathname);
+  const baseSurface = protectedRoute ? 'legacy'
+    : location.pathname === '/' || location.pathname.startsWith('/drivers')
+      ? 'night' : 'paper';
+  const [homeSurface,setHomeSurface] = useState<'night' | 'paper'>('night');
+  useEffect(() => {
+    if (location.pathname !== '/') return;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      // Match the prototype's light-zone navigation when a Home paper
+      // chapter passes underneath the fixed bar, in either scroll direction.
+      const y = 80;
+      const lightSections = document.querySelectorAll<HTMLElement>(
+        '.home-v5 .home-rc, .home-v5 .home-v5__editorial, .home-v5 .eds-explore, .home-v5 .home-v3__content',
+      );
+      let light = false;
+      for (const section of lightSections) {
+        const r = section.getBoundingClientRect();
+        if (r.top <= y && r.bottom > y) light = true;
+      }
+      // Dark Championship scene is an explicit island inside the paper zone.
+      const dark = document.querySelector<HTMLElement>('.home-v5 .home-title-fight');
+      if (dark) {
+        const r = dark.getBoundingClientRect();
+        if (r.top <= y && r.bottom > y) light = false;
+      }
+      setHomeSurface(light ? 'paper' : 'night');
+    };
+    const schedule = () => { if (!frame) frame=requestAnimationFrame(update); };
+    schedule();
+    window.addEventListener('scroll',schedule,{passive:true});
+    window.addEventListener('resize',schedule,{passive:true});
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('scroll',schedule);
+      window.removeEventListener('resize',schedule);
+    };
+  },[location.pathname]);
+  const prototypeSurface = protectedRoute ? 'legacy'
+    : location.pathname === '/' ? homeSurface : baseSurface;
+
   const hubParams = new URLSearchParams(location.search);
   hubParams.delete('hotspot');
   const hubSearch = hubParams.size ? `?${hubParams.toString()}` : '';
@@ -193,7 +237,7 @@ export const Navbar = memo(function Navbar() {
   const mobileTarget = (item: NavItem) => item.id === 'overview' ? homeHref : item.to;
 
   return <>
-    <header aria-hidden={menuOpen || undefined} className={`h1-nav h1-nav--v4${homeDesktop ? '' : ' h1-nav--inner'} fixed inset-x-0 top-0 z-50 ${scrolled ? 'h1-nav--scrolled' : ''}`}>
+    <header data-prototype-surface={prototypeSurface} aria-hidden={menuOpen || undefined} className={`h1-nav h1-nav--v4${homeDesktop ? '' : ' h1-nav--inner'} fixed inset-x-0 top-0 z-50 ${scrolled ? 'h1-nav--scrolled' : ''}`}>
       <div className="page-container h1-nav__bar flex items-center justify-between gap-3">
         <Link
           to={homeHref}

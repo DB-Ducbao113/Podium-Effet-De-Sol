@@ -29,6 +29,7 @@ export function ChampionshipDirectory({
     <section
       ref={revealRef}
       className="p5-gallery-embedded"
+      data-directory-kind={kind}
       aria-label={
         isDrivers
           ? lang === "vi" ? "Tay đua" : "Drivers"

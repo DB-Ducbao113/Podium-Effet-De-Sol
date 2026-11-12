@@ -100,6 +100,7 @@ export function StandaloneProfileDirectory({
     <div
       ref={revealRef}
       className={`p5-gallery-page${isDrivers && !hideHeader ? ' p5-gallery-page-drivers' : ''}`}
+      data-directory-kind={kind}
     >
       <div className="p5-gallery-inner">
         {!hideHeader && isDrivers && (
