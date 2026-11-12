@@ -78,15 +78,20 @@ export function buildSourceCadVertexDots(
   color:inspection?'#e1dad0':'#a2adae',
   size:sourceCadVertexDotSize(bound.diagonal),
   sizeAttenuation:true,transparent:true,
-  opacity:0,depthTest:!inspection,depthWrite:false,
+  // Source vertex dots coincide with the native solid CAD surface. Ordinary
+  // depth testing makes them disappear behind the exact source triangle.
+  // Show dots during assembly in a late *presentation-only* pass, and disable
+  // them completely in the final authentic solid-part pose.
+  opacity:0,depthTest:false,depthWrite:false,
  });
  const points=new THREE.Points(geometry,material);
  points.name=inspection?
    'authentic-selected-cad-vertex-dots':
    'authentic-four-wheel-cad-vertex-dots';
- // Inspection dots must remain visible over an inspected, depth-untested
- // real CAD mesh. Build dots use ordinary source depth testing instead.
- points.renderOrder=inspection?1002:0;
+ // Build dots are placed after normal CAD materials so their authentic
+ // sampled vertex positions remain visible rather than z-fighting with the
+ // source mesh; selected inspection dots render above the X-ray part.
+ points.renderOrder=inspection?1002:850;
  points.frustumCulled=false;
  points.visible=false;
  mesh.add(points);
