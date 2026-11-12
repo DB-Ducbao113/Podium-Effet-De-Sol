@@ -328,7 +328,7 @@ function StudioLights(){
  </>;
 }
 function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRace,onReady,onFit,onRearComposite,onMountedCadAudit,onFramingVerified,onInspect,onFocusVerified,onXrayRenderVerified,onSourceCadDotsReady,selectedPart,onError}:Props){
- const {camera,size}=useThree();
+ const {camera,size,gl}=useThree();
  const original=useOriginalBody(onReady,onError);
  const originalPartNames=useMemo(()=>corner?.parts.map(x=>x.node)??[],[corner]);
  const [ownerParticles,setOwnerParticles]=useState<ReturnType<
@@ -693,6 +693,8 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
    // Reveal original source vertices incrementally. BufferGeometry.drawRange
    // exposes already-sampled native GLB positions; no new points are ever
    // allocated while scrolling forward, backward or entering X-ray focus.
+   let sourceDotsDrawn=0;
+   let sourceDotsVisible=0;
    for(const item of buildSourceDots.current){
      const authored=originalPartAssemblyAtStation(
        item.name,p,item.station);
@@ -703,12 +705,31 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
      updateSourceCadDotRange(item.layer.points.geometry,frame.drawCount);
      item.layer.points.material.opacity=frame.opacity;
      item.layer.points.visible=frame.visible;
+     sourceDotsDrawn+=frame.drawCount;
+     if(frame.visible)sourceDotsVisible+=frame.drawCount;
    }
+   let sourceInspectionDotsVisible=0;
    if(selectedSourceDots.current){
      const opacity=sourceCadInspectionDotOpacity(
        inspecting,reducedMotion);
      selectedSourceDots.current.points.material.opacity=opacity;
      selectedSourceDots.current.points.visible=opacity>.005;
+     if(opacity>.005)
+       sourceInspectionDotsVisible=selectedSourceDots.current.sampleCount;
+   }
+   // DEV-only source viewer QA: instrument the actual GPU draw ranges on the
+   // WebGL canvas, not DOM labels or theoretical source asset counts.
+   // No React state update, source buffer modification or extra render pass.
+   const auditCanvas=gl.domElement;
+   const counts=[
+     ['pedsModelBDrawnCadDots',sourceDotsDrawn],
+     ['pedsModelBVisibleCadDots',sourceDotsVisible],
+     ['pedsModelBInspectionCadDots',sourceInspectionDotsVisible],
+   ] as const;
+   for(const [key,count] of counts){
+     const serialized=String(count);
+     if(auditCanvas.dataset[key]!==serialized)
+       auditCanvas.dataset[key]=serialized;
    }
    if(visual){
      for(const item of visual.meshes){
