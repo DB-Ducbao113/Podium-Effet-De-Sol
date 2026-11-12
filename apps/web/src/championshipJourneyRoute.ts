@@ -7,7 +7,7 @@ function championshipTab(
   const tab = query.get("tab");
   if (tab !== "results" && tab !== "calendar") return null;
   if (query.has("round")) return null;
-  if (["classic", "completed", "upcoming"].includes(query.get("view") ?? ""))
+  if (!["world", "journey"].includes(query.get("view") ?? ""))
     return null;
   return tab;
 }

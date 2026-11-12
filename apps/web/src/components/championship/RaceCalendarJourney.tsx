@@ -41,9 +41,9 @@ export function BackToJourney({
   const lang = useNavigationStore((state) => state.lang);
   const focus = round && round > 0 ? `&focus=${round}` : '';
   return (
-    <Link className="rcj-back-link" data-back-to-map to={`/season/${season}?tab=${tab}${focus}`}>
+    <Link className="rcj-back-link" data-back-to-map to={`/season/${season}?tab=${tab === 'calendar' ? 'calendar' : 'results'}${tab === 'calendar' ? '' : focus}`}>
       <ArrowLeft size={15} aria-hidden="true" />
-      {lang === 'vi' ? 'Về bản đồ' : 'Back to map'}
+      {lang === 'vi' ? 'Tất cả chặng' : 'All destinations'}
     </Link>
   );
 }
@@ -220,7 +220,7 @@ export function RaceCalendarJourney({ season }: { season: SeasonYear }) {
                 </nav>
               ) : (
                 <div className="cal-v5__stage-tools">
-                  <Link className="cal-v5__full-list" to={`/season/${season}?tab=calendar&view=classic`}>
+                  <Link className="cal-v5__full-list" to={`/season/${season}?tab=calendar`}>
                     {vi ? 'Danh sách chặng' : 'All rounds'} <ArrowUpRight size={16} aria-hidden="true"/>
                   </Link>
                   {show3D && <button type="button" className="cal-v5__zoom" aria-pressed={closeUp}

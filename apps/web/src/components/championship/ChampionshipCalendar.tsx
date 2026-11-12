@@ -44,6 +44,7 @@ import { resolveCalendarEntry } from './calendarNavigation';
 import './championshipC1.css';
 import './calendarCinematicV5.css';
 import { BackToJourney, RaceCalendarJourney } from './RaceCalendarJourney';
+import { DestinationGridV6, type DestinationItem } from './DestinationGridV6';
 
 const ORDER: RaceSessionKey[] = [
   'fp1',
@@ -96,7 +97,8 @@ export function ChampionshipCalendar({ season }: { season: SeasonYear }) {
   );
   const location = useLocation();
   const query = new URLSearchParams(location.search);
-  const journeyMode = !query.has('round') && !['classic', 'completed', 'upcoming'].includes(query.get('view') ?? '');
+  const journeyMode = !query.has('round') && ['world', 'journey'].includes(query.get('view') ?? '');
+  const gridMode = !query.has('round') && !journeyMode && !['classic','completed','upcoming'].includes(query.get('view') ?? '');
   const navigate = useNavigate();
   const calendar = getCalendarBySeason(season);
   const [now, setNow] = useState(() => Date.now());
@@ -350,7 +352,14 @@ export function ChampionshipCalendar({ season }: { season: SeasonYear }) {
   return (
     <>
       {!journeyMode && <BackToJourney season={season} tab="calendar" round={requestedRound} />}
-      {journeyMode ? <RaceCalendarJourney season={season} /> : (
+      {journeyMode ? <RaceCalendarJourney season={season} /> : gridMode ? (
+        <DestinationGridV6 season={season} lang={lang} mode="calendar"
+          items={calendar.map((race):DestinationItem=>({
+            ...race,
+            destinationState:states.get(race.round)==='completed'?'verified':
+              states.get(race.round)==='current'?'current':'upcoming',
+          }))}/>
+      ) : (
     <section
       className="c1-calendar cal-v5__detail"
       data-motion-engine={motionEnabled ? 'css-scroll' : 'static'}
