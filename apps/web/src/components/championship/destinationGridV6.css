@@ -284,6 +284,18 @@ html,body {
   font-size:clamp(1.6rem,7vw,2.4rem);
 }
 
+/* The destination grid owns round selection. Keep only session tabs in detail. */
+.r1-championship .results-v6-detail .results-v5 .rc-round-rail {display:none;}
+.r1-championship.f4-championship:not(.is-journey) {
+  padding-top:clamp(72px,7vw,94px);
+  padding-bottom:clamp(2.5rem,5vw,5rem);
+}
+.r1-championship.f4-championship:not(.is-journey) .page-container > .f4-controls {
+  margin-top:0!important;
+}
+.r1-championship.f4-championship:not(.is-journey) .page-container > .f4-panel {
+  margin-top:0!important;
+}
 /* RESULTS DETAIL: same palette, but selected round and classification are still
  * the trusted, feature-complete source-driven components. */
 .r1-championship .results-v6-detail {
