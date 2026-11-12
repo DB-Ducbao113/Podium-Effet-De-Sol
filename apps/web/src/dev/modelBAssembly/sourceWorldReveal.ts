@@ -73,3 +73,18 @@ export function sourceMeshOwnWorldBounds(
   throw Error('Nonfinite original GLB own geometry world bounds');
  return {center:[cx,cy,cz],size:[sx,sy,sz],diagonal};
 }
+
+/** Original-world reveal is a unit direction: configured metres must not
+ * silently grow by sqrt(2+0.5^2) due to an unnormalised x/y/z vector.
+ */
+export function sourceMeshRevealWorldDirection(
+ center:readonly [number,number,number],
+):[number,number,number]{
+ if(center.length!==3||!center.every(Number.isFinite))
+  throw Error('Invalid original Model B world source centre');
+ const x=center[0]>0?1:-1;
+ const y=center[1]>0?.7:-.5;
+ const z=center[2]>=0?1:-1;
+ const length=Math.hypot(x,y,z);
+ return [x/length,y/length,z/length];
+}
