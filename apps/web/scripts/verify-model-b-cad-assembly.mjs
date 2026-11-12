@@ -16,6 +16,7 @@ import {join,resolve} from 'node:path';
 import {
  analyzeModelBFrame,assertModelBFrameVisible,modelBFrameDifference,
 } from './model-b-frame-audit.mjs';
+import {assertSourceCadDrawEvidence} from './source-cad-draw-evidence.mjs';
 
 const target=new URL(process.env.PEDS_MODEL_B_URL||
  'http://127.0.0.1:5173/engineering/model-b-build');
@@ -164,24 +165,9 @@ try{
       evidence:el.dataset.pedsModelBRenderEvidence,
      };
     });
-    const numeric=[
-     dots.scheduled,dots.scheduledVisible,dots.scheduledInspection,
-     dots.rendered,dots.renderedInspection,dots.drawCalls,dots.frame,
-    ];
-    if(!numeric.every(Number.isSafeInteger)||dots.frame<1||
-       dots.evidence==='INVALID'||
-       dots.scheduled<0||dots.scheduled>10544||
-       dots.scheduledVisible<0||
-       dots.scheduledVisible>dots.scheduled||
-       dots.rendered<0||dots.rendered>dots.scheduledVisible||
-       dots.renderedInspection!==0||dots.scheduledInspection!==0||
-       dots.drawCalls<0||dots.drawCalls>29)
-     throw Error('Original CAD drawRange versus render-callback evidence invalid: '+
-       JSON.stringify({step:step.label,dots}));
-    if(step.label==='02-native-hardware-dots'&&
-       (dots.rendered<1||dots.drawCalls<1||
-        dots.evidence!=='OBSERVED'))
-     throw Error('Native CAD fastener draw range had no actual render callback');
+    assertSourceCadDrawEvidence(dots,{
+     requireBuild:step.label==='02-native-hardware-dots',
+    });
     if((step.label==='00-original'||step.label==='reverse-00'||
         step.label==='05-final-car')&&dots.rendered!==0)
      throw Error('Native CAD construction dots rendered outside build chapter');
