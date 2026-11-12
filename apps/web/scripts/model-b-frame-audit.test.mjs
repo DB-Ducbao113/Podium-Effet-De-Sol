@@ -50,7 +50,7 @@ test('raw pixel difference distinguishes chapter motion from unchanged frame',as
  assert((await modelBFrameDifference(first,second))>.02);
 });
 test('pixel comparison rejects mismatched canvas dimensions',async()=>{
- await assert.rejects(()=>modelBFrameDifference(
-  fixture({width:128,height:96}),fixture({width:129,height:96}),
- ),/dimensions differ/);
+ const first=await fixture({width:128,height:96});
+ const second=await fixture({width:129,height:96});
+ await assert.rejects(()=>modelBFrameDifference(first,second),/dimensions differ/);
 });
