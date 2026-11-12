@@ -1,6 +1,6 @@
 import {describe,expect,it} from 'vitest';
 import {
- SOURCE_CAD_XRAY_RENDER_ORDER,sourceCadXrayRenderLayer,
+ SOURCE_CAD_XRAY_RENDER_ORDER,sourceCadXrayRenderLayer,sourceCadXrayFrameVerified,
 } from './sourceCadXrayRenderLayer';
 
 describe('P2.41 native CAD X-ray depth composition is reversible',()=>{
@@ -52,6 +52,28 @@ describe('P2.41 native CAD X-ray depth composition is reversible',()=>{
    expect(original).toEqual(clear);
    expect(selected.renderOrder).toBeGreaterThan(original.renderOrder);
   }
+ });
+ it('only reports X-ray PASS after the selected original mesh is actually composited',()=>{
+  expect(sourceCadXrayFrameVerified(true,1000,[
+    {depthTest:false,depthWrite:true,opacity:1},
+  ])).toBe(true);
+  expect(sourceCadXrayFrameVerified(false,1000,[
+    {depthTest:false,depthWrite:true,opacity:1},
+  ])).toBe(false);
+  expect(sourceCadXrayFrameVerified(true,1000,[])).toBe(false);
+  expect(sourceCadXrayFrameVerified(true,999,[
+    {depthTest:false,depthWrite:true,opacity:1},
+  ])).toBe(false);
+ });
+ it('does not claim X-ray if any real CAD material remains occluded or invisible',()=>{
+  const ok={depthTest:false,depthWrite:true,opacity:1};
+  for(const bad of [
+    {depthTest:true,depthWrite:true,opacity:1},
+    {depthTest:false,depthWrite:false,opacity:1},
+    {depthTest:false,depthWrite:true,opacity:.8},
+    {depthTest:false,depthWrite:true,opacity:NaN},
+  ])expect(sourceCadXrayFrameVerified(true,1000,[ok,bad])).toBe(false);
+  expect(sourceCadXrayFrameVerified(true,1000,[ok,ok])).toBe(true);
  });
  it('rejects unsupported original CAD renderer state instead of corrupting materials',()=>{
   for(const order of [-1,NaN,Infinity,1.4,Number.MAX_SAFE_INTEGER]){
