@@ -56,6 +56,13 @@ class PreflightTests(unittest.TestCase):
             (rep/z.REPORTS['M']).write_text(json.dumps({'schema':z.STEPS['M'][0],
                 'mechanicalG2Certified':True,'original84StepSHA256':z.SOURCE}))
             self.assertIn('UNSAFE_OR_MISSING_G2_HOLD',z.evaluate(src,cand,rep)['stagePreflight']['M']['reasons'])
+    def test_nonobject_native_source_sha_map_fails_closed(self):
+        with tempfile.TemporaryDirectory() as d:
+            src,cand,rep=self.setup_dirs(Path(d))
+            (cand/z.REPORTS['N']).write_text(json.dumps({'schema':z.STEPS['N'][0],
+                'mechanicalG2Certified':False,'nativeSourceSHA256':'WRONG'}))
+            r=z.evaluate(src,cand,rep)
+            self.assertIn('SOURCE_SHA_MISMATCH',r['stagePreflight']['N']['reasons'])
     def test_no_overwrite(self):
         with tempfile.TemporaryDirectory() as d:
             src,cand,rep=self.setup_dirs(Path(d));p=Path(d)/'out.json';p.write_text('KEEP')
