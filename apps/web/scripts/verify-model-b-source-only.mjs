@@ -12,6 +12,7 @@ import {chromium} from 'playwright-core';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import {join,resolve} from 'node:path';
+import {analyzeModelBFrame,assertModelBFrameVisible,modelBFrameDifference} from './model-b-frame-audit.mjs';
 
 const target=new URL(process.env.PEDS_MODEL_B_URL||
  'http://127.0.0.1:5173/engineering/model-b-build');
@@ -74,6 +75,8 @@ try{
    const canvas=page.locator('.mb-build-webgl canvas');
    await canvas.waitFor({state:'visible',timeout:20000});
    const hashes=new Map();
+   const images=new Map();
+   const auditRows=[];
    for(const sample of fractions){
     await page.evaluate(fraction=>{
      const track=document.querySelector('.mb-build-track');
@@ -93,15 +96,29 @@ try{
     const image=await canvas.screenshot();
     const hash=createHash('sha256').update(image).digest('hex');
     hashes.set(sample.name,hash);
+    images.set(sample.name,image);
+    const audit=assertModelBFrameVisible(await analyzeModelBFrame(image),{
+     finalFrame:sample.name==='05-final',
+    });
+    auditRows.push({chapter:sample.name,hash,
+      foregroundFraction:audit.foregroundFraction,
+      sourceBounds:audit.bounds,
+    });
     await writeFile(join(destination,frame.label+'-'+sample.name+'.png'),image);
     snapshots++;
    }
-   if(hashes.get('00-reveal')===hashes.get('02-wheel-core'))
-    throw Error('WebGL snapshots did not change between Model B chapters');
+   const difference=await modelBFrameDifference(
+    images.get('00-reveal'),images.get('02-wheel-core'));
+   if(hashes.get('00-reveal')===hashes.get('02-wheel-core')||
+      difference<.002)
+    throw Error('WebGL source mesh did not visibly change between chapters');
    if(hashes.get('00-reveal')===undefined||hashes.get('05-final')===undefined)
     throw Error('Missing required chapter snapshots');
    if(errors.length)throw Error('Browser JavaScript errors: '+errors.join(' ; '));
-   console.log('PASS '+frame.label+' 8 scroll/reverse WebGL snapshots and 0/94 source audit');
+   await writeFile(join(destination,frame.label+'-audit.json'),
+     JSON.stringify({layout:frame,source:audit,chapterDifference:difference,
+       screenshots:auditRows},null,2)+'\n');
+   console.log('PASS '+frame.label+' 8 visible scroll/reverse WebGL snapshots; chapter pixel difference '+difference.toFixed(4));
   }finally{
    await page.close();
   }
