@@ -63,6 +63,21 @@ export function exteriorSeparation(progress:number,hasCornerCad:boolean):number{
   // 18% separation early in the engineering reveal, then return to source.
   return .18*smoothStep(.15,.28,p)*(1-smoothStep(.31,.50,p));
 }
+/**
+ * P2.35: independent, source-only visual reveal of decoded original Model B
+ * mesh nodes when the private P2.8 wheel CAD is unavailable.
+ *
+ * This separates existing GLB mesh nodes only; it does not fabricate parts,
+ * alter their authored vertices, or imply physically achievable mating paths.
+ * Final chapter and reverse scrolling always return to exact source poses.
+ */
+export function originalBodySourceOnlySeparation(progress:number):number{
+ const p=clamp01(progress);
+ const reveal=smoothStep(.12,.30,p);
+ const returnHome=1-smoothStep(.65,.84,p);
+ return .70*reveal*returnHome;
+}
+
 export type P28BuildSystem='hardware'|'bearing'|'upright'|'suspension'|'hub'|
   'carbon-brake'|'friction-pad'|'caliper'|'rim'|'tyre'|'other';
 const WINDOWS:Record<P28BuildSystem,readonly [number,number]>={
