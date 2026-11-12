@@ -45,15 +45,28 @@ def locate(repo,pins=None,inventory=None,lfs_dir=None):
         gitdir=git(repo,'rev-parse','--path-format=absolute','--git-common-dir').decode().strip()
         lfs_dir=Path(gitdir)/'lfs'/'objects'
     else:lfs_dir=Path(lfs_dir)
-    found={name:None for name in pins}
+    # Historical pointer revisions may disagree on the advertised length.
+    # Never silently prefer the first matching SHA in an untrusted inventory.
+    alternatives={name:[] for name in pins}
     for item in pointers:
-        if not isinstance(item,dict):continue
+        if not isinstance(item,dict):
+            raise ValueError('Malformed LFS inventory entry')
         name=item.get('originalFile');oid=item.get('lfsPointerBlobSHA')
-        if name not in pins or not isinstance(oid,str) or not OID.fullmatch(oid):continue
-        if git(repo,'cat-file','-t',oid).strip()!=b'blob':continue
-        data=git(repo,'cat-file','blob',oid)
-        pointer_sha,size=parse_pointer(data)
-        if pointer_sha!=pins[name] or found[name] is not None:continue
+        if name not in pins or not isinstance(oid,str) or not OID.fullmatch(oid):
+            raise ValueError('Malformed LFS inventory pointer reference')
+        if git(repo,'cat-file','-t',oid).strip()!=b'blob':
+            raise ValueError('LFS inventory points to non-blob')
+        pointer_sha,size=parse_pointer(git(repo,'cat-file','blob',oid))
+        if pointer_sha!=pins[name]:
+            raise ValueError('LFS pointer no longer matches pinned source: '+name)
+        alternatives[name].append((size,oid))
+    found={name:None for name in pins}
+    for name,values in alternatives.items():
+        if not values:continue
+        if len({size for size,_ in values})!=1:
+            raise ValueError('Conflicting historical LFS pointer sizes: '+name)
+        size,oid=min(values,key=lambda item:item[1])
+        pointer_sha=pins[name]
         candidate=lfs_dir/pointer_sha[:2]/pointer_sha[2:4]/pointer_sha
         found[name]={'pointerBlobSHA':oid,'objectSHA256':pointer_sha,
                      'expectedSize':size,'localObjectPath':str(candidate)}
