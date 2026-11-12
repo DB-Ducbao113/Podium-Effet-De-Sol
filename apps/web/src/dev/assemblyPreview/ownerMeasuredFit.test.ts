@@ -37,6 +37,7 @@ describe('original Model B showroom unit recovery from actual tyre geometry',()=
    const {shell,corner}=fixtures();
    const result=fitOwnerShellToOriginalP28(shell,corner);
    expect(result.p28Scale).toBe(1);
+   expect(result.originalP28TyreWidthM).toBeCloseTo(.314);
    expect(result.normalizedShellScale).toBeGreaterThan(.16);
    expect(result.normalizedShellScale).toBeLessThan(.19);
    expect(result.wheels).toHaveLength(4);
