@@ -51,6 +51,7 @@ type Props={
  onMountedCadAudit:(value:MountedCadSceneAudit|null)=>void;
  onFramingVerified:(fit:boolean|null)=>void;
  onInspect:(part:InspectedCadPart)=>void;
+ onFocusVerified:(part:InspectedCadPart|null)=>void;
  selectedPart:InspectedCadPart|null;
  onError:(message:string)=>void;
 };
@@ -308,7 +309,7 @@ function StudioLights(){
   <pointLight position={[1.5,2,-3]} intensity={32} distance={12} color="#8aaeff"/>
  </>;
 }
-function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRace,onReady,onFit,onRearComposite,onMountedCadAudit,onFramingVerified,onInspect,selectedPart,onError}:Props){
+function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRace,onReady,onFit,onRearComposite,onMountedCadAudit,onFramingVerified,onInspect,onFocusVerified,selectedPart,onError}:Props){
  const {camera,size}=useThree();
  const original=useOriginalBody(onReady,onError);
  const originalPartNames=useMemo(()=>corner?.parts.map(x=>x.node)??[],[corner]);
@@ -505,11 +506,21 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
    classifyP28Part(item.name)==='hardware')??null,[visual]);
  const macroRearJoint=useMemo(()=>visual?.meshes.find(item=>
    item.station==='rear-positive-z'&&item.kind==='joint')??null,[visual]);
- const selectedVisual=useMemo(()=>{
-   if(!visual||!selectedPart)return null;
-   try{return locateSelectedCadMesh(visual.meshes,selectedPart);}
-   catch{return null;}
+ const selection=useMemo(()=>{
+   if(!visual||!selectedPart)return {mesh:null,error:null};
+   try{
+     return {mesh:locateSelectedCadMesh(visual.meshes,selectedPart),
+       error:null};
+   }catch(error){
+     return {mesh:null,error:String(error)};
+   }
  },[visual,selectedPart]);
+ const selectedVisual=selection.mesh;
+ useEffect(()=>{
+   if(selection.error)
+     onError('Original source CAD X-ray focus rejected: '+selection.error);
+   onFocusVerified(selectedVisual?selectedPart:null);
+ },[selection.error,selectedVisual,selectedPart,onFocusVerified,onError]);
  const progress=useMemo(()=>({current:0}),[]);
  const targetPos=useMemo(()=>new THREE.Vector3(7,3,9),[]);
  const targetLook=useMemo(()=>new THREE.Vector3(),[]);
