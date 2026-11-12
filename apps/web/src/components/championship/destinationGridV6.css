@@ -391,3 +391,92 @@ html,body {
 .r1-championship .results-v6-detail .c11-table-scroll-hint {background:#e7e1d7;color:#4c4237;border-color:#c9bcaa;}
 .r1-championship .results-v6-detail .c11-timezone {color:#293b35;}
 .r1-championship .results-v6-detail .c11-timezone .c1-timezone {background:#eae8e1;color:#2c3d35;}
+
+
+/* V6 CONTINUITY — neutral reading surfaces across the other Championship tabs.
+   The active photograph, race cars and 3D World Tour deliberately keep contrast. */
+.r1-championship .destination-v6 {color-scheme:light;}
+.r1-championship .cal-v5__detail {
+  background:#f0eee8;
+  color:#192321;
+  border:0;
+  border-radius:0;
+}
+.r1-championship .cal-v5__detail .cal-v5__detail-head {
+  background:#deddd7;
+  border-bottom:1px solid #c6c3bb;
+}
+.r1-championship .cal-v5__detail .cal-v5__detail-head :is(h2,p,.cal-v5__eyebrow) {
+  color:#1c2622;
+}
+.r1-championship .cal-v5__detail .cal-v5__detail-head h2 em {color:#2c4844;}
+.r1-championship .cal-v5__detail .cal-v5__detail-head :is(button,summary) {
+  background:#ebe8df;
+  color:#25312c;
+  border-color:#979e98;
+}
+.r1-championship .cal-v5__detail .cal-layout {
+  background:#f0eee8;
+}
+.r1-championship .cal-v5__detail .cal-rail {
+  background:#deddd7;
+  border-color:#c7c5bc;
+}
+.r1-championship .cal-v5__detail .cal-filters {
+  background:#deddd7;
+  border-bottom-color:#c2c0b8;
+}
+.r1-championship .cal-v5__detail .cal-filter {
+  background:#efede6;
+  color:#30403a;
+  border-color:#b9b9b0;
+}
+.r1-championship .cal-v5__detail .cal-filter:hover {background:#d1d1ca;color:#17221d;}
+.r1-championship .cal-v5__detail .cal-filter[aria-pressed="true"] {
+  background:#2a3a33;color:#f7f4e8;border-color:#2a3a33;
+}
+.r1-championship .cal-v5__detail .cal-filter[aria-pressed="true"] span {color:#f3f1e8;}
+.r1-championship .cal-v5__detail .c1-round {
+  background:#e4e2db;
+  border-color:#c9c8c0;
+}
+.r1-championship .cal-v5__detail .c1-round:nth-child(even) {background:#deddd7;}
+.r1-championship .cal-v5__detail .c1-round:is(:hover,:focus-within) {background:#d3d5cc;}
+.r1-championship .cal-v5__detail .c1-round-identity strong,
+.r1-championship .cal-v5__detail .c1-round-number,
+.r1-championship .cal-v5__detail .c1-round-identity small,
+.r1-championship .cal-v5__detail .cal-round-date {color:#24332c;}
+.r1-championship .cal-v5__detail .c1-round[data-relevant="true"] {
+  background:#d3d8ce;
+  box-shadow:inset 3px 0 #446157;
+}
+.r1-championship .cal-v5__detail .cal-weekend {background:#e8e5dd;}
+.r1-championship .cal-v5__detail .cal-session-card {background:#f7f4ed;}
+/* Standings main editorial story now sits on the same paper as Results. */
+.r1-championship .p5-standings-v5 {background:#f0eee8;}
+.r1-championship .p5-standings-v5 .p5-standings-hero {
+  background:#deddd7;
+  border:0;
+}
+.r1-championship .p5-standings-v5 .p5-mega,
+.r1-championship .p5-standings-v5 .p5-mega-line,
+.r1-championship .p5-standings-v5 .standings-v5__leader strong,
+.r1-championship .p5-standings-v5 .standings-v5__facts dd {
+  color:#192422;
+}
+.r1-championship .p5-standings-v5 .p5-kicker,
+.r1-championship .p5-standings-v5 .standings-v5__leader > span,
+.r1-championship .p5-standings-v5 .standings-v5__facts dt {color:#59635e;}
+.r1-championship .p5-standings-v5 .standings-v5__snapshot {border-top-color:#b6b9b1;}
+.r1-championship .p5-standings-v5 .p5-photo-credit-inline,
+.r1-championship .p5-standings-v5 .p5-photo-credit-inline a {color:#48574f;}
+.r1-championship .p5-gallery-embedded {background:#f0eee8;color:#192422;}
+.r1-championship .p5-gallery-embedded .p5-section-head {
+  background:#deddd7;
+  border-color:#c8c6bd;
+}
+.r1-championship .p5-gallery-embedded .p5-section-head h2,
+.r1-championship .p5-gallery-embedded .p5-section-head h3 {color:#192422;}
+.r1-championship .p5-gallery-embedded .p5-section-note {color:#4e5d55;}
+/* 3D world is its own dark photographic stage; the site canvas never recolours it. */
+.r1-championship.is-journey .cal-v5__world {color-scheme:dark;}
