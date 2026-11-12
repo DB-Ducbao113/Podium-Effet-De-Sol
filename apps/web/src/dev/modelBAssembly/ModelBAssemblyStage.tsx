@@ -28,7 +28,7 @@ import {locateSelectedCadMesh,sourceMeshWorldCentre,highlightSourceMaterials} fr
 import type {WheelId} from '../assemblyPreview/fourCornerLayout';
 import {
  clamp01,exteriorSeparation,originalPartAssembly,rearSourceAssembly,
- visualShellOpacity,wheelOffset,stablePartOffset,
+ visualShellOpacity,wheelOffset,stablePartOffset,originalBodySourceOnlySeparation,
 } from './modelBAssemblyTimeline';
 
 type ProgressRef=RefObject<number>;
@@ -426,7 +426,10 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
    }
    const showCad=Boolean(visual);
    const shellOpacity=visualShellOpacity(p,showCad);
-   const separation=exteriorSeparation(p,showCad);
+   // P2.35 source-only mode still animates the owner's existing body mesh
+   // nodes, rather than showing a motionless exterior until private CAD loads.
+   const separation=showCad?exteriorSeparation(p,true):
+     originalBodySourceOnlySeparation(p);
    // Preserve the four original showroom tyres until their exact CAD
    // replacements start arriving, then hide duplicate dark tyre volumes.
    showroomWheelMask.value=showCad?
