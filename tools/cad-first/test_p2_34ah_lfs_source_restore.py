@@ -58,6 +58,39 @@ class Tests(unittest.TestCase):
             {'originalFile':'STEP','lfsPointerBlobSHA':latest}]
         with self.assertRaises(ValueError):
             ah.restore(self.repo,self.root/'out',self.pins,inv,self.lfs)
+    def test_conflicting_historical_pointer_sizes_fail_closed(self):
+        name='STEP';sha=self.pins[name]
+        (self.repo/name).write_text(f'version https://git-lfs.github.com/spec/v1\noid sha256:{sha}\nsize 333\n')
+        git(self.repo,'add','.')
+        git(self.repo,'commit','-qm','conflicting historical pointer')
+        inventory=inspect(self.repo,self.pins)
+        with self.assertRaisesRegex(ValueError,'Conflicting historical'):
+            ah.restore(self.repo,self.root/'out',self.pins,inventory,self.lfs)
+        self.assertFalse((self.root/'out').exists())
+
+    def test_duplicate_identical_pointer_is_deterministic(self):
+        name='STEP'
+        original=next(p for p in self.inventory['lfsPointers'] if p['originalFile']==name)
+        self.inventory['lfsPointers'].append(dict(original))
+        result=ah.restore(self.repo,self.root/'out',self.pins,self.inventory,self.lfs)
+        self.assertEqual((self.root/'out'/name).read_bytes(),self.contents[name])
+        self.assertFalse(result['mechanicalG2Certified'])
+
+    def test_inventory_misattributed_valid_pointer_rejected(self):
+        original=next(p for p in self.inventory['lfsPointers'] if p['originalFile']=='STEP')
+        bogus=dict(original)
+        bogus['originalFile']='INDEX'
+        self.inventory['lfsPointers'].append(bogus)
+        with self.assertRaisesRegex(ValueError,'no longer matches pinned source'):
+            ah.restore(self.repo,self.root/'out',self.pins,self.inventory,self.lfs)
+        self.assertFalse((self.root/'out').exists())
+
+    def test_inventory_unknown_reference_rejected(self):
+        self.inventory['lfsPointers'].append(
+            {'originalFile':'UNKNOWN','lfsPointerBlobSHA':'0'*40})
+        with self.assertRaisesRegex(ValueError,'Malformed LFS inventory'):
+            ah.locate(self.repo,self.pins,self.inventory,self.lfs)
+
     def test_existing_destination_untouched(self):
         out=self.root/'out';out.mkdir();(out/'keep').write_text('KEEP')
         with self.assertRaises(FileExistsError):ah.restore(self.repo,out,self.pins,self.inventory,self.lfs)
