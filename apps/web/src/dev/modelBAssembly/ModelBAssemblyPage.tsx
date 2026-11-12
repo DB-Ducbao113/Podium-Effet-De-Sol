@@ -15,6 +15,7 @@ import {
 } from '../assemblyPreview/splitRaceSource';
 import {chapterAt,clamp01,MODEL_B_CHAPTERS} from './modelBAssemblyTimeline';
 import {modelBChapterTruth} from './modelBChapterTruth';
+import {modelBSourceCoverage} from './modelBSourceCoverage';
 import {assemblyScrollTop} from './assemblyScrubPosition';
 import {readLocalAutoCadIndex,type AutoCadRow} from './localSourceIndex';
 import {ORIGINAL_MODEL_B_SOURCE} from './originalModelBSource';
@@ -265,13 +266,19 @@ export default function ModelBAssemblyPage(){
    finally{setBusy(null);}
  };
  const sourceCount=(corner?59:0)+(rearToe?19:0)+(splitRace?16:0);
- const cadLoaded=Boolean(corner)&&Boolean(ready.p28);
+ const coverage=modelBSourceCoverage({
+   originalMeshCount:ready['model-b']??0,
+   p28MeshCount:corner?ready.p28??0:0,
+   p212MeshCount:rearToe?ready['rear-toe']??0:0,
+   p214MeshCount:splitRace?ready.p214??0:0,
+ });
+ const cadLoaded=coverage.p28Verified;
  const p28PartIds=useMemo(()=>corner?.parts.map(x=>x.node)??[],[corner]);
  const rearToePartIds=useMemo(()=>rearToe?.manifest.partIds??null,[rearToe]);
  const splitPartIds=useMemo(()=>splitRace?.manifest.newPartNames??null,[splitRace]);
- const allRear=Boolean(rearToe&&splitRace&&ready['rear-toe']&&ready.p214);
+ const allRear=coverage.p212Verified&&coverage.p214Verified;
  const truth=modelBChapterTruth(chapter.id,cadLoaded,
-   ready['rear-toe']===19,ready.p214===16);
+   coverage.p212Verified,coverage.p214Verified);
  const description=truth.kind==='ORIGINAL_CAD_ASSEMBLY'
    ?chapter.description:truth.description;
  const evidence=truth.kind==='ORIGINAL_CAD_ASSEMBLY'
@@ -317,6 +324,11 @@ export default function ModelBAssemblyPage(){
            <span className={cadLoaded?'mb-build-point ready':'mb-build-point'}/>
            <span>{evidence}</span>
          </div>
+         <p className="mb-build-coverage" data-testid="model-b-source-coverage">
+           {coverage.summary}
+           {coverage.rearWheelEndSourceIsFrontProxy&&
+             <span> · REAR WHEEL ENDS: FRONT-SOURCE PROXY</span>}
+         </p>
        </section>
        <nav className="mb-build-rail" aria-label="Model B assembly chapters">
          {MODEL_B_CHAPTERS.map((beat,index)=>
@@ -381,6 +393,9 @@ export default function ModelBAssemblyPage(){
          data-original-mechanical-mate-certified={measuredFit?.mechanicalFitCertified?'true':'false'}
          data-model-b-source-only-review={sourceOnlyProof?'true':'false'}
          data-model-b-scene-truth={truth.kind}
+         data-model-b-source-review-stage={coverage.stage}
+         data-model-b-cad-verified-meshes={coverage.verifiedCadMeshes}
+         data-model-b-source-mechanical-mate-certified="false"
          data-p28-cad-ready={cadLoaded?'true':'false'}
          data-p212-cad-ready={ready['rear-toe']===19&&!!rearToe?'true':'false'}
          data-p214-cad-ready={ready.p214===16&&!!splitRace?'true':'false'}>
@@ -440,7 +455,7 @@ export default function ModelBAssemblyPage(){
          <div className="mb-build-footleft">
            <span className="mb-build-dot"/>{ready['model-b']?'OWNER MODEL B LOADED':'MODEL B LOADING'}
            <span className="mb-build-divider">/</span>
-           {cadLoaded?'P2.8 VERIFIED':'CAD INPUT OPTIONAL'}
+           {coverage.verifiedCadMeshes+'/94 CAD VERIFIED'}
          </div>
          <div className="mb-build-progress">
            <span>SCROLL TO ASSEMBLE</span>
