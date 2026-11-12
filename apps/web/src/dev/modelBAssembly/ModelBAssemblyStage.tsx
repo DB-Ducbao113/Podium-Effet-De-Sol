@@ -27,6 +27,7 @@ import {
 } from './sourceCadVertexDots';
 import {sourceCadDotFrame,updateSourceCadDotRange} from './sourceCadDotProgress';
 import {sourceFrameSettled} from './sourceFrameSettling';
+import {createSourceFrameTargetEpoch,advanceSourceFrameTargetEpoch} from './sourceFrameTargetEpoch';
 import {beginSourceCadRenderEvidence,createSourceCadRenderEvidence,recordUniqueSourceCadAfterRender,
  type SourceCadRenderKind} from './sourceCadRenderEvidence';
 import {
@@ -550,6 +551,7 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
  const buildSourceDots=useRef<NativeBuildDots[]>([]);
  const selectedSourceDots=useRef<SourceCadVertexDots|null>(null);
  const renderEvidence=useRef(createSourceCadRenderEvidence());
+ const targetEpoch=useRef(createSourceFrameTargetEpoch());
  const seenSourceDrawsThisFrame=useRef(new Set<object>());
  const reportActualSourceCadDraw=useCallback((kind:SourceCadRenderKind,
    layer:SourceCadVertexDots)=>{
@@ -686,6 +688,9 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
    const inspecting=selectedVisual!==null;
    beginSourceCadRenderEvidence(renderEvidence.current);
    seenSourceDrawsThisFrame.current.clear();
+   const targetIssuedFrame=advanceSourceFrameTargetEpoch(
+     targetEpoch.current,renderEvidence.current.frame,desired,
+     visual?.root??original?.model??null,selectedVisual?.mesh??null);
    const renderCanvas=gl.domElement;
    renderCanvas.dataset.pedsModelBRenderFrame=
      String(renderEvidence.current.frame);
@@ -911,10 +916,12 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
    renderCanvas.dataset.pedsModelBSceneProgress=p.toFixed(6);
    renderCanvas.dataset.pedsModelBCameraErrorM=
      cameraErrorM.toFixed(6);
+   renderCanvas.dataset.pedsModelBTargetIssuedFrame=
+     String(targetIssuedFrame);
    renderCanvas.dataset.pedsModelBSceneSettled=String(
      sourceFrameSettled({
        progress:p,cameraErrorM,frame:renderEvidence.current.frame,
-     },desired,Math.max(0,renderEvidence.current.frame-2)));
+     },desired,targetIssuedFrame));
  });
  return <>
    <StudioLights/>
