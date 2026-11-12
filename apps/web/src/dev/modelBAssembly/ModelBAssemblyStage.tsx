@@ -304,12 +304,16 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
  const {camera,size}=useThree();
  const original=useOriginalBody(onReady,onError);
  const originalPartNames=useMemo(()=>corner?.parts.map(x=>x.node)??[],[corner]);
- const ownerParticles=useMemo(()=>{
-   if(!original)return null;
-   try{return buildOwnerSourceParticles(original.model);}
-   catch(error){onError('Verified Model B vertex layer rejected: '+String(error));return null;}
+ const [ownerParticles,setOwnerParticles]=useState<ReturnType<
+   typeof buildOwnerSourceParticles>|null>(null);
+ useEffect(()=>{
+   if(!original){setOwnerParticles(null);return;}
+   let particles:ReturnType<typeof buildOwnerSourceParticles>|null=null;
+   try{particles=buildOwnerSourceParticles(original.model);setOwnerParticles(particles);}
+   catch(error){setOwnerParticles(null);
+     onError('Verified Model B vertex layer rejected: '+String(error));}
+   return()=>{if(particles)particles.dispose();};
  },[original,onError]);
- useEffect(()=>()=>{ownerParticles?.dispose();},[ownerParticles]);
  const p28=useLocalSource(corner,originalPartNames,'P2.8',onReady,onError,'p28');
  const rearToeNames=useMemo(()=>rearToe?.manifest.partIds??[],[rearToe]);
  const rear=useLocalSource(rearToe,rearToeNames,'P2.12',onReady,onError,'rear-toe');
