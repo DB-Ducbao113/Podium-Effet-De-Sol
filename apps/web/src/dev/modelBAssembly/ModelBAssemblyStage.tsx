@@ -26,7 +26,7 @@ import {
  sourceCadInspectionDotOpacity,type SourceCadVertexDots,
 } from './sourceCadVertexDots';
 import {sourceCadDotFrame,updateSourceCadDotRange} from './sourceCadDotProgress';
-import {beginSourceCadRenderEvidence,createSourceCadRenderEvidence,recordSourceCadAfterRender,
+import {beginSourceCadRenderEvidence,createSourceCadRenderEvidence,recordUniqueSourceCadAfterRender,
  type SourceCadRenderKind} from './sourceCadRenderEvidence';
 import {
  selectNativeHardwareDotParts,validateNativeCadDotsBudget,
@@ -549,14 +549,20 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
  const buildSourceDots=useRef<NativeBuildDots[]>([]);
  const selectedSourceDots=useRef<SourceCadVertexDots|null>(null);
  const renderEvidence=useRef(createSourceCadRenderEvidence());
+ const seenSourceDrawsThisFrame=useRef(new Set<THREE.Points>());
  const reportActualSourceCadDraw=useCallback((kind:SourceCadRenderKind,
    layer:SourceCadVertexDots)=>{
    const canvas=gl.domElement;
    try{
-     recordSourceCadAfterRender(renderEvidence.current,kind,
+     const live=kind==='build'
+       ?buildSourceDots.current.some(item=>item.layer===layer)
+       :selectedSourceDots.current===layer;
+     const accepted=recordUniqueSourceCadAfterRender(
+       renderEvidence.current,seenSourceDrawsThisFrame.current,
+       layer.points,live,kind,
        layer.points.geometry,layer.points.material.opacity);
-     // These counters are updated ONLY inside the real Three.js
-     // onAfterRender callback, never from planned scene drawRange values.
+     // No source render evidence on stale, repeated or zero-count callbacks.
+     if(accepted===0)return;
      canvas.dataset.pedsModelBRenderedCadDots=String(
        renderEvidence.current.buildPoints);
      canvas.dataset.pedsModelBRenderedInspectionDots=String(
@@ -678,6 +684,7 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
    const p=progress.current;
    const inspecting=selectedVisual!==null;
    beginSourceCadRenderEvidence(renderEvidence.current);
+   seenSourceDrawsThisFrame.current.clear();
    const renderCanvas=gl.domElement;
    renderCanvas.dataset.pedsModelBRenderFrame=
      String(renderEvidence.current.frame);
