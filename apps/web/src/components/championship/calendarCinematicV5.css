@@ -387,9 +387,16 @@
 .cal-v5__detail .cal-session-card :is(strong,small,.cal-session-day,.cal-session-time,.cal-session-state) {
   color:#283f49;
 }
+.cal-v5__detail .cal-session-card:is(:hover,:focus-within) {
+  background:#e7eee7;
+  box-shadow:inset 0 0 0 1px #a0b4b1;
+}
 .cal-v5__detail .cal-session-card[data-state="live"] {
   border-color:#c27a55;
   background:#f5e5d6;
+}
+.cal-v5__detail .cal-session-card[data-state="live"] .cal-session-state {
+  color:#8f471e;
 }
 .cal-v5__detail .cal-racecard {
   border:1px solid rgba(241,227,209,.35);
