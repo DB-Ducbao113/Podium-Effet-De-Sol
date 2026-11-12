@@ -21,7 +21,7 @@ import {ORIGINAL_MODEL_B_SOURCE,verifyOriginalModelBBinary} from './originalMode
 import {sourceOnlyModelBCamera} from './modelBSourceOnlyCamera';
 import {frameOriginalModelB,originalModelBFitsFrame} from './modelBFraming';
 import {buildOwnerSourceParticles,ownerParticleOpacity} from './ownerSourceParticles';
-import {sourceBodyMeshSeparation} from './sourceOnlyMeshMotion';
+import {sourceBodyMeshKey,sourceBodyMeshSeparation} from './sourceOnlyMeshMotion';
 import {applyCadViewerAppearance,cadPreviewAppearance,
  type CadAppearance} from './cadPreviewMaterials';
 import {inspectOriginalCadMesh,type InspectedCadPart} from './cadPartInspector';
@@ -377,7 +377,7 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
      }
      // glTF nodes may have duplicate or blank names. The source traversal
      // ordinal is stable for a decoded GLB and gives each mesh its own phase.
-     const sourceKey=o.name+'#'+meshOrdinal++;
+     const sourceKey=sourceBodyMeshKey(o.name,meshOrdinal++);
      if(fit&&corner){
        tmp.multiplyMatrices(reverse,o.matrixWorld);
        for(const m of materials)
