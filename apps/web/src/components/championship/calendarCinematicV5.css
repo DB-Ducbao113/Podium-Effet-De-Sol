@@ -200,6 +200,7 @@
 }
 @media(max-width:760px) {
   .cal-v5__world .rcj-stage-top {padding:1rem;}
+  .cal-v5__world .cal-v5__ambient > span {will-change:auto;}
   .cal-v5__world .rcj-stage-heading {max-width:61%;}
   .cal-v5__world .rcj-stage-title {font-size:clamp(1.9rem,7.9vw,3.5rem);}
   .cal-v5__world .rcj-stage-title em {display:inline;}
@@ -415,7 +416,7 @@
 /* Fully reversible enter/hold/exit; do not animate interactive rail rows. */
 @supports (animation-timeline:view()) {
   @media (prefers-reduced-motion:no-preference) {
-    .cal-v5__detail :is(.cal-v5__detail-copy,.cal-feature,.cal-weekend,.cal-cards .cal-racecard,.cal-selected-host) {
+    .cal-v5__detail[data-motion-engine='css-scroll'] :is(.cal-v5__detail-copy,.cal-feature,.cal-weekend,.cal-cards .cal-racecard,.cal-selected-host) {
       animation:cal-v5-in-out linear both;
       animation-timeline:view(block);
       animation-range:cover 0% cover 100%;
