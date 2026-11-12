@@ -78,6 +78,7 @@ try{
      el.getAttribute('data-original-model-b-wheel-fit')==='true'&&
      el.getAttribute('data-wheel-station-count')==='4'&&
      el.getAttribute('data-rear-composite-cad-parts')==='31'&&
+     el.getAttribute('data-model-b-mounted-source-identity')==='PASS'&&
      el.getAttribute('data-model-b-front-p28-per-station')==='59'&&
      el.getAttribute('data-model-b-rear-toe-per-station')==='15'&&
      el.getAttribute('data-model-b-rear-joint-per-station')==='16';
@@ -92,6 +93,7 @@ try{
     wheels:el.getAttribute('data-wheel-station-count'),
     rearParts:el.getAttribute('data-rear-composite-cad-parts'),
     replaced:el.getAttribute('data-rear-legacy-bearing-proxies-hidden'),
+    mountedIdentity:el.getAttribute('data-model-b-mounted-source-identity'),
     mounted:el.getAttribute('data-model-b-mounted-cad-meshes'),
     mountedFrontPerStation:el.getAttribute('data-model-b-front-p28-per-station'),
     mountedRearProxyPerStation:el.getAttribute('data-model-b-rear-p28-proxy-per-station'),
@@ -105,6 +107,7 @@ try{
     source.stage!=='ALL_AVAILABLE_SOURCES'||source.verified!=='94'||
     source.p28!=='true'||source.p212!=='true'||source.p214!=='true'||
     source.wheels!=='4'||source.rearParts!=='31'||source.replaced!=='4'||
+    source.mountedIdentity!=='PASS'||
     source.mountedFrontPerStation!=='59'||
     source.mountedRearToePerStation!=='15'||
     source.mountedRearJointPerStation!=='16'||
