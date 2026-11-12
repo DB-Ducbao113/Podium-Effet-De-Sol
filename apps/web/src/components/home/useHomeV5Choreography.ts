@@ -32,7 +32,7 @@ const entries: ReadonlyArray<[string,HomeV5Effect]> = [
   ['#eds-explore .eds-explore__number','number'],
   ['#eds-explore .eds-explore__bottom strong','rise'],
 ];
-type Target={node:HTMLElement; section:HTMLElement; offset:number; kind:HomeV5Effect; order:number};
+type Target={node:HTMLElement; section:HTMLElement; offset:number; kind:HomeV5Effect; order:number; lastProgress?:number};
 const sectionQuery='#race-control, #championship-overview, .home-v5__editorial, #eds-explore';
 
 /**
@@ -69,13 +69,17 @@ export function useHomeV5Choreography(ref:RefObject<HTMLElement|null>) {
         if(!sections.has(target.section))sections.set(target.section,target.section.getBoundingClientRect().top);
       }
       const values=targets.map(target=>({
-        node:target.node,
+        target,
         value:sampleV5Item(
           (sections.get(target.section)??0)+target.offset+Math.min(5,target.order)*(lite?4:10),
           innerHeight,target.kind,lite),
       }));
-      // Write phase: no React re-render and no changes to data/text.
-      for(const {node,value} of values) {
+      // Write only when progress changes: offscreen/stable elements cost nothing.
+      // Motion is tied to absolute scroll position, so backwards remains exact.
+      for(const {target,value} of values) {
+        if(target.lastProgress!==undefined&&Math.abs(target.lastProgress-value.progress)<.001)continue;
+        target.lastProgress=value.progress;
+        const node=target.node;
         node.style.setProperty('--v5-anim-x',value.x.toFixed(1)+'px');
         node.style.setProperty('--v5-anim-y',value.y.toFixed(1)+'px');
         node.style.setProperty('--v5-anim-alpha',value.alpha.toFixed(3));
