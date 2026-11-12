@@ -1,7 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { MemoryRouter } from 'react-router-dom';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { useNavigationStore } from '../../store/useNavigationStore';
 import { UNKNOWN_TEAM_ID } from '../../types';
 import type { ClassificationRow } from '../../results-engine/availability';
 import { RaceResults } from './RaceResults';
@@ -13,6 +14,7 @@ const row=(position:number):ClassificationRow=>({
 } as ClassificationRow);
 
 describe('Results V5 — source-preserving editorial design',()=>{
+  beforeEach(()=>useNavigationStore.setState({lang:'en'}));
   it('keeps round/session selection, source-aware states and the complete classification table',()=>{
     const html=renderToStaticMarkup(
       <MemoryRouter initialEntries={['/season/2026?tab=results&round=1&session=race']}>
