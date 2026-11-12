@@ -902,6 +902,14 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
    cameraLook.lerp(targetLook,cameraAlpha);
    camera.lookAt(cameraLook);
    camera.updateMatrixWorld();
+   // Actual R3F progress and camera convergence are separate from the DOM
+   // scrubber. Only these source-scene measurements can settle browser QA.
+   const cameraErrorM=Math.max(
+     camera.position.distanceTo(targetPos),
+     cameraLook.distanceTo(targetLook));
+   renderCanvas.dataset.pedsModelBSceneProgress=p.toFixed(6);
+   renderCanvas.dataset.pedsModelBCameraErrorM=
+     cameraErrorM.toFixed(6);
  });
  return <>
    <StudioLights/>
