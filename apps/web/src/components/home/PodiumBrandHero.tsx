@@ -9,6 +9,7 @@ import { HomeRacePulseScene } from './HomeRacePulseScene';
 import { HomeCommandStrip } from './HomeCommandStrip';
 import { useNextRace } from './useNextRace';
 import { chapterScrollTarget } from './journey/homeChapterScroll';
+import { getV5HeroMotion } from './homeV5Motion';
 import './podiumHeroR1.css';
 import './homeHeroV7.css';
 
@@ -49,6 +50,48 @@ export function PodiumBrandHero() {
   useEffect(() => () => {
     if (frame.current !== null) cancelAnimationFrame(frame.current);
   }, []);
+
+  // F10.02: scroll controls the narrative, not the size or visibility of the car.
+  // No new scroll container, WebGL context, document listener loop or route state.
+  useEffect(() => {
+    const root = heroRef.current;
+    const wrapper = root?.closest<HTMLElement>('[data-home-v5-scroll]');
+    if (!root || !wrapper) return;
+
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const compact = window.matchMedia('(max-width: 860px)').matches;
+      const motion = getV5HeroMotion(
+        wrapper.getBoundingClientRect().top,
+        wrapper.getBoundingClientRect().height,
+        window.innerHeight,
+        reducedMotion || compact,
+      );
+      root.dataset.v5Scene = String(motion.scene);
+      root.style.setProperty('--v5-scene-one', motion.first.toFixed(3));
+      root.style.setProperty('--v5-scene-two', motion.second.toFixed(3));
+      root.style.setProperty('--v5-scene-three', motion.third.toFixed(3));
+      root.style.setProperty('--v5-shift', motion.shift.toFixed(1) + 'px');
+      root.style.setProperty('--v5-progress', motion.progress.toFixed(3));
+    };
+    const schedule = () => {
+      if (raf === 0) raf = requestAnimationFrame(update);
+    };
+    schedule();
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule, { passive: true });
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('scroll', schedule);
+      window.removeEventListener('resize', schedule);
+      delete root.dataset.v5Scene;
+      for (const property of [
+        '--v5-scene-one', '--v5-scene-two', '--v5-scene-three',
+        '--v5-shift', '--v5-progress',
+      ]) root.style.removeProperty(property);
+    };
+  }, [reducedMotion]);
 
   const moveScene: PointerEventHandler<HTMLElement> = (event) => {
     if (reducedMotion || (event.pointerType !== 'mouse' && event.pointerType !== 'pen')) return;
@@ -102,6 +145,11 @@ export function PodiumBrandHero() {
             <span>{isVi ? 'vượt' : 'beyond'}</span>{' '}
             <span className="r1-cinema__title-accent">{isVi ? 'Giới hạn.' : 'Limits.'}</span>
           </h1>
+          <p className="home-v5__intro" data-launch-reveal>
+            {isVi
+              ? 'Một góc nhìn mới về tốc độ, con người và công nghệ của Formula 1.'
+              : 'A different perspective on the speed, people and engineering of Formula 1.'}
+          </p>
           <div className="r1-cinema__actions" data-launch-reveal>
             <button type="button" className="r1-cinema__primary" onClick={() => navigate('/season/2026?tab=results')}>
               {isVi ? 'Mùa giải 2026' : 'Explore season'} <ArrowRight size={18} aria-hidden="true" />
@@ -117,6 +165,20 @@ export function PodiumBrandHero() {
             <span>EDS / 01</span>
           </div>
           <HomeRacePulseScene />
+          <div className="home-v5__narrative" aria-hidden="true">
+            <p className="home-v5__narrative-line home-v5__narrative-line--one">
+              <span>01 / FORM</span>
+              {isVi ? 'Hình hài của tốc độ' : 'The shape of speed'}
+            </p>
+            <p className="home-v5__narrative-line home-v5__narrative-line--two">
+              <span>02 / ENGINEERING</span>
+              {isVi ? 'Thiết kế để chuyển động' : 'Made to move'}
+            </p>
+            <p className="home-v5__narrative-line home-v5__narrative-line--three">
+              <span>03 / DISCOVER</span>
+              {isVi ? 'Phía sau mỗi cuộc đua' : 'Beyond every race'}
+            </p>
+          </div>
         </div>
         <HomeCommandStrip race={nextRace} />
       </div>
