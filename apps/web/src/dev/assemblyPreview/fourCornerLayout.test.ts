@@ -25,6 +25,7 @@ function originalMeasuredFixture():OwnerMeasuredFit{
     ],
     frontPositiveZCenterM:[1.290054338,-.18666721,.881293695],
     originalP28WheelCenterM:[.001,-.001,0],
+    originalP28TyreWidthM:.314,
     axleSpacingPreviewM:3.24268753,
     normalizedShellEnvelopeM:[4.824041357,1.018927469,2.000901692],
     radiusSpreadFraction:.023,mechanicalFitCertified:false,
