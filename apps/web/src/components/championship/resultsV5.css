@@ -19,6 +19,7 @@
   box-shadow: none;
   backdrop-filter: none;
 }
+.f4-championship.c1-results-active .page-container > .f4-controls { margin-top: 0; }
 .f4-championship.c1-results-active .f4-controls .f4-season-row { gap: .75rem; }
 .f4-championship.c1-results-active .f4-season-label { color: #b4bfc1; letter-spacing: .12em; }
 .f4-championship.c1-results-active .f4-season-switcher button {
@@ -427,6 +428,23 @@
 }
 .results-v5 .c11-results-empty strong { color: #fbf3e7; }
 
+/* Data-first highlights without decorative gold/silver buttons. */
+.rc-race-center.results-v5 .c11-table tbody tr[data-podium] .rc-rank {
+  min-width: 1.8rem;
+  color: #fff5e7;
+  background: transparent;
+  box-shadow: none;
+}
+.results-v5 .c11-result-state--provisional {
+  color: #ffe2b6;
+  border-color: #9d8252;
+  background: #3c3121;
+}
+.results-v5 .c11-result-state--summary {
+  color: #d9e3e4;
+  border-color: #69767c;
+  background: #293136;
+}
 /* The image and editorial elements respond to scroll; interactive controls do not. */
 @supports (animation-timeline:view()) {
   @media (prefers-reduced-motion:no-preference) {
