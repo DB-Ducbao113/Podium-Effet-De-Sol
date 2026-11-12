@@ -42,6 +42,9 @@ export function sourceMeshWorldCentre(mesh:THREE.Mesh,target=new THREE.Vector3()
  * This is geometry validation for X-ray acceptance as well as camera fit.
  */
 export function sourceMeshWorldFocusBounds(mesh:THREE.Mesh){
+ const position=mesh.geometry.getAttribute('position');
+ if(!position||position.itemSize!==3||position.count<3)
+   throw Error('Selected original CAD source focus has no vertex geometry');
  if(!mesh.geometry.boundingBox)mesh.geometry.computeBoundingBox();
  const box=mesh.geometry.boundingBox;
  if(!box||box.isEmpty())
