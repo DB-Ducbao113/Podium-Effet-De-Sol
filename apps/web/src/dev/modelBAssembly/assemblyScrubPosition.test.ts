@@ -15,6 +15,32 @@ describe('P2.36 Model B direct timeline scrubbing',()=>{
     .toBeCloseTo(progress,10);
   }
  });
+ it('round-trips chapter links, drag positions and wheel scrolling consistently',()=>{
+  const chapters=[0,.15,.30,.50,.69,.85,1];
+  const layouts=[
+    {top:0,height:6500,viewport:1080},
+    {top:155,height:4300,viewport:768},
+    {top:1400,height:3300,viewport:640},
+    {top:-250,height:250,viewport:390},
+  ];
+  for(const frame of layouts)for(const progress of chapters){
+   const absoluteTop=assemblyScrollTop(frame.top,frame.height,
+     frame.viewport,progress);
+   const observed=assemblyScrollProgress(frame.top,frame.height,
+     frame.viewport,absoluteTop);
+   expect(observed).toBeCloseTo(progress,12);
+  }
+ });
+ it('matches the CSS DOMRect scroll expression, including when scrolling backwards',()=>{
+  const top=450,height=5700,viewport=900;
+  for(let i=1000;i>=0;i--){
+   const pageScroll=assemblyScrollTop(top,height,viewport,i/1000);
+   const rectTop=top-pageScroll;
+   const measured=assemblyScrollProgress(
+     pageScroll+rectTop,height,viewport,pageScroll);
+   expect(measured).toBeCloseTo(i/1000,10);
+  }
+ });
  it('clamps progress and handles short tracks',()=>{
   expect(assemblyScrollTop(200,400,1000,-1)).toBe(200);
   expect(assemblyScrollTop(200,400,1000,2)).toBe(201);
