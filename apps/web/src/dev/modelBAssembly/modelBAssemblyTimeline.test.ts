@@ -3,7 +3,7 @@ import {
  MODEL_B_CHAPTERS,chapterAt,clamp01,smoothStep,
  visualShellOpacity,exteriorSeparation,originalPartAssembly,
  rearSourceAssembly,stablePartOffset,wheelOffset,sourceMateStatus,
- originalBodySourceOnlySeparation,
+ originalBodySourceOnlySeparation,originalPartAssemblyAtStation,
 } from './modelBAssemblyTimeline';
 describe('Original Model B source-locked scroll choreography',()=>{
  it('covers the full scroll without gaps, forward and reverse',()=>{
@@ -74,6 +74,41 @@ describe('Original Model B source-locked scroll choreography',()=>{
      .toBeGreaterThan(rearSourceAssembly(.70,'joint','P214_UPPER_SPLIT_RACE_POSITIVE_X'));
    expect(rearSourceAssembly(1,'toe','foo')).toBe(1);
    expect(rearSourceAssembly(1,'joint','bar')).toBe(1);
+ });
+ it('P2.42 offsets original four wheel stations in an explicit sequential source order',()=>{
+   const tyre='P2_TYRE_SLICK_BODY';
+   const stations=[
+     'front-positive-z','front-negative-z',
+     'rear-positive-z','rear-negative-z',
+   ] as const;
+   const frames=stations.map(station=>originalPartAssemblyAtStation(tyre,.735,station));
+   expect(frames[0]).toBeGreaterThan(frames[1]);
+   expect(frames[1]).toBeGreaterThan(frames[2]);
+   expect(frames[2]).toBeGreaterThan(frames[3]);
+   for(const station of stations){
+     expect(originalPartAssemblyAtStation(tyre,0,station)).toBe(0);
+     expect(originalPartAssemblyAtStation(tyre,.85,station)).toBe(1);
+     expect(originalPartAssemblyAtStation(tyre,1,station)).toBe(1);
+   }
+ });
+ it('P2.42 guarantees four-wheel scroll reversibility and bounds without moving source CAD',()=>{
+   const tyre='P2_TYRE_SLICK_BODY',bolt='P2_FASTENER_BOLT_01';
+   const stations=[
+     'front-positive-z','front-negative-z',
+     'rear-positive-z','rear-negative-z',
+   ] as const;
+   for(const name of [tyre,bolt])for(const station of stations)
+     for(let i=1000;i>=0;i--){
+       const p=i/1000;
+       const fraction=originalPartAssemblyAtStation(name,p,station);
+       expect(fraction).toBeGreaterThanOrEqual(0);
+       expect(fraction).toBeLessThanOrEqual(1);
+       expect(fraction).toBe(originalPartAssemblyAtStation(name,p,station));
+     }
+ });
+ it('P2.42 rejects unknown source wheel stations instead of generating a phantom fifth corner',()=>{
+   expect(()=>originalPartAssemblyAtStation('P2_TYRE_SLICK_BODY',.5,
+     'rear-other-z' as never)).toThrow(/Unknown original Model B/);
  });
  it('preserves nonmirror registration and rejects malformed interpolation',()=>{
    expect(wheelOffset('P2_TYRE_SLICK_BODY','rear')[2]).toBeLessThan(0);
