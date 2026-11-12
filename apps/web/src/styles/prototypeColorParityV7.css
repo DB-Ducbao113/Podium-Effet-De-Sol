@@ -484,6 +484,37 @@ body:has(.peds-about--prototype) #root {background:var(--peds-proto-paper);}
   outline-offset:3px;
 }
 
+/* Prototype accent replaces the legacy fluorescent orange in editorial nav.
+   Foreground Ink provides >4.5:1 contrast on #d16a49. */
+.h1-nav.h1-nav--v4:is([data-prototype-surface='paper'],[data-prototype-surface='night']) .h1-nav__cta,
+.h1-nav.h1-nav--v4:is([data-prototype-surface='paper'],[data-prototype-surface='night']) .h1-nav__mobile-cta {
+  background:var(--peds-proto-accent)!important;
+  color:var(--peds-proto-ink)!important;
+  border-color:var(--peds-proto-accent)!important;
+  border-radius:0;
+  box-shadow:none!important;
+}
+.h1-nav.h1-nav--v4:is([data-prototype-surface='paper'],[data-prototype-surface='night']) .h1-nav__cta:hover,
+.h1-nav.h1-nav--v4:is([data-prototype-surface='paper'],[data-prototype-surface='night']) .h1-nav__mobile-cta:hover {
+  background:#e29a7d!important;
+  color:var(--peds-proto-ink)!important;
+}
+.h1-nav.h1-nav--v4:is([data-prototype-surface='paper'],[data-prototype-surface='night']) .h1-nav__sub:hover,
+.h1-nav.h1-nav--v4:is([data-prototype-surface='paper'],[data-prototype-surface='night']) .h1-nav__sub[aria-current='true'] {
+  background:rgba(209,106,73,.12)!important;
+  color:var(--peds-proto-ink)!important;
+}
+.h1-nav.h1-nav--v4:is([data-prototype-surface='paper'],[data-prototype-surface='night']) .h1-nav__mobile-link[aria-current='page'] {
+  color:#a74b32!important;
+}
+.h1-nav.h1-nav--v4:is([data-prototype-surface='paper'],[data-prototype-surface='night']) .h1-nav__toggle {
+  border-color:rgba(24,28,26,.25);
+  border-radius:0;
+}
+.h1-nav.h1-nav--v4[data-prototype-surface='night'] .h1-nav__toggle {
+  border-color:rgba(247,245,239,.3);
+}
+
 /* FOOTER — prototype Night, no blue-tinted overlays or neon ignition. */
 .peds-footer {
   color:var(--peds-proto-white);
