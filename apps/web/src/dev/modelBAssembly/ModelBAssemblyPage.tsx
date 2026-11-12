@@ -278,7 +278,7 @@ export default function ModelBAssemblyPage(){
  const splitPartIds=useMemo(()=>splitRace?.manifest.newPartNames??null,[splitRace]);
  const allRear=coverage.p212Verified&&coverage.p214Verified;
  const truth=modelBChapterTruth(chapter.id,cadLoaded,
-   coverage.p212Verified,coverage.p214Verified);
+   coverage.p212Verified,coverage.p214Verified,coverage.originalVerified);
  const description=truth.kind==='ORIGINAL_CAD_ASSEMBLY'
    ?chapter.description:truth.description;
  const evidence=truth.kind==='ORIGINAL_CAD_ASSEMBLY'
