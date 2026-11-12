@@ -2,7 +2,7 @@ import {describe,expect,it} from 'vitest';
 import * as THREE from 'three';
 import type {InspectedCadPart} from './cadPartInspector';
 import {highlightSourceMaterials,locateSelectedCadMesh,sourceMeshWorldCentre,
- type SourceFocusItem} from './cadFocus';
+ sourceMeshWorldFocusBounds,type SourceFocusItem} from './cadFocus';
 
 const selected={
  partId:'P28_REAL_BOLT_001',wheelStation:'front-positive-z',
@@ -49,6 +49,32 @@ describe('Original Model B selected CAD source focusing',()=>{
   expect(result.z).toBeCloseTo(.77,9);
   const raw=item.mesh.getWorldPosition(new THREE.Vector3());
   expect(result.distanceTo(raw)).toBeGreaterThan(.3);
+ });
+ it('P2.40 fits only the selected mesh own CAD geometry, not nested children',()=>{
+  const {root,item}=fixture();
+  const giantChild=new THREE.Mesh(new THREE.BoxGeometry(20,2,3));
+  giantChild.position.x=8;
+  item.mesh.add(giantChild);
+  root.updateWorldMatrix(true,true);
+  const focused=sourceMeshWorldFocusBounds(item.mesh);
+  expect(focused.diagonal).toBeGreaterThan(0);
+  expect(focused.diagonal).toBeLessThan(.08);
+  const parentPlusChild=new THREE.Box3().setFromObject(item.mesh);
+  expect(parentPlusChild.getSize(new THREE.Vector3()).length())
+   .toBeGreaterThan(5);
+  giantChild.geometry.dispose();
+  item.mesh.geometry.dispose();
+ });
+ it('P2.40 rejects invalid original CAD part geometry before focus is verified',()=>{
+  const mesh=new THREE.Mesh(new THREE.BufferGeometry());
+  expect(()=>sourceMeshWorldFocusBounds(mesh)).toThrow(/no vertex geometry/);
+  const corrupted=new THREE.BoxGeometry(.1,.1,.1);
+  corrupted.boundingBox=new THREE.Box3(
+   new THREE.Vector3(NaN,0,0),new THREE.Vector3(1,1,1));
+  const bad=new THREE.Mesh(corrupted);
+  expect(()=>sourceMeshWorldFocusBounds(bad)).toThrow(/world bounds/);
+  corrupted.dispose();
+  mesh.geometry.dispose();
  });
  it('highlights the selected clone only and restores source materials',()=>{
   const {item,material}=fixture();
