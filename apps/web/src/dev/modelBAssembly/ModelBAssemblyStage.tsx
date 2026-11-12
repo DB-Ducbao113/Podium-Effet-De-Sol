@@ -26,6 +26,7 @@ import {
  sourceCadInspectionDotOpacity,type SourceCadVertexDots,
 } from './sourceCadVertexDots';
 import {sourceCadDotFrame,updateSourceCadDotRange} from './sourceCadDotProgress';
+import {sourceFrameSettled} from './sourceFrameSettling';
 import {beginSourceCadRenderEvidence,createSourceCadRenderEvidence,recordUniqueSourceCadAfterRender,
  type SourceCadRenderKind} from './sourceCadRenderEvidence';
 import {
@@ -910,6 +911,10 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
    renderCanvas.dataset.pedsModelBSceneProgress=p.toFixed(6);
    renderCanvas.dataset.pedsModelBCameraErrorM=
      cameraErrorM.toFixed(6);
+   renderCanvas.dataset.pedsModelBSceneSettled=String(
+     sourceFrameSettled({
+       progress:p,cameraErrorM,frame:renderEvidence.current.frame,
+     },desired,Math.max(0,renderEvidence.current.frame-2)));
  });
  return <>
    <StudioLights/>
