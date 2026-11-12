@@ -1,0 +1,525 @@
+/*
+ * PEDS / PROTOTYPE V5 COLOUR PARITY (V7)
+ * Source of truth: PEDS_CINEMATIC_PROTOTYPE_V5(1).html
+ * Scope: Home, Results, Calendar, Standings, Teams, Drivers, About, Navbar,
+ * and Footer. NO changes to Showroom / Engineering styling or WebGL content.
+ *
+ * Exactly preserved primitives from the owner-approved prototype:
+ * Night #121514, Night Deep #0b0f0e, Paper #efede7, Paper Deep #e4e0d8,
+ * White #f7f5ef, Accent #d16a49, Ink #171b19, Dim #747973.
+ * Component-specific team palettes remain separately controlled by
+ * DirectorySurfaces EDITORIAL_TEAM_SIGNATURES; no F1 data is restyled into fact.
+ */
+:root {
+  --peds-proto-night:#121514;
+  --peds-proto-night-deep:#0b0f0e;
+  --peds-proto-driver-field:#151b19;
+  --peds-proto-paper:#efede7;
+  --peds-proto-paper-deep:#e4e0d8;
+  --peds-proto-surface:#e6e3dc;
+  --peds-proto-white:#f7f5ef;
+  --peds-proto-ink:#171b19;
+  --peds-proto-dim:#747973;
+  --peds-proto-accent:#d16a49;
+  --peds-proto-hair:rgba(24,28,26,.16);
+}
+
+/* Only rebind the existing editorial palette; global app semantic tokens
+ * remain unchanged to avoid changing Showroom and Engineering. */
+:root {
+  --peds-v6-paper:var(--peds-proto-paper);
+  --peds-v6-stone:var(--peds-proto-paper-deep);
+  --peds-v6-ink:var(--peds-proto-ink);
+  --peds-v6-faint:#616a62;
+  --peds-v6-line:#c8c4ba;
+}
+
+/* HOME — V5 NIGHT → CHALK → EMBER from the reference.
+   Existing JS already supplies a reversible --v5-scene-*-progress for all
+   three scenes. Change only the scrim colours, never car scale or visibility. */
+.home-v5 {
+  --v5-paper:var(--peds-proto-white);
+  background:var(--peds-proto-night);
+}
+.home-v5 .r1-cinema--v7 {
+  background:
+    radial-gradient(ellipse 40% 55% at 78% 68%,rgba(59,56,50,.19),transparent 74%),
+    linear-gradient(115deg,#111514,#151816 61%,var(--peds-proto-night-deep));
+  color:var(--peds-proto-white);
+}
+.home-v5 .r1-cinema--v7::before {
+  content:'';
+  position:absolute;inset:0;z-index:0;
+  display:block;pointer-events:none;
+  mask-image:none;
+  opacity:var(--v5-scene-two,0);
+  background:radial-gradient(ellipse 55% 45% at 72% 67%,#e6e1d6,#eeeae2 70%);
+  transition:none;
+}
+.home-v5 .r1-cinema--v7::after {
+  content:'';
+  position:absolute;inset:0;z-index:0;
+  display:block;pointer-events:none;
+  opacity:var(--v5-scene-three,0);
+  background:
+    radial-gradient(ellipse 55% 54% at 77% 77%,rgba(102,52,40,.32),transparent 70%),
+    linear-gradient(125deg,#131716,#161918 60%,#101110);
+  transition:none;
+}
+.home-v5 .r1-cinema--v7 .r1-cinema__inner {position:relative;z-index:2;}
+.home-v5 .r1-cinema--v7 .r1-cinema__title,
+.home-v5 .r1-cinema--v7 .r1-cinema__title-accent {
+  color:var(--peds-proto-white);
+  -webkit-text-fill-color:currentColor;
+}
+.home-v5 .r1-cinema--v7[data-v5-scene='2'] .r1-cinema__title,
+.home-v5 .r1-cinema--v7[data-v5-scene='2'] .r1-cinema__title-accent,
+.home-v5 .r1-cinema--v7[data-v5-scene='2'] .r1-cinema__eyebrow {
+  color:var(--peds-proto-ink);
+  text-shadow:none;
+}
+.home-v5 .r1-cinema--v7[data-v5-scene='2'] .home-v5__intro {color:#565d56;}
+.home-v5 .r1-cinema--v7[data-v5-scene='2'] .r1-cinema__primary {
+  background:var(--peds-proto-ink);
+  color:var(--peds-proto-white);
+}
+.home-v5 .r1-cinema--v7[data-v5-scene='2'] .r1-cinema__secondary {
+  color:var(--peds-proto-ink);
+  border-color:var(--peds-proto-ink)!important;
+}
+.home-v5 .r1-cinema--v7 .r1-cinema__title-accent {
+  font-style:italic;
+  font-weight:400;
+}
+.home-v5 .r1-cinema--v7 .r1-cinema__primary {
+  background:var(--peds-proto-white);
+  color:var(--peds-proto-ink);
+}
+.home-v5 .r1-cinema--v7 .r1-cinema__secondary {
+  color:var(--peds-proto-white);
+  border-color:rgba(247,245,239,.55)!important;
+}
+.home-v5 .home-v3__content,
+.r1-home.home-v5 .home-v3__content {
+  background:var(--peds-proto-paper);
+  color:var(--peds-proto-ink);
+}
+.home-v5 .home-rc {
+  background:var(--peds-proto-paper);
+  color:var(--peds-proto-ink);
+}
+.home-v5 .home-rc__map {background:var(--peds-proto-paper-deep);}
+.home-v5 .home-title-fight {
+  background:var(--peds-proto-paper);
+  color:var(--peds-proto-ink);
+}
+.home-v5 .home-title-fight .home-live__heading h2,
+.home-v5 .home-title-fight .home-live__heading > a,
+.home-v5 .home-title-fight__year {color:var(--peds-proto-ink);}
+.home-v5 .home-title-fight .home-live__rule {background:var(--peds-proto-hair);}
+.home-v5 .home-title-fight__panel {
+  background:var(--peds-proto-surface);
+  border-color:var(--peds-proto-hair);
+}
+.home-v5 .home-v5__editorial {
+  background:var(--peds-proto-paper);
+  color:var(--peds-proto-ink);
+}
+.home-v5 .home-v5__editorial-art {
+  background:var(--peds-proto-night);
+}
+.home-v5 .eds-explore {
+  background:var(--peds-proto-paper);
+  color:var(--peds-proto-ink);
+}
+.home-v5 .eds-explore__header h2 {color:var(--peds-proto-ink);}
+.home-v5 .eds-explore__header-rule {background:var(--peds-proto-hair);}
+.home-v5 .eds-explore__card {background:var(--peds-proto-paper-deep);}
+.home-v5 .eds-explore__card:focus-visible,
+.home-v5 .r1-cinema__actions button:focus-visible {outline:3px solid var(--peds-proto-accent);outline-offset:3px;}
+
+/* RESULTS & CALENDAR — V5 data-section: paper with stone-grey cards.
+   Keep imagery in a bounded dark photo island. */
+.r1-championship.f4-championship:not(.is-journey),
+.r1-championship .destination-v6,
+.r1-championship .results-v6-detail {
+  background:var(--peds-proto-paper)!important;
+  color:var(--peds-proto-ink);
+  color-scheme:light;
+}
+.r1-championship .destination-v6__card {
+  background:var(--peds-proto-paper-deep);
+  color:var(--peds-proto-ink);
+  border-color:transparent;
+}
+.r1-championship .destination-v6__card:hover,
+.r1-championship .destination-v6__card:focus-visible {
+  background:#d6d6ce;
+  border-color:#979b93;
+}
+.r1-championship .destination-v6__head h2,
+.r1-championship .destination-v6__names strong,
+.r1-championship .destination-v6__names em {color:var(--peds-proto-ink);}
+.r1-championship .destination-v6__number,
+.r1-championship .destination-v6__overline,
+.r1-championship .destination-v6__lower > span {color:#656c64;}
+.r1-championship .destination-v6__mode {
+  background:transparent;
+  border-color:#848a82;
+  color:var(--peds-proto-ink);
+}
+.r1-championship .destination-v6__return {background:var(--peds-proto-paper);}
+.r1-championship .results-v6-detail .rc-pinned-controls,
+.r1-championship .results-v6-detail .rc-round-rail,
+.r1-championship .results-v6-detail .rc-rail-season,
+.r1-championship .results-v6-detail .rc-pinned-controls .c11-session-tabs {
+  background:var(--peds-proto-paper-deep);
+  border-color:#c5c2b9;
+  color:var(--peds-proto-ink);
+}
+.r1-championship .results-v6-detail .rc-round-hero {
+  background:var(--peds-proto-night);
+  color:var(--peds-proto-white);
+}
+.r1-championship .results-v6-detail .results-v5__podium {
+  background:#ddd9d0;
+  color:var(--peds-proto-ink);
+}
+.r1-championship .results-v6-detail .results-v5__podium-title h3,
+.r1-championship .results-v6-detail .results-v5__micro {color:var(--peds-proto-ink);}
+.r1-championship .results-v6-detail .results-v5__podium-entry,
+.r1-championship .results-v6-detail .results-v5__podium-entry:first-child {
+  background:color-mix(in srgb,var(--team-color,#89938b) 9%,#e4e0d8);
+  color:var(--peds-proto-ink);
+}
+.r1-championship .results-v6-detail .c11-classification,
+.r1-championship .results-v6-detail .c11-classification-meta,
+.r1-championship .results-v6-detail .c11-table-wrap {background:var(--peds-proto-surface);}
+.r1-championship .results-v6-detail .c11-table {background:var(--peds-proto-paper);}
+.r1-championship .results-v6-detail .c11-table thead th {background:#d6d6ce;color:#303732;}
+.r1-championship .results-v6-detail .c11-table tbody tr,
+.r1-championship .results-v6-detail .c11-table tbody tr:nth-child(-n+3) {
+  background:var(--peds-proto-paper);
+}
+.r1-championship .results-v6-detail .c11-table tbody tr:nth-child(even) {background:var(--peds-proto-surface);}
+.r1-championship .results-v6-detail .c11-table tbody tr:hover {background:#e2dfd6;}
+.r1-championship .cal-v5__detail {background:var(--peds-proto-paper);color:var(--peds-proto-ink);}
+.r1-championship .cal-v5__detail .cal-v5__detail-head,
+.r1-championship .cal-v5__detail .cal-filters,
+.r1-championship .cal-v5__detail .cal-rail {background:var(--peds-proto-paper-deep);}
+.r1-championship .cal-v5__detail .cal-layout {background:var(--peds-proto-paper);}
+.r1-championship .cal-v5__detail .c1-round {background:var(--peds-proto-surface);}
+.r1-championship .cal-v5__detail .c1-round:nth-child(even) {background:var(--peds-proto-paper-deep);}
+.r1-championship .cal-v5__detail .c1-round:is(:hover,:focus-within) {background:#d6d6ce;}
+.r1-championship .cal-v5__detail .cal-weekend {background:var(--peds-proto-surface);}
+.r1-championship .cal-v5__detail .cal-session-card {background:var(--peds-proto-white);}
+.r1-championship .cal-v5__detail .cal-next {background:var(--peds-proto-night);}
+.r1-championship .cal-v5__detail .cal-next-visual::after {
+  background:linear-gradient(90deg,rgba(18,21,20,.92),rgba(18,21,20,.4) 55%,transparent);
+}
+/* World Tour remains an explicit user-selected alternative: dark Night
+ * stage and animated map, without replacing the functional globe renderer. */
+.r1-championship .cal-v5__world {
+  background:var(--peds-proto-night);
+  color:var(--peds-proto-white);
+}
+.r1-championship .cal-v5__world .rcj-content {
+  background:var(--peds-proto-night);
+}
+.r1-championship .cal-v5__world .rcj-map-stage {
+  background:
+    radial-gradient(ellipse 40% 55% at 78% 68%,rgba(59,56,50,.26),transparent 74%),
+    linear-gradient(115deg,#111514,#151816 61%,#0b0f0e);
+}
+.r1-championship .cal-v5__world .rcj-map-stage::after {
+  background:radial-gradient(ellipse at 50% 48%,transparent 40%,rgba(11,15,14,.5));
+}
+.r1-championship .cal-v5__world .rcj-nav {
+  background:linear-gradient(0deg,rgba(11,15,14,.97),rgba(18,21,20,.72) 72%,transparent);
+}
+.r1-championship .cal-v5__world .rcj-stage-kicker,
+.r1-championship .cal-v5__world .rcj-stage-counter,
+.r1-championship .cal-v5__world .rcj-globe-details {color:#e1ad99;}
+.r1-championship .cal-v5__world .rcj-stage-title,
+.r1-championship .cal-v5__world .rcj-journey-intro p {color:var(--peds-proto-white);}
+.r1-championship .cal-v5__world .rcj-stage-title em,
+.r1-championship .cal-v5__world .rcj-journey-intro p em {color:#e7c5af;}
+
+/* STANDINGS — V5 light rank-body (#e6e3dc); dark photo/inspector
+ * remain semantic islands for high-contrast labels and team imagery. */
+.r1-championship.f4-championship.p5-standings-shell {background:var(--peds-proto-paper)!important;}
+.r1-championship .p5-standings-v5 {background:var(--peds-proto-paper);}
+.r1-championship .p5-standings-v5 .p5-standings-hero {
+  background:var(--peds-proto-paper-deep);
+}
+.r1-championship .p5-standings-v5 .p5-hero-media {background:var(--peds-proto-night);}
+.r1-championship .p5-standings-v5 .p5-kicker,
+.r1-championship .p5-standings-v5 .standings-v5__leader > span,
+.r1-championship .p5-standings-v5 .standings-v5__facts dt {color:#5b625a;}
+.r1-championship .p5-standings-v5 .mini-race {
+  background:var(--peds-proto-surface);
+  color:var(--peds-proto-ink);
+}
+.r1-championship .p5-standings-v5 .mini-race__heading,
+.r1-championship .p5-standings-v5 .mini-race__arena {background:var(--peds-proto-surface);}
+.r1-championship .p5-standings-v5 .mini-race__track {
+  background:#cacac2;
+  border-color:#9b9e95;
+}
+.r1-championship .p5-standings-v5 .mini-race__travel {
+  background:var(--mini-race-team,#9a5446);
+}
+.r1-championship .p5-standings-v5 .mini-race__select:is(:hover,[aria-pressed='true'],:focus-visible) {
+  background:var(--peds-proto-white);
+}
+.r1-championship .p5-standings-v5 .mini-race__inspector {
+  background:var(--peds-proto-night);
+  color:var(--peds-proto-white);
+}
+.r1-championship .p5-standings-v5 .mini-race__inspector dl div {
+  background:#202623;
+}
+.r1-championship .p5-standings-v5 .mini-race__inspector-rank {color:var(--peds-proto-white);}
+.r1-championship .p5-standings-v5 .mini-race__inspector a {color:#e7c4b5;}
+.r1-championship .p5-standings-v5 .p5-standings-links {
+  background:var(--peds-proto-night);
+}
+.r1-championship .p5-standings-v5 .p5-standings-links a {color:var(--peds-proto-white);}
+
+/* TEAMS — light directory. Keep owner-approved per-team signatures, not
+ * a generic alternating three-card colour or team-colour hardcoding here. */
+.p5-gallery-page[data-directory-kind='teams'],
+.p5-gallery-embedded[data-directory-kind='teams'] {
+  background:var(--peds-proto-paper);
+  color:var(--peds-proto-ink);
+}
+.p5-gallery-page[data-directory-kind='teams'] .p5-gallery-hero,
+.p5-gallery-embedded[data-directory-kind='teams'] .p5-section-head {
+  background:var(--peds-proto-paper-deep);
+  color:var(--peds-proto-ink);
+}
+.p5-gallery-page[data-directory-kind='teams'] .p5-team-card--garage,
+.p5-gallery-embedded[data-directory-kind='teams'] .p5-team-card--garage {
+  background:var(--team-paper,var(--peds-proto-paper-deep));
+  color:var(--peds-proto-ink);
+}
+.p5-gallery-page[data-directory-kind='teams'] .p5-team-card-body,
+.p5-gallery-embedded[data-directory-kind='teams'] .p5-team-card-body {
+  background:var(--team-paper,var(--peds-proto-paper-deep));
+}
+.p5-gallery-page[data-directory-kind='teams'] .p5-team-card-art,
+.p5-gallery-embedded[data-directory-kind='teams'] .p5-team-card-art {
+  background:var(--team-deep,var(--peds-proto-night));
+}
+
+/* DRIVERS — reference has dark directory #151b19, not a paper gallery.
+ * Keep the team/driver-specific card gradients approved in V6.1. */
+.p5-gallery-page[data-directory-kind='drivers'],
+.p5-gallery-embedded[data-directory-kind='drivers'] {
+  background:var(--peds-proto-driver-field);
+  color:var(--peds-proto-white);
+  color-scheme:dark;
+}
+.p5-gallery-page[data-directory-kind='drivers'] .p5-controls {
+  background:#242a25;
+  border-color:#59615a;
+}
+.p5-gallery-page[data-directory-kind='drivers'] .p5-controls :is(input,select) {
+  background:#111815;color:var(--peds-proto-white);border-color:#7c837c;
+}
+.p5-gallery-page[data-directory-kind='drivers'] .p5-controls label,
+.p5-gallery-page[data-directory-kind='drivers'] .p5-controls-meta,
+.p5-gallery-page[data-directory-kind='drivers'] .p5-kicker,
+.p5-gallery-embedded[data-directory-kind='drivers'] .p5-kicker,
+.p5-gallery-page[data-directory-kind='drivers'] .p5-portrait-credit,
+.p5-gallery-embedded[data-directory-kind='drivers'] .p5-portrait-credit,
+.p5-gallery-page[data-directory-kind='drivers'] .p5-section-note,
+.p5-gallery-embedded[data-directory-kind='drivers'] .p5-section-note {color:#c2ccc3;}
+.p5-gallery-page[data-directory-kind='drivers'] .p5-section-head,
+.p5-gallery-embedded[data-directory-kind='drivers'] .p5-section-head {
+  background:#202722;
+  border-color:#404c43;
+}
+.p5-gallery-page[data-directory-kind='drivers'] .p5-section-head :is(h2,h3),
+.p5-gallery-embedded[data-directory-kind='drivers'] .p5-section-head :is(h2,h3) {
+  color:var(--peds-proto-white);
+}
+.p5-gallery-page[data-directory-kind='drivers'] .p5-gallery-links {border-top-color:#667267;}
+.p5-gallery-page[data-directory-kind='drivers'] .p5-gallery-links a {color:#e6e8e1;}
+.p5-gallery-page[data-directory-kind='drivers'] .p5-gallery-links a:hover {color:#e7b5a3;}
+
+/* ABOUT — paper hero and subdued stone principles, no unrelated neon.
+ * Existing content stays intact; these rules only change palette/surfaces. */
+.peds-about-layout.peds-about--prototype {
+  background:var(--peds-proto-paper);
+  color:var(--peds-proto-ink);
+  min-height:90svh;
+}
+body:has(.peds-about--prototype) #root {background:var(--peds-proto-paper);}
+.peds-about--prototype > header {
+  background:var(--peds-proto-paper);
+  color:var(--peds-proto-ink);
+  border-bottom:1px solid var(--peds-proto-hair);
+}
+.peds-about--prototype > header .peds-display-page {
+  color:var(--peds-proto-ink);
+  font-weight:800;
+  letter-spacing:-.07em;
+  text-shadow:none;
+}
+.peds-about--prototype > section,
+.peds-about--prototype > div.grid > section {
+  color:var(--peds-proto-ink);
+  background:var(--peds-proto-paper-deep);
+  border:1px solid var(--peds-proto-hair);
+  border-radius:0;
+  box-shadow:none;
+}
+.peds-about--prototype > section:first-of-type {
+  background:#ddd9d0;
+}
+.peds-about--prototype :is(.text-white,.text-studio-300,.text-studio-400,.text-peds-text-muted) {
+  color:#4e574f;
+}
+.peds-about--prototype :is(h1,h2,h3,.font-editorial,.font-display) {color:var(--peds-proto-ink);}
+.peds-about--prototype :is(.text-f1red,.hover\:text-f1red) {color:#a94f32;}
+.peds-about--prototype :is(.bg-white\/5,.bg-white\/10,.bg-f1red\/10) {
+  background:rgba(23,27,25,.055);
+}
+.peds-about--prototype :is(.border-white\/10,.border-white\/15,.border-studio-800) {
+  border-color:var(--peds-proto-hair);
+}
+.peds-about--prototype .bg-gradient-to-tr.from-f1red {
+  background:var(--peds-proto-accent);
+}
+.peds-about--prototype > div:last-child > a {
+  border-radius:0;
+  border:1px solid #989e94;
+}
+.peds-about--prototype > div:last-child > a:last-child {
+  background:#d5d2c9;
+  color:var(--peds-proto-ink);
+}
+.peds-about--prototype a:focus-visible {outline:2px solid var(--peds-proto-accent);outline-offset:4px;}
+
+/* NAVBAR — prototype's Night/Paper variants with exact accent.
+ * 'legacy' stays V4 for Showroom / Engineering and is not touched. */
+.h1-nav.h1-nav--v4[data-prototype-surface='paper'] {
+  color:var(--peds-proto-ink);
+}
+.h1-nav.h1-nav--v4[data-prototype-surface='paper'] .h1-nav__bar,
+.h1-nav.h1-nav--v4[data-prototype-surface='paper'].h1-nav--scrolled .h1-nav__bar {
+  background:rgba(239,237,231,.96)!important;
+  border:1px solid rgba(24,28,26,.16)!important;
+  color:var(--peds-proto-ink);
+  box-shadow:none!important;
+  backdrop-filter:blur(16px);
+}
+.h1-nav.h1-nav--v4[data-prototype-surface='night'] .h1-nav__bar,
+.h1-nav.h1-nav--v4[data-prototype-surface='night'].h1-nav--scrolled .h1-nav__bar {
+  background:rgba(18,21,20,.95)!important;
+  border:1px solid rgba(247,245,239,.14)!important;
+  box-shadow:none!important;
+}
+.h1-nav.h1-nav--v4[data-prototype-surface='paper'] .h1-nav__bar::before,
+.h1-nav.h1-nav--v4[data-prototype-surface='night'] .h1-nav__bar::before {
+  display:none!important;
+}
+.h1-nav.h1-nav--v4[data-prototype-surface='paper'] .h1-nav__brand-logo {
+  filter:brightness(.1);
+}
+.h1-nav.h1-nav--v4[data-prototype-surface='paper'] .h1-nav__link,
+.h1-nav.h1-nav--v4[data-prototype-surface='paper'] .h1-nav__chevron,
+.h1-nav.h1-nav--v4[data-prototype-surface='paper'] .h1-nav__toggle,
+.h1-nav.h1-nav--v4[data-prototype-surface='paper'] .h1-nav__group--active .h1-nav__link,
+.h1-nav.h1-nav--v4[data-prototype-surface='paper'] .h1-nav__link:hover,
+.h1-nav.h1-nav--v4[data-prototype-surface='paper'] .h1-nav__link:focus-visible {color:var(--peds-proto-ink)!important;text-shadow:none;}
+.h1-nav.h1-nav--v4[data-prototype-surface='night'] .h1-nav__link,
+.h1-nav.h1-nav--v4[data-prototype-surface='night'] .h1-nav__chevron,
+.h1-nav.h1-nav--v4[data-prototype-surface='night'] .h1-nav__toggle {
+  color:var(--peds-proto-white)!important;
+}
+.h1-nav.h1-nav--v4[data-prototype-surface='paper'] .h1-nav__link::after,
+.h1-nav.h1-nav--v4[data-prototype-surface='night'] .h1-nav__link::after {
+  background:var(--peds-proto-accent);
+  box-shadow:none;
+}
+.h1-nav.h1-nav--v4[data-prototype-surface='paper'] .h1-nav__lang {
+  background:rgba(23,27,25,.045);
+  border-color:var(--peds-proto-hair);
+}
+.h1-nav.h1-nav--v4[data-prototype-surface='paper'] .h1-nav__lang-option {color:#555e55;}
+.h1-nav.h1-nav--v4[data-prototype-surface='paper'] .h1-nav__lang-option.is-active {
+  background:var(--peds-proto-ink);
+  color:var(--peds-proto-white);
+}
+.h1-nav.h1-nav--v4[data-prototype-surface='night'] .h1-nav__lang-option.is-active {
+  background:var(--peds-proto-accent);
+  color:var(--peds-proto-night);
+}
+.h1-nav.h1-nav--v4[data-prototype-surface='paper'] .h1-nav__dropdown-inner,
+.h1-nav.h1-nav--v4[data-prototype-surface='night'] .h1-nav__dropdown-inner {
+  background:var(--peds-proto-paper);
+  border-color:var(--peds-proto-hair);
+  box-shadow:0 16px 34px rgba(18,21,20,.13);
+}
+.h1-nav.h1-nav--v4[data-prototype-surface='paper'] .h1-nav__dropdown-inner *,
+.h1-nav.h1-nav--v4[data-prototype-surface='night'] .h1-nav__dropdown-inner * {color:var(--peds-proto-ink);}
+.h1-nav.h1-nav--v4[data-prototype-surface='paper'] .h1-nav__dropdown-inner::before,
+.h1-nav.h1-nav--v4[data-prototype-surface='night'] .h1-nav__dropdown-inner::before {
+  background:var(--peds-proto-accent);
+}
+.h1-nav.h1-nav--v4[data-prototype-surface='paper'] .h1-nav__panel,
+.h1-nav.h1-nav--v4[data-prototype-surface='night'] .h1-nav__panel {
+  background:var(--peds-proto-paper);
+  color:var(--peds-proto-ink);
+}
+.h1-nav.h1-nav--v4[data-prototype-surface='paper'] .h1-nav__panel *,
+.h1-nav.h1-nav--v4[data-prototype-surface='night'] .h1-nav__panel * {
+  color:var(--peds-proto-ink);
+}
+.h1-nav.h1-nav--v4[data-prototype-surface='paper'] :is(a,button):focus-visible,
+.h1-nav.h1-nav--v4[data-prototype-surface='night'] :is(a,button):focus-visible {
+  outline:2px solid var(--peds-proto-accent);
+  outline-offset:3px;
+}
+
+/* FOOTER — prototype Night, no blue-tinted overlays or neon ignition. */
+.peds-footer {
+  color:var(--peds-proto-white);
+  background:var(--peds-proto-night);
+  border-top:1px solid rgba(247,245,239,.13);
+}
+.peds-footer::before {background:none;}
+.peds-footer__topline {background:var(--peds-proto-accent);box-shadow:none;}
+.peds-footer__brand > p,.peds-footer__about-summary,
+.peds-footer__nav-link {color:#c4c8c1;}
+.peds-footer__column-head {border-bottom-color:rgba(247,245,239,.18);}
+.peds-footer__column-head h2 {color:var(--peds-proto-white);}
+.peds-footer__nav-link svg,
+.peds-footer__legal-label {color:#e7ad99;}
+.peds-footer__nav-link:hover,
+.peds-footer__nav-link:hover svg {color:var(--peds-proto-white);}
+.peds-footer__legal-mark {background:var(--peds-proto-accent);}
+.peds-footer__legal {border-bottom-color:rgba(247,245,239,.13);}
+.peds-footer__bottom {color:#aaaead;}
+.peds-footer__backtop:focus-visible,
+.peds-footer__nav-link:focus-visible {outline:2px solid var(--peds-proto-accent);outline-offset:4px;}
+
+/* Preserve accessibility and the full content at high zoom/reduced motion. */
+@media (prefers-reduced-motion:reduce) {
+  .home-v5 .r1-cinema--v7::before,
+  .home-v5 .r1-cinema--v7::after {transition:none!important;}
+}
+@media (forced-colors:active) {
+  .h1-nav[data-prototype-surface='paper'] .h1-nav__brand-logo {filter:none;}
+  .peds-about--prototype > section,
+  .peds-about--prototype > div.grid > section {border:1px solid CanvasText;}
+}
+@media (max-width:650px) {
+  .peds-about--prototype > header .peds-display-page {
+    font-size:clamp(2.15rem,9vw,3.75rem);
+    line-height:1.06;
+    overflow-wrap:anywhere;
+  }
+}
