@@ -1,7 +1,7 @@
 import {describe,it,expect} from 'vitest';
 import * as THREE from 'three';
 import {
- sourceBodyWorldRevealStrength,sourceMeshOwnWorldBounds,worldDeltaToParentLocal,
+ sourceBodyWorldRevealStrength,sourceMeshOwnWorldBounds,sourceMeshRevealWorldDirection,worldDeltaToParentLocal,
 } from './sourceWorldReveal';
 
 function near(actual:number,expected:number){
@@ -26,8 +26,11 @@ describe('P2.37A nested original THREE GLB world transforms',()=>{
   const worldExtent=worldBox.getSize(new THREE.Vector3()).length();
   const strength=sourceBodyWorldRevealStrength(worldExtent,.5);
   expect(strength).toBeGreaterThan(0);
-  const worldDelta=new THREE.Vector3(.8,-.2,.7)
-   .normalize().multiplyScalar(strength);
+  const centroid=new THREE.Box3().setFromObject(mesh)
+   .getCenter(new THREE.Vector3());
+  const worldDelta=new THREE.Vector3(...sourceMeshRevealWorldDirection(
+   [centroid.x,centroid.y,centroid.z])).multiplyScalar(strength);
+  near(worldDelta.length(),strength);
   const originalLocal=mesh.position.clone();
   const originalWorld=mesh.getWorldPosition(new THREE.Vector3());
   const inverse=parent.matrixWorld.clone().invert();
