@@ -51,7 +51,7 @@ export function DestinationGridV6({season,lang,mode,items}:Props){
       {items.length===0
         ? <p className="destination-v6__empty" role="status">{vi?'Mùa này chưa có chặng đua.':'No scheduled destinations for this season.'}</p>
         : <ol className="destination-v6__grid">
-            {items.map((race,index)=>{
+            {items.map((race)=>{
               const state=race.destinationState;
               const status=state?labelState[state][lang]:null;
               const href='/season/'+season+'?tab='+mode+'&round='+race.round+

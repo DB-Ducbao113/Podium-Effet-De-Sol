@@ -10,7 +10,11 @@ function championshipTab(pathname:string,search:string):"results"|"calendar"|nul
 
 /** Mobile Results and Calendar remain dedicated hub routes even in grid mode. */
 export function isChampionshipMobileHubRoute(pathname:string,search:string):boolean {
-  return championshipTab(pathname,search)!==null;
+  // Detail links from either destination grid stay in the dedicated hub on
+  // mobile; otherwise the old combined Home/Showroom stack appears above them.
+  if (!pathname.startsWith('/season/')) return false;
+  const tab=new URLSearchParams(search).get('tab');
+  return tab==='results'||tab==='calendar';
 }
 
 /** The scroll-controlled 2D/3D globe is an explicit alternative Calendar view. */

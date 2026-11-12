@@ -32,15 +32,9 @@ describe("Championship journey scroll policy", () => {
       isChampionshipMobileHubRoute("/season/2026", "?tab=calendar&focus=9"),
     ).toBe(true);
     expect(isChampionshipMobileHubRoute("/season/2026","?tab=calendar&view=world")).toBe(true);
-    expect(
-      isChampionshipMobileHubRoute("/season/2026", "?tab=results&round=9"),
-    ).toBe(false);
-    expect(
-      isChampionshipMobileHubRoute(
-        "/season/2026",
-        "?tab=calendar&view=completed",
-      ),
-    ).toBe(false);
+    expect(isChampionshipMobileHubRoute("/season/2026", "?tab=results&round=9")).toBe(true);
+    expect(isChampionshipMobileHubRoute("/season/2026", "?tab=calendar&round=9&view=classic")).toBe(true);
+    expect(isChampionshipMobileHubRoute("/season/2026", "?tab=calendar&view=completed")).toBe(true);
     expect(isChampionshipMobileHubRoute("/showroom", "?tab=calendar")).toBe(
       false,
     );
