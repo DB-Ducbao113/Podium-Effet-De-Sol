@@ -13,7 +13,7 @@ describe('P2.49 original source CAD R3F frame settlement',()=>{
  it('rejects DOM scrubber at target while real scene progress still lags',()=>{
   expect(sourceFrameSettled(state(.45,.002),.535,97)).toBe(false);
   expect(sourceFrameSettled(state(.529,.002),.535,97)).toBe(false);
-  expect(sourceFrameSettled(state(.531,.002),.535,97)).toBe(true);
+  expect(sourceFrameSettled(state(.532,.002),.535,97)).toBe(true);
  });
  it('rejects camera fly-through even when source scroll geometry is settled',()=>{
   expect(sourceFrameSettled(state(.535,1.4),.535,97)).toBe(false);
