@@ -66,6 +66,42 @@ describe('reversible original Model B wheel window', () => {
     material.dispose();
   });
 
+  it('P2.42 masks each real showroom wheel using its own verified CAD tyre convergence',()=>{
+    const material=new THREE.MeshStandardMaterial();
+    const scalar={value:0};
+    const perWheel={value:[0,.20,.50,1]};
+    addReversibleWheelWindow(
+      material,new THREE.Matrix4(),measured,scalar,perWheel);
+    const shader=shaderStub();
+    material.onBeforeCompile(
+      shader as Parameters<typeof material.onBeforeCompile>[0],
+      {} as THREE.WebGLRenderer,
+    );
+    expect(shader.uniforms.pedsWheelMaskAmounts).toBe(perWheel);
+    expect(shader.fragmentShader).toContain('uniform float pedsWheelMaskAmounts[4];');
+    expect(shader.fragmentShader).toContain('threshold<pedsWheelMaskAmounts[wheel]');
+    expect(shader.fragmentShader).not.toContain('threshold<pedsWheelMaskAmount) discard;');
+    expect(shader.fragmentShader).toContain('pedsWheelMaskAmounts[wheel]) discard;\n');
+    perWheel.value[0]=1;
+    perWheel.value[3]=0;
+    expect(shader.uniforms.pedsWheelMaskAmounts.value).toEqual([1,.2,.5,0]);
+    material.dispose();
+  });
+  it('P2.42 rejects invalid per-wheel source masks rather than showing false wheel replacements',()=>{
+    const material=new THREE.MeshStandardMaterial();
+    const bad=[
+      {value:[.5,.5,.5]},
+      {value:[.5,.5,.5,NaN]},
+      {value:[.5,.5,-.1,1]},
+      {value:[.5,.5,.5,1.5]},
+    ];
+    for(const values of bad)
+      expect(()=>addReversibleWheelWindow(
+        material,new THREE.Matrix4(),measured,{value:0},values))
+        .toThrow(/Invalid per-wheel/);
+    material.dispose();
+  });
+
   it('fails closed rather than silently rendering duplicates with an unknown shader', () => {
     const material = new THREE.MeshStandardMaterial();
     addReversibleWheelWindow(material, new THREE.Matrix4(), measured);
