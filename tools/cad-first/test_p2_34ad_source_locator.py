@@ -4,6 +4,7 @@ import hashlib
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 import p2_34ad_source_locator as x
 
 CONTENT = {'original.step': b'original-step-fixture',
@@ -111,6 +112,60 @@ class SourceRecoveryTests(unittest.TestCase):
     def test_empty_roots_rejected(self):
         with self.assertRaises(ValueError):
             x.locate([], PINS)
+
+    def test_symlinked_destination_parent_rejected(self):
+        self.make_files()
+        r = x.locate([self.src], PINS)
+        real = self.root / 'real'
+        real.mkdir()
+        link = self.root / 'linked_parent'
+        link.symlink_to(real, target_is_directory=True)
+        with self.assertRaisesRegex(ValueError, 'symlinked parent'):
+            x.stage(r, link / 'new_stage', PINS)
+        self.assertFalse((real / 'new_stage').exists())
+
+    def test_midcopy_modified_bytes_rejected_without_partial_stage(self):
+        self.make_files()
+        r = x.locate([self.src], PINS)
+        actual_open = x.os.open
+        first = [True]
+        def altered_open(path, *args, **kwargs):
+            if first[0] and str(path).endswith('renamed_0.dat'):
+                first[0] = False
+                Path(path).write_bytes(b'MUTATED AFTER SCAN')
+            return actual_open(path, *args, **kwargs)
+        with patch.object(x.os, 'open', side_effect=altered_open):
+            with self.assertRaisesRegex(ValueError, 'bytes changed'):
+                x.stage(r, self.root / 'stage_attempt', PINS)
+        self.assertFalse((self.root / 'stage_attempt').exists())
+
+    def test_original_path_swap_to_symlink_rejected(self):
+        self.make_files()
+        r = x.locate([self.src], PINS)
+        original = self.src / 'bucket_0' / 'renamed_0.dat'
+        other = self.root / 'other.dat'
+        other.write_bytes(CONTENT['original.step'])
+        actual_open = x.os.open
+        swapped = [False]
+        def swap_open(path, *args, **kwargs):
+            if not swapped[0] and str(path) == str(original):
+                swapped[0] = True
+                original.unlink()
+                original.symlink_to(other)
+            return actual_open(path, *args, **kwargs)
+        with patch.object(x.os, 'open', side_effect=swap_open):
+            with self.assertRaises(OSError):
+                x.stage(r, self.root / 'stage_attempt', PINS)
+        self.assertFalse((self.root / 'stage_attempt').exists())
+
+    def test_dangerous_canonical_name_rejected(self):
+        self.make_files()
+        r = x.locate([self.src], PINS)
+        evil = {'../bad': next(iter(PINS.values()))}
+        with self.assertRaises(ValueError):
+            x.stage({'sourceMatches':{'../bad':r['sourceMatches']['original.step']}},
+                    self.root / 'stage_attempt', evil)
+        self.assertFalse((self.root / 'stage_attempt').exists())
 
     def test_source_not_modified(self):
         self.make_files()
