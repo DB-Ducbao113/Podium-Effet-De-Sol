@@ -156,7 +156,7 @@ try{
     // Require the actual Model B THREE scene AND camera to settle in at
     // least two subsequent frames before inspecting native CAD pixels.
     await page.waitForFunction(({target,firstFrame})=>{
-     const el=document.querySelector('.mb-build-stage canvas');
+     const el=document.querySelector('.mb-build-webgl canvas');
      if(!(el instanceof HTMLCanvasElement))return false;
      const frame=Number(el.dataset.pedsModelBRenderFrame);
      const progress=Number(el.dataset.pedsModelBSceneProgress);
@@ -251,7 +251,7 @@ try{
    // The source part can be verified while the camera is still flying
    // toward it; wait for actual 3D camera convergence before the PNG.
    await page.waitForFunction(()=>{
-    const el=document.querySelector('.mb-build-stage canvas');
+    const el=document.querySelector('.mb-build-webgl canvas');
     return el?.dataset.pedsModelBSceneSettled==='true'&&
       Number(el.dataset.pedsModelBCameraErrorM)<=.015;
    },undefined,{timeout:18000});
@@ -288,7 +288,7 @@ try{
    if(Math.abs(progressRestored-progressBefore)>12)
     throw Error('Clearing CAD X-ray changed the scroll position');
    await page.waitForFunction(()=>{
-    const el=document.querySelector('.mb-build-stage canvas');
+    const el=document.querySelector('.mb-build-webgl canvas');
     return el?.dataset.pedsModelBSceneSettled==='true'&&
       Number(el.dataset.pedsModelBCameraErrorM)<=.015&&
       Number(el.dataset.pedsModelBRenderedInspectionDots)===0;
