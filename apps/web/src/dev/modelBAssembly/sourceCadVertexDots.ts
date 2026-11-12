@@ -74,6 +74,10 @@ export function buildSourceCadVertexDots(
  const geometry=new THREE.BufferGeometry();
  geometry.setAttribute('position',new THREE.BufferAttribute(positions,3));
  geometry.computeBoundingSphere();
+ // The native vertex coordinates are immutable after allocation. Start the
+ // construction overlay with zero visible samples; the selected inspector
+ // intentionally shows all original samples at once.
+ geometry.setDrawRange(0,inspection?indices.length:0);
  const material=new THREE.PointsMaterial({
   color:inspection?'#e1dad0':'#a2adae',
   size:sourceCadVertexDotSize(bound.diagonal),
