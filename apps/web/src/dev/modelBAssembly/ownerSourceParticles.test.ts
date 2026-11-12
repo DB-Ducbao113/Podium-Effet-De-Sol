@@ -74,6 +74,58 @@ describe('Model B authenticated source vertex dust',()=>{
    expect(ownerParticleAssemblyFraction(1)).toBe(1);
    expect(ownerParticleAssemblyFraction(Number.NaN)).toBe(0);
  });
+ it('never exceeds the total point budget across hundreds of meshes',()=>{
+   const root=new THREE.Group();
+   const sharedGeometry=new THREE.BufferGeometry();
+   sharedGeometry.setAttribute('position',
+     new THREE.Float32BufferAttribute([1,2,3],3));
+   const sharedMaterial=new THREE.MeshBasicMaterial();
+   for(let i=0;i<400;i++){
+     const mesh=new THREE.Mesh(sharedGeometry,sharedMaterial);
+     mesh.position.x=i;
+     root.add(mesh);
+   }
+   const particles=buildOwnerSourceParticles(root,256);
+   expect(particles.sampleCount).toBe(256);
+   expect(particles.sampledMeshCount).toBe(256);
+   particles.setAssemblyProgress(.7);
+   const pos=particles.points.geometry.getAttribute('position');
+   for(let i=0;i<pos.count;i++){
+     expect(pos.getY(i)).toBeCloseTo(2);
+     expect(pos.getZ(i)).toBeCloseTo(3);
+     expect(pos.getX(i)%1).toBeCloseTo(0);
+   }
+   particles.dispose();sharedGeometry.dispose();sharedMaterial.dispose();
+ });
+ it('supports existing interleaved GLB mesh positions',()=>{
+   const root=new THREE.Group();
+   const packed=new THREE.InterleavedBuffer(new Float32Array([
+     0,0,0,99, 1,2,3,88, 2,4,6,77,
+   ]),4);
+   const geometry=new THREE.BufferGeometry();
+   geometry.setAttribute('position',
+     new THREE.InterleavedBufferAttribute(packed,3,0));
+   const material=new THREE.MeshBasicMaterial();
+   root.add(new THREE.Mesh(geometry,material));
+   const particles=buildOwnerSourceParticles(root,256);
+   expect(particles.sampleCount).toBe(3);
+   particles.setAssemblyProgress(.7);
+   const positions=particles.points.geometry.getAttribute('position');
+   expect(positions.getX(1)).toBeCloseTo(1);
+   expect(positions.getY(1)).toBeCloseTo(2);
+   expect(positions.getZ(1)).toBeCloseTo(3);
+   particles.dispose();geometry.dispose();material.dispose();
+ });
+ it('rejects non-finite original mesh positions instead of emitting corrupt points',()=>{
+   const root=new THREE.Group();
+   const geometry=new THREE.BufferGeometry();
+   geometry.setAttribute('position',
+     new THREE.Float32BufferAttribute([Number.NaN,0,0],3));
+   const material=new THREE.MeshBasicMaterial();
+   root.add(new THREE.Mesh(geometry,material));
+   expect(()=>buildOwnerSourceParticles(root,256)).toThrow(/nonfinite sampled vertices/);
+   geometry.dispose();material.dispose();
+ });
  it('rejects geometry-free source rather than creating synthetic car dots',()=>{
    expect(()=>buildOwnerSourceParticles(new THREE.Group(),256)).toThrow(/vertices/);
  });
