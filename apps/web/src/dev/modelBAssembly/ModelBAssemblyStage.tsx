@@ -25,6 +25,7 @@ import {sourceBodyMeshKey,sourceBodyMeshPhase,sourceBodyVisualDisplacement} from
 import {auditMountedCadScene,type MountedCadSceneAudit} from './mountedCadSceneAudit';
 import {auditMountedCadIdentity} from './mountedCadIdentity';
 import {cadInspectionVisualFrame,cadInspectionShellAlpha,cadInspectionAssemblyFraction} from './cadInspectionVisualFrame';
+import {sourceCadXrayRenderLayer} from './sourceCadXrayRenderLayer';
 import {sourceBodyWorldRevealStrength,sourceMeshOwnWorldBounds,sourceMeshRevealWorldDirection,worldDeltaToParentLocal} from './sourceWorldReveal';
 import {accessibleAssemblyFraction,accessibleShellOpacity} from './accessibleAssemblyPose';
 import {sourceMaterialFrame,type SourceMaterialState} from './sourceShellMaterialState';
@@ -68,6 +69,8 @@ type AnimatedMesh={
  name:string;
  kind:'p28'|'rear-toe'|'joint';
  materials:THREE.Material[];
+ originalDepthTests:boolean[];
+ originalRenderOrder:number;
 };
 type Visual={
  root:THREE.Group;
@@ -230,9 +233,12 @@ function createWheelVisual(
    const target=animatedScrew?.root??mesh;
    const materials=copyMaterials(mesh,ownedMaterials,
      cadPreviewAppearance(mesh.name,kind));
+   const originalDepthTests=materials.map(material=>material.depthTest);
+   const originalRenderOrder=mesh.renderOrder;
    meshes.push({mesh,station,origin:kind,target,spin:animatedScrew,
      originalPosition:target.position.clone(),
-     offset,name:mesh.name,kind,materials});
+     offset,name:mesh.name,kind,materials,
+     originalDepthTests,originalRenderOrder});
  }
  for(const mount of layoutFourCorners(fit)){
    const carrier=new THREE.Group();
@@ -592,9 +598,16 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
        // materials for nonselected neighbours are merely transparent.
        const appearance=cadInspectionVisualFrame(
          fraction,inspecting,selected);
-       for(const m of item.materials){
-         m.opacity=appearance.opacity;
-         m.depthWrite=appearance.depthWrite;
+       for(let index=0;index<item.materials.length;index++){
+         const material=item.materials[index];
+         const layer=sourceCadXrayRenderLayer(inspecting,selected,
+           item.originalDepthTests[index],item.originalRenderOrder);
+         material.opacity=appearance.opacity;
+         material.depthWrite=appearance.depthWrite;
+         material.depthTest=layer.depthTest;
+         // Source overlays only when THIS authentic CAD mesh is inspected.
+         // Normal timeline immediately restores the authored draw queue.
+         item.mesh.renderOrder=layer.renderOrder;
        }
        item.mesh.visible=appearance.visible;
      }
