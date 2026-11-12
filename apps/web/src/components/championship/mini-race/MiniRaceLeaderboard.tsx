@@ -38,7 +38,14 @@ export function MiniRaceLeaderboard({ season, category, rows, lang }: Props) {
     >
       <div className="mini-race__heading">
         <div>
-          <h2>{lang === "vi" ? "Cuộc đua điểm số" : "The points race"}</h2>
+          <span className="mini-race__eyebrow">
+            {season} / {isDrivers
+              ? (lang === "vi" ? "TAY ĐUA" : "DRIVERS")
+              : (lang === "vi" ? "ĐỘI ĐUA" : "CONSTRUCTORS")}
+          </span>
+          <h2>{lang === "vi"
+            ? <>Cuộc đua <em>điểm số.</em></>
+            : <>The <em>points race.</em></>}</h2>
           <p>
             {lang === "vi"
               ? "Mỗi làn là một hạng; vị trí xe theo điểm so với P1."
