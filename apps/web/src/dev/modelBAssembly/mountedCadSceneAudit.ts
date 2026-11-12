@@ -13,7 +13,7 @@ export type MountedCadSceneAudit={
  stations:4;
  frontP28PerStation:59;
  rearFrontSourceProxyPerStation:number;
- rearToePerStation:0|15;
+ rearToePerStation:0|15|19;
  rearJointPerStation:0|16;
  mountedMeshInstances:number;
  rearUsesFrontSourceWheelEndProxy:true;
@@ -60,10 +60,13 @@ export function auditMountedCadScene(
   throw Error('Rear original P2.8 wheel-end visual proxies mismatch');
  const toe=rears.map(station=>count(station,'rear-toe'));
  const joint=rears.map(station=>count(station,'joint'));
+ // P2.12 alone has all 19 native meshes. When P2.14 is loaded,
+ // its 16 split races REPLACE four old annular-bearing placeholders:
+ // each rear station then contains 15 toe + 16 joint = 31 meshes.
+ const validRear=(joint[0]===0&&(toe[0]===0||toe[0]===19))||
+   (joint[0]===16&&toe[0]===15);
  if(toe.some(v=>v!==toe[0])||joint.some(v=>v!==joint[0])||
-    (toe[0]!==0&&toe[0]!==15)||
-    (joint[0]!==0&&joint[0]!==16)||
-    (joint[0]===16&&toe[0]!==15))
+    !validRear)
   throw Error('Rear original P2.12/P2.14 visible source set incomplete');
  const expected=118+rearProxies[0]*2+(toe[0]+joint[0])*2;
  if(expected!==parts.length)
@@ -73,7 +76,7 @@ export function auditMountedCadScene(
   stations:4,
   frontP28PerStation:59,
   rearFrontSourceProxyPerStation:rearProxies[0],
-  rearToePerStation:toe[0] as 0|15,
+  rearToePerStation:toe[0] as 0|15|19,
   rearJointPerStation:joint[0] as 0|16,
   mountedMeshInstances:parts.length,
   rearUsesFrontSourceWheelEndProxy:true,
