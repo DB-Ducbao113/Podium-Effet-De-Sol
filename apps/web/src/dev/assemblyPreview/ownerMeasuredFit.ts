@@ -21,6 +21,8 @@ export type OwnerMeasuredFit = {
   wheels: MeasuredWheel[];
   frontPositiveZCenterM: [number,number,number];
   originalP28WheelCenterM: [number,number,number];
+  /** Authentic P2.8 tyre Z thickness in metres (do not infer wheel mask from radius). */
+  originalP28TyreWidthM: number;
   axleSpacingPreviewM: number;
   normalizedShellEnvelopeM: [number,number,number];
   radiusSpreadFraction: number;
@@ -115,6 +117,7 @@ export function fitOwnerShellToOriginalP28(
     bodyBoundsRaw:modelB.sourceBoundsM,wheels,
     frontPositiveZCenterM:frontPositive.centerM,
     originalP28WheelCenterM:p28Center,
+    originalP28TyreWidthM:d[2],
     axleSpacingPreviewM:axleSpacing,
     normalizedShellEnvelopeM:dimensions.map(x=>x*scale) as [number,number,number],
     radiusSpreadFraction:spread,mechanicalFitCertified:false,
