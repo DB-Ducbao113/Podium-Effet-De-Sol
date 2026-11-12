@@ -47,8 +47,6 @@ export function ChampionshipStandings({ season }: { season: SeasonYear }) {
   const pointsGap = leaderPoints !== null && runnerUpPoints !== null
     ? Math.max(0, leaderPoints - runnerUpPoints) : null;
   const leaderName = isDrivers ? current.drivers[0]?.driverName : current.constructors[0]?.teamName;
-  const leaderDriver = current.drivers[0];
-  const leaderTeam = current.constructors[0];
 
   return (
     <section
