@@ -421,6 +421,7 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
    if(ownerParticles){
      const opacity=ownerParticleOpacity(p);
      ownerParticles.points.visible=opacity>.005;
+     if(opacity>.005)ownerParticles.setAssemblyProgress(p);
      ownerParticles.points.material.opacity=opacity;
    }
    const showCad=Boolean(visual);
