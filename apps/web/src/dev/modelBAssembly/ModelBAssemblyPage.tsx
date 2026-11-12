@@ -21,6 +21,7 @@ import {readLocalAutoCadIndex,type AutoCadRow} from './localSourceIndex';
 import {ORIGINAL_MODEL_B_SOURCE} from './originalModelBSource';
 import type {OwnerMeasuredFit} from '../assemblyPreview/ownerMeasuredFit';
 import type {RearVisualParts} from './rearVisualComposite';
+import type {MountedCadSceneAudit} from './mountedCadSceneAudit';
 import type {InspectedCadPart} from './cadPartInspector';
 import CadPartBrowser from './CadPartBrowser';
 import './modelBAssembly.css';
@@ -51,6 +52,7 @@ export default function ModelBAssemblyPage(){
  const [ready,setReady]=useState<Partial<Record<StageId,number>>>({});
  const [measuredFit,setMeasuredFit]=useState<OwnerMeasuredFit|null>(null);
  const [rearComposite,setRearComposite]=useState<RearVisualParts|null>(null);
+ const [mountedCadAudit,setMountedCadAudit]=useState<MountedCadSceneAudit|null>(null);
  const [finalCarFitsScreen,setFinalCarFitsScreen]=useState<boolean|null>(null);
  const [inspectedPart,setInspectedPart]=useState<InspectedCadPart|null>(null);
  const [catalogOpen,setCatalogOpen]=useState(false);
@@ -187,6 +189,8 @@ export default function ModelBAssemblyPage(){
  const handleFit=useCallback((fit:OwnerMeasuredFit|null)=>setMeasuredFit(fit),[]);
  const handleRearComposite=useCallback(
    (info:RearVisualParts|null)=>setRearComposite(info),[]);
+ const handleMountedCadAudit=useCallback(
+   (audit:MountedCadSceneAudit|null)=>setMountedCadAudit(audit),[]);
  const handleFraming=useCallback(
    (fits:boolean|null)=>setFinalCarFitsScreen(fits),[]);
  const handlePartInspect=useCallback((part:InspectedCadPart)=>{
@@ -298,6 +302,7 @@ export default function ModelBAssemblyPage(){
               reducedMotion={reducedMotion}
               onReady={handleReady} onFit={handleFit}
               onRearComposite={handleRearComposite}
+              onMountedCadAudit={handleMountedCadAudit}
               onFramingVerified={handleFraming}
               onInspect={handlePartInspect} selectedPart={inspectedPart}
               onError={handleError}/>
@@ -331,6 +336,8 @@ export default function ModelBAssemblyPage(){
            {coverage.summary}
            {coverage.rearWheelEndSourceIsFrontProxy&&
              <span> · REAR WHEEL ENDS: FRONT-SOURCE PROXY</span>}
+           {mountedCadAudit&&<span> · SCENE: {mountedCadAudit.mountedMeshInstances}
+             {' '}SOURCE MESH INSTANCES / 4 WHEELS</span>}
          </p>
        </section>
        <nav className="mb-build-rail" aria-label="Model B assembly chapters">
@@ -398,6 +405,11 @@ export default function ModelBAssemblyPage(){
          data-model-b-scene-truth={truth.kind}
          data-model-b-source-review-stage={coverage.stage}
          data-model-b-cad-verified-meshes={coverage.verifiedCadMeshes}
+         data-model-b-mounted-cad-meshes={mountedCadAudit?.mountedMeshInstances??0}
+         data-model-b-front-p28-per-station={mountedCadAudit?.frontP28PerStation??0}
+         data-model-b-rear-p28-proxy-per-station={mountedCadAudit?.rearFrontSourceProxyPerStation??0}
+         data-model-b-rear-toe-per-station={mountedCadAudit?.rearToePerStation??0}
+         data-model-b-rear-joint-per-station={mountedCadAudit?.rearJointPerStation??0}
          data-model-b-source-mechanical-mate-certified="false"
          data-p28-cad-ready={cadLoaded?'true':'false'}
          data-p212-cad-ready={ready['rear-toe']===19&&!!rearToe?'true':'false'}
