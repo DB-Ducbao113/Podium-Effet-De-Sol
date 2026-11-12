@@ -20,10 +20,10 @@ export function ResultsV5Podium({rows,season,lang,sprint}:{
         <span className="results-v5__podium-rank">{String(row.position).padStart(2,'0')}</span>
         <div className="results-v5__podium-person">
           {row.driverId&&row.driverId!=='unknown'
-            ?<Link to={\`/drivers/\${row.driverId}?season=\${season}\`}>{row.driverName}</Link>
+            ?<Link to={`/drivers/${row.driverId}?season=${season}`}>{row.driverName}</Link>
             :<strong>{row.driverName}</strong>}
           {row.teamId!==UNKNOWN_TEAM_ID
-            ?<Link className="results-v5__podium-team" to={\`/teams/\${row.teamId}?season=\${season}\`}>{row.teamName}</Link>
+            ?<Link className="results-v5__podium-team" to={`/teams/${row.teamId}?season=${season}`}>{row.teamName}</Link>
             :<span className="results-v5__podium-team">{row.teamName}</span>}
         </div>
       </li>)}
