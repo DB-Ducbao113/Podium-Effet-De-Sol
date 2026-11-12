@@ -68,6 +68,10 @@ describe('Original Model B selected CAD source focusing',()=>{
  it('P2.40 rejects invalid original CAD part geometry before focus is verified',()=>{
   const mesh=new THREE.Mesh(new THREE.BufferGeometry());
   expect(()=>sourceMeshWorldFocusBounds(mesh)).toThrow(/no vertex geometry/);
+  // A fabricated boundingBox without original GLB positions is not source CAD.
+  mesh.geometry.boundingBox=new THREE.Box3(
+   new THREE.Vector3(-1,-1,-1),new THREE.Vector3(1,1,1));
+  expect(()=>sourceMeshWorldFocusBounds(mesh)).toThrow(/no vertex geometry/);
   const corrupted=new THREE.BoxGeometry(.1,.1,.1);
   corrupted.boundingBox=new THREE.Box3(
    new THREE.Vector3(NaN,0,0),new THREE.Vector3(1,1,1));
