@@ -192,9 +192,9 @@
     animation-range:entry 0% cover 32%;
   }
   .results-v5 .results-v5__total,
-  .results-v5 .results-v5__podium-entry:nth-child(even) {--rv5-dir:1;}
+  .results-v5 .results-v5__podium-entry:nth-child(even) {--rv5-start-x:70px;}
   .results-v5 .results-v5__eyebrow,
-  .results-v5 .results-v5__podium-entry:nth-child(odd) {--rv5-dir:-1;}
+  .results-v5 .results-v5__podium-entry:nth-child(odd) {--rv5-start-x:-70px;}
   .results-v5 .rc-round-media {
     animation:rv5-photo-wipe linear both;
     animation-timeline:view(block);
@@ -203,7 +203,7 @@
  }
 }
 @keyframes rv5-enter {
- from {opacity:.45;transform:translate3d(calc(var(--rv5-dir,0) * 70px),32px,0);}
+ from {opacity:.45;transform:translate3d(var(--rv5-start-x,0px),32px,0);}
  to {opacity:1;transform:none;}
 }
 @keyframes rv5-photo-wipe {
@@ -239,3 +239,26 @@
 }
 .f4-championship[data-text-zoom="200"] .results-v5 *,
 .f4-championship[data-text-zoom="400"] .results-v5 * {animation:none!important;}
+
+/* High text zoom: content reflows freely instead of being locked by the hero. */
+.f4-championship[data-text-zoom="200"] .results-v5 .results-simple-head h2,
+.f4-championship[data-text-zoom="400"] .results-v5 .results-simple-head h2 {
+  font-size:clamp(2.2rem,7vw,3.4rem);
+  line-height:1.13;
+  overflow-wrap:anywhere;
+}
+.f4-championship[data-text-zoom="400"] .results-v5 .rc-round-hero h3 {
+  font-size:28px;
+  line-height:1.1;
+}
+.f4-championship[data-text-zoom="400"] .results-v5__podium-grid {
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+}
+.f4-championship[data-text-zoom="400"] .results-v5__podium-entry {
+  flex-wrap:wrap;
+  min-height:0;
+}
+.f4-championship[data-text-zoom="400"] .results-v5__total strong {
+  font-size:3.6rem;
+}
