@@ -1,0 +1,36 @@
+/** P2.41 — source-only CAD X-ray compositing.
+ *
+ * Transparency alone cannot reveal a source bolt occluded by opaque body
+ * triangles: transparent shell materials still depth-test by default.
+ *
+ * Move ONLY the real selected source mesh to a late transparent render queue
+ * and temporarily disable its viewer-cloned material depth test. Restore the
+ * exact source mesh renderOrder/material depthTest on clear or source change.
+ *
+ * These are renderer state overrides. The original GLB topology, vertices,
+ * source material bytes and final source transforms remain unmodified.
+ */
+export type SourceCadRenderLayer={
+ depthTest:boolean;
+ renderOrder:number;
+};
+
+export const SOURCE_CAD_XRAY_RENDER_ORDER=1000;
+
+/** No global depth buffer override: this affects just the selected real CAD
+ * part, not its sibling meshes, tyres or original Formula 1 body.
+ */
+export function sourceCadXrayRenderLayer(
+ inspecting:boolean,
+ selected:boolean,
+ originalDepthTest:boolean,
+ originalRenderOrder:number,
+):SourceCadRenderLayer{
+ if(typeof originalDepthTest!=='boolean'||
+    !Number.isSafeInteger(originalRenderOrder)||
+    originalRenderOrder<0||originalRenderOrder>=SOURCE_CAD_XRAY_RENDER_ORDER)
+  throw Error('Invalid original CAD viewer render-layer state');
+ if(!inspecting||!selected)
+  return {depthTest:originalDepthTest,renderOrder:originalRenderOrder};
+ return {depthTest:false,renderOrder:SOURCE_CAD_XRAY_RENDER_ORDER};
+}
