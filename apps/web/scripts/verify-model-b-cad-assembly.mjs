@@ -77,7 +77,10 @@ try{
     return el.getAttribute('data-model-b-cad-verified-meshes')==='94'&&
      el.getAttribute('data-original-model-b-wheel-fit')==='true'&&
      el.getAttribute('data-wheel-station-count')==='4'&&
-     el.getAttribute('data-rear-composite-cad-parts')==='31';
+     el.getAttribute('data-rear-composite-cad-parts')==='31'&&
+     el.getAttribute('data-model-b-front-p28-per-station')==='59'&&
+     el.getAttribute('data-model-b-rear-toe-per-station')==='15'&&
+     el.getAttribute('data-model-b-rear-joint-per-station')==='16';
    },undefined,{timeout:90000});
    const source=await page.locator('.mb-build-source-wrap').evaluate(el=>({
     blob:el.getAttribute('data-owner-model-b-git-blob-sha1'),
@@ -89,6 +92,11 @@ try{
     wheels:el.getAttribute('data-wheel-station-count'),
     rearParts:el.getAttribute('data-rear-composite-cad-parts'),
     replaced:el.getAttribute('data-rear-legacy-bearing-proxies-hidden'),
+    mounted:el.getAttribute('data-model-b-mounted-cad-meshes'),
+    mountedFrontPerStation:el.getAttribute('data-model-b-front-p28-per-station'),
+    mountedRearProxyPerStation:el.getAttribute('data-model-b-rear-p28-proxy-per-station'),
+    mountedRearToePerStation:el.getAttribute('data-model-b-rear-toe-per-station'),
+    mountedRearJointPerStation:el.getAttribute('data-model-b-rear-joint-per-station'),
     certified:el.getAttribute('data-original-mechanical-mate-certified'),
     rearCertified:el.getAttribute('data-rear-mechanical-mate-certified'),
     sourceCertified:el.getAttribute('data-model-b-source-mechanical-mate-certified'),
@@ -97,6 +105,12 @@ try{
     source.stage!=='ALL_AVAILABLE_SOURCES'||source.verified!=='94'||
     source.p28!=='true'||source.p212!=='true'||source.p214!=='true'||
     source.wheels!=='4'||source.rearParts!=='31'||source.replaced!=='4'||
+    source.mountedFrontPerStation!=='59'||
+    source.mountedRearToePerStation!=='15'||
+    source.mountedRearJointPerStation!=='16'||
+    !(Number(source.mountedRearProxyPerStation)>0)||
+    Number(source.mounted)!==180+
+      2*Number(source.mountedRearProxyPerStation)||
     source.certified!=='false'||source.rearCertified!=='false'||
     source.sourceCertified!=='false')
     throw Error('Original CAD assembly evidence rejected: '+JSON.stringify(source));
@@ -149,7 +163,7 @@ try{
    await writeFile(join(destination,layout.label+'-audit.json'),
     JSON.stringify({layout,source,chapterDifference:difference,
      selectedOriginalCadPart:selected,frames:rows},null,2)+'\n');
-   console.log('PASS '+layout.label+': 94 authentic source meshes, 4 wheel stations, 31 rear parts, 4 old proxies removed, 8 real WebGL frames, part browser.');
+   console.log('PASS '+layout.label+': 94 source meshes, 4 mounted wheel stations, 31 rear mesh sources per station, 4 old proxies removed, 8 real WebGL frames, part browser.');
   }finally{
    await page.close();
   }
