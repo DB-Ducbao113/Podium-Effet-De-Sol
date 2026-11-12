@@ -94,10 +94,29 @@ class RunnerTests(unittest.TestCase):
                 (out_dir/'P234N_source84_track_cut_PROTOTYPE.step').write_bytes(b'synthetic mock only')
             mock_m=types.SimpleNamespace(pose_grid=lambda d:[(0,0,0)]*9,run=mrun)
             mock_n=types.SimpleNamespace(build=nbuild)
-            with patch.dict(aa.PINS,pins,clear=True),patch.dict('sys.modules',{'p2_34m_cage_orientation_native':mock_m,'p2_34n_track_candidate':mock_n}):
+            mock_ab=types.SimpleNamespace(inspect_files=lambda *args:{'downstreamNValidatedPaths':True})
+            with patch.dict(aa.PINS,pins,clear=True),patch.dict('sys.modules',{'p2_34m_cage_orientation_native':mock_m,'p2_34n_track_candidate':mock_n,'p2_34ab_m_to_n_handoff':mock_ab}):
                 r=aa.run(src,grid,out,execute_m=True,execute_n=True)
             self.assertEqual(r['completedStages'],['M','N'])
             self.assertEqual(r['p234nCandidateSHA256'],hashlib.sha256(b'synthetic mock only').hexdigest())
+    def test_unsafe_handoff_prevents_n_cut(self):
+        with tempfile.TemporaryDirectory() as d:
+            src,grid,out=sandbox(Path(d));pins=synthetic_original(src);grid.write_text('{}')
+            def mrun(src,manifest,target):
+                obj=report(grid);target.write_text(json.dumps(obj));return obj
+            mock_m=types.SimpleNamespace(pose_grid=lambda d:[(0,0,0)]*9,run=mrun)
+            def fail_handoff(*args):
+                raise ValueError('native selected reference is not measured')
+            mock_ab=types.SimpleNamespace(inspect_files=fail_handoff)
+            mock_n=types.SimpleNamespace(build=lambda *args:self.fail('unsafe N cut executed'))
+            with patch.dict(aa.PINS,pins,clear=True),patch.dict('sys.modules',{
+                'p2_34m_cage_orientation_native':mock_m,
+                'p2_34ab_m_to_n_handoff':mock_ab,
+                'p2_34n_track_candidate':mock_n}):
+                r=aa.run(src,grid,out,execute_m=True,execute_n=True)
+            self.assertEqual(r['completedStages'],['M'])
+            self.assertTrue(any('native selected reference is not measured' in reason
+                                for reason in r['blockedReasons']))
     def test_m_wrong_source_sha_blocks_stage(self):
         with self.assertRaises(ValueError):aa.check_m_report({'schema':aa.M_SCHEMA,'original84StepSHA256':'wrong'},'good','grid')
     def test_m_missing_pose_measurements(self):
