@@ -53,6 +53,10 @@
  line-height:1.72;max-width:370px;margin:26px 0 0;opacity:.8}
 .mb-build-status{display:flex;align-items:center;gap:13px;max-width:380px;margin-top:32px;
  font:10px/1.5 'IBM Plex Mono',monospace;letter-spacing:.13em;color:var(--mb-muted)}
+.mb-build-coverage{max-width:440px;margin:9px 0 0;color:#e3b996;
+ font:9px/1.6 'IBM Plex Mono',monospace;letter-spacing:.05em;
+ text-shadow:0 2px 14px rgba(4,7,15,.65);}
+.mb-build-coverage span{color:#d49a78}
 .mb-build-point{background:#616e7c;box-shadow:none}
 .mb-build-point.ready{background:#ff9d61;box-shadow:0 0 12px rgba(255,135,73,.7)}
 .mb-build-rail{position:absolute;z-index:9;right:clamp(20px,3.3vw,70px);top:50%;
