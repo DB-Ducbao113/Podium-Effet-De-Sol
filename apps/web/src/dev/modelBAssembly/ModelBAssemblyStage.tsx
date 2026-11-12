@@ -343,7 +343,7 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
    [analyticFinalFrame,onFramingVerified]);
  const [shellVisuals,setShellVisuals]=useState<{
    mesh:THREE.Mesh;origin:THREE.Vector3;offset:THREE.Vector3;
-   baseOpacity:number;materials:THREE.Material[];
+   sourceKey:string;baseOpacity:number;materials:THREE.Material[];
  }[]>([]);
  useEffect(()=>{
    const body=original?.model;
@@ -354,6 +354,7 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
    body.updateWorldMatrix(true,true);
    const reverse=body.matrixWorld.clone().invert();
    const tmp=new THREE.Matrix4();
+   let meshOrdinal=0;
    body.traverse(o=>{
      if(!(o instanceof THREE.Mesh))return;
      saved.set(o,o.material);
@@ -366,13 +367,23 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
      // stay in place and become transparent. No invented structural pieces.
      const direction=new THREE.Vector3(
        center.x>0?1:-1,center.y>0?.7:-.5,center.z>=0?1:-1);
+     // Convert a world-oriented reveal vector into this mesh's parent
+     // coordinate frame. Nested GLB nodes can be rotated/scaled.
      const offset=direction.multiplyScalar(strength/shellScale);
+     if(o.parent){
+       const parentInverse=o.parent.matrixWorld.clone().invert();
+       const zero=new THREE.Vector3().applyMatrix4(parentInverse);
+       offset.applyMatrix4(parentInverse).sub(zero);
+     }
+     // glTF nodes may have duplicate or blank names. The source traversal
+     // ordinal is stable for a decoded GLB and gives each mesh its own phase.
+     const sourceKey=o.name+'#'+meshOrdinal++;
      if(fit&&corner){
        tmp.multiplyMatrices(reverse,o.matrixWorld);
        for(const m of materials)
          addReversibleWheelWindow(m,tmp.clone(),fit,showroomWheelMask);
      }
-     records.push({mesh:o,origin:o.position.clone(),offset,
+     records.push({mesh:o,origin:o.position.clone(),offset,sourceKey,
        baseOpacity:materials[0]?.opacity??1,materials});
    });
    setShellVisuals(records);
@@ -436,7 +447,7 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
      originalPartAssembly('P2_TYRE_SLICK_BODY',p):0;
    for(const item of shellVisuals){
      const meshSeparation=showCad?separation:
-       sourceBodyMeshSeparation(p,item.mesh.name);
+       sourceBodyMeshSeparation(p,item.sourceKey);
      item.mesh.position.copy(item.origin).addScaledVector(item.offset,meshSeparation);
      for(const material of item.materials){
        material.opacity=item.baseOpacity*shellOpacity;
