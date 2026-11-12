@@ -22,6 +22,12 @@ const STATIONS:readonly WheelId[]=[
 export function selectNativeHardwareDotParts<
  T extends {station:WheelId;kind:'p28'|'rear-toe'|'joint';name:string}
 >(parts:readonly T[]):T[]{
+ for(const item of parts){
+  if(!STATIONS.includes(item.station)||
+     !['p28','rear-toe','joint'].includes(item.kind)||
+     typeof item.name!=='string'||!item.name.length)
+   throw Error('Invalid mounted original CAD dot source identity');
+ }
  const selected:T[]=[];
  for(const station of STATIONS){
   const originals=parts.filter(item=>item.station===station&&
