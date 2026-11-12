@@ -22,7 +22,7 @@ describe('Results V5 — source-preserving editorial design',()=>{
       </MemoryRouter>
     );
     expect(html).toContain('results-v5');
-    expect(html).toContain('RACE ARCHIVE');
+    expect(html).toContain('RACE RESULTS');
     expect(html).toContain('rounds with results');
     expect(html).toContain('class="rc-round-rail"');
     expect(html).toContain('class="rc-round-hero"');

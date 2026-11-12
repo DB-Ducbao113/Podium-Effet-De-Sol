@@ -30,10 +30,13 @@ describe("Championship in-page navigation", () => {
     expect(html).toContain('id="championship-section-tab-standings"');
   });
 
-  it("orders the tab rail like the global navbar: results group first, then standings", () => {
+  it("does not repeat the global navbar on Results, but preserves season controls", () => {
+    useChampionshipStore.setState({ activeSubTab: "results" });
     const html = render("/season/2026?tab=results");
-    const order = [...html.matchAll(/data-championship-tab="([a-z]+)"/g)].map((match) => match[1]);
-    expect(order).toEqual(["results", "calendar", "standings", "teams", "drivers"]);
+    expect(html).not.toContain('data-championship-tab="results"');
+    expect(html).not.toContain('aria-label="Championship sections"');
+    expect(html).toContain('data-season-option="2026"');
+    expect(html).toContain('data-championship-refresh');
   });
 
   it("offers a drivers/constructors toggle on standings", () => {

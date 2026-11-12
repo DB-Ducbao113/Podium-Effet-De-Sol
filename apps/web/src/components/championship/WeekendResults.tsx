@@ -401,19 +401,6 @@ export function WeekendResults({ season }: { season: SeasonYear }) {
       data-motion-engine={reducedMotion ? "static" : "css-scroll"}
       aria-label={lang === "vi" ? "Trung tâm kết quả đua" : "Race Center"}
     >
-      <header className="results-simple-head">
-        <div className="results-v5__intro">
-          <span className="results-v5__eyebrow">{lang === "vi" ? "LƯU TRỮ GIẢI ĐUA" : "RACE ARCHIVE"} / {season}</span>
-          <h2>{lang === "vi" ? <>Kết quả <em>chặng đua.</em></> : <>Race <em>results.</em></>}</h2>
-          <p className="results-v5__lede">{lang === "vi" ? "Chọn chặng và phiên để xem bảng phân hạng từ nguồn dữ liệu đã xác minh." : "Explore sourced classifications by round and session."}</p>
-          <a className="results-v5__jump" href="#c11-classification">{lang === "vi" ? "Đến bảng phân hạng" : "View classification"} <span aria-hidden="true">↘</span></a>
-        </div>
-        <div className="results-v5__total" aria-label={lang === "vi" ? `${resultsRoundCount} trên ${calendar.length} chặng có kết quả` : `${resultsRoundCount} of ${calendar.length} rounds with results`}>
-          <strong>{String(resultsRoundCount).padStart(2,"0")}</strong>
-          <span>/{String(calendar.length).padStart(2,"0")}</span>
-          <small>{lang === "vi" ? "chặng có kết quả" : "rounds with results"}</small>
-        </div>
-      </header>
       <div className="c11-pinned-controls rc-pinned-controls">
         <div
           className="rc-round-rail"
@@ -622,6 +609,10 @@ export function WeekendResults({ season }: { season: SeasonYear }) {
         </picture>}
         <div className="rc-round-scrim" aria-hidden="true" />
         <div className="rc-round-copy" data-rc-reveal>
+          <div className="results-v5__venue-context">
+            <h2>{lang === "vi" ? "KẾT QUẢ CHẶNG" : "RACE RESULTS"}</h2>
+            <span>{season} <span aria-hidden="true">/</span> {resultsRoundCount} {lang === "vi" ? "trên" : "of"} {calendar.length} {lang === "vi" ? "chặng có kết quả" : "rounds with results"}</span>
+          </div>
           <p className="rc-round-kicker">
             <span className="rc-round-number">
               ROUND {String(round).padStart(2, "0")}

@@ -34,7 +34,8 @@ describe("C1.1 simplified profiles and results", () => {
     expect(html.match(/class="c11-pinned-controls rc-pinned-controls"/g)).toHaveLength(1);
     expect(html.match(/class="rc-round-hero"/g)).toHaveLength(1);
     expect(html.match(/class="rc-round-chip"/g)).toHaveLength(23);
-    expect(html.match(/class="results-simple-head"/g)).toHaveLength(1);
+    expect(html).toContain('class="results-v5__venue-context"');
+    expect(html).not.toContain('class="results-simple-head"');
     expect(html).not.toContain('class="rc-hero-stats"');
     expect(html).not.toContain("Open classification");
     expect(html).not.toContain("All teams");
