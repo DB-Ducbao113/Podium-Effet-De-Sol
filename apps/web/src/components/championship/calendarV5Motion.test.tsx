@@ -1,6 +1,7 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
 import { RaceCalendarJourney } from './RaceCalendarJourney';
 import { sampleCalendarV5Backdrop } from './calendarV5Motion';
 
@@ -23,6 +24,20 @@ describe('Calendar V5 World Tour — cinematic scroll contract',()=>{
     expect(sampleCalendarV5Backdrop(0,23)).toEqual(start);
     expect(sampleCalendarV5Backdrop(-100,23)).toEqual(start);
     expect(sampleCalendarV5Backdrop(100,23)).toEqual(end);
+  });
+
+  it('keeps the classic Calendar available and scroll in both directions without one-shot animation',()=>{
+    const component=readFileSync('src/components/championship/ChampionshipCalendar.tsx','utf8');
+    const css=readFileSync('src/components/championship/calendarCinematicV5.css','utf8');
+    expect(component).toContain('className="c1-calendar cal-v5__detail"');
+    expect(component).toContain('calendar-round-');
+    expect(component).toContain('getCalendarRaceState');
+    expect(component).not.toContain('createScope');
+    expect(css).toContain('animation-range:cover 0% cover 100%');
+    expect(css).toContain('100% {opacity:.55;transform:translate3d(32px,-24px,0);}');
+    expect(css).toContain('prefers-reduced-motion:reduce');
+    expect(css).toContain('.rcj-circuit-overlay');
+    expect(css).not.toMatch(/scale\\(1\\.[2-9]/);
   });
 
   it('preserves 2026 World Tour and uses one global navigation, plus functional round details',()=>{

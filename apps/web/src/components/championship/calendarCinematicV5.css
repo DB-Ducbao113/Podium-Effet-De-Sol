@@ -463,3 +463,31 @@
   opacity:1!important;
   transform:none!important;
 }
+
+
+/* Keep circuit transitions integrated with the coloured World Tour rather than
+   cutting abruptly to the legacy almost-black 3D/vector detail backdrop. */
+.cal-v5__world .rcj-circuit-overlay {
+  background:
+    radial-gradient(ellipse 70% 90% at 48% 52%,rgba(28,84,100,.88),rgba(39,49,74,.94) 70%),
+    linear-gradient(120deg,#244e62,#584055);
+}
+.cal-v5__world .rcj-globe-vignette {
+  background:radial-gradient(ellipse at 50% 47%,transparent 53%,rgba(18,48,65,.37));
+}
+.f4-championship[data-text-zoom="200"] .cal-v5__world .rcj-stage-title,
+.f4-championship[data-text-zoom="400"] .cal-v5__world .rcj-stage-title {
+  font-size:clamp(1.35rem,4vw,2.25rem);
+  line-height:1.12;
+  overflow-wrap:anywhere;
+}
+.f4-championship[data-text-zoom="400"] .cal-v5__world .rcj-journey-intro p {
+  font-size:1.9rem;
+  line-height:1.15;
+}
+@media (prefers-reduced-motion:reduce) {
+  .cal-v5__world :is(.rcj-progress>span,.rcj-stage-title,.rcj-journey-intro) {
+    animation:none!important;
+    transition:none!important;
+  }
+}
