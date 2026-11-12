@@ -25,6 +25,7 @@ import {
  buildSourceCadVertexDots,sourceCadAssemblyDotOpacity,
  sourceCadInspectionDotOpacity,type SourceCadVertexDots,
 } from './sourceCadVertexDots';
+import {sourceCadDotFrame,updateSourceCadDotRange} from './sourceCadDotProgress';
 import {
  selectNativeHardwareDotParts,validateNativeCadDotsBudget,
  SOURCE_CAD_HARDWARE_DOT_BUDGET,SOURCE_CAD_TYRE_DOT_BUDGET,
@@ -689,16 +690,19 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
        material.depthWrite=state.depthWrite;
      });
    }
-   // Each sampled native dot is parented to its original P2.8 mesh, so
-   // tyre and hardware dots follow the separate source wheel and screw
-   // construction timelines without affecting CAD vertex/index buffers.
+   // Reveal original source vertices incrementally. BufferGeometry.drawRange
+   // exposes already-sampled native GLB positions; no new points are ever
+   // allocated while scrolling forward, backward or entering X-ray focus.
    for(const item of buildSourceDots.current){
      const authored=originalPartAssemblyAtStation(
        item.name,p,item.station);
-     const opacity=inspecting?0:
+     const desiredOpacity=inspecting?0:
        sourceCadAssemblyDotOpacity(authored,reducedMotion);
-     item.layer.points.material.opacity=opacity;
-     item.layer.points.visible=opacity>.005;
+     const frame=sourceCadDotFrame(
+       item.layer.sampleCount,authored,desiredOpacity);
+     updateSourceCadDotRange(item.layer.points.geometry,frame.drawCount);
+     item.layer.points.material.opacity=frame.opacity;
+     item.layer.points.visible=frame.visible;
    }
    if(selectedSourceDots.current){
      const opacity=sourceCadInspectionDotOpacity(
