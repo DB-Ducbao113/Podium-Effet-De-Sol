@@ -509,3 +509,30 @@
 [data-text-zoom='400'] .home-v5 .r1-cinema--v7 .r1-cinema__inner {
   height: auto !important;
 }
+
+
+/* Contrast corrections for the bright editorial chapters. */
+.home-v5 .home-live__heading > a,
+.home-v5 .home-title-fight__panel-head > span,
+.home-v5 .home-title-fight__panel-head a,
+.home-v5 .home-title-fight__panel-head a span,
+.home-v5 .home-title-fight__rows li:first-child .home-title-fight__name,
+.home-v5 .home-rc__result-meta,
+.home-v5 .home-rc__winner,
+.home-v5 .home-rc__verification-note {
+  color: #222629;
+}
+.home-v5 .home-live__heading > a,
+.home-v5 .home-title-fight__panel-head a {
+  border-color: #adb2b2;
+}
+.home-v5 .home-title-fight__panel-head {
+  border-bottom-color: #d9dcd8;
+}
+.home-v5 .home-title-fight__rows li {
+  border-bottom-color: #e0e2df;
+}
+.home-v5 .home-title-fight__rows li:hover { background: #eeeee9; }
+.home-v5 .home-command__strip::before { display: none; }
+.home-v5 .home-command__meta { color: #aeb3b7; }
+.home-v5 .home-rc__result-arrow { color: #934020; }
