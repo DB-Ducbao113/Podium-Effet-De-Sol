@@ -55,6 +55,11 @@ describe('Results V5 — source-preserving editorial design',()=>{
     expect(component).toContain('aria-selected={selectedSession === key}');
     expect(component).toContain('onKeyDown={(event)');
     expect(css).toContain('@supports (animation-timeline:view())');
+    expect(css).toContain('animation-range:cover 0% cover 100%');
+    expect(css).toContain('rv5-bidirectional');
+    expect(css).toContain('23%,77%');
+    expect(css).not.toContain('animation-range:entry 0% cover 28%');
+    expect(css).toContain('linear-gradient(120deg,#522836,#702e40 43%,#253d4c 100%)');
     expect(css).toContain('prefers-reduced-motion:reduce');
     expect(css).toContain('transform:none!important');
     expect(css).not.toMatch(/scale\(1\.[2-9]/);

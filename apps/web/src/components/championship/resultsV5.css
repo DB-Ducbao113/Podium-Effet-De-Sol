@@ -445,37 +445,60 @@
   border-color: #69767c;
   background: #293136;
 }
-/* The image and editorial elements respond to scroll; interactive controls do not. */
+/* Scroll has a full cycle (below -> visible -> above).
+ * View timelines are tied to absolute viewport position, not scroll direction,
+ * so moving back UP runs the same effects in reverse without replaying timers.
+ * The sourced venue image itself NEVER gets clipped or made transparent. */
+.results-v5 .rc-round-hero::before {
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  opacity:.48;
+  background:
+    linear-gradient(100deg,transparent 16%,rgba(255,196,128,.16) 48%,transparent 62%),
+    linear-gradient(120deg,transparent 48%,rgba(42,145,155,.14) 77%,transparent);
+  transform:translate3d(0,0,0);
+}
+.results-v5 .rc-round-copy {
+  position:relative;
+  z-index:1;
+}
 @supports (animation-timeline:view()) {
   @media (prefers-reduced-motion:no-preference) {
     .results-v5 .rc-round-copy,
     .results-v5 .results-v5__podium-title,
     .results-v5 .results-v5__podium-entry,
     .results-v5 .c11-classification-meta {
-      animation: rv5-enter linear both;
-      animation-timeline: view(block);
-      animation-range: entry 0% cover 28%;
+      animation:rv5-bidirectional linear both;
+      animation-timeline:view(block);
+      animation-range:cover 0% cover 100%;
     }
     .results-v5 .results-v5__podium-entry:nth-child(even) {
-      --rv5-start-x: 44px;
+      --rv5-start-x:44px;
+      --rv5-end-x:-36px;
     }
     .results-v5 .results-v5__podium-entry:nth-child(odd) {
-      --rv5-start-x: -44px;
+      --rv5-start-x:-44px;
+      --rv5-end-x:36px;
     }
-    .results-v5 .rc-round-media {
-      animation: rv5-photo-wipe linear both;
-      animation-timeline: view(block);
-      animation-range: entry 0% cover 28%;
+    .results-v5 .rc-round-hero::before {
+      animation:rv5-venue-light linear both;
+      animation-timeline:view(block);
+      animation-range:cover 0% cover 100%;
     }
   }
 }
-@keyframes rv5-enter {
-  from { opacity: .55; transform: translate3d(var(--rv5-start-x,0px),22px,0); }
-  to { opacity: 1; transform: none; }
+@keyframes rv5-bidirectional {
+  0% {opacity:.45;transform:translate3d(var(--rv5-start-x,0px),42px,0);}
+  22%,78% {opacity:1;transform:translate3d(0,0,0);}
+  100% {opacity:.45;transform:translate3d(var(--rv5-end-x,0px),-42px,0);}
 }
-@keyframes rv5-photo-wipe {
-  from { clip-path: inset(0 100% 0 0); }
-  to { clip-path: inset(0 0 0 0); }
+@keyframes rv5-venue-light {
+  0% {opacity:0;transform:translate3d(-12%,0,0);}
+  23%,77% {opacity:.7;transform:translate3d(0,0,0);}
+  100% {opacity:0;transform:translate3d(12%,0,0);}
 }
 @media (max-width:860px) {
   .f4-championship.c1-results-active { padding-top: .5rem; }
@@ -526,3 +549,104 @@
 }
 .f4-championship[data-text-zoom="400"] .results-v5__podium-grid { grid-template-columns: minmax(0,1fr); }
 .f4-championship[data-text-zoom="400"] .results-v5__podium-entry { min-height: 0; flex-wrap: wrap; }
+
+
+/* V5.3 MULTI-SCENE PALETTE
+ * Deliberately varied cinematic atmosphere, not a series of near-black panels.
+ * Images and team accents are grounded in the existing Results data/assets. */
+.f4-championship.c1-results-active {
+  background:
+    radial-gradient(ellipse 75% 48% at 90% 0%,rgba(149,66,67,.22),transparent 70%),
+    linear-gradient(125deg,#142b37 0%,#172d38 48%,#3a2431 100%);
+}
+.f4-championship.c1-results-active .f4-controls {
+  background:linear-gradient(110deg,#1f343f,#382833 100%);
+  border-bottom-color:rgba(252,224,201,.3);
+}
+.results-v5 .rc-pinned-controls,
+.results-v5 .rc-round-rail {
+  background:linear-gradient(90deg,#172f3a,#282b36);
+}
+.results-v5 .rc-rail-season {background:#23434c;}
+.results-v5 .rc-round-rail-track {scrollbar-color:#bb947d #192f39;}
+.results-v5 .rc-pinned-controls .c11-session-tabs {
+  background:linear-gradient(100deg,#1c3642,#31333d);
+}
+.rc-race-center.results-v5 .rc-round-hero {
+  background:linear-gradient(125deg,#274652,#63313b);
+}
+.results-v5 .rc-round-img {
+  filter:saturate(1.08) contrast(1.05);
+}
+.results-v5 .rc-round-scrim {
+  background:
+    linear-gradient(90deg,rgba(11,24,34,.86),rgba(10,24,34,.45) 48%,rgba(45,25,31,.08)),
+    linear-gradient(0deg,rgba(18,28,35,.87),transparent 69%);
+}
+.results-v5__podium {
+  background:
+    radial-gradient(ellipse 66% 120% at 4% 8%,rgba(245,148,85,.27),transparent 70%),
+    radial-gradient(ellipse 65% 100% at 100% 100%,rgba(47,117,151,.26),transparent 70%),
+    linear-gradient(120deg,#522836,#702e40 43%,#253d4c 100%);
+  border-bottom:1px solid rgba(247,213,189,.28);
+}
+.results-v5__podium-grid {
+  background:rgba(245,220,203,.28);
+}
+.results-v5__podium-entry {
+  border-top-color:var(--team-color,#edaa83);
+  background:
+    radial-gradient(ellipse at 5% 10%,
+      color-mix(in srgb,var(--team-color,#efab85) 17%,transparent),transparent 65%),
+    linear-gradient(145deg,rgba(20,40,49,.9),rgba(45,31,43,.92));
+}
+.results-v5__podium-entry:first-child {
+  background:
+    radial-gradient(ellipse at 0% 0%,
+      color-mix(in srgb,var(--team-color,#ffcf8d) 24%,transparent),transparent 70%),
+    linear-gradient(145deg,rgba(68,39,48,.86),rgba(21,41,52,.94));
+}
+.results-v5 .c11-classification,
+.results-v5 .c11-table-wrap {
+  background:
+    radial-gradient(ellipse 70% 100% at 98% 0%,rgba(34,141,152,.21),transparent 73%),
+    linear-gradient(135deg,#153744,#152f3c 62%,#2a3544 100%);
+}
+.rc-race-center.results-v5 .c11-classification-meta {
+  background:
+    radial-gradient(ellipse at 85% 0%,rgba(68,166,175,.21),transparent 66%),
+    linear-gradient(100deg,#234550,#354251 100%);
+  border-bottom:1px solid rgba(211,228,224,.26);
+}
+.results-v5 .c11-table {
+  background:#16333f;
+  color:#f1f4f0;
+}
+.rc-race-center.results-v5 .c11-table thead th {
+  background:#244a56;
+  border-bottom-color:#61757b;
+  color:#e2e9e7;
+}
+.rc-race-center.results-v5 .c11-table tbody tr,
+.rc-race-center.results-v5 .c11-table tbody tr:nth-child(-n+3) {
+  background:#183845;
+  border-bottom-color:#45606b;
+}
+.rc-race-center.results-v5 .c11-table tbody tr:nth-child(even) {
+  background:#1d414d;
+}
+.rc-race-center.results-v5 .c11-table tbody tr[data-podium] {
+  background:linear-gradient(90deg,rgba(229,163,105,.17),#1a3945 60%);
+}
+.rc-race-center.results-v5 .c11-table tbody tr:hover,
+.rc-race-center.results-v5 .c11-table tbody tr:focus-within {
+  background:#305868;
+}
+.results-v5 .c11-table td {border-bottom-color:#48616b;}
+@media (prefers-reduced-motion:reduce) {
+  .results-v5 .rc-round-hero::before {
+    animation:none!important;
+    opacity:.4;
+    transform:none;
+  }
+}
