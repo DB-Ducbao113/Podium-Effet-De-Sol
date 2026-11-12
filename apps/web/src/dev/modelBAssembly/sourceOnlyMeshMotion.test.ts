@@ -1,5 +1,5 @@
 import {describe,expect,it} from 'vitest';
-import {sourceBodyMeshKey,sourceBodyMeshPhase,sourceBodyMeshSeparation} from './sourceOnlyMeshMotion';
+import {sourceBodyMeshKey,sourceBodyMeshPhase,sourceBodyMeshSeparation,sourceBodyVisualDisplacement} from './sourceOnlyMeshMotion';
 
 const names=[
  'MODEL_B_BODY_LEFT','MODEL_B_BODY_RIGHT','MODEL_B_FRONT_WING',
@@ -50,6 +50,16 @@ describe('P2.35B source-only original Model B mesh staging',()=>{
  it('rejects invalid source ordinals',()=>{
   for(const ordinal of [-1,NaN,Infinity,1.5,Number.MAX_SAFE_INTEGER+1])
    expect(()=>sourceBodyMeshKey('mesh',ordinal)).toThrow(/ordinal/);
+ });
+ it('honours reduced motion for both source-only and CAD-present shell views',()=>{
+  for(const name of names)for(let i=0;i<=100;i++){
+   const progress=i/100;
+   expect(sourceBodyVisualDisplacement(progress,name,false,true,.18)).toBe(0);
+   expect(sourceBodyVisualDisplacement(progress,name,true,true,.18)).toBe(0);
+   expect(sourceBodyVisualDisplacement(progress,name,false,false,.18))
+     .toBe(sourceBodyMeshSeparation(progress,name));
+   expect(sourceBodyVisualDisplacement(progress,name,true,false,.18)).toBe(.18);
+  }
  });
  it('refuses nonfinite scroll input by restoring the source pose',()=>{
   for(const name of names)for(const p of [NaN,Infinity,-Infinity])
