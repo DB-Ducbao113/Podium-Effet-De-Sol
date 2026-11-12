@@ -92,7 +92,7 @@ def evaluate(source_dir,candidate_dir,report_dir):
             if doc.get('schema')!=schema:reasons.append('REPORT_SCHEMA_MISMATCH')
             if doc.get('mechanicalG2Certified') is not False:reasons.append('UNSAFE_OR_MISSING_G2_HOLD')
             if sha_field is not None and doc.get(sha_field)!=SOURCE:reasons.append('SOURCE_SHA_MISMATCH')
-            if stage=='N' and doc.get('nativeSourceSHA256',{}).get('P234E_source84_revised_six_ball_clearance.step')!=SOURCE:
+            if stage=='N' and (not isinstance(doc.get('nativeSourceSHA256'),dict) or doc['nativeSourceSHA256'].get('P234E_source84_revised_six_ball_clearance.step')!=SOURCE):
                 reasons.append('SOURCE_SHA_MISMATCH')
             for key,locator in CHAIN.get(stage,{}).items():
                 expected=hashes.get(locator)
