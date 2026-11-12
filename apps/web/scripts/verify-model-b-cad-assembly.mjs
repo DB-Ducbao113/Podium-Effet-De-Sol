@@ -148,25 +148,43 @@ try{
       Math.abs(Number(slider.value)/1000-fraction)<.012;
     },step.progress,{timeout:6000});
     await page.waitForTimeout(800);
-    // Inspect the renderer's actual BufferGeometry.drawRange counts.
-    // Unlike DOM source-manifest counts, these values reflect GPU point
-    // submission at the current forward/reverse scroll position.
-    const dots=await canvas.evaluate(el=>({
-     drawn:Number(el.dataset.pedsModelBDrawnCadDots),
-     visible:Number(el.dataset.pedsModelBVisibleCadDots),
-     inspection:Number(el.dataset.pedsModelBInspectionCadDots),
-    }));
-    if(!Object.values(dots).every(Number.isSafeInteger)||
-       dots.drawn<0||dots.drawn>10544||
-       dots.visible<0||dots.visible>dots.drawn||
-       dots.inspection!==0)
-     throw Error('Original source CAD GPU dot draw audit invalid: '+
+    // P2.47: distinguish scheduled drawRange counts from real Three.js
+    // onAfterRender callbacks. A range request alone is NOT GPU evidence.
+    const dots=await canvas.evaluate(el=>{
+     const read=name=>el.dataset[name]===undefined?
+       NaN:Number(el.dataset[name]);
+     return {
+      scheduled:read('pedsModelBDrawnCadDots'),
+      scheduledVisible:read('pedsModelBVisibleCadDots'),
+      scheduledInspection:read('pedsModelBInspectionCadDots'),
+      rendered:read('pedsModelBRenderedCadDots'),
+      renderedInspection:read('pedsModelBRenderedInspectionDots'),
+      drawCalls:read('pedsModelBRenderCalls'),
+      frame:read('pedsModelBRenderFrame'),
+      evidence:el.dataset.pedsModelBRenderEvidence,
+     };
+    });
+    const numeric=[
+     dots.scheduled,dots.scheduledVisible,dots.scheduledInspection,
+     dots.rendered,dots.renderedInspection,dots.drawCalls,dots.frame,
+    ];
+    if(!numeric.every(Number.isSafeInteger)||dots.frame<1||
+       dots.evidence==='INVALID'||
+       dots.scheduled<0||dots.scheduled>10544||
+       dots.scheduledVisible<0||
+       dots.scheduledVisible>dots.scheduled||
+       dots.rendered<0||dots.rendered>dots.scheduledVisible||
+       dots.renderedInspection!==0||dots.scheduledInspection!==0||
+       dots.drawCalls<0||dots.drawCalls>29)
+     throw Error('Original CAD drawRange versus render-callback evidence invalid: '+
        JSON.stringify({step:step.label,dots}));
-    if(step.label==='02-native-hardware-dots'&&dots.visible<1)
-     throw Error('Original P2.8 hardware source dots did not progressively render');
+    if(step.label==='02-native-hardware-dots'&&
+       (dots.rendered<1||dots.drawCalls<1||
+        dots.evidence!=='OBSERVED'))
+     throw Error('Native CAD fastener draw range had no actual render callback');
     if((step.label==='00-original'||step.label==='reverse-00'||
-        step.label==='05-final-car')&&dots.visible!==0)
-     throw Error('Original source dots remained visible outside build chapter');
+        step.label==='05-final-car')&&dots.rendered!==0)
+     throw Error('Native CAD construction dots rendered outside build chapter');
     const png=await canvas.screenshot();
     const audit=assertModelBFrameVisible(await analyzeModelBFrame(png),{
      finalFrame:step.label==='05-final-car',
@@ -196,8 +214,8 @@ try{
    const beforeGpu=rows.find(row=>
      row.step==='02-wheel-core')?.actualGpuDotDraw;
    if(!hardwareGpu||!beforeGpu||
-      hardwareGpu.visible<=beforeGpu.visible)
-    throw Error('Original P2.8 hardware source dot count did not increase');
+      hardwareGpu.rendered<=beforeGpu.rendered)
+    throw Error('Actual P2.8 hardware render callback count did not increase');
    const partButton=page.getByRole('button',{name:/EXPLORE REAL CAD PARTS/});
    await partButton.click();
    const list=page.locator('.mb-build-catalog-row');
@@ -224,11 +242,18 @@ try{
     throw Error('Selecting original CAD source hijacked the user scroll position');
    // Save a real selected CAD mesh close-up, not merely the inspector text.
    await page.waitForTimeout(800);
-   const xrayDotCount=await canvas.evaluate(el=>
-    Number(el.dataset.pedsModelBInspectionCadDots));
+   const xrayDotCount=await canvas.evaluate(el=>{
+    const scheduled=el.dataset.pedsModelBInspectionCadDots;
+    const rendered=el.dataset.pedsModelBRenderedInspectionDots;
+    const evidence=el.dataset.pedsModelBRenderEvidence;
+    const count=rendered===undefined?NaN:Number(rendered);
+    if(scheduled===undefined||!Number.isSafeInteger(Number(scheduled))||
+       evidence!=='OBSERVED')return NaN;
+    return count;
+   });
    if(!Number.isSafeInteger(xrayDotCount)||xrayDotCount<1||
       xrayDotCount>1200)
-    throw Error('Original inspected CAD source point draw range is absent');
+    throw Error('Original CAD X-ray lacks actual Three.js point render callback');
    const focusPng=await canvas.screenshot();
    assertModelBFrameVisible(await analyzeModelBFrame(focusPng));
    const focusDifference=await modelBFrameDifference(
@@ -250,8 +275,10 @@ try{
    if(Math.abs(progressRestored-progressBefore)>12)
     throw Error('Clearing CAD X-ray changed the scroll position');
    await page.waitForTimeout(900);
-   const selectedPointsAfterClear=await canvas.evaluate(el=>
-    Number(el.dataset.pedsModelBInspectionCadDots));
+   const selectedPointsAfterClear=await canvas.evaluate(el=>{
+    const value=el.dataset.pedsModelBRenderedInspectionDots;
+    return value===undefined?NaN:Number(value);
+   });
    if(selectedPointsAfterClear!==0)
     throw Error('Original CAD inspection vertex dots leaked after clearing focus');
    const restoredPng=await canvas.screenshot();
