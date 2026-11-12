@@ -28,3 +28,14 @@ export function sourceBodyMeshKey(name:string,ordinal:number):string{
   throw Error('Invalid source mesh ordinal');
  return name+'#'+ordinal;
 }
+
+/** Accessibility: preserve the source exterior when reduced motion is active.
+ * This is intentionally independent of the scroll chapter's camera pose.
+ */
+export function sourceBodyVisualDisplacement(
+ progress:number,name:string,hasCad:boolean,reducedMotion:boolean,
+ cadSeparation:number,
+):number{
+ if(reducedMotion)return 0;
+ return hasCad?cadSeparation:sourceBodyMeshSeparation(progress,name);
+}
