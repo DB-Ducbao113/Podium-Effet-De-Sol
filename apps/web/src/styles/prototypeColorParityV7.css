@@ -534,6 +534,10 @@ body:has(.peds-about--prototype) #root {background:var(--peds-proto-paper);}
 .peds-footer__legal-mark {background:var(--peds-proto-accent);}
 .peds-footer__legal {border-bottom-color:rgba(247,245,239,.13);}
 .peds-footer__bottom {color:#aaaead;}
+.peds-footer__legal p,
+.peds-footer__bottom p {color:#aaaead;}
+.peds-footer__backtop {color:var(--peds-proto-white);}
+.peds-footer__backtop:hover {color:#e7ad99;}
 .peds-footer__backtop:focus-visible,
 .peds-footer__nav-link:focus-visible {outline:2px solid var(--peds-proto-accent);outline-offset:4px;}
 
