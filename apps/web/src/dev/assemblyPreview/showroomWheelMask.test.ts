@@ -4,6 +4,8 @@ import { addReversibleWheelWindow } from './showroomWheelMask';
 import type { OwnerMeasuredFit } from './ownerMeasuredFit';
 
 const measured = {
+  originalP28TyreWidthM:.314,
+  normalizedShellScale:.17357287237986882,
   wheels: [
     { centerSourceUnits: [7.43235, -1.07544, 5.07737], outerRadiusSourceUnits: 1.90398 },
     { centerSourceUnits: [7.24193, -1.06293, -5.234695], outerRadiusSourceUnits: 1.91969 },
@@ -59,7 +61,11 @@ describe('reversible original Model B wheel window', () => {
     );
     expect(shader.uniforms.pedsWheelMaskAmount).toBe(fade);
     expect(shader.fragmentShader).toContain('threshold<pedsWheelMaskAmount');
-    expect(shader.fragmentShader).toContain('max(2.5,1.24*pedsWheelRadius[wheel])');
+    expect(shader.fragmentShader).toContain('abs(local.z)<pedsWheelHalfWidth');
+    expect(shader.uniforms.pedsWheelHalfWidth.value).toBeGreaterThan(1);
+    expect(shader.uniforms.pedsWheelHalfWidth.value).toBeLessThan(1.5);
+    expect(shader.fragmentShader).not.toContain('gl_FragCoord.xy');
+    expect(shader.fragmentShader).toContain('dot(vPedsSourcePosition,vec3(');
     fade.value=1;
     expect(shader.uniforms.pedsWheelMaskAmount.value).toBe(1);
     expect(shader.fragmentShader).toContain('discard;');
