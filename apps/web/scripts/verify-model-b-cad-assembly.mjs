@@ -17,6 +17,7 @@ import {
  analyzeModelBFrame,assertModelBFrameVisible,modelBFrameDifference,
 } from './model-b-frame-audit.mjs';
 import {assertSourceCadDrawEvidence} from './source-cad-draw-evidence.mjs';
+import {assertSourceCadFrameSnapshot} from './source-cad-frame-snapshot.mjs';
 
 const target=new URL(process.env.PEDS_MODEL_B_URL||
  'http://127.0.0.1:5173/engineering/model-b-build');
@@ -134,7 +135,7 @@ try{
    await canvas.waitFor({state:'visible',timeout:20000});
    const images=new Map();
    const rows=[];
-   for(const step of steps){
+   for(const [stepIndex,step] of steps.entries()){
     const previousR3fFrame=await canvas.evaluate(el=>{
      const raw=el.dataset.pedsModelBRenderFrame;
      return raw===undefined?0:Number(raw);
@@ -155,23 +156,37 @@ try{
     // The DOM scrubber reaches the target before R3F's smoothed camera.
     // Require the actual Model B THREE scene AND camera to settle in at
     // least two subsequent frames before inspecting native CAD pixels.
-    await page.waitForFunction(({target,firstFrame})=>{
+    const requireNewTarget=stepIndex>0;
+    await page.waitForFunction(({target,firstFrame,requireNewTarget})=>{
      const el=document.querySelector('.mb-build-webgl canvas');
      if(!(el instanceof HTMLCanvasElement))return false;
-     const frame=Number(el.dataset.pedsModelBRenderFrame);
-     const progress=Number(el.dataset.pedsModelBSceneProgress);
-     const cameraError=Number(el.dataset.pedsModelBCameraErrorM);
-     return el.dataset.pedsModelBSceneSettled==='true'&&
-       Number.isSafeInteger(frame)&&frame>=firstFrame+2&&
-       Number.isFinite(progress)&&Math.abs(progress-target)<=.004&&
-       Number.isFinite(cameraError)&&cameraError<=.015;
-    },{target:step.progress,firstFrame:previousR3fFrame},{timeout:18000});
-    // P2.47: distinguish scheduled drawRange counts from real Three.js
-    // onAfterRender callbacks. A range request alone is NOT GPU evidence.
-    const dots=await canvas.evaluate(el=>{
      const read=name=>el.dataset[name]===undefined?
        NaN:Number(el.dataset[name]);
-     return {
+     const frame=read('pedsModelBRenderFrame');
+     const issued=read('pedsModelBTargetIssuedFrame');
+     const progress=read('pedsModelBSceneProgress');
+     const cameraError=read('pedsModelBCameraErrorM');
+     const visible=read('pedsModelBVisibleCadDots');
+     const rendered=read('pedsModelBRenderedCadDots');
+     return el.dataset.pedsModelBSceneSettled==='true'&&
+       Number.isSafeInteger(frame)&&Number.isSafeInteger(issued)&&
+       frame>=firstFrame+2&&frame>=issued+2&&
+       (!requireNewTarget||issued>firstFrame)&&
+       Number.isFinite(progress)&&Math.abs(progress-target)<=.004&&
+       Number.isFinite(cameraError)&&cameraError<=.015&&
+       Number.isSafeInteger(visible)&&Number.isSafeInteger(rendered)&&
+       (visible===0||(el.dataset.pedsModelBRenderEvidence==='OBSERVED'&&
+         rendered>0));
+    },{target:step.progress,firstFrame:previousR3fFrame,
+       requireNewTarget},{timeout:18000});
+    // P2.47: distinguish scheduled drawRange counts from real Three.js
+    // onAfterRender callbacks. A range request alone is NOT GPU evidence.
+    // Read scene/camera and post-render callbacks atomically from one
+    // canvas snapshot. Separate page.evaluate calls could mix two frames.
+    const snapshot=await canvas.evaluate(el=>{
+     const read=name=>el.dataset[name]===undefined?
+       NaN:Number(el.dataset[name]);
+     const dots={
       scheduled:read('pedsModelBDrawnCadDots'),
       scheduledVisible:read('pedsModelBVisibleCadDots'),
       scheduledInspection:read('pedsModelBInspectionCadDots'),
@@ -181,7 +196,21 @@ try{
       frame:read('pedsModelBRenderFrame'),
       evidence:el.dataset.pedsModelBRenderEvidence,
      };
+     return {
+      frame:dots.frame,
+      targetIssuedFrame:read('pedsModelBTargetIssuedFrame'),
+      sceneProgress:read('pedsModelBSceneProgress'),
+      cameraErrorM:read('pedsModelBCameraErrorM'),
+      settled:el.dataset.pedsModelBSceneSettled,
+      scheduledVisible:dots.scheduledVisible,rendered:dots.rendered,
+      drawCalls:dots.drawCalls,evidence:dots.evidence,dots,
+     };
     });
+    assertSourceCadFrameSnapshot(snapshot,{
+     targetProgress:step.progress,previousFrame:previousR3fFrame,
+     requireNewTarget,
+    });
+    const dots=snapshot.dots;
     assertSourceCadDrawEvidence(dots,{
      requireBuild:step.label==='02-native-hardware-dots',
     });
@@ -194,13 +223,12 @@ try{
     });
     const sha256=createHash('sha256').update(png).digest('hex');
     images.set(step.label,png);
-    const converged=await canvas.evaluate(el=>({
-     actualSceneProgress:Number(el.dataset.pedsModelBSceneProgress),
-     cameraErrorM:Number(el.dataset.pedsModelBCameraErrorM),
-     sceneSettled:el.dataset.pedsModelBSceneSettled,
-    }));
     rows.push({step:step.label,progress:step.progress,sha256,
-     actualSceneConvergence:converged,actualGpuDotDraw:dots,
+     actualSceneConvergence:{
+       frame:snapshot.frame,targetIssuedFrame:snapshot.targetIssuedFrame,
+       actualSceneProgress:snapshot.sceneProgress,
+       cameraErrorM:snapshot.cameraErrorM,sceneSettled:snapshot.settled,
+     },actualGpuDotDraw:dots,
      foregroundFraction:audit.foregroundFraction,bounds:audit.bounds});
     await writeFile(join(destination,layout.label+'-'+step.label+'.png'),png);
     shots++;
