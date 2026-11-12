@@ -1,7 +1,8 @@
 import {describe,expect,it} from 'vitest';
 import {
  beginSourceCadRenderEvidence,createSourceCadRenderEvidence,
- recordSourceCadAfterRender,sourceCadRenderedPointCount,
+ recordSourceCadAfterRender,recordUniqueSourceCadAfterRender,
+ sourceCadRenderedPointCount,
 } from './sourceCadRenderEvidence';
 
 const geometry=(sourceCount:number,drawCount:number,start=0)=>({
@@ -97,6 +98,77 @@ describe('P2.47 honest source CAD point onAfterRender evidence',()=>{
    getAttribute:(_name:'position')=>undefined,
   };
   expect(()=>sourceCadRenderedPointCount(broken,1)).toThrow(/post-render/);
+ });
+ it('P2.48 counts the same original CAD Points layer only once per frame',()=>{
+  const evidence=createSourceCadRenderEvidence();
+  const seen=new Set<object>();
+  const genuinePoints={source:'original-p28-wheel'};
+  beginSourceCadRenderEvidence(evidence);
+  expect(recordUniqueSourceCadAfterRender(evidence,seen,genuinePoints,
+    true,'build',geometry(1100,400),.67)).toBe(400);
+  expect(recordUniqueSourceCadAfterRender(evidence,seen,genuinePoints,
+    true,'build',geometry(1100,400),.67)).toBe(0);
+  expect(evidence.buildPoints).toBe(400);
+  expect(evidence.drawCalls).toBe(1);
+ });
+ it('P2.48 ignores callbacks from disposed and replaced source CAD layers',()=>{
+  const evidence=createSourceCadRenderEvidence();
+  const seen=new Set<object>();
+  const oldLayer={source:'P2.8-old'};
+  const liveLayer={source:'P2.8-new'};
+  beginSourceCadRenderEvidence(evidence);
+  expect(recordUniqueSourceCadAfterRender(evidence,seen,oldLayer,
+    false,'build',geometry(1100,500),.67)).toBe(0);
+  expect(recordUniqueSourceCadAfterRender(evidence,seen,liveLayer,
+    true,'build',geometry(1100,270),.67)).toBe(270);
+  expect(evidence.buildPoints).toBe(270);
+  expect(evidence.drawCalls).toBe(1);
+ });
+ it('P2.48 permits fresh native render evidence only after frame reset',()=>{
+  const evidence=createSourceCadRenderEvidence();
+  const seen=new Set<object>();
+  const mesh={source:'authentic-rear-p28'};
+  for(let frame=1;frame<=1000;frame++){
+   seen.clear();
+   beginSourceCadRenderEvidence(evidence);
+   expect(recordUniqueSourceCadAfterRender(evidence,seen,mesh,
+     true,'build',geometry(256,frame%256+1),.5))
+    .toBe(frame%256+1);
+   expect(recordUniqueSourceCadAfterRender(evidence,seen,mesh,
+     true,'build',geometry(256,frame%256+1),.5)).toBe(0);
+   expect(evidence.drawCalls).toBe(1);
+  }
+  expect(evidence.frame).toBe(1000);
+ });
+ it('P2.48 allows distinct original source fasteners but not repeated render passes',()=>{
+  const evidence=createSourceCadRenderEvidence();
+  const seen=new Set<object>();
+  const front={name:'P2_BOLT',station:'front-positive-z'};
+  const rear={name:'P2_BOLT',station:'rear-positive-z'};
+  beginSourceCadRenderEvidence(evidence);
+  expect(recordUniqueSourceCadAfterRender(evidence,seen,front,
+    true,'build',geometry(256,100),.67)).toBe(100);
+  expect(recordUniqueSourceCadAfterRender(evidence,seen,rear,
+    true,'build',geometry(256,150),.67)).toBe(150);
+  expect(recordUniqueSourceCadAfterRender(evidence,seen,rear,
+    true,'build',geometry(256,150),.67)).toBe(0);
+  expect(evidence.buildPoints).toBe(250);
+  expect(evidence.drawCalls).toBe(2);
+ });
+ it('P2.48 never marks invisible points as observed before a valid callback',()=>{
+  const evidence=createSourceCadRenderEvidence();
+  const seen=new Set<object>();
+  const layer={};
+  beginSourceCadRenderEvidence(evidence);
+  expect(recordUniqueSourceCadAfterRender(evidence,seen,layer,
+    true,'build',geometry(256,140),0)).toBe(0);
+  expect(seen.size).toBe(0);
+  expect(recordUniqueSourceCadAfterRender(evidence,seen,layer,
+    true,'build',geometry(256,140),.67)).toBe(140);
+  expect(evidence.drawCalls).toBe(1);
+  expect(()=>recordUniqueSourceCadAfterRender(evidence,seen,
+    null as never,true,'build',geometry(256,140),.67))
+    .toThrow(/render object/);
  });
  it('rejects incorrectly classified callbacks instead of treating them as hardware',()=>{
   const evidence=createSourceCadRenderEvidence();
