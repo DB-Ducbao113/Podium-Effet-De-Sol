@@ -3,6 +3,15 @@ import {MODEL_B_CHAPTERS} from './modelBAssemblyTimeline';
 import {modelBChapterTruth} from './modelBChapterTruth';
 
 describe('Original owner Model B no-fake CAD assembly claims',()=>{
+ it('does not claim a verified original while the GLB is still loading',()=>{
+   for(const chapter of MODEL_B_CHAPTERS){
+     const truth=modelBChapterTruth(chapter.id,false,false,false,false);
+     expect(truth.kind).toBe('WAITING_FOR_ORIGINAL');
+     expect(truth.evidence).toContain('VERIFYING');
+     expect(truth.description).not.toContain('already verified');
+   }
+ });
+
  it('source-only stage labels all six steps as visual-source reveal, not CAD assembly',()=>{
    for(const chapter of MODEL_B_CHAPTERS){
      const t=modelBChapterTruth(chapter.id,false,false,false);
