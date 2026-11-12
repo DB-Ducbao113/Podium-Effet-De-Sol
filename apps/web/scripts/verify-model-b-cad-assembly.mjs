@@ -45,11 +45,13 @@ const steps=[
  {label:'00-original',progress:0},
  {label:'01-cutaway',progress:.22},
  {label:'02-wheel-core',progress:.42},
+ {label:'02-native-hardware-dots',progress:.535},
  {label:'03-four-corners',progress:.62},
  {label:'04-wheel-stagger',progress:.735},
  {label:'04-rear-joints',progress:.78},
  {label:'05-final-car',progress:.94},
  {label:'reverse-wheel-stagger',progress:.735},
+ {label:'reverse-native-hardware-dots',progress:.535},
  {label:'reverse-02',progress:.42},
  {label:'reverse-00',progress:0},
 ];
@@ -84,7 +86,8 @@ try{
      el.getAttribute('data-model-b-front-p28-per-station')==='59'&&
      el.getAttribute('data-model-b-rear-toe-per-station')==='15'&&
      el.getAttribute('data-model-b-rear-joint-per-station')==='16'&&
-     Number(el.getAttribute('data-model-b-authentic-cad-vertex-dots'))>0;
+     Number(el.getAttribute('data-model-b-authentic-cad-vertex-dots'))>0&&
+     Number(el.getAttribute('data-model-b-authentic-cad-fastener-dot-meshes'))>0;
    },undefined,{timeout:90000});
    const source=await page.locator('.mb-build-source-wrap').evaluate(el=>({
     blob:el.getAttribute('data-owner-model-b-git-blob-sha1'),
@@ -99,6 +102,7 @@ try{
     mountedIdentity:el.getAttribute('data-model-b-mounted-source-identity'),
     mounted:el.getAttribute('data-model-b-mounted-cad-meshes'),
     sourceVertexDots:el.getAttribute('data-model-b-authentic-cad-vertex-dots'),
+    fastenerVertexLayers:el.getAttribute('data-model-b-authentic-cad-fastener-dot-meshes'),
     mountedFrontPerStation:el.getAttribute('data-model-b-front-p28-per-station'),
     mountedRearProxyPerStation:el.getAttribute('data-model-b-rear-p28-proxy-per-station'),
     mountedRearToePerStation:el.getAttribute('data-model-b-rear-toe-per-station'),
@@ -113,7 +117,9 @@ try{
     source.wheels!=='4'||source.rearParts!=='31'||source.replaced!=='4'||
     source.mountedIdentity!=='PASS'||
     !(Number(source.sourceVertexDots)>=1024&&
-      Number(source.sourceVertexDots)<=4400)||
+      Number(source.sourceVertexDots)<=10544)||
+    !(Number(source.fastenerVertexLayers)>0&&
+      Number(source.fastenerVertexLayers)<=24)||
     source.mountedFrontPerStation!=='59'||
     source.mountedRearToePerStation!=='15'||
     source.mountedRearJointPerStation!=='16'||
@@ -161,6 +167,10 @@ try{
     images.get('04-wheel-stagger'),images.get('04-rear-joints'));
    if(staggerDifference<.002)
     throw Error('Four-wheel stagger has no visible CAD source progression');
+   const hardwareDifference=await modelBFrameDifference(
+    images.get('02-native-hardware-dots'),images.get('02-wheel-core'));
+   if(hardwareDifference<.002)
+    throw Error('Native fastener vertex assembly has no visible progression');
    const partButton=page.getByRole('button',{name:/EXPLORE REAL CAD PARTS/});
    await partButton.click();
    const list=page.locator('.mb-build-catalog-row');
@@ -221,9 +231,10 @@ try{
     JSON.stringify({layout,source,chapterDifference:difference,
      selectedOriginalCadPart:selected,xrayFrameDifference:focusDifference,
      fourWheelStaggerDifference:staggerDifference,
+     nativeHardwareProgressDifference:hardwareDifference,
      xrayClearDifference:restoredDifference,progressBefore,
      progressFocused,progressRestored,frames:rows},null,2)+'\n');
-   console.log('PASS '+layout.label+': 94 source meshes, 4 native-vertex sampled tyre overlays, exact four-corner CAD IDs, 31 rear source meshes/station, 24 screenshots across both layouts.');
+   console.log('PASS '+layout.label+': 94 source meshes, 4 native-vertex sampled tyre overlays, exact four-corner CAD IDs, 31 rear source meshes/station, 28 screenshots across both layouts.');
   }finally{
    await page.close();
   }
