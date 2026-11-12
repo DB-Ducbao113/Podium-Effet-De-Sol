@@ -1,6 +1,6 @@
 import {describe,it,expect} from 'vitest';
 import {
- sourceMeshOwnWorldBounds,sourceBodyWorldRevealStrength,
+ sourceMeshOwnWorldBounds,sourceBodyWorldRevealStrength,sourceMeshRevealWorldDirection,
 } from './sourceWorldReveal';
 
 const identity=[
@@ -58,6 +58,23 @@ describe('P2.37C authentic source geometry bounds exclude GLB descendants',()=>{
    expect(box.center[axis]).toBeCloseTo((lo+hi)/2,10);
    expect(box.size[axis]).toBeCloseTo(hi-lo,10);
   }
+ });
+ it('keeps each authentic source reveal at exactly the configured world distance',()=>{
+  for(const center of [
+    [-10,-2,-3],[-1,2,4],[0,0,0],[1,2,-3],[10,5,10],[-2,-2,-2],
+  ] as [number,number,number][]){
+   const d=sourceMeshRevealWorldDirection(center);
+   expect(Math.hypot(...d)).toBeCloseTo(1,12);
+   const amount=sourceBodyWorldRevealStrength(.2,.5);
+   expect(Math.hypot(...d.map(v=>v*amount))).toBeCloseTo(amount,12);
+  }
+ });
+ it('rejects malformed source direction inputs rather than generating NaNs',()=>{
+  for(const value of [
+   [NaN,0,1],[1,Infinity,0],[0,0,-Infinity],[1,2],
+  ] as [number,number,number][])
+   expect(()=>sourceMeshRevealWorldDirection(value))
+    .toThrow(/world source centre/);
  });
  it('rejects invalid, descending and nonfinite source geometry bounds',()=>{
   expect(()=>bounds([1,0,0],[0,1,1])).toThrow(/world bounds/);
