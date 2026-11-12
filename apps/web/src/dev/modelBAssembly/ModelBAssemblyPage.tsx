@@ -213,6 +213,7 @@ export default function ModelBAssemblyPage(){
    }
  },[handlePartInspect,reducedMotion]);
  const resetReady=useCallback((kind:SourceName)=>{
+   setMountedCadAudit(null);
    setInspectedPart(null);
    setCatalogOpen(false);
    setReady(previous=>{
@@ -279,13 +280,15 @@ export default function ModelBAssemblyPage(){
    p212MeshCount:rearToe?ready['rear-toe']??0:0,
    p214MeshCount:splitRace?ready.p214??0:0,
  });
- const cadLoaded=coverage.p28Verified;
+ const mountedSceneVerified=mountedCadAudit?.sourceNamesExact===true;
+ const cadLoaded=coverage.p28Verified&&mountedSceneVerified;
  const p28PartIds=useMemo(()=>corner?.parts.map(x=>x.node)??[],[corner]);
  const rearToePartIds=useMemo(()=>rearToe?.manifest.partIds??null,[rearToe]);
  const splitPartIds=useMemo(()=>splitRace?.manifest.newPartNames??null,[splitRace]);
  const allRear=coverage.p212Verified&&coverage.p214Verified;
- const truth=modelBChapterTruth(chapter.id,cadLoaded,
-   coverage.p212Verified,coverage.p214Verified,coverage.originalVerified);
+ const truth=modelBChapterTruth(chapter.id,coverage.p28Verified,
+   coverage.p212Verified,coverage.p214Verified,coverage.originalVerified,
+   mountedSceneVerified);
  const description=truth.kind==='ORIGINAL_CAD_ASSEMBLY'
    ?chapter.description:truth.description;
  const evidence=truth.kind==='ORIGINAL_CAD_ASSEMBLY'
@@ -336,7 +339,7 @@ export default function ModelBAssemblyPage(){
            {coverage.summary}
            {coverage.rearWheelEndSourceIsFrontProxy&&
              <span> · REAR WHEEL ENDS: FRONT-SOURCE PROXY</span>}
-           {mountedCadAudit&&<span> · SCENE: {mountedCadAudit.mountedMeshInstances}
+           {mountedSceneVerified&&mountedCadAudit&&<span> · SCENE: {mountedCadAudit.mountedMeshInstances}
              {' '}SOURCE MESH INSTANCES / 4 WHEELS</span>}
          </p>
        </section>
@@ -405,7 +408,10 @@ export default function ModelBAssemblyPage(){
          data-model-b-scene-truth={truth.kind}
          data-model-b-source-review-stage={coverage.stage}
          data-model-b-cad-verified-meshes={coverage.verifiedCadMeshes}
-         data-model-b-mounted-cad-meshes={mountedCadAudit?.mountedMeshInstances??0}
+         data-model-b-mounted-source-identity={mountedSceneVerified?'PASS':
+           coverage.p28Verified?'HOLD':'NOT_LOADED'}
+         data-model-b-mounted-cad-meshes={mountedSceneVerified?
+           mountedCadAudit?.mountedMeshInstances??0:0}
          data-model-b-front-p28-per-station={mountedCadAudit?.frontP28PerStation??0}
          data-model-b-rear-p28-proxy-per-station={mountedCadAudit?.rearFrontSourceProxyPerStation??0}
          data-model-b-rear-toe-per-station={mountedCadAudit?.rearToePerStation??0}
