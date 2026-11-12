@@ -3,7 +3,7 @@ import type {AssemblyChapterId} from './modelBAssemblyTimeline';
 export type SceneTruth={
  description:string;
  evidence:string;
- kind:'SOURCE_ONLY_VISUAL_REVEAL'|'ORIGINAL_CAD_ASSEMBLY'|'UNVERIFIED_REAR_PROPOSAL';
+ kind:'WAITING_FOR_ORIGINAL'|'SOURCE_ONLY_VISUAL_REVEAL'|'ORIGINAL_CAD_ASSEMBLY'|'UNVERIFIED_REAR_PROPOSAL';
 };
 
 /** Never display claims that components have assembled if only the original
@@ -15,7 +15,15 @@ export function modelBChapterTruth(
  hasOriginalP28:boolean,
  hasOriginalRearToe:boolean,
  hasOriginalSplitRace:boolean,
+ originalVerified=true,
 ):SceneTruth{
+ if(!originalVerified){
+   return {
+     description:'Original Model B is being loaded and checked against its exact repository binary. No source geometry has been approved for display yet.',
+     evidence:'VERIFYING ORIGINAL MODEL B GLB / NO SOURCE CLAIM',
+     kind:'WAITING_FOR_ORIGINAL',
+   };
+ }
  if(!hasOriginalP28){
    const scenes:Record<AssemblyChapterId,SceneTruth>={
      reveal:{
