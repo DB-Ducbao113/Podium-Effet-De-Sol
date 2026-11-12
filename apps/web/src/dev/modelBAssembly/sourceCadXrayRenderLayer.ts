@@ -28,9 +28,10 @@ export function sourceCadXrayRenderLayer(
 ):SourceCadRenderLayer{
  if(typeof originalDepthTest!=='boolean'||
     !Number.isSafeInteger(originalRenderOrder)||
-    originalRenderOrder<0||originalRenderOrder>=SOURCE_CAD_XRAY_RENDER_ORDER)
+    originalRenderOrder<0||originalRenderOrder===Number.MAX_SAFE_INTEGER)
   throw Error('Invalid original CAD viewer render-layer state');
  if(!inspecting||!selected)
   return {depthTest:originalDepthTest,renderOrder:originalRenderOrder};
- return {depthTest:false,renderOrder:SOURCE_CAD_XRAY_RENDER_ORDER};
+ return {depthTest:false,
+   renderOrder:Math.max(SOURCE_CAD_XRAY_RENDER_ORDER,originalRenderOrder+1)};
 }
