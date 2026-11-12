@@ -77,9 +77,23 @@ describe('P2.44 original source CAD vertex-dot assembly',()=>{
   const layer=buildSourceCadVertexDots(mesh,1100);
   expect(layer.sampleCount).toBe(1100);
   expect(layer.points.frustumCulled).toBe(false);
-  expect(layer.points.material.depthTest).toBe(true);
+  // Exact source vertices coincide with the opaque tyre triangles:
+  // the dots must render after those triangles or they would self-occlude.
+  expect(layer.points.material.depthTest).toBe(false);
+  expect(layer.points.material.depthWrite).toBe(false);
+  expect(layer.points.renderOrder).toBe(850);
   expect(layer.points.visible).toBe(false);
   expect(mesh.geometry.getAttribute('position').count).toBe(9000);
+  layer.dispose();geometry.dispose();material.dispose();
+ });
+ it('makes original-vertex build dots visible above the native CAD surface only during assembly',()=>{
+  const {mesh,geometry,material}=originalMesh(500);
+  const layer=buildSourceCadVertexDots(mesh,256);
+  expect(layer.points.renderOrder).toBe(850);
+  expect(layer.points.material.depthTest).toBe(false);
+  expect(layer.points.material.depthWrite).toBe(false);
+  expect(layer.points.material.opacity).toBe(0);
+  expect(layer.points.visible).toBe(false);
   layer.dispose();geometry.dispose();material.dispose();
  });
  it('renders selected source bolt points above its own CAD material only',()=>{
