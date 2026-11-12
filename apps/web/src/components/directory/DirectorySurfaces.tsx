@@ -20,12 +20,48 @@ import { LocalImage } from './LocalImage';
 
 type Lang = 'vi' | 'en';
 
-const driverStyle = (teamId: TeamId) => {
+/** Editorial palette extracted from PEDS_CINEMATIC_PROTOTYPE_V5.
+ * These are visual tones, not historical team facts or official brand hexes.
+ * The season's existing standings remain the only source of membership.
+ */
+export const EDITORIAL_TEAM_TONES: Record<TeamId, string> = {
+  mclaren: '#e89c5b',
+  ferrari: '#c55d50',
+  mercedes: '#5cae9b',
+  redbull: '#536e93',
+  astonmartin: '#639b89',
+  williams: '#6491bd',
+  audi: '#a5b0af',
+  cadillac: '#a4a297',
+  alpine: '#769db7',
+  haas: '#a3a3a4',
+  racingbulls: '#657eaa',
+};
+const EDITORIAL_DRIVER_TONES: Record<string, { team: TeamId; tone: string }> = {
+  norris: { team: 'mclaren', tone: '#b15b31' },
+  verstappen: { team: 'redbull', tone: '#30475d' },
+  leclerc: { team: 'ferrari', tone: '#a4433e' },
+  piastri: { team: 'mclaren', tone: '#ae6d42' },
+  russell: { team: 'mercedes', tone: '#326e67' },
+  antonelli: { team: 'mercedes', tone: '#477b76' },
+  hamilton: { team: 'ferrari', tone: '#953b34' },
+  alonso: { team: 'astonmartin', tone: '#255f58' },
+};
+
+const driverStyle = (teamId: TeamId, driverId?: string) => {
   const team = TEAMS_DATA[teamId];
+  const editorialTeam = EDITORIAL_TEAM_TONES[teamId] || '#858c84';
+  // A transferred driver adopts their actual season team's color instead of
+  // retaining an outdated design-preview association.
+  const prototypeDriver = driverId ? EDITORIAL_DRIVER_TONES[driverId] : undefined;
+  const editorialDriver = prototypeDriver?.team === teamId
+    ? prototypeDriver.tone : editorialTeam;
   return {
     '--team': getTeamTextColor(teamId, true),
     '--team-primary': team?.primaryColor || getTeamTextColor(teamId, true),
     '--team-accent': team?.accentColor || getTeamTextColor(teamId, true),
+    '--peds-dir-team': editorialTeam,
+    '--peds-dir-driver': editorialDriver,
   } as React.CSSProperties;
 };
 
@@ -210,7 +246,7 @@ export function DriverCard({
   return (
     <article
       className={`p5-driver-card p5-driver-card--directory${season !== 2026 ? ' p5-driver-card--generated' : ''}`}
-      style={driverStyle(row.teamId)}
+      style={driverStyle(row.teamId, row.driverId)}
       data-rank={row.rank}
       data-p5-reveal
     >

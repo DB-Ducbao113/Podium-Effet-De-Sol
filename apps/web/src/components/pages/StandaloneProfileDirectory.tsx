@@ -16,6 +16,7 @@ import { useDirectoryReveal } from "../directory/useDirectoryReveal";
 import "../directory/directory.css";
 import "../directory/directoryLayout.css";
 import "../directory/teamGarage.css";
+import "../directory/directoryPaletteV6.css";
 import { DriverIcon } from '../directory/DriverIcon';
 import { SEASONAL_ART_ENABLED, packageOnlyDriverVisuals } from '../../utils/seasonalVisuals';
 

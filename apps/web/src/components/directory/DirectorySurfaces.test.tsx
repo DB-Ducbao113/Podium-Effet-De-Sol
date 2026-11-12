@@ -56,6 +56,27 @@ describe('P5-R1 owner-local visual contracts', () => {
     expect(html).toContain('href="/teams/' + row.teamId + '?season=2026"');
   });
 
+
+
+  it('uses the prototype team palette for both light garage and dark driver cards without altering standings',()=>{
+    const driver=DRIVER_STANDINGS_2026.find(row=>row.driverId==='norris')!;
+    const team=CONSTRUCTOR_STANDINGS_2026.find(row=>row.teamId==='mclaren')!;
+    const driverHtml=render(<DriverCard row={driver} season={2026} lang="en"/>);
+    const teamHtml=render(<TeamCard row={team} season={2026} lang="en" drivers={DRIVER_STANDINGS_2026}/>);
+    expect(driverHtml).toContain('--peds-dir-team:#e89c5b');
+    expect(driverHtml).toContain('--peds-dir-driver:#b15b31');
+    expect(teamHtml).toContain('--peds-dir-team:#e89c5b');
+    expect(teamHtml).toContain(String(team.points));
+    expect(driverHtml).toContain(String(driver.points));
+  });
+
+  it('keeps the source 2024 team association when a driver changes teams between seasons',()=>{
+    const moved=DRIVER_STANDINGS_2024.find(row=>row.driverId==='hamilton')!;
+    const html=render(<DriverCard row={moved} season={2024} lang="en"/>);
+    expect(html).toContain('--peds-dir-team:');
+    expect(html).not.toContain('--peds-dir-driver:#953b34');
+  });
+
   it('renders the owner image source without requiring the WebP to exist in GitHub', () => {
     const html = render(<DriverPortrait driverId="leclerc" season={2026} alt="Charles Leclerc" number={16} />);
     expect(html).toContain('data-p5-image-source="owner-concept"');

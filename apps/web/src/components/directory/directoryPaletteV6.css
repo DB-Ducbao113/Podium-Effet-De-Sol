@@ -1,0 +1,366 @@
+/*
+ * PEDS / DIRECTORY PALETTE V6
+ * Source: owner-uploaded PEDS_CINEMATIC_PROTOTYPE_V5.html.
+ *
+ * Teams: warm paper cards with soft team-color skew stripe, car art preserved.
+ * Drivers: mineral-dark team gradients over warm-paper page, portrait color
+ * preserved (especially owner-supplied 2026 concepts).
+ * Color only; data, card links, image provenance and lineup are unchanged.
+ */
+
+/* 1 — CONSISTENT PAPER CANVAS, INCLUDING THE STANDALONE DIRECTORIES */
+.p5-gallery-page,
+.p5-gallery-embedded {
+  --dir6-paper: #efede7;
+  --dir6-stone: #e4e0d8;
+  --dir6-cream: #f7f5ef;
+  --dir6-ink: #171b19;
+  --dir6-muted: #616961;
+  --dir6-hair: #c8c4ba;
+  --dir6-dark: #121514;
+  --dir6-deep: #0b0f0e;
+  --dir6-coral: #d16a49;
+  background: var(--dir6-paper);
+  color: var(--dir6-ink);
+  color-scheme: light;
+}
+.p5-gallery-page { padding-block: clamp(4.5rem,7vw,6rem) clamp(3rem,5vw,5rem); }
+.p5-gallery-page .p5-portrait-credit,
+.p5-gallery-embedded .p5-portrait-credit,
+.p5-gallery-page .p5-gallery-links a,
+.p5-gallery-page .p5-section-note,
+.p5-gallery-embedded .p5-section-note,
+.p5-gallery-page .p5-empty-state,
+.p5-gallery-embedded .p5-empty-state {color:#4e5852;}
+.p5-gallery-page .p5-gallery-links {border-top:1px solid var(--dir6-hair);padding-top:1.25rem;}
+.p5-gallery-page .p5-gallery-links a:hover,
+.p5-gallery-page .p5-gallery-links a:focus-visible {color:#9a462c;}
+.p5-gallery-page .p5-kicker,
+.p5-gallery-embedded .p5-kicker {color:#656b64;}
+.p5-gallery-page :is(a,button,input,select):focus-visible,
+.p5-gallery-embedded a:focus-visible {outline:2px solid #9c543d;outline-offset:4px;}
+
+/* 2 — TEAM DIRECTORY: cream editorial field, photographic art still dark. */
+.p5-gallery-page:not(.p5-gallery-page-drivers) .p5-gallery-hero {
+  background:var(--dir6-stone);
+  border:1px solid var(--dir6-hair);
+  border-radius:0;
+  color:var(--dir6-ink);
+}
+.p5-gallery-page:not(.p5-gallery-page-drivers) .p5-gallery-hero-copy {color:var(--dir6-ink);}
+.p5-gallery-page .p5-gallery-hero-copy h1 {
+  color:var(--dir6-ink);
+  font-family:var(--peds-font-ui);
+  font-weight:800;
+  letter-spacing:-.075em;
+}
+.p5-gallery-page .p5-gallery-hero-copy h1 .p5-mega-line {
+  display:block;
+  color:var(--dir6-ink);
+  font-family:var(--peds-font-editorial);
+  font-style:italic;
+  font-weight:500;
+  letter-spacing:-.04em;
+}
+.p5-gallery-page .p5-gallery-hero .p5-gallery-hero-copy p:not(.p5-kicker):not(.p5-photo-credit),
+.p5-gallery-page .p5-gallery-hero .p5-gallery-hero-copy .p5-photo-credit {
+  color:#505951;
+}
+.p5-gallery-page .p5-gallery-hero .p5-gallery-hero-copy .p5-photo-credit a {color:#35463c;}
+.p5-gallery-page .p5-gallery-hero .p5-hero-media {
+  background:#202623;
+  border-left:1px solid var(--dir6-hair);
+}
+.p5-gallery-page .p5-gallery-hero .p5-hero-media img {filter:none;}
+
+/* 3 — DRIVER PAGE: midnight hero within same light page canvas. */
+.p5-gallery-page.p5-gallery-page-drivers {
+  background:var(--dir6-paper);
+  color:var(--dir6-ink);
+}
+.p5-gallery-page-drivers .p5-drivers-hero {
+  background:radial-gradient(ellipse at 76% 66%,#303a34,#131817 74%);
+  color:var(--dir6-cream);
+  border:1px solid #3a4640;
+  border-radius:0;
+}
+.p5-gallery-page-drivers .p5-drivers-hero h1 {
+  color:var(--dir6-cream);
+  font-family:var(--peds-font-ui);
+  font-weight:800;
+  letter-spacing:-.07em;
+}
+.p5-gallery-page-drivers .p5-drivers-hero h1 em {
+  font:italic 500 .8em/1 var(--peds-font-editorial);
+}
+.p5-gallery-page-drivers .p5-drivers-hero .p5-kicker {color:#b5c1b7;}
+.p5-gallery-page-drivers .p5-drivers-hero-sub {color:#d7e0d7;}
+.p5-gallery-page-drivers .p5-drivers-hero-meta {color:#acb7af;}
+.p5-gallery-page-drivers .p5-drivers-hero-meta strong {color:#f7f5ef;}
+.p5-gallery-page-drivers .p5-drivers-hero-credit {color:#ccd4cc;}
+.p5-gallery-page-drivers .p5-drivers-hero-media {border-left-color:#47534b;background:#121816;}
+
+/* 4 — SEARCH AND SEASON CONTROLS (LIGHT, HIGH CONTRAST) */
+.p5-gallery-page .p5-controls,
+.p5-gallery-page.p5-gallery-page-drivers .p5-controls {
+  background:var(--dir6-stone);
+  border:1px solid var(--dir6-hair);
+  border-radius:0;
+  box-shadow:none;
+  backdrop-filter:none;
+}
+.p5-gallery-page .p5-controls label,
+.p5-gallery-page .p5-controls-meta {color:#515a53;}
+.p5-gallery-page .p5-controls :is(input,select) {
+  background:var(--dir6-cream);
+  color:var(--dir6-ink);
+  border:1px solid #aaa99e;
+  border-radius:0;
+}
+.p5-gallery-page .p5-controls input::placeholder {color:#737a72;}
+.p5-gallery-page .p5-controls :is(input,select):hover {border-color:#515c52;}
+.p5-gallery-page .p5-controls :is(input,select):focus-visible {
+  outline:2px solid #9c543d;outline-offset:2px;
+}
+
+/* 5 — TEAM GARAGE: pale body, restrained skew team identity, dark car stage. */
+.p5-team-card.p5-team-card--garage {
+  --team-editorial:var(--peds-dir-team,#858c84);
+  border:1px solid #c4c3ba;
+  border-radius:0;
+  background:#e2dfd7;
+  color:var(--dir6-ink,#171b19);
+  box-shadow:none;
+  transition:background-color .25s ease,border-color .25s ease;
+}
+.p5-team-grid > .p5-team-card--garage:nth-child(3n+2) {background:#d6d6ce;}
+.p5-team-grid > .p5-team-card--garage:nth-child(3n+3) {background:#ebe9e2;}
+.p5-team-card--garage .p5-team-card-body {
+  isolation:isolate;
+  overflow:hidden;
+  color:#171b19;
+  background:#e2dfd7;
+}
+.p5-team-grid > .p5-team-card--garage:nth-child(3n+2) .p5-team-card-body {background:#d6d6ce;}
+.p5-team-grid > .p5-team-card--garage:nth-child(3n+3) .p5-team-card-body {background:#ebe9e2;}
+.p5-team-card--garage .p5-team-card-body::before {
+  position:absolute;
+  content:'';
+  z-index:0;
+  left:-20%;
+  top:32%;
+  width:150%;
+  height:26%;
+  background:var(--team-editorial);
+  opacity:.33;
+  mix-blend-mode:multiply;
+  transform:skewY(-17deg);
+  pointer-events:none;
+  transition:transform .35s ease,opacity .35s ease;
+}
+.p5-team-card--garage .p5-team-card-body > * {position:relative;z-index:1;}
+.p5-team-card--garage h2 {
+  font:800 clamp(1.7rem,2.5vw / var(--peds-visual-zoom),2.65rem)/1.05 var(--peds-font-ui);
+  letter-spacing:-.065em;
+  color:#171b19;
+}
+.p5-team-card--garage .p5-team-card-rank {
+  background:transparent;
+  border:0;
+  padding:0;
+  border-radius:0;
+  color:#5d655e;
+  font:700 .66rem/1.4 var(--peds-font-mono);
+  letter-spacing:.13em;
+}
+.p5-team-card--garage .p5-team-card-meta {color:#4d564e;}
+.p5-team-card--garage .p5-team-card-lineup small {color:#545e55;}
+.p5-team-card--garage .p5-team-card-lineup strong {color:#27332c;}
+.p5-team-card--garage .p5-team-card-lineup-faces :is(.p5-portrait,.p5-portrait-fallback) {
+  border:1px solid #a6aba0;
+  background:#29332e;
+}
+.p5-team-card--garage .p5-team-card-footer {border-top:1px solid #b9b8af;}
+.p5-team-card--garage .p5-team-card-footer > span:first-child {color:#3d4a41;}
+.p5-team-card--garage .p5-team-card-points {color:#171b19;}
+.p5-team-card--garage .p5-team-card-points small {color:#566157;}
+.p5-team-card--garage .p5-team-card-art {
+  background:
+    radial-gradient(ellipse at 55% 40%,color-mix(in srgb,var(--team-editorial) 30%,#303d35),transparent 75%),
+    #202623;
+  border-left:1px solid #a9aaa0;
+}
+.p5-team-card--garage .p5-team-card-art::after {
+  background:linear-gradient(90deg,rgba(10,16,13,.2),transparent 32%);
+}
+.p5-team-card--garage .p5-team-card-no-art {color:#edf0e9;}
+.p5-team-card--garage:hover,
+.p5-team-card--garage:focus-visible {transform:none;border-color:#64756a;background:#dad8d0;box-shadow:none;}
+.p5-team-card--garage:hover .p5-team-card-body::before,
+.p5-team-card--garage:focus-visible .p5-team-card-body::before {opacity:.48;transform:skewY(-12deg) translateY(-8px);}
+.p5-team-card--garage .p5-team-card-art img {filter:none;}
+
+/* 6 — DRIVER PORTRAIT CARDS: original reference's muted tinted night. */
+.p5-driver-card.p5-driver-card--directory {
+  --driver-editorial:var(--peds-dir-driver,var(--peds-dir-team,#536e93));
+  display:flex;
+  flex-direction:column;
+  height:auto;
+  min-height:0;
+  aspect-ratio:auto;
+  overflow:hidden;
+  color:#f7f5ef;
+  border:1px solid #79857d;
+  border-radius:0;
+  background:linear-gradient(140deg,var(--driver-editorial),#111816 82%);
+  box-shadow:none;
+  transition:border-color .25s ease,box-shadow .25s ease;
+}
+.p5-driver-card--directory .p5-driver-card-backdrop {
+  position:absolute;inset:0;height:auto;
+  opacity:.6;
+  background:linear-gradient(145deg,var(--driver-editorial),transparent 59%);
+}
+.p5-driver-card--directory .p5-driver-card-backdrop::after {
+  background:linear-gradient(0deg,rgba(10,14,12,.55),transparent 70%);
+}
+.p5-driver-card--directory::after {display:none;}
+.p5-driver-card--directory .p5-driver-card-visual {
+  position:relative;
+  z-index:1;
+  flex:none;
+  width:100%;
+  aspect-ratio:683/437;
+  overflow:hidden;
+  border-bottom:1px solid rgba(247,245,239,.22);
+  background:linear-gradient(140deg,color-mix(in srgb,var(--driver-editorial) 75%,#1b2621),#141a17 90%);
+}
+.p5-driver-card--directory .p5-driver-card-visual :is(.p5-portrait,.p5-portrait-fallback,.p5-driver-card-visual-art) {
+  position:absolute;inset:0;
+  display:grid;place-items:center;
+  width:100%;height:100%;
+  overflow:hidden;
+  -webkit-mask-image:none;mask-image:none;
+}
+.p5-driver-card--directory .p5-driver-card-visual img {
+  display:block;
+  width:100%;height:100%;
+  object-fit:contain;
+  object-position:center;
+  filter:none;
+  opacity:1;
+  transform:none;
+  transition:transform .42s ease;
+}
+.p5-driver-card--directory .p5-driver-card-body,
+.p5-gallery-page .p5-driver-card--directory .p5-driver-card-body {
+  position:relative;
+  inset:auto;
+  z-index:2;
+  display:flex;flex-direction:column;
+  flex:1;
+  min-width:0;
+  min-height:138px;
+  padding:15px 17px 16px;
+  background:linear-gradient(145deg,color-mix(in srgb,var(--driver-editorial) 22%,#171e1a),#111816 85%);
+}
+.p5-driver-card--directory .p5-driver-card-top {
+  display:flex;align-items:center;justify-content:space-between;
+  gap:8px;margin-bottom:8px;
+}
+.p5-driver-card--directory .p5-driver-card-team {
+  min-width:0;
+  margin:0;padding:0;
+  color:#e7e8df;
+  font:650 .7rem/1.4 var(--peds-font-ui);
+  letter-spacing:0;
+  text-transform:none;
+}
+.p5-driver-card--directory .p5-driver-card-rank {
+  position:static;
+  inset:auto;
+  flex:none;
+  background:rgba(247,245,239,.08);
+  border:1px solid rgba(247,245,239,.24);
+  padding:4px 8px;
+  border-radius:0;
+  color:#f7f5ef;
+  text-shadow:none;
+  font:700 .63rem/1.2 var(--peds-font-mono);
+}
+.p5-driver-card--directory .p5-driver-card-first {
+  font:500 .82rem/1.3 var(--peds-font-ui);
+  color:#e3e6dc;
+}
+.p5-driver-card--directory .p5-driver-card-last,
+.p5-gallery-page .p5-driver-card--directory .p5-driver-card-last {
+  font:800 clamp(1.4rem,2.15vw / var(--peds-visual-zoom),2rem)/1.08 var(--peds-font-ui);
+  letter-spacing:-.05em;
+  color:#f7f5ef;
+}
+.p5-driver-card--directory .p5-driver-card-meta {
+  margin-top:auto;
+  padding-top:13px;
+  color:#dae1d8;
+}
+.p5-driver-card--directory .p5-driver-card-points,
+.p5-driver-card--directory .p5-driver-card-points small {color:#f7f5ef;}
+.p5-driver-card--directory .p5-driver-card-action {color:#dce3d9;opacity:.86;}
+.p5-driver-card--directory .p5-driver-card-arrow {
+  color:#f7f5ef;
+  border-color:#b2bdb2;
+  border-radius:0;
+}
+.p5-driver-card--directory:hover,
+.p5-driver-card--directory:focus-within {
+  border-color:#d1d8ca;
+  box-shadow:0 8px 18px rgba(17,24,20,.13);
+  transform:none;
+}
+.p5-driver-card--directory:hover .p5-driver-card-visual img,
+.p5-driver-card--directory:focus-within .p5-driver-card-visual img {
+  transform:translateY(-6px);
+  filter:none;
+}
+.p5-gallery-embedded .p5-driver-grid {grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(9px,1vw,14px);}
+.p5-gallery-embedded .p5-section-head,
+.p5-gallery-page .p5-section-head {background:var(--dir6-stone);color:var(--dir6-ink);border-color:var(--dir6-hair);}
+.p5-gallery-embedded .p5-section-head h2,
+.p5-gallery-page .p5-section-head h2 {color:var(--dir6-ink);}
+.p5-gallery-embedded .p5-section-note {color:#4e5852;}
+
+/* 7 — TINY SCREENS, ZOOM AND REDUCED MOTION */
+@media(max-width:1060px){
+  .p5-gallery-embedded .p5-driver-grid {grid-template-columns:repeat(3,minmax(0,1fr));}
+}
+@media(max-width:690px){
+  .p5-gallery-embedded .p5-driver-grid {grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+  .p5-driver-card--directory .p5-driver-card-body,
+  .p5-gallery-page .p5-driver-card--directory .p5-driver-card-body {padding:11px;min-height:125px;}
+  .p5-gallery-page .p5-controls {padding:12px;}
+  .p5-team-card--garage .p5-team-card-body {padding:14px;}
+}
+@media(max-width:380px){
+  .p5-driver-card--directory .p5-driver-card-last,
+  .p5-gallery-page .p5-driver-card--directory .p5-driver-card-last {font-size:1.1rem;overflow-wrap:anywhere;}
+  .p5-driver-card--directory .p5-driver-card-team {font-size:.62rem;}
+  .p5-gallery-embedded .p5-driver-grid {grid-template-columns:repeat(2,minmax(0,1fr));}
+}
+[data-text-zoom='400'] .p5-gallery-page .p5-driver-grid,
+[data-text-zoom='400'] .p5-gallery-embedded .p5-driver-grid,
+[data-text-zoom='400'] .p5-gallery-page .p5-team-grid,
+[data-text-zoom='400'] .p5-gallery-embedded .p5-team-grid {grid-template-columns:minmax(0,1fr);}
+@media(prefers-reduced-motion:reduce){
+  .p5-driver-card--directory,
+  .p5-driver-card--directory img,
+  .p5-team-card--garage,
+  .p5-team-card--garage .p5-team-card-body::before {transition:none!important;animation:none!important;}
+  .p5-driver-card--directory:hover .p5-driver-card-visual img,
+  .p5-driver-card--directory:focus-within .p5-driver-card-visual img {transform:none!important;}
+  .p5-team-card--garage:hover .p5-team-card-body::before {transform:skewY(-17deg);}
+}
+@media(forced-colors:active){
+  .p5-driver-card--directory,
+  .p5-team-card--garage {forced-color-adjust:auto;border:2px solid CanvasText;}
+  .p5-team-card--garage .p5-team-card-body::before {display:none;}
+}

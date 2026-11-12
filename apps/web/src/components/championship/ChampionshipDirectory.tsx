@@ -9,6 +9,7 @@ import { useSeasonDirectoryData } from "../directory/useSeasonDirectoryData";
 import { useDirectoryReveal } from "../directory/useDirectoryReveal";
 import "../directory/directory.css";
 import "../directory/teamGarage.css";
+import "../directory/directoryPaletteV6.css";
 
 export function ChampionshipDirectory({
   season,
