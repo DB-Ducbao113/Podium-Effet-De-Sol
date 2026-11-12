@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import type {OwnerMeasuredFit} from './ownerMeasuredFit';
+import {sourceWheelMaskHalfWidth} from './sourceWheelMaskCalibration';
 
 /**
  * Hide EXISTING showroom tyre/rim pixels around four owner-measured wheel
@@ -29,12 +30,15 @@ export function addReversibleWheelWindow(
     throw Error('Invalid per-wheel original Model B showroom mask');
   const positions=fit.wheels.map(w=>new THREE.Vector3(...w.centerSourceUnits));
   const radii=fit.wheels.map(w=>w.outerRadiusSourceUnits*1.12);
+  const halfWidth=sourceWheelMaskHalfWidth(
+    fit.originalP28TyreWidthM,fit.normalizedShellScale);
   const original=material.onBeforeCompile.bind(material);
   material.onBeforeCompile=(shader,renderer)=>{
     original(shader,renderer);
     shader.uniforms.pedsWheelRootTransform={value:meshToSourceRoot};
     shader.uniforms.pedsWheelCenters={value:positions};
     shader.uniforms.pedsWheelRadius={value:radii};
+    shader.uniforms.pedsWheelHalfWidth={value:halfWidth};
     shader.uniforms.pedsWheelMaskAmount=maskAmount;
     if(wheelMaskAmounts)
       shader.uniforms.pedsWheelMaskAmounts=wheelMaskAmounts;
@@ -54,14 +58,15 @@ export function addReversibleWheelWindow(
       'varying vec3 vPedsSourcePosition;\n'+
       'uniform vec3 pedsWheelCenters[4];\n'+
       'uniform float pedsWheelRadius[4];\n'+
+      'uniform float pedsWheelHalfWidth;\n'+
       'uniform float pedsWheelMaskAmount;\n'+
         (wheelMaskAmounts?'uniform float pedsWheelMaskAmounts[4];\n':'')+
       shader.fragmentShader.replace(fragmentMarker,
         fragmentMarker+'\n'+
         'for (int wheel=0;wheel<4;wheel++) {\n'+
         '  vec3 local=vPedsSourcePosition-pedsWheelCenters[wheel];\n'+
-        '  if (length(local.xy)<pedsWheelRadius[wheel] && abs(local.z)<max(2.5,1.24*pedsWheelRadius[wheel])) {\n'+
-        '    float threshold=fract(sin(dot(gl_FragCoord.xy,vec2(12.9898,78.233)))*43758.5453);\n'+
+        '  if (length(local.xy)<pedsWheelRadius[wheel] && abs(local.z)<pedsWheelHalfWidth) {\n'+
+        '    float threshold=fract(sin(dot(vPedsSourcePosition,vec3(12.9898,78.233,37.719)))*43758.5453);\n'+
         '    if (threshold<'+
           (wheelMaskAmounts?'pedsWheelMaskAmounts[wheel]':'pedsWheelMaskAmount')+
           ') discard;\n'+
