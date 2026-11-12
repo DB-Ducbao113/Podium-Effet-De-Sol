@@ -13,7 +13,8 @@
     "build": "tsc --noEmit && vite build && node scripts/generate-seo-artifacts.mjs && node scripts/prerender-engineering.mjs && node scripts/prune-legacy-showroom-assets.mjs && node scripts/check-commercial-visual-isolation.mjs && node scripts/verify-cloudflare-build.mjs",
     "qa:model-b:frame-audit": "node --test scripts/model-b-frame-audit.test.mjs",
     "qa:model-b:cad-assembly": "node scripts/verify-model-b-cad-assembly.mjs",
-    "qa:model-b:cad-draw-evidence": "node --test scripts/source-cad-draw-evidence.test.mjs"
+    "qa:model-b:cad-draw-evidence": "node --test scripts/source-cad-draw-evidence.test.mjs",
+    "qa:model-b:frame-snapshot": "node --test scripts/source-cad-frame-snapshot.test.mjs"
   },
   "dependencies": {
     "@fontsource-variable/manrope": "5.3.0",
