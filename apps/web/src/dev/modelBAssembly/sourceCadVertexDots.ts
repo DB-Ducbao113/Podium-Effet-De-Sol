@@ -105,6 +105,9 @@ export function buildSourceCadVertexDots(
   dispose:()=>{
    if(disposed)return;
    disposed=true;
+   // An already-unmounted source object must never report late render
+   // evidence into the replacement Model B scene.
+   points.onAfterRender=()=>{};
    mesh.remove(points);
    geometry.dispose();
    material.dispose();
