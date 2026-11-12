@@ -39,6 +39,7 @@ describe("MiniRaceLeaderboard", () => {
       </MemoryRouter>,
     );
     expect(html).toContain("mini-race__identity--constructors");
+    expect(html).toContain('href="/teams/mclaren?season=2026"');
     expect(html).toContain("<strong>McLaren</strong><small>Mercedes</small>");
     expect(html).not.toContain("STANDINGS INSPECTOR");
     expect(html).toContain(
@@ -87,6 +88,7 @@ describe("MiniRaceLeaderboard", () => {
         />
       </MemoryRouter>,
     );
+    expect(html).toContain('href="/drivers/driver-1?season=2025"');
     expect(html).toContain("/images/mini-race/2025/mclaren-2025.gif");
     expect(html).toContain(
       "/images/mini-race/posters/2025/mclaren-2025.webp",
