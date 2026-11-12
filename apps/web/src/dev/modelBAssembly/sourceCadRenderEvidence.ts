@@ -66,3 +66,27 @@ export function recordSourceCadAfterRender(
 export function createSourceCadRenderEvidence():SourceCadRenderEvidence{
  return {frame:0,buildPoints:0,inspectionPoints:0,drawCalls:0};
 }
+
+/** P2.48 — accept exactly one callback per *currently mounted* source
+ * THREE.Points object in one R3F render frame. This avoids double-counting
+ * multiple passes and drops callbacks from already-unmounted source GLBs.
+ *
+ * The caller holds one seen set per Canvas; clear it BEFORE each new useFrame.
+ * A skipped callback is not evidence of a GPU draw and never changes totals.
+ */
+export function recordUniqueSourceCadAfterRender(
+ evidence:SourceCadRenderEvidence,
+ seenThisFrame:Set<object>,
+ pointObject:object,
+ isCurrentlyMounted:boolean,
+ kind:SourceCadRenderKind,
+ geometry:SourceCadRenderGeometry,
+ opacity:number,
+):number{
+ if(!pointObject||typeof pointObject!=='object')
+  throw Error('Invalid original CAD native render object');
+ if(!isCurrentlyMounted||seenThisFrame.has(pointObject))return 0;
+ const count=recordSourceCadAfterRender(evidence,kind,geometry,opacity);
+ if(count>0)seenThisFrame.add(pointObject);
+ return count;
+}
