@@ -167,6 +167,21 @@ describe('P2.44 original source CAD vertex-dot assembly',()=>{
   expect(mesh.geometry.getAttribute('position')).toBe(attr);
   geom.dispose();mat.dispose();
  });
+ it('P2.48 disconnects real CAD point render callback before disposing a stale overlay',()=>{
+  const {mesh,geometry,material}=originalMesh(600);
+  const layer=buildSourceCadVertexDots(mesh,300);
+  let called=0;
+  layer.points.onAfterRender=()=>{called++;};
+  const oldCallback=layer.points.onAfterRender;
+  expect(mesh.children).toContain(layer.points);
+  layer.dispose();
+  expect(layer.points.onAfterRender).not.toBe(oldCallback);
+  expect(layer.points.parent).toBeNull();
+  expect(called).toBe(0);
+  expect(geometry.getAttribute('position').count).toBe(600);
+  layer.dispose();
+  geometry.dispose();material.dispose();
+ });
  it('releases ONLY viewer-owned point geometry and does not dispose CAD source',()=>{
   const {mesh,geometry,material,positions}=originalMesh();
   const layer=buildSourceCadVertexDots(mesh,256);
