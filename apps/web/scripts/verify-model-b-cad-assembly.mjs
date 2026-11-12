@@ -162,10 +162,26 @@ try{
    const label=(await inspector.innerText()).toUpperCase();
    if(!selected||!label.includes('VISUAL ONLY')||!label.includes('G2 HOLD'))
     throw Error('Original CAD source part inspection did not preserve G2 truth');
+   await page.waitForFunction(()=>{
+    const el=document.querySelector('.mb-build-source-wrap');
+    return el?.getAttribute('data-model-b-cad-xray-active')==='true';
+   },undefined,{timeout:12000});
+   // Save a real selected CAD mesh close-up, not merely the inspector text.
+   await page.waitForTimeout(800);
+   const focusPng=await canvas.screenshot();
+   assertModelBFrameVisible(await analyzeModelBFrame(focusPng));
+   const focusDifference=await modelBFrameDifference(
+    images.get('05-final-car'),focusPng);
+   if(focusDifference<.002)
+    throw Error('Selected original CAD part did not visibly focus in WebGL');
+   await writeFile(join(destination,layout.label+'-selected-cad-xray.png'),
+     focusPng);
+   shots++;
    if(errors.length)throw Error('Browser JavaScript errors: '+errors.join(' ; '));
    await writeFile(join(destination,layout.label+'-audit.json'),
     JSON.stringify({layout,source,chapterDifference:difference,
-     selectedOriginalCadPart:selected,frames:rows},null,2)+'\n');
+     selectedOriginalCadPart:selected,xrayFrameDifference:focusDifference,
+     frames:rows},null,2)+'\n');
    console.log('PASS '+layout.label+': 94 source meshes, 4 mounted wheel stations, 31 rear mesh sources per station, 4 old proxies removed, 8 real WebGL frames, part browser.');
   }finally{
    await page.close();
