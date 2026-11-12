@@ -262,3 +262,26 @@
  .mb-build-status{margin-top:10px;font-size:8px;max-width:270px}
  .mb-build-rail{right:12px;top:62%}
 }
+
+/* P2.36 direct, keyboard-accessible assembly timeline scrubbing. */
+.mb-build-scrubber{
+ flex:1;min-width:64px;width:100%;height:22px;margin:0;
+ appearance:none;-webkit-appearance:none;background:transparent;cursor:ew-resize;
+ accent-color:#ffbe83;touch-action:pan-y;
+}
+.mb-build-scrubber::-webkit-slider-runnable-track{
+ height:3px;border-radius:3px;
+ background:linear-gradient(90deg,#a95338,#ffbe83);
+}
+.mb-build-scrubber::-moz-range-track{
+ height:3px;border-radius:3px;background:#a95338;
+}
+.mb-build-scrubber::-webkit-slider-thumb{
+ -webkit-appearance:none;width:14px;height:14px;margin-top:-5.5px;
+ border:2px solid #f9d0a5;border-radius:50%;background:#0c1a28;
+}
+.mb-build-scrubber::-moz-range-thumb{
+ width:12px;height:12px;border:2px solid #f9d0a5;
+ border-radius:50%;background:#0c1a28;
+}
+.mb-build-scrubber:focus-visible{outline:2px solid #ffbe83;outline-offset:4px}
