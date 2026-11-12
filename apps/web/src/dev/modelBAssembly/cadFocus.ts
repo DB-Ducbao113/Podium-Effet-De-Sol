@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import type {InspectedCadPart} from './cadPartInspector';
 import type {WheelId} from '../assemblyPreview/fourCornerLayout';
+import {sourceMeshOwnWorldBounds} from './sourceWorldReveal';
 
 export type SourceFocusItem={
   name:string;
@@ -36,6 +37,20 @@ export function sourceMeshWorldCentre(mesh:THREE.Mesh,target=new THREE.Vector3()
  if(![target.x,target.y,target.z].every(Number.isFinite))
    throw Error('Original CAD focus point is nonfinite');
  return target;
+}
+/** Exact own-geometry source bounds (never child meshes or assumed bolts).
+ * This is geometry validation for X-ray acceptance as well as camera fit.
+ */
+export function sourceMeshWorldFocusBounds(mesh:THREE.Mesh){
+ if(!mesh.geometry.boundingBox)mesh.geometry.computeBoundingBox();
+ const box=mesh.geometry.boundingBox;
+ if(!box||box.isEmpty())
+   throw Error('Selected original CAD source focus has no vertex geometry');
+ mesh.updateWorldMatrix(true,false);
+ return sourceMeshOwnWorldBounds(
+  [box.min.x,box.min.y,box.min.z],
+  [box.max.x,box.max.y,box.max.z],
+  mesh.matrixWorld.elements);
 }
 export function highlightSourceMaterials(
  items:readonly SourceFocusItem[],picked:InspectedCadPart|null,
