@@ -20,7 +20,8 @@ export function buildOwnerSourceParticles(root:THREE.Group,budget=7200):OwnerSou
  root.traverse(node=>{
   if(!(node instanceof THREE.Mesh))return;
   const attr=node.geometry.getAttribute('position');
-  if(!(attr instanceof THREE.BufferAttribute)||
+  if(!(attr instanceof THREE.BufferAttribute||
+       attr instanceof THREE.InterleavedBufferAttribute)||
       attr.itemSize!==3||attr.count===0)return;
   source.push(node);total+=attr.count;
  });
@@ -32,20 +33,28 @@ export function buildOwnerSourceParticles(root:THREE.Group,budget=7200):OwnerSou
  const inverse=root.matrixWorld.clone().invert();
  const point=new THREE.Vector3();
  const values:number[]=[];
+ const limit=Math.min(total,budget);
+ let globalIndex=0;
+ let meshesWithSamples=0;
  for(const mesh of source){
-  const attr=mesh.geometry.getAttribute('position') as THREE.BufferAttribute;
-  const count=Math.max(1,Math.floor(budget*attr.count/total));
-  const stride=Math.max(1,Math.ceil(attr.count/count));
+  const attr=mesh.geometry.getAttribute('position') as
+    THREE.BufferAttribute|THREE.InterleavedBufferAttribute;
   transform.multiplyMatrices(inverse,mesh.matrixWorld);
-  let taken=0;
-  for(let index=0;index<attr.count&&taken<count;index+=stride){
+  let sampled=false;
+  for(let index=0;index<attr.count;index++,globalIndex++){
+   // Globally bounded, proportionally distributed, deterministic picks.
+   // No per-mesh minimum that can overflow the requested GPU budget.
+   if(Math.floor((globalIndex+1)*limit/total)===
+      Math.floor(globalIndex*limit/total))continue;
    point.set(attr.getX(index),attr.getY(index),attr.getZ(index))
      .applyMatrix4(transform);
-   if(Number.isFinite(point.x)&&Number.isFinite(point.y)&&Number.isFinite(point.z)){
-    values.push(point.x,point.y,point.z);
-    taken++;
-   }
+   if(!Number.isFinite(point.x)||!Number.isFinite(point.y)||
+      !Number.isFinite(point.z))
+     throw Error('Original Model B contains nonfinite sampled vertices');
+   values.push(point.x,point.y,point.z);
+   sampled=true;
   }
+  if(sampled)meshesWithSamples++;
  }
  if(values.length===0)throw Error('Original Model B mesh vertices nonfinite');
  const geometry=new THREE.BufferGeometry();
@@ -85,7 +94,7 @@ export function buildOwnerSourceParticles(root:THREE.Group,budget=7200):OwnerSou
  points.frustumCulled=false;
  points.visible=false;
  setAssemblyProgress(0);
- return {points,sampleCount:values.length/3,sampledMeshCount:source.length,
+ return {points,sampleCount:values.length/3,sampledMeshCount:meshesWithSamples,
          setAssemblyProgress,
          dispose:()=>{geometry.dispose();material.dispose();}};
 }
