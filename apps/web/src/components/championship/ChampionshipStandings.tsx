@@ -22,7 +22,9 @@ function HeroBackdrop({ venue, alt }: { venue: string; alt: string }) {
     <picture className="p5-hero-media" aria-hidden="true">
       <source type="image/avif" srcSet={venueHeroSrcSet(venue, 'land', 'avif')} sizes="(max-width: 900px) 100vw, 1440px" />
       <source type="image/webp" srcSet={venueHeroSrcSet(venue, 'land', 'webp')} sizes="(max-width: 900px) 100vw, 1440px" />
-      <img src={`/images/championship/venues/${venue}-land-1600.webp`} alt={alt} loading="eager" decoding="async" />
+      <img src={`/images/championship/venues/${venue}-land-1600.webp`}
+        alt={alt} loading="eager" decoding="async"
+        onError={(event) => { event.currentTarget.style.display = 'none'; }} />
     </picture>
   );
 }
