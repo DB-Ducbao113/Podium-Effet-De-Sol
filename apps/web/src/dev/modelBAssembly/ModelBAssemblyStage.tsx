@@ -25,7 +25,7 @@ import {sourceBodyMeshKey,sourceBodyMeshPhase,sourceBodyVisualDisplacement} from
 import {auditMountedCadScene,type MountedCadSceneAudit} from './mountedCadSceneAudit';
 import {auditMountedCadIdentity} from './mountedCadIdentity';
 import {cadInspectionVisualFrame,cadInspectionShellAlpha,cadInspectionAssemblyFraction} from './cadInspectionVisualFrame';
-import {sourceCadXrayRenderLayer} from './sourceCadXrayRenderLayer';
+import {sourceCadXrayRenderLayer,sourceCadXrayFrameVerified} from './sourceCadXrayRenderLayer';
 import {sourceBodyWorldRevealStrength,sourceMeshOwnWorldBounds,sourceMeshRevealWorldDirection,worldDeltaToParentLocal} from './sourceWorldReveal';
 import {accessibleAssemblyFraction,accessibleShellOpacity} from './accessibleAssemblyPose';
 import {sourceMaterialFrame,type SourceMaterialState} from './sourceShellMaterialState';
@@ -618,11 +618,9 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
    // CAD part exists: the actual renderer must have applied its late draw
    // order and disabled depth testing on every viewer-owned material.
    const xrayRendered=Boolean(selectedVisual&&selectedPart&&
-     selectedVisual.materials.length>0&&
-     selectedVisual.mesh.visible&&
-     selectedVisual.mesh.renderOrder>=1000&&
-     selectedVisual.materials.every(material=>
-       !material.depthTest&&material.depthWrite&&material.opacity>=.99));
+     sourceCadXrayFrameVerified(
+       selectedVisual.mesh.visible,selectedVisual.mesh.renderOrder,
+       selectedVisual.materials));
    const renderedPart=xrayRendered?selectedPart:null;
    const renderedKey=renderedPart?
      [renderedPart.origin,renderedPart.wheelStation,renderedPart.partId]
