@@ -24,6 +24,7 @@ import {buildOwnerSourceParticles,ownerParticleOpacity} from './ownerSourceParti
 import {sourceBodyMeshKey,sourceBodyMeshPhase,sourceBodyVisualDisplacement} from './sourceOnlyMeshMotion';
 import {auditMountedCadScene,type MountedCadSceneAudit} from './mountedCadSceneAudit';
 import {auditMountedCadIdentity} from './mountedCadIdentity';
+import {cadInspectionVisualFrame,cadInspectionShellAlpha,cadInspectionAssemblyFraction} from './cadInspectionVisualFrame';
 import {sourceBodyWorldRevealStrength,sourceMeshOwnWorldBounds,sourceMeshRevealWorldDirection,worldDeltaToParentLocal} from './sourceWorldReveal';
 import {accessibleAssemblyFraction,accessibleShellOpacity} from './accessibleAssemblyPose';
 import {sourceMaterialFrame,type SourceMaterialState} from './sourceShellMaterialState';
@@ -518,22 +519,25 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
    const alpha=reducedMotion?1:1-Math.exp(-Math.min(delta,.06)*11);
    progress.current=THREE.MathUtils.lerp(progress.current,desired,alpha);
    const p=progress.current;
+   const inspecting=selectedVisual!==null;
    if(ownerParticles){
-     const opacity=reducedMotion?0:ownerParticleOpacity(p);
+     const opacity=reducedMotion||inspecting?0:ownerParticleOpacity(p);
      ownerParticles.points.visible=opacity>.005;
      if(opacity>.005)ownerParticles.setAssemblyProgress(p);
      ownerParticles.points.material.opacity=opacity;
    }
    const showCad=Boolean(visual);
-   const shellOpacity=accessibleShellOpacity(visualShellOpacity(p,showCad),reducedMotion);
+   const shellOpacity=cadInspectionShellAlpha(
+     accessibleShellOpacity(visualShellOpacity(p,showCad),reducedMotion),
+     inspecting);
    // P2.35 source-only mode still animates the owner's existing body mesh
    // nodes, rather than showing a motionless exterior until private CAD loads.
    const separation=showCad?exteriorSeparation(p,true):0;
    // Preserve the four original showroom tyres until their exact CAD
    // replacements start arriving, then hide duplicate dark tyre volumes.
    showroomWheelMask.value=showCad?
-     accessibleAssemblyFraction(originalPartAssembly('P2_TYRE_SLICK_BODY',p),
-       reducedMotion):0;
+     inspecting?1:accessibleAssemblyFraction(
+       originalPartAssembly('P2_TYRE_SLICK_BODY',p),reducedMotion):0;
    for(const item of shellVisuals){
      const meshSeparation=sourceBodyVisualDisplacement(
        p,item.sourceKey,showCad,reducedMotion,separation);
@@ -549,17 +553,23 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
        const authoredFraction=item.kind==='p28'?
          originalPartAssembly(item.name,p):
          rearSourceAssembly(p,item.kind==='rear-toe'?'toe':'joint',item.name);
-       const fraction=accessibleAssemblyFraction(authoredFraction,reducedMotion);
+       const nativeFraction=accessibleAssemblyFraction(
+         authoredFraction,reducedMotion);
+       const selected=selectedVisual===item;
+       const fraction=cadInspectionAssemblyFraction(
+         nativeFraction,inspecting,selected);
        item.target.position.copy(item.originalPosition)
          .addScaledVector(item.offset,1-fraction);
        if(item.spin)applyVisualScrewSpin(item.spin,fraction,1.5);
+       // Focus does not create replacement parts: cloned original CAD
+       // materials for nonselected neighbours are merely transparent.
+       const appearance=cadInspectionVisualFrame(
+         fraction,inspecting,selected);
        for(const m of item.materials){
-         // Do not render unassembled 5.5%-opaque ghost tyres in front of
-         // the F1; reveal the real source only on its scheduled arrival.
-         m.opacity=Math.min(1,Math.max(0,fraction*3));
-         m.depthWrite=fraction>.94;
+         m.opacity=appearance.opacity;
+         m.depthWrite=appearance.depthWrite;
        }
-       item.mesh.visible=fraction>.008;
+       item.mesh.visible=appearance.visible;
      }
    }
    const aspect=size.width/Math.max(1,size.height);
