@@ -41,13 +41,13 @@ describe('Calendar V5 World Tour — cinematic scroll contract',()=>{
   });
 
   it('preserves 2026 World Tour and uses one global navigation, plus functional round details',()=>{
-    const html=renderToStaticMarkup(<MemoryRouter initialEntries={['/season/2026?tab=calendar']}>
+    const html=renderToStaticMarkup(<MemoryRouter initialEntries={['/season/2026?tab=calendar&view=world']}>
       <RaceCalendarJourney season={2026}/>
     </MemoryRouter>);
     expect(html).toContain('cal-v5__world');
     expect(html).toContain('cal-v5__ambient');
     expect(html).toContain('cal-v5__stage-caption');
-    expect(html).toContain('href="/season/2026?tab=calendar&amp;view=classic"');
+    expect(html).toContain('href="/season/2026?tab=calendar"');
     expect(html).not.toContain('aria-label="Championship pages"');
     expect(html).toContain('Season round navigation');
     expect(html).toContain('rcj-progress');

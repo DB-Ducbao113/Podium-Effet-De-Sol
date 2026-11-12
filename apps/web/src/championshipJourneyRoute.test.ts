@@ -6,12 +6,10 @@ import {
 
 describe("Championship journey scroll policy", () => {
   it("uses the immersive globe route for calendar, including a saved focus round", () => {
-    expect(isChampionshipJourneyRoute("/season/2026", "?tab=calendar")).toBe(
-      true,
-    );
-    expect(
-      isChampionshipJourneyRoute("/season/2026", "?tab=calendar&focus=9"),
-    ).toBe(true);
+    expect(isChampionshipJourneyRoute("/season/2026", "?tab=calendar")).toBe(false);
+    expect(isChampionshipJourneyRoute("/season/2026", "?tab=calendar&focus=9")).toBe(false);
+    expect(isChampionshipJourneyRoute("/season/2026", "?tab=calendar&view=world")).toBe(true);
+    expect(isChampionshipJourneyRoute("/season/2026", "?tab=calendar&view=world&focus=9")).toBe(true);
   });
 
   it("keeps results on the detailed table layout, never the globe journey", () => {
@@ -33,6 +31,7 @@ describe("Championship journey scroll policy", () => {
     expect(
       isChampionshipMobileHubRoute("/season/2026", "?tab=calendar&focus=9"),
     ).toBe(true);
+    expect(isChampionshipMobileHubRoute("/season/2026","?tab=calendar&view=world")).toBe(true);
     expect(
       isChampionshipMobileHubRoute("/season/2026", "?tab=results&round=9"),
     ).toBe(false);

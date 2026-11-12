@@ -56,27 +56,24 @@ describe("Results data selection against the live season data", () => {
     expect(html).toContain(`ROUND ${String(latest).padStart(2, "0")}`);
   });
 
-  it("presents the detailed per-round classification table by default", () => {
-    const html = render("/season/2026?tab=results");
-    expect(html).toContain('class="c11-table');
-    expect(html).toContain('class="rc-round-rail"');
-    expect(html).toContain("rounds with results");
-    expect(html).toContain(`ROUND ${String(latest).padStart(2, "0")}`);
-    expect(html).not.toContain("WORLD TOUR");
+  it("presents the light destination grid by default while retaining sourced detail links", () => {
+    const html=render("/season/2026?tab=results");
+    expect(html).toContain('data-destination-mode="results"');
+    expect(html).toContain('class="destination-v6__grid"');
+    expect(html).toContain('Australia');
+    expect(html).toContain('Melbourne');
+    expect(html).toContain('href="/season/2026?tab=results&amp;round=1&amp;session=race"');
+    expect(html).not.toContain('class="c11-table');
     expect(html).not.toContain('data-experience="world-tour-v6"');
-    expect(html).not.toContain("rcj-scroll-beat");
-    expect(html).not.toContain("rcj-season-controls");
   });
   it("keeps the globe journey on Calendar with its own season selector", () => {
     const calendarHtml = renderToStaticMarkup(
-      <MemoryRouter initialEntries={["/season/2026?tab=calendar"]}>
+      <MemoryRouter initialEntries={["/season/2026?tab=calendar&view=world"]}>
         <RaceCalendarJourney season={2026} />
       </MemoryRouter>,
     );
-    expect(calendarHtml).toMatch(
-      /aria-current="page" href="\/season\/2026\?tab=calendar"[^>]*>Calendar<\/a>/,
-    );
-    expect(calendarHtml).toContain('href="/season/2026?tab=results"');
+    expect(calendarHtml).toContain('href="/season/2026?tab=calendar"');
+    expect(calendarHtml).toContain('Season round navigation');
     expect(calendarHtml).toContain(
       'href="/season/2026?tab=calendar&amp;round=1"',
     );

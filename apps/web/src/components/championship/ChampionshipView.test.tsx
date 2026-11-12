@@ -44,8 +44,11 @@ describe("Championship in-page navigation", () => {
     const html = render("/season/2026?tab=calendar");
     expect(html).not.toContain('data-championship-tab="calendar"');
     expect(html).not.toContain('aria-label="Championship sections"');
-    expect(html).toContain('cal-v5__world');
-    expect(html).toContain('All rounds');
+    expect(html).toContain('destination-v6');
+    expect(html).toContain('Race destinations.');
+    expect(html).toContain('World tour');
+    expect(html).toContain('href="/season/2026?tab=calendar&amp;view=world"');
+    expect(html).not.toContain('cal-v5__world');
   });
 
   it("offers a drivers/constructors toggle on standings", () => {
