@@ -87,6 +87,9 @@ def run(source,grid,out_dir,execute_m=False,execute_n=False):
                 if not quality['trackPrototypeEligible']:
                     report['blockedReasons'].append('M_NATIVE_PATHS_NOT_ELIGIBLE_FOR_N')
                 else:
+                    from p2_34ab_m_to_n_handoff import inspect_files
+                    handoff=inspect_files(m_file,grid)
+                    report['p234abHandoff']=handoff
                     from p2_34n_track_candidate import build as n_build
                     n_build(source,m_file,out_dir/N_DIR)
                     report['completedStages'].append('N')
