@@ -26,6 +26,8 @@ import {
  sourceCadInspectionDotOpacity,type SourceCadVertexDots,
 } from './sourceCadVertexDots';
 import {sourceCadDotFrame,updateSourceCadDotRange} from './sourceCadDotProgress';
+import {beginSourceCadRenderEvidence,createSourceCadRenderEvidence,recordSourceCadAfterRender,
+ type SourceCadRenderKind} from './sourceCadRenderEvidence';
 import {
  selectNativeHardwareDotParts,validateNativeCadDotsBudget,
  SOURCE_CAD_HARDWARE_DOT_BUDGET,SOURCE_CAD_TYRE_DOT_BUDGET,
@@ -546,6 +548,26 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
  // leave a frame referencing an already-disposed point buffer.
  const buildSourceDots=useRef<NativeBuildDots[]>([]);
  const selectedSourceDots=useRef<SourceCadVertexDots|null>(null);
+ const renderEvidence=useRef(createSourceCadRenderEvidence());
+ const reportActualSourceCadDraw=(kind:SourceCadRenderKind,
+   layer:SourceCadVertexDots)=>{
+   const canvas=gl.domElement;
+   try{
+     recordSourceCadAfterRender(renderEvidence.current,kind,
+       layer.points.geometry,layer.points.material.opacity);
+     // These counters are updated ONLY inside the real Three.js
+     // onAfterRender callback, never from planned scene drawRange values.
+     canvas.dataset.pedsModelBRenderedCadDots=String(
+       renderEvidence.current.buildPoints);
+     canvas.dataset.pedsModelBRenderedInspectionDots=String(
+       renderEvidence.current.inspectionPoints);
+     canvas.dataset.pedsModelBRenderCalls=String(
+       renderEvidence.current.drawCalls);
+     canvas.dataset.pedsModelBRenderEvidence='OBSERVED';
+   }catch{
+     canvas.dataset.pedsModelBRenderEvidence='INVALID';
+   }
+ };
  useEffect(()=>{
    if(!visual){
      buildSourceDots.current=[];
@@ -587,6 +609,9 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
      }
      const count=validateNativeCadDotsBudget(
        layers.map(item=>item.layer));
+     for(const item of layers)
+       item.layer.points.onAfterRender=()=>
+         reportActualSourceCadDraw('build',item.layer);
      buildSourceDots.current=layers;
      onSourceCadDotsReady(count,actualHardwareLayers);
    }catch(error){
@@ -607,6 +632,9 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
    let layer:SourceCadVertexDots|null=null;
    try{
      layer=buildSourceCadVertexDots(selectedVisual.mesh,1200,true);
+     const inspectionLayer=layer;
+     inspectionLayer.points.onAfterRender=()=>
+       reportActualSourceCadDraw('inspection',inspectionLayer);
      selectedSourceDots.current=layer;
    }catch(error){
      selectedSourceDots.current=null;
@@ -649,6 +677,14 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
    progress.current=THREE.MathUtils.lerp(progress.current,desired,alpha);
    const p=progress.current;
    const inspecting=selectedVisual!==null;
+   beginSourceCadRenderEvidence(renderEvidence.current);
+   const renderCanvas=gl.domElement;
+   renderCanvas.dataset.pedsModelBRenderFrame=
+     String(renderEvidence.current.frame);
+   renderCanvas.dataset.pedsModelBRenderedCadDots='0';
+   renderCanvas.dataset.pedsModelBRenderedInspectionDots='0';
+   renderCanvas.dataset.pedsModelBRenderCalls='0';
+   renderCanvas.dataset.pedsModelBRenderEvidence='PENDING';
    if(ownerParticles){
      const opacity=reducedMotion||inspecting?0:ownerParticleOpacity(p);
      ownerParticles.points.visible=opacity>.005;
