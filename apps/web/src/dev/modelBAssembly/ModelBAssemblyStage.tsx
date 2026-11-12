@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/immutability -- Three.js is an imperative render engine: useFrame and WebGL PMREM mutate viewer-owned scene objects, never React state. */
-import {useEffect,useMemo,useState,type RefObject} from 'react';
+import {useEffect,useMemo,useRef,useState,type RefObject} from 'react';
 import {Canvas,useFrame,useThree,type ThreeEvent} from '@react-three/fiber';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 import {MeshoptDecoder} from 'meshoptimizer';
@@ -54,6 +54,7 @@ type Props={
  onFramingVerified:(fit:boolean|null)=>void;
  onInspect:(part:InspectedCadPart)=>void;
  onFocusVerified:(part:InspectedCadPart|null)=>void;
+ onXrayRenderVerified:(part:InspectedCadPart|null)=>void;
  selectedPart:InspectedCadPart|null;
  onError:(message:string)=>void;
 };
@@ -316,7 +317,7 @@ function StudioLights(){
   <pointLight position={[1.5,2,-3]} intensity={32} distance={12} color="#8aaeff"/>
  </>;
 }
-function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRace,onReady,onFit,onRearComposite,onMountedCadAudit,onFramingVerified,onInspect,onFocusVerified,selectedPart,onError}:Props){
+function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRace,onReady,onFit,onRearComposite,onMountedCadAudit,onFramingVerified,onInspect,onFocusVerified,onXrayRenderVerified,selectedPart,onError}:Props){
  const {camera,size}=useThree();
  const original=useOriginalBody(onReady,onError);
  const originalPartNames=useMemo(()=>corner?.parts.map(x=>x.node)??[],[corner]);
@@ -523,6 +524,7 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
    }
  },[visual,selectedPart]);
  const selectedVisual=selection.mesh;
+ const lastReportedXray=useRef<string|null>(null);
  useEffect(()=>{
    if(selection.error)
      onError('Original source CAD X-ray focus rejected: '+selection.error);
@@ -611,6 +613,23 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
        }
        item.mesh.visible=appearance.visible;
      }
+   }
+   // Do not publish an X-ray PASS merely because the requested original
+   // CAD part exists: the actual renderer must have applied its late draw
+   // order and disabled depth testing on every viewer-owned material.
+   const xrayRendered=Boolean(selectedVisual&&selectedPart&&
+     selectedVisual.materials.length>0&&
+     selectedVisual.mesh.visible&&
+     selectedVisual.mesh.renderOrder>=1000&&
+     selectedVisual.materials.every(material=>
+       !material.depthTest&&material.depthWrite&&material.opacity>=.99));
+   const renderedPart=xrayRendered?selectedPart:null;
+   const renderedKey=renderedPart?
+     [renderedPart.origin,renderedPart.wheelStation,renderedPart.partId]
+       .join('|'):'';
+   if(lastReportedXray.current!==renderedKey){
+     lastReportedXray.current=renderedKey;
+     onXrayRenderVerified(renderedPart);
    }
    const aspect=size.width/Math.max(1,size.height);
    const cameraTarget=new THREE.Vector3(0,-.1,0);
