@@ -443,16 +443,41 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
      });
      if(countAudit.mountedMeshInstances!==exact.checkedSourceMeshInstances)
        throw Error('Mounted Model B source mesh count/name mismatch');
-     // Every approved visual mesh must exist in the actual scene tree.
-     // Merely passing a manifest/count is insufficient when a cloned wheel
-     // is accidentally detached, or a source geometry is empty.
+     // Real scene ancestry, original geometry and four measured wheel
+     // carrier transforms must match the mounted source metadata. A count-only
+     // audit cannot detect a clone attached to the wrong corner or a hidden
+     // parent that would prevent its source material from ever rendering.
+     if(!fit)throw Error('Measured owner Model B wheel transform unavailable');
+     const measuredMounts=new Map(layoutFourCorners(fit).map(mount=>
+       [mount.id,mount] as const));
      for(const item of visual.meshes){
-       let node:THREE.Object3D|null=item.mesh;
-       while(node&&node!==visual.root)node=node.parent;
+       const prefix=item.kind==='p28'?'model-b-scroll-':
+         'model-b-scroll-'+item.kind+'-';
+       const carrierName=prefix+item.station;
+       let node:THREE.Object3D|null=item.mesh.parent;
+       while(node&&node!==visual.root&&node.name!==carrierName){
+         if(!node.visible)
+           throw Error('Mounted source CAD has permanently hidden parent: '+
+             item.station+'/'+item.name);
+         node=node.parent;
+       }
+       const carrier=node?.name===carrierName&&node.parent===visual.root?
+         node:null;
+       const mount=measuredMounts.get(item.station);
        const position=item.mesh.geometry.getAttribute('position');
-       if(node!==visual.root||!position||position.itemSize!==3||
+       if(!carrier||!mount||!position||position.itemSize!==3||
           position.count<3)
-         throw Error('Original mounted CAD mesh detached/empty: '+
+         throw Error('Original mounted CAD mesh detached/empty/wrong station: '+
+           item.station+'/'+item.name);
+       if(!carrier.visible||
+          carrier.position.distanceTo(new THREE.Vector3(...mount.translationM))>1e-6||
+          Math.abs(carrier.rotation.y-mount.rotationYRad)>1e-6)
+         throw Error('Original mounted CAD carrier does not match measured wheel: '+
+           item.station+'/'+item.name);
+       if(item.mesh.userData.pedsCadOrigin!==item.kind||
+          item.mesh.userData.pedsWheelStation!==item.station||
+          item.mesh.userData.pedsCadPartId!==item.name)
+         throw Error('Original mounted CAD inspection metadata mismatched: '+
            item.station+'/'+item.name);
      }
      onMountedCadAudit({...countAudit,sourceNamesExact:true});
