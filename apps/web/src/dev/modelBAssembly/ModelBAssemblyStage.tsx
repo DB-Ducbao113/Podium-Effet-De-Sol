@@ -22,6 +22,7 @@ import {sourceOnlyModelBCamera} from './modelBSourceOnlyCamera';
 import {frameOriginalModelB,originalModelBFitsFrame} from './modelBFraming';
 import {buildOwnerSourceParticles,ownerParticleOpacity} from './ownerSourceParticles';
 import {sourceBodyMeshKey,sourceBodyMeshPhase,sourceBodyVisualDisplacement} from './sourceOnlyMeshMotion';
+import {auditMountedCadScene,type MountedCadSceneAudit} from './mountedCadSceneAudit';
 import {sourceBodyWorldRevealStrength,sourceMeshOwnWorldBounds,sourceMeshRevealWorldDirection,worldDeltaToParentLocal} from './sourceWorldReveal';
 import {accessibleAssemblyFraction,accessibleShellOpacity} from './accessibleAssemblyPose';
 import {sourceMaterialFrame,type SourceMaterialState} from './sourceShellMaterialState';
@@ -45,6 +46,7 @@ type Props={
  onReady:(which:'model-b'|'p28'|'rear-toe'|'p214',meshCount:number)=>void;
  onFit:(value:OwnerMeasuredFit|null)=>void;
  onRearComposite:(value:RearVisualParts|null)=>void;
+ onMountedCadAudit:(value:MountedCadSceneAudit|null)=>void;
  onFramingVerified:(fit:boolean|null)=>void;
  onInspect:(part:InspectedCadPart)=>void;
  selectedPart:InspectedCadPart|null;
@@ -304,7 +306,7 @@ function StudioLights(){
   <pointLight position={[1.5,2,-3]} intensity={32} distance={12} color="#8aaeff"/>
  </>;
 }
-function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRace,onReady,onFit,onRearComposite,onFramingVerified,onInspect,selectedPart,onError}:Props){
+function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRace,onReady,onFit,onRearComposite,onMountedCadAudit,onFramingVerified,onInspect,selectedPart,onError}:Props){
  const {camera,size}=useThree();
  const original=useOriginalBody(onReady,onError);
  const originalPartNames=useMemo(()=>corner?.parts.map(x=>x.node)??[],[corner]);
@@ -426,6 +428,16 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
  },[p28,fit,rear,split]);
  useEffect(()=>onRearComposite(visual?.rearComposite??null),
    [visual,onRearComposite]);
+ useEffect(()=>{
+   if(!visual){onMountedCadAudit(null);return;}
+   try{
+     onMountedCadAudit(auditMountedCadScene(visual.meshes));
+   }catch(error){
+     onMountedCadAudit(null);
+     onError('Mounted original Model B CAD scene validation failed: '+
+       String(error));
+   }
+ },[visual,onMountedCadAudit,onError]);
  useEffect(()=>()=>{
    if(!visual)return;
    visual.ownedMaterials.forEach(m=>m.dispose());
