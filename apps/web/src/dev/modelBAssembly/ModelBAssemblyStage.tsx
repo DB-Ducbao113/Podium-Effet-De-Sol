@@ -369,20 +369,29 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
      // Three.js Box3.setFromObject includes child meshes, which caused
      // small authentic body pieces to inherit a giant chassis extent.
      // Measure THIS source geometry only, after its exact world matrix.
-     if(!o.geometry.boundingBox)o.geometry.computeBoundingBox();
-     const ownBox=o.geometry.boundingBox;
      // Duplicate/unnamed GLB nodes keep distinct deterministic phases.
      const sourceKey=sourceBodyMeshKey(o.name,meshOrdinal++);
      let strength=0;
      const center=new THREE.Vector3();
-     if(ownBox&&!ownBox.isEmpty()){
-       const measured=sourceMeshOwnWorldBounds(
-         [ownBox.min.x,ownBox.min.y,ownBox.min.z],
-         [ownBox.max.x,ownBox.max.y,ownBox.max.z],
-         o.matrixWorld.elements);
-       center.set(...measured.center);
-       strength=sourceBodyWorldRevealStrength(
-         measured.diagonal,sourceBodyMeshPhase(sourceKey));
+     try{
+       if(!o.geometry.boundingBox)o.geometry.computeBoundingBox();
+       const ownBox=o.geometry.boundingBox;
+       if(ownBox&&!ownBox.isEmpty()){
+         const measured=sourceMeshOwnWorldBounds(
+           [ownBox.min.x,ownBox.min.y,ownBox.min.z],
+           [ownBox.max.x,ownBox.max.y,ownBox.max.z],
+           o.matrixWorld.elements);
+         center.set(...measured.center);
+         strength=sourceBodyWorldRevealStrength(
+           measured.diagonal,sourceBodyMeshPhase(sourceKey));
+       }
+     }catch(error){
+       // An invalid source mesh must not crash the complete F1 renderer.
+       // Keep that owner's mesh at its untouched original transform and
+       // expose the provenance failure rather than fabricating a shape.
+       strength=0;
+       onError('Original Model B source mesh bounds rejected ('+
+         sourceKey+'): '+String(error));
      }
      // Existing GLB geometry only; giant chassis surfaces remain fixed.
      const direction=new THREE.Vector3(
