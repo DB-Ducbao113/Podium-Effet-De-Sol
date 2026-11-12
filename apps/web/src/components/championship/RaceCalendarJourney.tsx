@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, lazy, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ArrowLeft, ArrowUpRight, RefreshCw } from 'lucide-react';
 import { getCalendarBySeason } from '../../data/championship';
@@ -20,6 +20,8 @@ import { getJourneyIntroTier } from './journeyIntroState';
 import { formatLatitude, formatLongitude, resolveCircuit } from './journeyCoordinates';
 import { getJourneyPhase, getJourneyScrollPosition, getJourneyScrollTarget } from './journeyScrollMotion';
 import './raceCalendarJourney.css';
+import './calendarCinematicV5.css';
+import { sampleCalendarV5Backdrop } from './calendarV5Motion';
 
 // Heavy WebGL code is only fetched after the user opens the Journey on a capable device.
 const JourneyGlobe3D = lazy(() => import('./JourneyGlobe3D').then((module) => ({ default: module.JourneyGlobe3D })));
@@ -101,6 +103,13 @@ export function RaceCalendarJourney({ season }: { season: SeasonYear }) {
   const phase = getJourneyPhase(journeyPosition, calendar.length);
   const introOpacity = tab === 'calendar' ? phase.introOpacity : 0;
   const progress = calendar.length ? 100 * journeyPosition / calendar.length : 0;
+  const backdrop = sampleCalendarV5Backdrop(journeyPosition, calendar.length);
+  const backdropStyle = {
+    '--cal-v5-warm': backdrop.warm.toFixed(3),
+    '--cal-v5-blue': backdrop.blue.toFixed(3),
+    '--cal-v5-violet': backdrop.violet.toFixed(3),
+    '--cal-v5-shift': backdrop.shift.toFixed(1) + 'px',
+  } as CSSProperties;
   const activeGeo = active ? resolveCircuit(active) : null;
 
   useEffect(() => {
@@ -184,22 +193,39 @@ export function RaceCalendarJourney({ season }: { season: SeasonYear }) {
   );
 
   return (
-    <div className="rcj rcj--immersive" data-experience="world-tour-v6">
+    <div className="rcj rcj--immersive cal-v5__world" data-experience="world-tour-v6">
       <div className="rcj-content">
-        <section className="rcj-map-stage" aria-label={vi ? 'Bản đồ hành trình mùa giải' : 'Season journey world map'}>
+        <section className="rcj-map-stage" style={backdropStyle} aria-label={vi ? 'Bản đồ hành trình mùa giải' : 'Season journey world map'}>
           <header className="rcj-stage-top">
             <div className="rcj-stage-heading">
               <span className="rcj-stage-kicker">{vi ? 'HÀNH TRÌNH MÙA GIẢI' : 'WORLD TOUR'} / {season}</span>
-              <h2 className="rcj-stage-title">{tab === 'results' ? (vi ? 'KẾT QUẢ' : 'RESULTS') : (vi ? 'LỊCH ĐUA' : 'CALENDAR')}</h2>
+              <h2 className="rcj-stage-title">{tab === 'results'
+                ? (vi ? 'KẾT QUẢ' : 'RESULTS')
+                : (vi ? <>Lịch <em>đua.</em></> : <>Race <em>calendar.</em></>)}</h2>
+              {tab === 'calendar' && <p className="cal-v5__stage-caption">
+                {vi ? `${calendar.length} chặng · Một hành trình qua các đường đua`
+                    : `${calendar.length} rounds · One world of racing`}
+              </p>}
             </div>
             <div className="rcj-stage-actions">
-              <nav className="rcj-stage-controls" aria-label={vi ? 'Trang giải vô địch' : 'Championship pages'}>
-                <Link to={`/season/${season}?tab=results`} aria-current={tab === 'results' ? 'page' : undefined}>{vi ? 'Kết quả' : 'Results'}</Link>
-                <Link to={`/season/${season}?tab=calendar`} aria-current={tab === 'calendar' ? 'page' : undefined}>{vi ? 'Lịch đua' : 'Calendar'}</Link>
-                {show3D && <button type="button" className="rcj-zoom-control" aria-pressed={closeUp}
-                  aria-label={vi ? 'Chuyển mức phóng to bản đồ' : 'Toggle globe zoom'}
-                  onClick={() => setCloseUp((value) => !value)}>{closeUp ? '−' : '+'}</button>}
-              </nav>
+              {tab === 'results' ? (
+                <nav className="rcj-stage-controls" aria-label={vi ? 'Trang giải vô địch' : 'Championship pages'}>
+                  <Link to={`/season/${season}?tab=results`} aria-current="page">{vi ? 'Kết quả' : 'Results'}</Link>
+                  <Link to={`/season/${season}?tab=calendar`}>{vi ? 'Lịch đua' : 'Calendar'}</Link>
+                  {show3D && <button type="button" className="rcj-zoom-control" aria-pressed={closeUp}
+                    aria-label={vi ? 'Chuyển mức phóng to bản đồ' : 'Toggle globe zoom'}
+                    onClick={() => setCloseUp((value) => !value)}>{closeUp ? '−' : '+'}</button>}
+                </nav>
+              ) : (
+                <div className="cal-v5__stage-tools">
+                  <Link className="cal-v5__full-list" to={`/season/${season}?tab=calendar&view=classic`}>
+                    {vi ? 'Danh sách chặng' : 'All rounds'} <ArrowUpRight size={16} aria-hidden="true"/>
+                  </Link>
+                  {show3D && <button type="button" className="cal-v5__zoom" aria-pressed={closeUp}
+                    aria-label={vi ? 'Chuyển mức phóng to bản đồ' : 'Toggle globe zoom'}
+                    onClick={() => setCloseUp((value) => !value)}>{closeUp ? '−' : '+'}</button>}
+                </div>
+              )}
             </div>
           </header>
           {tab === 'calendar' && <div className="rcj-season-controls" role="group" aria-label={vi ? 'Chọn mùa giải' : 'Choose season'}>
@@ -223,9 +249,14 @@ export function RaceCalendarJourney({ season }: { season: SeasonYear }) {
               <JourneyWorldMap season={season} calendar={calendar} activeRound={activeRound} onSelectRound={jump} lang={lang} tab={tab} markerOpacity={phase.markerOpacity} />
             )}
           </div>
+          {tab === 'calendar' && <div className="cal-v5__ambient" aria-hidden="true">
+            <span className="cal-v5__ambient--warm"/>
+            <span className="cal-v5__ambient--blue"/>
+            <span className="cal-v5__ambient--violet"/>
+          </div>}
           {tab === 'calendar' && <div className="rcj-journey-intro" style={{ opacity: introOpacity }} aria-hidden={introOpacity < 0.5}>
             <span>{vi ? 'HÀNH TRÌNH MÙA GIẢI' : 'SEASON JOURNEY'} / {season}</span>
-            <p>{vi ? `${calendar.length} chặng đua. Một hành trình quanh thế giới.` : `${calendar.length} rounds. One journey around the world.`}</p>
+            <p>{vi ? <>Mỗi chặng.<br/><em>Một câu chuyện.</em></> : <>Every round.<br/><em>A new story.</em></>}</p>
             <small>{vi ? 'Cuộn để bắt đầu' : 'Scroll to begin'}</small>
           </div>}
           {active && <JourneyCircuitOverlay season={season} race={active} tab={tab} lang={lang} reveal={phase.trackReveal} />}
