@@ -49,7 +49,7 @@ describe('PEDS V7 prototype colour parity — scoped design system',()=>{
   it('implements the exact Night/Chalk/Ember Home scene backgrounds without scaling cars',()=>{
     expect(css).toContain('--v5-scene-two,0');
     expect(css).toContain('--v5-scene-three,0');
-    expect(css).toContain('.r1-cinema--v7[data-v5-scene=\\'2\\']');
+    expect(css).toContain(".r1-cinema--v7[data-v5-scene='2']");
     expect(css).toContain('.home-v5 .home-title-fight');
     expect(css).toContain('.home-v5 .eds-explore');
     expect(nav).toContain("hero.dataset.v5Scene === '2'");
