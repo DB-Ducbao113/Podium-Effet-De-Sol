@@ -25,6 +25,10 @@ import {
  buildSourceCadVertexDots,sourceCadAssemblyDotOpacity,
  sourceCadInspectionDotOpacity,type SourceCadVertexDots,
 } from './sourceCadVertexDots';
+import {
+ selectNativeHardwareDotParts,validateNativeCadDotsBudget,
+ SOURCE_CAD_HARDWARE_DOT_BUDGET,SOURCE_CAD_TYRE_DOT_BUDGET,
+} from './sourceCadDotSelection';
 import {sourceBodyMeshKey,sourceBodyMeshPhase,sourceBodyVisualDisplacement} from './sourceOnlyMeshMotion';
 import {auditMountedCadScene,type MountedCadSceneAudit} from './mountedCadSceneAudit';
 import {auditMountedCadIdentity} from './mountedCadIdentity';
@@ -59,7 +63,7 @@ type Props={
  onInspect:(part:InspectedCadPart)=>void;
  onFocusVerified:(part:InspectedCadPart|null)=>void;
  onXrayRenderVerified:(part:InspectedCadPart|null)=>void;
- onSourceCadDotsReady:(sampledVertices:number)=>void;
+ onSourceCadDotsReady:(sampledVertices:number,fastenerMeshes:number)=>void;
  selectedPart:InspectedCadPart|null;
  onError:(message:string)=>void;
 };
@@ -533,37 +537,59 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
    }
  },[visual,selectedPart]);
  const selectedVisual=selection.mesh;
- const [wheelSourceDots,setWheelSourceDots]=useState<
-   {station:WheelId;layer:SourceCadVertexDots}[]>([]);
+ type NativeBuildDots={
+   station:WheelId;name:string;layer:SourceCadVertexDots;
+ };
+ const [buildSourceDots,setBuildSourceDots]=useState<NativeBuildDots[]>([]);
  const [selectedSourceDots,setSelectedSourceDots]=useState<
    SourceCadVertexDots|null>(null);
  useEffect(()=>{
    if(!visual){
-     setWheelSourceDots([]);
-     onSourceCadDotsReady(0);
+     setBuildSourceDots([]);
+     onSourceCadDotsReady(0,0);
      return;
    }
-   const originals=visual.meshes.filter(item=>
+   const tyres=visual.meshes.filter(item=>
      item.kind==='p28'&&item.name==='P2_TYRE_SLICK_BODY');
-   if(originals.length!==4){
-     setWheelSourceDots([]);
-     onSourceCadDotsReady(0);
+   if(tyres.length!==4||new Set(tyres.map(item=>item.station)).size!==4){
+     setBuildSourceDots([]);
+     onSourceCadDotsReady(0,0);
      onError('Original four-wheel CAD source vertex overlay rejected: '+
-       'expected four genuine P2.8 tyre mesh instances');
+       'expected four genuine P2.8 tyre mesh instances at separate stations');
      return;
    }
-   const layers:{station:WheelId;layer:SourceCadVertexDots}[]=[];
+   const layers:NativeBuildDots[]=[];
+   let actualHardwareLayers=0;
    try{
-     for(const item of originals)
-       layers.push({station:item.station,
-         layer:buildSourceCadVertexDots(item.mesh,1100,false)});
-     setWheelSourceDots(layers);
-     onSourceCadDotsReady(layers.reduce((sum,item)=>
-       sum+item.layer.sampleCount,0));
+     for(const item of tyres)
+       layers.push({station:item.station,name:item.name,
+         layer:buildSourceCadVertexDots(
+           item.mesh,SOURCE_CAD_TYRE_DOT_BUDGET,false)});
+     // A bounded selection of *real mounted* P2.8 bolts/nuts/studs now
+     // materializes as source-derived dots before rim and tyre arrival.
+     // No generic fastener geometry is ever synthesized.
+     const hardware=selectNativeHardwareDotParts(visual.meshes);
+     for(const item of hardware){
+       try{
+         layers.push({station:item.station,name:item.name,
+           layer:buildSourceCadVertexDots(
+             item.mesh,SOURCE_CAD_HARDWARE_DOT_BUDGET,false)});
+         actualHardwareLayers++;
+       }catch(error){
+         // A malformed bolt must never replace a real tyre layer or bring
+         // down the complete four-corner source assembly visualization.
+         onError('P2.8 hardware source dots skipped ('+
+           item.station+'/'+item.name+'): '+String(error));
+       }
+     }
+     const count=validateNativeCadDotsBudget(
+       layers.map(item=>item.layer));
+     setBuildSourceDots(layers);
+     onSourceCadDotsReady(count,actualHardwareLayers);
    }catch(error){
      for(const item of layers)item.layer.dispose();
-     setWheelSourceDots([]);
-     onSourceCadDotsReady(0);
+     setBuildSourceDots([]);
+     onSourceCadDotsReady(0,0);
      onError('Original four-wheel CAD vertex overlay rejected: '+
        String(error));
      return;
@@ -657,11 +683,12 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
        material.depthWrite=state.depthWrite;
      });
    }
-   // Native P2.8 source-vertex dots travel with each authentic measured
-   // tyre mesh and disappear completely at its assembled final pose.
-   for(const item of wheelSourceDots){
+   // Each sampled native dot is parented to its original P2.8 mesh, so
+   // tyre and hardware dots follow the separate source wheel and screw
+   // construction timelines without affecting CAD vertex/index buffers.
+   for(const item of buildSourceDots){
      const authored=originalPartAssemblyAtStation(
-       'P2_TYRE_SLICK_BODY',p,item.station);
+       item.name,p,item.station);
      const opacity=inspecting?0:
        sourceCadAssemblyDotOpacity(authored,reducedMotion);
      item.layer.points.material.opacity=opacity;
