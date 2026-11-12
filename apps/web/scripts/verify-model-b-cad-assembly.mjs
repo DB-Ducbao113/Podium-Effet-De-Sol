@@ -148,6 +148,25 @@ try{
       Math.abs(Number(slider.value)/1000-fraction)<.012;
     },step.progress,{timeout:6000});
     await page.waitForTimeout(800);
+    // Inspect the renderer's actual BufferGeometry.drawRange counts.
+    // Unlike DOM source-manifest counts, these values reflect GPU point
+    // submission at the current forward/reverse scroll position.
+    const dots=await canvas.evaluate(el=>({
+     drawn:Number(el.dataset.pedsModelBDrawnCadDots),
+     visible:Number(el.dataset.pedsModelBVisibleCadDots),
+     inspection:Number(el.dataset.pedsModelBInspectionCadDots),
+    }));
+    if(!Object.values(dots).every(Number.isSafeInteger)||
+       dots.drawn<0||dots.drawn>10544||
+       dots.visible<0||dots.visible>dots.drawn||
+       dots.inspection!==0)
+     throw Error('Original source CAD GPU dot draw audit invalid: '+
+       JSON.stringify({step:step.label,dots}));
+    if(step.label==='02-native-hardware-dots'&&dots.visible<1)
+     throw Error('Original P2.8 hardware source dots did not progressively render');
+    if((step.label==='00-original'||step.label==='reverse-00'||
+        step.label==='05-final-car')&&dots.visible!==0)
+     throw Error('Original source dots remained visible outside build chapter');
     const png=await canvas.screenshot();
     const audit=assertModelBFrameVisible(await analyzeModelBFrame(png),{
      finalFrame:step.label==='05-final-car',
@@ -155,6 +174,7 @@ try{
     const sha256=createHash('sha256').update(png).digest('hex');
     images.set(step.label,png);
     rows.push({step:step.label,progress:step.progress,sha256,
+     actualGpuDotDraw:dots,
      foregroundFraction:audit.foregroundFraction,bounds:audit.bounds});
     await writeFile(join(destination,layout.label+'-'+step.label+'.png'),png);
     shots++;
@@ -171,6 +191,13 @@ try{
     images.get('02-native-hardware-dots'),images.get('02-wheel-core'));
    if(hardwareDifference<.002)
     throw Error('Native fastener vertex assembly has no visible progression');
+   const hardwareGpu=rows.find(row=>
+     row.step==='02-native-hardware-dots')?.actualGpuDotDraw;
+   const beforeGpu=rows.find(row=>
+     row.step==='02-wheel-core')?.actualGpuDotDraw;
+   if(!hardwareGpu||!beforeGpu||
+      hardwareGpu.visible<=beforeGpu.visible)
+    throw Error('Original P2.8 hardware source dot count did not increase');
    const partButton=page.getByRole('button',{name:/EXPLORE REAL CAD PARTS/});
    await partButton.click();
    const list=page.locator('.mb-build-catalog-row');
@@ -197,6 +224,11 @@ try{
     throw Error('Selecting original CAD source hijacked the user scroll position');
    // Save a real selected CAD mesh close-up, not merely the inspector text.
    await page.waitForTimeout(800);
+   const xrayDotCount=await canvas.evaluate(el=>
+    Number(el.dataset.pedsModelBInspectionCadDots));
+   if(!Number.isSafeInteger(xrayDotCount)||xrayDotCount<1||
+      xrayDotCount>1200)
+    throw Error('Original inspected CAD source point draw range is absent');
    const focusPng=await canvas.screenshot();
    assertModelBFrameVisible(await analyzeModelBFrame(focusPng));
    const focusDifference=await modelBFrameDifference(
@@ -218,6 +250,10 @@ try{
    if(Math.abs(progressRestored-progressBefore)>12)
     throw Error('Clearing CAD X-ray changed the scroll position');
    await page.waitForTimeout(900);
+   const selectedPointsAfterClear=await canvas.evaluate(el=>
+    Number(el.dataset.pedsModelBInspectionCadDots));
+   if(selectedPointsAfterClear!==0)
+    throw Error('Original CAD inspection vertex dots leaked after clearing focus');
    const restoredPng=await canvas.screenshot();
    assertModelBFrameVisible(await analyzeModelBFrame(restoredPng));
    const restoredDifference=await modelBFrameDifference(focusPng,restoredPng);
@@ -232,6 +268,8 @@ try{
      selectedOriginalCadPart:selected,xrayFrameDifference:focusDifference,
      fourWheelStaggerDifference:staggerDifference,
      nativeHardwareProgressDifference:hardwareDifference,
+     inspectedSourceGpuDotCount:xrayDotCount,
+     selectedSourceGpuDotsAfterClear:selectedPointsAfterClear,
      xrayClearDifference:restoredDifference,progressBefore,
      progressFocused,progressRestored,frames:rows},null,2)+'\n');
    console.log('PASS '+layout.label+': 94 source meshes, 4 native-vertex sampled tyre overlays, exact four-corner CAD IDs, 31 rear source meshes/station, 28 screenshots across both layouts.');
