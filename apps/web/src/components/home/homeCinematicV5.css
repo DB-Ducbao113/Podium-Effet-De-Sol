@@ -601,3 +601,21 @@
 [data-text-zoom='400'] .home-v5 [data-v5-effect] {
   opacity:1!important;transform:none!important;clip-path:none!important;
 }
+
+
+/* Final Hero continuity: even the title, CTA and real season figures react
+   spatially to scrolling. They never fade away, lose focus or change values. */
+.home-v5 .r1-cinema__copy {
+  transform:translate3d(var(--v5-copy-x,0px),var(--v5-copy-y,0px),0);
+}
+.home-v5 .home-command__cell:first-child {
+  transform:translate3d(var(--v5-stat-x-negative,0px),0,0);
+}
+.home-v5 .home-command__cell:last-child {
+  transform:translate3d(var(--v5-stat-x,0px),0,0);
+}
+@media (max-width:860px), (prefers-reduced-motion:reduce) {
+  .home-v5 .r1-cinema__copy,
+  .home-v5 .home-command__cell:first-child,
+  .home-v5 .home-command__cell:last-child { transform:none!important; }
+}
