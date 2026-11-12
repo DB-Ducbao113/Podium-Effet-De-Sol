@@ -22,6 +22,7 @@ import {sourceOnlyModelBCamera} from './modelBSourceOnlyCamera';
 import {frameOriginalModelB,originalModelBFitsFrame} from './modelBFraming';
 import {buildOwnerSourceParticles,ownerParticleOpacity} from './ownerSourceParticles';
 import {sourceBodyMeshKey,sourceBodyVisualDisplacement} from './sourceOnlyMeshMotion';
+import {accessibleAssemblyFraction,accessibleShellOpacity} from './accessibleAssemblyPose';
 import {sourceMaterialFrame,type SourceMaterialState} from './sourceShellMaterialState';
 import {applyCadViewerAppearance,cadPreviewAppearance,
  type CadAppearance} from './cadPreviewMaterials';
@@ -442,14 +443,15 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
      ownerParticles.points.material.opacity=opacity;
    }
    const showCad=Boolean(visual);
-   const shellOpacity=visualShellOpacity(p,showCad);
+   const shellOpacity=accessibleShellOpacity(visualShellOpacity(p,showCad),reducedMotion);
    // P2.35 source-only mode still animates the owner's existing body mesh
    // nodes, rather than showing a motionless exterior until private CAD loads.
    const separation=showCad?exteriorSeparation(p,true):0;
    // Preserve the four original showroom tyres until their exact CAD
    // replacements start arriving, then hide duplicate dark tyre volumes.
    showroomWheelMask.value=showCad?
-     originalPartAssembly('P2_TYRE_SLICK_BODY',p):0;
+     accessibleAssemblyFraction(originalPartAssembly('P2_TYRE_SLICK_BODY',p),
+       reducedMotion):0;
    for(const item of shellVisuals){
      const meshSeparation=sourceBodyVisualDisplacement(
        p,item.sourceKey,showCad,reducedMotion,separation);
@@ -462,9 +464,10 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
    }
    if(visual){
      for(const item of visual.meshes){
-       const fraction=item.kind==='p28'?
+       const authoredFraction=item.kind==='p28'?
          originalPartAssembly(item.name,p):
          rearSourceAssembly(p,item.kind==='rear-toe'?'toe':'joint',item.name);
+       const fraction=accessibleAssemblyFraction(authoredFraction,reducedMotion);
        item.target.position.copy(item.originalPosition)
          .addScaledVector(item.offset,1-fraction);
        if(item.spin)applyVisualScrewSpin(item.spin,fraction,1.5);
