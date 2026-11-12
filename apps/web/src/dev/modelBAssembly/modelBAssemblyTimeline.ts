@@ -1,4 +1,5 @@
 import { classifyP28Part, type PartSystem } from '../assemblyPreview/cadPresentation';
+import type {WheelId} from '../assemblyPreview/fourCornerLayout';
 
 export type AssemblyChapterId = 'reveal'|'cutaway'|'wheel-core'|'four-wheels'|'rear-joints'|'final';
 export type AssemblyChapter = {
@@ -101,6 +102,26 @@ export function originalPartAssembly(name:string,progress:number):number{
   const stagger=stablePartOffset(name);
   return smoothStep(start+stagger,end+stagger,clamp01(progress));
 }
+/** P2.42 — real P2.8 part clones at four measured Model B wheel stations.
+ * Station offsets stagger the visible CAD choreography without changing
+ * source geometry, the four measured wheel positions or assembly end poses.
+ * The maximum offset is chosen so the genuine source tyre is seated by .85.
+ */
+const WHEEL_STATION_REVEAL_DELAY:Record<WheelId,number>={
+ 'front-positive-z':0,
+ 'front-negative-z':.018,
+ 'rear-positive-z':.037,
+ 'rear-negative-z':.055,
+};
+export function originalPartAssemblyAtStation(
+ name:string,progress:number,station:WheelId,
+):number{
+ const delay=WHEEL_STATION_REVEAL_DELAY[station];
+ if(delay===undefined)
+  throw Error('Unknown original Model B measured wheel station');
+ return originalPartAssembly(name,clamp01(progress)-delay);
+}
+
 export function rearSourceAssembly(progress:number,kind:'toe'|'joint',partName:string):number{
   const stagger=stablePartOffset(partName);
   return kind==='toe'
