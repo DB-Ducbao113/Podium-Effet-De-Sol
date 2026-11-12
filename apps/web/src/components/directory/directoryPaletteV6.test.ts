@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { EDITORIAL_TEAM_TONES } from './DirectorySurfaces';
+import { EDITORIAL_TEAM_TONES, EDITORIAL_TEAM_SIGNATURES } from './DirectorySurfaces';
 
 const css = readFileSync('src/components/directory/directoryPaletteV6.css','utf8');
 
@@ -12,6 +12,16 @@ describe('PEDS V6 directory palette — prototype reference',()=>{
     expect(EDITORIAL_TEAM_TONES.mercedes).toBe('#5cae9b');
     expect(EDITORIAL_TEAM_TONES.redbull).toBe('#536e93');
     expect(EDITORIAL_TEAM_TONES.astonmartin).toBe('#639b89');
+    expect(Object.keys(EDITORIAL_TEAM_SIGNATURES).sort()).toEqual(
+      Object.keys(EDITORIAL_TEAM_TONES).sort(),
+    );
+    expect(new Set(Object.values(EDITORIAL_TEAM_SIGNATURES).map(x=>x.paper)).size).toBe(11);
+    expect(new Set(Object.values(EDITORIAL_TEAM_SIGNATURES).map(x=>x.deep)).size).toBe(11);
+    expect(EDITORIAL_TEAM_SIGNATURES.ferrari.accent).toBe('#ffe500');
+    expect(EDITORIAL_TEAM_SIGNATURES.mclaren.accent).toBe('#47c7fc');
+    expect(EDITORIAL_TEAM_SIGNATURES.audi.accent).toBe('#f50537');
+    expect(EDITORIAL_TEAM_SIGNATURES.cadillac.accent).toBe('#d4af37');
+    expect(EDITORIAL_TEAM_SIGNATURES.haas.accent).toBe('#e6002b');
   });
 
   it('uses warm paper for Teams and charcoal team-colored portraits for Drivers',()=>{
@@ -21,6 +31,10 @@ describe('PEDS V6 directory palette — prototype reference',()=>{
       expect(css).toContain(token);
     expect(css).toContain('var(--peds-dir-team');
     expect(css).toContain('var(--peds-dir-driver');
+    expect(css).toContain('var(--peds-dir-paper');
+    expect(css).toContain('var(--peds-dir-deep');
+    expect(css).toContain('var(--peds-dir-accent');
+    expect(css).not.toContain('nth-child(3n+2)');
   });
 
   it('preserves image color, keyboard focus, mobile layout and reduced motion',()=>{

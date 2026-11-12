@@ -127,23 +127,22 @@
 /* 5 — TEAM GARAGE: pale body, restrained skew team identity, dark car stage. */
 .p5-team-card.p5-team-card--garage {
   --team-editorial:var(--peds-dir-team,#858c84);
-  border:1px solid #c4c3ba;
+  --team-signature:var(--peds-dir-accent,#d16a49);
+  --team-deep:var(--peds-dir-deep,#26342f);
+  --team-paper:var(--peds-dir-paper,#e2dfd7);
+  border:1px solid color-mix(in srgb,var(--team-deep) 22%,#bdb9b0);
   border-radius:0;
-  background:#e2dfd7;
+  background:var(--team-paper);
   color:var(--dir6-ink,#171b19);
   box-shadow:none;
   transition:background-color .25s ease,border-color .25s ease;
 }
-.p5-team-grid > .p5-team-card--garage:nth-child(3n+2) {background:#d6d6ce;}
-.p5-team-grid > .p5-team-card--garage:nth-child(3n+3) {background:#ebe9e2;}
 .p5-team-card--garage .p5-team-card-body {
   isolation:isolate;
   overflow:hidden;
   color:#171b19;
-  background:#e2dfd7;
+  background:var(--team-paper);
 }
-.p5-team-grid > .p5-team-card--garage:nth-child(3n+2) .p5-team-card-body {background:#d6d6ce;}
-.p5-team-grid > .p5-team-card--garage:nth-child(3n+3) .p5-team-card-body {background:#ebe9e2;}
 .p5-team-card--garage .p5-team-card-body::before {
   position:absolute;
   content:'';
@@ -153,13 +152,20 @@
   width:150%;
   height:26%;
   background:var(--team-editorial);
-  opacity:.33;
+  opacity:.27;
   mix-blend-mode:multiply;
   transform:skewY(-17deg);
   pointer-events:none;
   transition:transform .35s ease,opacity .35s ease;
 }
-.p5-team-card--garage .p5-team-card-body > * {position:relative;z-index:1;}
+.p5-team-card--garage .p5-team-card-body::after {
+  content:'';
+  position:absolute;z-index:1;
+  top:0;left:0;right:0;height:6px;
+  background:linear-gradient(90deg,var(--team-editorial) 0 72%,var(--team-signature) 72% 100%);
+  pointer-events:none;
+}
+.p5-team-card--garage .p5-team-card-body > * {position:relative;z-index:2;}
 .p5-team-card--garage h2 {
   font:800 clamp(1.7rem,2.5vw / var(--peds-visual-zoom),2.65rem)/1.05 var(--peds-font-ui);
   letter-spacing:-.065em;
@@ -175,20 +181,20 @@
   letter-spacing:.13em;
 }
 .p5-team-card--garage .p5-team-card-meta {color:#4d564e;}
-.p5-team-card--garage .p5-team-card-lineup small {color:#545e55;}
+.p5-team-card--garage .p5-team-card-lineup small {color:var(--team-deep);}
 .p5-team-card--garage .p5-team-card-lineup strong {color:#27332c;}
 .p5-team-card--garage .p5-team-card-lineup-faces :is(.p5-portrait,.p5-portrait-fallback) {
   border:1px solid #a6aba0;
   background:#29332e;
 }
 .p5-team-card--garage .p5-team-card-footer {border-top:1px solid #b9b8af;}
-.p5-team-card--garage .p5-team-card-footer > span:first-child {color:#3d4a41;}
+.p5-team-card--garage .p5-team-card-footer > span:first-child {color:var(--team-deep);}
 .p5-team-card--garage .p5-team-card-points {color:#171b19;}
 .p5-team-card--garage .p5-team-card-points small {color:#566157;}
 .p5-team-card--garage .p5-team-card-art {
   background:
-    radial-gradient(ellipse at 55% 40%,color-mix(in srgb,var(--team-editorial) 30%,#303d35),transparent 75%),
-    #202623;
+    radial-gradient(ellipse at 55% 40%,color-mix(in srgb,var(--team-editorial) 42%,var(--team-deep)),transparent 78%),
+    var(--team-deep);
   border-left:1px solid #a9aaa0;
 }
 .p5-team-card--garage .p5-team-card-art::after {
@@ -196,7 +202,12 @@
 }
 .p5-team-card--garage .p5-team-card-no-art {color:#edf0e9;}
 .p5-team-card--garage:hover,
-.p5-team-card--garage:focus-visible {transform:none;border-color:#64756a;background:#dad8d0;box-shadow:none;}
+.p5-team-card--garage:focus-visible {
+  transform:none;
+  border-color:var(--team-deep);
+  background:var(--team-paper);
+  box-shadow:none;
+}
 .p5-team-card--garage:hover .p5-team-card-body::before,
 .p5-team-card--garage:focus-visible .p5-team-card-body::before {opacity:.48;transform:skewY(-12deg) translateY(-8px);}
 .p5-team-card--garage .p5-team-card-art img {filter:none;}
@@ -204,6 +215,9 @@
 /* 6 — DRIVER PORTRAIT CARDS: original reference's muted tinted night. */
 .p5-driver-card.p5-driver-card--directory {
   --driver-editorial:var(--peds-dir-driver,var(--peds-dir-team,#536e93));
+  --driver-team:var(--peds-dir-team,#536e93);
+  --driver-signature:var(--peds-dir-accent,#d16a49);
+  --driver-deep:var(--peds-dir-deep,#18221d);
   display:flex;
   flex-direction:column;
   height:auto;
@@ -211,9 +225,10 @@
   aspect-ratio:auto;
   overflow:hidden;
   color:#f7f5ef;
-  border:1px solid #79857d;
+  border:1px solid color-mix(in srgb,var(--driver-team) 50%,#79857d);
+  border-top:4px solid var(--driver-signature);
   border-radius:0;
-  background:linear-gradient(140deg,var(--driver-editorial),#111816 82%);
+  background:linear-gradient(140deg,var(--driver-editorial),var(--driver-deep) 70%,#111816 100%);
   box-shadow:none;
   transition:border-color .25s ease,box-shadow .25s ease;
 }
@@ -234,7 +249,7 @@
   aspect-ratio:683/437;
   overflow:hidden;
   border-bottom:1px solid rgba(247,245,239,.22);
-  background:linear-gradient(140deg,color-mix(in srgb,var(--driver-editorial) 75%,#1b2621),#141a17 90%);
+  background:linear-gradient(140deg,color-mix(in srgb,var(--driver-editorial) 78%,var(--driver-deep)),var(--driver-deep) 95%);
 }
 .p5-driver-card--directory .p5-driver-card-visual :is(.p5-portrait,.p5-portrait-fallback,.p5-driver-card-visual-art) {
   position:absolute;inset:0;
@@ -263,7 +278,7 @@
   min-width:0;
   min-height:138px;
   padding:15px 17px 16px;
-  background:linear-gradient(145deg,color-mix(in srgb,var(--driver-editorial) 22%,#171e1a),var(--dir6-driver-field,#151b19) 85%);
+  background:linear-gradient(145deg,color-mix(in srgb,var(--driver-editorial) 25%,var(--driver-deep)),var(--dir6-driver-field,#151b19) 85%);
 }
 .p5-driver-card--directory .p5-driver-card-top {
   display:flex;align-items:center;justify-content:space-between;
@@ -309,12 +324,12 @@
 .p5-driver-card--directory .p5-driver-card-action {color:#dce3d9;opacity:.86;}
 .p5-driver-card--directory .p5-driver-card-arrow {
   color:#f7f5ef;
-  border-color:#b2bdb2;
+  border-color:color-mix(in srgb,var(--driver-signature) 65%,#b2bdb2);
   border-radius:0;
 }
 .p5-driver-card--directory:hover,
 .p5-driver-card--directory:focus-within {
-  border-color:#d1d8ca;
+  border-color:var(--driver-signature);
   box-shadow:0 8px 18px rgba(17,24,20,.13);
   transform:none;
 }

@@ -37,6 +37,26 @@ export const EDITORIAL_TEAM_TONES: Record<TeamId, string> = {
   haas: '#a3a3a4',
   racingbulls: '#657eaa',
 };
+/** One per-constructor identity: accent, deep stage and tinted paper.
+ * Visual colors based on V5 palette and repo team branding metadata.
+ * These do not change membership, race data or historical livery records.
+ */
+export const EDITORIAL_TEAM_SIGNATURES: Record<TeamId, {
+  accent: string; deep: string; paper: string;
+}> = {
+  mclaren:     { accent: '#47c7fc', deep: '#583216', paper: '#f4e2d2' },
+  ferrari:     { accent: '#ffe500', deep: '#6e1b23', paper: '#f0dedc' },
+  mercedes:    { accent: '#c8ccce', deep: '#155c56', paper: '#ddece8' },
+  redbull:     { accent: '#fcd700', deep: '#17294e', paper: '#dfe3ef' },
+  astonmartin: { accent: '#cedc00', deep: '#0d5147', paper: '#dde9e1' },
+  williams:    { accent: '#00e5ff', deep: '#143c68', paper: '#dce9f4' },
+  audi:        { accent: '#f50537', deep: '#272d31', paper: '#e0e3e4' },
+  cadillac:    { accent: '#d4af37', deep: '#1a1d21', paper: '#e7e4db' },
+  alpine:      { accent: '#ff87bc', deep: '#284b80', paper: '#e4e6f4' },
+  haas:        { accent: '#e6002b', deep: '#37383c', paper: '#e6e4e1' },
+  racingbulls: { accent: '#d90429', deep: '#1f2b77', paper: '#dfe3f3' },
+};
+
 const EDITORIAL_DRIVER_TONES: Record<string, { team: TeamId; tone: string }> = {
   norris: { team: 'mclaren', tone: '#b15b31' },
   verstappen: { team: 'redbull', tone: '#30475d' },
@@ -51,6 +71,9 @@ const EDITORIAL_DRIVER_TONES: Record<string, { team: TeamId; tone: string }> = {
 const driverStyle = (teamId: TeamId, driverId?: string) => {
   const team = TEAMS_DATA[teamId];
   const editorialTeam = EDITORIAL_TEAM_TONES[teamId] || '#858c84';
+  const signature = EDITORIAL_TEAM_SIGNATURES[teamId] || {
+    accent: '#9ca5a1', deep: '#283430', paper: '#e2dfd7',
+  };
   // A transferred driver adopts their actual season team's color instead of
   // retaining an outdated design-preview association.
   const prototypeDriver = driverId ? EDITORIAL_DRIVER_TONES[driverId] : undefined;
@@ -61,6 +84,9 @@ const driverStyle = (teamId: TeamId, driverId?: string) => {
     '--team-primary': team?.primaryColor || getTeamTextColor(teamId, true),
     '--team-accent': team?.accentColor || getTeamTextColor(teamId, true),
     '--peds-dir-team': editorialTeam,
+    '--peds-dir-accent': signature.accent,
+    '--peds-dir-deep': signature.deep,
+    '--peds-dir-paper': signature.paper,
     '--peds-dir-driver': editorialDriver,
   } as React.CSSProperties;
 };
@@ -248,6 +274,7 @@ export function DriverCard({
       className={`p5-driver-card p5-driver-card--directory${season !== 2026 ? ' p5-driver-card--generated' : ''}`}
       style={driverStyle(row.teamId, row.driverId)}
       data-rank={row.rank}
+      data-team-identity={row.teamId}
       data-p5-reveal
     >
       <span className="p5-driver-card-backdrop" aria-hidden="true" />
@@ -338,6 +365,7 @@ export function TeamCard({
       to={`/teams/${row.teamId}?season=${season}`}
       className="p5-team-card p5-team-card--garage"
       style={driverStyle(row.teamId)}
+      data-team-identity={row.teamId}
       data-p5-reveal
       aria-label={`P${row.rank} ${row.teamName}, ${row.points} ${lang === 'vi' ? 'điểm' : 'points'}`}
     >

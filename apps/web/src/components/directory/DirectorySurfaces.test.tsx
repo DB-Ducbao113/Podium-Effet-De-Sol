@@ -66,6 +66,11 @@ describe('P5-R1 owner-local visual contracts', () => {
     expect(driverHtml).toContain('--peds-dir-team:#e89c5b');
     expect(driverHtml).toContain('--peds-dir-driver:#b15b31');
     expect(teamHtml).toContain('--peds-dir-team:#e89c5b');
+    expect(teamHtml).toContain('--peds-dir-accent:#47c7fc');
+    expect(teamHtml).toContain('--peds-dir-deep:#583216');
+    expect(teamHtml).toContain('--peds-dir-paper:#f4e2d2');
+    expect(driverHtml).toContain('data-team-identity="mclaren"');
+    expect(teamHtml).toContain('data-team-identity="mclaren"');
     expect(teamHtml).toContain(String(team.points));
     expect(driverHtml).toContain(String(driver.points));
   });
@@ -75,6 +80,8 @@ describe('P5-R1 owner-local visual contracts', () => {
     const html=render(<DriverCard row={moved} season={2024} lang="en"/>);
     expect(html).toContain('--peds-dir-team:');
     expect(html).not.toContain('--peds-dir-driver:#953b34');
+    expect(html).toContain('data-team-identity="mercedes"');
+    expect(html).toContain('--peds-dir-accent:#c8ccce');
   });
 
   it('renders the owner image source without requiring the WebP to exist in GitHub', () => {
