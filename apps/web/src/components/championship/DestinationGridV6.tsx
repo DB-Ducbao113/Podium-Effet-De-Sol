@@ -1,10 +1,11 @@
 import { ArrowUpRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { GrandPrixRound, SeasonYear } from '../../types';
+import type { ResultSessionKey } from '../../results-engine/availability';
 
 type Mode = 'results'|'calendar';
 export type DestinationState = 'verified'|'completed'|'awaiting'|'current'|'upcoming';
-export type DestinationItem = GrandPrixRound & { destinationState?: DestinationState };
+export type DestinationItem = GrandPrixRound & { destinationState?: DestinationState; resultSession?: ResultSessionKey };
 type Props = {
   season: SeasonYear;
   lang: 'vi'|'en';
@@ -55,7 +56,7 @@ export function DestinationGridV6({season,lang,mode,items}:Props){
               const state=race.destinationState;
               const status=state?labelState[state][lang]:null;
               const href='/season/'+season+'?tab='+mode+'&round='+race.round+
-                (isResults?'&session=race':'&view=classic');
+                (isResults?'&session='+(race.resultSession??'race'):'&view=classic');
               return (
                 <li key={race.round} className="destination-v6__item">
                   <Link className="destination-v6__card" to={href}

@@ -33,10 +33,12 @@ export const RaceResults: React.FC<{season:SeasonYear}> = React.memo(({season})=
     qualifying:season===2026?OPEN.qualifying:{},
   };
   const items:DestinationItem[]=races.map(race=>{
-    const verified=getAvailableSessions(sources,race.round).length>0;
+    const available=getAvailableSessions(sources,race.round);
+    const verified=available.length>0;
     const scheduled=getCalendarRaceState(race,Date.now());
     return {...race,destinationState:scheduled==='current'?'current':
-      verified?'verified':scheduled==='completed'?'awaiting':'upcoming'};
+      verified?'verified':scheduled==='completed'?'awaiting':'upcoming',
+      resultSession:available.includes('race')?'race':(available[0]??'race')};
   });
   return detail?(
     <div className="results-v6-detail">

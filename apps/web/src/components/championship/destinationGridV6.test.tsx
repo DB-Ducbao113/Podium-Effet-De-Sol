@@ -28,6 +28,11 @@ describe('Destinations V6 — grid-first race discovery',()=>{
     expect(current).toContain('Australia');
     expect(current).toContain('<em>Melbourne</em>');
     expect(current).toContain('class="destination-v6__card"');
+    const qualifyingOnly:DestinationItem={...getCalendarBySeason(2026)[0],resultSession:'qualifying'};
+    const q=renderToStaticMarkup(<MemoryRouter>
+      <DestinationGridV6 season={2026} lang="en" mode="results" items={[qualifyingOnly]}/>
+    </MemoryRouter>);
+    expect(q).toContain('session=qualifying');
     expect(current).not.toContain('data-experience="world-tour-v6"');
     expect(current).not.toContain('c11-table');
   });
