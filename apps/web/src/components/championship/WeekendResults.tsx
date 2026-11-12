@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { animate, createScope } from "animejs";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Calendar, CheckCircle2, Clock, Timer } from "lucide-react";
 import { getCalendarBySeason } from "../../data/championship";
@@ -17,8 +16,6 @@ import {
   type ResultSessionKey,
 } from "../../results-engine/availability";
 import { useReducedMotion } from "../../hooks/useReducedMotion";
-import { useMotionGate } from "../../hooks/useMotionGate";
-import { afterIntro } from "../../utils/afterIntro";
 import { useChampionshipStore } from "../../store/useChampionshipStore";
 import { useNavigationStore } from "../../store/useNavigationStore";
 import { useTimezoneStore } from "../../store/useTimezoneStore";
@@ -199,7 +196,6 @@ export function WeekendResults({ season }: { season: SeasonYear }) {
   const railRef = useRef<HTMLDivElement>(null);
   const shellRef = useRef<HTMLElement | null>(null);
   const reducedMotion = useReducedMotion();
-  const motionEnabled = useMotionGate();
   const [now, setNow] = useState(() => Date.now());
   const [tableWrap, setTableWrap] = useState<HTMLDivElement | null>(null);
   const [tableScrollable, setTableScrollable] = useState(false);
@@ -248,65 +244,6 @@ export function WeekendResults({ season }: { season: SeasonYear }) {
       rail.removeEventListener("scroll", update);
     };
   }, [season]);
-
-  useEffect(() => {
-    if (!motionEnabled || round === null) return;
-    const root = shellRef.current;
-    if (!root) return;
-    let scope: ReturnType<typeof createScope> | null = null;
-    const cancelIntroGate = afterIntro(() => {
-      scope = createScope({ root }).add(() => {
-        animate(root.querySelectorAll("[data-rc-reveal]"), {
-          opacity: [0.35, 1],
-          translateY: [18, 0],
-          duration: 560,
-          ease: "out(4)",
-          delay: (_: unknown, index = 0) => index * 60,
-        });
-        animate(root.querySelectorAll("[data-rc-trace-line]"), {
-          strokeDashoffset: [1, 0],
-          duration: 1100,
-          ease: "inOut(3)",
-        });
-        animate(root.querySelectorAll(".c11-table tbody tr"), {
-          opacity: [0.5, 1],
-          translateY: [6, 0],
-          duration: 420,
-          ease: "out(3)",
-          delay: (_: unknown, index = 0) => Math.min(index, 12) * 24,
-        });
-      });
-    });
-    return () => {
-      cancelIntroGate();
-      scope?.revert();
-    };
-  }, [round, season, motionEnabled]);
-
-  useEffect(() => {
-    if (!motionEnabled) return;
-    const root = shellRef.current;
-    if (!root) return;
-    let scope: ReturnType<typeof createScope> | null = null;
-    const cancelIntroGate = afterIntro(() => {
-      scope = createScope({ root }).add(() => {
-        animate(
-          Array.from(root.querySelectorAll(".rc-round-chip")).slice(0, 12),
-          {
-            opacity: [0.4, 1],
-            translateY: [10, 0],
-            duration: 380,
-            ease: "out(4)",
-            delay: (_: unknown, index = 0) => index * 30,
-          },
-        );
-      });
-    });
-    return () => {
-      cancelIntroGate();
-      scope?.revert();
-    };
-  }, [motionEnabled]);
 
   useEffect(() => {
     if (!tableWrap) return;
@@ -461,7 +398,7 @@ export function WeekendResults({ season }: { season: SeasonYear }) {
     <section
       ref={shellRef}
       className="c11-results rc-race-center results-v5"
-      data-motion-engine={motionEnabled ? "animejs" : "static"}
+      data-motion-engine={reducedMotion ? "static" : "css-scroll"}
       aria-label={lang === "vi" ? "Trung tâm kết quả đua" : "Race Center"}
     >
       <header className="results-simple-head">
