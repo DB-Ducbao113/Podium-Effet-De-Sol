@@ -21,6 +21,10 @@ import {ORIGINAL_MODEL_B_SOURCE,verifyOriginalModelBBinary} from './originalMode
 import {sourceOnlyModelBCamera} from './modelBSourceOnlyCamera';
 import {frameOriginalModelB,originalModelBFitsFrame} from './modelBFraming';
 import {buildOwnerSourceParticles,ownerParticleOpacity} from './ownerSourceParticles';
+import {
+ buildSourceCadVertexDots,sourceCadAssemblyDotOpacity,
+ sourceCadInspectionDotOpacity,type SourceCadVertexDots,
+} from './sourceCadVertexDots';
 import {sourceBodyMeshKey,sourceBodyMeshPhase,sourceBodyVisualDisplacement} from './sourceOnlyMeshMotion';
 import {auditMountedCadScene,type MountedCadSceneAudit} from './mountedCadSceneAudit';
 import {auditMountedCadIdentity} from './mountedCadIdentity';
@@ -55,6 +59,7 @@ type Props={
  onInspect:(part:InspectedCadPart)=>void;
  onFocusVerified:(part:InspectedCadPart|null)=>void;
  onXrayRenderVerified:(part:InspectedCadPart|null)=>void;
+ onSourceCadDotsReady:(sampledVertices:number)=>void;
  selectedPart:InspectedCadPart|null;
  onError:(message:string)=>void;
 };
@@ -317,7 +322,7 @@ function StudioLights(){
   <pointLight position={[1.5,2,-3]} intensity={32} distance={12} color="#8aaeff"/>
  </>;
 }
-function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRace,onReady,onFit,onRearComposite,onMountedCadAudit,onFramingVerified,onInspect,onFocusVerified,onXrayRenderVerified,selectedPart,onError}:Props){
+function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRace,onReady,onFit,onRearComposite,onMountedCadAudit,onFramingVerified,onInspect,onFocusVerified,onXrayRenderVerified,onSourceCadDotsReady,selectedPart,onError}:Props){
  const {camera,size}=useThree();
  const original=useOriginalBody(onReady,onError);
  const originalPartNames=useMemo(()=>corner?.parts.map(x=>x.node)??[],[corner]);
@@ -528,6 +533,58 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
    }
  },[visual,selectedPart]);
  const selectedVisual=selection.mesh;
+ const [wheelSourceDots,setWheelSourceDots]=useState<
+   {station:WheelId;layer:SourceCadVertexDots}[]>([]);
+ const [selectedSourceDots,setSelectedSourceDots]=useState<
+   SourceCadVertexDots|null>(null);
+ useEffect(()=>{
+   if(!visual){
+     setWheelSourceDots([]);
+     onSourceCadDotsReady(0);
+     return;
+   }
+   const originals=visual.meshes.filter(item=>
+     item.kind==='p28'&&item.name==='P2_TYRE_SLICK_BODY');
+   if(originals.length!==4){
+     setWheelSourceDots([]);
+     onSourceCadDotsReady(0);
+     onError('Original four-wheel CAD source vertex overlay rejected: '+
+       'expected four genuine P2.8 tyre mesh instances');
+     return;
+   }
+   const layers:{station:WheelId;layer:SourceCadVertexDots}[]=[];
+   try{
+     for(const item of originals)
+       layers.push({station:item.station,
+         layer:buildSourceCadVertexDots(item.mesh,1100,false)});
+     setWheelSourceDots(layers);
+     onSourceCadDotsReady(layers.reduce((sum,item)=>
+       sum+item.layer.sampleCount,0));
+   }catch(error){
+     for(const item of layers)item.layer.dispose();
+     setWheelSourceDots([]);
+     onSourceCadDotsReady(0);
+     onError('Original four-wheel CAD vertex overlay rejected: '+
+       String(error));
+     return;
+   }
+   return()=>{
+     for(const item of layers)item.layer.dispose();
+   };
+ },[visual,onSourceCadDotsReady,onError]);
+ useEffect(()=>{
+   if(!selectedVisual){setSelectedSourceDots(null);return;}
+   let layer:SourceCadVertexDots|null=null;
+   try{
+     layer=buildSourceCadVertexDots(selectedVisual.mesh,1200,true);
+     setSelectedSourceDots(layer);
+   }catch(error){
+     setSelectedSourceDots(null);
+     onError('Original selected CAD vertex overlay rejected: '+
+       String(error));
+   }
+   return()=>{layer?.dispose();};
+ },[selectedVisual,onError]);
  const lastReportedXray=useRef<string|null>(null);
  useEffect(()=>{
    if(selection.error)
@@ -599,6 +656,22 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
        material.opacity=state.opacity;
        material.depthWrite=state.depthWrite;
      });
+   }
+   // Native P2.8 source-vertex dots travel with each authentic measured
+   // tyre mesh and disappear completely at its assembled final pose.
+   for(const item of wheelSourceDots){
+     const authored=originalPartAssemblyAtStation(
+       'P2_TYRE_SLICK_BODY',p,item.station);
+     const opacity=inspecting?0:
+       sourceCadAssemblyDotOpacity(authored,reducedMotion);
+     item.layer.points.material.opacity=opacity;
+     item.layer.points.visible=opacity>.005;
+   }
+   if(selectedSourceDots){
+     const opacity=sourceCadInspectionDotOpacity(
+       inspecting,reducedMotion);
+     selectedSourceDots.points.material.opacity=opacity;
+     selectedSourceDots.points.visible=opacity>.005;
    }
    if(visual){
      for(const item of visual.meshes){
