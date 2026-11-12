@@ -711,3 +711,15 @@
   .home-v5 .r1-cinema--v7::before {background:none;}
   .home-v5 [data-v5-effect] {opacity:1!important;transform:none!important;clip-path:none!important;}
 }
+
+
+/* Override legacy useReveal's one-shot transform/opacity on chapter parents.
+ * V5 owns entrance AND exit through scroll position on the actual content. */
+.home-v5[data-v5-choreo='active'] .h25-reveal[data-revealed] {
+  transform:none!important;
+  opacity:1!important;
+  transition:none!important;
+}
+.home-v5[data-v5-choreo='active'] .eds-explore[data-revealed='true'] .eds-explore__card[data-v5-effect] {
+  animation:none!important;
+}
