@@ -23,6 +23,16 @@ describe('V5 grouped global navigation', () => {
     expect(labels('/showroom')).toEqual(labels('/'));
   });
 
+  it('marks V5 Night/Paper routes while protecting Showroom and Engineering', () => {
+    expect(renderAt('/')).toContain('data-prototype-surface="night"');
+    expect(renderAt('/drivers')).toContain('data-prototype-surface="night"');
+    for(const route of ['/teams','/about','/season/2026?tab=results','/season/2026?tab=calendar','/season/2026?tab=standings']) {
+      expect(renderAt(route)).toContain('data-prototype-surface="paper"');
+    }
+    expect(renderAt('/engineering')).toContain('data-prototype-surface="legacy"');
+    expect(renderAt('/showroom')).toContain('data-prototype-surface="legacy"');
+  });
+
   it('uses the inner-route navbar treatment outside Home', () => {
     expect(renderAt('/')).not.toContain('h1-nav--inner');
     expect(renderAt('/season/2026?tab=standings')).toContain('h1-nav--inner');

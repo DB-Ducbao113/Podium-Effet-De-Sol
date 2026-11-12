@@ -99,11 +99,12 @@ export const Navbar = memo(function Navbar() {
         const r = section.getBoundingClientRect();
         if (r.top <= y && r.bottom > y) light = true;
       }
-      // Dark Championship scene is an explicit island inside the paper zone.
-      const dark = document.querySelector<HTMLElement>('.home-v5 .home-title-fight');
-      if (dark) {
-        const r = dark.getBoundingClientRect();
-        if (r.top <= y && r.bottom > y) light = false;
+      // The second pinned hero scene is Chalk, so the navbar must become
+      // dark-on-paper for this exact frame (and revert when scrolling back).
+      const hero = document.querySelector<HTMLElement>('.home-v5 .r1-cinema--v7');
+      if (hero) {
+        const r = hero.getBoundingClientRect();
+        if (r.top <= y && r.bottom > y) light = hero.dataset.v5Scene === '2';
       }
       setHomeSurface(light ? 'paper' : 'night');
     };

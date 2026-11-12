@@ -50,6 +50,10 @@ describe('Destinations V6 — grid-first race discovery',()=>{
   it('matches the supplied warm stone reference with reversible accessible motion',()=>{
     const css=readFileSync('src/components/championship/destinationGridV6.css','utf8');
     const main=readFileSync('src/main.tsx','utf8');
+    const parity=readFileSync('src/styles/prototypeColorParityV7.css','utf8');
+    expect(main).toContain('prototypeColorParityV7.css');
+    expect(parity).toContain('--peds-v6-paper:var(--peds-proto-paper)');
+    expect(parity).toContain('--peds-v6-stone:var(--peds-proto-paper-deep)');
     expect(main).toContain('destinationGridV6.css');
     for(const token of ['#f0eee8','#deddd7','#171c1b','grid-template-columns:repeat(3',
       'animation-timeline:view(block)','animation-range:cover 0% cover 100%',

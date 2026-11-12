@@ -50,10 +50,11 @@ describe('About page display heading', () => {
   beforeEach(() => useNavigationStore.setState({ lang: 'en' }));
 
   it.each(['en', 'vi'] as const)(
-    'uses the shared display primitive on the real dark canvas (%s)',
+    'uses the shared display primitive on the reference paper canvas (%s)',
     (lang) => {
       const html = renderAbout(lang);
       expect(html).toContain('peds-display-page');
+      expect(html).toContain('peds-about--prototype');
       expect(html).not.toContain('text-studio-950');
     },
   );
@@ -63,14 +64,16 @@ describe('About page display heading', () => {
   });
 });
 
-describe('About page dark surface contract', () => {
+describe('About page V5 light surface contract', () => {
   beforeEach(() => useNavigationStore.setState({ lang: 'en' }));
 
-  it('does not render light feature cards on the dark site', () => {
+  it('keeps legacy markup contents while the scoped V5 skin recolours the cards', () => {
     const html = renderAbout('en');
-    expect(html).not.toContain('bg-white border border-studio-200');
-    expect(html).not.toMatch(/class="[^"]*(^|\s)bg-white(\s|")/);
+    const skin = readFileSync('src/styles/prototypeColorParityV7.css','utf8');
+    expect(html).toContain('peds-about--prototype');
     expect(html).toContain('bg-white/5 border border-white/10');
+    expect(skin).toContain('.peds-about--prototype > div.grid > section');
+    expect(skin).toContain('background:var(--peds-proto-paper-deep)');
   });
 
   it('uses vector icons instead of emoji chips', () => {

@@ -14,6 +14,7 @@ import "./styles/compactDesktop.css";
 import "./styles/densityV2.css";
 import "./styles/visualZoom.css";
 import "./components/championship/destinationGridV6.css";
+import "./styles/prototypeColorParityV7.css";
 import { BrowserRouter } from "react-router-dom";
 import { ErrorBoundary } from "./components/common/ErrorBoundary";
 import { DocumentIntroController } from "./components/common/DocumentIntroController";
