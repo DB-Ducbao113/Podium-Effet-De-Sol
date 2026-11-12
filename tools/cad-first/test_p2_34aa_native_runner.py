@@ -24,6 +24,18 @@ def report(grid,eligible=True):
             'allChosenPathsCrossBendScreen':eligible}
 
 class RunnerTests(unittest.TestCase):
+    def setUp(self):
+        # AA runner integration contract; independent real AC byte guards tested separately.
+        def checked_m(result,path,grid_sha):
+            return {'p234mReview':aa.check_m_report(result,aa.PINS['P234E_source84_revised_six_ball_clearance.step'],grid_sha),
+                    'p234mSHA256':aa.hashfile(path)}
+        def checked_n(result,path,mfile,pins):
+            step=Path(path)/'P234N_source84_track_cut_PROTOTYPE.step'
+            return {'p234nCandidateSHA256':aa.hashfile(step),'p234nAuditSHA256':'stubbed_hash'}
+        mod=types.SimpleNamespace(check_m=checked_m,check_n=checked_n)
+        self._patch=patch.dict('sys.modules',{'p2_34ac_persisted_evidence_gate':mod})
+        self._patch.start()
+        self.addCleanup(self._patch.stop)
     def test_absent_source_blocked(self):
         with tempfile.TemporaryDirectory() as d:
             src,grid,out=sandbox(Path(d));r=aa.run(src,grid,out)
