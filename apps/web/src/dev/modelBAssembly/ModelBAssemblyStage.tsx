@@ -549,7 +549,7 @@ function ModelBAnimationScene({progressRef,reducedMotion,corner,rearToe,splitRac
  const buildSourceDots=useRef<NativeBuildDots[]>([]);
  const selectedSourceDots=useRef<SourceCadVertexDots|null>(null);
  const renderEvidence=useRef(createSourceCadRenderEvidence());
- const seenSourceDrawsThisFrame=useRef(new Set<THREE.Points>());
+ const seenSourceDrawsThisFrame=useRef(new Set<object>());
  const reportActualSourceCadDraw=useCallback((kind:SourceCadRenderKind,
    layer:SourceCadVertexDots)=>{
    const canvas=gl.domElement;
