@@ -20,6 +20,20 @@ describe('owner-specific non-scaled registration',()=>{
   const r=registerOwnerLandmarks(d);
   expect(r.lengthMismatchM).toBeGreaterThan(.1);
  });
+ it('audits every anchor pair, including the fourth and later landmarks',()=>{
+  const d=dataset();
+  d.landmarks[3].modelBM=[1,2,4.25];
+  const r=registerOwnerLandmarks(d);
+  expect(r.lengthMismatchM).toBeGreaterThan(.2);
+  expect(r.maxResidualM).toBeGreaterThan(.2);
+  expect(r.anchorResidualM).toHaveLength(4);
+  expect(r.validatedForMechanicalFit).toBe(false);
+ });
+ it('does not hide inconsistent late anchors when the first triangle matches',()=>{
+  const d=dataset();
+  d.landmarks.push({id:'fifth',p28M:[0,0,2],modelBM:[1,2,5.1]});
+  expect(registerOwnerLandmarks(d).lengthMismatchM).toBeGreaterThan(.09);
+ });
  it('rejects collinear reference landmarks',()=>{
   const d=dataset();d.landmarks[2].p28M=[2,0,0];
   expect(()=>registerOwnerLandmarks(d)).toThrow(/non-collinear/);
