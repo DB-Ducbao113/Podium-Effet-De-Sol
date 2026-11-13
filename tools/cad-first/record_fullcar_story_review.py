@@ -111,13 +111,15 @@ def inspect_browser(url:str,out:Path,p28_dir:Path|None,quality:str):
                 evidence["source_status"]="OWNER_P28_VISIBLE_METRIC_FIT_ONLY"
             track=page.locator(".peds-fullstory-track")
             for i,title in enumerate(CHAPTERS):
-                # Jump to an EXACT chapter boundary with deterministic native
-                # scroll, then ensure the matching HUD is present in real DOM.
+                # Jump inside the chapter by 1/4 beat to avoid subpixel
+                # browser scroll rounding at the previous chapter boundary.
+                # Endpoints remain exact 0% and 100%.
                 page.evaluate("""(i) => {
                   const track=document.querySelector('.peds-fullstory-track');
                   const top=track.getBoundingClientRect().top+scrollY;
                   const travel=track.offsetHeight-innerHeight;
-                  scrollTo({top:top+travel*i/17,behavior:'instant'});
+                  const p=i===0?0:i===17?1:(i+.25)/17;
+                  scrollTo({top:top+travel*p,behavior:'instant'});
                 }""",i)
                 page.wait_for_timeout(220)
                 actual=page.locator(".peds-fullstory-content h1").inner_text()
@@ -134,7 +136,8 @@ def inspect_browser(url:str,out:Path,p28_dir:Path|None,quality:str):
                 page.evaluate("""(i) => {
                   const track=document.querySelector('.peds-fullstory-track');
                   const top=track.getBoundingClientRect().top+scrollY;
-                  scrollTo({top:top+(track.offsetHeight-innerHeight)*i/17,behavior:'instant'});
+                  const p=i===0?0:i===17?1:(i+.25)/17;
+                  scrollTo({top:top+(track.offsetHeight-innerHeight)*p,behavior:'instant'});
                 }""",i)
                 page.wait_for_timeout(130)
                 actual=page.locator(".peds-fullstory-content h1").inner_text()
