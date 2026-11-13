@@ -231,7 +231,7 @@ function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPre
       distance:Math.max(2,size.length()*1.4)};
   },[bodyBounds]);
   const focus=useMemo(()=>{
-    if(cameraFocus==='whole-car'||!measuredFit||!measuredOverlayEnabled)
+    if(cameraFocus==='whole-car'||!measuredFit||(!measuredOverlayEnabled&&!registration))
       return {target:frame.target,distance:frame.distance};
     const center=new THREE.Vector3(...measuredFit.originalP28WheelCenterM)
       .applyQuaternion(rotation).add(transform);
@@ -256,7 +256,7 @@ function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPre
     if(cornerPresentation==='mechanism-core')
       return {target:center,distance:1.75};
     return {target:center,distance:2.05};
-  },[cameraFocus,frame,measuredFit,measuredOverlayEnabled,selectedPart,cornerPresentation,p28GeometryProfile,rotation,transform]);
+  },[cameraFocus,frame,measuredFit,measuredOverlayEnabled,registration,selectedPart,cornerPresentation,p28GeometryProfile,rotation,transform]);
   useEffect(()=>{
     camera.position.copy(focus.target).add(new THREE.Vector3(.75,.4,1.55).normalize().multiplyScalar(focus.distance));
     camera.lookAt(focus.target);
