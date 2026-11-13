@@ -64,6 +64,29 @@ their hashes match the manifest). Owner-only files remain local to browser.
 The original detailed single-corner inspector remains at
 `/engineering/assembly-preview`.
 
+## Real Chromium 18-chapter recording and responsive QA
+
+With the local Vite server already running, run:
+
+```powershell
+.\.venv-cad\Scripts\python.exe tools\cad-first\record_fullcar_story_review.py --out ".local-assets\cad-first\fullcar-story-browser"
+```
+
+Optionally append `--p28-dir ".local-assets\cad-first\recovered-p28\p28"`
+to import only the original SHA-matched 59-part P2.8 and require
+the source-wheel metric fit. Without this option, the recording shows the
+real original Model B exterior with missing mechanical chapters explicitly
+labelled as missing.
+
+The recorder opens **actual Chromium/WebGL**, captures all 18 chapters in
+order, checks the 17→0 reverse path, produces screenshots for each chapter,
+checks 390/768/1440/1920 widths, saves
+`full-car-story-0-100-0.webm`, and writes
+`story-browser-evidence.json`. It fails rather than claiming a clean
+video if Model B does not load, internal source truth is violated or
+browser errors occur. Browser runtime execution has not been performed
+in this connector-only session.
+
 ## Mechanical blockers still open
 
 - Need independent authentic per-corner native source B-Reps and 2026-era
