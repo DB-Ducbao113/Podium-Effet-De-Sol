@@ -80,6 +80,14 @@ export default function AssemblyPreviewPage(){
     setInfo(`SELECTED ${target.toUpperCase()} / ${mesh} · local metres`);
   },[]);
   const updateAxis=(kind:'translationM'|'rotationDeg',i:number,v:number)=>{
+    // Manual edits are visual overrides, not still-valid measured registration.
+    // Never export or display an old landmark certificate after a pose change.
+    if(registration){
+      setRegistration(null);
+      setRegistrationEvidence('');
+      setResolvedTransform(null);
+      setInfo('MANUAL POSE OVERRIDE · LANDMARK REGISTRATION CLEARED · G2 HOLD');
+    }
     setPlacement(p=>checkedPlacement({...p,[kind]:p[kind].map((x,j)=>j===i?v:x)} as Placement));
   };
   const exportGeometryProbe=()=>{
