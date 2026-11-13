@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { type CadSource, readManifest, verifyCadSource } from '../cadFirstScroll/cadSource';
 import { checkedPlacement, INITIAL_PLACEMENT, type Placement } from './assemblyPlacement';
 import {registerOwnerLandmarks,type Landmark,type RegistrationInput,type RegistrationResult} from './assemblyRegistration';
+import { assertVisualRegistrationReview } from './registrationReviewGate';
 import type { SourceGeometryProbe } from './geometryProbe';
 import {fitOwnerShellToOriginalP28} from './ownerMeasuredFit';
 import type { CornerPresentation } from './cadPresentation';
@@ -143,9 +144,7 @@ export default function AssemblyPreviewPage(){
         throw Error('Imported landmarks need documented corresponding physical features, not provisional picks');
       const result=registerOwnerLandmarks(data);
       // Project preview tolerance, NOT a validated manufacturing allowance.
-      if(result.lengthMismatchM>.005||result.maxResidualM>.005){
-        throw Error('Rigid fit mismatch exceeds 5 mm review threshold; refusing to scale the original CAD');
-      }
+      assertVisualRegistrationReview(result);
       setRegistration(result);
       setRegistrationEvidence(data.evidence);
       setPlacement({...INITIAL_PLACEMENT,displayedAtBodyCenter:true});
@@ -172,8 +171,7 @@ export default function AssemblyPreviewPage(){
         landmarks:draftLandmarks,evidence:landmarkEvidence.trim()
       };
       const result=registerOwnerLandmarks(data);
-      if(result.maxResidualM>.005||result.lengthMismatchM>.005)
-        throw Error('Picked points differ by >5mm; correct the physical correspondences, never scale CAD');
+      assertVisualRegistrationReview(result);
       setRegistration(result);
       setRegistrationEvidence(data.evidence);
       setPlacement({...INITIAL_PLACEMENT,displayedAtBodyCenter:true});
