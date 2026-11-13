@@ -1,0 +1,82 @@
+{
+  "schema": "peds.full-car-v2.2026-reference-index.v1",
+  "status": "G0_HOLD",
+  "primarySource": {
+    "technical": {
+      "publisher": "FIA",
+      "document": "2026 Section C Technical, Issue 21 2026-10-19",
+      "url": "https://www.fia.com/regulation/category/2182"
+    },
+    "visual": {
+      "publisher": "Formula 1",
+      "date": "2025-12-17",
+      "url": "https://www.formula1.com/en/latest/article/gallery-new-look-new-tech-new-rules-f1-reveals-renders-of-the-innovative.4DYoUzwNaKhW9aQeeVXJMv",
+      "usage": "research-only; do not publish without rights"
+    }
+  },
+  "views": [
+    {
+      "id": "front",
+      "status": "source-reference-pending",
+      "sourceUrl": null,
+      "camera_matrix": null,
+      "notes": "Do not infer engineering dimensions from perspective pixels"
+    },
+    {
+      "id": "rear",
+      "status": "source-reference-pending",
+      "sourceUrl": null,
+      "camera_matrix": null,
+      "notes": "Do not infer engineering dimensions from perspective pixels"
+    },
+    {
+      "id": "left",
+      "status": "source-reference-pending",
+      "sourceUrl": null,
+      "camera_matrix": null,
+      "notes": "Do not infer engineering dimensions from perspective pixels"
+    },
+    {
+      "id": "right",
+      "status": "source-reference-pending",
+      "sourceUrl": null,
+      "camera_matrix": null,
+      "notes": "Do not infer engineering dimensions from perspective pixels"
+    },
+    {
+      "id": "top",
+      "status": "source-reference-pending",
+      "sourceUrl": null,
+      "camera_matrix": null,
+      "notes": "Do not infer engineering dimensions from perspective pixels"
+    },
+    {
+      "id": "underside",
+      "status": "source-reference-pending",
+      "sourceUrl": null,
+      "camera_matrix": null,
+      "notes": "Do not infer engineering dimensions from perspective pixels"
+    },
+    {
+      "id": "front_three_quarter",
+      "status": "source-reference-pending",
+      "sourceUrl": null,
+      "camera_matrix": null,
+      "notes": "Do not infer engineering dimensions from perspective pixels"
+    },
+    {
+      "id": "rear_three_quarter",
+      "status": "source-reference-pending",
+      "sourceUrl": null,
+      "camera_matrix": null,
+      "notes": "Do not infer engineering dimensions from perspective pixels"
+    }
+  ],
+  "forbiddenGeometrySources": [
+    "P1.1 REJECTED",
+    "Full Car V1 REJECTED",
+    "Model B",
+    "R4.5"
+  ],
+  "ownerG1Approved": false
+}

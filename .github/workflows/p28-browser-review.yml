@@ -1,0 +1,73 @@
+name: P2.8 Original CAD → Browser Review Evidence
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/engineering-inside-machine-v2
+    paths:
+      - '.github/workflows/p28-browser-review.yml'
+permissions:
+  contents: read
+jobs:
+  genuine-source-review:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    env:
+      CI: 'true'
+      PLAYWRIGHT_BROWSERS_PATH: /home/runner/.cache/ms-playwright
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Confirm original Model B exists in THIS repository
+        shell: bash
+        run: |
+          test -s apps/web/public/models/model-b-eds-optimized-v1.glb
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('apps/web/public/models/model-b-eds-optimized-v1.glb')
+          assert p.read_bytes()[:4]==b'glTF', 'Model B is not a binary GLB'
+          print('Original owner showroom GLB present:',p.stat().st_size,'bytes')
+          PY
+      - name: Install native original CAD authoring and browser tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg libgl1 libegl1 libglib2.0-0
+          python -m pip install --upgrade pip
+          python -m pip install -r tools/cad-first/requirements.txt vtk playwright
+          python -m playwright install --with-deps chromium
+          npm ci
+      - name: Real 59-solid CAD rebuild, source checks, typecheck, build, browser video
+        shell: bash
+        run: |
+          mkdir -p .local-assets/cad-first
+          python tools/cad-first/run_owner_fullcar_review.py \
+            --p28-dir .local-assets/cad-first/recovered-p28 \
+            --out .local-assets/cad-first/owner-fullcar-review \
+            --quality BALANCED --allow-rebuild
+      - name: Post-run gate report for human review
+        if: always()
+        shell: bash
+        run: |
+          cat .local-assets/cad-first/owner-fullcar-review/review-gates.json || true
+          ls -lah .local-assets/cad-first/owner-fullcar-review/ || true
+      - name: Attach evidence (NO private STEP or GLB files)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: podium-original-modelb-p28-browser-review
+          path: |
+            .local-assets/cad-first/owner-fullcar-review/review-gates.json
+            .local-assets/cad-first/owner-fullcar-review/source-preflight.json
+            .local-assets/cad-first/owner-fullcar-review/visual-overlap-aabb.json
+            .local-assets/cad-first/owner-fullcar-review/modelb-p28-real-browser.mp4
+            .local-assets/cad-first/owner-fullcar-review/p28-source-scroll-real-browser.mp4
+            .local-assets/cad-first/owner-fullcar-review/browser/browser-evidence.json
+            .local-assets/cad-first/owner-fullcar-review/browser/*.png
+          if-no-files-found: warn
+          retention-days: 14

@@ -1,0 +1,262 @@
+#!/usr/bin/env python3
+"""Record a REAL Chrome/Chromium Model B + verified original P2.8 viewer.
+Precondition: Vite DEV server running; original P2.8 GLB and manifest on disk.
+No synthetic substitute, offline render, fabricated performance or visual acceptance.
+Dependency: python -m pip install playwright && python -m playwright install chromium
+"""
+from __future__ import annotations
+import argparse
+import json
+from pathlib import Path
+from datetime import datetime,timezone
+import sys
+
+def main():
+    p=argparse.ArgumentParser()
+    p.add_argument("--url",default="http://127.0.0.1:5184/engineering/assembly-preview")
+    p.add_argument("--p28-dir",type=Path,required=True)
+    p.add_argument("--out",type=Path,required=True)
+    p.add_argument("--quality",choices=["HIGH","BALANCED","PERFORMANCE"],default="BALANCED")
+    a=p.parse_args()
+    out=a.out.resolve();out.mkdir(parents=True,exist_ok=True)
+    owner=a.p28_dir.resolve()
+    manifest=owner/"P28_remate_manifest.json"
+    if not manifest.is_file():raise SystemExit("Missing ORIGINAL P2.8 manifest; no synthetic substitute allowed")
+    data=json.loads(manifest.read_text(encoding="utf8"))
+    if data.get("schema")!="podium-eds.p2.cad-first.full-corner.remate.v1" or len(data.get("partIds",[]))!=59:
+        raise SystemExit("Expected original 59-solid P2.8 manifest")
+    profile=data.get("profiles",{}).get(a.quality)
+    if not profile:raise SystemExit("Requested original LOD not available")
+    glb=owner/profile["file"]
+    if not glb.is_file():raise SystemExit("Missing original P2.8 GLB")
+    from hashlib import sha256
+    if glb.stat().st_size!=profile["bytes"] or sha256(glb.read_bytes()).hexdigest()!=profile["sha256"]:
+        raise SystemExit("P2.8 GLB integrity failed, refusing screenshot/video")
+    try:
+        from playwright.sync_api import sync_playwright
+    except ImportError as e:
+        raise SystemExit("Install Playwright: python -m pip install playwright") from e
+    errors=[]
+    model_b_responses=[]
+    runtime={"url":a.url,"source":"original SHA-verified P2.8 + repo Model B",
+        "quality":a.quality,"model_b_source":"apps/web/public/models/model-b-eds-optimized-v1.glb",
+        "p28_source_sha256":profile["sha256"],"browser":"chromium",
+        "created_at_utc":datetime.now(timezone.utc).isoformat(),"video":"NOT_RECORDED",
+        "mechanical_mate_validated":False,"g2":"HOLD"}
+    with sync_playwright() as pw:
+        browser=pw.chromium.launch(headless=True,args=["--enable-webgl","--use-gl=angle","--use-angle=swiftshader"])
+        try:
+            context=browser.new_context(viewport={"width":1440,"height":900},
+                device_scale_factor=1,record_video_dir=str(out),
+                record_video_size={"width":1440,"height":900})
+            page=context.new_page()
+            page.on("response",lambda r:model_b_responses.append(r.status) if "model-b-eds-optimized-v1.glb" in r.url else None)
+            page.on("pageerror",lambda e:errors.append("PAGEERROR "+str(e)))
+            page.on("console",lambda m:errors.append("CONSOLE "+m.text) if m.type=="error" else None)
+            response=page.goto(a.url,wait_until="domcontentloaded",timeout=60000)
+            if response is None or response.status>=400:raise RuntimeError("DEV route inaccessible")
+            page.locator('input[type="file"]').nth(0).set_input_files(str(manifest))
+            page.get_by_text("P2.8 MANIFEST READY",exact=False).wait_for(timeout=20000)
+            page.locator('input[type="file"]').nth(1).set_input_files(str(glb))
+            # The intermediate SHA banner can be replaced within the same
+            # browser turn when Three.js resolves fast. Wait for terminal state.
+            try:
+                page.get_by_text("MODEL B + VERIFIED P2.8 LOADED",exact=False).wait_for(timeout=90000)
+            except Exception:
+                page.screenshot(path=str(out/"load-failure-debug.png"),full_page=True)
+                (out/"load-failure-debug.txt").write_text(
+                    page.locator("body").inner_text()[:12000]+"\n\n"+str(errors),
+                    encoding="utf8"
+                )
+                raise
+            page.get_by_role("button",name="EXPORT DECODED SOURCE MEASUREMENTS").wait_for(timeout=45000)
+            with page.expect_download(timeout=30000) as profile_event:
+                page.get_by_role("button",name="EXPORT DECODED SOURCE MEASUREMENTS").click()
+            profile_event.value.save_as(str(out/"peds-modelb-p28-real-geometry.json"))
+            geometric=json.loads((out/"peds-modelb-p28-real-geometry.json").read_text(encoding="utf8"))
+            if geometric.get("modelB",{}).get("meshCount",0)<1 or geometric.get("p28",{}).get("meshCount")!=59:
+                raise RuntimeError("Decoded owner geometry profile missing real Model B or 59 P2.8 parts")
+            runtime["decoded_geometry_profile"]="peds-modelb-p28-real-geometry.json"
+            page.wait_for_timeout(1800)
+            if not 200 in model_b_responses:
+                raise RuntimeError("Original Model B asset was not loaded successfully; refusing fake video")
+            # Default is now a measured wheel-circle match with Model B
+            # showroom units normalized uniformly; P2.8 native CAD is scale 1.
+            page.get_by_text("Showroom uniform display scale:",exact=False).wait_for(timeout=20000)
+            measured=page.get_by_label("Mate P2.8 at measured front +Z wheel",exact=False)
+            if not measured.is_checked():
+                raise RuntimeError("Source wheel-envelope calibration was not activated")
+            page.wait_for_timeout(800)
+            page.screenshot(path=str(out/"01-measured-wheel-assembly.png"),full_page=True)
+            with page.expect_download(timeout=15000) as event:
+                page.get_by_role("button",name="EXPORT PLACEMENT JSON").click()
+            event.value.save_as(str(out/"visual-placement-audit.json"))
+            exported=json.loads((out/"visual-placement-audit.json").read_text(encoding="utf8"))
+            actual=exported.get("resolvedOriginalRootTransform")
+            fit=exported.get("ownerSourceWheelCalibration")
+            if not isinstance(actual,dict) or actual.get("stagingBasis")!="measured_wheel":
+                raise RuntimeError("Video must show actual measured wheel placement, not car-centre staging")
+            if actual.get("scale")!=1 or not .14<float(actual.get("modelBShellUnitScale",0))<.21:
+                raise RuntimeError("Original P2.8 CAD scale or shell unit normalization inconsistent")
+            if not isinstance(fit,dict) or fit.get("mechanicalFitCertified") is not False:
+                raise RuntimeError("Original fitted source evidence missing visual-only gate")
+            runtime["resolved_transform_record"]="visual-placement-audit.json"
+            runtime["measured_calibration"]={
+                "showroom_units_to_m":fit.get("normalizedShellScale"),
+                "front_wheel_center_m":fit.get("frontPositiveZCenterM"),
+                "axle_spacing_preview_m":fit.get("axleSpacingPreviewM"),
+                "p28_source_scale":actual["scale"],"G2":"HOLD",
+            }
+            slider=page.locator('input[type="range"]').first
+            slider.focus()
+            slider.press("Home")
+            for _ in range(5):slider.press("ArrowRight")
+            page.wait_for_timeout(700)
+            page.screenshot(path=str(out/"02-wheel-cutaway-transparent-shell.png"),full_page=True)
+            source_parts=data["partIds"]
+            bolt=next((x for x in source_parts if "LOCK" in x or "STUD" in x or "BOLT" in x),None)
+            if bolt:
+                page.get_by_label("Source part isolation").select_option(bolt)
+                page.wait_for_timeout(1200)
+                page.screenshot(path=str(out/"03-existing-fastener-at-wheel.png"),full_page=True)
+                page.get_by_label("Source part isolation").select_option("")
+            canvas=page.locator("canvas").first
+            canvas.scroll_into_view_if_needed()
+            rect=canvas.bounding_box()
+            if rect:
+                x,y=rect["x"]+rect["width"]*.61,rect["y"]+rect["height"]*.52
+                page.mouse.move(x,y)
+                page.mouse.down()
+                for j in range(1,40):
+                    page.mouse.move(x+(j/39)*165,y+(j/39)*65,steps=2)
+                page.mouse.up()
+            page.wait_for_timeout(1200)
+            page.screenshot(path=str(out/"04-assembled-front-wheel-orbit.png"),full_page=True)
+            # Macro film: never manufacture new hardware. Each visible bolt,
+            # brake, bearing, rim and wishbone comes from the 59 source parts.
+            page.get_by_label("Review camera").select_option("wheel-macro")
+            page.wait_for_timeout(850)
+            page.screenshot(path=str(out/"05-original-front-wheel-macro.png"),full_page=False)
+            page.get_by_label("CAD assembly presentation").select_option("tyre-hidden")
+            page.wait_for_timeout(800)
+            page.screenshot(path=str(out/"06-original-tyre-hidden.png"),full_page=False)
+            page.get_by_label("CAD assembly presentation").select_option("mechanism-core")
+            page.wait_for_timeout(900)
+            page.screenshot(path=str(out/"06b-original-brake-bearing-and-caliper-core.png"),full_page=False)
+            page.get_by_label("CAD assembly presentation").select_option("exploded")
+            page.wait_for_timeout(800)
+            page.screenshot(path=str(out/"07-original-cad-59-part-exploded.png"),full_page=False)
+            page.get_by_label("Review camera").select_option("fastener-macro")
+            page.get_by_label("Source part isolation").select_option("P2_BRAKE_ROTOR_DRILLED_CARBON")
+            page.wait_for_timeout(850)
+            page.screenshot(path=str(out/"08-real-brake-rotor-macro.png"),full_page=False)
+            page.get_by_label("Source part isolation").select_option("P2_CENTER_LOCK_NUT_BORE")
+            page.wait_for_timeout(800)
+            page.screenshot(path=str(out/"09-real-center-lock-nut-macro.png"),full_page=False)
+            page.get_by_label("Source part isolation").select_option("P2_BEARING_INNER_RACE")
+            page.wait_for_timeout(750)
+            page.screenshot(path=str(out/"09b-original-steel-bearing-inner-race.png"),full_page=False)
+            page.get_by_label("Source part isolation").select_option("P2_CALIPER_OUTBOARD_CASTING")
+            page.wait_for_timeout(750)
+            page.screenshot(path=str(out/"09c-original-caliper-casting.png"),full_page=False)
+            page.get_by_label("Source part isolation").select_option("")
+            page.get_by_label("CAD assembly presentation").select_option("assembled")
+            page.get_by_label("Review camera").select_option("whole-car")
+            page.wait_for_timeout(700)
+            page.screenshot(path=str(out/"10-restored-original-assembly.png"),full_page=False)
+            runtime["macro_source_parts_reviewed"]=[
+                "P2_BRAKE_ROTOR_DRILLED_CARBON",
+                "P2_CENTER_LOCK_NUT_BORE",
+                "P2_BEARING_INNER_RACE",
+                "P2_CALIPER_OUTBOARD_CASTING",
+            ]
+            runtime["mechanical_core_review"]="ORIGINAL_SOURCE_TYRE_AND_RIM_MASKED_FOR_DISPLAY_ONLY"
+            runtime["exploded_review"]="ORIGINAL_59_SOURCE_NODES_DISPLAY_ONLY_OFFSETS"
+            runtime["all_source_part_positions_restored"]=True
+            runtime["responsive_views"]=[]
+            for width,height in ((390,844),(768,1024),(1440,900),(1920,1080)):
+                page.set_viewport_size({"width":width,"height":height})
+                page.wait_for_timeout(250)
+                geometry=page.evaluate("""() => ({
+                    viewport: document.documentElement.clientWidth,
+                    scrollWidth: document.documentElement.scrollWidth,
+                    canvasWidth: document.querySelector('canvas')?.getBoundingClientRect().width || 0,
+                    canvasHeight: document.querySelector('canvas')?.getBoundingClientRect().height || 0
+                })""")
+                overflow=geometry["scrollWidth"]-geometry["viewport"]
+                geometry["horizontal_overflow_px"]=overflow
+                runtime["responsive_views"].append({"width":width,"height":height,**geometry})
+                if overflow>2 or geometry["canvasWidth"]<=0 or geometry["canvasHeight"]<=0:
+                    errors.append(f"Responsive WebGL layout failure at {width}x{height}: {geometry}")
+                page.screenshot(path=str(out/f"responsive-{width}.png"),full_page=False)
+            page.set_viewport_size({"width":1440,"height":900})
+            page.wait_for_timeout(300)
+            # Close the MAIN owner Model B + P2.8 context FIRST so that an
+            # expensive separate scroll study cannot erase the actual review video.
+            main_video=page.video
+            context.close()
+            if not main_video:
+                raise RuntimeError("Main Model B + P2.8 WebGL capture missing")
+            main_video.save_as(str(out/"modelb-p28-browser-real.webm"))
+            runtime["video"]="modelb-p28-browser-real.webm"
+            (out/"main-review-evidence.json").write_text(
+                json.dumps(runtime,indent=2)+"\n",encoding="utf8"
+            )
+            # A second context is needed for deterministic source-scroll capture;
+            # 8 checkpoints each way bounds the CPU/SwiftShader load on CI.
+            scroll_context=browser.new_context(viewport={"width":1280,"height":720},
+                record_video_dir=str(out),
+                record_video_size={"width":1280,"height":720})
+            scroll=scroll_context.new_page()
+            scroll_errors=[]
+            scroll.on("pageerror",lambda e:scroll_errors.append(str(e)))
+            try:
+                scroll_url=a.url.replace("/engineering/assembly-preview",
+                                         "/engineering/cinematic-rebuild")
+                scroll_response=scroll.goto(scroll_url,wait_until="domcontentloaded",timeout=45000)
+                if scroll_response is None or scroll_response.status>=400:
+                    raise RuntimeError("Original source scroll DEV route missing")
+                scroll.locator('input[type="file"]').nth(0).set_input_files(str(manifest))
+                scroll.wait_for_function("""() => {
+                  const fields=document.querySelectorAll('input[type=file]');
+                  return fields.length>=2 && !fields[1].disabled;
+                }""",timeout=20000)
+                scroll.locator('input[type="file"]').nth(1).set_input_files(str(glb))
+                scroll.get_by_text("59-SOLID FRONT CORNER",exact=False).first.wait_for(timeout=45000)
+                scroll.get_by_text("DECODING VERIFIED CAD",exact=False).wait_for(state="hidden",timeout=45000)
+                scroll.wait_for_timeout(350)
+                scroll.screenshot(path=str(out/"06-source-scroll-start.png"),full_page=False)
+                for index in range(1,9):
+                    scroll.evaluate("(p)=>window.scrollTo(0,(document.documentElement.scrollHeight-innerHeight)*p)",index/8)
+                    scroll.wait_for_timeout(100)
+                scroll.screenshot(path=str(out/"07-source-scroll-end.png"),full_page=False)
+                for index in range(7,-1,-1):
+                    scroll.evaluate("(p)=>window.scrollTo(0,(document.documentElement.scrollHeight-innerHeight)*p)",index/8)
+                    scroll.wait_for_timeout(100)
+                scroll.screenshot(path=str(out/"08-source-scroll-reverse.png"),full_page=False)
+                scroll_video=scroll.video
+                scroll_context.close()
+                if scroll_errors:
+                    runtime["source_scroll_errors"]=scroll_errors
+                if scroll_video:
+                    scroll_video.save_as(str(out/"p28-source-scroll-0-100-0.webm"))
+                    runtime["source_scroll_video"]="p28-source-scroll-0-100-0.webm"
+            except Exception as exc:
+                runtime["source_scroll_error"]=str(exc)
+                runtime["source_scroll_status"]="UNAVAILABLE_DO_NOT_CLAIM_COMPLETE"
+                try:
+                    scroll_context.close()
+                except Exception:
+                    pass
+        finally:
+            browser.close()
+    runtime["js_errors"]=errors
+    runtime["state"]="BROWSER_CAPTURED_MECHANICAL_G2_HOLD" if not errors else "BROWSER_ERRORS"
+    (out/"browser-evidence.json").write_text(json.dumps(runtime,indent=2)+"\n",encoding="utf8")
+    if errors:
+        print(json.dumps(errors,indent=2),file=sys.stderr)
+        raise SystemExit(1)
+    print("REAL browser video:",out/runtime["video"])
+    print("No fabricated F1 mechanical mate claim; G2 HOLD remains.")
+
+if __name__=="__main__":main()

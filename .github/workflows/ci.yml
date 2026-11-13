@@ -37,3 +37,75 @@ jobs:
       - run: npm audit --audit-level=high
 
 # Intentionally no deployment, scheduled, or write-capable workflow during migration.
+
+  owner-assembly-review-video:
+    name: Real Model B + original P2.8 browser evidence (NOT full-car signoff)
+    needs: verify
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Fail fast on Python CAD and recorder syntax
+        run: |
+          python -m compileall -q tools/cad-first/rebuild_owner_p28.py tools/cad-first/locate_owner_p28.py tools/cad-first/run_owner_fullcar_review.py tools/cad-first/record_modelb_p28_browser.py tools/cad-first/assembly_modelb_p28_preflight.py tools/cad-first/audit_assembly_mesh.py tools/cad-first/audit_measured_wheel_fit.py tools/cad-first/test_rebuild_owner_p28.py tools/cad-first/test_audit_assembly_mesh.py tools/cad-first/p2_6_steering_relief.py tools/cad-first/p2_7_wishbone_cad.py tools/cad-first/p2_8_upright_remate.py tools/cad-first/p2_8_source_glb_composition.py
+      - name: Verify original Model B and install genuine CAD/video dependencies
+        run: |
+          test -s apps/web/public/models/model-b-eds-optimized-v1.glb
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('apps/web/public/models/model-b-eds-optimized-v1.glb')
+          assert p.read_bytes()[:4] == b'glTF', 'Original showroom file not GLB'
+          print('Original Model B source asset:',p.stat().st_size,'bytes')
+          PY
+          python -m pip install -r tools/cad-first/requirements.txt playwright
+          python -m playwright install --with-deps chromium
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          npm ci
+      - name: Generate project-authored 59-solid source and capture actual WebGL
+        timeout-minutes: 65
+        run: |
+          python tools/cad-first/run_owner_fullcar_review.py \
+            --p28-dir .local-assets/cad-first/recovered-p28 \
+            --out .local-assets/cad-first/owner-fullcar-review \
+            --quality BALANCED --allow-rebuild
+      - name: Summarize honest gate status
+        if: always()
+        run: |
+          cat .local-assets/cad-first/owner-fullcar-review/review-gates.json || true
+          find .local-assets/cad-first/owner-fullcar-review -maxdepth 2 \
+            -type f \( -name '*.mp4' -o -name '*.json' -o -name '*.png' -o -name '*.log' \) \
+            -printf '%p %s bytes\n' || true
+      - name: Upload original-source browser evidence, never STEP/GLB
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: original-model-b-p28-owner-review
+          if-no-files-found: warn
+          retention-days: 14
+          path: |
+            .local-assets/cad-first/owner-fullcar-review/review-gates.json
+            .local-assets/cad-first/owner-fullcar-review/source-preflight.json
+            .local-assets/cad-first/owner-fullcar-review/visual-overlap-aabb.json
+            .local-assets/cad-first/owner-fullcar-review/measured-original-wheel-fit.json
+            .local-assets/cad-first/owner-fullcar-review/dev-server.log
+            .local-assets/cad-first/owner-fullcar-review/modelb-p28-real-browser.mp4
+            .local-assets/cad-first/owner-fullcar-review/browser/modelb-p28-browser-real.webm
+            .local-assets/cad-first/owner-fullcar-review/browser/p28-source-scroll-0-100-0.webm
+            .local-assets/cad-first/owner-fullcar-review/browser/main-review-evidence.json
+            .local-assets/cad-first/owner-fullcar-review/browser/peds-modelb-p28-real-geometry.json
+            .local-assets/cad-first/owner-fullcar-review/p28-source-scroll-real-browser.mp4
+            .local-assets/cad-first/owner-fullcar-review/browser/browser-evidence.json
+            .local-assets/cad-first/owner-fullcar-review/browser/load-failure-debug.txt
+            .local-assets/cad-first/owner-fullcar-review/browser/*.png

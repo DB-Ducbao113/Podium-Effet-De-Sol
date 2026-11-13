@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import App from './App';
 import './scoped.css';
 import './ux1.css';
+import './v2-precision.css';
 
 export default function InsideMachineTrialPage() {
   useEffect(() => {
@@ -13,5 +14,5 @@ export default function InsideMachineTrialPage() {
     };
   }, []);
 
-  return <div className="itm-i1"><App /></div>;
+  return <div className="itm-i1 itm-v2"><App /></div>;
 }

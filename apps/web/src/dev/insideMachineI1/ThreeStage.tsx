@@ -63,25 +63,25 @@ function Model({ model, manifest, scrollProgress, cutaway, selectedAssembly, sel
     for (const item of manifest.components) localCounts.current.set(item.parentAssemblyId,(localCounts.current.get(item.parentAssemblyId)??0)+1);
     const skin=model.getObjectByName('CHASSIS_CORE');if(skin)nodes.current.set('CHASSIS_CORE',skin);
   }, [manifest, model]);
-  const offstageOffset=useCallback((node:THREE.Object3D,id:string)=>{
-    const spec=offstageSpecFor(id);const phase=offstageProgressAt(scrollProgress,id);if(!spec||phase<=0||!node.parent)return null;
-    const back=scrollProgress>=.87?FINALE_OFFSTAGE_DIRECTION.clone():new THREE.Vector3(...cameraPose.direction).normalize();
+  const offstageOffset=useCallback((node:THREE.Object3D,id:string,progress:number)=>{
+    const spec=offstageSpecFor(id);const phase=offstageProgressAt(progress,id);if(!spec||phase<=0||!node.parent)return null;
+    const back=progress>=.87?FINALE_OFFSTAGE_DIRECTION.clone():new THREE.Vector3(...cameraPose.direction).normalize();
     const up=new THREE.Vector3(0,1,0);const right=new THREE.Vector3().crossVectors(up,back).normalize();
     const direction=offstageDirection(spec.direction,right,up,back);
     const aspect=Math.max(.4,size.width/Math.max(1,size.height));
-    const systemReveal=smooth01((scrollProgress-.81)/.035);
+    const systemReveal=smooth01((progress-.81)/.035);
     const viewportDistance=cameraPose.distance*(aspect<.8?1.7:1.35)+5;
     const coordinatedDistance=THREE.MathUtils.lerp(viewportDistance,1.8,systemReveal);
     const distance=coordinatedDistance*spec.distance;
     const world=direction.multiplyScalar(distance*phase).addScaledVector(up,distance*spec.arc*4*phase*(1-phase));
     node.parent.updateWorldMatrix(true,false);
     return world.applyMatrix3(new THREE.Matrix3().setFromMatrix4(node.parent.matrixWorld).invert());
-  },[cameraPose.direction,cameraPose.distance,scrollProgress,size.height,size.width]);
+  },[cameraPose.direction,cameraPose.distance,size.height,size.width]);
   const applyProgress = useCallback((progress: number) => {
     l1Mark('scene-transform-start',{scrollProgress:progress});
-    manifest.assemblies.forEach((item) => { const node = nodes.current.get(item.node); const base = baselines.current.get(item.node); const offset=offsets.current.get(item.node); if (!node || !base||!offset) return; const phase = assemblyDetachmentAt(progress,item.id); node.position.copy(base.p).addScaledVector(offset, phase);const stageOffset=offstageOffset(node,item.id);if(stageOffset)node.position.add(stageOffset); node.quaternion.copy(base.q); node.scale.copy(base.s); });
+    manifest.assemblies.forEach((item) => { const node = nodes.current.get(item.node); const base = baselines.current.get(item.node); const offset=offsets.current.get(item.node); if (!node || !base||!offset) return; const phase = assemblyDetachmentAt(progress,item.id); node.position.copy(base.p).addScaledVector(offset, phase);const stageOffset=offstageOffset(node,item.id,progress);if(stageOffset)node.position.add(stageOffset); node.quaternion.copy(base.q); node.scale.copy(base.s); });
     const assemblyIds=new Set(manifest.assemblies.map(item=>item.id));
-    for (const item of manifest.components) { const node = nodes.current.get(item.node); const base = baselines.current.get(item.node);const offset=offsets.current.get(item.node); if (!node || !base||!offset) continue; const phase=componentDetachmentAt(progress,item.parentAssemblyId,item.animationOrder,localCounts.current.get(item.parentAssemblyId)??1); node.position.copy(base.p).addScaledVector(offset, phase);if(!assemblyIds.has(item.parentAssemblyId)){const stageOffset=offstageOffset(node,item.parentAssemblyId);if(stageOffset)node.position.add(stageOffset);} node.quaternion.copy(base.q); if (item.explodedRotationEuler[1]) node.rotateZ(-item.explodedRotationEuler[1] * phase); node.scale.copy(base.s); }
+    for (const item of manifest.components) { const node = nodes.current.get(item.node); const base = baselines.current.get(item.node);const offset=offsets.current.get(item.node); if (!node || !base||!offset) continue; const phase=componentDetachmentAt(progress,item.parentAssemblyId,item.animationOrder,localCounts.current.get(item.parentAssemblyId)??1); node.position.copy(base.p).addScaledVector(offset, phase);if(!assemblyIds.has(item.parentAssemblyId)){const stageOffset=offstageOffset(node,item.parentAssemblyId,progress);if(stageOffset)node.position.add(stageOffset);} node.quaternion.copy(base.q); if (item.explodedRotationEuler[1]) node.rotateZ(-item.explodedRotationEuler[1] * phase); node.scale.copy(base.s); }
     const sourceSkin = nodes.current.get('CHASSIS_CORE'); if (sourceSkin) sourceSkin.visible = !cutaway;
     l1Mark('scene-transform-applied',{scrollProgress:progress});
   }, [cutaway, manifest,offstageOffset]);

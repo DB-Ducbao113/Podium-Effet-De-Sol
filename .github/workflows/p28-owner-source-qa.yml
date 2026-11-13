@@ -1,0 +1,52 @@
+name: P2.8 Owner Source QA
+on:
+  push:
+    branches:
+      - feat/engineering-inside-machine-v2
+    paths:
+      - 'tools/cad-first/rebuild_owner_p28.py'
+      - 'tools/cad-first/locate_owner_p28.py'
+      - 'tools/cad-first/audit_assembly_mesh.py'
+      - 'tools/cad-first/test_rebuild_owner_p28.py'
+      - 'tools/cad-first/test_audit_assembly_mesh.py'
+      - 'apps/web/src/dev/assemblyPreview/**'
+      - 'apps/web/src/dev/cadFirstScroll/cadSource.ts'
+      - 'apps/web/src/dev/cadFirstScroll/cadSource.test.ts'
+      - '.github/workflows/p28-owner-source-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  cad-tool-source-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install mesh-only test dependencies
+        run: python -m pip install 'numpy>=1.26,<3' 'trimesh>=4,<5'
+      - name: Validate Python syntax
+        run: python -m compileall -q tools/cad-first/rebuild_owner_p28.py tools/cad-first/locate_owner_p28.py tools/cad-first/run_owner_fullcar_review.py tools/cad-first/record_modelb_p28_browser.py tools/cad-first/audit_assembly_mesh.py tools/cad-first/test_rebuild_owner_p28.py tools/cad-first/test_audit_assembly_mesh.py
+      - name: Test source preservation and synthetic AABB regression
+        run: |
+          python tools/cad-first/test_rebuild_owner_p28.py
+          python tools/cad-first/test_audit_assembly_mesh.py
+  web-source-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install pinned project deps
+        run: npm ci
+      - name: TypeScript
+        run: npm run typecheck --workspace=@peds/web
+      - name: Targeted source tests
+        run: npm test --workspace=@peds/web -- src/dev/assemblyPreview/assemblyPlacement.test.ts src/dev/assemblyPreview/assemblyRegistration.test.ts src/dev/cadFirstScroll/cadSource.test.ts
+      - name: Release build source isolation
+        run: npm run build --workspace=@peds/web
