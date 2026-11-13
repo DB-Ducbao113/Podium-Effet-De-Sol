@@ -85,6 +85,8 @@ def run(args):
         record("OWNER_SOURCE_PROTECTION_UNIT_TESTS","PASS")
         execute([sys.executable,TOOLS/"test_audit_assembly_mesh.py"],timeout=120)
         record("VISUAL_AABB_UNIT_TESTS_SYNTHETIC","PASS")
+        execute([sys.executable,TOOLS/"test_audit_measured_wheel_fit.py"],timeout=90)
+        record("MEASURED_WHEEL_ROTATION_UNIT_TESTS_SYNTHETIC","PASS")
         execute([sys.executable,TOOLS/"assembly_modelb_p28_preflight.py",
                  "--p28-dir",p28,"--quality",args.quality,
                  "--out",out/"source-preflight.json"],timeout=180)
@@ -96,6 +98,10 @@ def run(args):
         execute([npm_exe,"test","--workspace=@peds/web","--",
                  "src/dev/assemblyPreview/assemblyPlacement.test.ts",
                  "src/dev/assemblyPreview/assemblyRegistration.test.ts",
+                 "src/dev/assemblyPreview/assemblyPointPicking.test.ts",
+                 "src/dev/assemblyPreview/assemblyAnchor.test.ts",
+                 "src/dev/assemblyPreview/registrationReviewGate.test.ts",
+                 "src/dev/assemblyPreview/ownerMeasuredFit.test.ts",
                  "src/dev/cadFirstScroll/cadSource.test.ts"],timeout=450)
         record("WEB_SOURCE_TESTS","PASS")
         execute([npm_exe,"run","build","--workspace=@peds/web"],timeout=900)
