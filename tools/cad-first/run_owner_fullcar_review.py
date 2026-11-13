@@ -118,6 +118,13 @@ def run(args):
                  "--p28-dir",p28,"--quality",args.quality,
                  "--out",out/"browser","--url",url],timeout=900)
         record("ACTUAL_BROWSER_CAPTURE","PASS")
+        # Source-verified 18-chapter Model B + front-corner visual walkthrough.
+        # This separate browser video never certifies unseen full-car internals.
+        execute([sys.executable,TOOLS/"record_fullcar_story_review.py",
+                 "--p28-dir",p28,"--quality",args.quality,
+                 "--out",out/"fullcar-story-browser",
+                 "--url","http://127.0.0.1:5184/engineering/full-car-story"],timeout=900)
+        record("FULL_CAR_STORY_BROWSER_CAPTURE","PASS_VISUAL_ONLY_MECHANICAL_G2_HOLD")
         execute([sys.executable,TOOLS/"audit_measured_wheel_fit.py",
                  "--probe",out/"browser"/"peds-modelb-p28-real-geometry.json",
                  "--placement",out/"browser"/"visual-placement-audit.json",
