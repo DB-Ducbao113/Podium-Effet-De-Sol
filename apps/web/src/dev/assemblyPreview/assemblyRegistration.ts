@@ -53,7 +53,9 @@ export function registerOwnerLandmarks(data:RegistrationInput):RegistrationResul
   const quaternion=new THREE.Quaternion().setFromRotationMatrix(rotation).normalize();
   const shift=v3(a.modelBM).sub(v3(a.p28M).applyQuaternion(quaternion));
   let mismatch=0;
-  for(let i=0;i<3;i++)for(let j=i+1;j<3;j++){
+  // Audit every measured pair, not only the three anchors used to build the frame.
+  // A fourth or later mismatched landmark must not silently bypass the length gate.
+  for(let i=0;i<data.landmarks.length;i++)for(let j=i+1;j<data.landmarks.length;j++){
     const left=v3(data.landmarks[i].p28M).distanceTo(v3(data.landmarks[j].p28M));
     const right=v3(data.landmarks[i].modelBM).distanceTo(v3(data.landmarks[j].modelBM));
     mismatch=Math.max(mismatch,Math.abs(left-right));
