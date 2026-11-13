@@ -87,6 +87,22 @@ class RotatedWheelAudit(unittest.TestCase):
         del placement["placement"]
         with self.assertRaisesRegex(ValueError,"offsets missing"):audit(probe,placement)
 
+    def test_invalid_wheel_metrics_do_not_bypass_threshold_checks(self):
+        for field in ("normalizedShellScale","radiusSpreadFraction"):
+            with self.subTest(field=field):
+                probe,placement=fixture()
+                placement["ownerSourceWheelCalibration"][field]=math.nan
+                with self.assertRaises(ValueError):audit(probe,placement)
+        probe,placement=fixture()
+        placement["resolvedOriginalRootTransform"]["modelBShellUnitScale"]=math.nan
+        with self.assertRaises(ValueError):audit(probe,placement)
+        probe,placement=fixture()
+        placement["ownerSourceWheelCalibration"]["wheels"][0]["outerRadiusM"]=math.nan
+        with self.assertRaises(ValueError):audit(probe,placement)
+        probe,placement=fixture()
+        probe["p28"]["subassemblies"]["P2_TYRE_SLICK_BODY"]["sourceBoundsM"][1][0]=math.nan
+        with self.assertRaises(ValueError):audit(probe,placement)
+
     def test_never_promotes_visual_pass_to_mechanical_fit(self):
         probe,placement=fixture()
         result=audit(copy.deepcopy(probe),copy.deepcopy(placement))
