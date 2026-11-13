@@ -42,7 +42,8 @@ post-P2.54 application browser acceptance has not been completed.
    P2.53's wheel-anchored frontend transform.
 3. New `test_audit_measured_wheel_fit.py` covers identity, 90° and
    180° rotation, manual offsets, actual over-5 mm errors, invalid
-   quaternions, invalid/missing offsets, and retention of G2 HOLD.
+   quaternions, invalid/missing offsets, non-finite wheel calibration/tyre
+   profile values, and retention of G2 HOLD.
 4. `run_owner_fullcar_review.py` now runs the seven targeted source
    test files (including P2.52/P2.53/P2.54 regressions), plus the
    native Python wheel-audit tests before attempting real source
@@ -56,7 +57,7 @@ post-P2.54 application browser acceptance has not been completed.
 | Subsequent existing targeted source/TypeScript/build checks | PASS at the earlier P2.54 commit `9ed5073` | Predates final Python correction |
 | Local P2.54 visual-gate numeric checks | **16 PASS** | Small isolated TypeScript module, not whole web app |
 | Local P2.54 visual-gate TypeScript strict compile | **PASS** | Isolated module and matching result type stub |
-| Local Python quaternion-aware audit tests | **7 PASS** | Synthetic geometry/placements, no real owner GLB |
+| Local Python quaternion-aware audit tests | **8 PASS** | Synthetic geometry/placements, no real owner GLB |
 | Python syntax compilation | **PASS** | Isolated Python files |
 | Owner P2.8 original STEP / SHA-matched GLB browser capture | **NOT EXECUTED** | Private source files absent in this runtime |
 | Independent manufacturer hardpoints, STEP shell contact and coupled motion | **NOT PROVED** | G2 HOLD |
