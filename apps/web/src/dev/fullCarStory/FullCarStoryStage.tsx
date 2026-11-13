@@ -83,12 +83,18 @@ function SourceAssembly({model,progress,fit}:{
   const location=useMemo(()=>{
     return fit.frontPositiveZCenterM.map((x,i)=>x-fit.originalP28WheelCenterM[i]) as [number,number,number];
   },[fit]);
+  const restPositions=useMemo(()=>{
+    const originals=new Map<THREE.Mesh,THREE.Vector3>();
+    model.traverse(object=>{
+      if(object instanceof THREE.Mesh)originals.set(object,object.position.clone());
+    });
+    return originals;
+  },[model]);
+  // Only clone materials when the semantic focus CHANGES, never on every
+  // scroll tick. 59 material copies per pointer/scroll frame caused GC jank.
   useEffect(()=>{
-    const originals=new Map<THREE.Mesh,{
-      position:THREE.Vector3; material:THREE.Material|THREE.Material[];
-    }>();
+    const originals=new Map<THREE.Mesh,THREE.Material|THREE.Material[]>();
     const clones:THREE.Material[]=[];
-    const explode=state.index===16?Math.sin(Math.PI*state.blend):0;
     model.traverse(object=>{
       if(!(object instanceof THREE.Mesh))return;
       const type=classifyP28Part(object.name);
@@ -98,32 +104,40 @@ function SourceAssembly({model,progress,fit}:{
         (target==='brake'&&['carbon-brake','caliper','friction-pad','hub'].includes(type))||
         (target==='suspension'&&['suspension','upright'].includes(type))||
         (target==='hardware'&&['hardware','suspension','upright'].includes(type));
-      const detailed=chapter.coverage==='front-corner';
-      originals.set(object,{position:object.position.clone(),material:object.material});
+      const dimmed=chapter.coverage==='front-corner'&&!visibleSystem;
+      originals.set(object,object.material);
       const mats=Array.isArray(object.material)?object.material:[object.material];
       const updated=mats.map(m=>{
         const copy=m.clone();clones.push(copy);
-        copy.transparent=detailed&&!visibleSystem;
-        copy.opacity=detailed&&!visibleSystem?.13:m.opacity;
-        copy.depthWrite=!copy.transparent;
+        copy.transparent=m.transparent||dimmed;
+        copy.opacity=dimmed ? .13 : m.opacity;
+        copy.depthWrite=!dimmed&&m.depthWrite;
         return copy;
       });
       object.material=Array.isArray(object.material)?updated:updated[0];
-      if(explode>0){
-        const offset=presentationForP28Part(object.name,'exploded').offsetM;
-        object.position.addScaledVector(new THREE.Vector3(...offset),explode);
+    });
+    invalidate();
+    return ()=>{
+      originals.forEach((prior,mesh)=>{mesh.material=prior;});
+      clones.forEach(m=>m.dispose());
+      invalidate();
+    };
+  },[model,chapter.partSystem,chapter.coverage,invalidate]);
+  useEffect(()=>{
+    const strength=state.index===16?Math.sin(Math.PI*state.blend):0;
+    restPositions.forEach((original,mesh)=>{
+      mesh.position.copy(original);
+      if(strength>0){
+        const offset=presentationForP28Part(mesh.name,'exploded').offsetM;
+        mesh.position.addScaledVector(new THREE.Vector3(...offset),strength);
       }
     });
     invalidate();
     return ()=>{
-      originals.forEach((prior,mesh)=>{
-        mesh.position.copy(prior.position);
-        mesh.material=prior.material;
-      });
-      clones.forEach(m=>m.dispose());
+      restPositions.forEach((original,mesh)=>mesh.position.copy(original));
       invalidate();
     };
-  },[model,chapter,progress,state.index,state.blend,invalidate]);
+  },[restPositions,state.index,state.blend,invalidate]);
   return <group position={location} scale={1}><primitive object={model}/></group>;
 }
 function Scene({source,measuredFit,progress,onBodyProbe,onCornerProbe,onError,onBodyReady}:Props){
