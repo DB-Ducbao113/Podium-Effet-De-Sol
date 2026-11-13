@@ -227,6 +227,7 @@ export default function AssemblyPreviewPage(){
   return <div className="peds-assembly">
     <header className="peds-assembly-top">
       <Link to="/engineering">PODIUM EDS / ENGINEERING</Link>
+      <Link to="/engineering/full-car-story">18-CHAPTER STORY REVIEW</Link>
       <strong>MODEL B + P2.8 / OWNER SOURCE</strong>
       <span>DEV ONLY · G2 HOLD</span>
     </header>
