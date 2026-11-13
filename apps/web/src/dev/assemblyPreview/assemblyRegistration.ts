@@ -115,7 +115,7 @@ export function registerOwnerLandmarks(data:RegistrationInput):RegistrationResul
     data.targetUnits!=='m'||data.sourceScale!==1||!Array.isArray(data.landmarks)||
     data.landmarks.length<3||data.landmarks.length>50||
     !data.landmarks.every(a=>a&&typeof a.id==='string'&&a.id.trim()&&point(a.p28M)&&point(a.modelBM))||
-    new Set(data.landmarks.map(a=>a.id)).size!==data.landmarks.length||
+    new Set(data.landmarks.map(a=>a.id.trim())).size!==data.landmarks.length||
     typeof data.evidence!=='string'||!data.evidence.trim()){
     throw Error('Invalid landmark data; three unique measured source/target point pairs and evidence required');
   }
