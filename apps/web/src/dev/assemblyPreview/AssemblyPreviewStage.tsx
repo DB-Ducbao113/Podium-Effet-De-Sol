@@ -10,6 +10,7 @@ import { centerOffset, initialStagingPosition, type Placement } from './assembly
 import type { RegistrationResult } from './assemblyRegistration';
 import type { OwnerMeasuredFit } from './ownerMeasuredFit';
 import { probeOriginalGeometry, type SourceGeometryProbe } from './geometryProbe';
+import { canonicalPickedPointM } from './assemblyPointPicking';
 import { classifyP28Part, materialForP28Part, presentationForP28Part, type CornerPresentation } from './cadPresentation';
 
 type Props = {
@@ -301,12 +302,23 @@ function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPre
     const root=target==='modelb'?body:corner;
     if(!root)return;
     event.stopPropagation();
-    // Raycast point is world-space. Convert to the unchanged original GLB root.
-    // Never store a point in the temporary translated/rotated display frame.
+    // Raycast is world-space. Undo the staging transform to reach the native
+    // GLB root. Model B is in nonmetric source units; convert that pick to
+    // display metres using the independently measured wheel normalization.
+    // P2.8 picks remain at CAD scale 1. Exploded mesh positions are rejected.
     root.updateWorldMatrix(true,false);
     const local=root.worldToLocal(event.point.clone());
-    const xyz=local.toArray() as [number,number,number];
-    if(xyz.every(Number.isFinite))onPointPick(target,xyz,event.object.name||'unnamed-mesh');
+    try{
+      const xyz=canonicalPickedPointM(
+        target,
+        local.toArray() as [number,number,number],
+        measuredFit?.normalizedShellScale??null,
+        cornerPresentation,
+      );
+      onPointPick(target,xyz,event.object.name||'unnamed-mesh');
+    }catch(error){
+      onError(error instanceof Error?error.message:String(error));
+    }
   };
   const rotation=useMemo(()=>{
     const euler=new THREE.Euler(...(placement.rotationDeg.map(x=>THREE.MathUtils.degToRad(x)) as [number,number,number]));
