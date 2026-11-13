@@ -24,8 +24,11 @@ describe('owner-specific non-scaled registration',()=>{
   const d=dataset();
   d.landmarks[3].modelBM=[1,2,4.25];
   const r=registerOwnerLandmarks(d);
+  // The all-point least-squares pose distributes a 250 mm outlier across
+  // anchors; its largest residual need not equal the raw input displacement.
+  // Both independent diagnostics must still exceed the 5 mm preview limit.
   expect(r.lengthMismatchM).toBeGreaterThan(.2);
-  expect(r.maxResidualM).toBeGreaterThan(.2);
+  expect(r.maxResidualM).toBeGreaterThan(.005);
   expect(r.anchorResidualM).toHaveLength(4);
   expect(r.validatedForMechanicalFit).toBe(false);
  });
