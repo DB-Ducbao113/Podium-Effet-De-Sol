@@ -9,6 +9,24 @@ import json
 import math
 from pathlib import Path
 
+def _finite_vector(value:object, n:int)->list[float]:
+    if (not isinstance(value,(list,tuple)) or len(value)!=n or
+        any(type(x) not in (int,float) or not math.isfinite(x) for x in value)):
+        raise ValueError("Invalid non-finite placement vector")
+    return [float(x) for x in value]
+
+def _rotate_source_anchor(point:list[float], quat:list[float])->list[float]:
+    # Match Three.js [x,y,z,w] unit-quaternion rigid rotation (no scale).
+    x,y,z,w=quat
+    norm=sum(v*v for v in quat)
+    if abs(norm-1) > 1e-4:
+        raise ValueError("Invalid nonunit CAD rotation quaternion")
+    a,b,c=point
+    tx,ty,tz=2*(y*c-z*b),2*(z*a-x*c),2*(x*b-y*a)
+    return [a+w*tx+y*tz-z*ty,
+            b+w*ty+z*tx-x*tz,
+            c+w*tz+x*ty-y*tx]
+
 def audit(probe:dict,placement:dict)->dict:
     profile=placement.get("ownerSourceWheelCalibration")
     transform=placement.get("resolvedOriginalRootTransform")
@@ -36,11 +54,22 @@ def audit(probe:dict,placement:dict)->dict:
     if max(deviations)>.015:raise ValueError("Tyre envelope error >15 mm; visual mate is inconsistent")
     if profile.get("radiusSpreadFraction",float("inf"))>.09:
         raise ValueError("Original shell tyre radius spread too high")
-    center=profile["frontPositiveZCenterM"]
-    source_center=profile["originalP28WheelCenterM"]
-    actual=transform["translationM"]
-    fit_position_error=math.dist(actual,[a-b for a,b in zip(center,source_center)])
-    if fit_position_error>.005:raise ValueError("P2.8 wheel center not at the measured original front axle")
+    center=_finite_vector(profile["frontPositiveZCenterM"],3)
+    source_center=_finite_vector(profile["originalP28WheelCenterM"],3)
+    actual=_finite_vector(transform["translationM"],3)
+    quat=_finite_vector(transform["rotationQuaternion"],4)
+    user_placement=placement.get("placement")
+    if not isinstance(user_placement,dict):
+        raise ValueError("Browser placement offsets missing from review export")
+    user_offset=_finite_vector(user_placement.get("translationM"),3)
+    rotated=_rotate_source_anchor(source_center,quat)
+    # The rendered wheel center is R * native CAD center + root translation.
+    # The intended center additionally includes the explicit manual offset.
+    fit_position_error=math.dist(
+        [rotated[i]+actual[i] for i in range(3)],
+        [center[i]+user_offset[i] for i in range(3)])
+    if fit_position_error>.005:
+        raise ValueError("P2.8 rotated wheel center not at the measured original front axle")
     if not 2.8<profile["axleSpacingPreviewM"]<3.5:
         raise ValueError("Model B normalized source wheelbase outside review window")
     original_meshes=probe["modelB"]["meshCount"]
