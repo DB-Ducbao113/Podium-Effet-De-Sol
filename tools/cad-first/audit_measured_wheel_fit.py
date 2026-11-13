@@ -15,6 +15,11 @@ def _finite_vector(value:object, n:int)->list[float]:
         raise ValueError("Invalid non-finite placement vector")
     return [float(x) for x in value]
 
+def _finite_scalar(value:object)->float:
+    if type(value) not in (int,float) or not math.isfinite(value):
+        raise ValueError("Invalid non-finite wheel calibration metric")
+    return float(value)
+
 def _rotate_source_anchor(point:list[float], quat:list[float])->list[float]:
     # Match Three.js [x,y,z,w] unit-quaternion rigid rotation (no scale).
     x,y,z,w=quat
@@ -36,10 +41,10 @@ def audit(probe:dict,placement:dict)->dict:
         raise ValueError("P2.8 still staged by graphical center, not wheel-envelope alignment")
     if transform.get("scale")!=1 or profile.get("p28Scale")!=1:
         raise ValueError("Native original P2.8 geometry MUST NOT be rescaled")
-    scale=profile["normalizedShellScale"]
-    if not isinstance(scale,(int,float)) or not .14<scale<.21:
+    scale=_finite_scalar(profile["normalizedShellScale"])
+    if not .14<scale<.21:
         raise ValueError("Unknown original showroom source units")
-    if abs(scale-transform.get("modelBShellUnitScale",0))>1e-7:
+    if abs(scale-_finite_scalar(transform.get("modelBShellUnitScale",0)))>1e-7:
         raise ValueError("Browser displayed a different showroom scale")
     wheels=profile["wheels"]
     if len(wheels)!=4 or {(w["station"],w["side"]) for w in wheels} != {
@@ -47,12 +52,17 @@ def audit(probe:dict,placement:dict)->dict:
         raise ValueError("Four measured original Model B wheel envelopes required")
     if any(w["matchingWheelSamples"]<350 or w["hubSamples"]<100 for w in wheels):
         raise ValueError("Insufficient original source wheel geometry samples")
-    radii=[w["outerRadiusM"] for w in wheels]
-    tyre=probe["p28"]["subassemblies"]["P2_TYRE_SLICK_BODY"]["sourceBoundsM"]
+    radii=[_finite_scalar(w["outerRadiusM"]) for w in wheels]
+    tyre_raw=probe["p28"]["subassemblies"]["P2_TYRE_SLICK_BODY"]["sourceBoundsM"]
+    if not isinstance(tyre_raw,(list,tuple)) or len(tyre_raw)!=2:
+        raise ValueError("Original tyre source bounds missing")
+    tyre=[_finite_vector(row,3) for row in tyre_raw]
     tyre_radius=max((tyre[1][i]-tyre[0][i])/2 for i in (0,1))
+    if tyre_radius<=0:raise ValueError("Invalid original tyre radius")
     deviations=[abs(x-tyre_radius) for x in radii]
     if max(deviations)>.015:raise ValueError("Tyre envelope error >15 mm; visual mate is inconsistent")
-    if profile.get("radiusSpreadFraction",float("inf"))>.09:
+    spread=_finite_scalar(profile.get("radiusSpreadFraction",float("inf")))
+    if spread<0 or spread>.09:
         raise ValueError("Original shell tyre radius spread too high")
     center=_finite_vector(profile["frontPositiveZCenterM"],3)
     source_center=_finite_vector(profile["originalP28WheelCenterM"],3)
