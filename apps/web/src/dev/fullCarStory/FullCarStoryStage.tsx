@@ -68,7 +68,10 @@ function CameraRig({bounds,progress}:{
     camera.position.copy(focal).addScaledVector(orbit,radius);
     camera.lookAt(focal);
     if(camera instanceof THREE.PerspectiveCamera||camera instanceof THREE.OrthographicCamera){
+      // Rendering camera is mutable by Three.js contract after React commit.
+      // eslint-disable-next-line react-hooks/immutability
       camera.near=Math.max(.001,radius/1000);
+      // eslint-disable-next-line react-hooks/immutability
       camera.far=Math.max(100,radius*100);
       camera.updateProjectionMatrix();
     }
