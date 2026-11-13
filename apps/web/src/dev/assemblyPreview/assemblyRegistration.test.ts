@@ -83,6 +83,20 @@ describe('owner-specific non-scaled registration',()=>{
   d.landmarks[3].p28M=[1e150,0,0];
   expect(()=>registerOwnerLandmarks(d)).toThrow(/Invalid landmark data/);
  });
+ it('rejects a reflected source even when all pairwise lengths are unchanged',()=>{
+  const d=dataset();
+  d.landmarks=d.landmarks.map(p=>({
+    ...p,modelBM:[1+p.p28M[0],2+p.p28M[1],3-p.p28M[2]] as [number,number,number],
+  }));
+  const r=registerOwnerLandmarks(d);
+  expect(r.lengthMismatchM).toBeLessThan(1e-8);
+  expect(r.maxResidualM).toBeGreaterThan(.005);
+  expect(r.validatedForMechanicalFit).toBe(false);
+ });
+ it('rejects duplicated landmark IDs after whitespace normalization',()=>{
+  const d=dataset();d.landmarks[2].id='  axle  ';
+  expect(()=>registerOwnerLandmarks(d)).toThrow(/unique/);
+ });
  it('rejects absent provenance',()=>{
   const d=dataset();d.evidence='';
   expect(()=>registerOwnerLandmarks(d)).toThrow(/evidence/);
