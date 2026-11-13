@@ -7,6 +7,7 @@ import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment
 import * as THREE from 'three';
 import type { CadSource } from '../cadFirstScroll/cadSource';
 import { centerOffset, initialStagingPosition, type Placement } from './assemblyPlacement';
+import { anchoredSourceTranslation } from './assemblyAnchor';
 import type { RegistrationResult } from './assemblyRegistration';
 import type { OwnerMeasuredFit } from './ownerMeasuredFit';
 import { probeOriginalGeometry, type SourceGeometryProbe } from './geometryProbe';
@@ -193,6 +194,36 @@ function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPre
     return new THREE.Box3().setFromObject(body);
   },[body,measuredFit,shellScale]);
   const cornerBounds=useMemo(()=>corner?new THREE.Box3().setFromObject(corner):null,[corner]);
+  const rotation=useMemo(()=>{
+    const euler=new THREE.Euler(...(placement.rotationDeg.map(x=>THREE.MathUtils.degToRad(x)) as [number,number,number]));
+    const manual=new THREE.Quaternion().setFromEuler(euler);
+    if(!registration)return manual;
+    const q=new THREE.Quaternion(...registration.rotationQuaternion);
+    return q.multiply(manual);
+  },[placement.rotationDeg,registration]);
+  const transform=useMemo(()=>{
+    if(registration)return new THREE.Vector3(...registration.translationM).add(new THREE.Vector3(...placement.translationM));
+    if(measuredFit && measuredOverlayEnabled){
+      // Keep the original CAD wheel center fixed on the measured Model B wheel
+      // even when preview rotation is applied around the P2.8 root origin.
+      const translation=anchoredSourceTranslation(
+        measuredFit.frontPositiveZCenterM,
+        measuredFit.originalP28WheelCenterM,
+        rotation.toArray() as [number,number,number,number],
+        placement.translationM,
+      );
+      return new THREE.Vector3(...translation);
+    }
+    if(!bodyBounds||!cornerBounds)return new THREE.Vector3();
+    const bodyMin=bodyBounds.min.toArray() as [number,number,number];
+    const bodyMax=bodyBounds.max.toArray() as [number,number,number];
+    const cornerMin=cornerBounds.min.toArray() as [number,number,number];
+    const base=placement.displayedAtBodyCenter
+      ? centerOffset(bodyBounds.getCenter(new THREE.Vector3()).toArray() as [number,number,number],
+          cornerBounds.getCenter(new THREE.Vector3()).toArray() as [number,number,number])
+      : initialStagingPosition(bodyMin,bodyMax,cornerMin);
+    return new THREE.Vector3(...base).add(new THREE.Vector3(...placement.translationM));
+  },[bodyBounds,cornerBounds,placement,registration,measuredFit,measuredOverlayEnabled,rotation]);
   const frame=useMemo(()=>{
     if(!bodyBounds)return {target:new THREE.Vector3(),distance:6};
     const size=bodyBounds.getSize(new THREE.Vector3());
@@ -202,7 +233,8 @@ function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPre
   const focus=useMemo(()=>{
     if(cameraFocus==='whole-car'||!measuredFit||!measuredOverlayEnabled)
       return {target:frame.target,distance:frame.distance};
-    const center=new THREE.Vector3(...measuredFit.frontPositiveZCenterM);
+    const center=new THREE.Vector3(...measuredFit.originalP28WheelCenterM)
+      .applyQuaternion(rotation).add(transform);
     if(cameraFocus==='fastener-macro'){
       // Isolated original parts are framed at THEIR own native mesh bounds.
       const partBounds=selectedPart&&p28GeometryProfile?.subassemblies[selectedPart]?.sourceBoundsM;
@@ -211,11 +243,11 @@ function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPre
         // any R3F scene placement or visual explosion. No double transforms.
         const bounds=new THREE.Box3(new THREE.Vector3(...partBounds[0]),
                                    new THREE.Vector3(...partBounds[1]));
-        const position=bounds.getCenter(new THREE.Vector3())
-          .sub(new THREE.Vector3(...measuredFit.originalP28WheelCenterM))
-          .add(new THREE.Vector3(...presentationForP28Part(selectedPart,cornerPresentation).offsetM));
+        const partCenter=bounds.getCenter(new THREE.Vector3())
+          .add(new THREE.Vector3(...presentationForP28Part(selectedPart,cornerPresentation).offsetM))
+          .applyQuaternion(rotation).add(transform);
         const distance=Math.max(.58,Math.min(1.9,bounds.getSize(new THREE.Vector3()).length()*3.2));
-        return {target:center.clone().add(position),distance};
+        return {target:partCenter,distance};
       }
       return {target:center,distance:1.28};
     }
@@ -224,7 +256,7 @@ function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPre
     if(cornerPresentation==='mechanism-core')
       return {target:center,distance:1.75};
     return {target:center,distance:2.05};
-  },[cameraFocus,frame,measuredFit,measuredOverlayEnabled,selectedPart,cornerPresentation,p28GeometryProfile]);
+  },[cameraFocus,frame,measuredFit,measuredOverlayEnabled,selectedPart,cornerPresentation,p28GeometryProfile,rotation,transform]);
   useEffect(()=>{
     camera.position.copy(focus.target).add(new THREE.Vector3(.75,.4,1.55).normalize().multiplyScalar(focus.distance));
     camera.lookAt(focus.target);
@@ -280,23 +312,7 @@ function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPre
       invalidate();
     };
   },[corner,selectedPart,cornerPresentation,invalidate]);
-  const transform=useMemo(()=>{
-    if(registration)return new THREE.Vector3(...registration.translationM).add(new THREE.Vector3(...placement.translationM));
-    if(measuredFit && measuredOverlayEnabled){
-      return new THREE.Vector3(...measuredFit.frontPositiveZCenterM)
-        .sub(new THREE.Vector3(...measuredFit.originalP28WheelCenterM))
-        .add(new THREE.Vector3(...placement.translationM));
-    }
-    if(!bodyBounds||!cornerBounds)return new THREE.Vector3();
-    const bodyMin=bodyBounds.min.toArray() as [number,number,number];
-    const bodyMax=bodyBounds.max.toArray() as [number,number,number];
-    const cornerMin=cornerBounds.min.toArray() as [number,number,number];
-    const base=placement.displayedAtBodyCenter
-      ? centerOffset(bodyBounds.getCenter(new THREE.Vector3()).toArray() as [number,number,number],
-          cornerBounds.getCenter(new THREE.Vector3()).toArray() as [number,number,number])
-      : initialStagingPosition(bodyMin,bodyMax,cornerMin);
-    return new THREE.Vector3(...base).add(new THREE.Vector3(...placement.translationM));
-  },[bodyBounds,cornerBounds,placement,registration,measuredFit,measuredOverlayEnabled]);
+
   const pickSurface=(target:'modelb'|'p28',event:ThreeEvent<PointerEvent>)=>{
     if(pickMode!==target)return;
     const root=target==='modelb'?body:corner;
@@ -320,13 +336,7 @@ function Scene({source,placement,shellOpacity,selectedPart,cameraFocus,cornerPre
       onError(error instanceof Error?error.message:String(error));
     }
   };
-  const rotation=useMemo(()=>{
-    const euler=new THREE.Euler(...(placement.rotationDeg.map(x=>THREE.MathUtils.degToRad(x)) as [number,number,number]));
-    const manual=new THREE.Quaternion().setFromEuler(euler);
-    if(!registration)return manual;
-    const q=new THREE.Quaternion(...registration.rotationQuaternion);
-    return q.multiply(manual);
-  },[placement.rotationDeg,registration]);
+
   useEffect(()=>{
     if(!bodyBounds||!cornerBounds||!corner)return;
     onResolvedTransform({
