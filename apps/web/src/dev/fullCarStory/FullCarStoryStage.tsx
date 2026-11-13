@@ -148,6 +148,7 @@ function SourceAssembly({model,progress,fit}:{
 function Scene({source,measuredFit,progress,onBodyProbe,onCornerProbe,onError,onBodyReady}:Props){
   const {invalidate}=useThree();
   const [body,setBody]=useState<THREE.Group|null>(null);
+  const [bodySourceBounds,setBodySourceBounds]=useState<SourceGeometryProbe['sourceBoundsM']|null>(null);
   const [corner,setCorner]=useState<THREE.Group|null>(null);
   useEffect(()=>{
     let live=true,instance:THREE.Group|null=null;
@@ -157,10 +158,11 @@ function Scene({source,measuredFit,progress,onBodyProbe,onCornerProbe,onError,on
       if(!live){disposeTree(instance);return;}
       try{
         const profile=probeOriginalGeometry(instance,'model-b');
+        setBodySourceBounds(profile.sourceBoundsM);
         onBodyProbe(profile);setBody(instance);onBodyReady();invalidate();
       }catch(e){onError('Model B geometry: '+String(e));disposeTree(instance);instance=null;}
     },undefined,e=>{if(live)onError('Model B load failed: '+String(e));});
-    return()=>{live=false;setBody(null);if(instance)disposeTree(instance);};
+    return()=>{live=false;setBody(null);setBodySourceBounds(null);if(instance)disposeTree(instance);};
   },[onBodyProbe,onBodyReady,onError,invalidate]);
   useEffect(()=>{
     let live=true,instance:THREE.Group|null=null;
@@ -186,12 +188,15 @@ function Scene({source,measuredFit,progress,onBodyProbe,onCornerProbe,onError,on
   },[source,onCornerProbe,onError,invalidate]);
   const displayScale=measuredFit?.normalizedShellScale??1;
   const bounds=useMemo(()=>{
-    if(!body)return null;
-    const box=new THREE.Box3().setFromObject(body);
-    box.min.multiplyScalar(displayScale);
-    box.max.multiplyScalar(displayScale);
-    return box;
-  },[body,displayScale]);
+    if(!body||!bodySourceBounds)return null;
+    // Root-native decoded geometry bounds are stable across R3F attachment.
+    // setFromObject(body) after mounting includes the scene parent scale and
+    // can double-scale a camera focus when metric wheel calibration arrives.
+    return new THREE.Box3(
+      new THREE.Vector3(...bodySourceBounds[0]).multiplyScalar(displayScale),
+      new THREE.Vector3(...bodySourceBounds[1]).multiplyScalar(displayScale),
+    );
+  },[body,bodySourceBounds,displayScale]);
   const chapter=STORY_CHAPTERS[storyAtProgress(progress).index];
   const light=chapter.light;
   return <>
