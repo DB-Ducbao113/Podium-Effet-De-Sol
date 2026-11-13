@@ -122,7 +122,9 @@ export default function AssemblyPreviewPage(){
   };
   const importLandmarks=async(event:ChangeEvent<HTMLInputElement>)=>{
     const file=event.target.files?.[0];if(!file)return;
-    setError('');setRegistration(null);
+    // A failed replacement must not retain a previously accepted transform.
+    setError('');setRegistration(null);setRegistrationEvidence('');
+    setResolvedTransform(null);setPlacement(INITIAL_PLACEMENT);
     try{
       if(!source)throw Error('Load original P2.8 before registration');
       if(file.size>1024*1024)throw Error('Landmark file too large');
@@ -146,7 +148,9 @@ export default function AssemblyPreviewPage(){
     setInfo('OWNER PICKED PAIR RECORDED · PHYSICAL CORRESPONDENCE NOT CERTIFIED');
   };
   const registerPickedPairs=()=>{
-    setError('');
+    // Fail closed if these picked points cannot form a valid measured rigid fit.
+    setError('');setRegistration(null);setRegistrationEvidence('');
+    setResolvedTransform(null);setPlacement(INITIAL_PLACEMENT);
     try{
       if(!source)throw Error('P2.8 source is missing');
       const data:RegistrationInput={
