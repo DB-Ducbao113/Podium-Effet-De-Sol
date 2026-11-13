@@ -4,8 +4,10 @@ import {canonicalPickedPointM} from './assemblyPointPicking';
 describe('P2.52 owner source point-picking coordinate contract',()=>{
   it('converts Model B native showroom units into root-local metres once',()=>{
     const original:[number,number,number]=[10,-2,5];
-    expect(canonicalPickedPointM('modelb',original,.18,'assembled'))
-      .toEqual([1.7999999999999998,-.36,.8999999999999999]);
+    const point=canonicalPickedPointM('modelb',original,.18,'assembled');
+    expect(point[0]).toBeCloseTo(1.8,12);
+    expect(point[1]).toBeCloseTo(-.36,12);
+    expect(point[2]).toBeCloseTo(.9,12);
     // Neither the original point nor Model B source geometry can be mutated.
     expect(original).toEqual([10,-2,5]);
   });
