@@ -67,9 +67,11 @@ function CameraRig({bounds,progress}:{
     );
     camera.position.copy(focal).addScaledVector(orbit,radius);
     camera.lookAt(focal);
-    camera.near=Math.max(.001,radius/1000);
-    camera.far=Math.max(100,radius*100);
-    camera.updateProjectionMatrix();
+    if(camera instanceof THREE.PerspectiveCamera||camera instanceof THREE.OrthographicCamera){
+      camera.near=Math.max(.001,radius/1000);
+      camera.far=Math.max(100,radius*100);
+      camera.updateProjectionMatrix();
+    }
     invalidate();
   },[bounds,progress,camera,invalidate,size.width,size.height]);
   return null;
