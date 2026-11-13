@@ -75,6 +75,7 @@ export default function AssemblyPreviewPage(){
   const onPointPick=useCallback((target:'modelb'|'p28',point:[number,number,number],mesh:string)=>{
     if(target==='modelb')setPickedBody(point);
     else setPickedCorner(point);
+    setError('');
     setPickMode('off');
     setInfo(`SELECTED ${target.toUpperCase()} / ${mesh} · local metres`);
   },[]);
@@ -127,8 +128,11 @@ export default function AssemblyPreviewPage(){
     setResolvedTransform(null);setPlacement(INITIAL_PLACEMENT);
     try{
       if(!source)throw Error('Load original P2.8 before registration');
+      if(!calibration.fit)throw Error('Original Model B metric wheel calibration must pass before registration');
       if(file.size>1024*1024)throw Error('Landmark file too large');
       const data=JSON.parse(await file.text()) as RegistrationInput;
+      if(data.evidence?.trim()==='UNVERIFIED_SURFACE_PICK')
+        throw Error('Imported landmarks need documented corresponding physical features, not provisional picks');
       const result=registerOwnerLandmarks(data);
       // Project preview tolerance, NOT a validated manufacturing allowance.
       if(result.lengthMismatchM>.005||result.maxResidualM>.005){
@@ -141,7 +145,7 @@ export default function AssemblyPreviewPage(){
     }catch(err){setError(String(err));}finally{event.target.value='';}
   };
   const addLandmarkPair=()=>{
-    if(!pickedBody||!pickedCorner)return;
+    if(!calibration.fit||cornerPresentation==='exploded'||!pickedBody||!pickedCorner)return;
     const id='OWNER_PAIR_'+String(draftLandmarks.length+1).padStart(2,'0');
     setDraftLandmarks(items=>[...items,{id,modelBM:pickedBody,p28M:pickedCorner}]);
     setPickedBody(null);setPickedCorner(null);setRegistration(null);
@@ -153,6 +157,7 @@ export default function AssemblyPreviewPage(){
     setResolvedTransform(null);setPlacement(INITIAL_PLACEMENT);
     try{
       if(!source)throw Error('P2.8 source is missing');
+      if(!calibration.fit)throw Error('Original Model B metric wheel calibration must pass before registration');
       const data:RegistrationInput={
         schema:'podium-eds.modelb-p28.landmarks.v1',
         sourceUnits:'m',targetUnits:'m',sourceScale:1,
@@ -269,7 +274,7 @@ export default function AssemblyPreviewPage(){
           </div>
           <p>Verified decoded geometry, before any placement:</p>
           <small>Model B: {bodyProbe?.vertexCount.toLocaleString()??'loading'} vertices,
-            {bodyProbe?.meshCount??'—'} mesh; raw bounds {bodyProbe?.sourceBoundsM.map(a=>a.map(v=>v.toFixed(3)).join(',')).join(' → ')??'—'} m</small>
+            {bodyProbe?.meshCount??'—'} mesh; raw bounds {bodyProbe?.sourceBoundsM.map(a=>a.map(v=>v.toFixed(3)).join(',')).join(' → ')??'—'} source units (not metres)</small>
           <small>P2.8: {cornerProbe?.vertexCount.toLocaleString()??'not imported'} vertices,
             {cornerProbe?.meshCount??'—'} mesh; tyre bounds {
               cornerProbe?.subassemblies['P2_TYRE_SLICK_BODY']?.sourceBoundsM.map(a=>a.map(v=>v.toFixed(3)).join(',')).join(' → ')??'—'
@@ -302,7 +307,10 @@ export default function AssemblyPreviewPage(){
           </label>
           <label>CAD assembly presentation
             <select aria-label="CAD assembly presentation" value={cornerPresentation}
-              disabled={!source} onChange={e=>setCornerPresentation(e.target.value as typeof cornerPresentation)}>
+              disabled={!source} onChange={e=>{
+                setCornerPresentation(e.target.value as typeof cornerPresentation);
+                setPickMode('off');setPickedCorner(null);
+              }}>
               <option value="assembled">Original assembled source pose</option>
               <option value="tyre-hidden">Remove tyre from VIEW only</option>
               <option value="mechanism-core">Brake + hub core (hide tyre and rim visually)</option>
@@ -348,34 +356,34 @@ export default function AssemblyPreviewPage(){
             <p>Pick corresponding points on the REAL mesh surfaces. These are manual
               graphics annotations, not automatically identified mechanical hardpoints.</p>
             <div className="peds-assembly-actions">
-              <button type="button" disabled={!source}
+              <button type="button" disabled={!source||cornerPresentation==='exploded'}
                 aria-pressed={pickMode==='p28'}
                 onClick={()=>setPickMode('p28')}>PICK P2.8 POINT</button>
-              <button type="button" disabled={!source}
+              <button type="button" disabled={!source||!calibration.fit}
                 aria-pressed={pickMode==='modelb'}
                 onClick={()=>setPickMode('modelb')}>PICK MODEL B POINT</button>
             </div>
             <small>{pickMode==='off'?'Selection idle':`CLICK ON ${pickMode.toUpperCase()} MESH IN THE 3D VIEW`}</small>
-            <small>P2.8 local: {pickedCorner?.map(v=>v.toFixed(4)).join(', ')??'not picked'} m</small>
-            <small>Model B local: {pickedBody?.map(v=>v.toFixed(4)).join(', ')??'not picked'} m</small>
-            <button type="button" disabled={!pickedBody||!pickedCorner} onClick={addLandmarkPair}>ADD CORRESPONDING PAIR</button>
-            <small>{draftLandmarks.length} point pairs (minimum 3 non-collinear)</small>
+            <small>P2.8 original root-local: {pickedCorner?.map(v=>v.toFixed(4)).join(', ')??'not picked'} m</small>
+            <small>Model B normalized root-local: {pickedBody?.map(v=>v.toFixed(4)).join(', ')??'not picked'} m</small>
+            <button type="button" disabled={!calibration.fit||cornerPresentation==='exploded'||!pickedBody||!pickedCorner} onClick={addLandmarkPair}>ADD CORRESPONDING PAIR</button>
+            <small>{draftLandmarks.length} point pairs (minimum 3 non-collinear). Model B picking requires successful wheel calibration; P2.8 picking is disabled during exploded offsets.</small>
             <label>Measurement provenance / feature identification
               <input type="text" value={landmarkEvidence} onChange={e=>setLandmarkEvidence(e.target.value)}
                 placeholder="Identify each corresponding mechanical landmark"/>
             </label>
             <div className="peds-assembly-actions">
-              <button type="button" disabled={draftLandmarks.length<3||!landmarkEvidence.trim()}
+              <button type="button" disabled={!calibration.fit||draftLandmarks.length<3||!landmarkEvidence.trim()}
                 onClick={registerPickedPairs}>RIGID FIT / NO SCALE</button>
               <button type="button" disabled={!draftLandmarks.length}
                 onClick={exportPickedPairs}>EXPORT POINT PAIRS</button>
             </div>
             <button type="button" disabled={!draftLandmarks.length}
-              onClick={()=>{setDraftLandmarks([]);setPickedBody(null);setPickedCorner(null);setRegistration(null);}}>
+              onClick={()=>{setDraftLandmarks([]);setPickedBody(null);setPickedCorner(null);setRegistration(null);setRegistrationEvidence('');setResolvedTransform(null);setPlacement(INITIAL_PLACEMENT);}}>
               CLEAR MEASURED PAIRS</button>
           </div>
           <label>Measured source / target landmarks (.json)
-            <input type="file" accept=".json,application/json" disabled={!source}
+            <input type="file" accept=".json,application/json" disabled={!source||!calibration.fit}
               onChange={e=>{void importLandmarks(e);}}/>
           </label>
           <small>Optional measured rigid placement: 3+ unique 3D point pairs in metres (P2.8 GLB-local → Model B-local). Rejects scale mismatch over 5 mm. No hardpoints are invented.</small>
