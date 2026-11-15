@@ -1,33 +1,33 @@
 # PODIUM EFFET DE SOL — MODEL B → FULL CAR CAD → ASSEMBLY → GLB → THREE.JS + ANIME.JS → REAL VIDEO
 
-**Master execution plan v1.0 — 2026-11-15.** Work branch: \`feat/engineering-inside-machine-v2\`. Scope: an original, source-tracked, very detailed 2026-era F1 engineering concept **wrapped by the owner's existing Model B shell**, NOT an OEM-approved or race-safe vehicle. **This document specifies work; it does not certify that work has happened.** Never merge/deploy without owner signoff. The previous \`P2.54/54\` is a closed **patch sequence**, not completed full-car geometry. The previous 176-body full-car V1 was visually rejected; do not use it as the silhouette authority.
+**Master execution plan v1.0 — 2026-11-15.** Work branch: `feat/engineering-inside-machine-v2`. Scope: an original, source-tracked, very detailed 2026-era F1 engineering concept **wrapped by the owner's existing Model B shell**, NOT an OEM-approved or race-safe vehicle. **This document specifies work; it does not certify that work has happened.** Never merge/deploy without owner signoff. The previous `P2.54/54` is a closed **patch sequence**, not completed full-car geometry. The previous 176-body full-car V1 was visually rejected; do not use it as the silhouette authority.
 
 ## 0. Definition of done — exact requested outcome
 
 The final visual product is **one coherent Model B-based F1**, with preserved exterior identity, complete per-system *authored* CAD in STEP plus parametric source, correct four-corner interfaces and mechanical hierarchy, small hardware on actual host components, source-tracked high/medium/low GLBs, consistent materials, deterministic scroll-driven disassembly/reassembly, a live site and **a real browser-recorded 0→100→0 walkthrough**. No cosmetic cylinders or unexplained dots standing in for threads, bearings, interfaces or missing pieces. Conceptual internals not available from authentic OEM sources must be made as **clearly labeled educational designs**, not presented as measured manufacturer internals.
 
-Success requires all gates G00–G14, not a count of batches. A software build can PASS while mechanical G06/G07 remains HOLD. The final owner-visible review must show **the entire car**, not one wheel or a demo overlay.
+Success requires all gates G00–G15, not a count of batches. A software build can PASS while mechanical G06/G07 remains HOLD. The final owner-visible review must show **the entire car**, not one wheel or a demo overlay.
 
 ### Source-of-truth facts from the existing repository (audited, not a completion claim)
 
-- Existing exterior: \`apps/web/public/models/model-b-eds-optimized-v1.glb\`; original, nonmetric showroom coordinates. Preserve the file's hash and visible silhouette. Its current source geometry is about 27.79 raw units longitudinal. Before claiming metric dimensions, solve a documented coordinate transform and calibrated scale.
-- Existing mechanical evidence: P2.8 59 STEP solids, **one front-corner assembly**, original owner manifest and three SHA-matched GLB LODs. Source rebuild scripts live in \`tools/cad-first\`. Its static audit was limited to a neutral pose; upright load path and coupled suspension motion remain OPEN. Do not multiply 59×4 and call that four engineered corners.
+- Existing exterior: `apps/web/public/models/model-b-eds-optimized-v1.glb`; original, nonmetric showroom coordinates. Preserve the file's hash and visible silhouette. Its current source geometry is about 27.79 raw units longitudinal. Before claiming metric dimensions, solve a documented coordinate transform and calibrated scale.
+- Existing mechanical evidence: P2.8 59 STEP solids, **one front-corner assembly**, original owner manifest and three SHA-matched GLB LODs. Source rebuild scripts live in `tools/cad-first`. Its static audit was limited to a neutral pose; upright load path and coupled suspension motion remain OPEN. Do not multiply 59×4 and call that four engineered corners.
 - P2.9 19-part joint is an independently built prototype, **not yet mated**. The old 176-solid full-car V1 was **OWNER REJECTED**.
-- Existing DEV tools: \`/engineering/assembly-preview\`, \`/engineering/cad-lab\`, \`/engineering/full-car-story\`. The latter has 18 **visual** chapters, not 18 fully authored CAD modules. The existing browser evidence job has had timeout on screenshot, despite passing software lint/typecheck/tests/build on its last reviewed commit.
+- Existing DEV tools: `/engineering/assembly-preview`, `/engineering/cad-lab`, `/engineering/full-car-story`. The latter has 18 **visual** chapters, not 18 fully authored CAD modules. The existing browser evidence job has had timeout on screenshot, despite passing software lint/typecheck/tests/build on its last reviewed commit.
 - The prior owner's reference video's core style is one pinned hero model, reversible scroll animation, dark/light technical chapters, detailed macro assemblies and exact reassembly. Keep the current rebuild typography/visual direction; avoid copying the reference website's copyrighted assets.
 
 ### 2026 rule/version lock
 
-Read and record the applicable **FIA 2026 F1 Regulations, Section C Technical, Issue 21 dated 2026-10-19** from the FIA regulations hub: https://www.fia.com/regulation/category/2182. In the dimensional worksheet record exact **article, version and permitted interval** for each constraint. The 2026 high-level direction includes a shorter car (wheelbase up to ~3,400 mm), narrower overall envelope (~1,900 mm), 18-inch wheels, narrower tyres, active front/rear aero, flatter floor than 2022–25 deep tunnels, turbo V6 + MGU-K + energy store and **no MGU-H**. These are **reference targets subject to checking against Issue 21**, not a certification of Model B compliance. If the pre-existing Model B violates a rule, mark the concept \`VISUAL-2026-INSPIRED / REGULATION-MISMATCH\`, do not silently distort it or claim FIA legality.
+Read and record the applicable **FIA 2026 F1 Regulations, Section C Technical, Issue 21 dated 2026-10-19** from the FIA regulations hub: https://www.fia.com/regulation/category/2182. In the dimensional worksheet record exact **article, version and permitted interval** for each constraint. The 2026 high-level direction includes a shorter car (wheelbase up to ~3,400 mm), narrower overall envelope (~1,900 mm), 18-inch wheels, narrower tyres, active front/rear aero, flatter floor than 2022–25 deep tunnels, turbo V6 + MGU-K + energy store and **no MGU-H**. These are **reference targets subject to checking against Issue 21**, not a certification of Model B compliance. If the pre-existing Model B violates a rule, mark the concept `VISUAL-2026-INSPIRED / REGULATION-MISMATCH`, do not silently distort it or claim FIA legality.
 
 ## 1. Fixed workflow, dataset schema, software layout
 
-**Canonical engineering coordinates:** metres in runtime, millimetres in source STEP authoring. Canonical CAD frame: +X forward, +Y left, +Z up. Model B native frame may be +X longitudinal, +Y vertical, +Z lateral; the exact signs/front/up/handedness MUST be measured from the source GLB, not assumed. Transform \`T_modelB_source_to_cad\` is immutable, invertible and independently checked on four wheel centers, origin and axles. All GLBs record mm→m conversion and keep root scaling 1 in the final assembly.
+**Canonical engineering coordinates:** metres in runtime, millimetres in source STEP authoring. Canonical CAD frame: +X forward, +Y left, +Z up. Model B native frame may be +X longitudinal, +Y vertical, +Z lateral; the exact signs/front/up/handedness MUST be measured from the source GLB, not assumed. Transform `T_modelB_source_to_cad` is immutable, invertible and independently checked on four wheel centers, origin and axles. All GLBs record mm→m conversion and keep root scaling 1 in the final assembly.
 
-**Every part record** must have: \`partId\`, \`assemblyId\`, \`parentId\`, \`system\`, \`side\`, \`station\`, \`sourceKind\` (MODEL_B/PROJECT_CAD/ILLUSTRATIVE_RESEARCH), \`sourcePath\`, \`sourceSHA256\`, \`STEPsolidId\`, \`displayNode\`, \`nativeUnits\`, \`restTransform\`, \`pivotTransform\`, \`hardpoints[]\`, \`mates[]\`, \`contactExceptions[]\`, \`materialClass\`, \`LOD[3]\`, \`animationRole\`, \`verification\`, \`referenceAndRights\`. Pins, clips and bolts each have a **real host hole/seat** and a joint/contact relationship.
+**Every part record** must have: `partId`, `assemblyId`, `parentId`, `system`, `side`, `station`, `sourceKind` (MODEL_B/PROJECT_CAD/ILLUSTRATIVE_RESEARCH), `sourcePath`, `sourceSHA256`, `STEPsolidId`, `displayNode`, `nativeUnits`, `restTransform`, `pivotTransform`, `hardpoints[]`, `mates[]`, `contactExceptions[]`, `materialClass`, `LOD[3]`, `animationRole`, `verification`, `referenceAndRights`. Pins, clips and bolts each have a **real host hole/seat** and a joint/contact relationship.
 
 **Tree at build output**:
-\`\`\`
+```
 FULL_CAR_ROOT
   MODEL_B_EXTERIOR (unchanged original GLB + non-destructive visibility masks)
   FRONT_AERO
@@ -39,23 +39,23 @@ FULL_CAR_ROOT
   REAR_LEFT / REAR_RIGHT (wheels, brakes, suspension)
   FLOOR_DIFFUSER / REAR_AERO
   FASTENER_REGISTRY / CABLE_AND_FLUID_RUNS
-\`\`\`
+```
 
 **Project source layout** (create gradually, use scripts in repo instead of parallel duplicate pipelines):
-\`\`\`
+```
 tools/fullcar/{source_audit,dimensions,modelb_frames,cad,interfaces,assembly,
                kinematics,collision,lod,manifest,qa,render}/
 .local-assets/fullcar/{inputs,work,step,glb,reports,shots,video}/  # private
 docs/engineering/fullcar/{sources,dimensions,interfaces,ledger,acceptance}/
 apps/web/src/dev/fullcar/{loader,rig,scroll,materials,ui,qa}/
-\`\`\`
+```
 Master source remains immutable; generated intermediates never overwrite owner files; no third-party licensed geometry is copied into public assets. SHA256 and deterministic generator inputs are retained at every transfer.
 
 **Every work packet closes only with** (1) real artifact/source, (2) parent/scale/mate record, (3) reproducible command, (4) automated test, (5) visual screenshot/turntable when relevant, (6) named blocking defects and result PASS/HOLD/FAIL. Failed or absent evidence => HOLD; no invented completion percentages.
 
 ## 2. Full dependency graph and hard gates
 
-\`\`\`
+```
 G00 source/audit ─→ G01 2026+scale reference ─→ G02 Model B measured interfaces
                                                ├─→ G03 external clay & sub-panels
                                                ├─→ G04 front corners/steering
@@ -65,7 +65,7 @@ G00 source/audit ─→ G01 2026+scale reference ─→ G02 Model B measured int
 G07 ─→ G08 mechanical QA (static + coupled motion) ─→ G09 macro/detail QA
 G09 ─→ G10 LOD/GLB/manifest ─→ G11 scene integration/materials
 G11 ─→ G12 scroll/Anime.js ─→ G13 browser perf + full video ─→ G14 owner acceptance
-\`\`\`
+```
 
 **Allowed overlap:** CAD detail designers may work on different systems once the frame/hardpoint interface sheet is LOCKED. No team may invent mount coordinates independently. Three.js staging/scroll code may be prepared in parallel, but no final full-car animation approval before full source CAD exists.
 
@@ -73,28 +73,28 @@ G11 ─→ G12 scroll/Anime.js ─→ G13 browser perf + full video ─→ G14 o
 
 ## 3. G00 — Baseline lock, restore and evidence inventory (12 packets)
 
-- **B00.01:** Identify active Git branch, commit SHA, dirty changes, reference assets and DEV vs production routes. Output \`baseline.json\`; reject repo mismatch (especially F1-Overview).
+- **B00.01:** Identify active Git branch, commit SHA, dirty changes, reference assets and DEV vs production routes. Output `baseline.json`; reject repo mismatch (especially F1-Overview).
 - **B00.02:** Verify original Model B GLB SHA, byte length, glTF version, texture/materials, license provenance and whether meshes represent tyre/body joined together. Retain unchanged copy.
-- **B00.03:** Enumerate every Model B node, geometry, hierarchy, material and triangle count; export \`modelb-inventory.csv\`.
+- **B00.03:** Enumerate every Model B node, geometry, hierarchy, material and triangle count; export `modelb-inventory.csv`.
 - **B00.04:** Extract original exterior orthographic/45° 8-view neutral clay turntable and 2 interior cuts; forbid replacements in screenshots.
-- **B00.05:** Recover existing P2.8 STEP master, \`P28_remate_manifest.json\`, BALANCED/HIGH/PERFORMANCE GLBs; verify hashes and 59 identity names.
+- **B00.05:** Recover existing P2.8 STEP master, `P28_remate_manifest.json`, BALANCED/HIGH/PERFORMANCE GLBs; verify hashes and 59 identity names.
 - **B00.06:** Run fresh STEP reload, per-solid validity and assembly source audit on P2.8; retain all still-open upright and joint problems.
 - **B00.07:** Locate P2.9 joint prototype and document whether it is actually reusable; otherwise RESEARCH ONLY.
 - **B00.08:** Inventory existing front-corner fasteners, subassemblies, their pivots, thread profiles, source units, dimensions and contact surfaces.
 - **B00.09:** Inventory rejected V1 and explicitly blacklist its fake silhouette primitives/donor geometry from reuse.
 - **B00.10:** Inventory current Three.js/Anime.js/presentation code, unverified source labels, untested browser capture and prior failures.
-- **B00.11:** Open deficiency ledger with each defect \`system, severity, owner, dependencies, required evidence\`.
+- **B00.11:** Open deficiency ledger with each defect `system, severity, owner, dependencies, required evidence`.
 - **B00.12:** Freeze baseline snapshot and reproducible local command set, keeping owner STEP/GLB private.
 
 **Gate G00 PASS:** all source identities verified, missing files called out, original model unchanged, source ledger and evidence package available.
 
 ## 4. G01 — 2026 design dimensions and canonical Model B frame (14 packets)
 
-- **B01.01:** Extract latest FIA 2026 Section C article IDs into versioned regulation worksheet; mark \`RULE\` vs \`DESIGN TARGET\`.
+- **B01.01:** Extract latest FIA 2026 Section C article IDs into versioned regulation worksheet; mark `RULE` vs `DESIGN TARGET`.
 - **B01.02:** Lock canonical XYZ orientation, axle line and body center planes; prove handedness using source markers and camera views.
 - **B01.03:** Compute native Model B bounding box, origin, natural unit scales and principal axes; cross-check against measured wheel envelope.
 - **B01.04:** Fit 4 actual Model B wheel centers, 4 wheel-plane normals, front/rear tyre radius and widths, plus physical track widths.
-- **B01.05:** Choose one consistent metric visual scale \`m/source-unit\` from explicit wheel measurements; report error propagation and alternate fits.
+- **B01.05:** Choose one consistent metric visual scale `m/source-unit` from explicit wheel measurements; report error propagation and alternate fits.
 - **B01.06:** Compare Model B length/width/height/wheelbase/track against the Issue 21 constraints; write mismatch table.
 - **B01.07:** Establish approved reference views: top, bottom, front, rear, L/R, both 3/4, cockpit, wheel/brake macro. Cite rights and camera.
 - **B01.08:** Lock conceptual monocoque envelope relative to Model B exterior and driver clearance; unknown OEM cavity is ILLUSTRATIVE.
@@ -102,7 +102,7 @@ G11 ─→ G12 scroll/Anime.js ─→ G13 browser perf + full video ─→ G14 o
 - **B01.10:** Lock suspension pickup surfaces and reserved hardpoint **zones**; exact points await modeled load-bearing chassis interfaces.
 - **B01.11:** Lock rear gearbox/engine/cooling packaging volumes, centre-of-gravity assumptions and clearance reservations.
 - **B01.12:** Lock front/rear aero hinge/actuator reference axes and 2026-concept permissible travel hypothesis.
-- **B01.13:** Export dimensional sketch sheets and canonical \`reference_frame.json\` with measured-vs-assumed tags.
+- **B01.13:** Export dimensional sketch sheets and canonical `reference_frame.json` with measured-vs-assumed tags.
 - **B01.14:** Render 8-view Model B clay against reference sheet; produce deviation annotations and owner-visible preview.
 
 **Gate G01 PASS:** no coordinate ambiguities, four wheel station transforms exist, full dimensional/reference sheet with every uncertain value explicitly labeled.
@@ -302,7 +302,7 @@ G11 ─→ G12 scroll/Anime.js ─→ G13 browser perf + full video ─→ G14 o
 - **B09.14:** Tyre valve stem, tire sidewall, rim bead seats, wheel internal interfaces.
 - **B09.15:** Brake cooling vanes/slots, machined rotor surfaces, caliper cutaway seals.
 - **B09.16:** Every fastener placement generated from host surface/hole feature and real path, not random dots.
-- **B09.17:** Count \`fasteners in manifest = host interfaces\` and detect unhosted/duplicate/hidden items.
+- **B09.17:** Count `fasteners in manifest = host interfaces` and detect unhosted/duplicate/hidden items.
 - **B09.18:** 25+ representative macro images: bolts, raceways, valve, brakes, suspension joints, controls, PU, cooling.
 
 **Gate G09 PASS:** macro details have actual topology at camera distance; host adjacency and correct nesting are proven. *Quantity is derived from validated hosts*, never arbitrary “1000 screws”.
@@ -348,7 +348,7 @@ G11 ─→ G12 scroll/Anime.js ─→ G13 browser perf + full video ─→ G14 o
 - **B11.14:** Tolerance stack worksheets on a limited declared set of representative critical interfaces.
 - **B11.15:** Model B mesh-vs-project-STEP collision proxies; distinguish proxy report from exact native B-Rep.
 - **B11.16:** Performance/control sampling under source/geometry perturbations; record numerical stability.
-- **B11.17:** Full QA report \`collisions.csv\`, \`contact-allowlist.json\`, \`kinematics.csv\`, scene validation.
+- **B11.17:** Full QA report `collisions.csv`, `contact-allowlist.json`, `kinematics.csv`, scene validation.
 - **B11.18:** Resolve every high-severity issue; document residual conceptual engineering uncertainty and not-real-OEM status.
 
 **Gate G11 PASS:** declared full-car sampled QA has zero unwaived intersections beyond the **explicit interface-specific criteria**; do not reuse the historical 0.05 mm³ static threshold as a universal clearance requirement. This still is not structural FEA or safety homologation.
@@ -370,7 +370,7 @@ G11 ─→ G12 scroll/Anime.js ─→ G13 browser perf + full video ─→ G14 o
 - **B12.13:** Export per-part and per-assembly draw-call, triangles, vertex, texture memory/VRAM estimates.
 - **B12.14:** Compare HIGH vs BALANCED vs PERFORMANCE from identical cameras with difference screenshots.
 - **B12.15:** Verify no missing backfaces, silhouette pops, reflection seams or rotor gap artifacts at macro zoom.
-- **B12.16:** Produce SHA-matched \`fullcar_manifest.json\`, three tier GLBs and static source audit.
+- **B12.16:** Produce SHA-matched `fullcar_manifest.json`, three tier GLBs and static source audit.
 
 **Gate G12 PASS:** exact 1:1 source identity across STEP and GLB, three tiers visually checked, canonical pivots retained, source provenance preserved.
 
@@ -386,7 +386,7 @@ G11 ─→ G12 scroll/Anime.js ─→ G13 browser perf + full video ─→ G14 o
 - **B13.08:** Technical material palette applied consistently to all assemblies and bolts; keep original Model B livery separately controllable.
 - **B13.09:** Orbit/zoom and focus from actual node bounds and safe clipping distances.
 - **B13.10:** Selective exploded offsets computed by local part hierarchy and near-miss constraints; no floating offscreen confusion.
-- **B13.11:** Source labels \`MODEL_B_EXTERIOR\`, \`PROJECT_CAD\`, \`ILLUSTRATIVE\` with clear unsupported engineering internals.
+- **B13.11:** Source labels `MODEL_B_EXTERIOR`, `PROJECT_CAD`, `ILLUSTRATIVE` with clear unsupported engineering internals.
 - **B13.12:** Viewport profiles mobile/tablet/desktop/ultrawide and fallback for low-powered hardware.
 - **B13.13:** Correct disposal of texture/environment, materials, geometry, decoder resources; context-loss recovery.
 - **B13.14:** Dev metrics FPS, draw calls, triangles, texture memory and animation frame time.
@@ -397,9 +397,9 @@ G11 ─→ G12 scroll/Anime.js ─→ G13 browser perf + full video ─→ G14 o
 
 ## 17. G14 — Anime.js / pinned scroll choreography, actual 18 chapters (22 packets)
 
-**Animation contract:** single deterministic normalized scroll \`p∈[0,1]\`, reversible and seekable; no state accumulation or per-scroll fresh GLB. Anime.js drives timelines/values; Three.js renders, with an explicit source-preserving \`restMatrix\`. Integrate existing code rather than replace it blindly. All chapter labels must correspond to **present source geometry**; no placeholder 18-chapter "complete" claim.
+**Animation contract:** single deterministic normalized scroll `p∈[0,1]`, reversible and seekable; no state accumulation or per-scroll fresh GLB. Anime.js drives timelines/values; Three.js renders, with an explicit source-preserving `restMatrix`. Integrate existing code rather than replace it blindly. All chapter labels must correspond to **present source geometry**; no placeholder 18-chapter "complete" claim.
 
-- **B14.01:** Author time-independent \`sampleSceneAt(progress)\` from canonical rest matrices.
+- **B14.01:** Author time-independent `sampleSceneAt(progress)` from canonical rest matrices.
 - **B14.02:** Design native scroll track; one sticky full-screen WebGL stage; no hijacked wheel events.
 - **B14.03:** Build 0 HERO — assembled full Model B, 3/4 camera.
 - **B14.04:** Build 1 BLUEPRINT — light technical contrast, dimensions from validated source.
@@ -426,7 +426,7 @@ G11 ─→ G12 scroll/Anime.js ─→ G13 browser perf + full video ─→ G14 o
 
 ## 18. G15 — Final browser QA, video, performance and owner acceptance (18 packets)
 
-- **B15.01:** Run \`npm ci\`, lint, typecheck, all targeted tests, production build and source boundary; no need for GitHub Actions.
+- **B15.01:** Run `npm ci`, lint, typecheck, all targeted tests, production build and source boundary; no need for GitHub Actions.
 - **B15.02:** Validate full STEP reload, native B-Rep QA and full source SHA manifest against on-disk asset pack.
 - **B15.03:** Load full-car GLB in actual Chromium, verify every source node and source status.
 - **B15.04:** Take 8 neutral clay angles + 8 styled angles at fixed frame.
@@ -440,7 +440,7 @@ G11 ─→ G12 scroll/Anime.js ─→ G13 browser perf + full video ─→ G14 o
 - **B15.12:** Test GLB and texture unmount/disposal, WebGL context loss/recovery, stale camera motion and memory leaks.
 - **B15.13:** Keyboard/reduced-motion/contrast/focus checks, mobile gesture equivalence.
 - **B15.14:** Audit livery/material and asset/license registry, avoid unauthorized logos/manufacturer CAD claims.
-- **B15.15:** Produce \`final_review_manifest.json\`, SHA, QA reports, clear FAIL/HOLD list and evidence index.
+- **B15.15:** Produce `final_review_manifest.json`, SHA, QA reports, clear FAIL/HOLD list and evidence index.
 - **B15.16:** Do final source correctness comparison of every wheel and named subassembly; no duplicate wheel geometry.
 - **B15.17:** Provide owner a single review ZIP: STEP source, GLBs/manifests, screenshots, source list, QA and MP4, excluding private files from public git.
 - **B15.18:** Owner visual review and explicit acceptance; only then separate discussion on production merge and deployment.
@@ -487,7 +487,7 @@ A slice cannot be called done unless its real on-screen artifact has been verifi
 | Body masks | All original Model B graphics recover exactly after reassembly |
 | Material continuity | Same class of steel/rubber/carbon/aluminium uses matching defined palette |
 | LOD | Same identities, rest transforms, axes and silhouettes across all tiers |
-| Reversible scroll | \`sample(p)\` same in either direction, 0 and 1 exact hero/rest |
+| Reversible scroll | `sample(p)` same in either direction, 0 and 1 exact hero/rest |
 | Video | 18 non-placeholder chapters captured in browser, forward and reverse |
 | Source honesty | Concept vs Model B vs original project CAD always distinguishable |
 | Release | G15 owner acceptance; absent evidence = HOLD |
