@@ -73,8 +73,8 @@
   color: #e8e2d7;
   font-family: var(--peds-font-editorial);
   font-size: 1.12em;
-  font-weight: 500;
-  font-style: normal;
+  font-weight: 400;
+  font-style: italic;
   line-height: .86;
   letter-spacing: -.055em;
   background: none;
@@ -174,7 +174,7 @@
   display: grid;
   gap: .3rem;
   color: #eeebe5;
-  font: 500 clamp(1.3rem, 2.25vw / var(--peds-visual-zoom), 2.45rem)/1 var(--peds-font-editorial);
+  font: 400 clamp(1.3rem, 2.25vw / var(--peds-visual-zoom), 2.45rem)/1 var(--peds-font-editorial);
   opacity: 0;
   transform: translateY(8px);
   transition: transform 180ms ease;
@@ -271,7 +271,7 @@
   color: #16181b;
   font-family: var(--peds-font-editorial);
   font-size: clamp(2.2rem, 3.6vw / var(--peds-visual-zoom), 3.7rem);
-  font-weight: 600;
+  font-weight: 400;
   letter-spacing: -.025em;
   line-height: 1.1;
 }
@@ -359,8 +359,8 @@
   display: block;
   margin-top: .1em;
   font-family: var(--peds-font-editorial);
-  font-style: normal;
-  font-weight: 500;
+  font-style: italic;
+  font-weight: 400;
 }
 .home-v5__editorial-copy > p {
   max-width: 43ch;

@@ -44,7 +44,7 @@ export const EngineeringArticlePage: React.FC = () => {
               <p className="font-ui text-xs font-semibold tracking-wider text-cyan-200">
                 {article.topic[lang]}
               </p>
-              <h1 className="mt-4 text-balance font-editorial text-4xl font-semibold leading-[1.12] sm:text-5xl lg:text-[3.5rem]">
+              <h1 className="mt-4 text-balance font-editorial text-4xl font-normal leading-[1.12] sm:text-5xl lg:text-[3.5rem]">
                 {article.title[lang]}
               </h1>
               <p className="mt-6 max-w-3xl font-body text-lg leading-8 text-white/75">
@@ -76,7 +76,7 @@ export const EngineeringArticlePage: React.FC = () => {
                 <span className="font-mono text-xs text-red-300">
                   {String(index + 1).padStart(2, '0')}
                 </span>
-                <h2 className="font-editorial text-2xl font-semibold leading-snug tracking-tight sm:text-3xl">
+                <h2 className="font-editorial text-2xl font-normal leading-snug tracking-tight sm:text-3xl">
                   {section.heading[lang]}
                 </h2>
               </div>
@@ -89,7 +89,7 @@ export const EngineeringArticlePage: React.FC = () => {
           ))}
 
           <section className="rounded-3xl border border-cyan-300/20 bg-cyan-300/[0.045] p-6 sm:p-8">
-            <h2 className="font-editorial text-2xl font-semibold">
+            <h2 className="font-editorial text-2xl font-normal">
               {lang === 'vi' ? 'Khám phá trên Model B' : 'Explore on Model B'}
             </h2>
             <p className="mt-3 font-body text-sm leading-6 text-white/70">
@@ -111,7 +111,7 @@ export const EngineeringArticlePage: React.FC = () => {
           </section>
 
           <section className="mt-12 border-t border-white/10 pt-10">
-            <h2 className="font-editorial text-2xl font-semibold">
+            <h2 className="font-editorial text-2xl font-normal">
               {lang === 'vi' ? 'Nguồn kỹ thuật' : 'Technical sources'}
             </h2>
             <p className="mt-3 text-sm leading-6 text-white/70">

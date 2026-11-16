@@ -61,7 +61,8 @@ describe("Results data selection against the live season data", () => {
     expect(html).toContain('data-destination-mode="results"');
     expect(html).toContain('class="destination-v6__grid"');
     expect(html).toContain('Australia');
-    expect(html).toContain('Melbourne');
+    expect(html).toContain('George Russell');
+    expect(html).toContain('Las Vegas, Nevada');
     expect(html).toContain('href="/season/2026?tab=results&amp;round=1&amp;session=race"');
     expect(html).not.toContain('class="c11-table');
     expect(html).not.toContain('data-experience="world-tour-v6"');

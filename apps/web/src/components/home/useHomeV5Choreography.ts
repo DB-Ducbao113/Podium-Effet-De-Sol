@@ -1,39 +1,11 @@
 import { useEffect } from 'react';
 import type { RefObject } from 'react';
-import { sampleV5Item } from './homeV5Choreography';
+import { sampleV5Target } from './homeV5Choreography';
 import type { HomeV5Effect } from './homeV5Choreography';
+import { HOME_V5_ENTRIES, HOME_V5_SECTIONS } from './homeV5ChoreographyEntries';
+import { readMotionEngine } from '../../motion/motionEngine';
 
-/** Scoped targets: section layouts remain normal and all F1 numbers remain factual. */
-const entries: ReadonlyArray<[string,HomeV5Effect]> = [
-  ['#race-control .home-live__heading h2','left'],
-  ['#race-control .home-live__heading > a','right'],
-  ['#race-control .home-rc__next','wipe-left'],
-  ['#race-control .home-rc__identity h3','left'],
-  ['#race-control .home-rc__map','wipe-right'],
-  ['#race-control .home-rc__timing','wipe-right'],
-  ['#race-control .home-rc__digits > div','number'],
-  ['#race-control .home-rc__session','rise'],
-  ['#race-control .home-rc__result','rise'],
-  ['#race-control .home-rc__result > strong','number'],
-  ['#championship-overview .home-live__heading h2','left'],
-  ['#championship-overview .home-title-fight__panel:first-child','wipe-left'],
-  ['#championship-overview .home-title-fight__panel:last-child','wipe-right'],
-  ['#championship-overview .home-title-fight__rows li','rise'],
-  ['#championship-overview .home-title-fight__rank','number'],
-  ['#championship-overview .home-title-fight__rows strong','number'],
-  ['.home-v5__editorial .home-v5__eyebrow','rise'],
-  ['.home-v5__editorial h2','left'],
-  ['.home-v5__editorial-copy > p','rise'],
-  ['.home-v5__editorial-link','left'],
-  ['.home-v5__editorial-art','wipe-right'],
-  ['#eds-explore .eds-explore__header h2','left'],
-  ['#eds-explore .eds-explore__card:nth-child(odd)','wipe-left'],
-  ['#eds-explore .eds-explore__card:nth-child(even)','wipe-right'],
-  ['#eds-explore .eds-explore__number','number'],
-  ['#eds-explore .eds-explore__bottom strong','rise'],
-];
 type Target={node:HTMLElement; section:HTMLElement; offset:number; height:number; kind:HomeV5Effect; order:number; lastEnter?:number; lastExit?:number};
-const sectionQuery='#race-control, #championship-overview, .home-v5__editorial, #eds-explore';
 
 /**
  * One scroll rAF. Geometry sampled with effects disabled on mount/resize,
@@ -41,6 +13,7 @@ const sectionQuery='#race-control, #championship-overview, .home-v5__editorial, 
  */
 export function useHomeV5Choreography(ref:RefObject<HTMLElement|null>) {
   useEffect(()=>{
+    if(readMotionEngine() === 'gsap')return;
     const root=ref.current;
     if(!root)return;
     const reduced=matchMedia('(prefers-reduced-motion: reduce)');
@@ -51,6 +24,7 @@ export function useHomeV5Choreography(ref:RefObject<HTMLElement|null>) {
 
     const reset=()=>{
       root.removeAttribute('data-v5-choreo');
+      root.removeAttribute('data-v5-engine');
       for(const {node} of targets) {
         node.removeAttribute('data-v5-effect');
         for(const prop of ['--v5-anim-x','--v5-anim-y','--v5-anim-alpha','--v5-anim-left','--v5-anim-right','--v5-anim-bottom'])
@@ -70,9 +44,11 @@ export function useHomeV5Choreography(ref:RefObject<HTMLElement|null>) {
       }
       const values=targets.map(target=>({
         target,
-        value:sampleV5Item(
-          (sections.get(target.section)??0)+target.offset+Math.min(5,target.order)*(lite?4:10),
-          innerHeight,target.kind,lite,target.height),
+        value:sampleV5Target(
+          target,
+          sections.get(target.section)??0,
+          innerHeight,
+          lite),
       }));
       // Write only when progress changes: offscreen/stable elements cost nothing.
       // Motion is tied to absolute scroll position, so backwards remains exact.
@@ -99,9 +75,9 @@ export function useHomeV5Choreography(ref:RefObject<HTMLElement|null>) {
       reset();
       if(reduced.matches)return;
       const sectionRects=new Map<HTMLElement,DOMRect>();
-      for(const [selector,kind] of entries) {
+      for(const [selector,kind] of HOME_V5_ENTRIES) {
         root.querySelectorAll<HTMLElement>(selector).forEach((node,order)=>{
-          const section=node.closest<HTMLElement>(sectionQuery);
+          const section=node.closest<HTMLElement>(HOME_V5_SECTIONS);
           if(!section)return;
           let rect=sectionRects.get(section);
           if(!rect) {rect=section.getBoundingClientRect();sectionRects.set(section,rect);}
@@ -111,6 +87,7 @@ export function useHomeV5Choreography(ref:RefObject<HTMLElement|null>) {
       }
       for(const {node,kind} of targets)node.dataset.v5Effect=kind;
       root.dataset.v5Choreo='active';
+      root.dataset.v5Engine='classic';
       draw();
     };
     const scheduleRebuild=()=>{

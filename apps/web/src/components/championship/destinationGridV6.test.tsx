@@ -21,13 +21,20 @@ describe('Destinations V6 — grid-first race discovery',()=>{
       const html=render('results',season);
       const count=getCalendarBySeason(season).length;
       expect((html.match(/class="destination-v6__item"/g)||[])).toHaveLength(count);
-      expect(html).toContain('DESTINATION / 01');
+      expect(html).toContain('ROUND / 01');
       expect(html).toContain('href="/season/'+season+'?tab=results&amp;round=1&amp;session=race"');
     }
     const current=render('results',2026);
     expect(current).toContain('Australia');
     expect(current).toContain('<em>Melbourne</em>');
     expect(current).toContain('class="destination-v6__card"');
+    const withWinner:DestinationItem={...getCalendarBySeason(2026)[0],destinationState:'verified',winner:'George Russell'};
+    const w=renderToStaticMarkup(<MemoryRouter>
+      <DestinationGridV6 season={2026} lang="en" mode="results" items={[withWinner]}/>
+    </MemoryRouter>);
+    expect(w).toContain('<em>George Russell</em>');
+    expect(w).toContain('Results available');
+    expect(w).toContain('P1 George Russell');
     const qualifyingOnly:DestinationItem={...getCalendarBySeason(2026)[0],resultSession:'qualifying'};
     const q=renderToStaticMarkup(<MemoryRouter>
       <DestinationGridV6 season={2026} lang="en" mode="results" items={[qualifyingOnly]}/>
@@ -40,6 +47,8 @@ describe('Destinations V6 — grid-first race discovery',()=>{
   it('makes World Tour an optional view without losing the season/round link',()=>{
     const html=render('calendar',2026);
     expect(html).toContain('data-destination-mode="calendar"');
+    expect(html).toContain('DESTINATION / 01');
+    expect(html).toContain('<em>Melbourne</em>');
     expect(html).toContain('World tour');
     expect(html).toContain('href="/season/2026?tab=calendar&amp;view=world"');
     expect(html).toContain('href="/season/2026?tab=calendar&amp;round=1&amp;view=classic"');

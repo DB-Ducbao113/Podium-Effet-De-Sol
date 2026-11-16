@@ -60,7 +60,7 @@
   color:var(--dir6-ink);
   font-family:var(--peds-font-editorial);
   font-style:italic;
-  font-weight:500;
+  font-weight:400;
   letter-spacing:-.04em;
 }
 .p5-gallery-page .p5-gallery-hero .p5-gallery-hero-copy p:not(.p5-kicker):not(.p5-photo-credit),
@@ -92,7 +92,7 @@
   letter-spacing:-.07em;
 }
 .p5-gallery-page-drivers .p5-drivers-hero h1 em {
-  font:italic 500 .8em/1 var(--peds-font-editorial);
+  font:italic 400 .8em/1 var(--peds-font-editorial);
 }
 .p5-gallery-page-drivers .p5-drivers-hero .p5-kicker {color:#b5c1b7;}
 .p5-gallery-page-drivers .p5-drivers-hero-sub {color:#d7e0d7;}

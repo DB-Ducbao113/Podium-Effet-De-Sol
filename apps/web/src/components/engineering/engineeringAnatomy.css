@@ -36,7 +36,7 @@
   letter-spacing: -0.06em;
   text-wrap: balance;
 }
-.anatomy-hero h1 em { color: var(--anatomy-accent); font-style: normal; }
+.anatomy-hero h1 em { color: var(--anatomy-accent); font-family: var(--peds-font-editorial); font-style: italic; font-weight: 400; }
 .anatomy-hero .anatomy-hero__eyebrow { margin: 0 0 1.75rem; color: var(--anatomy-accent); font-size: .7rem; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; }
 .anatomy-hero p {
   max-width: 55ch;

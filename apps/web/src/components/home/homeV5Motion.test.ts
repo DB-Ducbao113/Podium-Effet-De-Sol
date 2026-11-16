@@ -28,6 +28,23 @@ describe('Home V5 scroll and asset contract', () => {
     });
   });
 
+  it('re-arms the classic hero queue so one scroll cannot freeze the scene', () => {
+    const hero = readFileSync('src/components/home/useHomeHeroMotion.ts', 'utf8');
+    const tight = (source: string) => source.replace(/\s+/g, '');
+    // A queued-only guard needs its handle cleared in the callback; when the
+    // refactor dropped it the hero kept its mount frame for the whole page.
+    expect(tight(hero)).toContain('raf=0;write();');
+    expect(tight(hero)).toContain('requestAnimationFrame(draw)');
+    // Exactly one call site per engine: neither can drift to its own math.
+    expect(tight(hero).match(/write\(\)/g)?.length).toBe(2);
+    // The component owns markup only: no scroll math or property writes left in it.
+    const heroComponent = readFileSync('src/components/home/PodiumBrandHero.tsx', 'utf8');
+    expect(heroComponent).toContain('useHomeHeroMotion(heroRef, reducedMotion)');
+    expect(heroComponent).not.toContain('getV5HeroMotion');
+    // Pointer parallax still writes --launch-*; scroll narrative must not.
+    expect(heroComponent).not.toContain('--v5-');
+  });
+
   it('uses repo assets and keeps the existing showroom and verified data boundaries', () => {
     const home = readFileSync('src/components/home/HomeView.tsx', 'utf8');
     const stage = readFileSync('src/components/home/hero2d/F1HeroStage.tsx', 'utf8');

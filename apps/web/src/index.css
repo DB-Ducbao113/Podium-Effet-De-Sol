@@ -79,12 +79,14 @@
 
     --peds-font-script: 'Corinthia', 'Dancing Script Variable', cursive;
     --peds-font-hand: 'Dancing Script Variable', 'Corinthia', cursive;
-    --peds-font-editorial: 'Cormorant Garamond Variable', Georgia, 'Times New Roman', serif;
-    --peds-font-display: 'Quicksand Variable',
+    /* Prototype faces (EN): Instrument Serif editorial, Manrope display/UI, DM Sans body.
+       Instrument Serif ships 400 + true italic only, so editorial rules stay at 400. */
+    --peds-font-editorial: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+    --peds-font-display: 'Manrope Variable',
       'PEDS Display Fallback', Arial, sans-serif;
-    --peds-font-ui: 'Quicksand Variable',
+    --peds-font-ui: 'Manrope Variable',
       'PEDS Display Fallback', Arial, sans-serif;
-    --peds-font-body: 'Nunito Variable', 'Quicksand Variable', Arial, sans-serif;
+    --peds-font-body: 'DM Sans Variable', Arial, sans-serif;
     --peds-font-mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
 
     --peds-space-1: 0.25rem;
@@ -135,6 +137,14 @@
     --peds-focus-ring-color: var(--peds-color-focus);
     --peds-ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
     --peds-ease-emphasis: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Instrument Serif and DM Sans carry no Vietnamese subset; CSS fallback is
+     per-glyph, so VI would mix faces inside a word. Scope VI to fully-covered
+     equivalents (Cormorant true italic + Nunito) while Manrope serves both. */
+  html[lang='vi'] {
+    --peds-font-editorial: 'Cormorant Garamond Variable', Georgia, 'Times New Roman', serif;
+    --peds-font-body: 'Nunito Variable', Arial, sans-serif;
   }
 
   html {
@@ -206,7 +216,7 @@
 
   /* Editorial headline — curved serif for long-form stories */
   .editorial-title {
-    @apply font-editorial text-peds-text font-semibold leading-snug;
+    @apply font-editorial text-peds-text font-normal leading-snug;
   }
 
   /* Sub-heading */

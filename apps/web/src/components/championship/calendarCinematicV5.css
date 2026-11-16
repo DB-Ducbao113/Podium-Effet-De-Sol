@@ -86,7 +86,7 @@
   margin-top:.04em;
   color:#f8d8be;
   font-family:var(--peds-font-editorial);
-  font-weight:500;
+  font-weight:400;
   font-style:italic;
   letter-spacing:-.05em;
 }
@@ -155,7 +155,7 @@
 }
 .cal-v5__world .rcj-journey-intro p em {
   font-family:var(--peds-font-editorial);
-  font-weight:500;
+  font-weight:400;
   font-style:italic;
   color:#ffe2c7;
 }
@@ -165,7 +165,7 @@
 }
 .cal-v5__world .rcj-stage-counter {
   color:#ffcb9f;
-  font:650 clamp(2.4rem,3.6vw / var(--peds-visual-zoom),4rem)/1 var(--peds-font-editorial);
+  font:400 clamp(2.4rem,3.6vw / var(--peds-visual-zoom),4rem)/1 var(--peds-font-editorial);
 }
 .cal-v5__world .rcj-stage-active strong {
   color:#fff7e9;
@@ -268,7 +268,7 @@
 }
 .cal-v5__detail .cal-v5__detail-head h2 em {
   color:#ffd9b6;
-  font:500 italic 1em/1 var(--peds-font-editorial);
+  font:italic 400 1em/1 var(--peds-font-editorial);
 }
 .cal-v5__detail .cal-v5__detail-head p {
   color:#e0e8e5;
@@ -351,7 +351,7 @@
 }
 .cal-v5__detail .cal-next h3 {
   color:#fff2e6;
-  font:650 clamp(2rem,4.5cqi,4.4rem)/1 var(--peds-font-editorial);
+  font:400 clamp(2rem,4.5cqi,4.4rem)/1 var(--peds-font-editorial);
   letter-spacing:-.05em;
   text-transform:none;
 }
@@ -406,7 +406,7 @@
 .cal-v5__detail .cal-racecard h3 {
   font-family:var(--peds-font-editorial);
   font-size:clamp(1.2rem,2.2cqi,2rem);
-  font-weight:600;
+  font-weight:400;
   text-transform:none;
 }
 .cal-v5__detail .cal-racecard-media img {

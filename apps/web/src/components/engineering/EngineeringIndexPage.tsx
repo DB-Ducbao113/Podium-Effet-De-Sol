@@ -90,7 +90,7 @@ export const EngineeringIndexPage: React.FC = () => {
                       {lang === "vi" ? "phút đọc" : "min read"}
                     </span>
                   </div>
-                  <h2 className="font-editorial text-2xl font-semibold leading-snug text-white sm:text-[1.8rem]">
+                  <h2 className="font-editorial text-2xl font-normal leading-snug text-white sm:text-[1.8rem]">
                     {article.title[lang]}
                   </h2>
                   <p className="mt-3.5 font-body text-sm leading-6 text-white/75">

@@ -1,6 +1,6 @@
 :root {
-  --peds-font-display: 'Quicksand Variable', Arial, sans-serif;
-  --peds-font-ui: 'Quicksand Variable', Arial, sans-serif;
+  --peds-font-display: 'Manrope Variable', Arial, sans-serif;
+  --peds-font-ui: 'Manrope Variable', Arial, sans-serif;
   --peds-font-body: 'Nunito Variable', Arial, sans-serif;
   font-family: var(--peds-font-body);
   color: #f2f0eb;

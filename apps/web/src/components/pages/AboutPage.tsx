@@ -95,7 +95,7 @@ export const AboutPage: React.FC = () => {
             <div className="w-10 h-10 rounded-xl bg-f1red/10 text-f1red flex items-center justify-center mb-5">
               <Box className="w-5 h-5" />
             </div>
-            <h3 className="font-editorial text-2xl font-semibold text-white mb-3">
+            <h3 className="font-editorial text-2xl font-normal text-white mb-3">
               {isVi
                 ? 'Kiến trúc 3D & Tối ưu Hiệu năng'
                 : '3D Architecture & Performance Engineering'}
@@ -125,7 +125,7 @@ export const AboutPage: React.FC = () => {
             <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center mb-5">
               <Database className="w-5 h-5" />
             </div>
-            <h3 className="font-editorial text-2xl font-semibold text-white mb-3">
+            <h3 className="font-editorial text-2xl font-normal text-white mb-3">
               {isVi ? 'Cơ sở Dữ liệu & Tự động Hóa' : 'Automated Data Pipeline & Telemetry'}
             </h3>
             <div className="text-sm text-studio-300 leading-relaxed space-y-3">
@@ -165,7 +165,7 @@ export const AboutPage: React.FC = () => {
             <Palette className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-editorial text-2xl font-semibold text-white">
+            <h3 className="font-editorial text-2xl font-normal text-white">
               {isVi ? 'Bộ sưu tập Nghệ thuật Chuyển thể' : 'Bespoke Transformative Art Archive'}
             </h3>
             <p className="text-xs text-studio-400 font-mono">

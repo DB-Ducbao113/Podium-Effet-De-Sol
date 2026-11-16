@@ -184,7 +184,7 @@
   max-width: 22ch;
   margin: .5rem 0 0;
   color: #fff9ef;
-  font: 500 clamp(2.6rem, 5.8vw / var(--peds-visual-zoom), 6rem)/.99 var(--peds-font-editorial);
+  font: 400 clamp(2.6rem, 5.8vw / var(--peds-visual-zoom), 6rem)/.99 var(--peds-font-editorial);
   letter-spacing: -.045em;
   text-transform: none;
   text-shadow: 0 5px 24px rgba(0,0,0,.55);
@@ -230,7 +230,7 @@
 .results-v5__podium-title h3 {
   margin-top: .55rem;
   color: #f7f0e6;
-  font: 500 clamp(2.4rem, 4.2vw / var(--peds-visual-zoom), 4.5rem)/1 var(--peds-font-editorial);
+  font: 400 clamp(2.4rem, 4.2vw / var(--peds-visual-zoom), 4.5rem)/1 var(--peds-font-editorial);
   letter-spacing: -.04em;
 }
 .results-v5__podium-grid {
@@ -319,7 +319,7 @@
 .results-v5 .c11-classification-meta h3 {
   display: block;
   color: #f9f3e9;
-  font: 600 clamp(1.9rem, 3.1vw / var(--peds-visual-zoom), 3.2rem)/1.03 var(--peds-font-editorial);
+  font: 400 clamp(1.9rem, 3.1vw / var(--peds-visual-zoom), 3.2rem)/1.03 var(--peds-font-editorial);
   letter-spacing: -.04em;
 }
 .results-v5 .c11-classification-meta h3::before { display: none; }

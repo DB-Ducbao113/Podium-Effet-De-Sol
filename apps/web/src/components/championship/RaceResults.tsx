@@ -26,19 +26,22 @@ export const RaceResults: React.FC<{season:SeasonYear}> = React.memo(({season})=
   const hasRound=params.has('round')&&Number.isInteger(roundParam)&&roundParam>0;
   const detail=hasRound||params.get('view')==='classic';
   const races=getCalendarBySeason(season);
+  const summaries=getRaceResults(season);
   const sources:ResultDataSources={
     season,calendar:races,detailedResults:detailed,
-    raceSummaries:getRaceResults(season),
+    raceSummaries:summaries,
     practice:season===2026?OPEN.practice:{},
     qualifying:season===2026?OPEN.qualifying:{},
   };
+  const winners=new Map(summaries.map((r):[number,string]=>[r.round,r.podium.p1.driver]));
   const items:DestinationItem[]=races.map(race=>{
     const available=getAvailableSessions(sources,race.round);
     const verified=available.length>0;
     const scheduled=getCalendarRaceState(race,Date.now());
     return {...race,destinationState:scheduled==='current'?'current':
       verified?'verified':scheduled==='completed'?'awaiting':'upcoming',
-      resultSession:available.includes('race')?'race':(available[0]??'race')};
+      resultSession:available.includes('race')?'race':(available[0]??'race'),
+      winner:verified?winners.get(race.round):undefined};
   });
   return detail?(
     <div className="results-v6-detail">

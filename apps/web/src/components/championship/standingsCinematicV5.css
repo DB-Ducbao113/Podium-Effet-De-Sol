@@ -145,7 +145,7 @@
   display:block;
   margin-top:.02em;
   color:#ffd4b4;
-  font:500 italic 1.1em/1 var(--peds-font-editorial);
+  font:italic 400 1.1em/1 var(--peds-font-editorial);
   letter-spacing:-.045em;
   -webkit-text-stroke:0;
   text-shadow:none;
@@ -189,7 +189,7 @@
 .standings-v5__facts dd {
   margin:0;
   color:#fff1dc;
-  font:600 clamp(1.7rem,2.5vw / var(--peds-visual-zoom),2.8rem)/1 var(--peds-font-editorial);
+  font:400 clamp(1.7rem,2.5vw / var(--peds-visual-zoom),2.8rem)/1 var(--peds-font-editorial);
   font-variant-numeric:tabular-nums;
 }
 .p5-standings-v5 .p5-photo-credit-inline {
@@ -247,7 +247,7 @@
 }
 .p5-standings-v5 .mini-race__heading h2 em {
   color:#824a4d;
-  font:500 italic 1.02em/1 var(--peds-font-editorial);
+  font:italic 400 1.02em/1 var(--peds-font-editorial);
 }
 .p5-standings-v5 .mini-race__heading p {
   max-width:52ch;
@@ -278,7 +278,7 @@
 }
 .p5-standings-v5 .mini-race__rank {
   color:#253d45;
-  font:700 clamp(1.2rem,1.7vw / var(--peds-visual-zoom),1.8rem)/1 var(--peds-font-editorial);
+  font:400 clamp(1.2rem,1.7vw / var(--peds-visual-zoom),1.8rem)/1 var(--peds-font-editorial);
 }
 .p5-standings-v5 .mini-race__identity strong {
   color:#18343d;
@@ -339,7 +339,7 @@
 .p5-standings-v5 .mini-race__inspector-rank {
   margin:0 0 1rem;
   color:#ffd0a5;
-  font:600 clamp(3.5rem,5.6vw / var(--peds-visual-zoom),6.3rem)/.9 var(--peds-font-editorial);
+  font:400 clamp(3.5rem,5.6vw / var(--peds-visual-zoom),6.3rem)/.9 var(--peds-font-editorial);
 }
 .p5-standings-v5 .mini-race__inspector h3 {
   color:#fff5e8;

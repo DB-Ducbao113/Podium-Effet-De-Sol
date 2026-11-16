@@ -16,7 +16,7 @@ import { resolveGraphicsQuality, type GraphicsMode } from './graphicsQuality';
 import { ModelBPaintLayoutInspector } from './ModelBPaintLayoutInspector';
 import { AuthorPanel } from './AuthorPanel';
 import '@fontsource-variable/cormorant-garamond/wght.css';
-import '@fontsource-variable/quicksand/wght.css';
+import '@fontsource-variable/manrope/wght.css';
 
 import '@fontsource-variable/nunito/wght.css';
 

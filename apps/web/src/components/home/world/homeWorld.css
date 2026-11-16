@@ -149,7 +149,7 @@
   font: 800 clamp(3.3rem, 7.2vw / var(--peds-visual-zoom), 7.8rem)/.88 var(--peds-font-display);
   letter-spacing: -.035em;
 }
-.v9-lab__title em { color: #ff713f; font-style: inherit; }
+.v9-lab__title em { color: #ff713f; font-family: var(--peds-font-editorial); font-style: italic; font-weight: 400; }
 .v9-lab__lead {
   margin: 24px 0 0;
   max-width: 59ch;

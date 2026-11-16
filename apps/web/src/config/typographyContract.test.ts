@@ -20,6 +20,10 @@ const allText = styleFiles.map(read).join('\n');
 const globalCss = read('src/index.css');
 const tailwindConfig = read('tailwind.config.js');
 
+// Innermost declaration blocks, comments removed so prose never trips a rule.
+const declarationBlocks = (css: string): string[] =>
+  [...css.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/\{([^{}]*)\}/g)].map((m) => m[1]);
+
 const channel = (value: number) => {
   const c = value / 255;
   return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
@@ -39,21 +43,26 @@ const contrast = (a: string, b: string) => {
 };
 
 describe('PEDS typography contract', () => {
-  it('ships six self-hosted expressive, soft, and readable font families', () => {
+  it('ships the prototype faces plus the Vietnamese-covered expressive families, all self-hosted', () => {
     const packageJson = JSON.parse(read('package.json')) as {
       dependencies: Record<string, string>;
     };
+    // Prototype trio: Instrument Serif editorial, Manrope display/UI, DM Sans body.
+    expect(packageJson.dependencies['@fontsource/instrument-serif']).toBeTruthy();
+    expect(packageJson.dependencies['@fontsource-variable/manrope']).toBeTruthy();
+    expect(packageJson.dependencies['@fontsource-variable/dm-sans']).toBeTruthy();
+    // Expressive + Vietnamese-covered faces retained for VI and signature accents.
     expect(packageJson.dependencies['@fontsource/corinthia']).toBeTruthy();
     expect(packageJson.dependencies['@fontsource-variable/dancing-script']).toBeTruthy();
     expect(packageJson.dependencies['@fontsource-variable/cormorant-garamond']).toBeTruthy();
-    expect(packageJson.dependencies['@fontsource-variable/quicksand']).toBeTruthy();
     expect(packageJson.dependencies['@fontsource-variable/nunito']).toBeTruthy();
     expect(packageJson.dependencies['@fontsource/ibm-plex-mono']).toBe('5.3.0');
+    // Withdrawn faces must not creep back in.
+    expect(packageJson.dependencies['@fontsource-variable/quicksand']).toBeUndefined();
     expect(packageJson.dependencies['@fontsource-variable/lexend']).toBeUndefined();
     expect(packageJson.dependencies['@fontsource-variable/lora']).toBeUndefined();
     expect(packageJson.dependencies['@fontsource/be-vietnam-pro']).toBeUndefined();
     expect(packageJson.dependencies['@fontsource-variable/plus-jakarta-sans']).toBeUndefined();
-    expect(packageJson.dependencies['@fontsource-variable/manrope']).toBeUndefined();
     expect(packageJson.dependencies['@fontsource/barlow-condensed']).toBeUndefined();
     expect(packageJson.dependencies['@fontsource-variable/space-grotesk']).toBeUndefined();
 
@@ -62,20 +71,24 @@ describe('PEDS typography contract', () => {
       '@fontsource/corinthia/400.css',
       '@fontsource/corinthia/700.css',
       '@fontsource-variable/dancing-script/wght.css',
+      '@fontsource-variable/manrope/wght.css',
+      '@fontsource-variable/dm-sans/wght.css',
+      '@fontsource/instrument-serif/400.css',
+      '@fontsource/instrument-serif/400-italic.css',
       '@fontsource-variable/cormorant-garamond/wght.css',
-      '@fontsource-variable/quicksand/wght.css',
+      '@fontsource-variable/cormorant-garamond/wght-italic.css',
       '@fontsource-variable/nunito/wght.css',
       '@fontsource/ibm-plex-mono/500.css',
       '@fontsource/ibm-plex-mono/600.css',
     ]) {
       expect(main).toContain(entry);
     }
-    expect(main).not.toMatch(/barlow-condensed|space-grotesk|plus-jakarta-sans|manrope|lexend|lora|be-vietnam-pro/i);
+    expect(main).not.toMatch(/barlow-condensed|space-grotesk|plus-jakarta-sans|quicksand|lexend|lora|be-vietnam-pro/i);
   });
 
   it('uses one token contract without remote fonts or legacy aliases', () => {
     expect(allText).not.toMatch(/fonts\.(googleapis|gstatic)\.com/i);
-    expect(allText).not.toMatch(/\b(?:Barlow Condensed|Space Grotesk|Plus Jakarta Sans|Manrope|Lexend|Lora|Be Vietnam Pro)\b/i);
+    expect(allText).not.toMatch(/\b(?:Barlow Condensed|Space Grotesk|Plus Jakarta Sans|Quicksand|Lexend|Lora|Be Vietnam Pro)\b/i);
     // Canvas textures intentionally paint with system UI faces; only stylesheet
     // font declarations are bound by the family contract.
     expect(cssText).not.toMatch(
@@ -83,20 +96,64 @@ describe('PEDS typography contract', () => {
     );
     expect(allText).not.toMatch(/--font-(?:display|body|mono)\b/);
 
+    // EN reads with the prototype faces.
     expect(globalCss).toContain("--peds-font-script: 'Corinthia'");
     expect(globalCss).toContain("--peds-font-hand: 'Dancing Script Variable'");
-    expect(globalCss).toContain("--peds-font-editorial: 'Cormorant Garamond Variable'");
-    expect(globalCss).toContain("--peds-font-display: 'Quicksand Variable'");
-    expect(globalCss).toContain("--peds-font-ui: 'Quicksand Variable'");
-    expect(globalCss).toContain("--peds-font-body: 'Nunito Variable'");
+    expect(globalCss).toContain("--peds-font-editorial: 'Instrument Serif'");
+    expect(globalCss).toContain("--peds-font-display: 'Manrope Variable'");
+    expect(globalCss).toContain("--peds-font-ui: 'Manrope Variable'");
+    expect(globalCss).toContain("--peds-font-body: 'DM Sans Variable'");
     expect(globalCss).toContain("--peds-font-mono: 'IBM Plex Mono'");
+
+    // Instrument Serif and DM Sans carry no Vietnamese subset, so VI is scoped to
+    // fully-covered faces to avoid mixing typefaces inside a single word.
+    expect(globalCss).toMatch(
+      /html\[lang='vi'\]\s*\{[^}]*--peds-font-editorial:\s*'Cormorant Garamond Variable'[^}]*--peds-font-body:\s*'Nunito Variable'/s,
+    );
   });
 
-  it('drops synthetic italic and weights the shipped face does not carry', () => {
-    expect(cssText).not.toMatch(/font-style\s*:\s*(?:italic|oblique)/);
-    expect(cssText).not.toMatch(/font\s*:\s*(?:italic|oblique)\b/);
+  it('renders true italic only on the editorial serif and never faux-bolds it', () => {
+    const blocks = declarationBlocks(cssText);
+
+    // The prototype signature is an italic Instrument Serif accent inside a bold
+    // headline. Italic is allowed only where a true italic face is loaded, i.e. the
+    // editorial serif token (Instrument Serif EN / Cormorant Garamond VI).
+    const italicBlocks = blocks.filter(
+      (block) =>
+        /font-style\s*:\s*(?:italic|oblique)/.test(block) ||
+        /\bfont\s*:[^;]*\b(?:italic|oblique)\b/.test(block),
+    );
+    expect(italicBlocks.length).toBeGreaterThan(0);
+    for (const block of italicBlocks) {
+      expect(block).toContain('--peds-font-editorial');
+    }
+
+    // Instrument Serif ships 400 (+ true italic) only; any heavier editorial weight
+    // would be synthesised. Every editorial block that states a weight states 400.
+    for (const block of blocks.filter((b) => b.includes('--peds-font-editorial'))) {
+      const weight = block.match(/font-weight\s*:\s*(\d+)/);
+      if (weight) expect(Number(weight[1])).toBe(400);
+      const shorthand = block.match(/\bfont\s*:\s*([^;]+)/);
+      if (shorthand) {
+        const stated = shorthand[1].match(/\b(\d{3})\b/);
+        if (stated) expect(Number(stated[1])).toBe(400);
+      }
+    }
+
+    // Tailwind editorial headings must not request a synthesised weight either.
+    const tsxOffenders: string[] = [];
+    for (const file of styleFiles.filter((entry) => entry.endsWith('.tsx'))) {
+      for (const fragment of read(file).split(/['"`]/)) {
+        if (/font-editorial/.test(fragment) && /font-(?:medium|semibold|bold|extrabold|black)\b/.test(fragment)) {
+          tsxOffenders.push(`${file}: ${fragment.trim().slice(0, 80)}`);
+        }
+      }
+    }
+    expect(tsxOffenders).toEqual([]);
+
+    // No face is asked for a weight beyond its variable axis.
     expect(cssText).not.toMatch(/font-weight\s*:\s*(?:801|850|900|950)\b/);
-    expect(cssText).not.toMatch(/font\s*:\s*(?:801|850|900|950)\b/);
+    expect(cssText).not.toMatch(/\bfont\s*:\s*(?:801|850|900|950)\b/);
     // `font-black` must not ask for a weight the variable axis cannot render.
     expect(tailwindConfig).toMatch(/fontWeight:\s*\{\s*black:\s*'800'/);
   });
@@ -167,7 +224,7 @@ describe('PEDS typography contract', () => {
   it('never reaches for the italic element in production markup', () => {
     // <i> carries a user-agent italic style, so any glyph placed inside it
     // inherits a synthetic slant the stylesheet never asked for. Decorative
-    // shapes use <span> instead.
+    // shapes use <span> instead; semantic emphasis uses <em> styled as true serif italic.
     const offenders = styleFiles
       .filter((file) => file.endsWith('.tsx'))
       .filter((file) => !file.replace(/\\/g, '/').includes('src/dev/'))

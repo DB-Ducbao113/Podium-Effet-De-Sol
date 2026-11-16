@@ -88,6 +88,7 @@
   border-color:var(--peds-proto-ink)!important;
 }
 .home-v5 .r1-cinema--v7 .r1-cinema__title-accent {
+  font-family:var(--peds-font-editorial);
   font-style:italic;
   font-weight:400;
 }
@@ -203,6 +204,32 @@
 }
 .r1-championship .results-v6-detail .c11-table tbody tr:nth-child(even) {background:var(--peds-proto-surface);}
 .r1-championship .results-v6-detail .c11-table tbody tr:hover {background:#e2dfd6;}
+/* resultsV5.css ships a late dark-teal table palette in its async chunk, which
+   outranks the equal-specificity paper rules above and left dark ink text on a
+   dark teal ground. These higher-specificity paper rules keep the sourced
+   classification legible on the light surface regardless of chunk order. */
+.r1-championship .results-v6-detail .rc-race-center.results-v5 .c11-table {background:var(--peds-proto-paper);color:var(--peds-proto-ink);}
+.r1-championship .results-v6-detail .rc-race-center.results-v5 .c11-table thead th {background:#d6d6ce;color:#303732;border-bottom-color:#c5c2b9;}
+.r1-championship .results-v6-detail .rc-race-center.results-v5 .c11-table tbody tr,
+.r1-championship .results-v6-detail .rc-race-center.results-v5 .c11-table tbody tr:nth-child(-n+3) {background:var(--peds-proto-paper);border-bottom-color:#d8d5cc;}
+.r1-championship .results-v6-detail .rc-race-center.results-v5 .c11-table tbody tr:nth-child(even) {background:var(--peds-proto-surface);}
+.r1-championship .results-v6-detail .rc-race-center.results-v5 .c11-table tbody tr[data-podium] {background:linear-gradient(90deg,rgba(229,163,105,.16),var(--peds-proto-paper) 60%);}
+.r1-championship .results-v6-detail .rc-race-center.results-v5 .c11-table tbody tr:hover,
+.r1-championship .results-v6-detail .rc-race-center.results-v5 .c11-table tbody tr:focus-within {background:#e2dfd6;}
+.r1-championship .results-v6-detail .rc-race-center.results-v5 .c11-table td {border-bottom-color:#d8d5cc;}
+.r1-championship .results-v6-detail .rc-race-center.results-v5 .c11-table :is(.c11-position,.c11-points,.rc-rank) {color:var(--peds-proto-ink);}
+.r1-championship .results-v6-detail .rc-race-center.results-v5 .c11-table .c11-driver a,
+.r1-championship .results-v6-detail .rc-race-center.results-v5 .c11-table .c11-driver strong {color:var(--peds-proto-ink);}
+.r1-championship .results-v6-detail .rc-race-center.results-v5 .c11-table .rc-driver-text > span,
+.r1-championship .results-v6-detail .rc-race-center.results-v5 .c11-table .c11-secondary {color:#5a635c;}
+.r1-championship .results-v6-detail .rc-race-center.results-v5 .c11-table .c11-time {color:#3c4540;}
+.r1-championship .results-v6-detail .rc-race-center.results-v5 .c11-table .c11-team a,
+.r1-championship .results-v6-detail .rc-race-center.results-v5 .c11-table .rc-team-chip {color:#4a534d;}
+.r1-championship .results-v6-detail .rc-race-center.results-v5 .c11-table .c11-row-status {color:#303732;border-color:#b9b6ad;background:#e4e0d8;}
+.r1-championship .results-v6-detail .rc-race-center.results-v5 .c11-classification-meta {background:var(--peds-proto-surface);color:var(--peds-proto-ink);}
+.r1-championship .results-v6-detail .rc-race-center.results-v5 .c11-classification-meta h3 {color:var(--peds-proto-ink);}
+.r1-championship .results-v6-detail .rc-race-center.results-v5 .c11-classification-meta p {color:#4a534d;}
+.r1-championship .results-v6-detail .rc-race-center.results-v5 .c11-classification-meta .c11-provenance {color:#5a635c;}
 .r1-championship .cal-v5__detail {background:var(--peds-proto-paper);color:var(--peds-proto-ink);}
 .r1-championship .cal-v5__detail .cal-v5__detail-head,
 .r1-championship .cal-v5__detail .cal-filters,
@@ -426,7 +453,9 @@ body:has(.peds-about--prototype) #root {background:var(--peds-proto-paper);}
   display:none!important;
 }
 .h1-nav.h1-nav--v4[data-prototype-surface='paper'] .h1-nav__brand-logo {
-  filter:brightness(.1);
+  /* Keep the canonical artwork's red/silver on light paper; brightness(.1)
+     crushed it to a colourless black silhouette. */
+  filter:none;
 }
 .h1-nav.h1-nav--v4[data-prototype-surface='paper'] .h1-nav__link,
 .h1-nav.h1-nav--v4[data-prototype-surface='paper'] .h1-nav__chevron,

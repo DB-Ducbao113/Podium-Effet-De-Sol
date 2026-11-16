@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react';
 import type { PointerEventHandler } from 'react';
-import { animate, createScope } from 'animejs';
 import { ArrowDown, ArrowRight, Move3d } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useNavigationStore } from '../../store/useNavigationStore';
@@ -9,8 +8,7 @@ import { HomeRacePulseScene } from './HomeRacePulseScene';
 import { HomeCommandStrip } from './HomeCommandStrip';
 import { useNextRace } from './useNextRace';
 import { chapterScrollTarget } from './journey/homeChapterScroll';
-import { getV5HeroMotion } from './homeV5Motion';
-import { sampleV5Scene } from './homeV5Choreography';
+import { useHomeHeroMotion } from './useHomeHeroMotion';
 import './podiumHeroR1.css';
 import './homeHeroV7.css';
 
@@ -22,21 +20,7 @@ export function PodiumBrandHero() {
   const nextRace = useNextRace();
   const heroRef = useRef<HTMLElement | null>(null);
   const frame = useRef<number | null>(null);
-
-  useEffect(() => {
-    const root = heroRef.current;
-    if (!root || reducedMotion) return;
-    const scope = createScope({ root }).add(() => {
-      animate(root.querySelectorAll('[data-launch-reveal]'), {
-        opacity: [0, 1],
-        translateY: [20, 0],
-        duration: 660,
-        ease: 'out(4)',
-        delay: (_: unknown, index = 0) => index * 95,
-      });
-    });
-    return () => scope.revert();
-  }, [reducedMotion]);
+  useHomeHeroMotion(heroRef, reducedMotion);
 
   useEffect(() => {
     const root = heroRef.current;
@@ -51,78 +35,6 @@ export function PodiumBrandHero() {
   useEffect(() => () => {
     if (frame.current !== null) cancelAnimationFrame(frame.current);
   }, []);
-
-  // F10.02: scroll controls the narrative, not the size or visibility of the car.
-  // No new scroll container, WebGL context, document listener loop or route state.
-  useEffect(() => {
-    const root = heroRef.current;
-    const wrapper = root?.closest<HTMLElement>('[data-home-v5-scroll]');
-    if (!root || !wrapper) return;
-
-    let raf = 0;
-    const update = () => {
-      raf = 0;
-      const compact = window.matchMedia('(max-width: 860px)').matches;
-      const motion = getV5HeroMotion(
-        wrapper.getBoundingClientRect().top,
-        wrapper.getBoundingClientRect().height,
-        window.innerHeight,
-        reducedMotion || compact,
-      );
-      root.dataset.v5Scene = String(motion.scene);
-      root.style.setProperty('--v5-scene-one', motion.first.toFixed(3));
-      root.style.setProperty('--v5-scene-two', motion.second.toFixed(3));
-      root.style.setProperty('--v5-scene-three', motion.third.toFixed(3));
-      root.style.setProperty('--v5-shift', motion.shift.toFixed(1) + 'px');
-      root.style.setProperty('--v5-progress', motion.progress.toFixed(3));
-      root.style.setProperty('--v5-ambient-x',(motion.progress*55).toFixed(1)+'px');
-      // Readable hero title/CTA and verified instrument values stay visible
-      // while their spatial position responds to the same scroll coordinate.
-      root.style.setProperty('--v5-copy-x',(-16*motion.progress).toFixed(1)+'px');
-      root.style.setProperty('--v5-copy-y',(-24*motion.progress).toFixed(1)+'px');
-      root.style.setProperty('--v5-stat-x',(14*motion.progress).toFixed(1)+'px');
-      root.style.setProperty('--v5-stat-x-negative',(-14*motion.progress).toFixed(1)+'px');
-      const transition = sampleV5Scene(motion.progress);
-      const values: Record<string, string> = {
-        '--v5-first-x': transition.firstX.toFixed(1)+'px',
-        '--v5-first-mask': transition.firstMask.toFixed(1)+'%',
-        '--v5-second-x': transition.secondX.toFixed(1)+'px',
-        '--v5-second-mask-left': transition.secondMaskLeft.toFixed(1)+'%',
-        '--v5-second-mask-right': transition.secondMaskRight.toFixed(1)+'%',
-        '--v5-third-x': transition.thirdX.toFixed(1)+'px',
-        '--v5-third-mask': transition.thirdMask.toFixed(1)+'%',
-        '--v5-photo2-opacity': transition.photo2Opacity.toFixed(3),
-        '--v5-photo2-clip': transition.photo2Clip.toFixed(1)+'%',
-        '--v5-photo2-x': transition.photo2X.toFixed(1)+'px',
-        '--v5-photo3-opacity': transition.photo3Opacity.toFixed(3),
-        '--v5-photo3-clip': transition.photo3Clip.toFixed(1)+'%',
-        '--v5-photo3-x': transition.photo3X.toFixed(1)+'px',
-      };
-      for(const [key,value] of Object.entries(values))root.style.setProperty(key,value);
-    };
-    const schedule = () => {
-      if (raf === 0) raf = requestAnimationFrame(update);
-    };
-    schedule();
-    window.addEventListener('scroll', schedule, { passive: true });
-    window.addEventListener('resize', schedule, { passive: true });
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener('scroll', schedule);
-      window.removeEventListener('resize', schedule);
-      delete root.dataset.v5Scene;
-      for (const property of [
-        '--v5-scene-one', '--v5-scene-two', '--v5-scene-three',
-        '--v5-shift', '--v5-progress', '--v5-ambient-x',
-        '--v5-copy-x','--v5-copy-y','--v5-stat-x','--v5-stat-x-negative',
-        '--v5-first-x','--v5-first-mask','--v5-second-x',
-        '--v5-second-mask-left','--v5-second-mask-right',
-        '--v5-third-x','--v5-third-mask',
-        '--v5-photo2-opacity','--v5-photo2-clip','--v5-photo2-x',
-        '--v5-photo3-opacity','--v5-photo3-clip','--v5-photo3-x',
-      ]) root.style.removeProperty(property);
-    };
-  }, [reducedMotion]);
 
   const moveScene: PointerEventHandler<HTMLElement> = (event) => {
     if (reducedMotion || (event.pointerType !== 'mouse' && event.pointerType !== 'pen')) return;

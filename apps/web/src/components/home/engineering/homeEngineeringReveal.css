@@ -3,7 +3,7 @@
 .home-engineering__header { max-width: 740px; }
 .home-engineering__eyebrow { color: #ff875a; font: 700 10px/1.4 var(--peds-font-mono); letter-spacing: .17em; }
 .home-engineering__header h2 { margin: 12px 0 0; color: #f6f0e9; font: 800 clamp(2.5rem, 5vw / var(--peds-visual-zoom), 5.4rem)/.93 var(--peds-font-display); }
-.home-engineering__header h2 em { color: #ff6935; font-style: inherit; }
+.home-engineering__header h2 em { color: #ff6935; font-family: var(--peds-font-editorial); font-style: italic; font-weight: 400; }
 .home-engineering__header p { max-width: 55ch; margin: 18px 0 0; color: #bfced9; font-size: clamp(.9rem, 1vw / var(--peds-visual-zoom), 1.05rem); line-height: 1.68; }
 .home-engineering__stage {
   display: grid;

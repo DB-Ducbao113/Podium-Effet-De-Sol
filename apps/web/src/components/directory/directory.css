@@ -1878,7 +1878,7 @@
   margin: 0.3rem 0 0;
   font-family: var(--peds-font-editorial);
   font-size: clamp(1.65rem, 2.7vw / var(--peds-visual-zoom), 2.35rem);
-  font-weight: 600;
+  font-weight: 400;
   line-height: 1.15;
 }
 
@@ -3457,7 +3457,7 @@
 .p5-extra-review-copy h2 {
   margin: 0.4rem 0 0.8rem;
   color: #f4f0e8;
-  font: 600 clamp(1.85rem, 3.8vw / var(--peds-visual-zoom), 3.1rem)/1.12 var(--peds-font-editorial);
+  font: 400 clamp(1.85rem, 3.8vw / var(--peds-visual-zoom), 3.1rem)/1.12 var(--peds-font-editorial);
   text-transform: none;
 }
 

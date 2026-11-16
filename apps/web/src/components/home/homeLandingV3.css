@@ -180,7 +180,7 @@
 .home-rc__identity h3 {
   margin: .7rem 0 .5rem;
   color: #f4f0e8;
-  font: 600 clamp(1.6rem, 2.3vw / var(--peds-visual-zoom), 2.35rem)/1.12 var(--peds-font-editorial);
+  font: 400 clamp(1.6rem, 2.3vw / var(--peds-visual-zoom), 2.35rem)/1.12 var(--peds-font-editorial);
   text-transform: none;
   overflow-wrap: anywhere;
 }

@@ -325,7 +325,9 @@
 }
 .sr-intro-title em {
   color: var(--peds-color-ignition);
-  font-style: normal;
+  font-family: var(--peds-font-editorial);
+  font-style: italic;
+  font-weight: 400;
 }
 .sr-intro-open {
   display: inline-flex;

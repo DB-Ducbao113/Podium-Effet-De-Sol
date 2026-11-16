@@ -10,6 +10,7 @@ import { chapterScrollTarget } from "./journey/homeChapterScroll";
 import { HomeEngineeringReveal } from "./engineering/HomeEngineeringReveal";
 import { useNextRace } from "./useNextRace";
 import { useHomeV5Choreography } from "./useHomeV5Choreography";
+import { useHomeGsapChoreography } from "./useHomeGsapChoreography";
 import { useNavigationStore } from "../../store/useNavigationStore";
 import "./homepageH1.css";
 import "./homeLandingV3.css";
@@ -25,7 +26,10 @@ export function HomeView({ worldPreview = false }: { worldPreview?: boolean }) {
   const lang = useNavigationStore((state) => state.lang);
   const isVi = lang === "vi";
   const homeRef = useRef<HTMLDivElement>(null);
+  // Both hooks are called every render; each one returns early unless
+  // ?motion=gsap selects it, so only a single engine ever writes the props.
   useHomeV5Choreography(homeRef);
+  useHomeGsapChoreography(homeRef);
 
   useEffect(() => {
     if (location.hash !== "#championship-overview") return;

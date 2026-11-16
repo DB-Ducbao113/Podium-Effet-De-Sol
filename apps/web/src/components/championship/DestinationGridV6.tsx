@@ -5,7 +5,7 @@ import type { ResultSessionKey } from '../../results-engine/availability';
 
 type Mode = 'results'|'calendar';
 export type DestinationState = 'verified'|'completed'|'awaiting'|'current'|'upcoming';
-export type DestinationItem = GrandPrixRound & { destinationState?: DestinationState; resultSession?: ResultSessionKey };
+export type DestinationItem = GrandPrixRound & { destinationState?: DestinationState; resultSession?: ResultSessionKey; winner?: string };
 type Props = {
   season: SeasonYear;
   lang: 'vi'|'en';
@@ -34,13 +34,13 @@ export function DestinationGridV6({season,lang,mode,items}:Props){
       <header className="destination-v6__head">
         <div>
           <span className="destination-v6__overline">
-            {vi?'MÙA GIẢI':'SEASON'} / {season} &nbsp;·&nbsp; {String(items.length).padStart(2,'0')} {vi?'CHẶNG':'DESTINATIONS'}
+            {vi?'MÙA GIẢI':'SEASON'} / {season} &nbsp;·&nbsp; {String(items.length).padStart(2,'0')} {vi?'CHẶNG':(isResults?'ROUNDS':'DESTINATIONS')}
           </span>
           <h2>{isResults
             ?(vi?<>Chọn <em>chặng đua.</em></>:<>Race <em>results.</em></>)
             :(vi?<>Lịch <em>đường đua.</em></>:<>Race <em>destinations.</em></>)}</h2>
           <p>{isResults
-            ?(vi?'Mở một chặng để xem kết quả và các phiên đua đã xác minh.':'Choose a destination to see sourced classifications and race sessions.')
+            ?(vi?'Mở một chặng để xem kết quả và các phiên đua đã xác minh.':'Choose a round to see sourced classifications and race sessions.')
             :(vi?'Khám phá từng chặng hoặc chuyển sang bản đồ hành trình.':'Explore every weekend, or switch to the interactive world tour.')}</p>
         </div>
         {!isResults && (
@@ -61,19 +61,21 @@ export function DestinationGridV6({season,lang,mode,items}:Props){
                 <li key={race.round} className="destination-v6__item">
                   <Link className="destination-v6__card" to={href}
                     aria-label={(vi?'Chặng ':'Round ')+race.round+': '+race.name+
-                      (status?' · '+status:'')}>
+                      (status?' · '+status:'')+(isResults&&race.winner?' · P1 '+race.winner:'')}>
                     <span className="destination-v6__number">
-                      {vi?'CHẶNG':'DESTINATION'} / {String(race.round).padStart(2,'0')}
+                      {isResults
+                        ?<>{vi?'VÒNG':'ROUND'} / {String(race.round).padStart(2,'0')} &nbsp;·&nbsp; {race.dates}</>
+                        :<>{vi?'CHẶNG':'DESTINATION'} / {String(race.round).padStart(2,'0')}</>}
                     </span>
                     <span className="destination-v6__names">
                       <strong>{race.country}</strong>
-                      <em>{race.location}</em>
+                      <em>{isResults&&race.winner?race.winner:race.location}</em>
                     </span>
                     <span className="destination-v6__lower">
-                      <span>{race.dates}</span>
+                      <span>{isResults?(status??race.dates):race.dates}</span>
                       <ArrowUpRight size={24} strokeWidth={1.6} aria-hidden="true"/>
                     </span>
-                    <span className="sr-only">{race.circuit}{status?' · '+status:''}</span>
+                    <span className="sr-only">{race.circuit}{status?' · '+status:''}{isResults&&race.winner?' · P1 '+race.winner:''}</span>
                   </Link>
                 </li>
               );

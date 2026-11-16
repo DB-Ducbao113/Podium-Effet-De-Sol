@@ -70,7 +70,7 @@
 .peds-footer__column-head h2 {
   margin: 0;
   color: #edf3f6;
-  font: 600 20px/1.25 var(--peds-font-editorial);
+  font: 400 20px/1.25 var(--peds-font-editorial);
   letter-spacing: .04em;
 }
 
