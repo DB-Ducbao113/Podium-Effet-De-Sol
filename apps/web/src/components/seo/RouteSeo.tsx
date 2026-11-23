@@ -1,125 +1,147 @@
-import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-import { CONFIGURED_SITE_URL, canIndexCurrentHost } from '../../config/site';
-import { getEngineeringArticle } from '../../data/engineeringArticles';
-import { useNavigationStore } from '../../store/useNavigationStore';
-import { modelBReviewCopy } from './modelBReviewCopy';
-import { normalizeRoutePath } from './routePath';
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import { CONFIGURED_SITE_URL, canIndexCurrentHost } from "../../config/site";
+import { getEngineeringArticle } from "../../data/engineeringArticles";
+import { useNavigationStore } from "../../store/useNavigationStore";
+import { modelBReviewCopy } from "./modelBReviewCopy";
+import { normalizeRoutePath } from "./routePath";
 
 const upsertMeta = (
   selector: string,
-  attribute: 'name' | 'property',
+  attribute: "name" | "property",
   key: string,
   content: string,
 ) => {
   let element = document.head.querySelector<HTMLMetaElement>(selector);
   if (!element) {
-    element = document.createElement('meta');
+    element = document.createElement("meta");
     element.setAttribute(attribute, key);
     document.head.appendChild(element);
   }
   element.content = content;
 };
 
-const routeCopy = (pathname: string, lang: 'vi' | 'en', modelBReview = false) => {
-  if (pathname === '/engineering/car-anatomy') {
+const routeCopy = (
+  pathname: string,
+  lang: "vi" | "en",
+  modelBReview = false,
+) => {
+  if (pathname === "/engineering/car-anatomy") {
     return {
-      title: lang === 'vi' ? 'Giải phẫu xe đua | Podium EDS' : 'Race Car Anatomy | Podium EDS',
-      description: lang === 'vi'
-        ? 'Bảy chương giải thích nguyên lý kỹ thuật xe đua với chú thích Model B tham khảo trong bản review local.'
-        : 'Seven bilingual race-engineering chapters with approximate Model B annotations in local review.',
-      type: 'website',
-      image: '/images/eds/engineering/ground-effect-flow.svg',
+      title:
+        lang === "vi"
+          ? "Giải phẫu xe đua 3D | Podium EDS"
+          : "3D Race Car Disassembly | Podium EDS",
+      description:
+        lang === "vi"
+          ? "Giải phẫu 3D tương tác 47 cụm linh kiện và buồng lái vô-lăng F1 song ngữ trên Podium EDS."
+          : "Interactive 47-part 3D race car disassembly and F1 cockpit telemetry view on Podium EDS.",
+      type: "website",
+      image: "/images/eds/engineering/ground-effect-flow.svg",
     };
   }
-  if (pathname === '/showroom' && modelBReview) {
+  if (pathname === "/showroom" && modelBReview) {
     return modelBReviewCopy(lang);
   }
-  if (pathname === '/engineering') {
+  if (pathname === "/engineering") {
     return {
-      title: 'Engineering Insights | Podium EDS',
+      title: "Engineering Insights | Podium EDS",
       description:
-        lang === 'vi'
-          ? 'Chuyên đề kỹ thuật xe đua song ngữ về khí động học, hybrid và động lực học xe.'
-          : 'Bilingual race-engineering features on aerodynamics, hybrid systems and vehicle dynamics.',
-      type: 'website',
-      image: '/images/eds/engineering/ground-effect-flow.svg',
+        lang === "vi"
+          ? "Giải phẫu 3D xe đua 47 cụm chi tiết, soi buồng lái F1 và bốn chuyên đề kỹ thuật song ngữ."
+          : "Interactive 47-part 3D race car disassembly, F1 cockpit view and bilingual engineering features.",
+      type: "website",
+      image: "/images/eds/engineering/ground-effect-flow.svg",
     };
   }
-  const article = getEngineeringArticle(pathname.match(/^\/engineering\/([^/]+)\/?$/)?.[1]);
+  const article = getEngineeringArticle(
+    pathname.match(/^\/engineering\/([^/]+)\/?$/)?.[1],
+  );
   if (article)
     return {
       title: `${article.title[lang]} | Podium EDS`,
       description: article.description[lang],
-      type: 'article',
+      type: "article",
       image: article.socialImage,
       article,
     };
   const pages: Record<string, [string, string, string, string]> = {
-    '/': [
-      'Podium EDS | Kỹ thuật và dữ liệu đua xe',
-      'Podium EDS | Race Engineering and Data',
-      'Ấn phẩm đua xe độc lập với Showroom Model B, chuyên đề kỹ thuật và dữ liệu kết quả.',
-      'An independent motorsport publication with the Model B Showroom, engineering features and results data.',
+    "/": [
+      "Podium EDS | Kỹ thuật và dữ liệu đua xe",
+      "Podium EDS | Race Engineering and Data",
+      "Ấn phẩm đua xe độc lập với Showroom Model B, chuyên đề kỹ thuật và dữ liệu kết quả.",
+      "An independent motorsport publication with the Model B Showroom, engineering features and results data.",
     ],
-    '/showroom': [
-      'Showroom kỹ thuật Model B | Podium EDS',
-      'Model B Technical Showroom | Podium EDS',
-      'Khám phá Model B với các màu sơn và hotspot kỹ thuật tương tác.',
-      'Explore Model B with interactive finishes and engineering hotspots.',
+    "/showroom": [
+      "Showroom kỹ thuật Model B | Podium EDS",
+      "Model B Technical Showroom | Podium EDS",
+      "Khám phá Model B với các màu sơn và hotspot kỹ thuật tương tác.",
+      "Explore Model B with interactive finishes and engineering hotspots.",
     ],
-    '/teams': [
-      'Danh bạ đội đua | Podium EDS',
-      'Team Directory | Podium EDS',
-      'Thông tin biên tập về các đội đua trong hệ hình ảnh nguyên bản Podium EDS.',
-      'Editorial team reference presented through Podium EDS original visual assets.',
+    "/teams": [
+      "Danh bạ đội đua | Podium EDS",
+      "Team Directory | Podium EDS",
+      "Thông tin biên tập về các đội đua trong hệ hình ảnh nguyên bản Podium EDS.",
+      "Editorial team reference presented through Podium EDS original visual assets.",
     ],
-    '/drivers': [
-      'Danh bạ tay đua | Podium EDS',
-      'Driver Directory | Podium EDS',
-      'Thông tin tay đua và mùa giải trong trải nghiệm biên tập độc lập.',
-      'Driver and season reference in an independent editorial experience.',
+    "/drivers": [
+      "Danh bạ tay đua | Podium EDS",
+      "Driver Directory | Podium EDS",
+      "Thông tin tay đua và mùa giải trong trải nghiệm biên tập độc lập.",
+      "Driver and season reference in an independent editorial experience.",
     ],
-    '/about': [
-      'Về Podium EDS',
-      'About Podium EDS',
-      'Phương pháp, tính độc lập và phạm vi biên tập của Podium Effet De Sol.',
-      'The methods, independence and editorial scope of Podium Effet De Sol.',
+    "/about": [
+      "Về Podium EDS",
+      "About Podium EDS",
+      "Phương pháp, tính độc lập và phạm vi biên tập của Podium Effet De Sol.",
+      "The methods, independence and editorial scope of Podium Effet De Sol.",
     ],
   };
   const exact = pages[pathname];
   if (exact)
     return {
-      title: lang === 'vi' ? exact[0] : exact[1],
-      description: lang === 'vi' ? exact[2] : exact[3],
-      type: 'website',
-      image: '/logo/og-preview.jpg',
+      title: lang === "vi" ? exact[0] : exact[1],
+      description: lang === "vi" ? exact[2] : exact[3],
+      type: "website",
+      image: "/logo/og-preview.jpg",
     };
-  if (pathname.startsWith('/season/'))
+  if (pathname.startsWith("/season/"))
     return {
-      title: lang === 'vi' ? 'Mùa giải và kết quả | Podium EDS' : 'Season and Results | Podium EDS',
+      title:
+        lang === "vi"
+          ? "Mùa giải và kết quả | Podium EDS"
+          : "Season and Results | Podium EDS",
       description:
-        lang === 'vi'
-          ? 'Lịch, bảng xếp hạng và kết quả mùa giải.'
-          : 'Season schedule, standings and results.',
-      type: 'website',
-      image: '/logo/og-preview.jpg',
+        lang === "vi"
+          ? "Lịch, bảng xếp hạng và kết quả mùa giải."
+          : "Season schedule, standings and results.",
+      type: "website",
+      image: "/logo/og-preview.jpg",
     };
   if (/^\/(teams|drivers|cars)\//.test(pathname))
     return {
-      title: lang === 'vi' ? 'Hồ sơ đua xe | Podium EDS' : 'Motorsport Profile | Podium EDS',
+      title:
+        lang === "vi"
+          ? "Hồ sơ đua xe | Podium EDS"
+          : "Motorsport Profile | Podium EDS",
       description:
-        lang === 'vi'
-          ? 'Hồ sơ biên tập độc lập của Podium EDS.'
-          : 'An independent Podium EDS editorial profile.',
-      type: 'profile',
-      image: '/logo/og-preview.jpg',
+        lang === "vi"
+          ? "Hồ sơ biên tập độc lập của Podium EDS."
+          : "An independent Podium EDS editorial profile.",
+      type: "profile",
+      image: "/logo/og-preview.jpg",
     };
   return {
-    title: lang === 'vi' ? 'Không tìm thấy trang | Podium EDS' : 'Page Not Found | Podium EDS',
-    description: lang === 'vi' ? 'Trang không tồn tại.' : 'The requested page does not exist.',
-    type: 'website',
-    image: '/logo/og-preview.jpg',
+    title:
+      lang === "vi"
+        ? "Không tìm thấy trang | Podium EDS"
+        : "Page Not Found | Podium EDS",
+    description:
+      lang === "vi"
+        ? "Trang không tồn tại."
+        : "The requested page does not exist.",
+    type: "website",
+    image: "/logo/og-preview.jpg",
     notFound: true,
   };
 };
@@ -129,86 +151,136 @@ export const RouteSeo = () => {
   const routePath = normalizeRoutePath(pathname);
   const lang = useNavigationStore((state) => state.lang);
   useEffect(() => {
-    const modelBReview = import.meta.env.DEV && routePath === '/showroom';
+    const modelBReview = import.meta.env.DEV && routePath === "/showroom";
     const copy = routeCopy(routePath, lang, modelBReview);
-    const canonicalUrl = CONFIGURED_SITE_URL ? `${CONFIGURED_SITE_URL}${routePath}` : null;
+    const canonicalUrl = CONFIGURED_SITE_URL
+      ? `${CONFIGURED_SITE_URL}${routePath}`
+      : null;
     const imageUrl = CONFIGURED_SITE_URL
       ? new URL(copy.image, CONFIGURED_SITE_URL).href
       : copy.image;
     const indexable = canIndexCurrentHost() && !copy.notFound;
     document.documentElement.lang = lang;
     document.title = copy.title;
-    upsertMeta('meta[name="description"]', 'name', 'description', copy.description);
+    upsertMeta(
+      'meta[name="description"]',
+      "name",
+      "description",
+      copy.description,
+    );
     upsertMeta(
       'meta[name="robots"]',
-      'name',
-      'robots',
-      indexable ? 'index, follow' : 'noindex, nofollow',
+      "name",
+      "robots",
+      indexable ? "index, follow" : "noindex, nofollow",
     );
-    upsertMeta('meta[property="og:type"]', 'property', 'og:type', copy.type);
-    upsertMeta('meta[property="og:title"]', 'property', 'og:title', copy.title);
-    upsertMeta('meta[property="og:description"]', 'property', 'og:description', copy.description);
-    upsertMeta('meta[property="og:image"]', 'property', 'og:image', imageUrl);
-    upsertMeta('meta[property="og:image:type"]', 'property', 'og:image:type', 'image/png');
-    upsertMeta('meta[property="og:image:width"]', 'property', 'og:image:width', '1200');
-    upsertMeta('meta[property="og:image:height"]', 'property', 'og:image:height', '630');
-    upsertMeta('meta[property="og:image:alt"]', 'property', 'og:image:alt', copy.title);
+    upsertMeta('meta[property="og:type"]', "property", "og:type", copy.type);
+    upsertMeta('meta[property="og:title"]', "property", "og:title", copy.title);
+    upsertMeta(
+      'meta[property="og:description"]',
+      "property",
+      "og:description",
+      copy.description,
+    );
+    upsertMeta('meta[property="og:image"]', "property", "og:image", imageUrl);
+    upsertMeta(
+      'meta[property="og:image:type"]',
+      "property",
+      "og:image:type",
+      "image/png",
+    );
+    upsertMeta(
+      'meta[property="og:image:width"]',
+      "property",
+      "og:image:width",
+      "1200",
+    );
+    upsertMeta(
+      'meta[property="og:image:height"]',
+      "property",
+      "og:image:height",
+      "630",
+    );
+    upsertMeta(
+      'meta[property="og:image:alt"]',
+      "property",
+      "og:image:alt",
+      copy.title,
+    );
     upsertMeta(
       'meta[property="og:locale"]',
-      'property',
-      'og:locale',
-      lang === 'vi' ? 'vi_VN' : 'en_US',
+      "property",
+      "og:locale",
+      lang === "vi" ? "vi_VN" : "en_US",
     );
     upsertMeta(
       'meta[property="og:locale:alternate"]',
-      'property',
-      'og:locale:alternate',
-      lang === 'vi' ? 'en_US' : 'vi_VN',
+      "property",
+      "og:locale:alternate",
+      lang === "vi" ? "en_US" : "vi_VN",
     );
-    upsertMeta('meta[name="twitter:title"]', 'name', 'twitter:title', copy.title);
-    upsertMeta('meta[name="twitter:description"]', 'name', 'twitter:description', copy.description);
-    upsertMeta('meta[name="twitter:image"]', 'name', 'twitter:image', imageUrl);
-    upsertMeta('meta[name="twitter:image:alt"]', 'name', 'twitter:image:alt', copy.title);
-    let canonical = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+    upsertMeta(
+      'meta[name="twitter:title"]',
+      "name",
+      "twitter:title",
+      copy.title,
+    );
+    upsertMeta(
+      'meta[name="twitter:description"]',
+      "name",
+      "twitter:description",
+      copy.description,
+    );
+    upsertMeta('meta[name="twitter:image"]', "name", "twitter:image", imageUrl);
+    upsertMeta(
+      'meta[name="twitter:image:alt"]',
+      "name",
+      "twitter:image:alt",
+      copy.title,
+    );
+    let canonical = document.head.querySelector<HTMLLinkElement>(
+      'link[rel="canonical"]',
+    );
     if (canonicalUrl) {
       if (!canonical) {
-        canonical = document.createElement('link');
-        canonical.rel = 'canonical';
+        canonical = document.createElement("link");
+        canonical.rel = "canonical";
         document.head.appendChild(canonical);
       }
       canonical.href = canonicalUrl;
-      upsertMeta('meta[property="og:url"]', 'property', 'og:url', canonicalUrl);
+      upsertMeta('meta[property="og:url"]', "property", "og:url", canonicalUrl);
     } else {
       canonical?.remove();
       document.head.querySelector('meta[property="og:url"]')?.remove();
     }
-    document.getElementById('route-structured-data')?.remove();
+    document.getElementById("route-structured-data")?.remove();
     const schema = copy.article
       ? {
-          '@context': 'https://schema.org',
-          '@type': 'TechArticle',
+          "@context": "https://schema.org",
+          "@type": "TechArticle",
           headline: copy.article.title[lang],
-          alternativeHeadline: copy.article.title[lang === 'vi' ? 'en' : 'vi'],
+          alternativeHeadline: copy.article.title[lang === "vi" ? "en" : "vi"],
           description: copy.article.description[lang],
           image: imageUrl,
-          inLanguage: ['vi', 'en'],
+          inLanguage: ["vi", "en"],
           ...(canonicalUrl ? { mainEntityOfPage: canonicalUrl } : {}),
-          author: { '@type': 'Organization', name: 'Podium EDS Editorial' },
-          publisher: { '@type': 'Organization', name: 'Podium Effet De Sol' },
+          author: { "@type": "Organization", name: "Podium EDS Editorial" },
+          publisher: { "@type": "Organization", name: "Podium Effet De Sol" },
         }
       : canonicalUrl
         ? {
-            '@context': 'https://schema.org',
-            '@type': routePath === '/engineering' ? 'CollectionPage' : 'WebPage',
+            "@context": "https://schema.org",
+            "@type":
+              routePath === "/engineering" ? "CollectionPage" : "WebPage",
             name: copy.title,
             description: copy.description,
             url: canonicalUrl,
           }
         : null;
     if (schema) {
-      const script = document.createElement('script');
-      script.id = 'route-structured-data';
-      script.type = 'application/ld+json';
+      const script = document.createElement("script");
+      script.id = "route-structured-data";
+      script.type = "application/ld+json";
       script.text = JSON.stringify(schema);
       document.head.appendChild(script);
     }

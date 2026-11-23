@@ -5,6 +5,13 @@ import openF1Handler from "./interfaces/http/openf1";
 import { corsHeaders, jsonResponse } from "./interfaces/http/shared";
 
 const limiter = new FixedWindowRateLimiter(120, 60_000);
+const APPROVED_PUBLIC_MODELS = new Set([
+  "/models/model-b-eds-optimized-v1.glb",
+  "/models/fp04rb-engineering-v1.glb",
+  "/models/fp04rb-showroom-desktop.glb",
+  "/models/fp04rb-showroom-mobile.glb",
+  "/models/fp04rb-pit-crew-v1.glb",
+]);
 
 const securityHeaders = {
   "Content-Security-Policy":
@@ -34,7 +41,7 @@ async function route(
   const pathname = new URL(request.url).pathname;
   if (pathname.startsWith("/models/")) {
     if (
-      pathname !== "/models/model-b-eds-optimized-v1.glb" ||
+      !APPROVED_PUBLIC_MODELS.has(pathname) ||
       !["GET", "HEAD"].includes(request.method)
     ) {
       return new Response("Model asset not found", {

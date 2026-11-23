@@ -109,7 +109,10 @@ const visited = new Set();
 
 async function resolveRelativeImport(importer, specifier) {
   const base = path.resolve(path.dirname(importer), specifier);
-  for (const candidate of [base, ...extensions.map((extension) => `${base}${extension}`)]) {
+  for (const candidate of [
+    base,
+    ...extensions.map((extension) => `${base}${extension}`),
+  ]) {
     try {
       const stat = await fs.stat(candidate);
       if (stat.isFile()) return candidate;
@@ -126,14 +129,17 @@ async function resolveRelativeImport(importer, specifier) {
       if (error.code !== 'ENOENT') throw error;
     }
   }
-  throw new Error(`Unable to resolve ${specifier} from ${path.relative(projectRoot, importer)}`);
+  throw new Error(
+    `Unable to resolve ${specifier} from ${path.relative(projectRoot, importer)}`,
+  );
 }
 
 async function walkSourceGraph(filePath) {
   if (visited.has(filePath)) return;
   visited.add(filePath);
   const source = await fs.readFile(filePath, 'utf8');
-  const importPattern = /(?:import|export)\s+(?:[^'";]*?\s+from\s+)?['"]([^'"]+)['"]/g;
+  const importPattern =
+    /(?:import|export)\s+(?:[^'";]*?\s+from\s+)?['"]([^'"]+)['"]/g;
   for (const match of source.matchAll(importPattern)) {
     if (!match[1].startsWith('.')) continue;
     const resolved = await resolveRelativeImport(filePath, match[1]);
@@ -157,7 +163,8 @@ async function walkArtifacts(directory) {
     if (entry.isDirectory()) await walkArtifacts(filePath);
     else {
       artifactPaths.push(filePath);
-      if (/\.(?:html|js|css|json|svg)$/i.test(entry.name)) artifactFiles.push(filePath);
+      if (/\.(?:html|js|css|json|svg)$/i.test(entry.name))
+        artifactFiles.push(filePath);
     }
   }
 }
@@ -166,47 +173,120 @@ await walkArtifacts(clientAssetsDir);
 
 const artifactViolations = [];
 for (const filePath of artifactPaths) {
-  const relativePath = path.relative(projectRoot, filePath).replaceAll('\\', '/');
-  for (const forbiddenName of ['tokyo-drift-final.mp4', 'tokyo-drift-final-poster.png', 'tokyo-drift-h2-9-final.mp4', 'tokyo-drift-h2-9-poster.png', 'tokyo-drift-h3-0-final.mp4', 'tokyo-drift-h3-0-poster.png', 'tokyo-drift-h3-1-2x.mp4', 'tokyo-drift-h3-1-2x-poster.png', 'tokyo-drift-h3-1-3x.mp4', 'tokyo-drift-h3-1-3x-poster.png', 'tokyo-drift-h3-2-2x.mp4', 'tokyo-drift-h3-2-3x.mp4', 'tokyo-drift-h3-2-poster.png', 'tokyo-drift-h3-2-3x-poster.png', 'tokyo-drift-h3-2r-homepage.mp4', 'tokyo-drift-h3-2r-homepage-poster.png']) {
-    if (relativePath.endsWith(forbiddenName)) artifactViolations.push(`${relativePath} -> forbidden filename`);
+  const relativePath = path
+    .relative(projectRoot, filePath)
+    .replaceAll('\\', '/');
+  for (const forbiddenName of [
+    'tokyo-drift-final.mp4',
+    'tokyo-drift-final-poster.png',
+    'tokyo-drift-h2-9-final.mp4',
+    'tokyo-drift-h2-9-poster.png',
+    'tokyo-drift-h3-0-final.mp4',
+    'tokyo-drift-h3-0-poster.png',
+    'tokyo-drift-h3-1-2x.mp4',
+    'tokyo-drift-h3-1-2x-poster.png',
+    'tokyo-drift-h3-1-3x.mp4',
+    'tokyo-drift-h3-1-3x-poster.png',
+    'tokyo-drift-h3-2-2x.mp4',
+    'tokyo-drift-h3-2-3x.mp4',
+    'tokyo-drift-h3-2-poster.png',
+    'tokyo-drift-h3-2-3x-poster.png',
+    'tokyo-drift-h3-2r-homepage.mp4',
+    'tokyo-drift-h3-2r-homepage-poster.png',
+  ]) {
+    if (relativePath.endsWith(forbiddenName))
+      artifactViolations.push(`${relativePath} -> forbidden filename`);
   }
 }
 for (const filePath of artifactFiles) {
   const contents = await fs.readFile(filePath, 'utf8');
   for (const token of forbiddenArtifactTokens) {
     if (contents.includes(token)) {
-      artifactViolations.push(`${path.relative(projectRoot, filePath)} -> ${token}`);
+      artifactViolations.push(
+        `${path.relative(projectRoot, filePath)} -> ${token}`,
+      );
     }
   }
 }
 
 const heroMediaViolations = [];
-const modelBAsset = {
-  path: 'models/model-b-eds-optimized-v1.glb',
-  bytes: 2120816,
-  sha256: '2D0091661DACE5D6C61AEBF898B4974644B44E43A5E8D10F602685C1631610A2',
-};
-const modelBPath = path.join(clientAssetsDir, modelBAsset.path);
-try {
-  const bytes = await fs.readFile(modelBPath);
-  const sha256 = crypto.createHash('sha256').update(bytes).digest('hex').toUpperCase();
-  if (bytes.length !== modelBAsset.bytes || sha256 !== modelBAsset.sha256) {
-    artifactViolations.push(`${modelBAsset.path} -> Model B identity mismatch`);
+const approvedProductionModels = [
+  {
+    path: 'models/model-b-eds-optimized-v1.glb',
+    bytes: 2120816,
+    sha256: '2D0091661DACE5D6C61AEBF898B4974644B44E43A5E8D10F602685C1631610A2',
+    label: 'Model B',
+  },
+  {
+    path: 'models/fp04rb-engineering-v1.glb',
+    bytes: 9966120,
+    sha256: '16CD7B971B4C86C41CBBA3CE192F015AAAB3335CE24A68F1E58E891B1A4D5526',
+    label: 'FP-04 RB Engineering',
+  },
+  {
+    path: 'models/fp04rb-showroom-desktop.glb',
+    bytes: 5534176,
+    sha256: '29588DA97E49FBECEBB3EA3969149DD8BB00403DA84BCB8FAEAE3F85498D456B',
+    label: 'FP-04 RB Showroom Desktop',
+  },
+  {
+    path: 'models/fp04rb-showroom-mobile.glb',
+    bytes: 3330168,
+    sha256: 'DF8B7FAACDDB20F16FE1534D1ABD1D0C0A896C7725B1442F184BEB8C174C3DEB',
+    label: 'FP-04 RB Showroom Mobile',
+  },
+  {
+    path: 'models/fp04rb-pit-crew-v1.glb',
+    bytes: 899380,
+    sha256: '72D12470F37C24584286FAB3CB31EA28E81EF3FADE510218217DC9BAECC7CFAF',
+    label: 'FP-04 RB Pit Crew Rigged',
+  },
+  {
+    path: 'models/fp04rb-pit-crew-v1.glb',
+    bytes: 899380,
+    sha256: '72D12470F37C24584286FAB3CB31EA28E81EF3FADE510218217DC9BAECC7CFAF',
+    label: 'FP-04 RB Pit Crew Rigged',
+  },
+];
+for (const modelAsset of approvedProductionModels) {
+  const modelPath = path.join(clientAssetsDir, modelAsset.path);
+  try {
+    const bytes = await fs.readFile(modelPath);
+    const sha256 = crypto
+      .createHash('sha256')
+      .update(bytes)
+      .digest('hex')
+      .toUpperCase();
+    if (bytes.length !== modelAsset.bytes || sha256 !== modelAsset.sha256) {
+      artifactViolations.push(
+        `${modelAsset.path} -> ${modelAsset.label} identity mismatch`,
+      );
+    }
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error;
+    artifactViolations.push(
+      `${modelAsset.path} -> missing from production build`,
+    );
   }
-} catch (error) {
-  if (error.code !== 'ENOENT') throw error;
-  artifactViolations.push(`${modelBAsset.path} -> missing from production build`);
 }
 for (const asset of [...approvedHeroMedia, ...approvedShowroomIntroMedia]) {
   const filePath = path.join(clientAssetsDir, asset.path);
   try {
     const bytes = await fs.readFile(filePath);
-    const sha256 = crypto.createHash('sha256').update(bytes).digest('hex').toUpperCase();
+    const sha256 = crypto
+      .createHash('sha256')
+      .update(bytes)
+      .digest('hex')
+      .toUpperCase();
     if (bytes.length !== asset.bytes) {
-      heroMediaViolations.push(`${asset.path} -> ${bytes.length} B (expected ${asset.bytes} B)`);
+      heroMediaViolations.push(
+        `${asset.path} -> ${bytes.length} B (expected ${asset.bytes} B)`,
+      );
     }
     if (sha256 !== asset.sha256) {
-      heroMediaViolations.push(`${asset.path} -> SHA-256 ${sha256} (expected ${asset.sha256})`);
+      heroMediaViolations.push(
+        `${asset.path} -> SHA-256 ${sha256} (expected ${asset.sha256})`,
+      );
     }
   } catch (error) {
     if (error.code !== 'ENOENT') throw error;
@@ -215,18 +295,28 @@ for (const asset of [...approvedHeroMedia, ...approvedShowroomIntroMedia]) {
 }
 const videoArtifacts = artifactPaths
   .filter((filePath) => filePath.endsWith('.mp4'))
-  .map((filePath) => path.relative(clientAssetsDir, filePath).replaceAll('\\', '/'));
+  .map((filePath) =>
+    path.relative(clientAssetsDir, filePath).replaceAll('\\', '/'),
+  );
 const unexpectedVideos = videoArtifacts.filter(
   (artifactPath) => !approvedVideoPaths.has(artifactPath),
 );
 if (unexpectedVideos.length) {
-  heroMediaViolations.push(`Unexpected production video artifacts: ${unexpectedVideos.join(', ')}`);
+  heroMediaViolations.push(
+    `Unexpected production video artifacts: ${unexpectedVideos.join(', ')}`,
+  );
 }
 if (!videoArtifacts.includes(approvedHeroMedia[0].path)) {
-  heroMediaViolations.push(`Missing approved Homepage film: ${approvedHeroMedia[0].path}`);
+  heroMediaViolations.push(
+    `Missing approved Homepage film: ${approvedHeroMedia[0].path}`,
+  );
 }
 
-if (sourceViolations.length || artifactViolations.length || heroMediaViolations.length) {
+if (
+  sourceViolations.length ||
+  artifactViolations.length ||
+  heroMediaViolations.length
+) {
   throw new Error(
     [
       sourceViolations.length

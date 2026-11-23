@@ -100,6 +100,11 @@ html[data-text-zoom="400"] .peds-showroom-route {
 .sr-view[data-variant="model-b"] .sr-replay {
   bottom: 76px;
 }
+.sr-view[data-variant="fp04rb-garage"] .sr-replay {
+  left: 12px;
+  bottom: 14px;
+  min-height: 44px;
+}
 /* The reveal only animates when the intro actually played (data-reveal). T0
    visitors — reduced motion, save-data, weak device — enter with no delay. The
    stage settles a beat after the veil blooms; the replay pill rises in last so
@@ -130,12 +135,28 @@ html[data-text-zoom="400"] .peds-showroom-route {
     transform: translateY(0);
   }
 }
+@media (max-width: 1179px) {
+  .sr-view[data-variant="fp04rb-garage"] .sr-replay {
+    top: 68px;
+    right: 12px;
+    left: auto;
+    bottom: auto;
+  }
+}
 @media (max-width: 860px) {
   .sr-replay {
     bottom: 12px;
   }
   .sr-view[data-variant="model-b"] .sr-replay {
     bottom: 150px;
+  }
+}
+@media (max-width: 768px) {
+  .sr-view[data-variant="fp04rb-garage"] .sr-replay {
+    top: 54px;
+    right: 10px;
+    left: auto;
+    bottom: auto;
   }
 }
 @media (prefers-reduced-motion: reduce) {

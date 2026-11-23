@@ -1,0 +1,388 @@
+.peds-garage-shell {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding-top: 4.5rem;
+  background: #0b0d12;
+  color: #f4f6f9;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+  font-family: var(--font-sans, system-ui, -apple-system, sans-serif);
+}
+
+.peds-garage-topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.55rem;
+  padding: 0.55rem 0.9rem;
+  background: rgba(15, 18, 24, 0.94);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.peds-garage-title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.peds-garage-kicker {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #ff4742;
+}
+
+.peds-garage-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: #ffffff;
+}
+
+.peds-garage-disclaimer {
+  margin: 0;
+  font-size: 0.74rem;
+  color: #a9b4c2;
+  max-width: 68ch;
+}
+
+.peds-garage-controls-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.peds-garage-workspace {
+  display: grid;
+  grid-template-columns: 212px minmax(0, 1fr) 326px;
+  min-height: 0;
+  height: 100%;
+  gap: 0;
+}
+
+.peds-garage-rail {
+  background: rgba(14, 17, 23, 0.96);
+  border-right: 1px solid rgba(255, 255, 255, 0.09);
+  padding: 0.55rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.peds-team-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  min-height: 44px;
+  padding: 0.45rem 0.65rem;
+  border-radius: 0.6rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: #e6ecf5;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease;
+}
+
+.peds-team-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.peds-team-btn[aria-pressed="true"] {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: var(--team-accent, #f48220);
+  box-shadow: inset 3px 0 0 var(--team-primary, #f48220);
+}
+
+.peds-team-swatch {
+  width: 10px;
+  height: 26px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.peds-team-logo-badge {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.75));
+}
+
+.peds-garage-viewport-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  background: radial-gradient(circle at 50% 25%, #1d232d 0%, #0b0d12 75%);
+  overflow: hidden;
+}
+
+.peds-garage-canvas-host {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.peds-garage-canvas-host > div {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.peds-garage-hud-overlay {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  right: 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.peds-garage-pill {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  background: rgba(11, 14, 19, 0.84);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  font-size: 0.74rem;
+  color: #dce4f0;
+  backdrop-filter: blur(8px);
+}
+
+.peds-garage-preset-bar {
+  position: absolute;
+  left: 0.75rem;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  justify-content: center;
+  z-index: 4;
+}
+
+.peds-garage-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0.45rem 0.8rem;
+  border-radius: 0.6rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(15, 19, 26, 0.88);
+  color: #edf2f7;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease;
+}
+
+.peds-garage-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.peds-garage-btn[aria-pressed="true"],
+.peds-garage-btn-primary {
+  background: #e10600;
+  border-color: #ff4742;
+  color: #ffffff;
+}
+
+.peds-garage-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.peds-garage-btn:focus-visible,
+.peds-team-btn:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
+.peds-garage-inspector {
+  background: rgba(14, 17, 23, 0.96);
+  border-left: 1px solid rgba(255, 255, 255, 0.09);
+  padding: 0.65rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.peds-garage-card {
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 0.65rem;
+  padding: 0.6rem;
+}
+
+.peds-part-item {
+  width: 100%;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.45rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.025);
+  color: #edf2f7;
+  text-align: left;
+  cursor: pointer;
+}
+
+.peds-part-item[aria-pressed="true"] {
+  border-color: #e10600;
+  background: rgba(225, 6, 0, 0.16);
+}
+
+.peds-badge-supported {
+  font-size: 0.66rem;
+  font-weight: 700;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  background: rgba(16, 185, 129, 0.18);
+  color: #6ee7b7;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.peds-badge-unsupported {
+  font-size: 0.66rem;
+  font-weight: 700;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  background: rgba(245, 158, 11, 0.18);
+  color: #fcd34d;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.peds-mobile-sheet-tabs {
+  display: none;
+}
+
+@media (max-width: 1179px) {
+  .peds-garage-shell {
+    padding-top: 7.25rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  .peds-garage-workspace {
+    grid-template-columns: 184px minmax(0, 1fr) 292px;
+  }
+}
+
+@media (max-width: 768px) {
+  .peds-garage-shell {
+    padding-top: 6.25rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .peds-garage-topbar {
+    gap: 0.3rem;
+    padding: 0.38rem 0.6rem;
+    flex-shrink: 0;
+  }
+
+  .peds-garage-disclaimer {
+    display: none;
+  }
+
+  .peds-garage-workspace {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    flex: 0 0 auto;
+  }
+
+  .peds-garage-viewport-wrap {
+    order: 1;
+    height: 33svh;
+    min-height: 196px;
+    flex-shrink: 0;
+  }
+
+  .peds-garage-canvas-host {
+    min-height: 196px;
+  }
+
+  .peds-mobile-sheet-tabs {
+    order: 2;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.35rem;
+    padding: 0.4rem 0.65rem;
+    background: #10141c;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+  }
+
+  .peds-garage-rail {
+    order: 3;
+    border-right: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.4rem;
+    overflow-y: visible;
+  }
+
+  .peds-garage-inspector {
+    order: 3;
+    border-left: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    overflow-y: visible;
+  }
+
+  .peds-mobile-hidden {
+    display: none !important;
+  }
+
+  .peds-garage-preset-bar {
+    justify-content: flex-start;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 0.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .peds-team-btn,
+  .peds-garage-btn {
+    transition: none;
+  }
+}

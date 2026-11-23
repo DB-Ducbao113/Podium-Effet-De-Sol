@@ -1,11 +1,11 @@
-import { readFileSync } from 'node:fs';
-import { renderToStaticMarkup } from 'react-dom/server';
-import { MemoryRouter } from 'react-router-dom';
-import { beforeEach, describe, expect, it } from 'vitest';
-import { AboutPage } from './AboutPage';
-import { useNavigationStore } from '../../store/useNavigationStore';
+import { readFileSync } from "node:fs";
+import { renderToStaticMarkup } from "react-dom/server";
+import { MemoryRouter } from "react-router-dom";
+import { beforeEach, describe, expect, it } from "vitest";
+import { AboutPage } from "./AboutPage";
+import { useNavigationStore } from "../../store/useNavigationStore";
 
-const css = readFileSync('src/index.css', 'utf8');
+const css = readFileSync("src/index.css", "utf8");
 
 const tokenDeclarations = new Map<string, string>();
 for (const match of css.matchAll(/--([\w-]+):\s*([^;]+);/g)) {
@@ -25,7 +25,7 @@ function channel(value: number): number {
 }
 
 function luminance(hex: string): number {
-  const value = hex.replace('#', '');
+  const value = hex.replace("#", "");
   const [r, g, b] = [0, 2, 4].map((offset) =>
     channel(Number.parseInt(value.slice(offset, offset + 2), 16)),
   );
@@ -33,11 +33,13 @@ function luminance(hex: string): number {
 }
 
 function contrast(first: string, second: string): number {
-  const [light, dark] = [luminance(first), luminance(second)].sort((a, b) => b - a);
+  const [light, dark] = [luminance(first), luminance(second)].sort(
+    (a, b) => b - a,
+  );
   return (light + 0.05) / (dark + 0.05);
 }
 
-const renderAbout = (lang: 'en' | 'vi') => {
+const renderAbout = (lang: "en" | "vi") => {
   useNavigationStore.setState({ lang });
   return renderToStaticMarkup(
     <MemoryRouter>
@@ -46,65 +48,74 @@ const renderAbout = (lang: 'en' | 'vi') => {
   );
 };
 
-describe('About page display heading', () => {
-  beforeEach(() => useNavigationStore.setState({ lang: 'en' }));
+describe("About page display heading", () => {
+  beforeEach(() => useNavigationStore.setState({ lang: "en" }));
 
-  it.each(['en', 'vi'] as const)(
-    'uses the shared display primitive on the reference paper canvas (%s)',
+  it.each(["en", "vi"] as const)(
+    "uses the shared display primitive on the reference paper canvas (%s)",
     (lang) => {
       const html = renderAbout(lang);
-      expect(html).toContain('peds-display-page');
-      expect(html).toContain('peds-about--prototype');
-      expect(html).not.toContain('text-studio-950');
+      expect(html).toContain("peds-display-page");
+      expect(html).toContain("peds-about--prototype");
+      expect(html).not.toContain("text-studio-950");
     },
   );
 
-  it('keeps ivory heading text above 4.5:1 on the canvas', () => {
-    expect(contrast(token('peds-color-text'), token('peds-color-canvas'))).toBeGreaterThanOrEqual(4.5);
+  it("keeps ivory heading text above 4.5:1 on the canvas", () => {
+    expect(
+      contrast(token("peds-color-text"), token("peds-color-canvas")),
+    ).toBeGreaterThanOrEqual(4.5);
   });
 });
 
-describe('About page V5 light surface contract', () => {
-  beforeEach(() => useNavigationStore.setState({ lang: 'en' }));
+describe("About page V5 light surface contract", () => {
+  beforeEach(() => useNavigationStore.setState({ lang: "en" }));
 
-  it('keeps legacy markup contents while the scoped V5 skin recolours the cards', () => {
-    const html = renderAbout('en');
-    const skin = readFileSync('src/styles/prototypeColorParityV7.css','utf8');
-    expect(html).toContain('peds-about--prototype');
-    expect(html).toContain('bg-white/5 border border-white/10');
-    expect(skin).toContain('.peds-about--prototype > div.grid > section');
-    expect(skin).toContain('background:var(--peds-proto-paper-deep)');
+  it("keeps legacy markup contents while the scoped V5 skin recolours the cards", () => {
+    const html = renderAbout("en");
+    const skin = readFileSync("src/styles/prototypeColorParityV7.css", "utf8");
+    const compactSkin = skin.replace(/\s+/g, "");
+    expect(html).toContain("peds-about--prototype");
+    expect(html).toContain("bg-white/5 border border-white/10");
+    expect(skin).toMatch(
+      /\.peds-about--prototype\s*>\s*div\.grid\s*>\s*section/,
+    );
+    expect(compactSkin).toContain("background:var(--peds-proto-paper-deep)");
   });
 
-  it('uses vector icons instead of emoji chips', () => {
-    const html = renderAbout('en');
+  it("uses vector icons instead of emoji chips", () => {
+    const html = renderAbout("en");
     expect(html).not.toMatch(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u);
-    expect(html).toContain('lucide-palette');
-    expect(html).toContain('lucide-users');
-    expect(html).toContain('lucide-zap');
+    expect(html).toContain("lucide-palette");
+    expect(html).toContain("lucide-users");
+    expect(html).toContain("lucide-zap");
   });
 });
 
-describe('IGNITION palette contract', () => {
-  it('keeps the approved canonical values and pairings legible', () => {
-    expect(token('peds-color-carbon')).toBe('#0a0c10');
-    expect(token('peds-color-ignition')).toBe('#ff4a18');
-    expect(token('peds-color-racing-red')).toBe('#e51b37');
-    expect(token('peds-color-ivory')).toBe('#f4f0e8');
-    expect(token('peds-color-signal')).toBe('#b7ff37');
+describe("IGNITION palette contract", () => {
+  it("keeps the approved canonical values and pairings legible", () => {
+    expect(token("peds-color-carbon")).toBe("#0a0c10");
+    expect(token("peds-color-ignition")).toBe("#ff4a18");
+    expect(token("peds-color-racing-red")).toBe("#e51b37");
+    expect(token("peds-color-ivory")).toBe("#f4f0e8");
+    expect(token("peds-color-signal")).toBe("#b7ff37");
 
-    expect(contrast(token('peds-color-carbon'), token('peds-color-ignition'))).toBeGreaterThanOrEqual(4.5);
-    expect(contrast('#ffffff', token('peds-color-racing-red'))).toBeGreaterThanOrEqual(4.5);
+    expect(
+      contrast(token("peds-color-carbon"), token("peds-color-ignition")),
+    ).toBeGreaterThanOrEqual(4.5);
+    expect(
+      contrast("#ffffff", token("peds-color-racing-red")),
+    ).toBeGreaterThanOrEqual(4.5);
   });
 
-  it('publishes the focus, spacing and motion token contract', () => {
+  it("publishes the focus, spacing and motion token contract", () => {
     for (const name of [
-      'peds-grid-gutter',
-      'peds-border-hairline',
-      'peds-focus-ring-width',
-      'peds-focus-ring-offset',
-      'peds-focus-ring-color',
-      'peds-motion-reduced',
+      "peds-grid-gutter",
+      "peds-border-hairline",
+      "peds-focus-ring-width",
+      "peds-focus-ring-offset",
+      "peds-focus-ring-color",
+      "peds-motion-reduced",
     ]) {
       expect(tokenDeclarations.has(name)).toBe(true);
     }

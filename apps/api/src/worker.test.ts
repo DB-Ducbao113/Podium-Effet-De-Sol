@@ -32,60 +32,76 @@ describe("Cloudflare Worker router", () => {
     expect(env.ASSETS.fetch).not.toHaveBeenCalled();
   });
 
-  it("serves only the approved production model through the asset binding", async () => {
-    const env = environment("approved-glb");
-    const response = await worker.fetch(
-      new Request(
-        "https://podium.example/models/model-b-eds-optimized-v1.glb",
-        {
+  it("serves only the approved production models through the asset binding", async () => {
+    for (const modelPath of [
+      "/models/model-b-eds-optimized-v1.glb",
+      "/models/fp04rb-engineering-v1.glb",
+      "/models/fp04rb-showroom-desktop.glb",
+      "/models/fp04rb-showroom-mobile.glb",
+      "/models/fp04rb-pit-crew-v1.glb",
+    ]) {
+      const env = environment("approved-glb");
+      const response = await worker.fetch(
+        new Request(`https://podium.example${modelPath}`, {
           headers: {
             "Sec-Fetch-Site": "same-origin",
             "Sec-Fetch-Mode": "cors",
             "Sec-Fetch-Dest": "empty",
           },
-        },
-      ),
-      env,
-    );
-    expect(response.status).toBe(200);
-    expect(response.headers.get("Cache-Control")).toContain("immutable");
-    expect(response.headers.get("X-Robots-Tag")).toContain("noindex");
-    expect(response.headers.get("Cross-Origin-Resource-Policy")).toBe(
-      "same-origin",
-    );
-    await expect(response.text()).resolves.toBe("approved-glb");
-    expect(env.ASSETS.fetch).toHaveBeenCalledOnce();
+        }),
+        env,
+      );
+      expect(response.status).toBe(200);
+      expect(response.headers.get("Cache-Control")).toContain("immutable");
+      expect(response.headers.get("X-Robots-Tag")).toContain("noindex");
+      expect(response.headers.get("Cross-Origin-Resource-Policy")).toBe(
+        "same-origin",
+      );
+      await expect(response.text()).resolves.toBe("approved-glb");
+      expect(env.ASSETS.fetch).toHaveBeenCalledOnce();
+    }
   });
 
-  it("blocks cross-site scraping and direct browser navigation to .glb assets", async () => {
+  it("blocks cross-site scraping, direct navigation, and non-GET/HEAD methods to .glb assets", async () => {
     const env = environment("approved-glb");
-    const crossSite = await worker.fetch(
-      new Request(
-        "https://podium.example/models/model-b-eds-optimized-v1.glb",
-        {
+    for (const modelPath of [
+      "/models/model-b-eds-optimized-v1.glb",
+      "/models/fp04rb-engineering-v1.glb",
+      "/models/fp04rb-showroom-desktop.glb",
+      "/models/fp04rb-showroom-mobile.glb",
+      "/models/fp04rb-pit-crew-v1.glb",
+    ]) {
+      const crossSite = await worker.fetch(
+        new Request(`https://podium.example${modelPath}`, {
           headers: { "Sec-Fetch-Site": "cross-site" },
-        },
-      ),
-      env,
-    );
-    expect(crossSite.status).toBe(403);
-    expect(crossSite.headers.get("Cache-Control")).toBe("no-store");
+        }),
+        env,
+      );
+      expect(crossSite.status).toBe(403);
+      expect(crossSite.headers.get("Cache-Control")).toBe("no-store");
 
-    const directNav = await worker.fetch(
-      new Request(
-        "https://podium.example/models/model-b-eds-optimized-v1.glb",
-        {
+      const directNav = await worker.fetch(
+        new Request(`https://podium.example${modelPath}`, {
           headers: {
             "Sec-Fetch-Site": "none",
             "Sec-Fetch-Mode": "navigate",
             "Sec-Fetch-Dest": "document",
           },
-        },
-      ),
-      env,
-    );
-    expect(directNav.status).toBe(403);
-    expect(directNav.headers.get("X-Robots-Tag")).toContain("noindex");
+        }),
+        env,
+      );
+      expect(directNav.status).toBe(403);
+      expect(directNav.headers.get("X-Robots-Tag")).toContain("noindex");
+
+      const postReq = await worker.fetch(
+        new Request(`https://podium.example${modelPath}`, {
+          method: "POST",
+          headers: { "Sec-Fetch-Site": "same-origin" },
+        }),
+        env,
+      );
+      expect(postReq.status).toBe(404);
+    }
     expect(env.ASSETS.fetch).not.toHaveBeenCalled();
   });
 

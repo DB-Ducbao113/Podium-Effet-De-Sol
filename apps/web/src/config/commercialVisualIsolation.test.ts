@@ -67,7 +67,7 @@ describe("commercial visual isolation", () => {
     }
   });
 
-  it("serves the owner-selected Model B in production while keeping review media isolated", () => {
+  it("serves the FP-04 RB Pit Garage Showroom in production while keeping review media isolated", () => {
     const viteSource = readFileSync("vite.config.ts", "utf8");
     const showroomSource = readFileSync(
       "src/components/showroom/ShowroomView.tsx",
@@ -84,10 +84,18 @@ describe("commercial visual isolation", () => {
     expect(viteSource).not.toContain("/__peds-home-explore");
     expect(viteSource).not.toContain(".local-assets");
     expect(showroomSource).toContain("import.meta.env.DEV");
-    expect(showroomSource).toContain("import('./ModelBShowroom')");
-    expect(showroomSource).toContain("<ModelBShowroom headingLevel={headingLevel} />");
-    expect(isolationSource).toContain("models/model-b-eds-optimized-v1.glb");
-    expect(isolationSource).toContain("2D0091661DACE5D6C61AEBF898B4974644B44E43A5E8D10F602685C1631610A2");
+    expect(showroomSource).toContain("import('./fp04rb-garage/ShowroomPage')");
+    expect(showroomSource).toContain(
+      "<ShowroomPage headingLevel={headingLevel} />",
+    );
+    expect(isolationSource).toContain("models/fp04rb-showroom-desktop.glb");
+    expect(isolationSource).toContain(
+      "29588DA97E49FBECEBB3EA3969149DD8BB00403DA84BCB8FAEAE3F85498D456B",
+    );
+    expect(isolationSource).toContain("models/fp04rb-showroom-mobile.glb");
+    expect(isolationSource).toContain(
+      "DF8B7FAACDDB20F16FE1534D1ABD1D0C0A896C7725B1442F184BEB8C174C3DEB",
+    );
     expect(showroomSource).not.toContain("requestedModel !== 'eds-g01'");
     for (const token of [
       "/__peds-review/model-b.glb",
@@ -131,13 +139,22 @@ describe("commercial visual isolation", () => {
   it("keeps the owner-removed drift film out of the Homepage and does not render EDS-G01", () => {
     // Explicit owner override on 04/11/2026: film bytes remain archived,
     // but its source, playback controls and poster must not be imported by Home.
-    const heroSource = readFileSync("src/components/home/PodiumBrandHero.tsx", "utf8");
-    expect(heroSource).toContain("import { HomeRacePulseScene } from './HomeRacePulseScene'");
-    expect(heroSource).not.toContain('HomeModelBStage');
-    expect(heroSource).not.toContain('loadModelB');
-    expect(heroSource).not.toContain('<picture');
-    expect(heroSource).not.toContain('<img');
-    expect(heroSource).toContain('r1-cinema__scene');
+    const heroSource = readFileSync(
+      "src/components/home/PodiumBrandHero.tsx",
+      "utf8",
+    );
+    expect(heroSource).toContain(
+      "import { HomeRacePulseScene } from './HomeRacePulseScene'",
+    );
+    expect(heroSource).not.toContain("HomeModelBStage");
+    expect(heroSource).not.toContain("loadModelB");
+    expect(heroSource).not.toContain("<picture");
+    // These owner-approved concept plates have documented local fallbacks.
+    expect(heroSource).toContain('src="/images/home/explore/engineering.webp"');
+    expect(heroSource).toContain('src="/images/home/explore/drivers.webp"');
+    expect(heroSource).toContain("engineering-flow.svg");
+    expect(heroSource).toContain("driver-helmet.svg");
+    expect(heroSource).toContain("r1-cinema__scene");
     for (const forbidden of [
       "HERO_VIDEO_SRC",
       "HERO_POSTER_SRC",
@@ -149,6 +166,7 @@ describe("commercial visual isolation", () => {
       "EDSHomeHeroScene",
       "eds-g01-hero.svg",
       "ModelBHomeHeroScene",
-    ]) expect(heroSource).not.toContain(forbidden);
+    ])
+      expect(heroSource).not.toContain(forbidden);
   });
 });

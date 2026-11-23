@@ -1,0 +1,519 @@
+{
+  "schemaVersion": "1.0.0",
+  "phase": "P1",
+  "generatedAt": "2026-11-22T15:13:01.730Z",
+  "model": {
+    "id": "fp04rb",
+    "displayName": "FP-04 RB (2022 Concept Chassis)",
+    "author": "Peter Kiss / PETERKISSDESIGN",
+    "conceptDisclaimer": "FP-04 RB is a 2022 Formula 1 concept chassis; 2026 team liveries rendered on it are non-commercial illustrative concepts, not official 2026 cars.",
+    "sourceBlend": ".local-assets/model-replacement/source/fp04rb_new_rig.blend",
+    "sourceBlendSha256": "78807293ED4F27305E3E834B21758B264780413913AD067835E9218A6522030B",
+    "blenderVersionAudited": "5.3.0"
+  },
+  "coordinateSystem": {
+    "sourceBlender": {
+      "units": "meters",
+      "up": "+Z",
+      "forwardNose": "-Y",
+      "rear": "+Y",
+      "physicalLeft": "+X",
+      "physicalRight": "-X",
+      "cleanVisibleBbox": {
+        "min": [
+          -0.9828,
+          -0.7585,
+          -0.0054
+        ],
+        "max": [
+          1.1285,
+          4.7701,
+          1.1707
+        ],
+        "size": [
+          2.1113,
+          5.5286,
+          1.1761
+        ]
+      },
+      "wheelbaseMeters": 3.5979
+    },
+    "targetGltfP1": {
+      "units": "meters",
+      "up": "+Y",
+      "forwardNose": "+Z",
+      "rear": "-Z",
+      "physicalLeft": "+X",
+      "physicalRight": "-X",
+      "groundPlaneY": 0,
+      "centerlineX": 0,
+      "wheelbaseMidpointZ": 0
+    }
+  },
+  "capabilities": {
+    "wheelRemoval": {
+      "supported": true,
+      "auditFeasible": true,
+      "status": "verified-4-corner-sweep-pass",
+      "desktopSweepPassed": true,
+      "mobileSweepPassed": true,
+      "cornerClearances": {
+        "FL": {
+          "passed": true,
+          "extractDistanceMeters": 0.42,
+          "brakeDrumMaxRadiusMeters": 0.2399,
+          "tyreInnerBeadRadiusMeters": 0.2595,
+          "rimSpokeMinRadiusMeters": 0.1405,
+          "spindleOuterTipX": 1.0238,
+          "wheelInnerXIdle": 0.6758,
+          "wheelInnerXExtracted": 1.0958,
+          "spindleTipClearanceMeters": 0.072,
+          "corridorObstacles": [
+            {
+              "mesh": "body_object",
+              "inCylinderVerts": 200,
+              "idle_lateral_gap_m": 0.4847
+            }
+          ],
+          "sweepCollisions": [],
+          "minInwardAeroGapMeters": 0.4847,
+          "sweepStepsCount": 21
+        },
+        "FR": {
+          "passed": true,
+          "extractDistanceMeters": 0.42,
+          "brakeDrumMaxRadiusMeters": 0.2407,
+          "tyreInnerBeadRadiusMeters": 0.2582,
+          "rimSpokeMinRadiusMeters": 0.1414,
+          "spindleOuterTipX": -1.023,
+          "wheelInnerXIdle": -0.6751,
+          "wheelInnerXExtracted": -1.0951,
+          "spindleTipClearanceMeters": 0.072,
+          "corridorObstacles": [
+            {
+              "mesh": "body_object",
+              "inCylinderVerts": 200,
+              "idle_lateral_gap_m": 0.4847
+            }
+          ],
+          "sweepCollisions": [],
+          "minInwardAeroGapMeters": 0.4847,
+          "sweepStepsCount": 21
+        },
+        "RL": {
+          "passed": true,
+          "extractDistanceMeters": 0.52,
+          "brakeDrumMaxRadiusMeters": 0.2486,
+          "tyreInnerBeadRadiusMeters": 0.2499,
+          "rimSpokeMinRadiusMeters": 0.1405,
+          "spindleOuterTipX": 1.0538,
+          "wheelInnerXIdle": 0.6167,
+          "wheelInnerXExtracted": 1.1367,
+          "spindleTipClearanceMeters": 0.0829,
+          "corridorObstacles": [
+            {
+              "mesh": "rear_wing_no_mod",
+              "inCylinderVerts": 314,
+              "idle_lateral_gap_m": 0.1184
+            },
+            {
+              "mesh": "floor_rb_mixer",
+              "inCylinderVerts": 3467,
+              "idle_lateral_gap_m": 0.0202
+            },
+            {
+              "mesh": "body_object",
+              "inCylinderVerts": 331,
+              "idle_lateral_gap_m": 0.3169
+            }
+          ],
+          "sweepCollisions": [],
+          "minInwardAeroGapMeters": 0.0202,
+          "sweepStepsCount": 21
+        },
+        "RR": {
+          "passed": true,
+          "extractDistanceMeters": 0.52,
+          "brakeDrumMaxRadiusMeters": 0.2475,
+          "tyreInnerBeadRadiusMeters": 0.2503,
+          "rimSpokeMinRadiusMeters": 0.1401,
+          "spindleOuterTipX": -1.0541,
+          "wheelInnerXIdle": -0.6167,
+          "wheelInnerXExtracted": -1.1367,
+          "spindleTipClearanceMeters": 0.0825,
+          "corridorObstacles": [
+            {
+              "mesh": "rear_wing_no_mod",
+              "inCylinderVerts": 315,
+              "idle_lateral_gap_m": 0.1182
+            },
+            {
+              "mesh": "floor_rb_mixer",
+              "inCylinderVerts": 3477,
+              "idle_lateral_gap_m": 0.0201
+            },
+            {
+              "mesh": "body_object",
+              "inCylinderVerts": 331,
+              "idle_lateral_gap_m": 0.3171
+            }
+          ],
+          "sweepCollisions": [],
+          "minInwardAeroGapMeters": 0.0201,
+          "sweepStepsCount": 21
+        }
+      },
+      "note": "Verified via 20-step 3D axial extraction sweep on both exported Desktop and Mobile GLB geometries; hubs (*_wheel_naboj_*) re-parented onto stationary BRAKE_ASSEMBLY_* nodes."
+    },
+    "drsFlapActuation": {
+      "supported": true,
+      "status": "verified-node-pivot-exported",
+      "pivotNode": "DRS_FLAP_PIVOT"
+    },
+    "asymmetricLiveries": {
+      "supported": false,
+      "auditFeasible": true,
+      "status": "candidate-needs-P2-text-mark-validation",
+      "reason": "UV islands verified present in exported GLBs; explicit readable LEFT/RIGHT text-mark renders remain required in Phase P2."
+    }
+  },
+  "technicalInspectionParts": {
+    "front_wing": {
+      "status": "supported",
+      "p1GroupNode": "PART_FRONT_WING",
+      "sourceMeshes": [
+        "front_wing_mixer",
+        "body_front_wings",
+        "front_wing_holders"
+      ],
+      "paintMaterialSlot": "front_wing_texture",
+      "bboxBlender": {
+        "min": [
+          -0.9598,
+          -0.7585,
+          0.0895
+        ],
+        "max": [
+          1.0463,
+          0.3108,
+          0.4939
+        ]
+      }
+    },
+    "rear_wing": {
+      "status": "supported",
+      "p1GroupNode": "PART_REAR_WING",
+      "sourceMeshes": [
+        "rear_wing_no_mod",
+        "rear_wing_no_mod._drs",
+        "drs_wing_part",
+        "rear_wing_holder",
+        "rear_wing_drs_flap_sides",
+        "drs_holder",
+        "drs_mechanism_inside",
+        "drs_mechanism_link",
+        "drs_mechanism_pins",
+        "drs_mechanism_pins.001"
+      ],
+      "paintMaterialSlot": "rear_wing_texture",
+      "bboxBlender": {
+        "min": [
+          -0.5516,
+          4.2211,
+          0.3916
+        ],
+        "max": [
+          0.7015,
+          4.7701,
+          0.9669
+        ]
+      }
+    },
+    "suspension": {
+      "status": "supported",
+      "p1GroupNode": "PART_SUSPENSION",
+      "sourceMeshes": [
+        "front_upper_arm",
+        "front_upper_arm.001",
+        "front_lower_arm",
+        "front_lower_arm.001",
+        "front_arms_body_connection",
+        "steering_rod",
+        "steering_rod.001",
+        "upper_arms",
+        "upper_arms.001",
+        "lower_arms",
+        "lower_arms.001",
+        "push_rod_rear",
+        "push_rod_rear.001",
+        "rear_arms_rubber_connection",
+        "rear_suspension_rubber"
+      ]
+    },
+    "tyres": {
+      "status": "supported",
+      "p1GroupNode": "PART_WHEELS_TYRES",
+      "corners": {
+        "FL": {
+          "p1PivotNode": "WHEEL_PIVOT_FL",
+          "p1NutNode": "WHEEL_NUT_FL",
+          "sourceMeshes": [
+            "wheel.Ft.L_object",
+            "fl_rim_front",
+            "fl_wheel_cover_front_new",
+            "fl_tire_ventil_front"
+          ],
+          "nutMesh": "fl_wheel_nut_front",
+          "axleCenterBlender": [
+            0.8949,
+            0.5907,
+            0.3491
+          ],
+          "extractAxisBlender": [
+            1,
+            0,
+            0
+          ]
+        },
+        "FR": {
+          "p1PivotNode": "WHEEL_PIVOT_FR",
+          "p1NutNode": "WHEEL_NUT_FR",
+          "sourceMeshes": [
+            "wheel.Ft.R_object",
+            "fr_rim_front",
+            "fr_wheel_cover_front_new",
+            "fr_tire_ventil_front"
+          ],
+          "nutMesh": "fr_wheel_nut_front",
+          "axleCenterBlender": [
+            -0.7963,
+            0.6026,
+            0.3491
+          ],
+          "extractAxisBlender": [
+            -1,
+            0,
+            0
+          ]
+        },
+        "RL": {
+          "p1PivotNode": "WHEEL_PIVOT_RL",
+          "p1NutNode": "WHEEL_NUT_RL",
+          "sourceMeshes": [
+            "wheel.Bk.L_object",
+            "rl_rim_rear",
+            "rl_wheel_cover_rear_new",
+            "rl_tire_ventil_rear"
+          ],
+          "nutMesh": "rl_wheel_nut_rear",
+          "axleCenterBlender": [
+            0.9076,
+            4.1886,
+            0.3491
+          ],
+          "extractAxisBlender": [
+            1,
+            0,
+            0
+          ]
+        },
+        "RR": {
+          "p1PivotNode": "WHEEL_PIVOT_RR",
+          "p1NutNode": "WHEEL_NUT_RR",
+          "sourceMeshes": [
+            "wheel.Bk.R_object",
+            "rr_rim_rear",
+            "rr_wheel_cover_rear_new",
+            "rr_tire_ventil_rear"
+          ],
+          "nutMesh": "rr_wheel_nut_rear",
+          "axleCenterBlender": [
+            -0.762,
+            4.1984,
+            0.3553
+          ],
+          "extractAxisBlender": [
+            -1,
+            0,
+            0
+          ]
+        }
+      }
+    },
+    "brakes_hubs": {
+      "status": "supported",
+      "p1GroupNode": "PART_BRAKES_HUBS",
+      "note": "Exposed when wheel assembly slides off; hub meshes (*_wheel_naboj_*) re-parented here in P1.",
+      "corners": {
+        "FL": [
+          "wheelbrake.Ft.L_object",
+          "fl_wheel_naboj_front",
+          "brakes_duct_front.001",
+          "front_brakeduct_inner.001"
+        ],
+        "FR": [
+          "wheelbrake.Ft.R_object",
+          "fr_wheel_naboj_front",
+          "brakes_duct_front",
+          "front_brakeduct_inner"
+        ],
+        "RL": [
+          "wheelbrake.Bk.L_object",
+          "rl_wheel_naboj_rear",
+          "brakes_duct_rear.002",
+          "rear_brake_duct_blades.001"
+        ],
+        "RR": [
+          "wheelbrake.Bk.R_object",
+          "rr_wheel_naboj_rear",
+          "brakes_duct_rear.001",
+          "rear_brake_duct_blades"
+        ]
+      }
+    },
+    "cockpit": {
+      "status": "supported",
+      "p1GroupNode": "PART_COCKPIT",
+      "sourceMeshes": [
+        "cockpit_inner",
+        "seat",
+        "seat_soft_inner",
+        "seatbelt_mechanism",
+        "seatbelt_mechanism.001",
+        "seatbelts",
+        "seatbelts_new_driver",
+        "mirror_main_body_at01",
+        "mirror_reflective_at01",
+        "steering_wheel_body.002",
+        "steering_wheel_display_emmiter.002",
+        "steering_wheel_display_glass.002",
+        "steering_wheel_grip.002",
+        "steering_wheel_inter_switch.002",
+        "steering_wheel_middle_turning_knob.002",
+        "steering_wheel_mount_shaft.002",
+        "steering_wheel_to_body_mount.001",
+        "steering_wheel_top_buttons.002",
+        "steering_wheel_top_leds.002",
+        "steering_wheel_top_panel_led_case.002",
+        "steering_wheel_top_panel_leds.002",
+        "steering_wheel_turnable_knobs_top_side.002",
+        "steering_wheel_turning_knobs.002",
+        "steering_wheel_turning_switches.002",
+        "paddle_bottom.002",
+        "paddle_gear_shifter.002",
+        "paddle_holders.002",
+        "paddle_top.002"
+      ]
+    },
+    "floor": {
+      "status": "supported",
+      "p1GroupNode": "PART_FLOOR",
+      "sourceMeshes": [
+        "floor_rb_mixer",
+        "floor_titanium_plate",
+        "floor_additional_rear_flaps"
+      ],
+      "paintMaterialSlot": "floor_texture"
+    },
+    "body_shell": {
+      "status": "supported",
+      "p1GroupNode": "PART_BODY_SHELL",
+      "note": "Unified mesh covering nose, sidepods, engine cover, and halo; UV regions cleanly separated via material_map_body.png.",
+      "sourceMeshes": [
+        "body_object",
+        "body_top_wing",
+        "body_side_top_wings",
+        "rear_body_inner",
+        "front_inner_cover_fins",
+        "front_inner_cover_fins.001",
+        "exhaust",
+        "exhaust_cover",
+        "exhaust_small",
+        "gearbox_cover",
+        "antennas",
+        "pitot_tubes",
+        "pitot_tubes_holder",
+        "ram_intake_inner",
+        "rear_led_chrome_part",
+        "rear_led_emmiter",
+        "rear_led_glass",
+        "rear_led_holder",
+        "rear_led_inner"
+      ],
+      "paintMaterialSlots": [
+        "main_body_texture",
+        "winglets_texture"
+      ]
+    }
+  },
+  "unsupportedParts": [
+    {
+      "id": "power_unit_internals",
+      "label": "Power Unit / ICE / ERS / Battery / Gearbox Internals",
+      "reason": "Not modeled inside fp04rb_new_rig.blend (only exterior gearbox_cover and exhaust meshes exist)."
+    },
+    {
+      "id": "brake_caliper_internals",
+      "label": "Internal Brake Caliper Pistons & Pads",
+      "reason": "Brakes are modeled as closed carbon brake drums/discs (wheelbrake.*_object) plus hub/ducts without separate removable caliper pistons/pads."
+    },
+    {
+      "id": "radiators_intercoolers",
+      "label": "Internal Sidepod Radiators & Intercoolers",
+      "reason": "Not modeled inside body_object sidepod enclosures."
+    },
+    {
+      "id": "separate_body_panel_meshes",
+      "label": "Detachable Nose / Sidepod / Engine Cover Meshes",
+      "reason": "Nose, sidepods, halo, and engine cover are a single continuous body_object mesh; supported for distinct UV paint zoning and camera sub-region focus, NOT for mesh detachment."
+    }
+  ],
+  "excludedSourceObjects": {
+    "driverAndHelmet": 29,
+    "rigWidgets": 140,
+    "stageAndHelpers": 1,
+    "strayThirdPartyBranding": [
+      "bee+_logo_grey-01",
+      "ferrari-logo-png-transparent",
+      "ferrari_dashboard_screen"
+    ]
+  },
+  "assets": {
+    "desktop": {
+      "url": "/models/fp04rb-showroom-desktop.glb",
+      "bytes": 5534176,
+      "sha256": "29588DA97E49FBECEBB3EA3969149DD8BB00403DA84BCB8FAEAE3F85498D456B",
+      "triangles": 230242,
+      "meshCount": 150
+    },
+    "mobile": {
+      "url": "/models/fp04rb-showroom-mobile.glb",
+      "bytes": 3330168,
+      "sha256": "DF8B7FAACDDB20F16FE1534D1ABD1D0C0A896C7725B1442F184BEB8C174C3DEB",
+      "triangles": 120156,
+      "meshCount": 145
+    }
+  },
+  "normalizedGltfBounds": {
+    "meshCount": 150,
+    "triangles": 230242,
+    "requiredNodesPresent": 22,
+    "requiredNodesTotal": 22,
+    "materialsCount": 47,
+    "gltfBboxMin": [
+      -1.0541,
+      -0.0009,
+      -2.3711
+    ],
+    "gltfBboxMax": [
+      1.0538,
+      1.1761,
+      3.1456
+    ],
+    "gltfBboxSize": [
+      2.1079,
+      1.177,
+      5.5167
+    ]
+  }
+}

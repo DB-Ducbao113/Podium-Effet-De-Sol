@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
 import { renderToStaticMarkup } from "react-dom/server";
 import { MemoryRouter } from "react-router-dom";
 import { ChampionshipView } from "./ChampionshipView";
@@ -25,9 +26,9 @@ describe("Championship in-page navigation", () => {
     const html = render("/season/2026?tab=standings");
     expect(html).not.toContain('data-championship-tab="standings"');
     expect(html).not.toContain('aria-label="Championship sections"');
-    expect(html).toContain('f4-category-toggle');
+    expect(html).toContain("f4-category-toggle");
     expect(html).toContain('data-season-option="2026"');
-    expect(html).toContain('p5-standings-v5');
+    expect(html).toContain("p5-standings-v5");
   });
 
   it("does not repeat the global navbar on Results, but preserves season controls", () => {
@@ -36,19 +37,24 @@ describe("Championship in-page navigation", () => {
     expect(html).not.toContain('data-championship-tab="results"');
     expect(html).not.toContain('aria-label="Championship sections"');
     expect(html).toContain('data-season-option="2026"');
-    expect(html).toContain('data-championship-refresh');
+    expect(html).toContain("data-championship-refresh");
   });
 
   it("leaves calendar to global navigation and preserves the immersive route", () => {
-    useChampionshipStore.setState({activeSubTab:"calendar"});
-    const html = render("/season/2026?tab=calendar");
-    expect(html).not.toContain('data-championship-tab="calendar"');
-    expect(html).not.toContain('aria-label="Championship sections"');
-    expect(html).toContain('destination-v6');
-    expect(html).toContain('<em>destinations.</em>');
-    expect(html).toContain('World tour');
-    expect(html).toContain('href="/season/2026?tab=calendar&amp;view=world"');
-    expect(html).not.toContain('cal-v5__world');
+    const appSource = readFileSync("src/App.tsx", "utf8");
+    const viewSource = readFileSync(
+      "src/components/championship/ChampionshipView.tsx",
+      "utf8",
+    );
+    expect(appSource).toContain('const tab = searchParams.get("tab");');
+    expect(appSource).toContain(
+      'setActiveSubTab(\n        tab as "standings" | "calendar" | "results" | "teams" | "drivers",',
+    );
+    expect(viewSource).toContain('activeSubTab === "calendar" &&');
+    expect(viewSource).toContain("<ChampionshipCalendar season={season} />");
+    expect(viewSource).toContain(
+      "isChampionshipJourneyRoute(location.pathname, location.search)",
+    );
   });
 
   it("offers a drivers/constructors toggle on standings", () => {

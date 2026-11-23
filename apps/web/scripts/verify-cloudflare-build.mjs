@@ -55,7 +55,13 @@ assert.ok(
 const modelEntries = await readdir(path.join(clientAssetsDir, "models"));
 assert.deepEqual(
   modelEntries.filter((entry) => entry.endsWith(".glb")).sort(),
-  ["model-b-eds-optimized-v1.glb"],
+  [
+    "fp04rb-engineering-v1.glb",
+    "fp04rb-pit-crew-v1.glb",
+    "fp04rb-showroom-desktop.glb",
+    "fp04rb-showroom-mobile.glb",
+    "model-b-eds-optimized-v1.glb",
+  ],
 );
 console.log(
   `Cloudflare build output: PASS (${articles.length} Engineering articles; ${clientAssetsDir}).`,
