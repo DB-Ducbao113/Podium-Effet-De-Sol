@@ -134,12 +134,62 @@
 }
 
 .peds-eng-3d-annotation__leader {
-  width: 28px;
+  width: 30px;
   height: 1px;
+  transform-origin: left center;
   background: linear-gradient(90deg,
       rgba(255, 138, 92, 0.85),
       rgba(255, 255, 255, 0.28));
   flex: 0 0 auto;
+}
+
+.peds-eng-3d-annotation[data-motion-phase="explain"] .peds-eng-3d-annotation__card {
+  border-color: rgba(255, 138, 92, 0.48);
+  background: rgba(12, 16, 25, 0.94);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.54);
+}
+
+.peds-eng-phase-rail {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  padding: 4px 10px 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 138, 92, 0.28);
+  background: rgba(12, 16, 25, 0.78);
+}
+
+.peds-eng-phase-pill {
+  font-family: var(--peds-font-mono);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #ffc0ae;
+  font-variant-numeric: tabular-nums;
+}
+
+.peds-eng-phase-pips {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.peds-eng-phase-pip {
+  width: 10px;
+  height: 2px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.peds-eng-phase-pip--done {
+  background: rgba(255, 138, 92, 0.55);
+}
+
+.peds-eng-phase-pip--active {
+  width: 16px;
+  background: #ff8a5c;
 }
 
 .peds-eng-3d-annotation__card {

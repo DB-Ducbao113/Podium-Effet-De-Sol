@@ -22,6 +22,7 @@ import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import {
   ENGINEERING_FP04RB_GLB_URL,
   ENGINEERING_PARTS,
+  type EngineeringPartSnapshot,
   type EngineeringTrackId,
 } from "./engineeringDisassemblyData";
 import {
@@ -44,19 +45,22 @@ import {
   createInitialSceneControlState,
   enterIsolatedControl,
   enterOrbitControl,
-  resolveCoupledPartOffset,
   resolvePlinthRetraction,
   stepSceneControlFrame,
   type EngineeringAnnotationProjection,
   type EngineeringControlMode,
   type EngineeringSceneControlState,
 } from "./engineeringInteractionState";
-import { resolveEngineeringInspectionPose } from "./engineeringInspectionState";
 import {
+  applyLightRigStateToMutable,
   createMutableLightRigState,
   resolveMaterialClassEnvIntensity,
-  stepLightRigTowardChapter,
 } from "./engineeringLightingRig";
+import {
+  evaluateEngineeringMotionDirector,
+  resolveDirectorPartTransform,
+  type EngineeringMotionCueSheet,
+} from "./engineeringMotionDirector";
 import {
   createMutableCameraFrame,
   fitEngineeringCameraToBounds,
@@ -735,14 +739,14 @@ const EngineeringAeroStreamlines = memo(function EngineeringAeroStreamlines({
 
 function updateExplodedTrajectoryLines(
   bindings: ReadonlyMap<string, NodeBinding>,
-  evaluation: EngineeringStoryEvaluation,
+  parts: Readonly<Record<string, EngineeringPartSnapshot>>,
   positions: Float32Array,
   geometry: THREE.BufferGeometry,
   lineObj: THREE.LineSegments,
 ): void {
   let cursor = 0;
   for (const [partId, b] of bindings.entries()) {
-    const snap = evaluation.parts[partId];
+    const snap = parts[partId];
     if (
       snap &&
       snap.phase > 0.03 &&
@@ -899,6 +903,19 @@ function DisassemblySceneRig({
   );
   const cachedEvalProgressRef = useRef<number>(-1);
   const cachedEvalRef = useRef<EngineeringStoryEvaluation>(evaluation);
+  const cachedCueKeyRef = useRef<string>("");
+  const cachedCueSheetRef = useRef<EngineeringMotionCueSheet>(
+    evaluateEngineeringMotionDirector({
+      effectiveProgress: evaluation.progress,
+      controlMode: "timeline",
+      selectedPartId,
+      isolatedPartId,
+      isolationBlend: 0,
+      reducedMotion,
+      xray,
+      precomputedStory: evaluation,
+    }),
+  );
   const explodeRatioRef = useRef<number>(evaluation.explodeRatio);
   const venturiFloorPhaseRef = useRef<number>(
     evaluation.parts.VENTURI_FLOOR_TITANIUM?.phase ?? 0,
@@ -907,6 +924,7 @@ function DisassemblySceneRig({
     resolveCfdZoneOpacities(evaluation.parts),
   );
   const lastAnnotationKeyRef = useRef<string>("");
+  const lastLightKeyRef = useRef<string>("");
   const lastTrajectoryProgressRef = useRef<number>(-1);
   const lastCameraKeyRef = useRef<string>("");
   const prevMaterialStateRef = useRef<{
@@ -949,6 +967,35 @@ function DisassemblySceneRig({
       return cachedEvalRef.current;
     },
     [liveBridgeRef],
+  );
+
+  const getCueSheetForProgress = useCallback(
+    (progress: number): EngineeringMotionCueSheet => {
+      const ctrl = sceneControlRef.current;
+      const cacheKey = `${progress.toFixed(6)}:${ctrl.mode}:${selectedPartId ?? ""}:${isolatedPartId ?? ""}:${ctrl.isolationBlend.toFixed(3)}:${reducedMotion ? 1 : 0}:${xray ? 1 : 0}`;
+      if (cacheKey !== cachedCueKeyRef.current) {
+        const story = getEvaluationForProgress(progress);
+        cachedCueKeyRef.current = cacheKey;
+        cachedCueSheetRef.current = evaluateEngineeringMotionDirector({
+          effectiveProgress: progress,
+          controlMode: ctrl.mode,
+          selectedPartId,
+          isolatedPartId,
+          isolationBlend: ctrl.isolationBlend,
+          reducedMotion,
+          xray,
+          precomputedStory: story,
+        });
+      }
+      return cachedCueSheetRef.current;
+    },
+    [
+      getEvaluationForProgress,
+      isolatedPartId,
+      reducedMotion,
+      selectedPartId,
+      xray,
+    ],
   );
 
   // Sync explicit React mode transitions into the authoritative scene control ref
@@ -1039,6 +1086,7 @@ function DisassemblySceneRig({
     if (metrics) metrics.isPaused = !stageActive;
     if (stageActive) {
       lastCameraKeyRef.current = "";
+      lastLightKeyRef.current = "";
       invalidate();
     }
   }, [invalidate, stageActive]);
@@ -1262,6 +1310,7 @@ function DisassemblySceneRig({
       }
     });
     lastCameraKeyRef.current = "";
+    lastLightKeyRef.current = "";
     invalidate();
   }, [invalidate]);
 
@@ -1296,54 +1345,48 @@ function DisassemblySceneRig({
     }
 
     const bindings = bindingsRef.current;
-    const resolveTimelineCamForProgress = (p: number) => {
-      const evalAtP = getEvaluationForProgress(p);
-      // Apply part poses for p before measuring scene bounds when resolving handoff/timeline camera
+    const applyDirectorParts = (
+      cueSheet: EngineeringMotionCueSheet,
+      mode: EngineeringControlMode,
+      isolationBlend: number,
+    ) => {
       for (const [partId, b] of bindings.entries()) {
-        const snap = evalAtP.parts[partId];
-        if (!snap) continue;
-        const isIsolated =
-          sceneControlRef.current.mode === "isolated" &&
-          isolatedPartId === partId;
-        const isTransitioning =
-          transitionPartIdRef.current === partId &&
-          (isIsolated || sceneControlRef.current.isolationBlend > 0.001);
-        if (sceneControlRef.current.mode === "isolated" && !isIsolated) {
-          b.object.visible = false;
-          continue;
-        }
-        b.object.visible = b.internalSystem
-          ? xray ||
-          snap.phase > 0.015 ||
-          evalAtP.progress > 0.48 ||
-          evalAtP.storyBeat.partId === partId
-          : true;
-        if (isTransitioning && b.internalSystem) b.object.visible = true;
-        const coupledSnap = resolveCoupledPartOffset(
+        const resolved = resolveDirectorPartTransform({
           partId,
-          snap,
-          evalAtP.parts,
-          b.explodeOffset,
-          b.explodeEuler,
-        );
-        const pose = resolveEngineeringInspectionPose(
-          coupledSnap,
-          b.explodeOffset,
-          b.explodeEuler,
-          isTransitioning,
-          sceneControlRef.current.isolationBlend,
-        );
+          cueSheet,
+          explodeOffset: b.explodeOffset,
+          explodeEuler: b.explodeEuler,
+          internalSystem: b.internalSystem,
+          controlMode: mode,
+          isolatedPartId,
+          transitionPartId: transitionPartIdRef.current,
+          isolationBlend,
+          xray,
+        });
+        if (!resolved) continue;
+        b.object.visible = resolved.visible;
+        if (!resolved.visible) continue;
         b.object.position.set(
-          b.basePosition.x + pose.tx,
-          b.basePosition.y + pose.ty,
-          b.basePosition.z + pose.tz,
+          b.basePosition.x + resolved.tx,
+          b.basePosition.y + resolved.ty,
+          b.basePosition.z + resolved.tz,
         );
         b.object.rotation.set(
-          b.baseEuler.x + pose.rx,
-          b.baseEuler.y + pose.ry,
-          b.baseEuler.z + pose.rz,
+          b.baseEuler.x + resolved.rx,
+          b.baseEuler.y + resolved.ry,
+          b.baseEuler.z + resolved.rz,
         );
       }
+    };
+
+    const resolveTimelineCamForProgress = (p: number) => {
+      const cueAtP = getCueSheetForProgress(p);
+      // Apply deterministic Motion Director part poses for p before measuring scene bounds
+      applyDirectorParts(
+        cueAtP,
+        sceneControlRef.current.mode,
+        sceneControlRef.current.isolationBlend,
+      );
 
       if (!(cam instanceof THREE.PerspectiveCamera) || bindings.size === 0) {
         return null;
@@ -1390,7 +1433,7 @@ function DisassemblySceneRig({
         );
       };
 
-      const route = evalAtP.cameraRoute;
+      const { route, arcLiftMultiplier } = cueAtP.cameraCue;
       // Fast single-anchor path during hold windows and exact anchor boundaries
       if (
         route.from.id === route.to.id ||
@@ -1424,7 +1467,7 @@ function DisassemblySceneRig({
         _fromFrameScratch,
         _toFrameScratch,
         route.progress,
-        _sceneSphereScratch.radius * 0.64,
+        _sceneSphereScratch.radius * arcLiftMultiplier,
         _interpFrameScratch,
       );
       const cameraProgress =
@@ -1465,53 +1508,21 @@ function DisassemblySceneRig({
         clearanceBox,
       );
       sceneControlRef.current = stepOut.state;
-      const activeEval = getEvaluationForProgress(stepOut.effectiveProgress);
+      const activeCue = getCueSheetForProgress(stepOut.effectiveProgress);
+      const activeEval = activeCue.story;
       explodeRatioRef.current = activeEval.explodeRatio;
       venturiFloorPhaseRef.current =
-        activeEval.parts.VENTURI_FLOOR_TITANIUM?.phase ?? 0;
-      cfdZoneOpacitiesRef.current = resolveCfdZoneOpacities(activeEval.parts);
+        activeCue.parts.VENTURI_FLOOR_TITANIUM?.phase ?? 0;
+      cfdZoneOpacitiesRef.current = resolveCfdZoneOpacities(activeCue.parts);
 
       if (stepOut.cameraOwnedByTimeline && stepOut.camera) {
         // Ensure part poses strictly reflect stepOut.effectiveProgress (especially during handoff)
         if (stepOut.state.mode === "handoff" || prevMode === "handoff") {
-          for (const [partId, b] of bindings.entries()) {
-            const snap = activeEval.parts[partId];
-            if (!snap) continue;
-            const isTransitioning =
-              transitionPartIdRef.current === partId &&
-              stepOut.isolationBlend > 0.001;
-            b.object.visible = b.internalSystem
-              ? xray ||
-              snap.phase > 0.015 ||
-              activeEval.progress > 0.48 ||
-              activeEval.storyBeat.partId === partId ||
-              isTransitioning
-              : true;
-            const coupledSnap = resolveCoupledPartOffset(
-              partId,
-              snap,
-              activeEval.parts,
-              b.explodeOffset,
-              b.explodeEuler,
-            );
-            const pose = resolveEngineeringInspectionPose(
-              coupledSnap,
-              b.explodeOffset,
-              b.explodeEuler,
-              isTransitioning,
-              stepOut.isolationBlend,
-            );
-            b.object.position.set(
-              b.basePosition.x + pose.tx,
-              b.basePosition.y + pose.ty,
-              b.basePosition.z + pose.tz,
-            );
-            b.object.rotation.set(
-              b.baseEuler.x + pose.rx,
-              b.baseEuler.y + pose.ry,
-              b.baseEuler.z + pose.rz,
-            );
-          }
+          applyDirectorParts(
+            activeCue,
+            stepOut.state.mode,
+            stepOut.isolationBlend,
+          );
         }
         cam.position.copy(stepOut.camera.position);
         if (
@@ -1533,50 +1544,11 @@ function DisassemblySceneRig({
         }
       } else {
         // Apply frozen part poses while in orbit or isolated mode
-        for (const [partId, b] of bindings.entries()) {
-          const snap = activeEval.parts[partId];
-          if (!snap) continue;
-          const isIsolated =
-            stepOut.state.mode === "isolated" && isolatedPartId === partId;
-          const isTransitioning =
-            transitionPartIdRef.current === partId &&
-            (isIsolated || stepOut.isolationBlend > 0.001);
-          if (stepOut.state.mode === "isolated" && !isIsolated) {
-            b.object.visible = false;
-            continue;
-          }
-          b.object.visible = b.internalSystem
-            ? xray ||
-            snap.phase > 0.015 ||
-            activeEval.progress > 0.48 ||
-            activeEval.storyBeat.partId === partId
-            : true;
-          if (isTransitioning && b.internalSystem) b.object.visible = true;
-          const coupledSnap = resolveCoupledPartOffset(
-            partId,
-            snap,
-            activeEval.parts,
-            b.explodeOffset,
-            b.explodeEuler,
-          );
-          const pose = resolveEngineeringInspectionPose(
-            coupledSnap,
-            b.explodeOffset,
-            b.explodeEuler,
-            isTransitioning,
-            stepOut.isolationBlend,
-          );
-          b.object.position.set(
-            b.basePosition.x + pose.tx,
-            b.basePosition.y + pose.ty,
-            b.basePosition.z + pose.tz,
-          );
-          b.object.rotation.set(
-            b.baseEuler.x + pose.rx,
-            b.baseEuler.y + pose.ry,
-            b.baseEuler.z + pose.rz,
-          );
-        }
+        applyDirectorParts(
+          activeCue,
+          stepOut.state.mode,
+          stepOut.isolationBlend,
+        );
 
         if (controlsRef.current) {
           const goal = isolationCameraGoalRef.current;
@@ -1624,7 +1596,7 @@ function DisassemblySceneRig({
           lastTrajectoryProgressRef.current = activeEval.progress;
           updateExplodedTrajectoryLines(
             bindings,
-            activeEval,
+            activeCue.parts,
             trajectoryRef.current.positions,
             trajectoryRef.current.geometry,
             trajectoryRef.current.lineObj,
@@ -1633,18 +1605,13 @@ function DisassemblySceneRig({
       }
     }
 
-    // Project active focal 3D component anchor to viewport coordinates (zero React commits)
+    // Project active focal 3D component anchor driven by Motion Director (zero React commits)
+    const liveCueSheet = getCueSheetForProgress(
+      sceneControlRef.current.effectiveProgress,
+    );
     if (bridge?.onAnnotationProject && bindings.size > 0) {
-      const liveEval = getEvaluationForProgress(
-        sceneControlRef.current.effectiveProgress,
-      );
-      const focusPartId =
-        selectedPartId ??
-        (!liveEval.showChapterTitle &&
-          liveEval.chapter.id !== "origin" &&
-          liveEval.chapter.id !== "reassembly"
-          ? liveEval.storyBeat.partId
-          : null);
+      const annCue = liveCueSheet.annotationCue;
+      const focusPartId = annCue.visible ? annCue.partId : null;
       const focusBinding = focusPartId ? bindings.get(focusPartId) : null;
       if (focusBinding && focusBinding.object.visible) {
         cam.updateMatrixWorld();
@@ -1661,9 +1628,9 @@ function DisassemblySceneRig({
           nx <= 0.98 &&
           ny >= 0.04 &&
           ny <= 0.94;
-        const partPhase = liveEval.parts[focusPartId!]?.phase ?? 0;
+        const partPhase = annCue.phase;
         const nextKey = onScreen
-          ? `1:${focusPartId}:${nx.toFixed(3)}:${ny.toFixed(3)}:${partPhase.toFixed(2)}`
+          ? `1:${focusPartId}:${nx.toFixed(3)}:${ny.toFixed(3)}:${partPhase.toFixed(2)}:${annCue.opacity.toFixed(2)}:${annCue.leaderScale.toFixed(2)}:${annCue.motionPhaseId ?? ""}`
           : "0";
         if (nextKey !== lastAnnotationKeyRef.current) {
           lastAnnotationKeyRef.current = nextKey;
@@ -1673,6 +1640,9 @@ function DisassemblySceneRig({
             y: ny,
             partId: focusPartId,
             phase: partPhase,
+            opacity: annCue.opacity,
+            leaderScale: annCue.leaderScale,
+            motionPhaseId: annCue.motionPhaseId,
           });
         }
       } else if (lastAnnotationKeyRef.current !== "0") {
@@ -1683,63 +1653,56 @@ function DisassemblySceneRig({
           y: 0.5,
           partId: null,
           phase: 0,
+          opacity: 0,
+          leaderScale: 0,
+          motionPhaseId: annCue.motionPhaseId,
         });
       }
     }
 
-    // Step restrained chapter-specific studio lighting smoothly (zero React commits)
-    const liveLightEval = getEvaluationForProgress(
-      sceneControlRef.current.effectiveProgress,
-    );
-    const lightAlpha = reducedMotion
-      ? 1
-      : 1 - Math.exp(-6.5 * Math.min(delta, 0.064));
-    const rig = lightRigStateRef.current;
-    stepLightRigTowardChapter(
-      rig,
-      liveLightEval.chapter.id,
-      lightAlpha,
-      liveLightEval.storyBeat.partId,
-    );
-    if (ambientLightRef.current) {
-      ambientLightRef.current.intensity = rig.ambientIntensity;
-    }
-    if (keyLightRef.current) {
-      keyLightRef.current.intensity = rig.keyIntensity;
-      keyLightRef.current.position.set(
-        rig.keyPosition[0],
-        rig.keyPosition[1],
-        rig.keyPosition[2],
-      );
-    }
-    if (fillLightRef.current) {
-      fillLightRef.current.intensity = rig.fillIntensity;
-      fillLightRef.current.position.set(
-        rig.fillPosition[0],
-        rig.fillPosition[1],
-        rig.fillPosition[2],
-      );
-    }
-    if (rimLightRef.current) {
-      rimLightRef.current.intensity = rig.rimIntensity;
-      rimLightRef.current.position.set(
-        rig.rimPosition[0],
-        rig.rimPosition[1],
-        rig.rimPosition[2],
-      );
-    }
-    if (accentPointLightRef.current) {
-      accentPointLightRef.current.intensity = rig.accentPointIntensity;
-      accentPointLightRef.current.position.set(
-        rig.accentPointPosition[0],
-        rig.accentPointPosition[1],
-        rig.accentPointPosition[2],
-      );
-      accentLightColorRef.current.set(rig.accentPointColor);
-      accentPointLightRef.current.color.lerp(
-        accentLightColorRef.current,
-        lightAlpha,
-      );
+    // Apply 100% deterministic studio lighting from Motion Director (zero history drift, zero React commits)
+    const lightKey = `${liveCueSheet.progress.toFixed(5)}:${liveCueSheet.story.chapter.id}:${liveCueSheet.activePhaseCue?.phaseId ?? ""}:${liveCueSheet.story.storyBeat.partId ?? ""}`;
+    if (lightKey !== lastLightKeyRef.current) {
+      lastLightKeyRef.current = lightKey;
+      const rig = lightRigStateRef.current;
+      applyLightRigStateToMutable(rig, liveCueSheet.lightingCue);
+      if (ambientLightRef.current) {
+        ambientLightRef.current.intensity = rig.ambientIntensity;
+      }
+      if (keyLightRef.current) {
+        keyLightRef.current.intensity = rig.keyIntensity;
+        keyLightRef.current.position.set(
+          rig.keyPosition[0],
+          rig.keyPosition[1],
+          rig.keyPosition[2],
+        );
+      }
+      if (fillLightRef.current) {
+        fillLightRef.current.intensity = rig.fillIntensity;
+        fillLightRef.current.position.set(
+          rig.fillPosition[0],
+          rig.fillPosition[1],
+          rig.fillPosition[2],
+        );
+      }
+      if (rimLightRef.current) {
+        rimLightRef.current.intensity = rig.rimIntensity;
+        rimLightRef.current.position.set(
+          rig.rimPosition[0],
+          rig.rimPosition[1],
+          rig.rimPosition[2],
+        );
+      }
+      if (accentPointLightRef.current) {
+        accentPointLightRef.current.intensity = rig.accentPointIntensity;
+        accentPointLightRef.current.position.set(
+          rig.accentPointPosition[0],
+          rig.accentPointPosition[1],
+          rig.accentPointPosition[2],
+        );
+        accentLightColorRef.current.set(rig.accentPointColor);
+        accentPointLightRef.current.color.copy(accentLightColorRef.current);
+      }
     }
 
     const metrics = getMetricsBucket();

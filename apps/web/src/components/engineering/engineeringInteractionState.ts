@@ -336,6 +336,7 @@ export function resolveEngineeringUiCommitKey(params: {
   readonly showChapterTitle: boolean;
   readonly progress: number;
   readonly returningSystemChapterId?: string | null;
+  readonly motionPhaseId?: string | null;
 }): string {
   const {
     chapterId,
@@ -343,13 +344,15 @@ export function resolveEngineeringUiCommitKey(params: {
     showChapterTitle,
     progress,
     returningSystemChapterId,
+    motionPhaseId,
   } = params;
   if (chapterId === "reassembly") {
     if (showChapterTitle) return "reassembly|chapter-title";
     if (progress >= 0.998) return "reassembly|locked";
     return `reassembly|group|${returningSystemChapterId ?? "core"}`;
   }
-  return `${chapterId}|${storyBeatId}|${showChapterTitle ? 1 : 0}`;
+  const base = `${chapterId}|${storyBeatId}|${showChapterTitle ? 1 : 0}`;
+  return motionPhaseId ? `${base}|${motionPhaseId}` : base;
 }
 
 export const ENGINEERING_SCROLL_UI_MIN_INTERVAL_MS = 180;
@@ -364,6 +367,10 @@ export interface EngineeringAnnotationProjection {
   readonly y: number;
   readonly partId: string | null;
   readonly phase: number;
+  readonly opacity?: number;
+  readonly leaderScale?: number;
+  readonly motionPhaseId?: string | null;
+  readonly phaseText?: string | null;
 }
 
 export interface EngineeringPartPoseOffset {

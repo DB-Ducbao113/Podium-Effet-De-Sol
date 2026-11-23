@@ -186,6 +186,105 @@ export function createMutableLightRigState(): MutableEngineeringLightRigState {
   };
 }
 
+export function applyLightRigStateToMutable(
+  current: MutableEngineeringLightRigState,
+  source: EngineeringLightRigState,
+): void {
+  current.ambientIntensity = source.ambientIntensity;
+  current.keyIntensity = source.keyIntensity;
+  current.fillIntensity = source.fillIntensity;
+  current.rimIntensity = source.rimIntensity;
+  current.accentPointIntensity = source.accentPointIntensity;
+  for (let i = 0; i < 3; i += 1) {
+    current.keyPosition[i] = source.keyPosition[i];
+    current.fillPosition[i] = source.fillPosition[i];
+    current.rimPosition[i] = source.rimPosition[i];
+    current.accentPointPosition[i] = source.accentPointPosition[i];
+  }
+  current.accentPointColor = source.accentPointColor;
+}
+
+function parseHexChannel(hex: string, offset: number): number {
+  const value = Number.parseInt(hex.slice(offset, offset + 2), 16);
+  return Number.isFinite(value) ? value : 255;
+}
+
+function interpolateHexColor(
+  fromHex: string,
+  toHex: string,
+  t: number,
+): string {
+  const u = Math.max(0, Math.min(1, t));
+  if (u <= 0) return fromHex;
+  if (u >= 1) return toHex;
+  const a =
+    fromHex.startsWith("#") && fromHex.length === 7 ? fromHex : "#eef6ff";
+  const b = toHex.startsWith("#") && toHex.length === 7 ? toHex : "#eef6ff";
+  const r = Math.round(
+    parseHexChannel(a, 1) + (parseHexChannel(b, 1) - parseHexChannel(a, 1)) * u,
+  );
+  const g = Math.round(
+    parseHexChannel(a, 3) + (parseHexChannel(b, 3) - parseHexChannel(a, 3)) * u,
+  );
+  const bl = Math.round(
+    parseHexChannel(a, 5) + (parseHexChannel(b, 5) - parseHexChannel(a, 5)) * u,
+  );
+  return `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${bl.toString(16).padStart(2, "0")}`;
+}
+
+/**
+ * Pure, deterministic light-rig interpolation for timeline-driven Motion Director cues.
+ * Identical forward/reverse seek results with zero frame-history dependence.
+ */
+export function interpolateLightRigStates(
+  from: EngineeringLightRigState,
+  to: EngineeringLightRigState,
+  t: number,
+): EngineeringLightRigState {
+  const u = Math.max(0, Math.min(1, Number.isFinite(t) ? t : 0));
+  if (u <= 0) return from;
+  if (u >= 1) return to;
+  return {
+    ambientIntensity:
+      from.ambientIntensity + (to.ambientIntensity - from.ambientIntensity) * u,
+    keyIntensity: from.keyIntensity + (to.keyIntensity - from.keyIntensity) * u,
+    keyPosition: [
+      from.keyPosition[0] + (to.keyPosition[0] - from.keyPosition[0]) * u,
+      from.keyPosition[1] + (to.keyPosition[1] - from.keyPosition[1]) * u,
+      from.keyPosition[2] + (to.keyPosition[2] - from.keyPosition[2]) * u,
+    ],
+    fillIntensity:
+      from.fillIntensity + (to.fillIntensity - from.fillIntensity) * u,
+    fillPosition: [
+      from.fillPosition[0] + (to.fillPosition[0] - from.fillPosition[0]) * u,
+      from.fillPosition[1] + (to.fillPosition[1] - from.fillPosition[1]) * u,
+      from.fillPosition[2] + (to.fillPosition[2] - from.fillPosition[2]) * u,
+    ],
+    rimIntensity: from.rimIntensity + (to.rimIntensity - from.rimIntensity) * u,
+    rimPosition: [
+      from.rimPosition[0] + (to.rimPosition[0] - from.rimPosition[0]) * u,
+      from.rimPosition[1] + (to.rimPosition[1] - from.rimPosition[1]) * u,
+      from.rimPosition[2] + (to.rimPosition[2] - from.rimPosition[2]) * u,
+    ],
+    accentPointIntensity:
+      from.accentPointIntensity +
+      (to.accentPointIntensity - from.accentPointIntensity) * u,
+    accentPointPosition: [
+      from.accentPointPosition[0] +
+        (to.accentPointPosition[0] - from.accentPointPosition[0]) * u,
+      from.accentPointPosition[1] +
+        (to.accentPointPosition[1] - from.accentPointPosition[1]) * u,
+      from.accentPointPosition[2] +
+        (to.accentPointPosition[2] - from.accentPointPosition[2]) * u,
+    ],
+    accentPointColor: interpolateHexColor(
+      from.accentPointColor,
+      to.accentPointColor,
+      u,
+    ),
+  };
+}
+
 export function stepLightRigTowardChapter(
   current: MutableEngineeringLightRigState,
   chapterId: EngineeringStoryChapterId,

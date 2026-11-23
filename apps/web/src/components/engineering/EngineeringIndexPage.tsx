@@ -65,6 +65,7 @@ import {
   engineeringInspectionReducer,
   INITIAL_ENGINEERING_INSPECTION_STATE,
 } from "./engineeringInspectionState";
+import { evaluateEngineeringMotionDirector } from "./engineeringMotionDirector";
 import "./engineeringStudio.css";
 
 const EngineeringDisassemblyStage = lazy(() =>
@@ -122,6 +123,7 @@ const EngineeringIndexPageImpl: React.FC = () => {
   const stickyRef = useRef<HTMLDivElement>(null);
   const editorialRef = useRef<HTMLElement>(null);
   const annotationRef = useRef<HTMLDivElement>(null);
+  const annotationLeaderRef = useRef<HTMLSpanElement>(null);
   const annotationIndexRef = useRef<HTMLSpanElement>(null);
   const annotationLabelRef = useRef<HTMLSpanElement>(null);
   const annotationPhaseRef = useRef<HTMLSpanElement>(null);
@@ -272,12 +274,17 @@ const EngineeringIndexPageImpl: React.FC = () => {
     const returningSystemChapterId = pending.storyBeat.partId
       ? (getEngineeringStoryShot(pending.storyBeat.partId)?.chapterId ?? null)
       : null;
+    const motionPhaseId = evaluateEngineeringMotionDirector({
+      effectiveProgress: pending.progress,
+      precomputedStory: pending,
+    }).activePhaseCue?.phaseId ?? null;
     const key = resolveEngineeringUiCommitKey({
       chapterId: pending.chapter.id,
       storyBeatId: pending.storyBeat.id,
       showChapterTitle: pending.showChapterTitle,
       progress: pending.progress,
       returningSystemChapterId,
+      motionPhaseId,
     });
     if (key !== lastUiKeyRef.current) {
       lastUiKeyRef.current = key;
@@ -301,12 +308,17 @@ const EngineeringIndexPageImpl: React.FC = () => {
         ? (getEngineeringStoryShot(nextEval.storyBeat.partId)?.chapterId ??
           null)
         : null;
+      const motionPhaseId = evaluateEngineeringMotionDirector({
+        effectiveProgress: nextEval.progress,
+        precomputedStory: nextEval,
+      }).activePhaseCue?.phaseId ?? null;
       const key = resolveEngineeringUiCommitKey({
         chapterId: nextEval.chapter.id,
         storyBeatId: nextEval.storyBeat.id,
         showChapterTitle: nextEval.showChapterTitle,
         progress: nextEval.progress,
         returningSystemChapterId,
+        motionPhaseId,
       });
 
       if (force) {
@@ -644,6 +656,12 @@ const EngineeringIndexPageImpl: React.FC = () => {
         )
       ) {
         el.dataset.visible = "false";
+        el.style.opacity = "0";
+        if (proj.motionPhaseId) {
+          el.dataset.motionPhase = proj.motionPhaseId;
+        } else {
+          delete el.dataset.motionPhase;
+        }
         return;
       }
       const isMobile = window.matchMedia("(max-width: 860px)").matches;
@@ -659,8 +677,19 @@ const EngineeringIndexPageImpl: React.FC = () => {
       el.style.transform = isMobile
         ? `translate3d(${px}px, ${py}px, 0) translate(-50%, -50%)`
         : `translate3d(${px}px, ${py}px, 0) translate(-10%, -50%)`;
+      el.style.opacity = String(
+        Math.max(0, Math.min(1, proj.opacity ?? 1)),
+      );
+      if (annotationLeaderRef.current) {
+        annotationLeaderRef.current.style.transform = `scaleX(${Math.max(0.05, Math.min(1, proj.leaderScale ?? 1))})`;
+      }
       el.dataset.visible = "true";
       el.dataset.partId = proj.partId;
+      if (proj.motionPhaseId) {
+        el.dataset.motionPhase = proj.motionPhaseId;
+      } else {
+        delete el.dataset.motionPhase;
+      }
       const shot = getEngineeringStoryShot(proj.partId);
       if (annotationIndexRef.current && shot) {
         annotationIndexRef.current.textContent = `${String(shot.index).padStart(2, "0")} / 47`;
@@ -669,16 +698,27 @@ const EngineeringIndexPageImpl: React.FC = () => {
         annotationLabelRef.current.textContent = shot.title[lang];
       }
       if (annotationPhaseRef.current) {
-        annotationPhaseRef.current.textContent =
-          proj.phase >= 0.95
-            ? lang === "vi"
-              ? "TÁCH RỜI"
-              : "DETACHED"
-            : proj.phase > 0.05
-              ? `${Math.round(proj.phase * 100)}%`
-              : lang === "vi"
-                ? "NGUYÊN VỊ"
-                : "LOCKED";
+        if (proj.motionPhaseId === "explain") {
+          annotationPhaseRef.current.textContent =
+            lang === "vi" ? "GIẢI THÍCH" : "EXPLAIN";
+        } else if (proj.motionPhaseId === "inspect") {
+          annotationPhaseRef.current.textContent =
+            lang === "vi" ? "QUAN SÁT" : "INSPECT";
+        } else if (proj.motionPhaseId === "transition") {
+          annotationPhaseRef.current.textContent =
+            lang === "vi" ? "CHUYỂN CẢNH" : "TRANSITION";
+        } else {
+          annotationPhaseRef.current.textContent =
+            proj.phase >= 0.95
+              ? lang === "vi"
+                ? "TÁCH RỜI"
+                : "DETACHED"
+              : proj.phase > 0.05
+                ? `${Math.round(proj.phase * 100)}%`
+                : lang === "vi"
+                  ? "NGUYÊN VỊ"
+                  : "LOCKED";
+        }
       }
     };
 
@@ -793,9 +833,23 @@ const EngineeringIndexPageImpl: React.FC = () => {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [isolatedPartId, orbitMode, selectedPartId]);
 
+  const motionCueSheet = useMemo(
+    () =>
+      evaluateEngineeringMotionDirector({
+        effectiveProgress: evaluation.progress,
+        selectedPartId,
+        isolatedPartId,
+        reducedMotion,
+        xray,
+        precomputedStory: evaluation,
+      }),
+    [evaluation, isolatedPartId, reducedMotion, selectedPartId, xray],
+  );
+  const editorialCue = motionCueSheet.editorialCue;
+
   const inCockpitChapter = evaluation.chapter.id === "cockpit";
   const cfdZoneValid = isAnyCfdZoneValid(
-    resolveCfdZoneOpacities(evaluation.parts),
+    resolveCfdZoneOpacities(motionCueSheet.parts),
   );
   const showCockpitInspector = isCockpitInspectorVisible(
     evaluation.chapter.id,
@@ -805,13 +859,15 @@ const EngineeringIndexPageImpl: React.FC = () => {
     ? getEngineeringStoryShot(selectedPart.id)
     : null;
   const currentComponentIndex =
-    selectedShot?.index ?? evaluation.storyBeat.componentIndex;
-  const showChapterTitle = evaluation.showChapterTitle && !selectedPart;
-  const currentStoryTitle = selectedPart?.label ?? evaluation.storyBeat.title;
-  const currentStoryLocation =
-    selectedShot?.location ?? evaluation.storyBeat.location;
-  const currentStoryCaption =
-    selectedPart?.summary ?? evaluation.storyBeat.caption;
+    selectedShot?.index ?? editorialCue.componentIndex;
+  const showChapterTitle = editorialCue.showChapterTitle && !selectedPart;
+  const currentStoryTitle = selectedPart?.label ?? editorialCue.title;
+  const currentStoryLocation = selectedShot?.location ?? editorialCue.location;
+  const currentStoryCaption = selectedPart?.summary ?? editorialCue.caption;
+  const activePhaseBadge = !selectedPart ? editorialCue.phaseLabel : null;
+  const activePhaseIndex = !selectedPart ? editorialCue.phaseIndex : null;
+  const activePhaseCount = !selectedPart ? editorialCue.phaseCount : null;
+  const activePhaseId = !selectedPart ? editorialCue.phaseId : null;
   const isHudMinimized =
     hudMode === "minimized" && !selectedPart && !showCockpitInspector;
 
@@ -960,7 +1016,10 @@ const EngineeringIndexPageImpl: React.FC = () => {
             aria-hidden="true"
           >
             <span className="peds-eng-3d-annotation__dot" />
-            <span className="peds-eng-3d-annotation__leader" />
+            <span
+              ref={annotationLeaderRef}
+              className="peds-eng-3d-annotation__leader"
+            />
             <span className="peds-eng-3d-annotation__card">
               <span
                 ref={annotationIndexRef}
@@ -981,12 +1040,36 @@ const EngineeringIndexPageImpl: React.FC = () => {
           <div className="peds-eng-hud" data-hud-mode={hudMode}>
             <header
               className={`peds-eng-copy ${showChapterTitle ? "peds-eng-copy--chapter" : "peds-eng-copy--component"} ${isHudMinimized ? "peds-eng-copy--minimized" : ""}`}
+              data-motion-phase={activePhaseId ?? undefined}
             >
               <p className="peds-eng-overline">
                 {showChapterTitle
                   ? evaluation.chapter.overline[lang]
                   : `${evaluation.chapter.index} / 08 · ${evaluation.chapter.shortLabel[lang]}`}
               </p>
+              {activePhaseBadge &&
+                activePhaseIndex !== null &&
+                activePhaseCount !== null && (
+                  <div
+                    className="peds-eng-phase-rail"
+                    data-testid="engineering-shot-phase"
+                    data-phase-id={activePhaseId ?? undefined}
+                  >
+                    <span className="peds-eng-phase-pill">
+                      {String(activePhaseIndex).padStart(2, "0")} /{" "}
+                      {String(activePhaseCount).padStart(2, "0")} ·{" "}
+                      {activePhaseBadge[lang]}
+                    </span>
+                    <span className="peds-eng-phase-pips" aria-hidden="true">
+                      {Array.from({ length: activePhaseCount }, (_, idx) => (
+                        <span
+                          key={idx}
+                          className={`peds-eng-phase-pip ${idx + 1 === activePhaseIndex ? "peds-eng-phase-pip--active" : idx + 1 < activePhaseIndex ? "peds-eng-phase-pip--done" : ""}`}
+                        />
+                      ))}
+                    </span>
+                  </div>
+                )}
               <h1
                 className="peds-eng-title"
                 data-testid="engineering-story-title"
@@ -997,7 +1080,9 @@ const EngineeringIndexPageImpl: React.FC = () => {
               </h1>
               {showChapterTitle ? (
                 <p className="peds-eng-summary">
-                  {evaluation.chapter.summary[lang]}
+                  {activePhaseId === "establish"
+                    ? currentStoryCaption[lang]
+                    : evaluation.chapter.summary[lang]}
                 </p>
               ) : (
                 <>
