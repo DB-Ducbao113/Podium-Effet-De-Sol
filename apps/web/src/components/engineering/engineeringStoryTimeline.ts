@@ -144,79 +144,79 @@ const SHOT_GROUPS: readonly {
   readonly chapterId: EngineeringStoryChapterId;
   readonly partIds: readonly string[];
 }[] = [
-  {
-    chapterId: "aero",
-    partIds: [
-      "FRONT_WING_ASSEMBLY",
-      "NOSECONE_SHELL",
-      "NOSE_CANARDS_PITOT",
-      "NOSE_CRASH_BULKHEAD",
-      "FRONT_WHEEL_DEFLECTORS",
-      "AERO_MIRRORS_PAIR",
-      "REAR_WING_MAINPLANE",
-      "REAR_DRS_FLAP_ACTUATOR",
-    ],
-  },
-  {
-    chapterId: "cockpit",
-    partIds: [
-      "COCKPIT_HALO",
-      "STEERING_COLUMN_QR",
-      "STEERING_SHIFT_PADDLES",
-      "STEERING_WHEEL_LCD",
-      "STEERING_ENCODERS_LEDS",
-      "COCKPIT_HARNESS_BELTS",
-      "COCKPIT_SEAT_CARBON",
-      "COCKPIT_SURVIVAL_LINER",
-      "ROLL_HOOP_TCAM",
-    ],
-  },
-  {
-    chapterId: "corners",
-    partIds: [
-      "FL_CENTERLOCK_NUT",
-      "FL_AERO_COVER",
-      "FL_SLICK_TIRE",
-      "FL_FORGED_RIM",
-      "FL_BRAKE_SUSPENSION",
-      "FR_CENTERLOCK_NUT",
-      "FR_AERO_COVER",
-      "FR_SLICK_TIRE",
-      "FR_FORGED_RIM",
-      "FR_BRAKE_SUSPENSION",
-      "RR_CENTERLOCK_NUT",
-      "RR_AERO_COVER",
-      "RR_SLICK_TIRE",
-      "RR_FORGED_RIM",
-      "RR_BRAKE_SUSPENSION",
-      "RL_CENTERLOCK_NUT",
-      "RL_AERO_COVER",
-      "RL_SLICK_TIRE",
-      "RL_FORGED_RIM",
-      "RL_BRAKE_SUSPENSION",
-    ],
-  },
-  {
-    chapterId: "bodywork",
-    partIds: [
-      "ENGINE_COVER_SPINE",
-      "SIDEPOD_SHELL_LEFT",
-      "COOLING_RADIATOR_LEFT",
-      "SIDEPOD_SHELL_RIGHT",
-      "COOLING_RADIATOR_RIGHT",
-    ],
-  },
-  {
-    chapterId: "core",
-    partIds: [
-      "VENTURI_FLOOR_TITANIUM",
-      "POWERTRAIN_V6_HYBRID",
-      "GEARBOX_DRIVETRAIN",
-      "REAR_EXHAUST_RAIN_LED",
-    ],
-  },
-  { chapterId: "matrix", partIds: ["MONOCOQUE_CHASSIS"] },
-];
+    {
+      chapterId: "aero",
+      partIds: [
+        "FRONT_WING_ASSEMBLY",
+        "NOSECONE_SHELL",
+        "NOSE_CANARDS_PITOT",
+        "NOSE_CRASH_BULKHEAD",
+        "FRONT_WHEEL_DEFLECTORS",
+        "AERO_MIRRORS_PAIR",
+        "REAR_WING_MAINPLANE",
+        "REAR_DRS_FLAP_ACTUATOR",
+      ],
+    },
+    {
+      chapterId: "cockpit",
+      partIds: [
+        "COCKPIT_HALO",
+        "STEERING_COLUMN_QR",
+        "STEERING_SHIFT_PADDLES",
+        "STEERING_WHEEL_LCD",
+        "STEERING_ENCODERS_LEDS",
+        "COCKPIT_HARNESS_BELTS",
+        "COCKPIT_SEAT_CARBON",
+        "COCKPIT_SURVIVAL_LINER",
+        "ROLL_HOOP_TCAM",
+      ],
+    },
+    {
+      chapterId: "corners",
+      partIds: [
+        "FL_CENTERLOCK_NUT",
+        "FL_AERO_COVER",
+        "FL_SLICK_TIRE",
+        "FL_FORGED_RIM",
+        "FL_BRAKE_SUSPENSION",
+        "FR_CENTERLOCK_NUT",
+        "FR_AERO_COVER",
+        "FR_SLICK_TIRE",
+        "FR_FORGED_RIM",
+        "FR_BRAKE_SUSPENSION",
+        "RR_CENTERLOCK_NUT",
+        "RR_AERO_COVER",
+        "RR_SLICK_TIRE",
+        "RR_FORGED_RIM",
+        "RR_BRAKE_SUSPENSION",
+        "RL_CENTERLOCK_NUT",
+        "RL_AERO_COVER",
+        "RL_SLICK_TIRE",
+        "RL_FORGED_RIM",
+        "RL_BRAKE_SUSPENSION",
+      ],
+    },
+    {
+      chapterId: "bodywork",
+      partIds: [
+        "ENGINE_COVER_SPINE",
+        "SIDEPOD_SHELL_LEFT",
+        "COOLING_RADIATOR_LEFT",
+        "SIDEPOD_SHELL_RIGHT",
+        "COOLING_RADIATOR_RIGHT",
+      ],
+    },
+    {
+      chapterId: "core",
+      partIds: [
+        "VENTURI_FLOOR_TITANIUM",
+        "POWERTRAIN_V6_HYBRID",
+        "GEARBOX_DRIVETRAIN",
+        "REAR_EXHAUST_RAIN_LED",
+      ],
+    },
+    { chapterId: "matrix", partIds: ["MONOCOQUE_CHASSIS"] },
+  ];
 
 const partById = new Map(ENGINEERING_PARTS.map((part) => [part.id, part]));
 const signatureShotIds = new Set([
@@ -315,17 +315,17 @@ const CORNER_INNER_CAMERA_DIRECTIONS: Readonly<
 };
 
 const COCKPIT_CAMERA_DIRECTIONS: Readonly<Record<string, EngineeringVector3>> =
-  {
-    COCKPIT_HALO: [-0.62, 0.52, 0.58],
-    STEERING_COLUMN_QR: [-0.46, 0.36, 0.81],
-    STEERING_SHIFT_PADDLES: [0.58, 0.34, -0.74],
-    STEERING_WHEEL_LCD: [0.14, 0.32, 0.94],
-    STEERING_ENCODERS_LEDS: [-0.14, 0.28, 0.95],
-    COCKPIT_HARNESS_BELTS: [-0.42, 0.62, 0.66],
-    COCKPIT_SEAT_CARBON: [0.34, 0.66, 0.67],
-    COCKPIT_SURVIVAL_LINER: [-0.28, 0.74, 0.61],
-    ROLL_HOOP_TCAM: [0.24, 0.44, 0.86],
-  };
+{
+  COCKPIT_HALO: [-0.62, 0.52, 0.58],
+  STEERING_COLUMN_QR: [-0.46, 0.36, 0.81],
+  STEERING_SHIFT_PADDLES: [0.58, 0.34, -0.74],
+  STEERING_WHEEL_LCD: [0.14, 0.32, 0.94],
+  STEERING_ENCODERS_LEDS: [-0.14, 0.28, 0.95],
+  COCKPIT_HARNESS_BELTS: [-0.42, 0.62, 0.66],
+  COCKPIT_SEAT_CARBON: [0.34, 0.66, 0.67],
+  COCKPIT_SURVIVAL_LINER: [-0.28, 0.74, 0.61],
+  ROLL_HOOP_TCAM: [0.24, 0.44, 0.86],
+};
 
 function resolveCameraSpec(
   part: EngineeringPartSpec,
@@ -351,10 +351,10 @@ function resolveCameraSpec(
       part.id === "FRONT_WING_ASSEMBLY"
         ? [-0.74, 0.24, -0.78]
         : [
-            -0.76,
-            0.34 + Math.sin(positionInChapter * Math.PI) * 0.06,
-            -0.78 + positionInChapter * 1.56,
-          ];
+          -0.76,
+          0.34 + Math.sin(positionInChapter * Math.PI) * 0.06,
+          -0.78 + positionInChapter * 1.56,
+        ];
   } else if (chapterId === "bodywork") {
     if (part.id === "COOLING_RADIATOR_LEFT") {
       // Elevated front-3/4 view looking cleanly past the laterally peeled sidepod onto the radiator core
@@ -369,10 +369,11 @@ function resolveCameraSpec(
           : [-0.14, 0.42, 0.9];
     }
   } else if (part.id === "VENTURI_FLOOR_TITANIUM") {
-    // Low sweeping 3/4 underfloor angle revealing full-length Venturi tunnels & titanium skid plank
-    direction = [-0.62, -0.14, -0.77];
+    // Low raking 3/4 exhibition angle revealing full-length Venturi tunnels & titanium plank
+    // while keeping the suspended chassis framed cleanly inside the upper viewport
+    direction = [-0.66, 0.04, -0.75];
   } else if (part.id === "POWERTRAIN_V6_HYBRID") {
-    direction = [-0.62, 0.56, 0.54];
+    direction = [-0.62, 0.52, 0.59];
   } else if (part.id === "GEARBOX_DRIVETRAIN") {
     direction = [0.58, 0.44, 0.68];
   } else if (part.id === "REAR_EXHAUST_RAIN_LED") {
@@ -384,28 +385,36 @@ function resolveCameraSpec(
   const isWheelFrontShot =
     part.id === "STEERING_WHEEL_LCD" || part.id === "STEERING_ENCODERS_LEDS";
   const isRadiatorShot = part.id.startsWith("COOLING_RADIATOR_");
+  const isBrakeSuspensionShot = part.id.endsWith("_BRAKE_SUSPENSION");
 
   return {
     direction,
     framing: isWheelFrontShot
-      ? 0.88
-      : part.id === "FRONT_WING_ASSEMBLY" ||
-          part.id === "VENTURI_FLOOR_TITANIUM"
-        ? 0.86
-        : isRadiatorShot
-          ? 0.94
-          : signatureShotIds.has(part.id)
-            ? 0.92
-            : part.id === "NOSECONE_SHELL"
-              ? 0.94
-              : 1.04,
+      ? 0.9
+      : part.id === "FRONT_WING_ASSEMBLY"
+        ? 0.92
+        : part.id === "VENTURI_FLOOR_TITANIUM"
+          ? 1.08
+          : part.id === "POWERTRAIN_V6_HYBRID"
+            ? 1.08
+            : isBrakeSuspensionShot
+              ? 1.0
+              : isRadiatorShot
+                ? 1.04
+                : signatureShotIds.has(part.id)
+                  ? 0.96
+                  : part.id === "NOSECONE_SHELL"
+                    ? 0.98
+                    : 1.06,
     fov: isWheelFrontShot ? 28 : signatureShotIds.has(part.id) ? 31 : 34,
     lookTargetBias:
       part.id === "STEERING_WHEEL_LCD"
         ? [0, 0.04, 0.04]
         : part.id === "VENTURI_FLOOR_TITANIUM"
-          ? [0, -0.02, 0.08]
-          : [0, 0, 0],
+          ? [0, 1.15, 0.06]
+          : part.id === "POWERTRAIN_V6_HYBRID"
+            ? [0, 0.02, -0.04]
+            : [0, 0, 0],
   };
 }
 
@@ -453,19 +462,19 @@ export const ENGINEERING_STORY_SHOTS: readonly EngineeringStoryShot[] =
     const camera =
       raw.chapterId === "matrix"
         ? {
-            direction: [-0.64, 0.34, -0.69] as const,
-            framing: 0.72,
-            fov: 34,
-            lookTargetBias: [0, 0.04, 0] as const,
-          }
+          direction: [-0.64, 0.34, -0.69] as const,
+          framing: 0.72,
+          fov: 34,
+          lookTargetBias: [0, 0.04, 0] as const,
+        }
         : resolveCameraSpec(
-            part,
-            raw.chapterId,
-            raw.chapterOffset,
-            rawShots.filter(
-              (candidate) => candidate.chapterId === raw.chapterId,
-            ).length,
-          );
+          part,
+          raw.chapterId,
+          raw.chapterOffset,
+          rawShots.filter(
+            (candidate) => candidate.chapterId === raw.chapterId,
+          ).length,
+        );
     return {
       ...raw,
       id: raw.partId.toLowerCase().replaceAll("_", "-"),
@@ -927,7 +936,7 @@ function resolvePartPhase(shot: EngineeringStoryShot, units: number): number {
   if (units < shot.detachEndUnits) {
     return easeOutQuart(
       (units - shot.approachEndUnits) /
-        (shot.detachEndUnits - shot.approachEndUnits),
+      (shot.detachEndUnits - shot.approachEndUnits),
     );
   }
   const reassembly = reassemblyByPartId.get(shot.partId);
@@ -937,7 +946,7 @@ function resolvePartPhase(shot: EngineeringStoryShot, units: number): number {
       1 -
       easeInOutCubic(
         (units - reassembly.startUnits) /
-          (reassembly.endUnits - reassembly.startUnits),
+        (reassembly.endUnits - reassembly.startUnits),
       )
     );
   }

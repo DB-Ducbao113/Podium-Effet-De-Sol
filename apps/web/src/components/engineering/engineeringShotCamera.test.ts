@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { describe, expect, it } from "vitest";
 import {
+  evaluateCameraEasing,
   fitEngineeringCameraToBounds,
   interpolateEngineeringCameraFrames,
   shouldEnterEngineeringOrbitFromDrag,
@@ -131,6 +132,47 @@ describe("Engineering measured camera framing", () => {
         to.position,
       ),
     ).toBe(0);
+
+    // 3D lateral orbital arc curves outward radially around the target while staying 100% symmetric
+    const linearRadial = interpolateEngineeringCameraFrames(
+      from,
+      to,
+      0.5,
+      0.8,
+      {
+        lateralArc: 0,
+        easing: "cinematic-dolly",
+      },
+    );
+    const curvedFwd = interpolateEngineeringCameraFrames(from, to, 0.35, 0.8, {
+      lateralArc: 1.4,
+      easing: "cinematic-dolly",
+    });
+    const curvedRev = interpolateEngineeringCameraFrames(to, from, 0.65, 0.8, {
+      lateralArc: 1.4,
+      easing: "cinematic-dolly",
+    });
+    const curvedMid = interpolateEngineeringCameraFrames(from, to, 0.5, 0.8, {
+      lateralArc: 1.4,
+      easing: "cinematic-dolly",
+    });
+    expect(curvedFwd.position.distanceTo(curvedRev.position)).toBeLessThan(
+      1e-9,
+    );
+    expect(
+      Math.hypot(
+        curvedMid.position.x - curvedMid.target.x,
+        curvedMid.position.z - curvedMid.target.z,
+      ),
+    ).toBeGreaterThan(
+      Math.hypot(
+        linearRadial.position.x - linearRadial.target.x,
+        linearRadial.position.z - linearRadial.target.z,
+      ),
+    );
+    expect(evaluateCameraEasing(0, "cinematic-dolly")).toBe(0);
+    expect(evaluateCameraEasing(1, "cinematic-dolly")).toBe(1);
+    expect(evaluateCameraEasing(0.5, "inspect-drift")).toBeCloseTo(0.5, 9);
   });
 });
 

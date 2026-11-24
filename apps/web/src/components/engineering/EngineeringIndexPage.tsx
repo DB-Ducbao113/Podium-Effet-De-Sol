@@ -12,8 +12,8 @@ import type { CSSProperties } from "react";
 import type { EngineeringLiveTimelineBridge } from "./EngineeringDisassemblyStage";
 import {
   ENGINEERING_SCROLL_UI_MIN_INTERVAL_MS,
-  clampAnnotationScreenPosition,
   resolveEngineeringUiCommitKey,
+  resolveLeaderCalloutLayout,
   type EngineeringAnnotationProjection,
   type EngineeringHudMode,
 } from "./engineeringInteractionState";
@@ -123,7 +123,10 @@ const EngineeringIndexPageImpl: React.FC = () => {
   const stickyRef = useRef<HTMLDivElement>(null);
   const editorialRef = useRef<HTMLElement>(null);
   const annotationRef = useRef<HTMLDivElement>(null);
-  const annotationLeaderRef = useRef<HTMLSpanElement>(null);
+  const annotationCardRef = useRef<HTMLSpanElement>(null);
+  const annotationPolylineRef = useRef<SVGPolylineElement>(null);
+  const annotationRingRef = useRef<SVGCircleElement>(null);
+  const annotationDotRef = useRef<SVGCircleElement>(null);
   const annotationIndexRef = useRef<HTMLSpanElement>(null);
   const annotationLabelRef = useRef<HTMLSpanElement>(null);
   const annotationPhaseRef = useRef<HTMLSpanElement>(null);
@@ -274,10 +277,11 @@ const EngineeringIndexPageImpl: React.FC = () => {
     const returningSystemChapterId = pending.storyBeat.partId
       ? (getEngineeringStoryShot(pending.storyBeat.partId)?.chapterId ?? null)
       : null;
-    const motionPhaseId = evaluateEngineeringMotionDirector({
-      effectiveProgress: pending.progress,
-      precomputedStory: pending,
-    }).activePhaseCue?.phaseId ?? null;
+    const motionPhaseId =
+      evaluateEngineeringMotionDirector({
+        effectiveProgress: pending.progress,
+        precomputedStory: pending,
+      }).activePhaseCue?.phaseId ?? null;
     const key = resolveEngineeringUiCommitKey({
       chapterId: pending.chapter.id,
       storyBeatId: pending.storyBeat.id,
@@ -308,10 +312,11 @@ const EngineeringIndexPageImpl: React.FC = () => {
         ? (getEngineeringStoryShot(nextEval.storyBeat.partId)?.chapterId ??
           null)
         : null;
-      const motionPhaseId = evaluateEngineeringMotionDirector({
-        effectiveProgress: nextEval.progress,
-        precomputedStory: nextEval,
-      }).activePhaseCue?.phaseId ?? null;
+      const motionPhaseId =
+        evaluateEngineeringMotionDirector({
+          effectiveProgress: nextEval.progress,
+          precomputedStory: nextEval,
+        }).activePhaseCue?.phaseId ?? null;
       const key = resolveEngineeringUiCommitKey({
         chapterId: nextEval.chapter.id,
         storyBeatId: nextEval.storyBeat.id,
@@ -645,15 +650,15 @@ const EngineeringIndexPageImpl: React.FC = () => {
       const el = annotationRef.current;
       const sticky = stickyRef.current;
       if (!el || !sticky) return;
+      const isWheelMacro =
+        proj.partId === "STEERING_WHEEL_LCD" ||
+        proj.partId === "STEERING_ENCODERS_LEDS";
       if (
         !proj.visible ||
         !proj.partId ||
         reducedMotion ||
         stageUnavailable ||
-        isCockpitInspectorVisible(
-          liveBridgeRef.current.latestEvaluation?.chapter.id ?? "",
-          proj.partId,
-        )
+        isWheelMacro
       ) {
         el.dataset.visible = "false";
         el.style.opacity = "0";
@@ -665,24 +670,59 @@ const EngineeringIndexPageImpl: React.FC = () => {
         return;
       }
       const isMobile = window.matchMedia("(max-width: 860px)").matches;
-      const clamped = clampAnnotationScreenPosition(proj.x, proj.y, isMobile);
-      const rawPx = Math.round(clamped.x * sticky.clientWidth);
-      const px = isMobile
-        ? Math.max(
-          136,
-          Math.min(Math.max(136, sticky.clientWidth - 136), rawPx),
-        )
-        : rawPx;
-      const py = Math.round(clamped.y * sticky.clientHeight);
-      el.style.transform = isMobile
-        ? `translate3d(${px}px, ${py}px, 0) translate(-50%, -50%)`
-        : `translate3d(${px}px, ${py}px, 0) translate(-10%, -50%)`;
-      el.style.opacity = String(
-        Math.max(0, Math.min(1, proj.opacity ?? 1)),
-      );
-      if (annotationLeaderRef.current) {
-        annotationLeaderRef.current.style.transform = `scaleX(${Math.max(0.05, Math.min(1, proj.leaderScale ?? 1))})`;
+      const cardW =
+        annotationCardRef.current?.offsetWidth || (isMobile ? 280 : 284);
+      const layout = resolveLeaderCalloutLayout({
+        stageWidth: sticky.clientWidth,
+        stageHeight: sticky.clientHeight,
+        anchorX: proj.x,
+        anchorY: proj.y,
+        boundsMinX: proj.boundsMinX,
+        boundsMaxX: proj.boundsMaxX,
+        boundsMinY: proj.boundsMinY,
+        boundsMaxY: proj.boundsMaxY,
+        isMobile,
+        cardWidth: cardW,
+      });
+
+      el.style.opacity = String(Math.max(0, Math.min(1, proj.opacity ?? 1)));
+      if (annotationPolylineRef.current) {
+        annotationPolylineRef.current.setAttribute(
+          "points",
+          `${layout.anchorPxX},${layout.anchorPxY} ${layout.elbowPxX},${layout.elbowPxY} ${layout.cardConnectPxX},${layout.cardConnectPxY}`,
+        );
+        const seg1 = Math.hypot(
+          layout.elbowPxX - layout.anchorPxX,
+          layout.elbowPxY - layout.anchorPxY,
+        );
+        const seg2 = Math.hypot(
+          layout.cardConnectPxX - layout.elbowPxX,
+          layout.cardConnectPxY - layout.elbowPxY,
+        );
+        const totalLen = Math.max(1, seg1 + seg2);
+        const revealScale = Math.max(0.05, Math.min(1, proj.leaderScale ?? 1));
+        annotationPolylineRef.current.style.strokeDasharray = `${totalLen}`;
+        annotationPolylineRef.current.style.strokeDashoffset = `${totalLen * (1 - revealScale)}`;
       }
+      if (annotationRingRef.current) {
+        annotationRingRef.current.setAttribute("cx", String(layout.anchorPxX));
+        annotationRingRef.current.setAttribute("cy", String(layout.anchorPxY));
+      }
+      if (annotationDotRef.current) {
+        annotationDotRef.current.setAttribute("cx", String(layout.anchorPxX));
+        annotationDotRef.current.setAttribute("cy", String(layout.anchorPxY));
+      }
+      if (annotationCardRef.current) {
+        const txOffset =
+          layout.align === "right"
+            ? "-100%"
+            : layout.align === "center"
+              ? "-50%"
+              : "0%";
+        annotationCardRef.current.style.transform = `translate3d(${layout.cardLeftPx}px, ${layout.cardTopPx}px, 0) translate(${txOffset}, -50%)`;
+        annotationCardRef.current.dataset.align = layout.align;
+      }
+
       el.dataset.visible = "true";
       el.dataset.partId = proj.partId;
       if (proj.motionPhaseId) {
@@ -868,8 +908,17 @@ const EngineeringIndexPageImpl: React.FC = () => {
   const activePhaseIndex = !selectedPart ? editorialCue.phaseIndex : null;
   const activePhaseCount = !selectedPart ? editorialCue.phaseCount : null;
   const activePhaseId = !selectedPart ? editorialCue.phaseId : null;
+  const environmentCue = motionCueSheet.environmentCue;
   const isHudMinimized =
     hudMode === "minimized" && !selectedPart && !showCockpitInspector;
+  const isCameraTransitQuiet =
+    hudMode === "contextual" &&
+    editorialCue.isCameraTransit &&
+    !selectedPart &&
+    !partBrowserOpen;
+  const isExteriorCockpitBeat =
+    !selectedPart && editorialCue.partId === "COCKPIT_HALO";
+  const editorialStaggerKey = `${evaluation.chapter.id}:${showChapterTitle ? "ch" : (selectedPart?.id ?? editorialCue.partId ?? "beat")}`;
 
   const cycleHudMode = useCallback(() => {
     setHudMode((prev) =>
@@ -924,6 +973,22 @@ const EngineeringIndexPageImpl: React.FC = () => {
         className={`peds-eng-runway ${reducedMotion ? "peds-eng-runway--reduced" : ""} ${stageUnavailable ? "peds-eng-runway--static" : ""}`}
       >
         <div ref={stickyRef} className="peds-eng-sticky">
+          <div
+            className="peds-eng-studio-backdrop"
+            data-studio-mode={environmentCue.studioMode}
+            style={
+              {
+                "--peds-eng-grid-alpha":
+                  environmentCue.datumGridOpacity.toFixed(2),
+                "--peds-eng-crimson-glow":
+                  environmentCue.crimsonHorizon.toFixed(2),
+              } as CSSProperties
+            }
+            aria-hidden="true"
+          >
+            <div className="peds-eng-studio-backdrop__horizon" />
+            <div className="peds-eng-studio-backdrop__grid" />
+          </div>
           {stageUnavailable ? (
             <div
               className="peds-eng-static-fallback"
@@ -1007,7 +1072,7 @@ const EngineeringIndexPageImpl: React.FC = () => {
 
           <div className="peds-eng-vignette" aria-hidden="true" />
 
-          {/* 3D Tracking Component Annotation Overlay (direct DOM ref projection, 0 React commits) */}
+          {/* Two-Point 3D SVG Leader-Line Callout Overlay (direct DOM projection, 0 React commits) */}
           <div
             ref={annotationRef}
             className="peds-eng-3d-annotation"
@@ -1015,12 +1080,27 @@ const EngineeringIndexPageImpl: React.FC = () => {
             data-visible="false"
             aria-hidden="true"
           >
-            <span className="peds-eng-3d-annotation__dot" />
+            <svg className="peds-eng-callout-svg" aria-hidden="true">
+              <polyline
+                ref={annotationPolylineRef}
+                className="peds-eng-callout-line"
+                fill="none"
+              />
+              <circle
+                ref={annotationRingRef}
+                className="peds-eng-callout-ring"
+                r="6.5"
+              />
+              <circle
+                ref={annotationDotRef}
+                className="peds-eng-callout-dot"
+                r="2.6"
+              />
+            </svg>
             <span
-              ref={annotationLeaderRef}
-              className="peds-eng-3d-annotation__leader"
-            />
-            <span className="peds-eng-3d-annotation__card">
+              ref={annotationCardRef}
+              className="peds-eng-3d-annotation__card"
+            >
               <span
                 ref={annotationIndexRef}
                 className="peds-eng-3d-annotation__index"
@@ -1036,77 +1116,95 @@ const EngineeringIndexPageImpl: React.FC = () => {
             </span>
           </div>
 
-          {/* Minimalist HUD: Title + 1-sentence copy at top-left, unified capsule at bottom */}
-          <div className="peds-eng-hud" data-hud-mode={hudMode}>
+          {/* Exhibition HUD: Swiss-motorsport editorial plaque at top-left, dock at bottom */}
+          <div
+            className="peds-eng-hud"
+            data-hud-mode={hudMode}
+            data-camera-transit={isCameraTransitQuiet ? "true" : undefined}
+          >
             <header
               className={`peds-eng-copy ${showChapterTitle ? "peds-eng-copy--chapter" : "peds-eng-copy--component"} ${isHudMinimized ? "peds-eng-copy--minimized" : ""}`}
               data-motion-phase={activePhaseId ?? undefined}
             >
-              <p className="peds-eng-overline">
-                {showChapterTitle
-                  ? evaluation.chapter.overline[lang]
-                  : `${evaluation.chapter.index} / 08 · ${evaluation.chapter.shortLabel[lang]}`}
-              </p>
-              {activePhaseBadge &&
-                activePhaseIndex !== null &&
-                activePhaseCount !== null && (
-                  <div
-                    className="peds-eng-phase-rail"
-                    data-testid="engineering-shot-phase"
-                    data-phase-id={activePhaseId ?? undefined}
-                  >
-                    <span className="peds-eng-phase-pill">
-                      {String(activePhaseIndex).padStart(2, "0")} /{" "}
-                      {String(activePhaseCount).padStart(2, "0")} ·{" "}
-                      {activePhaseBadge[lang]}
-                    </span>
-                    <span className="peds-eng-phase-pips" aria-hidden="true">
-                      {Array.from({ length: activePhaseCount }, (_, idx) => (
-                        <span
-                          key={idx}
-                          className={`peds-eng-phase-pip ${idx + 1 === activePhaseIndex ? "peds-eng-phase-pip--active" : idx + 1 < activePhaseIndex ? "peds-eng-phase-pip--done" : ""}`}
-                        />
-                      ))}
-                    </span>
-                  </div>
-                )}
-              <h1
-                className="peds-eng-title"
-                data-testid="engineering-story-title"
-              >
-                {showChapterTitle
-                  ? evaluation.chapter.title[lang]
-                  : currentStoryTitle[lang]}
-              </h1>
-              {showChapterTitle ? (
-                <p className="peds-eng-summary">
-                  {activePhaseId === "establish"
-                    ? currentStoryCaption[lang]
-                    : evaluation.chapter.summary[lang]}
+              <div className="peds-eng-copy__meta-bar">
+                <p className="peds-eng-overline">
+                  <span
+                    className="peds-eng-overline__rule"
+                    aria-hidden="true"
+                  />
+                  <span>
+                    {showChapterTitle
+                      ? evaluation.chapter.overline[lang]
+                      : `${evaluation.chapter.index} / 08 · ${evaluation.chapter.shortLabel[lang]}`}
+                  </span>
+                  <span
+                    className="peds-eng-overline__rule"
+                    aria-hidden="true"
+                  />
                 </p>
-              ) : (
-                <>
-                  <div className="peds-eng-shot-meta">
-                    <span className="peds-eng-shot-location">
-                      {currentStoryLocation[lang]}
-                    </span>
-                    {currentComponentIndex !== null && (
-                      <span
-                        className="peds-eng-shot-count"
-                        data-testid="engineering-story-component"
-                      >
-                        {String(currentComponentIndex).padStart(2, "0")} / 47
+                {activePhaseBadge &&
+                  activePhaseIndex !== null &&
+                  activePhaseCount !== null && (
+                    <div
+                      className="peds-eng-phase-rail"
+                      data-testid="engineering-shot-phase"
+                      data-phase-id={activePhaseId ?? undefined}
+                    >
+                      <span className="peds-eng-phase-pill">
+                        {String(activePhaseIndex).padStart(2, "0")} /{" "}
+                        {String(activePhaseCount).padStart(2, "0")} ·{" "}
+                        {activePhaseBadge[lang]}
                       </span>
-                    )}
-                  </div>
-                  <p
-                    className="peds-eng-story-beat"
-                    data-testid="engineering-story-beat"
-                  >
-                    {currentStoryCaption[lang]}
+                      <span className="peds-eng-phase-pips" aria-hidden="true">
+                        {Array.from({ length: activePhaseCount }, (_, idx) => (
+                          <span
+                            key={idx}
+                            className={`peds-eng-phase-pip ${idx + 1 === activePhaseIndex ? "peds-eng-phase-pip--active" : idx + 1 < activePhaseIndex ? "peds-eng-phase-pip--done" : ""}`}
+                          />
+                        ))}
+                      </span>
+                    </div>
+                  )}
+              </div>
+              <div key={editorialStaggerKey} className="peds-eng-copy__stagger">
+                <h1
+                  className="peds-eng-title"
+                  data-testid="engineering-story-title"
+                >
+                  {showChapterTitle
+                    ? evaluation.chapter.title[lang]
+                    : currentStoryTitle[lang]}
+                </h1>
+                {showChapterTitle ? (
+                  <p className="peds-eng-summary">
+                    {activePhaseId === "establish"
+                      ? currentStoryCaption[lang]
+                      : evaluation.chapter.summary[lang]}
                   </p>
-                </>
-              )}
+                ) : (
+                  <>
+                    <div className="peds-eng-shot-meta">
+                      <span className="peds-eng-shot-location">
+                        {currentStoryLocation[lang]}
+                      </span>
+                      {currentComponentIndex !== null && (
+                        <span
+                          className="peds-eng-shot-count"
+                          data-testid="engineering-story-component"
+                        >
+                          {String(currentComponentIndex).padStart(2, "0")} / 47
+                        </span>
+                      )}
+                    </div>
+                    <p
+                      className="peds-eng-story-beat"
+                      data-testid="engineering-story-beat"
+                    >
+                      {currentStoryCaption[lang]}
+                    </p>
+                  </>
+                )}
+              </div>
 
               {selectedPart && (
                 <div
@@ -1141,14 +1239,21 @@ const EngineeringIndexPageImpl: React.FC = () => {
               )}
 
               {showCockpitInspector && (
-                <EngineeringCockpitPanel
-                  lang={lang}
-                  state={cockpitTelemetry}
-                  onDispatch={dispatchCockpitTelemetry}
-                  onFocusControlPart={(partId) =>
-                    dispatchInspection({ type: "select", partId })
+                <div
+                  className="peds-eng-cockpit-host"
+                  data-cockpit-exterior={
+                    isExteriorCockpitBeat ? "true" : undefined
                   }
-                />
+                >
+                  <EngineeringCockpitPanel
+                    lang={lang}
+                    state={cockpitTelemetry}
+                    onDispatch={dispatchCockpitTelemetry}
+                    onFocusControlPart={(partId) =>
+                      dispatchInspection({ type: "select", partId })
+                    }
+                  />
+                </div>
               )}
             </header>
 
@@ -1332,7 +1437,9 @@ const EngineeringIndexPageImpl: React.FC = () => {
                       }
                     >
                       <Gauge className="h-3.5 w-3.5" aria-hidden="true" />
-                      <span>{lang === "vi" ? "Buồng Lái F1" : "F1 Cockpit"}</span>
+                      <span>
+                        {lang === "vi" ? "Buồng Lái F1" : "F1 Cockpit"}
+                      </span>
                     </button>
 
                     {evaluation.chapter.id === "matrix" && (
@@ -1440,10 +1547,14 @@ const EngineeringIndexPageImpl: React.FC = () => {
                     className="peds-eng-actions-hint"
                     data-testid="engineering-dock-scroll-hint"
                     aria-label={
-                      lang === "vi" ? "Xem thêm nút điều khiển" : "More controls"
+                      lang === "vi"
+                        ? "Xem thêm nút điều khiển"
+                        : "More controls"
                     }
                     title={
-                      lang === "vi" ? "Xem thêm nút điều khiển" : "More controls"
+                      lang === "vi"
+                        ? "Xem thêm nút điều khiển"
+                        : "More controls"
                     }
                     tabIndex={
                       actionsScrollHint === "right" ||

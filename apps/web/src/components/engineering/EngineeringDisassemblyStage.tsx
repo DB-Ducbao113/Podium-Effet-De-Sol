@@ -63,6 +63,7 @@ import {
 } from "./engineeringMotionDirector";
 import {
   createMutableCameraFrame,
+  evaluateCameraEasing,
   fitEngineeringCameraToBounds,
   fitEngineeringCameraToBoundsInto,
   interpolateEngineeringCameraFramesInto,
@@ -243,17 +244,19 @@ function buildStudioEnvironmentTexture(
     return { geo, mat };
   };
 
-  // Architectural motorsport studio softboxes: crisp overhead key bar + side contour strips
+  // Architectural motorsport exhibition softboxes: overhead gallery key blade,
+  // brushed-titanium side contour strips, and controlled Racing Crimson / warm tungsten rim kicker
   const panels = [
-    addPanel([0, 9.6, -0.4], [0, 0, 0], [16.5, 3.2], "#ffffff", 4.1),
-    addPanel([-8.8, 4.4, -6.2], [0, 0.35, 0], [10.5, 2.4], "#e3f0ff", 2.45),
-    addPanel([8.4, 4.6, 5.8], [0, 0.35, 0], [10.0, 2.4], "#ffead8", 2.05),
-    addPanel([-9.8, 1.5, 2.8], [0, 0.35, 0], [8.5, 1.0], "#8de6f7", 1.15),
-    addPanel([0.2, 2.4, 9.5], [0, 0.4, 0], [11.0, 1.3], "#ffd4bd", 1.35),
-    addPanel([0, -5.8, 0], [0, 0, 0], [18, 18], "#111620", 0.72),
+    addPanel([0, 9.8, -0.2], [0, 0, 0], [17.0, 3.0], "#f8fbff", 4.35),
+    addPanel([-9.2, 4.2, -5.8], [0, 0.35, 0], [11.0, 2.3], "#dbeafe", 2.75),
+    addPanel([8.6, 4.4, 5.6], [0, 0.35, 0], [10.2, 2.3], "#ffe6d0", 2.15),
+    addPanel([-10.2, 1.4, 2.2], [0, 0.35, 0], [8.8, 1.1], "#9be7ff", 1.45),
+    addPanel([0.4, 2.6, 9.8], [0, 0.4, 0], [11.5, 1.4], "#ff7252", 1.85),
+    addPanel([0.0, 1.1, -10.2], [0, 0.25, 0], [9.5, 0.9], "#c7dbff", 1.25),
+    addPanel([0, -5.6, 0], [0, 0, 0], [18, 18], "#141b28", 0.88),
   ];
 
-  const rt = pmrem.fromScene(envScene, 0.028);
+  const rt = pmrem.fromScene(envScene, 0.024);
   for (const p of panels) {
     p.geo.dispose();
     p.mat.dispose();
@@ -264,16 +267,34 @@ function buildStudioEnvironmentTexture(
 
 function buildContactShadowTexture(): THREE.CanvasTexture {
   const canvas = document.createElement("canvas");
-  canvas.width = 256;
-  canvas.height = 256;
+  canvas.width = 512;
+  canvas.height = 512;
   const ctx = canvas.getContext("2d");
   if (ctx) {
-    const grad = ctx.createRadialGradient(128, 128, 12, 128, 128, 124);
-    grad.addColorStop(0, "rgba(0, 0, 0, 0.86)");
-    grad.addColorStop(0.5, "rgba(0, 0, 0, 0.42)");
-    grad.addColorStop(1, "rgba(0, 0, 0, 0)");
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, 256, 256);
+    // 1. Luminous brushed-titanium & slate-blue exhibition turntable platform glow
+    const deck = ctx.createRadialGradient(256, 256, 24, 256, 256, 252);
+    deck.addColorStop(0, "rgba(110, 142, 186, 0.46)");
+    deck.addColorStop(0.38, "rgba(72, 98, 136, 0.34)");
+    deck.addColorStop(0.68, "rgba(38, 54, 82, 0.2)");
+    deck.addColorStop(0.88, "rgba(225, 37, 27, 0.08)");
+    deck.addColorStop(1, "rgba(0, 0, 0, 0)");
+    ctx.fillStyle = deck;
+    ctx.fillRect(0, 0, 512, 512);
+
+    // 2. Tight grounded chassis & tire contact shadow directly under the car footprint
+    ctx.save();
+    ctx.translate(256, 256);
+    ctx.scale(0.32, 0.72);
+    const ao = ctx.createRadialGradient(0, 0, 10, 0, 0, 138);
+    ao.addColorStop(0, "rgba(3, 6, 12, 0.84)");
+    ao.addColorStop(0.52, "rgba(5, 9, 18, 0.46)");
+    ao.addColorStop(0.85, "rgba(10, 16, 28, 0.12)");
+    ao.addColorStop(1, "rgba(0, 0, 0, 0)");
+    ctx.fillStyle = ao;
+    ctx.beginPath();
+    ctx.arc(0, 0, 138, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
   }
   const tex = new THREE.CanvasTexture(canvas);
   tex.needsUpdate = true;
@@ -355,9 +376,11 @@ function StudioEnvironmentBinder({
 const MinimalStudioPlinth = memo(function MinimalStudioPlinth({
   explodeRatioRef,
   venturiFloorPhaseRef,
+  datumGridOpacityRef,
 }: {
   explodeRatioRef: MutableRefObject<number>;
   venturiFloorPhaseRef: MutableRefObject<number>;
+  datumGridOpacityRef: MutableRefObject<number>;
 }) {
   const groupRef = useRef<THREE.Group | null>(null);
   const shadowMeshRef = useRef<THREE.Mesh | null>(null);
@@ -366,39 +389,76 @@ const MinimalStudioPlinth = memo(function MinimalStudioPlinth({
   const ticksMatRef = useRef<THREE.LineBasicMaterial | null>(null);
   const lastRatioRef = useRef<number>(-1);
   const lastFloorRef = useRef<number>(-1);
+  const lastGridRef = useRef<number>(-1);
   const shadowTex = useMemo(() => buildContactShadowTexture(), []);
   const { ringGeo, ticksGeo } = useMemo(() => {
     const pts: number[] = [];
     const tickPts: number[] = [];
-    const radius = 3.45;
-    const innerRadius = 3.22;
-    const segs = 128;
+    const outerRadius = 3.62;
+    const midRadius = 3.34;
+    const innerRadius = 2.08;
+    const segs = 144;
     for (let i = 0; i < segs; i += 1) {
       const a0 = (i / segs) * Math.PI * 2;
       const a1 = ((i + 1) / segs) * Math.PI * 2;
       pts.push(
-        Math.cos(a0) * radius,
+        Math.cos(a0) * outerRadius,
         0,
-        Math.sin(a0) * radius,
-        Math.cos(a1) * radius,
+        Math.sin(a0) * outerRadius,
+        Math.cos(a1) * outerRadius,
         0,
-        Math.sin(a1) * radius,
+        Math.sin(a1) * outerRadius,
       );
-      if (i % 4 === 0) {
-        const major = i % 16 === 0;
-        const rIn = major ? innerRadius - 0.16 : innerRadius;
+      if (i % 2 === 0) {
+        pts.push(
+          Math.cos(a0) * innerRadius,
+          0,
+          Math.sin(a0) * innerRadius,
+          Math.cos(a1) * innerRadius,
+          0,
+          Math.sin(a1) * innerRadius,
+        );
+      }
+      if (i % 3 === 0) {
+        const major = i % 18 === 0;
+        const rIn = major ? midRadius - 0.18 : midRadius;
         tickPts.push(
           Math.cos(a0) * rIn,
           0,
           Math.sin(a0) * rIn,
-          Math.cos(a0) * radius,
+          Math.cos(a0) * outerRadius,
           0,
-          Math.sin(a0) * radius,
+          Math.sin(a0) * outerRadius,
         );
       }
     }
-    // Blueprint center datum crosshairs
-    tickPts.push(-3.65, 0, 0, 3.65, 0, 0, 0, 0, -3.65, 0, 0, 3.65);
+    // Longitudinal centerline + front/rear axle scrutineering datum bars
+    tickPts.push(
+      -3.8,
+      0,
+      0,
+      3.8,
+      0,
+      0,
+      0,
+      0,
+      -3.8,
+      0,
+      0,
+      3.8,
+      -1.35,
+      0,
+      -1.78,
+      1.35,
+      0,
+      -1.78,
+      -1.35,
+      0,
+      1.78,
+      1.35,
+      0,
+      1.78,
+    );
 
     const ring = new THREE.BufferGeometry();
     ring.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
@@ -422,31 +482,36 @@ const MinimalStudioPlinth = memo(function MinimalStudioPlinth({
   useFrame(() => {
     const r = explodeRatioRef.current;
     const floorPhase = venturiFloorPhaseRef.current;
+    const gridAlpha = datumGridOpacityRef.current;
     if (
       Math.abs(r - lastRatioRef.current) < 1e-4 &&
-      Math.abs(floorPhase - lastFloorRef.current) < 1e-4
+      Math.abs(floorPhase - lastFloorRef.current) < 1e-4 &&
+      Math.abs(gridAlpha - lastGridRef.current) < 1e-3
     ) {
       return;
     }
     lastRatioRef.current = r;
     lastFloorRef.current = floorPhase;
+    lastGridRef.current = gridAlpha;
     const retraction = resolvePlinthRetraction(floorPhase);
     if (groupRef.current) {
       groupRef.current.position.y = retraction.y;
       groupRef.current.visible = retraction.opacityScale > 0.01;
     }
     if (shadowMeshRef.current) {
-      shadowMeshRef.current.scale.set(2.6 + r * 0.45, 5.75 + r * 0.4, 1);
+      shadowMeshRef.current.scale.set(6.8 + r * 0.65, 7.6 + r * 0.55, 1);
     }
     if (shadowMatRef.current) {
       shadowMatRef.current.opacity =
-        Math.max(0.24, 0.8 - r * 0.46) * retraction.opacityScale;
+        Math.max(0.38, 0.92 - r * 0.34) * retraction.opacityScale;
     }
     if (ringMatRef.current) {
-      ringMatRef.current.opacity = (0.16 + r * 0.1) * retraction.opacityScale;
+      ringMatRef.current.opacity =
+        (0.22 + gridAlpha * 0.42) * retraction.opacityScale;
     }
     if (ticksMatRef.current) {
-      ticksMatRef.current.opacity = (0.1 + r * 0.12) * retraction.opacityScale;
+      ticksMatRef.current.opacity =
+        (0.16 + gridAlpha * 0.38) * retraction.opacityScale;
     }
   });
 
@@ -455,33 +520,33 @@ const MinimalStudioPlinth = memo(function MinimalStudioPlinth({
       <mesh
         ref={shadowMeshRef}
         rotation={[-Math.PI / 2, 0, 0]}
-        position={[0, 0.002, 0.05]}
-        scale={[2.6, 5.75, 1]}
+        position={[0, 0.002, 0.04]}
+        scale={[7.4, 8.2, 1]}
       >
         <planeGeometry args={[1, 1]} />
         <meshBasicMaterial
           ref={shadowMatRef}
           map={shadowTex}
           transparent
-          opacity={0.8}
+          opacity={0.95}
           depthWrite={false}
         />
       </mesh>
       <lineSegments geometry={ringGeo} position={[0, 0.003, 0]}>
         <lineBasicMaterial
           ref={ringMatRef}
-          color="#94a3b8"
+          color="#cbd5e1"
           transparent
-          opacity={0.16}
+          opacity={0.32}
           depthWrite={false}
         />
       </lineSegments>
       <lineSegments geometry={ticksGeo} position={[0, 0.004, 0]}>
         <lineBasicMaterial
           ref={ticksMatRef}
-          color="#ff8a5c"
+          color="#ff4d2e"
           transparent
-          opacity={0.1}
+          opacity={0.24}
           depthWrite={false}
         />
       </lineSegments>
@@ -797,9 +862,9 @@ interface NodeBinding {
 
 const DEFAULT_SAFE_VIEW_REGION: EngineeringSafeViewRegion = {
   left: 0.06,
-  top: 0.12,
+  top: 0.19,
   width: 0.88,
-  height: 0.76,
+  height: 0.67,
 };
 
 function captureObjectLocalBounds(object: THREE.Object3D): THREE.Box3 {
@@ -826,8 +891,8 @@ const _targetBoundsScratch = new THREE.Box3();
 const _framingBoundsScratch = new THREE.Box3();
 const _sceneBoundsScratch = new THREE.Box3();
 const _sceneSphereScratch = new THREE.Sphere();
-const _anchorBoxScratch = new THREE.Box3();
 const _anchorPosScratch = new THREE.Vector3();
+const _projCornerScratch = new THREE.Vector3();
 const _fromFrameScratch = createMutableCameraFrame();
 const _toFrameScratch = createMutableCameraFrame();
 const _interpFrameScratch = createMutableCameraFrame();
@@ -920,6 +985,7 @@ function DisassemblySceneRig({
   const venturiFloorPhaseRef = useRef<number>(
     evaluation.parts.VENTURI_FLOOR_TITANIUM?.phase ?? 0,
   );
+  const datumGridOpacityRef = useRef<number>(0.14);
   const cfdZoneOpacitiesRef = useRef<EngineeringCfdZoneOpacities>(
     resolveCfdZoneOpacities(evaluation.parts),
   );
@@ -1197,11 +1263,13 @@ function DisassemblySceneRig({
                 const std = mat as THREE.MeshStandardMaterial;
                 if (std.isMeshStandardMaterial) {
                   const authored = snapshotAuthoredMaterialState(std);
-                  std.envMapIntensity = resolveMaterialClassEnvIntensity(
+                  const baseEnv = resolveMaterialClassEnvIntensity(
                     std.name,
                     authored.baseTransparent,
                     authored.hasEmissiveMap,
                   );
+                  std.envMapIntensity = baseEnv;
+                  std.userData.__pedsBaseEnvIntensity = baseEnv;
                   std.side = THREE.DoubleSide;
                   if (std.map) {
                     std.map.anisotropy = maxAniso;
@@ -1433,7 +1501,8 @@ function DisassemblySceneRig({
         );
       };
 
-      const { route, arcLiftMultiplier } = cueAtP.cameraCue;
+      const { route, arcLiftMultiplier, lateralArcMultiplier, easingProfile } =
+        cueAtP.cameraCue;
       // Fast single-anchor path during hold windows and exact anchor boundaries
       if (
         route.from.id === route.to.id ||
@@ -1469,9 +1538,15 @@ function DisassemblySceneRig({
         route.progress,
         _sceneSphereScratch.radius * arcLiftMultiplier,
         _interpFrameScratch,
+        {
+          lateralArc: _sceneSphereScratch.radius * lateralArcMultiplier,
+          easing: easingProfile,
+        },
       );
-      const cameraProgress =
-        route.progress * route.progress * (3 - 2 * route.progress);
+      const cameraProgress = evaluateCameraEasing(
+        route.progress,
+        easingProfile,
+      );
       const nextFov = THREE.MathUtils.lerp(
         route.from.fov,
         route.to.fov,
@@ -1490,9 +1565,9 @@ function DisassemblySceneRig({
     const isTimelineSteady =
       prevMode === "timeline" &&
       Math.abs(incomingProgress - sceneControlRef.current.effectiveProgress) <
-      1e-6 &&
+        1e-6 &&
       lastCameraKeyRef.current ===
-      `${incomingProgress.toFixed(5)}:${size.width}x${size.height}:${safeRegion.left.toFixed(3)}:${safeRegion.top.toFixed(3)}:${safeRegion.width.toFixed(3)}:${safeRegion.height.toFixed(3)}:${xray ? 1 : 0}:${sceneReady ? 1 : 0}`;
+        `${incomingProgress.toFixed(5)}:${size.width}x${size.height}:${safeRegion.left.toFixed(3)}:${safeRegion.top.toFixed(3)}:${safeRegion.width.toFixed(3)}:${safeRegion.height.toFixed(3)}:${xray ? 1 : 0}:${sceneReady ? 1 : 0}`;
 
     if (!isTimelineSteady) {
       const clearanceBox =
@@ -1513,6 +1588,7 @@ function DisassemblySceneRig({
       explodeRatioRef.current = activeEval.explodeRatio;
       venturiFloorPhaseRef.current =
         activeCue.parts.VENTURI_FLOOR_TITANIUM?.phase ?? 0;
+      datumGridOpacityRef.current = activeCue.environmentCue.datumGridOpacity;
       cfdZoneOpacitiesRef.current = resolveCfdZoneOpacities(activeCue.parts);
 
       if (stepOut.cameraOwnedByTimeline && stepOut.camera) {
@@ -1585,27 +1661,32 @@ function DisassemblySceneRig({
       }
 
       if (trajectoryRef.current) {
+        const trajOpacity = activeCue.environmentCue.trajectoryOpacity;
         const showVectors =
-          stepOut.state.mode !== "isolated" && activeEval.explodeRatio > 0.03;
+          stepOut.state.mode !== "isolated" &&
+          activeEval.explodeRatio > 0.03 &&
+          trajOpacity > 0.01;
         trajectoryRef.current.lineObj.visible = showVectors;
-        if (
-          showVectors &&
-          Math.abs(activeEval.progress - lastTrajectoryProgressRef.current) >
-          1e-5
-        ) {
-          lastTrajectoryProgressRef.current = activeEval.progress;
-          updateExplodedTrajectoryLines(
-            bindings,
-            activeCue.parts,
-            trajectoryRef.current.positions,
-            trajectoryRef.current.geometry,
-            trajectoryRef.current.lineObj,
-          );
+        if (showVectors) {
+          trajectoryRef.current.material.opacity = trajOpacity;
+          if (
+            Math.abs(activeEval.progress - lastTrajectoryProgressRef.current) >
+            1e-5
+          ) {
+            lastTrajectoryProgressRef.current = activeEval.progress;
+            updateExplodedTrajectoryLines(
+              bindings,
+              activeCue.parts,
+              trajectoryRef.current.positions,
+              trajectoryRef.current.geometry,
+              trajectoryRef.current.lineObj,
+            );
+          }
         }
       }
     }
 
-    // Project active focal 3D component anchor driven by Motion Director (zero React commits)
+    // Project exact 3D component surface reticle + 2D screen bounds driven by Motion Director (zero React commits)
     const liveCueSheet = getCueSheetForProgress(
       sceneControlRef.current.effectiveProgress,
     );
@@ -1615,22 +1696,52 @@ function DisassemblySceneRig({
       const focusBinding = focusPartId ? bindings.get(focusPartId) : null;
       if (focusBinding && focusBinding.object.visible) {
         cam.updateMatrixWorld();
-        const box = writeWorldBoundsInto(focusBinding, _anchorBoxScratch);
-        box.getCenter(_anchorPosScratch);
-        _anchorPosScratch.y = box.max.y - (box.max.y - box.min.y) * 0.14;
-        _anchorPosScratch.project(cam);
+        focusBinding.object.updateWorldMatrix(true, false);
+        const lb = focusBinding.localBounds;
+        let minNx = 1;
+        let maxNx = 0;
+        let minNy = 1;
+        let maxNy = 0;
+        for (let ix = 0; ix < 2; ix += 1) {
+          const cx = ix === 0 ? lb.min.x : lb.max.x;
+          for (let iy = 0; iy < 2; iy += 1) {
+            const cy = iy === 0 ? lb.min.y : lb.max.y;
+            for (let iz = 0; iz < 2; iz += 1) {
+              const cz = iz === 0 ? lb.min.z : lb.max.z;
+              _projCornerScratch
+                .set(cx, cy, cz)
+                .applyMatrix4(focusBinding.object.matrixWorld)
+                .project(cam);
+              const px = (_projCornerScratch.x + 1) * 0.5;
+              const py = (1 - _projCornerScratch.y) * 0.5;
+              if (px < minNx) minNx = px;
+              if (px > maxNx) maxNx = px;
+              if (py < minNy) minNy = py;
+              if (py > maxNy) maxNy = py;
+            }
+          }
+        }
+        // Project exact upper-contour 3D surface anchor on the component's local bounds
+        _anchorPosScratch
+          .set(
+            (lb.min.x + lb.max.x) * 0.5,
+            lb.min.y + (lb.max.y - lb.min.y) * 0.72,
+            (lb.min.z + lb.max.z) * 0.5,
+          )
+          .applyMatrix4(focusBinding.object.matrixWorld)
+          .project(cam);
         const nx = (_anchorPosScratch.x + 1) * 0.5;
         const ny = (1 - _anchorPosScratch.y) * 0.5;
         const onScreen =
           _anchorPosScratch.z >= -1 &&
           _anchorPosScratch.z <= 1 &&
-          nx >= 0.02 &&
-          nx <= 0.98 &&
-          ny >= 0.04 &&
-          ny <= 0.94;
+          nx >= 0.04 &&
+          nx <= 0.96 &&
+          ny >= 0.06 &&
+          ny <= 0.92;
         const partPhase = annCue.phase;
         const nextKey = onScreen
-          ? `1:${focusPartId}:${nx.toFixed(3)}:${ny.toFixed(3)}:${partPhase.toFixed(2)}:${annCue.opacity.toFixed(2)}:${annCue.leaderScale.toFixed(2)}:${annCue.motionPhaseId ?? ""}`
+          ? `1:${focusPartId}:${nx.toFixed(3)}:${ny.toFixed(3)}:${minNx.toFixed(2)}:${maxNx.toFixed(2)}:${minNy.toFixed(2)}:${maxNy.toFixed(2)}:${partPhase.toFixed(2)}:${annCue.opacity.toFixed(2)}:${annCue.leaderScale.toFixed(2)}:${annCue.motionPhaseId ?? ""}`
           : "0";
         if (nextKey !== lastAnnotationKeyRef.current) {
           lastAnnotationKeyRef.current = nextKey;
@@ -1638,6 +1749,10 @@ function DisassemblySceneRig({
             visible: onScreen,
             x: nx,
             y: ny,
+            boundsMinX: minNx,
+            boundsMaxX: maxNx,
+            boundsMinY: minNy,
+            boundsMaxY: maxNy,
             partId: focusPartId,
             phase: partPhase,
             opacity: annCue.opacity,
@@ -1725,11 +1840,11 @@ function DisassemblySceneRig({
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
     const material = new THREE.LineDashedMaterial({
-      color: "#ff8a5c",
-      dashSize: 0.09,
-      gapSize: 0.06,
+      color: "#94a3b8",
+      dashSize: 0.07,
+      gapSize: 0.07,
       transparent: true,
-      opacity: 0.36,
+      opacity: 0.18,
       depthWrite: false,
     });
     const lineObj = new THREE.LineSegments(geometry, material);
@@ -1817,14 +1932,21 @@ function DisassemblySceneRig({
       : null;
 
   useEffect(() => {
-    const prev = prevMaterialStateRef.current;
-    const onlyHighlightChanged =
-      prev.sceneReady === sceneReady &&
-      prev.xray === xray &&
-      prev.selectedPartId === selectedPartId;
+    const isMatrixOrOrigin =
+      evaluation.chapter.id === "matrix" ||
+      evaluation.chapter.id === "origin" ||
+      evaluation.chapter.id === "reassembly";
 
     const updateBindingMaterials = (b: NodeBinding) => {
       const isSelected = selectedPartId === b.id;
+      const isHeroFocus = !isMatrixOrOrigin && highlightedPartId === b.id;
+      const isContextWhileFocused =
+        !isMatrixOrOrigin &&
+        highlightedPartId !== null &&
+        highlightedPartId !== b.id &&
+        !isSelected;
+      const envScale =
+        isSelected || isHeroFocus ? 1.22 : isContextWhileFocused ? 0.84 : 1.0;
 
       for (const mesh of b.meshes) {
         const orig = b.originalMaterials.get(mesh);
@@ -1837,6 +1959,9 @@ function DisassemblySceneRig({
             std,
             Boolean(xray && b.outerShell && !isSelected),
           );
+          const baseEnv =
+            (std.userData.__pedsBaseEnvIntensity as number | undefined) ?? 1.18;
+          std.envMapIntensity = baseEnv * envScale;
 
           const baseHex = authored.baseEmissiveHex;
           const baseInt = authored.baseEmissiveIntensity;
@@ -1852,7 +1977,7 @@ function DisassemblySceneRig({
             std.emissive.copy(b.accentColor);
             std.emissiveIntensity = 0.14;
           } else {
-            // Preserve true authored PBR appearance on chapter focus (no neon emissive wash)
+            // Preserve authentic PBR carbon/titanium/clearcoat appearance
             std.emissive.setHex(baseHex);
             std.emissiveIntensity = baseInt;
           }
@@ -1860,22 +1985,8 @@ function DisassemblySceneRig({
       }
     };
 
-    if (onlyHighlightChanged) {
-      if (
-        prev.highlightedPartId &&
-        prev.highlightedPartId !== highlightedPartId
-      ) {
-        const prevBinding = bindingsRef.current.get(prev.highlightedPartId);
-        if (prevBinding) updateBindingMaterials(prevBinding);
-      }
-      if (highlightedPartId && highlightedPartId !== prev.highlightedPartId) {
-        const nextBinding = bindingsRef.current.get(highlightedPartId);
-        if (nextBinding) updateBindingMaterials(nextBinding);
-      }
-    } else {
-      for (const b of bindingsRef.current.values()) {
-        updateBindingMaterials(b);
-      }
+    for (const b of bindingsRef.current.values()) {
+      updateBindingMaterials(b);
     }
 
     prevMaterialStateRef.current = {
@@ -1884,7 +1995,13 @@ function DisassemblySceneRig({
       highlightedPartId,
       sceneReady,
     };
-  }, [xray, selectedPartId, highlightedPartId, sceneReady]);
+  }, [
+    evaluation.chapter.id,
+    xray,
+    selectedPartId,
+    highlightedPartId,
+    sceneReady,
+  ]);
 
   const handlePointerClick = useCallback(
     (e: ThreeEvent<MouseEvent>) => {
@@ -1934,6 +2051,7 @@ function DisassemblySceneRig({
       <MinimalStudioPlinth
         explodeRatioRef={explodeRatioRef}
         venturiFloorPhaseRef={venturiFloorPhaseRef}
+        datumGridOpacityRef={datumGridOpacityRef}
       />
 
       <group ref={trajectoryHostRef} />
@@ -2030,45 +2148,36 @@ function EngineeringDisassemblyStageImpl(
       const copyRect = copy?.getBoundingClientRect();
       const dockRect = dock?.getBoundingClientRect();
       const mobile = window.matchMedia("(max-width: 860px)").matches;
-      const left = mobile
-        ? 0.05
-        : THREE.MathUtils.clamp(
-          ((copyRect?.right ?? stageRect.left + stageRect.width * 0.26) -
-            stageRect.left -
-            42) /
-          stageRect.width,
-          0.16,
-          0.28,
-        );
-      const top = mobile
-        ? THREE.MathUtils.clamp(
-          ((copyRect?.bottom ?? stageRect.top + stageRect.height * 0.18) -
-            stageRect.top +
-            10) /
+      // Keep the 3D F1 car strictly centered horizontally (centerX = 0.50) across the stage!
+      const marginX = mobile ? 0.06 : 0.06;
+      const left = marginX;
+      const top = THREE.MathUtils.clamp(
+        ((copyRect?.bottom ?? stageRect.top + stageRect.height * 0.18) -
+          stageRect.top +
+          10) /
           stageRect.height,
-          0.16,
-          0.38,
-        )
-        : 0.04;
+        mobile ? 0.22 : 0.17,
+        mobile ? 0.34 : 0.24,
+      );
       const bottom = THREE.MathUtils.clamp(
         (stageRect.bottom -
           (dockRect?.top ?? stageRect.bottom - stageRect.height * 0.14) +
-          10) /
-        stageRect.height,
-        mobile ? 0.14 : 0.1,
-        mobile ? 0.36 : 0.2,
+          16) /
+          stageRect.height,
+        mobile ? 0.17 : 0.13,
+        mobile ? 0.32 : 0.2,
       );
       const next: EngineeringSafeViewRegion = {
         left,
         top,
-        width: Math.max(0.45, 1 - left - (mobile ? 0.05 : 0.03)),
-        height: Math.max(0.32, 1 - top - bottom),
+        width: 1 - marginX * 2,
+        height: Math.max(0.36, 1 - top - bottom),
       };
       setSafeRegion((current) =>
         Math.abs(current.left - next.left) < 0.015 &&
-          Math.abs(current.top - next.top) < 0.015 &&
-          Math.abs(current.width - next.width) < 0.015 &&
-          Math.abs(current.height - next.height) < 0.015
+        Math.abs(current.top - next.top) < 0.015 &&
+        Math.abs(current.width - next.width) < 0.015 &&
+        Math.abs(current.height - next.height) < 0.015
           ? current
           : next,
       );
@@ -2139,9 +2248,13 @@ function EngineeringDisassemblyStageImpl(
         dpr={[1, 2]}
         gl={{
           antialias: true,
+          alpha: true,
           powerPreference: "high-performance",
           toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 1.12,
+          toneMappingExposure: 1.05,
+        }}
+        onCreated={({ gl }) => {
+          gl.setClearColor(0x000000, 0);
         }}
         camera={{
           position: [-4.45, 1.56, -4.1],
@@ -2151,7 +2264,6 @@ function EngineeringDisassemblyStageImpl(
         }}
         onPointerMissed={() => onSelectPart(null)}
       >
-        <color attach="background" args={["#08090c"]} />
         <DisassemblySceneRig
           evaluation={props.evaluation}
           liveBridgeRef={props.liveBridgeRef}

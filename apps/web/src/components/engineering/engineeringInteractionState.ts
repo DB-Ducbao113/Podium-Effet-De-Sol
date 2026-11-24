@@ -115,8 +115,8 @@ export function enterIsolatedControl(
     state.lockedProgress !== null
       ? state.lockedProgress
       : clamp01(
-          state.mode === "handoff" ? state.effectiveProgress : liveProgress,
-        );
+        state.mode === "handoff" ? state.effectiveProgress : liveProgress,
+      );
   return {
     ...state,
     mode: "isolated",
@@ -309,11 +309,11 @@ export function stepSceneControlFrame(
     state.effectiveProgress === targetProgress && state.isolationBlend === 0
       ? state
       : {
-          ...state,
-          effectiveProgress: targetProgress,
-          isolationBlend: 0,
-          handoff: null,
-        };
+        ...state,
+        effectiveProgress: targetProgress,
+        isolationBlend: 0,
+        handoff: null,
+      };
   return {
     state: nextState,
     effectiveProgress: targetProgress,
@@ -361,16 +361,33 @@ export type EngineeringHudMode = "contextual" | "pinned" | "minimized";
 
 export interface EngineeringAnnotationProjection {
   readonly visible: boolean;
-  /** Viewport-relative horizontal position in [0, 1]. */
+  /** Viewport-relative 3D surface reticle X position in [0, 1]. */
   readonly x: number;
-  /** Viewport-relative vertical position in [0, 1]. */
+  /** Viewport-relative 3D surface reticle Y position in [0, 1]. */
   readonly y: number;
+  /** Projected 2D screen bounds of the focal assembly for non-occluding callout placement. */
+  readonly boundsMinX?: number;
+  readonly boundsMaxX?: number;
+  readonly boundsMinY?: number;
+  readonly boundsMaxY?: number;
   readonly partId: string | null;
   readonly phase: number;
   readonly opacity?: number;
   readonly leaderScale?: number;
   readonly motionPhaseId?: string | null;
   readonly phaseText?: string | null;
+}
+
+export interface EngineeringLeaderCalloutLayout {
+  readonly anchorPxX: number;
+  readonly anchorPxY: number;
+  readonly elbowPxX: number;
+  readonly elbowPxY: number;
+  readonly cardConnectPxX: number;
+  readonly cardConnectPxY: number;
+  readonly cardLeftPx: number;
+  readonly cardTopPx: number;
+  readonly align: "left" | "right" | "center";
 }
 
 export interface EngineeringPartPoseOffset {
@@ -453,5 +470,136 @@ export function clampAnnotationScreenPosition(
   return {
     x: Math.max(minX, Math.min(maxX, rawX)),
     y: Math.max(minY, Math.min(maxY, rawY)),
+  };
+}
+
+/**
+ * Computes a two-point architectural elbow leader line from the exact projected
+ * 3D component reticle `(anchorPxX, anchorPxY)` to a non-occluding callout card
+ * placed in clean studio margin space away from both HUD copy and 3D geometry.
+ */
+export function resolveLeaderCalloutLayout(params: {
+  readonly stageWidth: number;
+  readonly stageHeight: number;
+  readonly anchorX: number;
+  readonly anchorY: number;
+  readonly boundsMinX?: number;
+  readonly boundsMaxX?: number;
+  readonly boundsMinY?: number;
+  readonly boundsMaxY?: number;
+  readonly isMobile: boolean;
+  readonly cardWidth?: number;
+}): EngineeringLeaderCalloutLayout {
+  const w = Math.max(320, params.stageWidth);
+  const h = Math.max(420, params.stageHeight);
+  const ax = Math.round(clamp01(params.anchorX) * w);
+  const ay = Math.round(clamp01(params.anchorY) * h);
+  const estCardW =
+    params.cardWidth ?? (params.isMobile ? Math.min(310, w - 32) : 284);
+
+  if (params.isMobile) {
+    // On mobile, park the callout cleanly in the upper-mid studio shelf above the 3D model
+    // (or lower-mid shelf above the dock if the part sits high) so it NEVER covers the car.
+    const placeBelow = params.anchorY < 0.42;
+    const shelfY = placeBelow
+      ? Math.round(
+        Math.min(
+          h * 0.71,
+          Math.max(ay + 54, (params.boundsMaxY ?? params.anchorY) * h + 24),
+        ),
+      )
+      : Math.round(
+        Math.max(
+          h * 0.31,
+          Math.min(ay - 56, (params.boundsMinY ?? params.anchorY) * h - 28),
+        ),
+      );
+    const cardCenterX = Math.round(
+      Math.max(estCardW * 0.5 + 16, Math.min(w - estCardW * 0.5 - 16, ax)),
+    );
+    const dy = shelfY - ay;
+    const signY = dy >= 0 ? 1 : -1;
+    const diag = Math.min(26, Math.abs(dy) * 0.65);
+    const dirX = cardCenterX >= ax ? 1 : -1;
+    const elbowX = Math.round(
+      ax + dirX * Math.min(diag, Math.abs(cardCenterX - ax)),
+    );
+    const elbowY = Math.round(ay + signY * diag);
+    const connectY = shelfY + (placeBelow ? -14 : 14);
+    return {
+      anchorPxX: ax,
+      anchorPxY: ay,
+      elbowPxX: elbowX,
+      elbowPxY: elbowY,
+      cardConnectPxX: elbowX,
+      cardConnectPxY: connectY,
+      cardLeftPx: cardCenterX,
+      cardTopPx: shelfY,
+      align: "center",
+    };
+  }
+
+  // Desktop: editorial masthead is centered at the top (y < 0.22); dock is at bottom (y > 0.84).
+  // Route callout to the upper-right specification margin (or upper-left margin if anchor is far right),
+  // clear of both the centered top masthead and the centered 3D assembly.
+  const bMinY = params.boundsMinY ?? params.anchorY - 0.08;
+  const bMaxX = params.boundsMaxX ?? params.anchorX + 0.08;
+  const routeLeft = params.anchorX > 0.72;
+
+  if (routeLeft) {
+    const targetRightX = Math.round(
+      Math.max(w * 0.22 + estCardW, Math.min(ax - 58, w * 0.36)),
+    );
+    const targetY = Math.round(
+      Math.max(h * 0.23, Math.min(h * 0.34, Math.min(ay - 48, bMinY * h - 18))),
+    );
+    const diag = Math.min(36, Math.max(16, Math.abs(ay - targetY) * 0.7));
+    const elbowX = ax - diag;
+    return {
+      anchorPxX: ax,
+      anchorPxY: ay,
+      elbowPxX: Math.max(targetRightX + 10, elbowX),
+      elbowPxY: targetY,
+      cardConnectPxX: targetRightX,
+      cardConnectPxY: targetY,
+      cardLeftPx: targetRightX,
+      cardTopPx: targetY,
+      align: "right",
+    };
+  }
+
+  const desiredLeftX = Math.max(
+    ax + 56,
+    Math.min(
+      Math.round(bMaxX * w * 0.55 + ax * 0.45 + 52),
+      Math.round(w - estCardW - 36),
+    ),
+  );
+  const cardLeftX = Math.round(
+    Math.max(w * 0.62, Math.min(w - estCardW - 32, desiredLeftX)),
+  );
+  const preferUpper = params.anchorY > 0.22;
+  // Park the horizontal leader shelf in the open upper-right studio sky (0.15..0.19h)
+  // above the centered 3D car (and to the right of the centered top masthead) for standard assemblies.
+  // For dropped underfloor assemblies (bMinY >= 0.5, e.g. Venturi Floor), hold in the open mid-gap.
+  const rawCardY = preferUpper
+    ? bMinY < 0.47
+      ? Math.min(Math.round(h * 0.19), ay - 60, Math.round(bMinY * h - 24))
+      : Math.min(ay - 44, Math.round(bMinY * h - 14))
+    : ay + 54;
+  const cardY = Math.round(Math.max(h * 0.15, Math.min(h * 0.74, rawCardY)));
+  const dy = cardY - ay;
+  const diag = Math.min(42, Math.max(18, Math.abs(dy) * 0.42));
+  const elbowX = Math.min(cardLeftX - 12, ax + diag);
+  return {
+    anchorPxX: ax,
+    anchorPxY: ay,
+    elbowPxX: Math.max(ax + 8, elbowX),
+    elbowPxY: cardY,
+    cardConnectPxX: cardLeftX,
+    cardConnectPxY: cardY,
+    cardLeftPx: cardLeftX,
+    cardTopPx: cardY,
+    align: "left",
   };
 }

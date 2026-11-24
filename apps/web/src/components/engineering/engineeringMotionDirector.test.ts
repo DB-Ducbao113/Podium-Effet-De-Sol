@@ -494,6 +494,47 @@ describe("engineeringMotionDirector — Full 8-Chapter / 47-Node Orchestration (
     expect(ctrl.effectiveProgress).toBeCloseTo(0.8, 5);
   });
 
+  it("coordinates studio environment cues, quiet-transit HUD flags, and C1 zero-jerk fastener breakaway", () => {
+    const originCue = evaluateEngineeringMotionDirector({
+      effectiveProgress: 0,
+    });
+    expect(originCue.environmentCue.studioMode).toBe("cinematic");
+    expect(originCue.environmentCue.trajectoryOpacity).toBe(0);
+    expect(originCue.environmentCue.datumGridOpacity).toBeLessThan(0.2);
+
+    const fwApproach = evaluateEngineeringMotionDirector({
+      effectiveProgress: 87 / ENGINEERING_STORY_SCROLL_VH,
+    });
+    expect(fwApproach.activePhaseCue?.phaseId).toBe("approach");
+    expect(fwApproach.editorialCue.isCameraTransit).toBe(true);
+    expect(fwApproach.environmentCue.trajectoryOpacity).toBe(0);
+
+    const fwExplain = evaluateEngineeringMotionDirector({
+      effectiveProgress: 113.6 / ENGINEERING_STORY_SCROLL_VH,
+    });
+    expect(fwExplain.activePhaseCue?.phaseId).toBe("explain");
+    expect(fwExplain.editorialCue.isCameraTransit).toBe(false);
+    expect(fwExplain.environmentCue.datumGridOpacity).toBeGreaterThan(
+      fwApproach.environmentCue.datumGridOpacity,
+    );
+    expect(fwExplain.environmentCue.focalSpecularBoost).toBeGreaterThan(1.15);
+
+    // Verify C1 zero-jerk mechanical breakaway at detach start (initial velocity ~ 0, no pop)
+    const fwShot = getEngineeringStoryShot("FRONT_WING_ASSEMBLY")!;
+    const epsVh = 0.05;
+    const atStart = evaluateEngineeringMotionDirector({
+      effectiveProgress: fwShot.approachEndUnits / ENGINEERING_STORY_SCROLL_VH,
+    });
+    const justAfterStart = evaluateEngineeringMotionDirector({
+      effectiveProgress:
+        (fwShot.approachEndUnits + epsVh) / ENGINEERING_STORY_SCROLL_VH,
+    });
+    expect(atStart.parts.FRONT_WING_ASSEMBLY.tz).toBeCloseTo(0, 12);
+    expect(Math.abs(justAfterStart.parts.FRONT_WING_ASSEMBLY.tz)).toBeLessThan(
+      0.005,
+    );
+  });
+
   it("preserves deterministic unmount cleanup contracts in Stage and IndexPage", () => {
     const stageSrc = readFileSync(
       "src/components/engineering/EngineeringDisassemblyStage.tsx",

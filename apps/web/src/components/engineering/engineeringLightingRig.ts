@@ -384,13 +384,13 @@ export function classifyEngineeringMaterial(
 const ENV_INTENSITY_BY_CLASS: Readonly<
   Record<EngineeringMaterialClass, number>
 > = {
-  "display-sticker": 0.42,
-  "glass-alpha": 1.32,
-  "rubber-fabric": 0.52,
-  "metal-machined": 1.68,
-  "carbon-fiber": 1.12,
-  "painted-bodywork": 1.48,
-  standard: 1.15,
+  "display-sticker": 0.38,
+  "glass-alpha": 1.38,
+  "rubber-fabric": 0.58,
+  "metal-machined": 1.82,
+  "carbon-fiber": 1.26,
+  "painted-bodywork": 1.52,
+  standard: 1.18,
 };
 
 export function resolveMaterialClassEnvIntensity(

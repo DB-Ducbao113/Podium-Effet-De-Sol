@@ -27,6 +27,16 @@ export interface EngineeringCameraFitOptions {
   readonly targetBounds?: THREE.Box3;
 }
 
+export type EngineeringCameraEasingProfile =
+  "smoothstep" | "cinematic-dolly" | "inspect-drift" | "settle-hold";
+
+export interface EngineeringCameraArcOptions {
+  /** Radial horizontal arc offset (in world units) curving outward around target. */
+  readonly lateralArc?: number;
+  /** Phase-specific symmetric/cinematic interpolation curve. */
+  readonly easing?: EngineeringCameraEasingProfile;
+}
+
 const WORLD_UP = new THREE.Vector3(0, 1, 0);
 
 // Reusable scratch objects for zero-allocation steady-state frame evaluation
@@ -40,6 +50,7 @@ const _scratchMid = new THREE.Vector3();
 const _scratchControl = new THREE.Vector3();
 const _scratchTargetMid = new THREE.Vector3();
 const _scratchTargetControl = new THREE.Vector3();
+const _scratchRadialXZ = new THREE.Vector3();
 const _scratchClearanceBox = new THREE.Box3();
 const _scratchClearanceCenter = new THREE.Vector3();
 const _scratchClearanceSize = new THREE.Vector3();
@@ -133,7 +144,7 @@ export function fitEngineeringCameraToBoundsInto(
   const distance = Math.max(
     0.18,
     (_scratchSphere.radius / Math.sin(limitingHalfFov)) *
-      THREE.MathUtils.clamp(finiteOr(options.framing, 1.2), 0.52, 4.5),
+    THREE.MathUtils.clamp(finiteOr(options.framing, 1.2), 0.52, 4.5),
   );
 
   _scratchDir.set(
@@ -167,13 +178,44 @@ export function fitEngineeringCameraToBoundsInto(
   return true;
 }
 
-/** Zero-allocation scroll-driven quadratic dolly arc into an existing frame. */
+export function evaluateCameraEasing(
+  rawProgress: number,
+  profile: EngineeringCameraEasingProfile = "smoothstep",
+): number {
+  const x = THREE.MathUtils.clamp(finiteOr(rawProgress, 0), 0, 1);
+  if (x <= 0) return 0;
+  if (x >= 1) return 1;
+  switch (profile) {
+    case "cinematic-dolly": {
+      // C2-continuous quintic smootherstep blended with smoothstep:
+      // strictly symmetric f(1 - x) = 1 - f(x), zero endpoint jerk, sweeping mid-flight velocity.
+      const smooth3 = x * x * (3 - 2 * x);
+      const smooth5 = x * x * x * (x * (x * 6 - 15) + 10);
+      return smooth3 * 0.28 + smooth5 * 0.72;
+    }
+    case "inspect-drift":
+      // Gentle museum-turntable sinusoidal parallax (symmetric around 0.5)
+      return -(Math.cos(Math.PI * x) - 1) * 0.5;
+    case "settle-hold": {
+      // Decisive early alignment followed by a long, silky quintic settle into lock
+      const inv = 1 - x;
+      const outQuart = 1 - inv * inv * inv * inv;
+      const smooth3 = x * x * (3 - 2 * x);
+      return smooth3 * 0.45 + outQuart * 0.55;
+    }
+    default:
+      return x * x * (3 - 2 * x);
+  }
+}
+
+/** Zero-allocation scroll-driven 3D orbital + dolly quadratic Bezier arc into an existing frame. */
 export function interpolateEngineeringCameraFramesInto(
   from: EngineeringCameraFrame,
   to: EngineeringCameraFrame,
   progress: number,
   arcHeight: number,
   out: MutableEngineeringCameraFrame,
+  arcOptions?: EngineeringCameraArcOptions,
 ): void {
   const raw = THREE.MathUtils.clamp(finiteOr(progress, 0), 0, 1);
   if (raw === 0) {
@@ -189,22 +231,39 @@ export function interpolateEngineeringCameraFramesInto(
     return;
   }
 
-  const t = raw * raw * (3 - 2 * raw);
+  const t = evaluateCameraEasing(raw, arcOptions?.easing ?? "smoothstep");
   const inverse = 1 - t;
   const lift = Math.max(0, finiteOr(arcHeight, 0));
+  const lateral = Math.max(0, finiteOr(arcOptions?.lateralArc ?? 0, 0));
 
   _scratchMid.copy(from.position).lerp(to.position, 0.5);
+  _scratchTargetMid.copy(from.target).lerp(to.target, 0.5);
+
   _scratchControl.copy(_scratchMid).addScaledVector(WORLD_UP, lift);
+  if (lateral > 1e-5) {
+    // Symmetric outward horizontal radial offset keeps orbital transits on a natural
+    // curved path around the car silhouette rather than cutting linearly across chords.
+    _scratchRadialXZ.set(
+      _scratchMid.x - _scratchTargetMid.x,
+      0,
+      _scratchMid.z - _scratchTargetMid.z,
+    );
+    const radialLenSq = _scratchRadialXZ.lengthSq();
+    if (radialLenSq > 1e-6) {
+      _scratchRadialXZ.multiplyScalar(1 / Math.sqrt(radialLenSq));
+      _scratchControl.addScaledVector(_scratchRadialXZ, lateral);
+    }
+  }
+
   out.position
     .copy(from.position)
     .multiplyScalar(inverse * inverse)
     .addScaledVector(_scratchControl, 2 * inverse * t)
     .addScaledVector(to.position, t * t);
 
-  _scratchTargetMid.copy(from.target).lerp(to.target, 0.5);
   _scratchTargetControl
     .copy(_scratchTargetMid)
-    .addScaledVector(WORLD_UP, lift * 0.16);
+    .addScaledVector(WORLD_UP, lift * 0.14);
   out.target
     .copy(from.target)
     .multiplyScalar(inverse * inverse)
@@ -266,51 +325,22 @@ export function fitEngineeringCameraToBounds(
     : null;
 }
 
-/** Scroll-driven quadratic dolly arc; endpoints remain exact and reversible. */
+/** Scroll-driven 3D orbital + dolly Bezier arc; endpoints remain exact and reversible. */
 export function interpolateEngineeringCameraFrames(
   from: EngineeringCameraFrame,
   to: EngineeringCameraFrame,
   progress: number,
   arcHeight: number,
+  arcOptions?: EngineeringCameraArcOptions,
 ): EngineeringCameraFrame {
-  const raw = THREE.MathUtils.clamp(finiteOr(progress, 0), 0, 1);
-  if (raw === 0) {
-    return {
-      position: from.position.clone(),
-      target: from.target.clone(),
-      distance: from.distance,
-    };
-  }
-  if (raw === 1) {
-    return {
-      position: to.position.clone(),
-      target: to.target.clone(),
-      distance: to.distance,
-    };
-  }
-
-  const t = raw * raw * (3 - 2 * raw);
-  const inverse = 1 - t;
-  const midpoint = from.position.clone().lerp(to.position, 0.5);
-  const lift = Math.max(0, finiteOr(arcHeight, 0));
-  const control = midpoint.addScaledVector(WORLD_UP, lift);
-  const position = from.position
-    .clone()
-    .multiplyScalar(inverse * inverse)
-    .addScaledVector(control, 2 * inverse * t)
-    .addScaledVector(to.position, t * t);
-
-  const targetMidpoint = from.target.clone().lerp(to.target, 0.5);
-  const targetControl = targetMidpoint.addScaledVector(WORLD_UP, lift * 0.16);
-  const target = from.target
-    .clone()
-    .multiplyScalar(inverse * inverse)
-    .addScaledVector(targetControl, 2 * inverse * t)
-    .addScaledVector(to.target, t * t);
-
-  return {
-    position,
-    target,
-    distance: THREE.MathUtils.lerp(from.distance, to.distance, t),
-  };
+  const out = createMutableCameraFrame();
+  interpolateEngineeringCameraFramesInto(
+    from,
+    to,
+    progress,
+    arcHeight,
+    out,
+    arcOptions,
+  );
+  return out;
 }

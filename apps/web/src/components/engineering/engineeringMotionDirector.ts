@@ -16,6 +16,7 @@ import {
   resolveTargetLightPreset,
   type EngineeringLightRigState,
 } from "./engineeringLightingRig";
+import type { EngineeringCameraEasingProfile } from "./engineeringShotCamera";
 import {
   ENGINEERING_STORY_CAMERA_ANCHORS,
   ENGINEERING_STORY_CHAPTERS,
@@ -57,9 +58,29 @@ export interface EngineeringMotionPhaseCue {
 
 export interface EngineeringCameraCue {
   readonly route: EngineeringCameraRoute;
-  /** Multiplier applied to scene bounding-sphere radius for quadratic dolly lift. */
+  /** Multiplier applied to scene bounding-sphere radius for vertical dolly lift. */
   readonly arcLiftMultiplier: number;
+  /** Multiplier applied to scene bounding-sphere radius for outward horizontal orbital curve. */
+  readonly lateralArcMultiplier: number;
+  /** Phase-tailored symmetric camera interpolation curve. */
+  readonly easingProfile: EngineeringCameraEasingProfile;
   readonly source: "director" | "timeline";
+}
+
+export type EngineeringStudioMode =
+  "cinematic" | "inspection" | "cockpit" | "underfloor" | "matrix";
+
+export interface EngineeringEnvironmentCue {
+  readonly studioMode: EngineeringStudioMode;
+  /** [0..1] visibility of precision vernier plinth ticks & technical blueprint grid. */
+  readonly datumGridOpacity: number;
+  /** [0..1] visibility of exploded trajectory vectors (muted during cinematic transits). */
+  readonly trajectoryOpacity: number;
+  /** [0..1] subtle Racing Crimson rim horizon glow in studio backdrop. */
+  readonly crimsonHorizon: number;
+  /** Specular IBL multiplier on the active focal assembly vs surrounding context assemblies. */
+  readonly focalSpecularBoost: number;
+  readonly contextSpecularScale: number;
 }
 
 export interface EngineeringAnnotationCue {
@@ -83,6 +104,8 @@ export interface EngineeringEditorialCue {
   readonly phaseIndex: 1 | 2 | 3 | 4 | 5 | 6 | null;
   readonly phaseCount: number | null;
   readonly phaseLabel: LocalizedText | null;
+  /** True while camera executes a sweeping transit so contextual HUD chrome can soften. */
+  readonly isCameraTransit: boolean;
 }
 
 export interface EngineeringMotionDirectorInput {
@@ -106,6 +129,7 @@ export interface EngineeringMotionCueSheet {
   readonly lightingCue: EngineeringLightRigState;
   readonly annotationCue: EngineeringAnnotationCue;
   readonly editorialCue: EngineeringEditorialCue;
+  readonly environmentCue: EngineeringEnvironmentCue;
   readonly parts: Readonly<Record<string, EngineeringPartSnapshot>>;
 }
 
@@ -133,7 +157,6 @@ export type EngineeringMechanicalChoreographyKind =
   | "cockpit-vertical-stack"
   | "secondary-axial";
 
-const DEFAULT_CAMERA_ARC_LIFT = 0.64;
 const BOUNDARY_EPS = 1e-7;
 
 function clamp01(value: number): number {
@@ -155,35 +178,44 @@ function easeOutCubic(value: number): number {
   return 1 - (1 - t) ** 3;
 }
 
-function easeOutQuart(value: number): number {
-  const t = clamp01(value);
-  return 1 - (1 - t) ** 4;
-}
-
-function easeOutQuint(value: number): number {
-  const t = clamp01(value);
-  return 1 - (1 - t) ** 5;
-}
-
-function easeInOutSine(value: number): number {
-  const t = clamp01(value);
-  return -(Math.cos(Math.PI * t) - 1) / 2;
-}
-
 function easeInOutCubic(value: number): number {
   const t = clamp01(value);
   return t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
 }
 
+function smootherstep(value: number): number {
+  const t = clamp01(value);
+  return t * t * t * (t * (t * 6 - 15) + 10);
+}
+
+/**
+ * Physically grounded mechanical separation curve:
+ * - C1 zero-initial-velocity fastener breakaway over `[0, unlatchSpan]` (no weightless pop)
+ * - Authoritative mid-stroke travel along the mechanical datum
+ * - High-order damped settle to exact `1.0` with zero overshoot or drift
+ */
+function weightedMechanicalCurve(
+  value: number,
+  power = 3.4,
+  unlatchSpan = 0.065,
+): number {
+  const x = clamp01(value);
+  if (x <= 0) return 0;
+  if (x >= 1) return 1;
+  const unlatch = x < unlatchSpan ? smoothstep(x / unlatchSpan) : 1;
+  const glideSettle = 1 - (1 - x) ** power;
+  return cleanZero(unlatch * glideSettle);
+}
+
 const PHASE_LABELS: Readonly<Record<EngineeringMotionPhaseId, LocalizedText>> =
-  {
-    establish: { en: "Establish", vi: "Thiết lập" },
-    approach: { en: "Approach", vi: "Tiếp cận" },
-    detach: { en: "Detach", vi: "Bóc tách" },
-    inspect: { en: "Inspect", vi: "Quan sát" },
-    explain: { en: "Explain", vi: "Giải thích" },
-    transition: { en: "Transition", vi: "Chuyển cảnh" },
-  };
+{
+  establish: { en: "Establish", vi: "Thiết lập" },
+  approach: { en: "Approach", vi: "Tiếp cận" },
+  detach: { en: "Detach", vi: "Bóc tách" },
+  inspect: { en: "Inspect", vi: "Quan sát" },
+  explain: { en: "Explain", vi: "Giải thích" },
+  transition: { en: "Transition", vi: "Chuyển cảnh" },
+};
 
 const partSpecById = new Map(ENGINEERING_PARTS.map((part) => [part.id, part]));
 const anchorById = new Map(
@@ -241,13 +273,13 @@ function buildSixPhases(
     number,
     number,
   ][] = [
-    ["establish", 1, shot.startUnits, establishEnd],
-    ["approach", 2, establishEnd, approachEnd],
-    ["detach", 3, approachEnd, detachEnd],
-    ["inspect", 4, detachEnd, inspectEnd],
-    ["explain", 5, inspectEnd, explainEnd],
-    ["transition", 6, explainEnd, end],
-  ];
+      ["establish", 1, shot.startUnits, establishEnd],
+      ["approach", 2, establishEnd, approachEnd],
+      ["detach", 3, approachEnd, detachEnd],
+      ["inspect", 4, detachEnd, inspectEnd],
+      ["explain", 5, inspectEnd, explainEnd],
+      ["transition", 6, explainEnd, end],
+    ];
 
   return defs.map(([id, index, startUnits, endUnits]) => ({
     id,
@@ -309,53 +341,62 @@ function buildSignatureRegistry(): readonly SignatureShotOrchestration[] {
     const explainEnd = phases[4].endUnits;
     const fwEstablishLight: EngineeringLightRigState = {
       ...ENGINEERING_CHAPTER_LIGHT_PRESETS.origin,
-      keyIntensity: 2.54,
-      keyPosition: [-6.0, 8.9, -6.2],
-      rimIntensity: 1.3,
-      accentPointIntensity: 0.52,
-      accentPointPosition: [-1.5, 1.1, -2.1],
+      ambientIntensity: 0.37,
+      keyIntensity: 2.52,
+      keyPosition: [-6.2, 8.4, -6.4],
+      fillIntensity: 0.96,
+      rimIntensity: 1.92,
+      rimPosition: [1.2, 3.2, 8.6],
+      accentPointIntensity: 0.54,
+      accentPointPosition: [-1.55, 1.02, -2.2],
       accentPointColor: "#f7f3ee",
     };
     const fwApproachLight: EngineeringLightRigState = {
       ...ENGINEERING_CHAPTER_LIGHT_PRESETS.aero,
-      keyIntensity: 2.68,
-      keyPosition: [-5.5, 8.5, -6.9],
-      rimIntensity: 1.4,
-      accentPointIntensity: 0.66,
-      accentPointPosition: [-1.45, 0.88, -2.75],
-      accentPointColor: "#fff3e6",
+      ambientIntensity: 0.38,
+      keyIntensity: 2.66,
+      keyPosition: [-5.4, 7.8, -7.1],
+      fillIntensity: 1.08,
+      rimIntensity: 1.68,
+      rimPosition: [1.5, 2.9, 8.4],
+      accentPointIntensity: 0.76,
+      accentPointPosition: [-1.42, 0.82, -2.8],
+      accentPointColor: "#fff1e4",
     };
     const fwDetachLight: EngineeringLightRigState = {
       ...ENGINEERING_CHAPTER_LIGHT_PRESETS.aero,
-      ambientIntensity: 0.42,
+      ambientIntensity: 0.4,
       keyIntensity: 2.76,
-      keyPosition: [-5.1, 8.2, -7.2],
-      fillIntensity: 1.34,
-      rimIntensity: 1.5,
-      accentPointIntensity: 0.86,
-      accentPointPosition: [-1.2, 0.74, -3.15],
-      accentPointColor: "#ffefe0",
+      keyPosition: [-4.9, 7.2, -7.4],
+      fillIntensity: 1.24,
+      rimIntensity: 1.88,
+      rimPosition: [1.8, 2.6, 8.1],
+      accentPointIntensity: 1.04,
+      accentPointPosition: [-1.05, 0.68, -3.18],
+      accentPointColor: "#ffece0",
     };
     const fwInspectLight: EngineeringLightRigState = {
       ...ENGINEERING_CHAPTER_LIGHT_PRESETS.aero,
-      ambientIntensity: 0.43,
-      keyIntensity: 2.8,
-      keyPosition: [-4.6, 8.6, -7.1],
-      fillIntensity: 1.4,
-      rimIntensity: 1.56,
-      accentPointIntensity: 0.94,
-      accentPointPosition: [-0.95, 0.82, -3.3],
-      accentPointColor: "#fff6ec",
+      ambientIntensity: 0.39,
+      keyIntensity: 2.82,
+      keyPosition: [-4.1, 6.4, -7.5],
+      fillIntensity: 1.16,
+      rimIntensity: 2.18,
+      rimPosition: [2.2, 2.4, 7.8],
+      accentPointIntensity: 1.12,
+      accentPointPosition: [-0.88, 0.74, -3.38],
+      accentPointColor: "#fff5eb",
     };
     const fwExplainLight: EngineeringLightRigState = {
       ...ENGINEERING_CHAPTER_LIGHT_PRESETS.aero,
-      ambientIntensity: 0.42,
-      keyIntensity: 2.66,
-      keyPosition: [-5.4, 8.6, -6.8],
-      fillIntensity: 1.36,
-      rimIntensity: 1.38,
-      accentPointIntensity: 0.68,
-      accentPointPosition: [-1.4, 0.86, -2.9],
+      ambientIntensity: 0.43,
+      keyIntensity: 2.64,
+      keyPosition: [-5.3, 8.2, -6.9],
+      fillIntensity: 1.46,
+      rimIntensity: 1.48,
+      rimPosition: [1.1, 3.3, 8.2],
+      accentPointIntensity: 0.74,
+      accentPointPosition: [-1.35, 0.86, -2.95],
       accentPointColor: "#fff4eb",
     };
 
@@ -370,10 +411,10 @@ function buildSignatureRegistry(): readonly SignatureShotOrchestration[] {
         holdUntilUnits: shot.startUnits,
         subjectPartId: null,
         framingPartId: null,
-        direction: [-0.82, 0.25, -0.54],
-        framing: 0.68,
-        fov: 33,
-        lookTargetBias: [0, 0.03, -0.16],
+        direction: [-0.8, 0.23, -0.57],
+        framing: 0.71,
+        fov: 32.8,
+        lookTargetBias: [0, 0.03, -0.14],
       },
       establishEndAnchor: {
         id: "director-fw-establish-end",
@@ -381,10 +422,10 @@ function buildSignatureRegistry(): readonly SignatureShotOrchestration[] {
         holdUntilUnits: phases[0].endUnits,
         subjectPartId: null,
         framingPartId: null,
-        direction: [-0.76, 0.23, -0.64],
-        framing: 0.66,
-        fov: 32.5,
-        lookTargetBias: [0, 0.02, -0.22],
+        direction: [-0.74, 0.21, -0.66],
+        framing: 0.69,
+        fov: 32.2,
+        lookTargetBias: [0, 0.02, -0.2],
       },
       detachEndAnchor: {
         id: "director-fw-detach-end",
@@ -392,10 +433,10 @@ function buildSignatureRegistry(): readonly SignatureShotOrchestration[] {
         holdUntilUnits: shot.detachEndUnits,
         subjectPartId: shot.partId,
         framingPartId: shot.partId,
-        direction: [-0.7, 0.2, -0.82],
-        framing: 0.85,
-        fov: 30.5,
-        lookTargetBias: [0, 0.01, 0],
+        direction: [-0.68, 0.22, -0.78],
+        framing: 0.94,
+        fov: 30.8,
+        lookTargetBias: [0, 0.02, 0.03],
       },
       inspectPeakAnchor: {
         id: "director-fw-inspect-peak",
@@ -403,10 +444,10 @@ function buildSignatureRegistry(): readonly SignatureShotOrchestration[] {
         holdUntilUnits: inspectEnd,
         subjectPartId: shot.partId,
         framingPartId: shot.partId,
-        direction: [-0.48, 0.28, -0.86],
-        framing: 0.82,
-        fov: 29.5,
-        lookTargetBias: [0, 0.02, 0],
+        direction: [-0.46, 0.3, -0.84],
+        framing: 0.92,
+        fov: 29.8,
+        lookTargetBias: [-0.02, 0.03, 0.02],
       },
       explainSettleAnchor: {
         ...focusAnchor,
@@ -463,15 +504,35 @@ function buildSignatureRegistry(): readonly SignatureShotOrchestration[] {
     const inspectEnd = phases[3].endUnits;
     const explainEnd = phases[4].endUnits;
     const aeroBase = ENGINEERING_CHAPTER_LIGHT_PRESETS.aero;
+    const drsEstablish: EngineeringLightRigState = {
+      ...aeroBase,
+      ambientIntensity: 0.38,
+      keyIntensity: 2.62,
+      fillIntensity: 1.04,
+      rimIntensity: 1.88,
+      rimPosition: [1.6, 3.6, 8.8],
+    };
     const drsPeak: EngineeringLightRigState = {
       ...aeroBase,
-      keyIntensity: 2.78,
-      keyPosition: [-4.8, 8.9, 6.2],
-      rimIntensity: 1.56,
-      rimPosition: [1.4, 3.8, 8.6],
-      accentPointIntensity: 0.88,
-      accentPointPosition: [-1.1, 1.35, 2.95],
-      accentPointColor: "#ffefe2",
+      ambientIntensity: 0.39,
+      keyIntensity: 2.82,
+      keyPosition: [-3.9, 6.9, 7.2],
+      fillIntensity: 1.18,
+      rimIntensity: 2.14,
+      rimPosition: [2.1, 3.2, 8.6],
+      accentPointIntensity: 1.06,
+      accentPointPosition: [-0.95, 1.38, 2.92],
+      accentPointColor: "#ffede0",
+    };
+    const drsExplain: EngineeringLightRigState = {
+      ...aeroBase,
+      ambientIntensity: 0.42,
+      keyIntensity: 2.66,
+      fillIntensity: 1.46,
+      rimIntensity: 1.52,
+      accentPointIntensity: 0.78,
+      accentPointPosition: [-1.15, 1.32, 2.85],
+      accentPointColor: "#fff2e6",
     };
 
     entries.push({
@@ -485,9 +546,9 @@ function buildSignatureRegistry(): readonly SignatureShotOrchestration[] {
         holdUntilUnits: shot.detachEndUnits,
         subjectPartId: shot.partId,
         framingPartId: shot.partId,
-        direction: [-0.66, 0.36, 0.66],
-        framing: 0.9,
-        fov: 30.5,
+        direction: [-0.64, 0.34, 0.69],
+        framing: 0.98,
+        fov: 30.6,
         lookTargetBias: [0, 0.02, 0],
       },
       inspectPeakAnchor: {
@@ -496,9 +557,9 @@ function buildSignatureRegistry(): readonly SignatureShotOrchestration[] {
         holdUntilUnits: inspectEnd,
         subjectPartId: shot.partId,
         framingPartId: shot.partId,
-        direction: [-0.34, 0.44, 0.84],
-        framing: 0.86,
-        fov: 29.5,
+        direction: [-0.35, 0.41, 0.84],
+        framing: 0.94,
+        fov: 29.8,
         lookTargetBias: [0, 0.02, 0],
       },
       explainSettleAnchor: {
@@ -508,18 +569,18 @@ function buildSignatureRegistry(): readonly SignatureShotOrchestration[] {
         holdUntilUnits: explainEnd,
       },
       showChapterTitleInEstablish: false,
-      arcLiftApproach: 0.46,
+      arcLiftApproach: 0.44,
       arcLiftDetach: 0.1,
       arcLiftInspect: 0.14,
       arcLiftExplain: 0.1,
-      arcLiftTransition: 0.56,
+      arcLiftTransition: 0.54,
       lights: {
         entry: aeroBase,
-        establish: aeroBase,
-        approach: interpolateLightRigStates(aeroBase, drsPeak, 0.45),
-        detach: interpolateLightRigStates(aeroBase, drsPeak, 0.8),
+        establish: drsEstablish,
+        approach: interpolateLightRigStates(drsEstablish, drsPeak, 0.48),
+        detach: interpolateLightRigStates(drsEstablish, drsPeak, 0.84),
         inspect: drsPeak,
-        explain: interpolateLightRigStates(aeroBase, drsPeak, 0.4),
+        explain: drsExplain,
         exit: interpolateLightRigStates(
           aeroBase,
           ENGINEERING_CHAPTER_LIGHT_PRESETS.cockpit,
@@ -560,11 +621,14 @@ function buildSignatureRegistry(): readonly SignatureShotOrchestration[] {
     const cockpitBase = ENGINEERING_CHAPTER_LIGHT_PRESETS.cockpit;
     const haloSculpt: EngineeringLightRigState = {
       ...cockpitBase,
-      keyIntensity: 2.38,
-      keyPosition: [-5.2, 9.6, 3.6],
-      rimIntensity: 1.24,
-      accentPointIntensity: 0.82,
-      accentPointPosition: [-0.9, 1.85, 0.25],
+      ambientIntensity: 0.41,
+      keyIntensity: 2.42,
+      keyPosition: [-4.6, 8.2, 4.2],
+      fillIntensity: 1.12,
+      rimIntensity: 2.02,
+      rimPosition: [1.8, 3.9, -6.8],
+      accentPointIntensity: 0.98,
+      accentPointPosition: [-0.85, 1.88, 0.22],
       accentPointColor: "#e8f3ff",
     };
 
@@ -579,10 +643,10 @@ function buildSignatureRegistry(): readonly SignatureShotOrchestration[] {
         holdUntilUnits: shot.detachEndUnits,
         subjectPartId: shot.partId,
         framingPartId: shot.partId,
-        direction: [-0.56, 0.58, 0.58],
-        framing: 0.9,
-        fov: 30.5,
-        lookTargetBias: [0, -0.02, 0],
+        direction: [-0.58, 0.54, 0.61],
+        framing: 0.98,
+        fov: 30.8,
+        lookTargetBias: [0, -0.04, 0.02],
       },
       inspectPeakAnchor: {
         id: "director-halo-inspect-peak",
@@ -590,10 +654,10 @@ function buildSignatureRegistry(): readonly SignatureShotOrchestration[] {
         holdUntilUnits: inspectEnd,
         subjectPartId: shot.partId,
         framingPartId: shot.partId,
-        direction: [-0.34, 0.68, 0.64],
-        framing: 0.88,
-        fov: 29.8,
-        lookTargetBias: [0, -0.03, 0],
+        direction: [-0.34, 0.62, 0.71],
+        framing: 0.95,
+        fov: 30.0,
+        lookTargetBias: [0, -0.05, 0.02],
       },
       explainSettleAnchor: {
         ...focusAnchor,
@@ -749,12 +813,15 @@ function buildSignatureRegistry(): readonly SignatureShotOrchestration[] {
     const cornersBase = ENGINEERING_CHAPTER_LIGHT_PRESETS.corners;
     const brakeInspectLight: EngineeringLightRigState = {
       ...cornersBase,
-      keyIntensity: 2.58,
-      fillIntensity: 1.62,
-      rimIntensity: 1.38,
-      accentPointIntensity: 0.92,
-      accentPointPosition: [-1.55, 0.58, -1.35],
-      accentPointColor: "#f0f6ff",
+      ambientIntensity: 0.4,
+      keyIntensity: 2.66,
+      keyPosition: [-5.4, 5.2, -5.8],
+      fillIntensity: 1.32,
+      rimIntensity: 2.06,
+      rimPosition: [1.8, 2.4, 7.8],
+      accentPointIntensity: 1.08,
+      accentPointPosition: [-1.52, 0.56, -1.38],
+      accentPointColor: "#edf5ff",
     };
 
     entries.push({
@@ -768,10 +835,10 @@ function buildSignatureRegistry(): readonly SignatureShotOrchestration[] {
         holdUntilUnits: shot.detachEndUnits,
         subjectPartId: shot.partId,
         framingPartId: shot.partId,
-        direction: [-0.56, 0.3, -0.77],
-        framing: 0.9,
-        fov: 30.5,
-        lookTargetBias: [0, 0, 0],
+        direction: [-0.58, 0.28, -0.76],
+        framing: 1.02,
+        fov: 30.8,
+        lookTargetBias: [-0.02, 0.02, 0],
       },
       inspectPeakAnchor: {
         id: "director-flbrake-inspect-peak",
@@ -779,10 +846,10 @@ function buildSignatureRegistry(): readonly SignatureShotOrchestration[] {
         holdUntilUnits: inspectEnd,
         subjectPartId: shot.partId,
         framingPartId: shot.partId,
-        direction: [-0.42, 0.24, -0.87],
-        framing: 0.86,
-        fov: 29.5,
-        lookTargetBias: [0, 0.01, 0],
+        direction: [-0.44, 0.22, -0.87],
+        framing: 0.98,
+        fov: 29.8,
+        lookTargetBias: [-0.02, 0.02, 0],
       },
       explainSettleAnchor: {
         ...focusAnchor,
@@ -849,12 +916,15 @@ function buildSignatureRegistry(): readonly SignatureShotOrchestration[] {
     const coreBase = ENGINEERING_CHAPTER_LIGHT_PRESETS.core;
     const venturiBounce: EngineeringLightRigState = {
       ...coreBase,
-      keyIntensity: 2.38,
-      fillIntensity: 1.56,
-      rimIntensity: 1.38,
-      accentPointIntensity: 1.24,
-      accentPointPosition: [-0.25, -1.05, 0.12],
-      accentPointColor: "#c2e2ff",
+      ambientIntensity: 0.42,
+      keyIntensity: 2.46,
+      keyPosition: [-5.2, 6.2, -5.6],
+      fillIntensity: 1.34,
+      rimIntensity: 2.04,
+      rimPosition: [1.4, 2.2, 8.2],
+      accentPointIntensity: 1.38,
+      accentPointPosition: [-0.28, -1.08, 0.14],
+      accentPointColor: "#bfe0ff",
     };
 
     entries.push({
@@ -868,10 +938,10 @@ function buildSignatureRegistry(): readonly SignatureShotOrchestration[] {
         holdUntilUnits: shot.detachEndUnits,
         subjectPartId: shot.partId,
         framingPartId: shot.partId,
-        direction: [-0.54, -0.16, -0.82],
-        framing: 0.85,
-        fov: 30.5,
-        lookTargetBias: [0, -0.02, 0.08],
+        direction: [-0.6, 0.02, -0.8],
+        framing: 1.08,
+        fov: 30.8,
+        lookTargetBias: [0, 1.12, 0.06],
       },
       inspectPeakAnchor: {
         id: "director-venturi-inspect-peak",
@@ -879,10 +949,10 @@ function buildSignatureRegistry(): readonly SignatureShotOrchestration[] {
         holdUntilUnits: inspectEnd,
         subjectPartId: shot.partId,
         framingPartId: shot.partId,
-        direction: [-0.36, -0.18, -0.91],
-        framing: 0.82,
-        fov: 29.5,
-        lookTargetBias: [0, -0.02, 0.1],
+        direction: [-0.42, -0.02, -0.91],
+        framing: 1.05,
+        fov: 29.8,
+        lookTargetBias: [0, 1.15, 0.08],
       },
       explainSettleAnchor: {
         ...focusAnchor,
@@ -943,13 +1013,15 @@ function buildSignatureRegistry(): readonly SignatureShotOrchestration[] {
     const coreBase = ENGINEERING_CHAPTER_LIGHT_PRESETS.core;
     const puSculpt: EngineeringLightRigState = {
       ...coreBase,
-      keyIntensity: 2.52,
-      keyPosition: [-5.2, 9.2, 4.2],
-      fillIntensity: 1.56,
-      rimIntensity: 1.44,
-      accentPointIntensity: 0.96,
-      accentPointPosition: [-0.65, 1.35, 0.95],
-      accentPointColor: "#ffe9d4",
+      ambientIntensity: 0.41,
+      keyIntensity: 2.62,
+      keyPosition: [-4.6, 7.8, 4.8],
+      fillIntensity: 1.28,
+      rimIntensity: 2.08,
+      rimPosition: [1.8, 3.2, 8.2],
+      accentPointIntensity: 1.12,
+      accentPointPosition: [-0.62, 1.38, 0.92],
+      accentPointColor: "#ffe8d2",
     };
 
     entries.push({
@@ -963,10 +1035,10 @@ function buildSignatureRegistry(): readonly SignatureShotOrchestration[] {
         holdUntilUnits: shot.detachEndUnits,
         subjectPartId: shot.partId,
         framingPartId: shot.partId,
-        direction: [-0.54, 0.6, 0.59],
-        framing: 0.9,
-        fov: 30.5,
-        lookTargetBias: [0, 0.02, 0],
+        direction: [-0.58, 0.54, 0.61],
+        framing: 1.1,
+        fov: 31.2,
+        lookTargetBias: [0, 0.02, -0.04],
       },
       inspectPeakAnchor: {
         id: "director-pu-inspect-peak",
@@ -974,10 +1046,10 @@ function buildSignatureRegistry(): readonly SignatureShotOrchestration[] {
         holdUntilUnits: inspectEnd,
         subjectPartId: shot.partId,
         framingPartId: shot.partId,
-        direction: [-0.32, 0.66, 0.68],
-        framing: 0.87,
-        fov: 29.8,
-        lookTargetBias: [0, 0.02, 0],
+        direction: [-0.38, 0.58, 0.72],
+        framing: 1.06,
+        fov: 30.4,
+        lookTargetBias: [0, 0.02, -0.03],
       },
       explainSettleAnchor: {
         ...focusAnchor,
@@ -1034,11 +1106,13 @@ function buildSignatureRegistry(): readonly SignatureShotOrchestration[] {
     const matrixBase = ENGINEERING_CHAPTER_LIGHT_PRESETS.matrix;
     const matrixOrbitLight: EngineeringLightRigState = {
       ...matrixBase,
-      keyIntensity: 2.56,
-      keyPosition: [-5.8, 10.2, -5.0],
-      fillIntensity: 1.5,
-      rimIntensity: 1.32,
-      accentPointIntensity: 0.72,
+      ambientIntensity: 0.42,
+      keyIntensity: 2.62,
+      keyPosition: [-5.6, 9.4, -5.2],
+      fillIntensity: 1.32,
+      rimIntensity: 2.02,
+      rimPosition: [1.2, 3.6, 8.6],
+      accentPointIntensity: 0.86,
       accentPointPosition: [0.2, 1.35, -0.35],
       accentPointColor: "#f2f8ff",
     };
@@ -1175,7 +1249,7 @@ function resolveChoreographedDetachSnapshot(
 
   const u = clamp01(
     (units - shot.approachEndUnits) /
-      (shot.detachEndUnits - shot.approachEndUnits),
+    (shot.detachEndUnits - shot.approachEndUnits),
   );
   const [ox, oy, oz] = spec.explodeOffset;
   const [ex, ey, ez] = spec.explodeEuler;
@@ -1183,9 +1257,16 @@ function resolveChoreographedDetachSnapshot(
 
   switch (kind) {
     case "front-wing-axial": {
-      const axial = easeOutQuint(u);
-      const lift = easeInOutSine(u) * 0.86 + Math.sin(u * Math.PI) * 0.14;
-      const pitch = easeOutCubic(clamp01((u - 0.18) / 0.82));
+      // C1 fastener unlatch -> weighted axial release -> subtle clearance lift -> delayed aero pitch settle
+      const axial = weightedMechanicalCurve(u, 3.6, 0.065);
+      const lift =
+        smootherstep(u) * 0.88 +
+        Math.sin(u * Math.PI) * smoothstep(u / 0.14) * 0.12;
+      const pitch = weightedMechanicalCurve(
+        clamp01((u - 0.18) / 0.82),
+        2.8,
+        0.08,
+      );
       return {
         tx: cleanZero(ox * axial),
         ty: cleanZero(oy * lift),
@@ -1198,9 +1279,13 @@ function resolveChoreographedDetachSnapshot(
     }
 
     case "drs-hinge-lift": {
-      // Hinge flap open first (u in 0..0.55), then lift & extend aft
-      const hinge = easeOutCubic(clamp01(u / 0.55));
-      const lift = easeOutQuart(clamp01((u - 0.14) / 0.86));
+      // Linkage hinges flap open first (u in 0..0.56), then weighted wake-axis lift & extension
+      const hinge = weightedMechanicalCurve(clamp01(u / 0.56), 3.0, 0.07);
+      const lift = weightedMechanicalCurve(
+        clamp01((u - 0.14) / 0.86),
+        3.4,
+        0.08,
+      );
       return {
         tx: cleanZero(ox * lift),
         ty: cleanZero(oy * lift),
@@ -1213,10 +1298,14 @@ function resolveChoreographedDetachSnapshot(
     }
 
     case "halo-vertical-hoist": {
-      // Vertical titanium hoist clears cockpit rim before subtle pitch
-      const vertical = easeOutQuart(u);
-      const aft = easeInOutCubic(clamp01((u - 0.18) / 0.82));
-      const pitch = easeOutCubic(clamp01((u - 0.24) / 0.76));
+      // Controlled Grade-5 titanium hoist clears cockpit mounts before subtle forward pitch
+      const vertical = weightedMechanicalCurve(u, 3.4, 0.07);
+      const aft = smootherstep(clamp01((u - 0.18) / 0.82));
+      const pitch = weightedMechanicalCurve(
+        clamp01((u - 0.24) / 0.76),
+        2.8,
+        0.08,
+      );
       return {
         tx: cleanZero(ox * aft),
         ty: cleanZero(oy * vertical),
@@ -1229,9 +1318,9 @@ function resolveChoreographedDetachSnapshot(
     }
 
     case "steering-spline-macro": {
-      // Pull off splined collar first, then rise to ergonomic showcase angle
-      const spline = easeOutQuint(clamp01(u / 0.78));
-      const rise = easeInOutCubic(clamp01((u - 0.12) / 0.88));
+      // Quick-release collar axial draw leads ergonomic showcase elevation
+      const spline = weightedMechanicalCurve(clamp01(u / 0.78), 3.5, 0.065);
+      const rise = smootherstep(clamp01((u - 0.12) / 0.88));
       return {
         tx: cleanZero(ox * rise),
         ty: cleanZero(oy * rise),
@@ -1244,9 +1333,13 @@ function resolveChoreographedDetachSnapshot(
     }
 
     case "centerlock-helical-spin": {
-      // Authentic helical unthreading: 720° spin leads as nut clears axle threads
-      const spin = easeOutCubic(clamp01(u / 0.88));
-      const slide = easeInOutCubic(clamp01((u - 0.1) / 0.9));
+      // High-torque wheel-gun unthreading: 720° spin leads as nut clears axle threads
+      const spin = weightedMechanicalCurve(clamp01(u / 0.86), 2.8, 0.055);
+      const slide = weightedMechanicalCurve(
+        clamp01((u - 0.1) / 0.9),
+        3.2,
+        0.08,
+      );
       return {
         tx: cleanZero(ox * slide),
         ty: cleanZero(oy * slide),
@@ -1259,9 +1352,9 @@ function resolveChoreographedDetachSnapshot(
     }
 
     case "wheel-corner-axial": {
-      // Crisp outward axle pull with slight late settle lift
-      const lateral = easeOutQuart(u);
-      const settle = easeInOutSine(u);
+      // Weighted outward axle extraction with damped vertical/rotational settle
+      const lateral = weightedMechanicalCurve(u, 3.3, 0.07);
+      const settle = smootherstep(u);
       return {
         tx: cleanZero(ox * lateral),
         ty: cleanZero(oy * settle),
@@ -1274,9 +1367,9 @@ function resolveChoreographedDetachSnapshot(
     }
 
     case "sidepod-lateral-peel": {
-      // Shell rolls gently open slightly ahead of full lateral/vertical peel
-      const peel = easeOutQuart(u);
-      const roll = easeOutCubic(clamp01(u / 0.82));
+      // Fastener release rolls composite shell slightly open ahead of weighted lateral peel
+      const peel = weightedMechanicalCurve(u, 3.3, 0.075);
+      const roll = weightedMechanicalCurve(clamp01(u / 0.82), 2.9, 0.065);
       return {
         tx: cleanZero(ox * peel),
         ty: cleanZero(oy * peel),
@@ -1289,8 +1382,8 @@ function resolveChoreographedDetachSnapshot(
     }
 
     case "venturi-floor-drop": {
-      // Heavy-mass ground-effect floor lowers cleanly vertically after plinth retraction
-      const drop = easeInOutCubic(u);
+      // High-mass ground-effect floor lowers with heavy inertia and cushioned bottom lock
+      const drop = easeInOutCubic(u) * 0.45 + smootherstep(u) * 0.55;
       return {
         tx: cleanZero(ox * drop),
         ty: cleanZero(oy * drop),
@@ -1303,9 +1396,9 @@ function resolveChoreographedDetachSnapshot(
     }
 
     case "powertrain-vertical-extract": {
-      // Vertical clearance from monocoque rear bulkhead before sliding aft
-      const hoist = easeOutQuart(u);
-      const aft = easeOutCubic(clamp01((u - 0.2) / 0.8));
+      // Vertical hoist clears survival-cell bulkhead studs before gliding aft
+      const hoist = weightedMechanicalCurve(u, 3.2, 0.07);
+      const aft = weightedMechanicalCurve(clamp01((u - 0.2) / 0.8), 3.0, 0.08);
       return {
         tx: cleanZero(ox * aft),
         ty: cleanZero(oy * hoist),
@@ -1318,8 +1411,8 @@ function resolveChoreographedDetachSnapshot(
     }
 
     case "cockpit-vertical-stack": {
-      const rise = easeOutQuart(u);
-      const axial = easeInOutSine(u);
+      const rise = weightedMechanicalCurve(u, 3.3, 0.07);
+      const axial = smootherstep(u);
       return {
         tx: cleanZero(ox * axial),
         ty: cleanZero(oy * rise),
@@ -1331,8 +1424,20 @@ function resolveChoreographedDetachSnapshot(
       };
     }
 
-    default:
-      return baselineSnap;
+    default: {
+      // Secondary assemblies also carry C1 breakaway inertia and damped settle
+      const primary = weightedMechanicalCurve(u, 3.2, 0.07);
+      const rot = smootherstep(u);
+      return {
+        tx: cleanZero(ox * primary),
+        ty: cleanZero(oy * primary),
+        tz: cleanZero(oz * primary),
+        rx: cleanZero(ex * rot),
+        ry: cleanZero(ey * rot),
+        rz: cleanZero(ez * rot),
+        phase: primary,
+      };
+    }
   }
 }
 
@@ -1388,7 +1493,7 @@ function resolveSignaturePhaseCue(
   const phaseProgress = clamp01((clampedUnits - active.startUnits) / span);
   const shotProgress = clamp01(
     (clampedUnits - sig.shot.startUnits) /
-      (sig.shot.endUnits - sig.shot.startUnits),
+    (sig.shot.endUnits - sig.shot.startUnits),
   );
   return {
     partId: sig.partId,
@@ -1427,7 +1532,9 @@ function resolveCameraCue(
           (units - OPENING_DOLLY_SIDE_ANCHOR.holdUntilUnits) / span,
         ),
       },
-      arcLiftMultiplier: 0.42,
+      arcLiftMultiplier: 0.34,
+      lateralArcMultiplier: 0.42,
+      easingProfile: "cinematic-dolly",
       source: "director",
     };
   }
@@ -1451,7 +1558,9 @@ function resolveCameraCue(
               (units - shot.startUnits) / (establishEnd - shot.startUnits),
             ),
           },
-          arcLiftMultiplier: 0.08,
+          arcLiftMultiplier: 0.06,
+          lateralArcMultiplier: 0.14,
+          easingProfile: "inspect-drift",
           source: "director",
         };
       }
@@ -1465,6 +1574,8 @@ function resolveCameraCue(
             ),
           },
           arcLiftMultiplier: activeSig.arcLiftApproach,
+          lateralArcMultiplier: 0.24,
+          easingProfile: "cinematic-dolly",
           source: "director",
         };
       }
@@ -1474,6 +1585,8 @@ function resolveCameraCue(
       return {
         route: baselineRoute,
         arcLiftMultiplier: activeSig.arcLiftApproach,
+        lateralArcMultiplier: 0.32,
+        easingProfile: "cinematic-dolly",
         source: "director",
       };
     }
@@ -1487,6 +1600,8 @@ function resolveCameraCue(
           progress: clamp01((units - approachEnd) / (detachEnd - approachEnd)),
         },
         arcLiftMultiplier: activeSig.arcLiftDetach,
+        lateralArcMultiplier: 0.08,
+        easingProfile: "inspect-drift",
         source: "director",
       };
     }
@@ -1500,6 +1615,8 @@ function resolveCameraCue(
           progress: clamp01((units - detachEnd) / (inspectEnd - detachEnd)),
         },
         arcLiftMultiplier: activeSig.arcLiftInspect,
+        lateralArcMultiplier: 0.12,
+        easingProfile: "inspect-drift",
         source: "director",
       };
     }
@@ -1515,6 +1632,8 @@ function resolveCameraCue(
             progress: clamp01((units - inspectEnd) / (settleEnd - inspectEnd)),
           },
           arcLiftMultiplier: activeSig.arcLiftExplain,
+          lateralArcMultiplier: 0.06,
+          easingProfile: "settle-hold",
           source: "director",
         };
       }
@@ -1525,6 +1644,8 @@ function resolveCameraCue(
           progress: 0,
         },
         arcLiftMultiplier: 0,
+        lateralArcMultiplier: 0,
+        easingProfile: "smoothstep",
         source: "director",
       };
     }
@@ -1533,6 +1654,8 @@ function resolveCameraCue(
     return {
       route: baselineRoute,
       arcLiftMultiplier: activeSig.arcLiftTransition,
+      lateralArcMultiplier: 0.32,
+      easingProfile: "cinematic-dolly",
       source: "director",
     };
   }
@@ -1545,24 +1668,33 @@ function resolveCameraCue(
       baselineRoute.from.subjectPartId &&
       baselineRoute.to.subjectPartId &&
       baselineRoute.from.subjectPartId.slice(0, 2) ===
-        baselineRoute.to.subjectPartId.slice(0, 2);
+      baselineRoute.to.subjectPartId.slice(0, 2);
     const arcLiftMultiplier = isSameCornerTransition
-      ? 0.24
+      ? 0.2
       : activeShot.chapterId === "cockpit"
-        ? 0.34
+        ? 0.3
         : activeShot.chapterId === "bodywork"
-          ? 0.44
-          : DEFAULT_CAMERA_ARC_LIFT;
+          ? 0.38
+          : 0.52;
+    const lateralArcMultiplier = isSameCornerTransition
+      ? 0.12
+      : activeShot.chapterId === "cockpit"
+        ? 0.18
+        : 0.3;
     return {
       route: baselineRoute,
       arcLiftMultiplier,
+      lateralArcMultiplier,
+      easingProfile: "cinematic-dolly",
       source: "timeline",
     };
   }
 
   return {
     route: baselineRoute,
-    arcLiftMultiplier: DEFAULT_CAMERA_ARC_LIFT,
+    arcLiftMultiplier: 0.46,
+    lateralArcMultiplier: 0.36,
+    easingProfile: "cinematic-dolly",
     source: "timeline",
   };
 }
@@ -1753,8 +1885,8 @@ function resolveAnnotationCue(
   // Secondary shots: smooth fade-in on detach & crisp hold during explain, fade-out on transition
   const baselinePartId =
     !story.showChapterTitle &&
-    story.chapter.id !== "origin" &&
-    story.chapter.id !== "reassembly"
+      story.chapter.id !== "origin" &&
+      story.chapter.id !== "reassembly"
       ? story.storyBeat.partId
       : null;
 
@@ -1774,7 +1906,7 @@ function resolveAnnotationCue(
     if (units > activeShot.holdEndUnits) {
       const outU = clamp01(
         (units - activeShot.holdEndUnits) /
-          Math.max(1e-6, activeShot.endUnits - activeShot.holdEndUnits),
+        Math.max(1e-6, activeShot.endUnits - activeShot.holdEndUnits),
       );
       const fade = 1 - smoothstep(clamp01(outU / 0.85));
       return {
@@ -1789,7 +1921,7 @@ function resolveAnnotationCue(
     }
     const inU = clamp01(
       (units - activeShot.approachEndUnits) /
-        Math.max(1e-6, activeShot.detachEndUnits - activeShot.approachEndUnits),
+      Math.max(1e-6, activeShot.detachEndUnits - activeShot.approachEndUnits),
     );
     const ramp = easeOutCubic(inU);
     return {
@@ -1814,11 +1946,145 @@ function resolveAnnotationCue(
   };
 }
 
+function resolveEnvironmentCue(
+  story: EngineeringStoryEvaluation,
+  phaseCue: EngineeringMotionPhaseCue | null,
+  cameraCue: EngineeringCameraCue,
+): EngineeringEnvironmentCue {
+  const chId = story.chapter.id;
+  const isOriginOrLock =
+    chId === "origin" || (chId === "reassembly" && story.progress > 0.992);
+  if (isOriginOrLock) {
+    return {
+      studioMode: "cinematic",
+      datumGridOpacity: 0.14,
+      trajectoryOpacity: 0,
+      crimsonHorizon: 0.72,
+      focalSpecularBoost: 1,
+      contextSpecularScale: 1,
+    };
+  }
+
+  if (chId === "matrix") {
+    const isExplain =
+      phaseCue?.phaseId === "explain" || phaseCue?.phaseId === "inspect";
+    return {
+      studioMode: "matrix",
+      datumGridOpacity: isExplain ? 0.56 : 0.36,
+      trajectoryOpacity: isExplain ? 0.22 : 0.12,
+      crimsonHorizon: 0.54,
+      focalSpecularBoost: 1.06,
+      contextSpecularScale: 0.96,
+    };
+  }
+
+  if (chId === "reassembly") {
+    return {
+      studioMode: "cinematic",
+      datumGridOpacity:
+        0.28 * (1 - smoothstep((story.progress - 0.925) / 0.075)),
+      trajectoryOpacity:
+        0.1 * (1 - smoothstep((story.progress - 0.925) / 0.06)),
+      crimsonHorizon: 0.64,
+      focalSpecularBoost: 1,
+      contextSpecularScale: 0.98,
+    };
+  }
+
+  const studioMode: EngineeringStudioMode =
+    chId === "cockpit"
+      ? "cockpit"
+      : story.storyBeat.partId === "VENTURI_FLOOR_TITANIUM"
+        ? "underfloor"
+        : phaseCue?.phaseId === "inspect" || phaseCue?.phaseId === "explain"
+          ? "inspection"
+          : "cinematic";
+
+  if (phaseCue) {
+    switch (phaseCue.phaseId) {
+      case "establish":
+        return {
+          studioMode: "cinematic",
+          datumGridOpacity: 0.16,
+          trajectoryOpacity: 0,
+          crimsonHorizon: 0.68,
+          focalSpecularBoost: 1.08,
+          contextSpecularScale: 0.92,
+        };
+      case "approach":
+        return {
+          studioMode: "cinematic",
+          datumGridOpacity: 0.22,
+          trajectoryOpacity: 0,
+          crimsonHorizon: 0.58,
+          focalSpecularBoost: 1.16,
+          contextSpecularScale: 0.86,
+        };
+      case "detach":
+        return {
+          studioMode,
+          datumGridOpacity: 0.34,
+          trajectoryOpacity: 0.08 * phaseCue.phaseProgress,
+          crimsonHorizon: 0.48,
+          focalSpecularBoost: 1.22,
+          contextSpecularScale: 0.82,
+        };
+      case "inspect":
+        return {
+          studioMode,
+          datumGridOpacity: 0.48,
+          trajectoryOpacity: 0.1,
+          crimsonHorizon: 0.42,
+          focalSpecularBoost: 1.26,
+          contextSpecularScale: 0.8,
+        };
+      case "explain":
+        return {
+          studioMode,
+          datumGridOpacity: 0.54,
+          trajectoryOpacity: 0.15,
+          crimsonHorizon: 0.38,
+          focalSpecularBoost: 1.22,
+          contextSpecularScale: 0.82,
+        };
+      case "transition":
+        return {
+          studioMode: "cinematic",
+          datumGridOpacity: 0.24,
+          trajectoryOpacity: 0,
+          crimsonHorizon: 0.56,
+          focalSpecularBoost: 1.06,
+          contextSpecularScale: 0.9,
+        };
+    }
+  }
+
+  const inTransit =
+    cameraCue.route.from.id !== cameraCue.route.to.id &&
+    cameraCue.route.progress > 0.04 &&
+    cameraCue.route.progress < 0.96;
+
+  return {
+    studioMode: inTransit ? "cinematic" : "inspection",
+    datumGridOpacity: inTransit ? 0.22 : 0.44,
+    trajectoryOpacity: inTransit ? 0 : 0.12,
+    crimsonHorizon: inTransit ? 0.56 : 0.42,
+    focalSpecularBoost: 1.18,
+    contextSpecularScale: 0.84,
+  };
+}
+
 function resolveEditorialCue(
   activeSig: SignatureShotOrchestration | null,
   phaseCue: EngineeringMotionPhaseCue | null,
   story: EngineeringStoryEvaluation,
+  cameraCue: EngineeringCameraCue,
 ): EngineeringEditorialCue {
+  const isRouteMoving =
+    cameraCue.route.from.id !== cameraCue.route.to.id &&
+    cameraCue.route.progress > 0.06 &&
+    cameraCue.route.progress < 0.94;
+
   if (!activeSig || !phaseCue) {
     return {
       showChapterTitle: story.showChapterTitle,
@@ -1831,11 +2097,14 @@ function resolveEditorialCue(
       phaseIndex: null,
       phaseCount: null,
       phaseLabel: null,
+      isCameraTransit: isRouteMoving && !story.showChapterTitle,
     };
   }
 
   const showChapterTitle =
     activeSig.showChapterTitleInEstablish && phaseCue.phaseId === "establish";
+  const isCameraTransit =
+    phaseCue.phaseId === "approach" || phaseCue.phaseId === "transition";
   return {
     showChapterTitle,
     partId: activeSig.partId,
@@ -1847,6 +2116,7 @@ function resolveEditorialCue(
     phaseIndex: phaseCue.phaseIndex,
     phaseCount: phaseCue.phaseCount,
     phaseLabel: phaseCue.label,
+    isCameraTransit,
   };
 }
 
@@ -1863,7 +2133,7 @@ export function evaluateEngineeringMotionDirector(
   const units = progress * ENGINEERING_STORY_SCROLL_VH;
   const story =
     input.precomputedStory &&
-    Math.abs(input.precomputedStory.progress - progress) < 1e-9
+      Math.abs(input.precomputedStory.progress - progress) < 1e-9
       ? input.precomputedStory
       : evaluateEngineeringStoryTimeline(progress);
 
@@ -1914,7 +2184,17 @@ export function evaluateEngineeringMotionDirector(
     parts,
     input.selectedPartId ?? null,
   );
-  const editorialCue = resolveEditorialCue(activeSig, activePhaseCue, story);
+  const editorialCue = resolveEditorialCue(
+    activeSig,
+    activePhaseCue,
+    story,
+    cameraCue,
+  );
+  const environmentCue = resolveEnvironmentCue(
+    story,
+    activePhaseCue,
+    cameraCue,
+  );
 
   return {
     progress,
@@ -1925,6 +2205,7 @@ export function evaluateEngineeringMotionDirector(
     lightingCue,
     annotationCue,
     editorialCue,
+    environmentCue,
     parts,
   };
 }
@@ -1979,10 +2260,10 @@ export function resolveDirectorPartTransform(params: {
 
   const visible = internalSystem
     ? xray ||
-      snap.phase > 0.015 ||
-      cueSheet.progress > 0.48 ||
-      cueSheet.story.storyBeat.partId === partId ||
-      isTransitioning
+    snap.phase > 0.015 ||
+    cueSheet.progress > 0.48 ||
+    cueSheet.story.storyBeat.partId === partId ||
+    isTransitioning
     : true;
 
   const coupledSnap = resolveCoupledPartOffset(

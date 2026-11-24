@@ -8,6 +8,7 @@ import {
   enterOrbitControl,
   resolveCoupledPartOffset,
   resolveEngineeringUiCommitKey,
+  resolveLeaderCalloutLayout,
   resolvePlinthRetraction,
   selectScenePart,
   stepSceneControlFrame,
@@ -346,5 +347,43 @@ describe("Authoritative Engineering Scene Control (timeline | orbit | isolated |
     const clampedMobile = clampAnnotationScreenPosition(0.02, 0.9, true);
     expect(clampedMobile.x).toBeGreaterThanOrEqual(0.08);
     expect(clampedMobile.y).toBeLessThanOrEqual(0.56);
+
+    // Two-point architectural SVG leader layout places callout card clear of HUD copy and 3D bounds
+    const desktopCallout = resolveLeaderCalloutLayout({
+      stageWidth: 1440,
+      stageHeight: 836,
+      anchorX: 0.48,
+      anchorY: 0.52,
+      boundsMinX: 0.32,
+      boundsMaxX: 0.66,
+      boundsMinY: 0.36,
+      boundsMaxY: 0.72,
+      isMobile: false,
+      cardWidth: 280,
+    });
+    expect(desktopCallout.anchorPxX).toBe(Math.round(0.48 * 1440));
+    expect(desktopCallout.cardLeftPx).toBeGreaterThanOrEqual(1440 * 0.62);
+    expect(desktopCallout.cardTopPx).toBeLessThanOrEqual(
+      Math.round(0.26 * 836),
+    );
+
+    const mobileCallout = resolveLeaderCalloutLayout({
+      stageWidth: 390,
+      stageHeight: 780,
+      anchorX: 0.52,
+      anchorY: 0.54,
+      boundsMinX: 0.16,
+      boundsMaxX: 0.86,
+      boundsMinY: 0.44,
+      boundsMaxY: 0.68,
+      isMobile: true,
+      cardWidth: 280,
+    });
+    expect(mobileCallout.align).toBe("center");
+    // Placed in the clean upper studio shelf above boundsMinY (never covering center of car)
+    expect(mobileCallout.cardTopPx).toBeLessThan(0.44 * 780);
+    expect(mobileCallout.cardTopPx).toBeGreaterThanOrEqual(
+      Math.round(780 * 0.31),
+    );
   });
 });
