@@ -132,11 +132,11 @@ export const INSPECTION_PARTS: readonly InspectionPartSpec[] = [
     nodeName: "PART_COCKPIT",
     label: { vi: "Buồng lái & Halo", en: "Cockpit & Halo" },
     summary: {
-      vi: "Khung bảo vệ Halo titan bọc vỏ aero, vô lăng đa nút bấm và ghế đúc đơn thân.",
-      en: "Titanium Halo fairing, multifunction F1 steering assembly and molded carbon seat.",
+      vi: "Vô-lăng carbon OLED phát sáng kèm 15 đèn LED sang số, núm xoay vi sai, lẫy số carbon, dây đai 6 điểm đỏ FIA và khung Halo.",
+      en: "Illuminated carbon F1 OLED steering wheel, 15 shift LEDs, rotary encoders, carbon paddles, FIA crimson 6-point harness and Halo.",
     },
-    relativeCameraOffset: [1.15, 1.48, 1.15],
-    relativeTargetOffset: [0, 0.68, 0.25],
+    relativeCameraOffset: [0.02, 0.84, 0.2],
+    relativeTargetOffset: [0, 0.62, 0.78],
   },
   {
     id: "floor-body",

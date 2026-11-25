@@ -2,28 +2,41 @@ import React, { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { BAY_X, GARAGE_DIMENSIONS } from "./garageCameraMath";
-import type { WheelCorner } from "./fp04rbLoader";
 import {
   applyTeamSuitToPitCrew,
   clonePitCrewInstance,
   disposePitCrewInstance,
   type CachedPitCrewAsset,
-  type PitCrewAnimationName,
   type PitCrewInstance,
 } from "./pitCrewLoader";
+import {
+  applyProceduralPitCrewPose,
+  createInitialLocomotionState,
+  getFrontJackOperatorTarget,
+  getRearJackOperatorTarget,
+  getWheelGunnerTarget,
+  stepCrewLocomotion,
+  type CrewTargetAssignment,
+  type PitCrewLocomotionState,
+} from "./pitCrewLocomotion";
 import { getProcessedLogoCanvas } from "./teamLogos2026";
+import type { BayFocus } from "./inspectionParts";
 import type { Team2026Spec } from "./teams2026";
-import type {
-  MaintenanceState,
-  MaintenanceTransforms,
+import {
+  computeMaintenanceTransforms,
+  createInitialMaintenanceState,
+  type MaintenanceState,
+  type MaintenanceTransforms,
 } from "./ServiceSequence";
 
 export interface GarageEquipmentProps {
   team: Team2026Spec;
+  bayFocus?: BayFocus;
   maintenanceState: MaintenanceState;
   maintenanceTransforms: MaintenanceTransforms;
   pitCrewAsset?: CachedPitCrewAsset | null;
   logosVersion?: number;
+  reducedMotion?: boolean;
 }
 
 function makeSignageTexture(
@@ -199,206 +212,268 @@ const LowPolyMechanic: React.FC<{
   holdingGun = false,
   name,
 }) => {
-  const hipY = crouched ? 0.52 : 0.88;
-  const torsoAngle = crouched ? 0.42 : 0.06;
+    const hipY = crouched ? 0.52 : 0.88;
+    const torsoAngle = crouched ? 0.42 : 0.06;
 
-  return (
-    <group name={name} position={position} rotation={[0, rotationY, 0]}>
-      {/* Boots / Lower legs */}
-      <mesh position={[-0.12, hipY * 0.5, 0]} castShadow>
-        <boxGeometry args={[0.13, hipY, 0.14]} />
-        <meshStandardMaterial color="#191D24" roughness={0.7} />
-      </mesh>
-      <mesh position={[0.12, hipY * 0.5, 0]} castShadow>
-        <boxGeometry args={[0.13, hipY, 0.14]} />
-        <meshStandardMaterial color="#191D24" roughness={0.7} />
-      </mesh>
+    return (
+      <group name={name} position={position} rotation={[0, rotationY, 0]}>
+        {/* Boots / Lower legs */}
+        <mesh position={[-0.12, hipY * 0.5, 0]} castShadow>
+          <boxGeometry args={[0.13, hipY, 0.14]} />
+          <meshStandardMaterial color="#191D24" roughness={0.7} />
+        </mesh>
+        <mesh position={[0.12, hipY * 0.5, 0]} castShadow>
+          <boxGeometry args={[0.13, hipY, 0.14]} />
+          <meshStandardMaterial color="#191D24" roughness={0.7} />
+        </mesh>
 
-      {/* Torso + team race suit + headset helmet */}
-      <group position={[0, hipY, 0]} rotation={[torsoAngle, 0, 0]}>
-        <mesh position={[0, 0.28, 0]} castShadow>
-          <boxGeometry args={[0.38, 0.52, 0.22]} />
-          <meshStandardMaterial color={suitColor} roughness={0.55} />
-        </mesh>
-        {/* Shoulder stripe in team accent */}
-        <mesh position={[0, 0.52, 0]}>
-          <boxGeometry args={[0.4, 0.07, 0.23]} />
-          <meshStandardMaterial color={accentColor} roughness={0.4} />
-        </mesh>
-        {/* Head + pit comms visor */}
-        <mesh position={[0, 0.68, 0.02]} castShadow>
-          <sphereGeometry args={[0.13, 12, 12]} />
-          <meshStandardMaterial
-            color="#1C2026"
-            roughness={0.3}
-            metalness={0.3}
-          />
-        </mesh>
-        <mesh position={[0, 0.69, 0.12]}>
-          <boxGeometry args={[0.18, 0.06, 0.05]} />
-          <meshStandardMaterial
-            color={accentColor}
-            roughness={0.2}
-            metalness={0.4}
-          />
-        </mesh>
-        {/* Arms */}
-        <mesh position={[-0.25, 0.3, 0.14]} rotation={[-0.65, 0, 0]} castShadow>
-          <boxGeometry args={[0.1, 0.42, 0.1]} />
-          <meshStandardMaterial color={suitColor} roughness={0.55} />
-        </mesh>
-        <mesh position={[0.25, 0.3, 0.14]} rotation={[-0.65, 0, 0]} castShadow>
-          <boxGeometry args={[0.1, 0.42, 0.1]} />
-          <meshStandardMaterial color={suitColor} roughness={0.55} />
-        </mesh>
-        {holdingGun && (
-          <group position={[0.18, 0.15, 0.38]}>
-            <mesh castShadow>
-              <boxGeometry args={[0.1, 0.12, 0.28]} />
-              <meshStandardMaterial
-                color="#D6402B"
-                roughness={0.35}
-                metalness={0.6}
-              />
-            </mesh>
-            <mesh position={[0, 0.01, 0.16]} rotation={[Math.PI / 2, 0, 0]}>
-              <cylinderGeometry args={[0.028, 0.028, 0.14, 10]} />
-              <meshStandardMaterial
-                color="#CBD5E1"
-                roughness={0.25}
-                metalness={0.85}
-              />
-            </mesh>
-          </group>
-        )}
+        {/* Torso + team race suit + headset helmet */}
+        <group position={[0, hipY, 0]} rotation={[torsoAngle, 0, 0]}>
+          <mesh position={[0, 0.28, 0]} castShadow>
+            <boxGeometry args={[0.38, 0.52, 0.22]} />
+            <meshStandardMaterial color={suitColor} roughness={0.55} />
+          </mesh>
+          {/* Shoulder stripe in team accent */}
+          <mesh position={[0, 0.52, 0]}>
+            <boxGeometry args={[0.4, 0.07, 0.23]} />
+            <meshStandardMaterial color={accentColor} roughness={0.4} />
+          </mesh>
+          {/* Head + pit comms visor */}
+          <mesh position={[0, 0.68, 0.02]} castShadow>
+            <sphereGeometry args={[0.13, 12, 12]} />
+            <meshStandardMaterial
+              color="#1C2026"
+              roughness={0.3}
+              metalness={0.3}
+            />
+          </mesh>
+          <mesh position={[0, 0.69, 0.12]}>
+            <boxGeometry args={[0.18, 0.06, 0.05]} />
+            <meshStandardMaterial
+              color={accentColor}
+              roughness={0.2}
+              metalness={0.4}
+            />
+          </mesh>
+          {/* Arms */}
+          <mesh position={[-0.25, 0.3, 0.14]} rotation={[-0.65, 0, 0]} castShadow>
+            <boxGeometry args={[0.1, 0.42, 0.1]} />
+            <meshStandardMaterial color={suitColor} roughness={0.55} />
+          </mesh>
+          <mesh position={[0.25, 0.3, 0.14]} rotation={[-0.65, 0, 0]} castShadow>
+            <boxGeometry args={[0.1, 0.42, 0.1]} />
+            <meshStandardMaterial color={suitColor} roughness={0.55} />
+          </mesh>
+          {holdingGun && (
+            <group position={[0.18, 0.15, 0.38]}>
+              <mesh castShadow>
+                <boxGeometry args={[0.1, 0.12, 0.28]} />
+                <meshStandardMaterial
+                  color="#D6402B"
+                  roughness={0.35}
+                  metalness={0.6}
+                />
+              </mesh>
+              <mesh position={[0, 0.01, 0.16]} rotation={[Math.PI / 2, 0, 0]}>
+                <cylinderGeometry args={[0.028, 0.028, 0.14, 10]} />
+                <meshStandardMaterial
+                  color="#CBD5E1"
+                  roughness={0.25}
+                  metalness={0.85}
+                />
+              </mesh>
+            </group>
+          )}
+        </group>
       </group>
-    </group>
-  );
-};
+    );
+  };
 
-const RiggedPitCrewMember: React.FC<{
-  position: [number, number, number];
-  rotationY: number;
+interface CrewRuntimeProbeEntry {
+  x: number;
+  z: number;
+  yaw: number;
+  speedMps: number;
+  maxFrameStepMeters: number;
+  stridePhase: number;
+  crouchWeight: number;
+  walkWeight: number;
+  jackWeight: number;
+}
+
+const ArticulatedPitCrewMember: React.FC<{
+  target: CrewTargetAssignment;
+  useBayAvoidance?: boolean;
+  paused?: boolean;
+  reducedMotion?: boolean;
   team: Team2026Spec;
   suitRole: "primary" | "secondary";
-  animationName: PitCrewAnimationName;
-  crouched?: boolean;
   holdingGun?: boolean;
   name: string;
   pitCrewAsset?: CachedPitCrewAsset | null;
   logosVersion?: number;
 }> = ({
-  position,
-  rotationY,
+  target,
+  useBayAvoidance = false,
+  paused = false,
+  reducedMotion = false,
   team,
   suitRole,
-  animationName,
-  crouched = false,
   holdingGun = false,
   name,
   pitCrewAsset,
   logosVersion = 0,
 }) => {
-  const hostRef = useRef<THREE.Group>(null);
-  const instanceRef = useRef<PitCrewInstance | null>(null);
-
-  useEffect(() => {
-    const host = hostRef.current;
-    if (!host || !pitCrewAsset) return;
-    const inst = clonePitCrewInstance(pitCrewAsset);
-    instanceRef.current = inst;
-    host.add(inst.root);
-    return () => {
-      host.remove(inst.root);
-      disposePitCrewInstance(inst);
-      instanceRef.current = null;
-    };
-  }, [pitCrewAsset]);
-
-  useEffect(() => {
-    const inst = instanceRef.current;
-    if (!inst) return;
-    applyTeamSuitToPitCrew(inst, team, suitRole, holdingGun);
-  }, [team, suitRole, holdingGun, pitCrewAsset, logosVersion]);
-
-  useEffect(() => {
-    const inst = instanceRef.current;
-    if (!inst) return;
-    inst.mixer.stopAllAction();
-    const action =
-      inst.actions[animationName] ?? inst.actions.Idle_Standby ?? null;
-    if (action) {
-      action.reset();
-      action.play();
-      // Advance immediately to an expressive keyframe so static/reduced-motion captures show the pose immediately
-      inst.mixer.update(0.36);
-    }
-  }, [animationName, pitCrewAsset]);
-
-  useFrame((_state, delta) => {
-    const inst = instanceRef.current;
-    if (!inst) return;
-    inst.mixer.update(Math.min(delta, 0.05));
-  });
-
-  if (pitCrewAsset) {
-    return (
-      <group
-        ref={hostRef}
-        name={name}
-        position={position}
-        rotation={[0, rotationY, 0]}
-      />
+    const hostRef = useRef<THREE.Group>(null);
+    const instanceRef = useRef<PitCrewInstance | null>(null);
+    const targetRef = useRef<CrewTargetAssignment>(target);
+    const pausedRef = useRef(paused);
+    const reducedMotionRef = useRef(reducedMotion);
+    const [locoState] = React.useState<PitCrewLocomotionState>(() =>
+      createInitialLocomotionState(
+        target.position.x,
+        target.position.z,
+        target.facingYaw,
+        target.arrivePose,
+      ),
     );
-  }
+    const locoRef = useRef<PitCrewLocomotionState>(locoState);
+    const maxFrameStepRef = useRef(0);
 
-  return (
-    <LowPolyMechanic
-      name={name}
-      position={position}
-      rotationY={rotationY}
-      suitColor={
-        suitRole === "primary"
-          ? team.zonePaint.crewSuitPrimary
-          : team.zonePaint.crewSuitSecondary
+    useEffect(() => {
+      targetRef.current = target;
+    }, [target]);
+
+    useEffect(() => {
+      pausedRef.current = paused;
+    }, [paused]);
+
+    useEffect(() => {
+      reducedMotionRef.current = reducedMotion;
+    }, [reducedMotion]);
+
+    useEffect(() => {
+      const host = hostRef.current;
+      const loco = locoRef.current;
+      if (host && loco) {
+        host.position.set(loco.x, 0, loco.z);
+        host.rotation.set(0, loco.yaw, 0);
       }
-      accentColor={team.accentColor}
-      crouched={crouched}
-      holdingGun={holdingGun}
-    />
-  );
-};
+    }, []);
 
-function cornerCrewPose(
-  corner: WheelCorner,
-  isIdle: boolean,
-): {
-  pos: [number, number, number];
-  rotY: number;
-} {
-  const bx = BAY_X.bay1;
-  if (isIdle) {
-    // Park standby technician cleanly beside the rear-right tool cabinets so no overview/inspection/3-4 sightline is occluded
-    return { pos: [bx - 3.35, 0, -3.55], rotY: Math.PI * 0.28 };
-  }
-  switch (corner) {
-    case "FL":
-      return { pos: [bx + 1.85, 0, 0.12], rotY: -Math.PI * 0.72 };
-    case "FR":
-      return { pos: [bx - 1.85, 0, 0.12], rotY: Math.PI * 0.72 };
-    case "RL":
-      return { pos: [bx + 1.85, 0, -2.95], rotY: -Math.PI * 0.24 };
-    case "RR":
-      return { pos: [bx - 1.85, 0, -2.95], rotY: Math.PI * 0.24 };
-  }
-}
+    useEffect(() => {
+      const host = hostRef.current;
+      if (!host || !pitCrewAsset) return;
+      const inst = clonePitCrewInstance(pitCrewAsset);
+      instanceRef.current = inst;
+      host.add(inst.root);
+      if (locoRef.current) {
+        applyProceduralPitCrewPose(
+          inst.bones,
+          locoRef.current,
+          holdingGun,
+          targetRef.current.workIntensity,
+          reducedMotionRef.current,
+        );
+      }
+      return () => {
+        host.remove(inst.root);
+        disposePitCrewInstance(inst);
+        instanceRef.current = null;
+      };
+    }, [pitCrewAsset, holdingGun]);
+
+    useEffect(() => {
+      const inst = instanceRef.current;
+      if (!inst) return;
+      applyTeamSuitToPitCrew(inst, team, suitRole, holdingGun);
+    }, [team, suitRole, holdingGun, pitCrewAsset, logosVersion]);
+
+    useFrame((_state, delta) => {
+      const host = hostRef.current;
+      const loco = locoRef.current;
+      if (!host || !loco) return;
+
+      const prevX = loco.x;
+      const prevZ = loco.z;
+      if (!pausedRef.current) {
+        stepCrewLocomotion(
+          loco,
+          targetRef.current,
+          delta,
+          useBayAvoidance,
+          reducedMotionRef.current,
+        );
+      }
+      const frameStep = Math.hypot(loco.x - prevX, loco.z - prevZ);
+      if (frameStep > maxFrameStepRef.current) {
+        maxFrameStepRef.current = frameStep;
+      }
+
+      host.position.set(loco.x, 0, loco.z);
+      host.rotation.set(0, loco.yaw, 0);
+
+      const inst = instanceRef.current;
+      if (inst) {
+        applyProceduralPitCrewPose(
+          inst.bones,
+          loco,
+          holdingGun,
+          pausedRef.current ? 0 : targetRef.current.workIntensity,
+          reducedMotionRef.current,
+        );
+      }
+
+      if (typeof window !== "undefined") {
+        const w = window as unknown as {
+          __PEDS_CREW_STATE__?: Record<string, CrewRuntimeProbeEntry>;
+        };
+        if (!w.__PEDS_CREW_STATE__) w.__PEDS_CREW_STATE__ = {};
+        w.__PEDS_CREW_STATE__[name] = {
+          x: Number(loco.x.toFixed(3)),
+          z: Number(loco.z.toFixed(3)),
+          yaw: Number(loco.yaw.toFixed(3)),
+          speedMps: Number(loco.speedMps.toFixed(2)),
+          maxFrameStepMeters: Number(maxFrameStepRef.current.toFixed(4)),
+          stridePhase: Number(loco.stridePhase.toFixed(2)),
+          crouchWeight: Number(loco.poseWeights.crouch_gun.toFixed(2)),
+          walkWeight: Number(loco.poseWeights.walk.toFixed(2)),
+          jackWeight: Number(loco.poseWeights.jack_operate.toFixed(2)),
+        };
+      }
+    });
+
+    if (pitCrewAsset) {
+      return <group ref={hostRef} name={name} />;
+    }
+
+    return (
+      <group ref={hostRef} name={name}>
+        <LowPolyMechanic
+          name={`${name}_FALLBACK`}
+          position={[0, 0, 0]}
+          rotationY={0}
+          suitColor={
+            suitRole === "primary"
+              ? team.zonePaint.crewSuitPrimary
+              : team.zonePaint.crewSuitSecondary
+          }
+          accentColor={team.accentColor}
+          crouched={target.arrivePose === "crouch_gun"}
+          holdingGun={holdingGun}
+        />
+      </group>
+    );
+  };
 
 export const GarageEquipment: React.FC<GarageEquipmentProps> = ({
   team,
+  bayFocus = "bay-1",
   maintenanceState,
   maintenanceTransforms,
   pitCrewAsset,
   logosVersion = 0,
+  reducedMotion = false,
 }) => {
   const halfW = GARAGE_DIMENSIONS.width / 2;
   const halfD = GARAGE_DIMENSIONS.depth / 2;
@@ -437,41 +512,131 @@ export const GarageEquipment: React.FC<GarageEquipmentProps> = ({
     };
   }, [bay1SignTex, bay2SignTex, screenTex0, screenTex1]);
 
-  const frontJackX = THREE.MathUtils.lerp(
+  const idleMaintenanceState = useMemo(
+    () => createInitialMaintenanceState(maintenanceState.wheelRemovalCapable),
+    [maintenanceState.wheelRemovalCapable],
+  );
+  const idleTransforms = useMemo(
+    () => computeMaintenanceTransforms(idleMaintenanceState),
+    [idleMaintenanceState],
+  );
+
+  const bay1MaintenanceState =
+    bayFocus === "bay-1" ? maintenanceState : idleMaintenanceState;
+  const bay2MaintenanceState =
+    bayFocus === "bay-2" ? maintenanceState : idleMaintenanceState;
+  const bay1Transforms =
+    bayFocus === "bay-1" ? maintenanceTransforms : idleTransforms;
+  const bay2Transforms =
+    bayFocus === "bay-2" ? maintenanceTransforms : idleTransforms;
+
+  // Bay 1 dedicated Front & Rear Quick-Lift Jacks
+  const bay1FrontJackX = THREE.MathUtils.lerp(
     BAY_X.bay1 - 1.25,
     BAY_X.bay1,
-    maintenanceTransforms.frontJackExtendProgress,
+    bay1Transforms.frontJackExtendProgress,
   );
-  const frontJackZ = THREE.MathUtils.lerp(
+  const bay1FrontJackZ = THREE.MathUtils.lerp(
     3.65,
     2.95,
-    maintenanceTransforms.frontJackExtendProgress,
+    bay1Transforms.frontJackExtendProgress,
   );
-  const rearJackX = THREE.MathUtils.lerp(
+  const bay1RearJackX = THREE.MathUtils.lerp(
     BAY_X.bay1 - 1.25,
     BAY_X.bay1,
-    maintenanceTransforms.rearJackExtendProgress,
+    bay1Transforms.rearJackExtendProgress,
   );
-  const rearJackZ = THREE.MathUtils.lerp(
+  const bay1RearJackZ = THREE.MathUtils.lerp(
     -3.75,
     -2.5,
-    maintenanceTransforms.rearJackExtendProgress,
+    bay1Transforms.rearJackExtendProgress,
   );
-  const gunCrew = cornerCrewPose(
-    maintenanceState.corner,
-    maintenanceState.step === "IDLE",
+
+  // Bay 2 dedicated Front & Rear Quick-Lift Jacks
+  const bay2FrontJackX = THREE.MathUtils.lerp(
+    BAY_X.bay2 + 1.25,
+    BAY_X.bay2,
+    bay2Transforms.frontJackExtendProgress,
   );
-  const gunCrewCrouched = maintenanceState.step !== "IDLE";
-  const gunCrewStandoff =
-    maintenanceState.step === "INSPECTION_DETACHED"
-      ? ([
-          gunCrew.pos[0] +
-            (maintenanceState.corner.endsWith("L") ? 0.35 : -0.35),
-          0,
-          gunCrew.pos[2] +
-            (maintenanceState.corner.startsWith("F") ? -0.25 : 0.25),
-        ] as [number, number, number])
-      : gunCrew.pos;
+  const bay2FrontJackZ = THREE.MathUtils.lerp(
+    3.65,
+    2.95,
+    bay2Transforms.frontJackExtendProgress,
+  );
+  const bay2RearJackX = THREE.MathUtils.lerp(
+    BAY_X.bay2 + 1.25,
+    BAY_X.bay2,
+    bay2Transforms.rearJackExtendProgress,
+  );
+  const bay2RearJackZ = THREE.MathUtils.lerp(
+    -3.75,
+    -2.5,
+    bay2Transforms.rearJackExtendProgress,
+  );
+
+  const isBay1Paused =
+    bayFocus === "bay-1" && maintenanceState.status === "paused";
+  const isBay2Paused =
+    bayFocus === "bay-2" && maintenanceState.status === "paused";
+
+  // Bay 1 dedicated Pit Crew targets
+  const bay1WheelGunnerTarget = useMemo(
+    () => getWheelGunnerTarget(bay1MaintenanceState, "bay-1"),
+    [bay1MaintenanceState],
+  );
+  const bay1FrontJackTarget = useMemo(
+    () =>
+      getFrontJackOperatorTarget(
+        bay1FrontJackX,
+        bay1FrontJackZ,
+        bay1MaintenanceState,
+      ),
+    [bay1FrontJackX, bay1FrontJackZ, bay1MaintenanceState],
+  );
+  const bay1RearJackTarget = useMemo(
+    () =>
+      getRearJackOperatorTarget(
+        bay1RearJackX,
+        bay1RearJackZ,
+        bay1MaintenanceState,
+      ),
+    [bay1RearJackX, bay1RearJackZ, bay1MaintenanceState],
+  );
+
+  // Bay 2 dedicated Pit Crew targets (always stationed right at Bay 2 for instant Car 2 Service)
+  const bay2WheelGunnerTarget = useMemo(
+    () => getWheelGunnerTarget(bay2MaintenanceState, "bay-2"),
+    [bay2MaintenanceState],
+  );
+  const bay2FrontJackTarget = useMemo(
+    () =>
+      getFrontJackOperatorTarget(
+        bay2FrontJackX,
+        bay2FrontJackZ,
+        bay2MaintenanceState,
+      ),
+    [bay2FrontJackX, bay2FrontJackZ, bay2MaintenanceState],
+  );
+  const bay2RearJackTarget = useMemo(
+    () =>
+      getRearJackOperatorTarget(
+        bay2RearJackX,
+        bay2RearJackZ,
+        bay2MaintenanceState,
+      ),
+    [bay2RearJackX, bay2RearJackZ, bay2MaintenanceState],
+  );
+
+  const telemetryEngineerTarget = useMemo<CrewTargetAssignment>(
+    () => ({
+      position: { x: 0.82, z: -3.65 },
+      facingYaw: -Math.PI / 2,
+      arrivePose: "telemetry_console",
+      workIntensity: 0.5,
+      walkSpeedMps: 1.6,
+    }),
+    [],
+  );
 
   // Keep a ref just to verify overhead booms cleanly
   const gantryRef = useRef<THREE.Group>(null);
@@ -540,10 +705,10 @@ export const GarageEquipment: React.FC<GarageEquipmentProps> = ({
         ))}
       </group>
 
-      {/* EQ-04: Front & Rear Quick-Lift Jacks, Wheel Gun Carts & Stands (Bay 1 Animated + Bay 2 Staged) */}
+      {/* EQ-04: Dedicated Front & Rear Quick-Lift Jacks for Both Bay 1 and Bay 2 */}
       <group name="EQ_04_JACKS_AND_GUNS">
-        {/* Bay 1 Active Front Quick-Lift Jack */}
-        <group position={[frontJackX, 0, frontJackZ]}>
+        {/* Bay 1 Front Quick-Lift Jack */}
+        <group position={[bay1FrontJackX, 0, bay1FrontJackZ]}>
           <mesh position={[0, 0.05, -0.18]} castShadow>
             <boxGeometry args={[0.42, 0.06, 0.48]} />
             <meshStandardMaterial
@@ -562,8 +727,8 @@ export const GarageEquipment: React.FC<GarageEquipmentProps> = ({
           </mesh>
         </group>
 
-        {/* Bay 1 Active Rear Quick-Lift Jack */}
-        <group position={[rearJackX, 0, rearJackZ]}>
+        {/* Bay 1 Rear Quick-Lift Jack */}
+        <group position={[bay1RearJackX, 0, bay1RearJackZ]}>
           <mesh position={[0, 0.05, 0.12]} castShadow>
             <boxGeometry args={[0.44, 0.06, 0.44]} />
             <meshStandardMaterial
@@ -582,8 +747,48 @@ export const GarageEquipment: React.FC<GarageEquipmentProps> = ({
           </mesh>
         </group>
 
-        {/* Equipment & wheel gun caddy stand beside Bay 2 */}
-        <group position={[BAY_X.bay2 + 2.35, 0, 0.4]}>
+        {/* Bay 2 Front Quick-Lift Jack */}
+        <group position={[bay2FrontJackX, 0, bay2FrontJackZ]}>
+          <mesh position={[0, 0.05, -0.18]} castShadow>
+            <boxGeometry args={[0.42, 0.06, 0.48]} />
+            <meshStandardMaterial
+              color={team.accentColor}
+              roughness={0.35}
+              metalness={0.65}
+            />
+          </mesh>
+          <mesh position={[0, 0.52, 0.38]} rotation={[0.45, 0, 0]} castShadow>
+            <boxGeometry args={[0.06, 1.05, 0.06]} />
+            <meshStandardMaterial
+              color="#E2E8F0"
+              roughness={0.28}
+              metalness={0.8}
+            />
+          </mesh>
+        </group>
+
+        {/* Bay 2 Rear Quick-Lift Jack */}
+        <group position={[bay2RearJackX, 0, bay2RearJackZ]}>
+          <mesh position={[0, 0.05, 0.12]} castShadow>
+            <boxGeometry args={[0.44, 0.06, 0.44]} />
+            <meshStandardMaterial
+              color={team.primaryColor}
+              roughness={0.38}
+              metalness={0.6}
+            />
+          </mesh>
+          <mesh position={[0, 0.52, -0.35]} rotation={[-0.45, 0, 0]} castShadow>
+            <boxGeometry args={[0.06, 1.05, 0.06]} />
+            <meshStandardMaterial
+              color="#E2E8F0"
+              roughness={0.28}
+              metalness={0.8}
+            />
+          </mesh>
+        </group>
+
+        {/* Equipment & wheel gun caddy stand parked along right wall clear of Bay 2 service lane */}
+        <group position={[BAY_X.bay2 + 3.65, 0, -0.65]}>
           <mesh position={[0, 0.45, 0]} castShadow>
             <boxGeometry args={[0.5, 0.9, 0.85]} />
             <meshStandardMaterial
@@ -790,18 +995,18 @@ export const GarageEquipment: React.FC<GarageEquipmentProps> = ({
           />
         </mesh>
 
-        {/* Illuminated Team Bay Header Billboards on Rear Wall */}
-        <mesh position={[BAY_X.bay1, 3.65, -halfD + 0.14]}>
-          <planeGeometry args={[5.4, 1.35]} />
+        {/* Illuminated Team Bay Header Billboards on Rear Wall (0.65m center gap prevents Z-fighting) */}
+        <mesh position={[BAY_X.bay1 - 0.15, 3.65, -halfD + 0.14]}>
+          <planeGeometry args={[4.55, 1.18]} />
           <meshBasicMaterial map={bay1SignTex} />
         </mesh>
-        <mesh position={[BAY_X.bay2, 3.65, -halfD + 0.14]}>
-          <planeGeometry args={[5.4, 1.35]} />
+        <mesh position={[BAY_X.bay2 + 0.15, 3.65, -halfD + 0.14]}>
+          <planeGeometry args={[4.55, 1.18]} />
           <meshBasicMaterial map={bay2SignTex} />
         </mesh>
       </group>
 
-      {/* EQ-09: Overhead Air Hoses, Cable Protectors & Cooling Blowers */}
+      {/* EQ-09: Floor Cable Protectors & Cooling Blowers (clear sightlines above cars & billboards) */}
       <group name="EQ_09_HOSES_AND_COOLING">
         {/* Yellow-black floor cable ramps along central spine */}
         {[-3.4, -0.4, 2.4].map((zPos, i) => (
@@ -810,22 +1015,6 @@ export const GarageEquipment: React.FC<GarageEquipmentProps> = ({
             <meshStandardMaterial
               color={i % 2 === 0 ? "#EAB308" : "#1E222A"}
               roughness={0.75}
-            />
-          </mesh>
-        ))}
-
-        {/* Overhead pneumatic drop hoses at Bay 1 corners */}
-        {[
-          [BAY_X.bay1 + 1.55, 1.75],
-          [BAY_X.bay1 - 1.55, 1.75],
-          [BAY_X.bay1 + 1.55, -1.85],
-          [BAY_X.bay1 - 1.55, -1.85],
-        ].map(([hx, hz], idx) => (
-          <mesh key={idx} position={[hx, 3.15, hz]}>
-            <cylinderGeometry args={[0.018, 0.018, 2.6, 8]} />
-            <meshStandardMaterial
-              color={idx % 2 === 0 ? team.accentColor : "#38BDF8"}
-              roughness={0.45}
             />
           </mesh>
         ))}
@@ -856,57 +1045,86 @@ export const GarageEquipment: React.FC<GarageEquipmentProps> = ({
         ))}
       </group>
 
-      {/* EQ-10: Rigged 3D Pit Crew performing purposeful garage roles */}
+      {/* EQ-10: Articulated 3D Pit Crew — dedicated service teams for both Bay 1 and Bay 2 */}
       <group name="EQ_10_ARTICULATED_CREW">
-        {/* Corner wheel-gun technician aligned with selected Maintenance corner */}
-        <RiggedPitCrewMember
+        {/* Bay 1 dedicated wheel-gun technician */}
+        <ArticulatedPitCrewMember
           name="CREW_WHEEL_GUNNER"
-          position={gunCrewStandoff}
-          rotationY={gunCrew.rotY}
+          target={bay1WheelGunnerTarget}
+          useBayAvoidance
+          paused={isBay1Paused}
+          reducedMotion={reducedMotion}
           team={team}
           suitRole="primary"
-          animationName={gunCrewCrouched ? "WheelGun_Crouch" : "Idle_Standby"}
-          crouched={gunCrewCrouched}
           holdingGun
           pitCrewAsset={pitCrewAsset}
           logosVersion={logosVersion}
         />
-        {/* Front jack operator standing at Bay 1 nose standoff */}
-        <RiggedPitCrewMember
+        {/* Bay 1 front jack operator */}
+        <ArticulatedPitCrewMember
           name="CREW_FRONT_JACK"
-          position={[frontJackX - 0.35, 0, frontJackZ + 0.4]}
-          rotationY={Math.PI}
+          target={bay1FrontJackTarget}
+          paused={isBay1Paused}
+          reducedMotion={reducedMotion}
           team={team}
           suitRole="secondary"
-          animationName={
-            maintenanceState.step === "LIFT_CAR" ||
-            maintenanceState.step === "APPROACH_JACKS"
-              ? "Jack_Operate"
-              : "Idle_Standby"
-          }
-          crouched={maintenanceState.step === "LIFT_CAR"}
           pitCrewAsset={pitCrewAsset}
           logosVersion={logosVersion}
         />
-        {/* Telemetry engineer at central console desk */}
-        <RiggedPitCrewMember
-          name="CREW_TELEMETRY_ENGINEER"
-          position={[0.82, 0, -3.65]}
-          rotationY={-Math.PI / 2}
+        {/* Bay 1 rear jack operator */}
+        <ArticulatedPitCrewMember
+          name="CREW_REAR_JACK"
+          target={bay1RearJackTarget}
+          paused={isBay1Paused}
+          reducedMotion={reducedMotion}
           team={team}
           suitRole="secondary"
-          animationName="Telemetry_Console"
           pitCrewAsset={pitCrewAsset}
           logosVersion={logosVersion}
         />
-        {/* Bay 2 readiness technician */}
-        <RiggedPitCrewMember
-          name="CREW_BAY2_TECH"
-          position={[BAY_X.bay2 + 1.55, 0, 0.35]}
-          rotationY={-Math.PI / 2}
+        {/* Bay 2 dedicated wheel-gun technician (always stationed at Bay 2 for instant Car 2 Service) */}
+        <ArticulatedPitCrewMember
+          name="CREW_BAY2_WHEEL_GUNNER"
+          target={bay2WheelGunnerTarget}
+          useBayAvoidance
+          paused={isBay2Paused}
+          reducedMotion={reducedMotion}
           team={team}
           suitRole="primary"
-          animationName="Idle_Standby"
+          holdingGun
+          pitCrewAsset={pitCrewAsset}
+          logosVersion={logosVersion}
+        />
+        {/* Bay 2 front jack operator */}
+        <ArticulatedPitCrewMember
+          name="CREW_BAY2_FRONT_JACK"
+          target={bay2FrontJackTarget}
+          paused={isBay2Paused}
+          reducedMotion={reducedMotion}
+          team={team}
+          suitRole="secondary"
+          pitCrewAsset={pitCrewAsset}
+          logosVersion={logosVersion}
+        />
+        {/* Bay 2 rear jack operator */}
+        <ArticulatedPitCrewMember
+          name="CREW_BAY2_REAR_JACK"
+          target={bay2RearJackTarget}
+          paused={isBay2Paused}
+          reducedMotion={reducedMotion}
+          team={team}
+          suitRole="secondary"
+          pitCrewAsset={pitCrewAsset}
+          logosVersion={logosVersion}
+        />
+        {/* Shared telemetry engineer actively scanning & operating central console */}
+        <ArticulatedPitCrewMember
+          name="CREW_TELEMETRY_ENGINEER"
+          target={telemetryEngineerTarget}
+          paused={false}
+          reducedMotion={reducedMotion}
+          team={team}
+          suitRole="secondary"
           pitCrewAsset={pitCrewAsset}
           logosVersion={logosVersion}
         />

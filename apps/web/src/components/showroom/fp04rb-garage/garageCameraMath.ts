@@ -31,7 +31,7 @@ const GARAGE_BOUNDS = {
   minY: 0.34,
   maxY: GARAGE_DIMENSIONS.height - 0.62, // 4.38m (below gantry truss)
   minZ: -(GARAGE_DIMENSIONS.depth / 2 - 0.85), // -5.15m (clear of rear workbench)
-  maxZ: GARAGE_DIMENSIONS.depth / 2 - 0.25, // +5.75m (pit apron threshold)
+  maxZ: GARAGE_DIMENSIONS.depth / 2 + 1.75, // +7.75m (open pit-lane apron vista)
 } as const;
 
 const CAR_HULL = {
@@ -45,13 +45,25 @@ const CAR_HULL = {
  * Clamps any camera position strictly inside the 16x12x5m garage walls/floor/ceiling
  * and pushes the camera outside both car hulls to guarantee zero wall/body clipping.
  */
-export function clampCameraPositionToGarage(pos: THREE.Vector3): THREE.Vector3 {
+export function clampCameraPositionToGarage(
+  pos: THREE.Vector3,
+  allowCockpitInterior = false,
+): THREE.Vector3 {
   const out = pos.clone();
   out.x = THREE.MathUtils.clamp(out.x, GARAGE_BOUNDS.minX, GARAGE_BOUNDS.maxX);
   out.y = THREE.MathUtils.clamp(out.y, GARAGE_BOUNDS.minY, GARAGE_BOUNDS.maxY);
   out.z = THREE.MathUtils.clamp(out.z, GARAGE_BOUNDS.minZ, GARAGE_BOUNDS.maxZ);
 
   for (const bx of [BAY_X.bay1, BAY_X.bay2]) {
+    if (
+      allowCockpitInterior &&
+      Math.abs(out.x - bx) <= 0.42 &&
+      out.y >= 0.7 &&
+      out.z >= CAR_Z_CENTER + 0.04 &&
+      out.z <= CAR_Z_CENTER + 0.68
+    ) {
+      continue;
+    }
     if (
       Math.abs(out.x - bx) < CAR_HULL.halfWidth &&
       out.z > CAR_HULL.minZ &&
@@ -83,13 +95,13 @@ function cornerCloseupOffsets(corner: WheelCorner): {
 } {
   switch (corner) {
     case "FL":
-      return { offset: [2.15, 1.05, 2.75], target: [0.85, 0.36, 1.65] };
+      return { offset: [3.45, 1.82, 4.15], target: [0.82, 0.72, 1.05] };
     case "FR":
-      return { offset: [-2.15, 1.05, 2.75], target: [-0.85, 0.36, 1.65] };
+      return { offset: [-3.45, 1.82, 4.15], target: [-0.82, 0.72, 1.05] };
     case "RL":
-      return { offset: [2.15, 1.05, -0.75], target: [0.85, 0.36, -1.75] };
+      return { offset: [3.45, 1.82, 0.55], target: [0.82, 0.72, -1.65] };
     case "RR":
-      return { offset: [-2.15, 1.05, -0.75], target: [-0.85, 0.36, -1.75] };
+      return { offset: [-3.45, 1.82, 0.55], target: [-0.82, 0.72, -1.65] };
   }
 }
 
@@ -108,8 +120,8 @@ export function resolveGarageCameraPreset(params: {
 
   switch (params.preset) {
     case "pit-lane-overview":
-      rawPos = new THREE.Vector3(0, 2.75, 5.75);
-      target = new THREE.Vector3(0, 0.55, -0.5);
+      rawPos = new THREE.Vector3(0, 3.15, 7.45);
+      target = new THREE.Vector3(0, 0.72, -1.05);
       break;
     case "front":
       rawPos = new THREE.Vector3(bx, 1.05, 4.75);
@@ -188,8 +200,13 @@ export function resolveGarageCameraPreset(params: {
     }
   }
 
+  const allowCockpitInterior =
+    params.preset === "technical-closeup" &&
+    params.mode === "inspection" &&
+    params.selectedPartId === "cockpit";
+
   return {
-    position: clampCameraPositionToGarage(rawPos),
+    position: clampCameraPositionToGarage(rawPos, allowCockpitInterior),
     target,
   };
 }
@@ -198,10 +215,12 @@ export function applyPerspectiveCameraFov(
   camera: THREE.Camera,
   width: number,
   height: number,
+  preset: CameraPresetId = "pit-lane-overview",
 ): void {
   if (!(camera instanceof THREE.PerspectiveCamera)) return;
   const aspect = width / Math.max(1, height);
-  camera.fov = aspect < 0.78 ? 50 : 42;
+  const isOverview = preset === "pit-lane-overview";
+  camera.fov = isOverview ? (aspect < 0.78 ? 58 : 52) : aspect < 0.78 ? 50 : 42;
   camera.updateProjectionMatrix();
 }
 
@@ -244,8 +263,14 @@ export function stepCameraTowardPose(
   return !done;
 }
 
-export function enforceCameraCollisionBounds(camera: THREE.Camera): void {
-  const clamped = clampCameraPositionToGarage(camera.position);
+export function enforceCameraCollisionBounds(
+  camera: THREE.Camera,
+  allowCockpitInterior = false,
+): void {
+  const clamped = clampCameraPositionToGarage(
+    camera.position,
+    allowCockpitInterior,
+  );
   if (clamped.distanceToSquared(camera.position) > 1e-6) {
     camera.position.copy(clamped);
   }

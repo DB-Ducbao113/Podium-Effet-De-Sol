@@ -21,9 +21,8 @@ const ShowroomPage = React.lazy(() => import('./fp04rb-garage/ShowroomPage'));
 const ShowroomReview = import.meta.env.DEV
   ? React.lazy(() => import('../../dev/ShowroomReview'))
   : null;
-// The owner released the opening film for production. The capability tier still
-// decides whether a visitor actually watches it.
-const SHOWROOM_INTRO_ENABLED: boolean = true;
+// Showroom opens directly into the live 3D Pit Garage without the intro overlay.
+const SHOWROOM_INTRO_ENABLED: boolean = false;
 const ShowroomIntroV3 = SHOWROOM_INTRO_ENABLED
   ? React.lazy(() => import('./ShowroomIntroV3'))
   : null;

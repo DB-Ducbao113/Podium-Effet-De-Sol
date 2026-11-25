@@ -269,12 +269,10 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
         prev.step === "IDLE" ? prev : resetMaintenance(prev),
       );
     } else {
-      setBayFocus("bay-1");
       setPreset("technical-closeup");
       setCameraTriggerVersion((v) => v + 1);
     }
     if (nextMode === "inspection") {
-      setBayFocus("bay-1");
       setPreset("technical-closeup");
       setCameraTriggerVersion((v) => v + 1);
     } else if (nextMode === "overview") {
@@ -285,11 +283,9 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
 
   const handleSelectBay = useCallback((nextBay: BayFocus) => {
     setBayFocus(nextBay);
-    if (nextBay === "bay-2") {
-      setMaintenanceState((prev) =>
-        prev.step === "IDLE" ? prev : resetMaintenance(prev),
-      );
-    }
+    setMaintenanceState((prev) =>
+      prev.step === "IDLE" ? prev : resetMaintenance(prev),
+    );
     setCameraTriggerVersion((v) => v + 1);
   }, []);
 
@@ -304,7 +300,6 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
     // Only refocus camera when the GLB actually models that part; never fake focus for unsupported internals
     if (spec?.supported) {
       setMode("inspection");
-      setBayFocus("bay-1");
       setPreset("technical-closeup");
       setCameraTriggerVersion((v) => v + 1);
     }
@@ -550,10 +545,10 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
                   toneMappingExposure: 1.06,
                 }}
                 camera={{
-                  fov: 42,
+                  fov: 52,
                   near: 0.1,
                   far: 80,
-                  position: [0.25, 2.75, 5.75],
+                  position: [0, 3.15, 7.45],
                 }}
                 onCreated={({ gl }) => {
                   glCleanupRef.current?.();
@@ -593,9 +588,11 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
                     team={team}
                     liveryVariant={activeVariantId}
                     qualityTier={lod}
+                    bayFocus={bayFocus}
                     maintenanceState={maintenanceState}
                     activeMode={mode}
                     highlightedPartNode={selectedPart.nodeName}
+                    reducedMotion={reducedMotion}
                     onStatsSample={handleStatsSample}
                   />
                 )}
@@ -823,7 +820,12 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
               </span>
             </div>
 
-            <p className="text-xs text-slate-300">{stepLabel}</p>
+            <p className="text-xs text-slate-300">
+              {bayFocus === "bay-2"
+                ? `${lang === "vi" ? "Khoang 2" : "Bay 2"} (#${team.carNumbers.bay2})`
+                : `${lang === "vi" ? "Khoang 1" : "Bay 1"} (#${team.carNumbers.bay1})`}{" "}
+              · {stepLabel}
+            </p>
 
             {/* Corner selector (FL, FR, RL, RR) */}
             <div
@@ -837,11 +839,14 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
                   type="button"
                   className="peds-garage-btn"
                   aria-pressed={maintenanceState.corner === corner}
-                  onClick={() =>
+                  onClick={() => {
                     setMaintenanceState((prev) =>
                       selectMaintenanceCorner(prev, corner),
-                    )
-                  }
+                    );
+                    if (mode === "maintenance") {
+                      setCameraTriggerVersion((v) => v + 1);
+                    }
+                  }}
                 >
                   {corner}
                 </button>
@@ -856,7 +861,6 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
                 disabled={maintenanceState.status === "running"}
                 onClick={() => {
                   setMode("maintenance");
-                  setBayFocus("bay-1");
                   setPreset("technical-closeup");
                   setCameraTriggerVersion((v) => v + 1);
                   setMaintenanceState((prev) =>

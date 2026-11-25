@@ -4,6 +4,7 @@ import * as SkeletonUtils from "three/examples/jsm/utils/SkeletonUtils.js";
 import { MeshoptDecoder } from "meshoptimizer";
 import { getProcessedLogoCanvas } from "./teamLogos2026";
 import type { Team2026Spec } from "./teams2026";
+import type { BoneRestEntry } from "./pitCrewLocomotion";
 
 export const PIT_CREW_GLB_URL = "/models/fp04rb-pit-crew-v1.glb";
 
@@ -21,6 +22,7 @@ export interface PitCrewInstance {
   root: THREE.Object3D;
   mixer: THREE.AnimationMixer;
   actions: Partial<Record<PitCrewAnimationName, THREE.AnimationAction>>;
+  bones: Map<string, BoneRestEntry>;
   materials: Map<string, THREE.MeshStandardMaterial[]>;
   gunMeshes: THREE.Object3D[];
   ownedTextures: THREE.Texture[];
@@ -104,6 +106,33 @@ export function clonePitCrewInstance(
     }
   });
 
+  root.updateMatrixWorld(true);
+  const rootWorldInv = new THREE.Quaternion();
+  root.getWorldQuaternion(rootWorldInv).invert();
+  const bones = new Map<string, BoneRestEntry>();
+  root.traverse((obj) => {
+    if (obj instanceof THREE.Bone && obj.name) {
+      const parentWorldQ = new THREE.Quaternion();
+      if (obj.parent) {
+        obj.parent.getWorldQuaternion(parentWorldQ);
+        parentWorldQ.premultiply(rootWorldInv);
+      }
+      const entry: BoneRestEntry = {
+        bone: obj,
+        restPosition: obj.position.clone(),
+        restLocalQuaternion: obj.quaternion.clone(),
+        parentRestWorldQuaternion: parentWorldQ,
+      };
+      bones.set(obj.name, entry);
+      // GLTFLoader sanitizes Blender bone names like "Thigh.L" -> "ThighL";
+      // register both forms so procedural kinematics always bind reliably.
+      const stripped = obj.name.replace(/\./g, "");
+      if (stripped !== obj.name) {
+        bones.set(stripped, entry);
+      }
+    }
+  });
+
   const mixer = new THREE.AnimationMixer(root);
   const actions: Partial<Record<PitCrewAnimationName, THREE.AnimationAction>> =
     {};
@@ -116,6 +145,7 @@ export function clonePitCrewInstance(
     root,
     mixer,
     actions,
+    bones,
     materials,
     gunMeshes,
     ownedTextures: [],

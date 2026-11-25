@@ -38,9 +38,18 @@ describe("GarageCameraController & collision bounds", () => {
         expect(pose.position.y).toBeGreaterThanOrEqual(0.34);
         expect(pose.position.y).toBeLessThanOrEqual(4.38);
         expect(pose.position.z).toBeGreaterThanOrEqual(-5.15);
-        expect(pose.position.z).toBeLessThanOrEqual(5.75);
+        expect(pose.position.z).toBeLessThanOrEqual(7.75);
       }
     }
+
+    const overview = resolveGarageCameraPreset({
+      preset: "pit-lane-overview",
+      bayFocus: "bay-1",
+      mode: "overview",
+      selectedPartId: "front-wing",
+      maintenanceCorner: "FL",
+    });
+    expect(overview.position.z).toBeGreaterThanOrEqual(7.0);
   });
 
   it("pushes out cameras that try to penetrate walls or car chassis hulls", () => {
@@ -58,6 +67,17 @@ describe("GarageCameraController & collision bounds", () => {
     const cleared =
       Math.abs(insideCar.x - BAY_X.bay1) >= 1.14 || insideCar.y >= 1.24;
     expect(cleared).toBe(true);
+
+    // Cockpit inspection preset allows unobstructed Driver-POV inside the open cockpit aperture
+    const cockpitPose = resolveGarageCameraPreset({
+      preset: "technical-closeup",
+      bayFocus: "bay-1",
+      mode: "inspection",
+      selectedPartId: "cockpit",
+      maintenanceCorner: "FL",
+    });
+    expect(cockpitPose.position.y).toBeLessThan(1.0);
+    expect(Math.abs(cockpitPose.position.x - BAY_X.bay1)).toBeLessThan(0.5);
   });
 
   it("marks 6 supported external assemblies and 4 truthful unsupported internal items", () => {

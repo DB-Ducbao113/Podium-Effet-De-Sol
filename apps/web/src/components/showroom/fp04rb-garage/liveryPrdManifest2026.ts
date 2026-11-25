@@ -652,8 +652,8 @@ export const PRD_2026_LIVERY_MANIFEST: Record<TeamId, PrdTeamLiveryManifest> = {
         eventOrDate: "2026-02 Launch",
         asymmetricSplit: false,
         summary: {
-          vi: "Bạc #C1C9C9 chuyển sang đen #131719 qua đường PETRONAS teal #0B7776/#22BEB6, hình thoi AMG trên vai và sao 3 cánh trên nắp máy.",
-          en: "Silver #C1C9C9 to obsidian #131719 via low PETRONAS teal sweep, AMG shoulder diamonds & 3-pointed star engine cover pattern.",
+          vi: "Đen Obsidian #0A0D10 chủ đạo toàn thân kết hợp dải PETRONAS teal #00D2BE, mũi bạc mảnh và họa tiết sao 3 cánh bạc trên nắp máy.",
+          en: "Stealth Obsidian Black #0A0D10 full body with vibrant PETRONAS emerald-teal #00D2BE aero sweep, silver nose blade & 3-pointed star engine cover.",
         },
       },
     ],

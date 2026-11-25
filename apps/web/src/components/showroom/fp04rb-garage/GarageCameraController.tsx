@@ -1,17 +1,17 @@
-import React, { useEffect, useRef } from 'react';
-import { OrbitControls } from '@react-three/drei';
-import { useFrame, useThree } from '@react-three/fiber';
-import * as THREE from 'three';
-import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
-import type { WheelCorner } from './fp04rbLoader';
-import type { BayFocus, CameraPresetId, GarageMode } from './inspectionParts';
+import React, { useEffect, useRef } from "react";
+import { OrbitControls } from "@react-three/drei";
+import { useFrame, useThree } from "@react-three/fiber";
+import * as THREE from "three";
+import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
+import type { WheelCorner } from "./fp04rbLoader";
+import type { BayFocus, CameraPresetId, GarageMode } from "./inspectionParts";
 import {
   applyPerspectiveCameraFov,
   enforceCameraCollisionBounds,
   resolveGarageCameraPreset,
   snapCameraPose,
   stepCameraTowardPose,
-} from './garageCameraMath';
+} from "./garageCameraMath";
 
 export interface GarageCameraControllerProps {
   preset: CameraPresetId;
@@ -35,14 +35,16 @@ export const GarageCameraController: React.FC<GarageCameraControllerProps> = ({
 }) => {
   const { camera, size, invalidate } = useThree();
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
-  const desiredPosRef = useRef<THREE.Vector3>(new THREE.Vector3(0.25, 2.75, 5.45));
-  const desiredTargetRef = useRef<THREE.Vector3>(new THREE.Vector3(0, 0.65, -0.8));
+  const desiredPosRef = useRef<THREE.Vector3>(new THREE.Vector3(0, 3.15, 7.45));
+  const desiredTargetRef = useRef<THREE.Vector3>(
+    new THREE.Vector3(0, 0.72, -1.05),
+  );
   const animatingRef = useRef(false);
 
   useEffect(() => {
-    applyPerspectiveCameraFov(camera, size.width, size.height);
+    applyPerspectiveCameraFov(camera, size.width, size.height, preset);
     invalidate();
-  }, [camera, size.width, size.height, invalidate]);
+  }, [camera, size.width, size.height, preset, invalidate]);
 
   useEffect(() => {
     const pose = resolveGarageCameraPreset({
@@ -76,6 +78,11 @@ export const GarageCameraController: React.FC<GarageCameraControllerProps> = ({
     invalidate,
   ]);
 
+  const allowCockpitInterior =
+    mode === "inspection" &&
+    selectedPartId === "cockpit" &&
+    preset === "technical-closeup";
+
   useFrame((_, delta) => {
     if (animatingRef.current) {
       const alpha = 1 - Math.exp(-Math.min(delta, 0.08) * 7.5);
@@ -87,7 +94,7 @@ export const GarageCameraController: React.FC<GarageCameraControllerProps> = ({
         alpha,
       );
     }
-    enforceCameraCollisionBounds(camera);
+    enforceCameraCollisionBounds(camera, allowCockpitInterior);
   });
 
   return (
@@ -100,8 +107,8 @@ export const GarageCameraController: React.FC<GarageCameraControllerProps> = ({
       enablePan
       maxPolarAngle={Math.PI * 0.49}
       minPolarAngle={0.08}
-      minDistance={1.15}
-      maxDistance={10.8}
+      minDistance={0.55}
+      maxDistance={14.0}
       onStart={() => {
         animatingRef.current = false;
       }}

@@ -99,10 +99,10 @@ export function buildLiveryAtlasSummary(
   };
   const sidepodRight = effectiveAsymmetric
     ? {
-      primary: team.secondaryColor,
-      secondary: team.primaryColor,
-      accent: team.accentColor,
-    }
+        primary: team.secondaryColor,
+        secondary: team.primaryColor,
+        accent: team.accentColor,
+      }
     : sidepodLeft;
 
   return {
@@ -509,51 +509,43 @@ function draw2026FlankPattern(
     }
 
     case "mercedes": {
-      // W17 (§3.3): Silver #C1C9C9 forward shoulder transitioning to obsidian #131719 via low PETRONAS
-      // teal sweep (#0B7776 / #22BEB6), AMG diamond motif on upper sidepod shoulder, and 3-pointed star pattern on rear engine cover
-      fillPoly(zp.sidepod, [
+      // Stealth Obsidian Black #0A0D10 full body with vibrant PETRONAS #00D2BE aero sweep & silver stars
+      fillPoly("#0A0D10", [
         [0, 0],
         [1, 0],
         [1, 1],
         [0, 1],
       ]);
-      // Silver Arrow forward shoulder sweep (leaving top spine dark)
-      fillPoly(zp.nose, [
-        [0.44, 0.54],
-        [1.0, 0.34],
-        [1.0, 0.88],
-        [0.42, 0.88],
-      ]);
-      // Low Petronas teal sweep (#0B7776 base + #22BEB6 highlight) rising from front flank to sidepod shoulder
-      fillPoly("#0B7776", [
-        [0.16, 0.31],
+      // Petronas emerald-teal sweep rising along sidepod shoulder
+      fillPoly("#00A19C", [
+        [0.14, 0.32],
         [0.54, 0.42],
         [0.96, 0.26],
-        [0.96, 0.36],
-        [0.54, 0.51],
-        [0.16, 0.4],
+        [0.96, 0.35],
+        [0.54, 0.5],
+        [0.14, 0.4],
       ]);
-      fillPoly("#22BEB6", [
-        [0.16, 0.34],
+      fillPoly("#00D2BE", [
+        [0.14, 0.35],
         [0.54, 0.45],
         [0.96, 0.29],
-        [0.96, 0.33],
-        [0.54, 0.48],
-        [0.16, 0.37],
+        [0.96, 0.325],
+        [0.54, 0.475],
+        [0.14, 0.375],
       ]);
-      // Layer 1: AMG diamond motif (hình thoi AMG) on upper sidepod shoulder
+      // Subtle metallic silver AMG diamonds on obsidian shoulder
       for (let idx = 0; idx < 3; idx++) {
         const [dx, dy] = pt(0.52 + idx * 0.075, 0.66 - idx * 0.03);
         drawAmgDiamond(
           ctx,
           dx,
           dy,
-          Math.max(4, w * 0.016),
-          Math.max(3, h * 0.032),
-          "rgba(19, 23, 25, 0.72)",
+          Math.max(4, w * 0.014),
+          Math.max(3, h * 0.028),
+          "rgba(216, 226, 230, 0.68)",
         );
       }
-      // Layer 2: Repeating Mercedes 3-pointed stars (sao ba cánh) across the dark rear engine cover
+      // Repeating Mercedes 3-pointed stars across obsidian rear engine cover
       for (let r = 0; r < 4; r++) {
         for (let c = 0; c < 3; c++) {
           const [sx, sy] = pt(
@@ -565,7 +557,7 @@ function draw2026FlankPattern(
             sx,
             sy,
             Math.max(4, w * 0.011),
-            "rgba(244, 250, 249, 0.52)",
+            "rgba(244, 250, 249, 0.62)",
           );
         }
       }
@@ -1607,6 +1599,49 @@ function paintFloorAtlas(team: Team2026Spec, size: number): HTMLCanvasElement {
   return canvas;
 }
 
+function drawRadialAeroSpokes(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  innerR: number,
+  outerR: number,
+  count: number,
+  color: string,
+  lineWidth: number,
+  phaseRad = 0,
+): void {
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = lineWidth;
+  for (let i = 0; i < count; i += 1) {
+    const a = phaseRad + (i * Math.PI * 2) / count;
+    ctx.beginPath();
+    ctx.moveTo(cx + Math.cos(a) * innerR, cy + Math.sin(a) * innerR);
+    ctx.lineTo(cx + Math.cos(a) * outerR, cy + Math.sin(a) * outerR);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawSegmentedRing(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  radius: number,
+  lineWidth: number,
+  segments: ReadonlyArray<readonly [number, number, string]>,
+): void {
+  for (const [a0, a1, col] of segments) {
+    ctx.save();
+    ctx.strokeStyle = col;
+    ctx.lineWidth = lineWidth;
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius, a0, a1);
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
 function paintWheelCoverAtlas(
   team: Team2026Spec,
   size: number,
@@ -1618,68 +1653,351 @@ function paintWheelCoverAtlas(
   const cx = size * 0.5;
   const cy = size * 0.5;
 
+  // Deep satin carbon base shared across modern 18" F1 aero wheel covers
   drawCarbonWeaveRect(ctx, 0, 0, size, size, size);
 
-  if (team.id === "mclaren") {
-    // MCL40 Google Chrome 4-quadrant rainbow wheel cover (mclaren-launch-06.webp)
-    const quads: Array<[number, number, string]> = [
-      [-Math.PI * 0.75, -Math.PI * 0.25, "#EA4335"],
-      [-Math.PI * 0.25, Math.PI * 0.25, "#4285F4"],
-      [Math.PI * 0.25, Math.PI * 0.75, "#34A853"],
-      [Math.PI * 0.75, Math.PI * 1.25, "#FBBC05"],
-    ];
-    for (const [a0, a1, col] of quads) {
-      ctx.save();
-      ctx.strokeStyle = col;
-      ctx.lineWidth = size * 0.11;
-      ctx.beginPath();
-      ctx.arc(cx, cy, size * 0.34, a0, a1);
-      ctx.stroke();
-      ctx.restore();
-    }
-    return canvas;
-  }
-
-  if (isCadillacSpa) {
-    // Cadillac MAC-26 Spa white outer wheel-cover ring (cadillac-current-belgium-side.jpg)
-    ctx.save();
-    ctx.strokeStyle = "#EDECE8";
-    ctx.lineWidth = size * 0.13;
-    ctx.beginPath();
-    ctx.arc(cx, cy, size * 0.35, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.restore();
-    return canvas;
-  }
-
-  if (team.id === "racing-bulls") {
-    // VCARB 03 white wheel cover with red center ring (racingbulls-launch-03.webp)
-    ctx.fillStyle = "#E4E8EC";
-    ctx.fillRect(0, 0, size, size);
-    ctx.save();
-    ctx.strokeStyle = "#D93439";
-    ctx.lineWidth = size * 0.05;
-    ctx.beginPath();
-    ctx.arc(cx, cy, size * 0.19, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.restore();
-    return canvas;
-  }
-
-  // Standard 2026 dark carbon aero wheel cover with subtle rim accent ring
+  // Subtle recessed inner dish shading so the wheel cover reads with genuine 3D depth
   ctx.save();
-  ctx.strokeStyle =
-    team.id === "williams"
-      ? "#7E57C2"
-      : team.id === "audi"
-        ? "#F02B22"
-        : "#2A3038";
-  ctx.lineWidth = size * 0.045;
+  ctx.strokeStyle = "rgba(255,255,255,0.06)";
+  ctx.lineWidth = size * 0.012;
   ctx.beginPath();
-  ctx.arc(cx, cy, size * 0.36, 0, Math.PI * 2);
+  ctx.arc(cx, cy, size * 0.25, 0, Math.PI * 2);
   ctx.stroke();
   ctx.restore();
-  return canvas;
+
+  switch (team.id) {
+    case "mclaren": {
+      // MCL40 Google Chrome 4-quadrant racing ring + papaya inner hub collar
+      drawRadialAeroSpokes(
+        ctx,
+        cx,
+        cy,
+        size * 0.16,
+        size * 0.29,
+        8,
+        "rgba(255,255,255,0.09)",
+        size * 0.012,
+      );
+      drawSegmentedRing(ctx, cx, cy, size * 0.355, size * 0.115, [
+        [-Math.PI * 0.74, -Math.PI * 0.26, "#EA4335"],
+        [-Math.PI * 0.24, Math.PI * 0.24, "#4285F4"],
+        [Math.PI * 0.26, Math.PI * 0.74, "#34A853"],
+        [Math.PI * 0.76, Math.PI * 1.24, "#FBBC05"],
+      ]);
+      // Crisp papaya precision inner hub ring
+      ctx.save();
+      ctx.strokeStyle = "#EF6E12";
+      ctx.lineWidth = size * 0.022;
+      ctx.beginPath();
+      ctx.arc(cx, cy, size * 0.195, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+      return canvas;
+    }
+
+    case "ferrari": {
+      // Scuderia Maranello Rosso Corsa outer speed-arcs + Modena Yellow precision hub ring + 5 turbine ribs
+      drawRadialAeroSpokes(
+        ctx,
+        cx,
+        cy,
+        size * 0.17,
+        size * 0.31,
+        5,
+        "rgba(242, 240, 235, 0.24)",
+        size * 0.02,
+        -Math.PI * 0.5,
+      );
+      drawSegmentedRing(ctx, cx, cy, size * 0.36, size * 0.088, [
+        [-Math.PI * 0.92, -Math.PI * 0.08, "#D9182B"],
+        [Math.PI * 0.08, Math.PI * 0.92, "#D9182B"],
+        [-Math.PI * 0.05, Math.PI * 0.05, "#FFE045"],
+        [Math.PI * 0.95, Math.PI * 1.05, "#FFE045"],
+      ]);
+      ctx.save();
+      ctx.strokeStyle = "#FFE045";
+      ctx.lineWidth = size * 0.032;
+      ctx.beginPath();
+      ctx.arc(cx, cy, size * 0.205, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+      return canvas;
+    }
+
+    case "mercedes": {
+      // Stealth Obsidian Black + vibrant PETRONAS emerald-teal outer ring + silver 3-pointed star spokes
+      ctx.fillStyle = "#090C0F";
+      ctx.fillRect(0, 0, size, size);
+      drawRadialAeroSpokes(
+        ctx,
+        cx,
+        cy,
+        size * 0.14,
+        size * 0.34,
+        3,
+        "#D8E2E5",
+        size * 0.028,
+        -Math.PI * 0.5,
+      );
+      drawRadialAeroSpokes(
+        ctx,
+        cx,
+        cy,
+        size * 0.22,
+        size * 0.34,
+        3,
+        "rgba(0, 210, 190, 0.42)",
+        size * 0.012,
+        Math.PI * 0.5,
+      );
+      // Luminous Petronas emerald-teal outer aero rim ring
+      ctx.save();
+      ctx.strokeStyle = "#00D2BE";
+      ctx.lineWidth = size * 0.072;
+      ctx.beginPath();
+      ctx.arc(cx, cy, size * 0.37, 0, Math.PI * 2);
+      ctx.stroke();
+      // Fine silver inner hub halo
+      ctx.strokeStyle = "#DCE5E8";
+      ctx.lineWidth = size * 0.02;
+      ctx.beginPath();
+      ctx.arc(cx, cy, size * 0.19, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+      return canvas;
+    }
+
+    case "red-bull": {
+      // Milton Keynes Midnight Navy-Carbon + Crimson Red outer speed arcs + Sun-Gold inner precision ring
+      ctx.fillStyle = "#0D1A3B";
+      ctx.fillRect(0, 0, size, size);
+      drawRadialAeroSpokes(
+        ctx,
+        cx,
+        cy,
+        size * 0.17,
+        size * 0.33,
+        6,
+        "rgba(255, 255, 255, 0.14)",
+        size * 0.018,
+      );
+      drawSegmentedRing(ctx, cx, cy, size * 0.365, size * 0.085, [
+        [-Math.PI * 0.88, -Math.PI * 0.12, "#E32C31"],
+        [Math.PI * 0.12, Math.PI * 0.88, "#E32C31"],
+        [-Math.PI * 0.08, Math.PI * 0.08, "#FFCE00"],
+        [Math.PI * 0.92, Math.PI * 1.08, "#FFCE00"],
+      ]);
+      ctx.save();
+      ctx.strokeStyle = "#FFCE00";
+      ctx.lineWidth = size * 0.036;
+      ctx.beginPath();
+      ctx.arc(cx, cy, size * 0.2, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+      return canvas;
+    }
+
+    case "racing-bulls": {
+      // VCARB Faenza gloss white aero disc with cobalt blue outer bevel, 8 dark vents & red center ring
+      ctx.fillStyle = "#EBF0F3";
+      ctx.fillRect(0, 0, size, size);
+      drawRadialAeroSpokes(
+        ctx,
+        cx,
+        cy,
+        size * 0.22,
+        size * 0.34,
+        8,
+        "rgba(22, 63, 155, 0.24)",
+        size * 0.016,
+      );
+      ctx.save();
+      ctx.strokeStyle = "#1C4AA9";
+      ctx.lineWidth = size * 0.055;
+      ctx.beginPath();
+      ctx.arc(cx, cy, size * 0.39, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.strokeStyle = "#D93439";
+      ctx.lineWidth = size * 0.052;
+      ctx.beginPath();
+      ctx.arc(cx, cy, size * 0.2, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+      return canvas;
+    }
+
+    case "aston-martin": {
+      // Silverstone British Racing Green dish + iconic AMR Lime outer ring & 6 swept aero louvers
+      ctx.fillStyle = "#063C30";
+      ctx.fillRect(0, 0, size, size);
+      drawRadialAeroSpokes(
+        ctx,
+        cx,
+        cy,
+        size * 0.17,
+        size * 0.34,
+        6,
+        "rgba(201, 223, 67, 0.34)",
+        size * 0.016,
+        Math.PI / 6,
+      );
+      ctx.save();
+      ctx.strokeStyle = "#C9DF43";
+      ctx.lineWidth = size * 0.072;
+      ctx.beginPath();
+      ctx.arc(cx, cy, size * 0.37, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.strokeStyle = "#E7F4A8";
+      ctx.lineWidth = size * 0.022;
+      ctx.beginPath();
+      ctx.arc(cx, cy, size * 0.195, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+      return canvas;
+    }
+
+    case "alpine": {
+      // Enstone Alpine Metallic Blue dish + BWT Pink dual-arc outer rim & pearl-white hub ring
+      ctx.fillStyle = "#0A3E7A";
+      ctx.fillRect(0, 0, size, size);
+      drawRadialAeroSpokes(
+        ctx,
+        cx,
+        cy,
+        size * 0.17,
+        size * 0.33,
+        5,
+        "rgba(244, 241, 243, 0.24)",
+        size * 0.018,
+      );
+      drawSegmentedRing(ctx, cx, cy, size * 0.365, size * 0.088, [
+        [-Math.PI * 0.85, -Math.PI * 0.15, "#F17EB6"],
+        [Math.PI * 0.15, Math.PI * 0.85, "#F17EB6"],
+        [-Math.PI * 0.12, Math.PI * 0.12, "#1959C6"],
+        [Math.PI * 0.88, Math.PI * 1.12, "#1959C6"],
+      ]);
+      ctx.save();
+      ctx.strokeStyle = "#F4F1F3";
+      ctx.lineWidth = size * 0.028;
+      ctx.beginPath();
+      ctx.arc(cx, cy, size * 0.2, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+      return canvas;
+    }
+
+    case "williams": {
+      // Grove Royal Blue dish + vibrant Barclays Cyan outer speed-ring + heritage Red/White quarter ticks
+      ctx.fillStyle = "#0F2F73";
+      ctx.fillRect(0, 0, size, size);
+      drawRadialAeroSpokes(
+        ctx,
+        cx,
+        cy,
+        size * 0.17,
+        size * 0.33,
+        8,
+        "rgba(241, 242, 240, 0.18)",
+        size * 0.014,
+      );
+      drawSegmentedRing(ctx, cx, cy, size * 0.365, size * 0.085, [
+        [-Math.PI * 0.85, -Math.PI * 0.15, "#30A5D2"],
+        [Math.PI * 0.15, Math.PI * 0.85, "#30A5D2"],
+        [-Math.PI * 0.12, Math.PI * 0.12, "#D32E37"],
+        [Math.PI * 0.88, Math.PI * 1.12, "#F1F2F0"],
+      ]);
+      ctx.save();
+      ctx.strokeStyle = "#F1F2F0";
+      ctx.lineWidth = size * 0.024;
+      ctx.beginPath();
+      ctx.arc(cx, cy, size * 0.2, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+      return canvas;
+    }
+
+    case "haas": {
+      // Haas TGR Tri-Color: carbon core + stark Pearl White & Gazoo Crimson opposing rim arcs
+      drawRadialAeroSpokes(
+        ctx,
+        cx,
+        cy,
+        size * 0.17,
+        size * 0.33,
+        6,
+        "rgba(232, 233, 230, 0.2)",
+        size * 0.016,
+      );
+      drawSegmentedRing(ctx, cx, cy, size * 0.365, size * 0.09, [
+        [-Math.PI * 0.94, -Math.PI * 0.06, "#E8E9E6"],
+        [Math.PI * 0.06, Math.PI * 0.94, "#D51C2D"],
+      ]);
+      ctx.save();
+      ctx.strokeStyle = "#D51C2D";
+      ctx.lineWidth = size * 0.032;
+      ctx.beginPath();
+      ctx.arc(cx, cy, size * 0.2, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+      return canvas;
+    }
+
+    case "audi": {
+      // Audi Sport Neuburg: brushed Titanium-Carbon radial dish + bold Lava Red split ring + 4 silver bars
+      drawRadialAeroSpokes(
+        ctx,
+        cx,
+        cy,
+        size * 0.16,
+        size * 0.33,
+        4,
+        "#C5C9C8",
+        size * 0.026,
+        Math.PI * 0.25,
+      );
+      drawSegmentedRing(ctx, cx, cy, size * 0.368, size * 0.086, [
+        [-Math.PI * 0.72, -Math.PI * 0.28, "#F02B22"],
+        [-Math.PI * 0.22, Math.PI * 0.22, "#AEB2B1"],
+        [Math.PI * 0.28, Math.PI * 0.72, "#F02B22"],
+        [Math.PI * 0.78, Math.PI * 1.22, "#AEB2B1"],
+      ]);
+      ctx.save();
+      ctx.strokeStyle = "#F02B22";
+      ctx.lineWidth = size * 0.026;
+      ctx.beginPath();
+      ctx.arc(cx, cy, size * 0.195, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+      return canvas;
+    }
+
+    case "cadillac": {
+      // Cadillac MAC-26: Pearl White architectural outer ring (Spa) or brushed Platinum dual ring (Debut)
+      drawRadialAeroSpokes(
+        ctx,
+        cx,
+        cy,
+        size * 0.16,
+        size * 0.33,
+        8,
+        "rgba(237, 236, 232, 0.24)",
+        size * 0.016,
+      );
+      ctx.save();
+      ctx.strokeStyle = isCadillacSpa ? "#EDECE8" : "#BCC0BF";
+      ctx.lineWidth = isCadillacSpa ? size * 0.125 : size * 0.078;
+      ctx.beginPath();
+      ctx.arc(cx, cy, size * 0.358, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.strokeStyle = "#BCC0BF";
+      ctx.lineWidth = size * 0.026;
+      ctx.beginPath();
+      ctx.arc(cx, cy, size * 0.2, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+      return canvas;
+    }
+  }
 }
 
 function paintSolidAccentAtlas(
@@ -1796,7 +2114,7 @@ export function createTeamLiveryTextures(
     paintSolidAccentAtlas("#181B20", "#181B20", null, "", smallSize),
   );
   const wheelCovers = makeTextureFromCanvas(
-    paintWheelCoverAtlas(team, smallSize, effectiveVariant),
+    paintWheelCoverAtlas(team, 512, effectiveVariant),
   );
   const carbonRoughness = makeTextureFromCanvas(
     paintCarbonRoughnessAtlas(256),
@@ -1961,11 +2279,28 @@ export function applyLiveryInPlace(
                       : team.id === "audi"
                         ? "#F02B22"
                         : "#111315";
+  const wheelCoverLip =
+    team.id === "racing-bulls"
+      ? "#DCE2E8"
+      : team.id === "ferrari"
+        ? "#2A1114"
+        : team.id === "mercedes"
+          ? "#0B1919"
+          : team.id === "aston-martin"
+            ? "#0A261E"
+            : team.id === "red-bull"
+              ? "#0F1938"
+              : team.id === "alpine"
+                ? "#0E2346"
+                : team.id === "williams"
+                  ? "#102454"
+                  : "#161920";
   const tintSlots: [string, string, number, number][] = [
     ["audi_red", wingEdgeAccent, 0.22, 0.3],
     ["audi_white", zp.wing, 0.15, 0.34],
-    ["reflex_yellow", wingEdgeAccent, 0.2, 0.25],
-    ["Paint_wheel_cover", "#161920", 0.2, 0.38],
+    ["reflex_yellow", wingEdgeAccent, 0.24, 0.24],
+    ["Paint_wheel_cover", wheelCoverLip, 0.26, 0.32],
+    ["Glossy Paint_wheel", "#12151B", 0.55, 0.24],
     ["cockpit_foam_texture", "#181B20", 0.05, 0.72],
   ];
   for (const [slotName, hexColor, metalness, roughness] of tintSlots) {
@@ -1978,6 +2313,36 @@ export function applyLiveryInPlace(
       mat.roughness = roughness;
       mat.needsUpdate = true;
     }
+  }
+
+  // Calibrate F1 slick rubber tread to rich dark motorsport vulcanized rubber (eliminating chalky grey washout)
+  for (const tyreSlot of ["Tyre Thread ", "Tyre Thread"]) {
+    const tyreMats = carInstance.paintMaterials.get(tyreSlot);
+    if (!tyreMats) continue;
+    for (const mat of tyreMats) {
+      mat.color.set("#3A3F48");
+      mat.metalness = 0.04;
+      mat.roughness = 0.74;
+      mat.needsUpdate = true;
+    }
+  }
+
+  // Anodize the 4 center-lock wheel nuts cleanly in each team's racing accent (without affecting cockpit hardware)
+  for (const corner of ["FL", "FR", "RL", "RR"] as const) {
+    const nutObj = carInstance.corners[corner]?.wheelNut;
+    if (!nutObj) continue;
+    nutObj.traverse((obj) => {
+      if (!(obj instanceof THREE.Mesh)) return;
+      const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+      for (const m of mats) {
+        if (m instanceof THREE.MeshStandardMaterial) {
+          m.color.set(wingEdgeAccent);
+          m.metalness = 0.78;
+          m.roughness = 0.22;
+          m.needsUpdate = true;
+        }
+      }
+    });
   }
 
   // Apply realistic dark satin carbon fiber to all raw GLB carbon slots

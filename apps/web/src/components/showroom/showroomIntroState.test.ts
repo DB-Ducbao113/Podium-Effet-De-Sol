@@ -211,12 +211,19 @@ describe("showroom intro production media manifest", () => {
     ),
   ) as {
     release: string;
-    files: { publicPath: string; type: string; bytes: number; sha256: string }[];
+    files: {
+      publicPath: string;
+      type: string;
+      bytes: number;
+      sha256: string;
+    }[];
   };
 
   it("publishes the media for production and lists exactly the three released files", () => {
     expect(manifest.release).toBe("production");
-    expect(manifest.files.map((asset) => asset.publicPath.split("/").pop()).sort()).toEqual([
+    expect(
+      manifest.files.map((asset) => asset.publicPath.split("/").pop()).sort(),
+    ).toEqual([
       "intro-poster.webp",
       "intro-tunnel-540.mp4",
       "intro-tunnel-720.webm",
@@ -250,12 +257,12 @@ describe("showroom intro production media manifest", () => {
 });
 
 describe("showroom intro production isolation", () => {
-  it("enables the intro for the production build in ShowroomView", () => {
+  it("keeps the intro disabled by default in ShowroomView while preserving lazy isolation", () => {
     const source = readFileSync(
       "src/components/showroom/ShowroomView.tsx",
       "utf8",
     );
-    expect(source).toContain("const SHOWROOM_INTRO_ENABLED: boolean = true;");
+    expect(source).toContain("const SHOWROOM_INTRO_ENABLED: boolean = false;");
     expect(source).toContain("React.lazy(() => import('./ShowroomIntroV3'))");
     expect(source).toContain(
       "const introEnabled = SHOWROOM_INTRO_ENABLED && ShowroomIntroV3 !== null;",

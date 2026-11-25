@@ -15,7 +15,7 @@ import {
 const SDD_PALETTE: Record<TeamId, [string, string, string]> = {
   mclaren: ["#F48220", "#161A20", "#30A4A8"],
   ferrari: ["#D9182B", "#F2F0EB", "#FFE045"],
-  mercedes: ["#B8C3C8", "#101416", "#22BEB6"],
+  mercedes: ["#0D1114", "#181E24", "#00D2BE"],
   "red-bull": ["#172857", "#F1F2EE", "#E32C31"],
   "racing-bulls": ["#E9EDEF", "#2149A0", "#D93439"],
   "aston-martin": ["#075544", "#12241E", "#C9DF43"],

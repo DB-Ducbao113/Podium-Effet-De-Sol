@@ -722,46 +722,59 @@ export function createBodyCarSpaceAtlas(
     }
 
     case "mercedes": {
-      // W17 calibrated to mercedes-launch-01.webp & mercedes-launch-04.webp
-      ctx.fillStyle = "#131719";
+      // Stealth Obsidian Jet-Black #0A0D10 full body with vibrant PETRONAS #00D2BE aero ribbons,
+      // fine silver AMG shoulder slashes, and cascading 3-pointed stars across the rear engine cover
+      ctx.fillStyle = "#0A0D10";
       ctx.fillRect(0, 0, canvas.width, ph);
 
       for (const s of sides) {
-        // Silver Arrow nose & upper forward sidepod shoulder
-        fillSidePoly(s, "#C1C9C9", [
-          [3.12, 0.22],
-          [1.65, 0.38],
-          [0.75, 0.48],
-          [-0.28, 0.64],
-          [-0.78, 0.72],
-          [-0.78, 0.86],
-          [0.95, 0.76],
-          [3.12, 0.56],
+        // Deep carbon lower undercut
+        fillSidePoly(s, "#07090B", [
+          [2.2, 0.08],
+          [-1.85, 0.08],
+          [-1.85, 0.24],
+          [2.2, 0.24],
         ]);
-        // Flowing Petronas emerald-teal ribbon (#00A19C + #22BEB6) bordering silver-to-black transition
+        // Sleek brushed-silver narrow nose-ridge highlight fading into obsidian black
+        fillSidePoly(s, "#B9C5C8", [
+          [3.12, 0.26],
+          [2.15, 0.37],
+          [1.45, 0.45],
+          [1.45, 0.485],
+          [2.15, 0.415],
+          [3.12, 0.31],
+        ]);
+        // Flowing Petronas emerald-teal ribbon (#00D2BE) sweeping from nose across sidepod flank
+        fillSidePoly(s, "#00D2BE", [
+          [2.95, 0.23],
+          [1.55, 0.36],
+          [0.58, 0.49],
+          [-0.38, 0.56],
+          [-1.24, 0.47],
+          [-1.24, 0.525],
+          [-0.38, 0.62],
+          [0.58, 0.55],
+          [1.55, 0.41],
+          [2.95, 0.27],
+        ]);
+        // Fine lower Petronas floor-edge aero stripe
         fillSidePoly(s, "#00A19C", [
-          [2.75, 0.28],
-          [1.35, 0.39],
-          [0.52, 0.49],
-          [-0.35, 0.56],
-          [-1.12, 0.48],
-          [-1.12, 0.53],
-          [-0.35, 0.62],
-          [0.52, 0.55],
-          [1.35, 0.44],
-          [2.75, 0.32],
+          [1.85, 0.14],
+          [-1.55, 0.14],
+          [-1.55, 0.175],
+          [1.85, 0.175],
         ]);
-        // Layer 1: Bold angled black AMG rhombi/stripes cutting across the silver upper shoulder
+        // 3 sharp brushed-silver AMG parallelogram slashes on the obsidian upper shoulder
         for (let idx = 0; idx < 3; idx++) {
-          const zBase = 0.28 - idx * 0.28;
-          fillSidePoly(s, "#131719", [
-            [zBase, 0.56],
-            [zBase - 0.11, 0.56],
-            [zBase - 0.26, 0.74],
-            [zBase - 0.15, 0.74],
+          const zBase = 0.24 - idx * 0.26;
+          fillSidePoly(s, "rgba(216, 226, 230, 0.72)", [
+            [zBase, 0.6],
+            [zBase - 0.085, 0.6],
+            [zBase - 0.21, 0.76],
+            [zBase - 0.125, 0.76],
           ]);
         }
-        // Layer 2: Repeating Mercedes 3-pointed stars across dark rear engine cover
+        // Repeating silver Mercedes 3-pointed stars across the obsidian rear engine cover
         for (let r = 0; r < 5; r++) {
           for (let c = 0; c < 3; c++) {
             const zStar = -0.78 - r * 0.19 - (c % 2) * 0.07;
@@ -773,18 +786,17 @@ export function createBodyCarSpaceAtlas(
               sy,
               pw * 0.0085,
               ph * 0.022,
-              "rgba(232, 240, 242, 0.62)",
+              "rgba(232, 240, 242, 0.68)",
             );
           }
         }
 
-        // Logos calibrated to mercedes-launch-01.webp
         drawSideLogo(
           s,
           { key: "petronas", tone: "light" },
           "PETRONAS",
           -0.18,
-          0.42,
+          0.4,
           0.92,
           0.18,
           0.04,
@@ -799,49 +811,41 @@ export function createBodyCarSpaceAtlas(
           0.13,
           0,
         );
-        drawSideText(s, carNumber, -1.42, 0.74, 0.16, "#131719", "#22BEB6");
+        drawSideText(s, carNumber, -1.42, 0.74, 0.16, "#FFFFFF", "#00D2BE");
       }
 
-      // Top View calibrated to mercedes-launch-04.webp: silver nose & two broad silver sidepod shoulders
-      // with 3 angled black AMG bands, framing an obsidian black central cockpit-airbox-cover spine
-      fillTopPoly("#C1C9C9", [
-        [-0.2, 3.12],
-        [0.2, 3.12],
-        [0.26, 1.05],
-        [-0.26, 1.05],
-      ]);
-      // Left & right broad silver sidepod shoulders
+      // Top View: Stealth obsidian jet-black nose, cockpit & sidepods with Petronas teal shoulder sweep
       for (const sign of [-1, 1]) {
-        fillTopPoly("#C1C9C9", [
-          [sign * 0.22, 0.96],
-          [sign * 0.64, 0.68],
-          [sign * 0.62, -0.58],
-          [sign * 0.34, -0.88],
-          [sign * 0.24, -0.35],
+        // Crisp Petronas emerald-teal pinstripe tracing nose & sidepod shoulders
+        fillTopPoly("#00D2BE", [
+          [sign * 0.14, 2.9],
+          [sign * 0.175, 2.9],
+          [sign * 0.25, 1.02],
+          [sign * 0.62, 0.68],
+          [sign * 0.62, -0.45],
+          [sign * 0.56, -0.45],
+          [sign * 0.56, 0.64],
+          [sign * 0.21, 0.99],
         ]);
-        // Petronas teal leading-edge sweep on top shoulder
-        fillTopPoly("#00A19C", [
-          [sign * 0.16, 2.85],
-          [sign * 0.2, 2.85],
-          [sign * 0.28, 1.0],
-          [sign * 0.65, 0.68],
-          [sign * 0.65, 0.45],
-          [sign * 0.58, 0.45],
-          [sign * 0.58, 0.64],
-          [sign * 0.23, 0.98],
-        ]);
-        // 3 bold black AMG parallelogram stripes on each silver top shoulder
+        // Subtle metallic silver AMG shoulder slashes on obsidian sidepod top
         for (let idx = 0; idx < 3; idx++) {
           const zStart = 0.26 - idx * 0.3;
-          fillTopPoly("#131719", [
-            [sign * 0.25, zStart],
-            [sign * 0.25, zStart - 0.12],
-            [sign * 0.58, zStart - 0.34],
-            [sign * 0.58, zStart - 0.22],
+          fillTopPoly("rgba(216, 226, 230, 0.65)", [
+            [sign * 0.27, zStart],
+            [sign * 0.27, zStart - 0.09],
+            [sign * 0.54, zStart - 0.28],
+            [sign * 0.54, zStart - 0.19],
           ]);
         }
       }
-      // 3-pointed stars along the black rear engine cover in Top view
+      // Subtle silver nose-tip V-accent framing the glowing silver Mercedes star
+      fillTopPoly("rgba(216, 226, 230, 0.28)", [
+        [-0.08, 3.12],
+        [0.08, 3.12],
+        [0.14, 2.55],
+        [-0.14, 2.55],
+      ]);
+      // 3-pointed stars along the obsidian rear engine cover in Top view
       for (let r = 0; r < 5; r++) {
         for (const xStar of [-0.18, -0.07, 0.07, 0.18]) {
           const [sx, sy] = topPt(
@@ -854,21 +858,21 @@ export function createBodyCarSpaceAtlas(
             sy,
             pw * 0.011,
             ph * 0.014,
-            "rgba(232, 240, 242, 0.55)",
+            "rgba(232, 240, 242, 0.62)",
           );
         }
       }
       drawTopLogo(
-        { key: "mercedes", tone: "dark" },
+        { key: "mercedes", tone: "light" },
         "MB",
         0,
         2.84,
         0.16,
         0.18,
         0,
-        "#131719",
+        "#F2F7F8",
       );
-      drawTopNumber(carNumber, 1.98, "#131719", "#F4FAF9", 0.32);
+      drawTopNumber(carNumber, 1.98, "#FFFFFF", "#00D2BE", 0.32);
       break;
     }
 
