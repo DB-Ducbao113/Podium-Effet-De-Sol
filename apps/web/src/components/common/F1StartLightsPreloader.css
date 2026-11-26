@@ -1,43 +1,65 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   PODIUM — EFFET DE SOL | Storm Midnight Liquid Glass Start-Lights Intro
+   100% GPU-composited motion (transform + opacity only) with coordinated
+   intro-to-homepage reveal choreography.
+   ───────────────────────────────────────────────────────────────────────────── */
+
 .podium-intro {
-  --intro-red: #ff3028;
+  --intro-bg: #070b14;
+  --intro-ink: #f5f2ea;
+  --intro-muted: #9eb0c6;
+  --intro-red: #ff3b28;
+  --intro-accent: #ff4a18;
+  --intro-accent-soft: #ff6a3d;
+  --intro-cyan: #72e0ff;
+  --intro-line: rgba(255, 255, 255, 0.14);
+  --intro-glass: rgba(15, 24, 39, 0.62);
+  --intro-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --intro-ease-exit: cubic-bezier(0.22, 1, 0.36, 1);
+
   position: fixed;
   inset: 0;
   z-index: 9999;
   overflow: hidden;
   isolation: isolate;
-  color: #fff;
+  color: var(--intro-ink);
   font-family: var(--peds-font-body);
   user-select: none;
+  -webkit-font-smoothing: antialiased;
 }
 
+.podium-intro[data-revealing="true"] {
+  pointer-events: none;
+}
+
+/* Smooth full-viewport Storm obsidian curtain — zero clip-path repaint jank */
 .podium-intro__sheet {
   position: absolute;
-  inset: -1px -1px -1px calc(-24vh / var(--peds-visual-zoom));
-  background: #07080b;
-  /* Static silhouette: only the transform moves during the reveal. */
-  clip-path: polygon(calc(24vh / var(--peds-visual-zoom)) 0, 100% 0, 100% 100%, 0 100%);
+  inset: 0;
+  background: var(--intro-bg);
+  transform: translate3d(0, 0, 0) scale(1);
+  opacity: 1;
+  will-change: transform, opacity;
 }
 
-.podium-intro[data-phase='lights-out'] .podium-intro__sheet,
-.podium-intro[data-phase='launch'] .podium-intro__sheet {
-  will-change: transform;
+.podium-intro[data-phase="launch"] .podium-intro__sheet {
+  animation: podiumLaunchReveal var(--intro-reveal-duration, 500ms)
+    var(--intro-ease-exit) var(--intro-logo-hold, 800ms) both;
+}
+
+.podium-intro[data-skipping="true"] .podium-intro__sheet {
+  animation: podiumSkipDissolve var(--intro-skip-duration, 260ms)
+    var(--intro-ease-exit) both;
 }
 
 .podium-intro__scene {
   position: absolute;
-  inset: 0 0 0 calc(24vh / var(--peds-visual-zoom));
+  inset: 0;
   overflow: hidden;
 }
 
-.podium-intro__edge {
-  opacity: 0;
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: calc(24vh / var(--peds-visual-zoom) + 8px);
-  background: linear-gradient(100deg, #a20c09, var(--intro-red) 65%, #fff);
-  clip-path: polygon(calc(100% - 8px) 0, 100% 0, 8px 100%, 0 100%);
-}
-
+/* Storm Midnight atmospheric mist matching stormShell.css exactly */
+.podium-intro__atmosphere,
 .podium-intro__grid,
 .podium-intro__vignette,
 .podium-intro__flash {
@@ -46,64 +68,130 @@
   pointer-events: none;
 }
 
+.podium-intro__atmosphere {
+  background:
+    radial-gradient(
+      90% 62% at 78% 12%,
+      rgba(28, 62, 102, 0.36),
+      transparent 70%
+    ),
+    radial-gradient(
+      58% 48% at 22% 82%,
+      rgba(114, 224, 255, 0.08),
+      transparent 68%
+    ),
+    radial-gradient(
+      60% 42% at 50% 56%,
+      rgba(255, 74, 24, 0.06),
+      transparent 72%
+    );
+}
+
 .podium-intro__grid {
   background-image:
-    linear-gradient(#ffffff06 1px, transparent 1px),
-    linear-gradient(90deg, #ffffff06 1px, transparent 1px);
-  background-size: 72px 72px;
+    linear-gradient(rgba(255, 255, 255, 0.028) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.028) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(
+    ellipse 74% 68% at 50% 50%,
+    #000 35%,
+    transparent 100%
+  );
   opacity: 0;
-  animation: podiumGridWake var(--intro-grid-wake-duration, 1s) ease-out forwards;
+  animation: podiumGridWake var(--intro-grid-wake-duration, 260ms)
+    var(--intro-ease-out) forwards;
 }
 
 .podium-intro__vignette {
-  background: radial-gradient(ellipse at center, transparent 10%, #000 85%);
-  opacity: 0.55;
-  transition: opacity 0.2s ease-out;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 24%,
+    rgba(5, 8, 14, 0.72) 100%
+  );
+  opacity: 0.72;
+  transition: opacity 280ms var(--intro-ease-out);
 }
 
-.podium-intro[data-phase='hold'] .podium-intro__vignette {
-  opacity: 0.95;
+.podium-intro[data-phase="hold"] .podium-intro__vignette {
+  opacity: 0.94;
 }
 
+/* Hairline cyan-to-coral radar horizon sweep */
 .podium-intro__sweep {
   position: absolute;
-  top: 48%;
+  top: 50%;
   left: 0;
   width: 100%;
   height: 1px;
-  background: linear-gradient(90deg, transparent, #a50b07, #ff7970, transparent);
-  box-shadow: 0 0 18px 2px #e1060040;
-  animation: podiumGridSweep var(--intro-sweep-duration, 0.85s) cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(114, 224, 255, 0.55) 30%,
+    rgba(255, 74, 24, 0.78) 65%,
+    transparent 100%
+  );
+  opacity: 0;
+  animation: podiumGridSweep var(--intro-sweep-duration, 320ms)
+    var(--intro-ease-out) both;
 }
 
+/* Persistent smooth-scaling ambient crimson glow (no per-light DOM remount) */
+.podium-intro__pressure {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(860px, 130vw / var(--peds-visual-zoom));
+  height: min(540px, 78vh / var(--peds-visual-zoom));
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 59, 40, 0.28) 0%,
+    rgba(255, 74, 24, 0.1) 42%,
+    transparent 72%
+  );
+  opacity: calc(var(--pressure-level, 0) * 0.92);
+  transform: translate3d(-50%, -50%, 0)
+    scale(calc(0.76 + var(--pressure-level, 0) * 0.34));
+  transition:
+    opacity 220ms var(--intro-ease-out),
+    transform 260ms var(--intro-ease-out);
+  pointer-events: none;
+}
+
+/* Top-left Storm editorial signature */
 .podium-intro__signature {
   position: absolute;
-  top: clamp(24px, 5vh / var(--peds-visual-zoom), 56px);
-  left: clamp(24px, 5vw / var(--peds-visual-zoom), 80px);
+  top: clamp(22px, 4.4vh / var(--peds-visual-zoom), 48px);
+  left: clamp(22px, 4.4vw / var(--peds-visual-zoom), 68px);
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  animation: podiumGridWake var(--intro-grid-wake-duration, 1s) ease-out both;
+  gap: 4px;
+  z-index: 4;
+  animation: podiumGridWake var(--intro-grid-wake-duration, 260ms)
+    var(--intro-ease-out) both;
 }
 
 .podium-intro__signature strong {
-  font-size: 20px;
+  font-family: var(--peds-font-display);
+  font-size: 18px;
   font-weight: 800;
-  letter-spacing: -0.07em;
+  letter-spacing: -0.055em;
+  color: var(--intro-ink);
 }
 
 .podium-intro__signature strong span,
 .podium-intro__launch-brand strong span {
-  color: var(--intro-red);
+  color: var(--intro-accent);
 }
 
 .podium-intro__signature > span {
-  color: #8c8e95;
-  font-size: 8px;
-  font-weight: 600;
-  letter-spacing: 0.3em;
+  color: var(--intro-muted);
+  font-family: var(--peds-font-mono, "IBM Plex Mono", monospace);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.28em;
 }
 
+/* Centered stages */
 .podium-intro__grid-stage,
 .podium-intro__cue,
 .podium-intro__launch-brand {
@@ -114,91 +202,118 @@
   align-items: center;
   justify-content: center;
   text-align: center;
+  padding: 24px;
 }
 
 .podium-intro__grid-stage {
-  animation: podiumRackWake var(--intro-rack-wake-duration, 0.95s) cubic-bezier(0.16, 1, 0.3, 1) both;
+  z-index: 2;
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+  animation: podiumRackWake var(--intro-rack-wake-duration, 280ms)
+    var(--intro-ease-out) both;
 }
 
-.podium-intro__pressure {
-  position: absolute;
-  width: min(900px, 150vw / var(--peds-visual-zoom));
-  height: min(650px, 85vh / var(--peds-visual-zoom));
-  background: radial-gradient(ellipse, #e106003b, #e1060012 40%, transparent 68%);
-  animation: podiumPressure 0.42s ease-out both;
+.podium-intro__grid-stage.is-exiting {
+  animation: podiumRackExit 200ms var(--intro-ease-exit) forwards;
+  pointer-events: none;
 }
 
 .podium-intro__eyebrow,
 .podium-intro__status {
   position: relative;
-  color: #8c8e95;
-  font-size: clamp(9px, 1vw / var(--peds-visual-zoom), 11px);
-  font-weight: 600;
-  letter-spacing: 0.28em;
+  color: var(--intro-muted);
+  font-family: var(--peds-font-mono, "IBM Plex Mono", monospace);
+  font-size: clamp(9.5px, 0.95vw / var(--peds-visual-zoom), 11px);
+  font-weight: 500;
+  letter-spacing: 0.26em;
 }
 
 .podium-intro__eyebrow {
-  margin-bottom: clamp(24px, 5vh / var(--peds-visual-zoom), 44px);
+  margin-bottom: clamp(22px, 4.2vh / var(--peds-visual-zoom), 38px);
 }
 
+/* Liquid Glass 5-light F1 Start Gantry */
 .podium-intro__rack {
   position: relative;
   display: flex;
-  gap: clamp(8px, 1.8vw / var(--peds-visual-zoom), 24px);
-  padding: clamp(10px, 2vw / var(--peds-visual-zoom), 26px);
-  border: 1px solid #ffffff12;
-  border-top-color: #ffffff29;
-  border-radius: 16px;
-  background: linear-gradient(#13151b, #0a0b0e);
-  box-shadow: 0 20px 60px #000a;
+  gap: clamp(8px, 1.5vw / var(--peds-visual-zoom), 20px);
+  padding: clamp(12px, 1.8vw / var(--peds-visual-zoom), 22px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-top-color: rgba(255, 255, 255, 0.28);
+  border-radius: 22px;
+  background: linear-gradient(
+    180deg,
+    rgba(21, 34, 54, 0.72) 0%,
+    rgba(10, 16, 28, 0.86) 100%
+  );
+  backdrop-filter: blur(22px) saturate(135%);
+  -webkit-backdrop-filter: blur(22px) saturate(135%);
+  box-shadow:
+    0 28px 72px rgba(3, 6, 12, 0.72),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -1px 0 rgba(114, 224, 255, 0.08);
 }
 
 .podium-intro__column {
   display: flex;
   flex-direction: column;
-  gap: clamp(8px, 1.4vw / var(--peds-visual-zoom), 18px);
-  padding: clamp(6px, 1vw / var(--peds-visual-zoom), 12px);
-  border-radius: 9px;
-  background: #050608;
-  border: 1px solid #ffffff07;
+  gap: clamp(8px, 1.3vw / var(--peds-visual-zoom), 16px);
+  padding: clamp(6px, 0.9vw / var(--peds-visual-zoom), 11px);
+  border-radius: 12px;
+  background: rgba(5, 8, 14, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.65);
 }
 
 .podium-intro__lamp {
   position: relative;
   display: block;
-  width: clamp(27px, 6.4vw / var(--peds-visual-zoom), 70px);
+  width: clamp(28px, 5.8vw / var(--peds-visual-zoom), 64px);
   aspect-ratio: 1;
   border-radius: 50%;
-  background: #1d0a0b;
-  box-shadow: inset 0 0 0 1px #ff302817;
+  background: radial-gradient(
+    circle at 38% 34%,
+    rgba(56, 24, 26, 0.7),
+    rgba(18, 9, 12, 0.96) 72%
+  );
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 74, 24, 0.14),
+    inset 0 2px 6px rgba(0, 0, 0, 0.75);
 }
 
 .podium-intro__lamp::after {
-  content: '';
+  content: "";
   position: absolute;
-  inset: 0;
+  inset: -1px;
   border-radius: inherit;
-  background: radial-gradient(circle at 40% 35%, #ff786c, #ff3028 35%, #df0900 80%);
+  background: radial-gradient(
+    circle at 38% 32%,
+    #ffb49c 0%,
+    #ff4a18 32%,
+    #dc0f06 72%,
+    #8c0400 100%
+  );
   box-shadow:
-    0 0 24px #ff211779,
-    0 0 60px #ff211725,
-    inset 0 0 0 1px #ff8d81;
+    0 0 20px rgba(255, 59, 40, 0.68),
+    0 0 46px rgba(255, 74, 24, 0.28),
+    inset 0 0 0 1px rgba(255, 198, 176, 0.65);
   opacity: 0;
-  animation: podiumLampIgnition 1ms step-end both;
-  animation-delay: var(--lamp-delay, 0ms);
+  transform: scale(0.9);
+  transition:
+    opacity 130ms var(--intro-ease-out),
+    transform 170ms var(--intro-ease-out);
+  will-change: opacity, transform;
 }
 
 .podium-intro__lamp.is-on::after {
   opacity: 1;
-}
-
-@keyframes podiumLampIgnition {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  transform: scale(1);
 }
 
 .podium-intro__status {
-  margin-top: 32px;
+  margin-top: clamp(22px, 3.6vh / var(--peds-visual-zoom), 32px);
+  color: var(--intro-ink);
+  opacity: 0.84;
 }
 
 .podium-intro__count {
@@ -206,234 +321,233 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-top: 18px;
-  color: #5e6067;
-  font-size: 10px;
+  margin-top: 14px;
+  color: var(--intro-muted);
+  font-family: var(--peds-font-mono, "IBM Plex Mono", monospace);
+  font-size: 10.5px;
   font-variant-numeric: tabular-nums;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.16em;
 }
 
 .podium-intro__count-value {
-  color: var(--intro-red);
-}
-.podium-intro__count-rule {
-  width: 40px;
-  height: 1px;
-  background: #ffffff20;
+  color: var(--intro-accent-soft);
+  font-weight: 600;
 }
 
+.podium-intro__count-rule {
+  width: 44px;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 74, 24, 0.65),
+    rgba(114, 224, 255, 0.32)
+  );
+}
+
+/* Phase 2 — Clean Editorial "LIGHTS OUT." impact */
 .podium-intro__cue {
-  padding: 20px;
-  z-index: 2;
+  z-index: 3;
 }
 
 .podium-intro__cue > div {
   width: 100%;
-  animation: podiumLightsImpact 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: podiumLightsImpact 420ms var(--intro-ease-out) both;
 }
 
-/* Lights-out cue rushing past the camera as the launch brand takes over. */
 .podium-intro__cue.is-launching > div {
-  animation: podiumCueFlyby 0.32s cubic-bezier(0.5, 0, 0.9, 0.4) both;
-}
-
-@keyframes podiumCueFlyby {
-  0% {
-    opacity: 1;
-    transform: scale(1) translate3d(0, 0, 0);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(2.4) translate3d(-14%, 0, 0);
-  }
+  animation: podiumCueExit 280ms var(--intro-ease-exit) both;
 }
 
 .podium-intro__its {
   display: block;
-  margin-bottom: 14px;
-  color: #a4a5ab;
-  font-size: clamp(10px, 1.1vw / var(--peds-visual-zoom), 15px);
-  font-weight: 600;
-  letter-spacing: 0.6em;
+  margin-bottom: 12px;
+  color: var(--intro-muted);
+  font-family: var(--peds-font-mono, "IBM Plex Mono", monospace);
+  font-size: clamp(10px, 1vw / var(--peds-visual-zoom), 13px);
+  font-weight: 500;
+  letter-spacing: 0.52em;
 }
 
 .podium-intro__cue strong {
   display: block;
-  font-size: clamp(42px, 11.5vw / var(--peds-visual-zoom), 170px);
-  line-height: 1;
+  font-family: var(--peds-font-display);
+  font-size: clamp(42px, 10.5vw / var(--peds-visual-zoom), 152px);
+  line-height: 0.96;
   font-weight: 800;
   letter-spacing: -0.045em;
-  word-spacing: 0.08em;
+  color: var(--intro-ink);
   white-space: nowrap;
 }
 
 .podium-intro__away {
   display: block;
-  margin-top: clamp(18px, 3vh / var(--peds-visual-zoom), 32px);
-  color: #ff4b42;
-  font-size: clamp(11px, 2.1vw / var(--peds-visual-zoom), 28px);
-  font-weight: 800;
-  letter-spacing: clamp(0.18em, 0.65vw / var(--peds-visual-zoom), 0.45em);
+  margin-top: clamp(14px, 2.4vh / var(--peds-visual-zoom), 26px);
+  color: var(--intro-accent-soft);
+  font-family: var(--peds-font-editorial);
+  font-style: italic;
+  font-size: clamp(18px, 2.8vw / var(--peds-visual-zoom), 38px);
+  font-weight: 400;
+  letter-spacing: 0.14em;
 }
 
+/* Delicate horizontal aerodynamic slipstream hairlines */
 .podium-intro__speed {
   position: absolute;
-  inset: -20% -30%;
-  transform: rotate(-18deg);
-  opacity: 0.65;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .podium-intro__speed span {
   position: absolute;
-  top: calc(18% + var(--line) * 13%);
+  top: calc(24% + var(--line) * 17%);
+  left: 0;
   width: 100%;
-  height: 3px;
-  background: linear-gradient(90deg, transparent, #df1c15 25%, #ff4b42 80%, transparent);
-  animation: podiumSpeedLine 0.55s cubic-bezier(0.16, 0.6, 0.3, 1) both;
-  animation-delay: calc(var(--line) * 15ms);
-}
-
-.podium-intro__speed span:nth-child(even) {
   height: 1px;
-  background: #ffffff80;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(114, 224, 255, 0.36) 35%,
+    rgba(255, 74, 24, 0.55) 72%,
+    transparent 100%
+  );
+  opacity: 0;
+  animation: podiumSpeedStreak 640ms var(--intro-ease-out) both;
+  animation-delay: calc(var(--line) * 55ms);
 }
 
 .podium-intro__flash {
-  z-index: 3;
-  background: radial-gradient(ellipse, #fff7ed 0, #ff3028 65%, transparent 95%);
-  animation: podiumFlash 0.13s ease-out both;
+  z-index: 4;
+  background: radial-gradient(
+    ellipse 62% 50% at 50% 50%,
+    rgba(255, 247, 237, 0.24) 0%,
+    rgba(255, 74, 24, 0.14) 48%,
+    transparent 85%
+  );
+  animation: podiumFlash 240ms var(--intro-ease-out) both;
 }
 
+/* Phase 3 — Centered Storm Midnight brand lockup before curtain-lift reveal */
 .podium-intro__launch-brand {
-  align-items: flex-start;
-  padding-left: clamp(28px, 12vw / var(--peds-visual-zoom), 200px);
-  background: linear-gradient(115deg, transparent 64%, #e10600 64%);
-  animation: podiumBrandSweep var(--intro-brand-sweep-duration, 0.45s) cubic-bezier(0.76, 0, 0.24, 1) both;
+  z-index: 3;
+  animation: podiumBrandLockup var(--intro-brand-sweep-duration, 340ms)
+    var(--intro-ease-out) 60ms both;
 }
 
-/* Brand text slams in right after the cue flies past the camera. */
-.podium-intro__launch-brand strong,
-.podium-intro__launch-brand > span {
-  animation: podiumBrandIn var(--intro-brand-sweep-duration, 0.45s) cubic-bezier(0.16, 1, 0.3, 1) 0.04s both;
-}
-
-@keyframes podiumBrandSweep {
-  0% {
-    transform: translate3d(100%, 0, 0);
-  }
-  100% {
-    transform: translate3d(0, 0, 0);
-  }
-}
-@keyframes podiumBrandIn {
-  0% {
-    opacity: 0;
-    transform: translate3d(-8%, 0, 0) skewX(-6deg);
-  }
-  100% {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-/* One pass keeps the cue active without a full-screen repaint loop. */
-.podium-intro[data-phase='launch'] .podium-intro__speed span {
-  animation: podiumSpeedStreak 0.6s linear both;
-  animation-delay: calc(var(--line) * 60ms);
-}
-
-@keyframes podiumSpeedStreak {
-  0% {
-    opacity: 0;
-    transform: translate3d(-60%, 0, 0);
-  }
-  25% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-    transform: translate3d(60%, 0, 0);
-  }
+.podium-intro__launch-rule {
+  display: block;
+  width: clamp(64px, 12vw / var(--peds-visual-zoom), 140px);
+  height: 1px;
+  margin-bottom: clamp(18px, 2.8vh / var(--peds-visual-zoom), 28px);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 74, 24, 0.85) 35%,
+    rgba(114, 224, 255, 0.85) 68%,
+    transparent
+  );
+  animation: podiumRuleExpand 360ms var(--intro-ease-out) 80ms both;
 }
 
 .podium-intro__launch-brand strong {
-  font-size: clamp(58px, 12vw / var(--peds-visual-zoom), 170px);
+  font-family: var(--peds-font-display);
+  font-size: clamp(50px, 10vw / var(--peds-visual-zoom), 142px);
   font-weight: 800;
-  letter-spacing: -0.08em;
-  line-height: 1;
+  letter-spacing: -0.065em;
+  line-height: 0.96;
+  color: var(--intro-ink);
 }
 
-.podium-intro__launch-brand > span {
-  margin-top: 24px;
-  color: #ff4b42;
-  font-size: clamp(11px, 2vw / var(--peds-visual-zoom), 26px);
-  font-weight: 700;
-  letter-spacing: 0.4em;
+.podium-intro__launch-brand > span:last-child {
+  margin-top: clamp(14px, 2.2vh / var(--peds-visual-zoom), 22px);
+  color: var(--intro-muted);
+  font-family: var(--peds-font-mono, "IBM Plex Mono", monospace);
+  font-size: clamp(10px, 1.15vw / var(--peds-visual-zoom), 13.5px);
+  font-weight: 500;
+  letter-spacing: 0.44em;
 }
 
-.podium-intro[data-phase='launch'] .podium-intro__sheet {
-  animation: podiumLaunchReveal var(--intro-reveal-duration) cubic-bezier(0.76, 0, 0.24, 1)
-    var(--intro-logo-hold) both;
-}
-
-.podium-intro[data-phase='launch'] .podium-intro__edge {
-  opacity: 1;
-}
-
+/* Liquid Glass Pill Skip button matching GlobalLiquidNav */
 .podium-intro__skip {
   position: absolute;
-  top: clamp(24px, 5vh / var(--peds-visual-zoom), 56px);
-  right: clamp(24px, 5vw / var(--peds-visual-zoom), 80px);
-  z-index: 5;
-  display: flex;
+  top: clamp(20px, 4vh / var(--peds-visual-zoom), 44px);
+  right: clamp(20px, 4.4vw / var(--peds-visual-zoom), 68px);
+  z-index: 6;
+  display: inline-flex;
   align-items: center;
-  gap: 12px;
-  padding: 8px 12px;
-  border: 1px solid #ffffff20;
-  border-radius: 4px;
-  color: #b2b3b8;
-  background: #07080b;
+  gap: 10px;
+  padding: 8px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  color: var(--intro-ink);
+  background: var(--intro-glass);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  box-shadow:
+    0 10px 28px rgba(3, 6, 12, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  font-family: var(--peds-font-body);
   font-size: 12px;
+  font-weight: 500;
   cursor: pointer;
+  transition:
+    border-color 180ms ease,
+    background-color 180ms ease,
+    transform 180ms var(--intro-ease-out),
+    opacity 200ms ease;
 }
 
-.podium-intro__skip span {
-  color: #8b919b;
-  font-size: 11px;
+.podium-intro__skip kbd {
+  padding: 2px 6px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--intro-muted);
+  font-family: var(--peds-font-mono, "IBM Plex Mono", monospace);
+  font-size: 10px;
+  letter-spacing: 0.08em;
 }
+
 .podium-intro__skip:hover {
-  color: #fff;
-  border-color: #ffffff60;
+  border-color: rgba(114, 224, 255, 0.48);
+  background: rgba(21, 34, 54, 0.82);
+  transform: translateY(-1px);
 }
+
 .podium-intro__skip:focus-visible {
-  outline: 2px solid #fff;
-  outline-offset: 4px;
+  outline: 2px solid var(--intro-cyan);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 5px rgba(114, 224, 255, 0.18);
 }
 
-.podium-intro[data-phase='launch'] .podium-intro__skip {
-  animation: podiumSkipExit 0.12s linear var(--intro-logo-hold) both;
+.podium-intro[data-revealing="true"] .podium-intro__skip,
+.podium-intro[data-skipping="true"] .podium-intro__skip {
+  opacity: 0;
+  transform: translateY(-6px);
+  pointer-events: none;
 }
 
-@keyframes podiumSkipExit {
-  to { opacity: 0; visibility: hidden; }
-}
-
+/* Telemetry footer hairline */
 .podium-intro__footer {
   position: absolute;
-  right: clamp(24px, 5vw / var(--peds-visual-zoom), 80px);
-  bottom: clamp(24px, 5vh / var(--peds-visual-zoom), 56px);
-  left: clamp(24px, 5vw / var(--peds-visual-zoom), 80px);
+  right: clamp(22px, 4.4vw / var(--peds-visual-zoom), 68px);
+  bottom: clamp(20px, 4vh / var(--peds-visual-zoom), 44px);
+  left: clamp(22px, 4.4vw / var(--peds-visual-zoom), 68px);
   display: flex;
   justify-content: space-between;
-  border-top: 1px solid #ffffff12;
-  padding-top: 16px;
-  color: #8b919b;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.18em;
-  animation: podiumGridWake var(--intro-grid-wake-duration, 1s) ease-out both;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 14px;
+  color: var(--intro-muted);
+  font-family: var(--peds-font-mono, "IBM Plex Mono", monospace);
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  z-index: 4;
+  animation: podiumGridWake var(--intro-grid-wake-duration, 260ms)
+    var(--intro-ease-out) both;
 }
 
+/* ── Intro Keyframes (100% compositor-only: transform & opacity) ── */
 @keyframes podiumGridWake {
   from {
     opacity: 0;
@@ -442,144 +556,263 @@
     opacity: 1;
   }
 }
+
 @keyframes podiumRackWake {
-  0%,
-  20% {
+  from {
     opacity: 0;
-    transform: translate3d(0, 8px, 0) scale(0.98);
+    transform: translate3d(0, 12px, 0) scale(0.975);
   }
-  100% {
+  to {
     opacity: 1;
-    transform: none;
+    transform: translate3d(0, 0, 0) scale(1);
   }
 }
+
+@keyframes podiumRackExit {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(0, -18px, 0) scale(0.94);
+    visibility: hidden;
+  }
+}
+
 @keyframes podiumGridSweep {
   0% {
     opacity: 0;
     transform: translate3d(-100%, 0, 0);
   }
-  25% {
-    opacity: 1;
+  30% {
+    opacity: 0.9;
   }
   100% {
     opacity: 0;
     transform: translate3d(100%, 0, 0);
   }
 }
-@keyframes podiumPressure {
-  0% {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-  22% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0.28;
-    transform: scale(1.15);
-  }
-}
+
 @keyframes podiumLightsImpact {
   0% {
     opacity: 0;
-    transform: scale(0.78);
-  }
-  48% {
-    opacity: 1;
-    transform: scale(1.035);
-  }
-  78% {
-    opacity: 1;
-    transform: scale(0.995);
+    transform: translate3d(0, 14px, 0) scale(0.94);
   }
   100% {
     opacity: 1;
-    transform: scale(1);
-  }
-}
-@keyframes podiumSpeedLine {
-  from {
-    opacity: 0;
-    transform: translate3d(-80%, 0, 0);
-  }
-  30% {
-    opacity: 1;
-  }
-  to {
-    opacity: 0.6;
-    transform: translate3d(15%, 0, 0);
-  }
-}
-@keyframes podiumFlash {
-  from {
-    opacity: 0.3;
-  }
-  to {
-    opacity: 0;
-  }
-}
-@keyframes podiumLaunchReveal {
-  from {
-    transform: translate3d(0, 0, 0);
-  }
-  to {
-    transform: translate3d(calc(100vw / var(--peds-visual-zoom) + 24vh / var(--peds-visual-zoom)), 0, 0);
+    transform: translate3d(0, 0, 0) scale(1);
   }
 }
 
-/* Preserve the explicitly requested start cue and reveal on this setup.
-   Reduce the flash intensity and ambient pulse; Skip remains available. */
+@keyframes podiumCueExit {
+  0% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(0, -18px, 0) scale(1.06);
+  }
+}
+
+@keyframes podiumBrandLockup {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes podiumRuleExpand {
+  0% {
+    opacity: 0;
+    transform: scaleX(0.15);
+  }
+  100% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+@keyframes podiumSpeedStreak {
+  0% {
+    opacity: 0;
+    transform: translate3d(-55%, 0, 0);
+  }
+  28% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(55%, 0, 0);
+  }
+}
+
+@keyframes podiumFlash {
+  from {
+    opacity: 0.9;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Smooth optical lift & atmospheric dissolve into the Storm Homepage */
+@keyframes podiumLaunchReveal {
+  0% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(0, -28px, 0) scale(1.035);
+  }
+}
+
+@keyframes podiumSkipDissolve {
+  0% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(0, -14px, 0) scale(1.02);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Coordinated Storm Midnight Homepage Reveal Choreography
+   - Poises hero layers while intro is active (`data-intro-state="active"`)
+   - Cross-animates backdrop settle, Liquid Nav glide, staggered Hero display
+     lines, CTA cluster, and Live F1 Pulse Dock as the intro curtain dissolves
+     (`data-intro-state="revealing"`).
+   - Untouched on deep-links, repeat navigation, or reduced-motion.
+   ───────────────────────────────────────────────────────────────────────────── */
+html[data-intro-state="active"] .sp-root .sp-storm-line > span,
+html[data-intro-state="active"] .sp-root .sp-storm-context,
+html[data-intro-state="active"] .sp-root .sp-storm-actions,
+html[data-intro-state="active"] .sp-root .sp-storm-microline,
+html[data-intro-state="revealing"] .sp-root .sp-storm-line > span,
+html[data-intro-state="revealing"] .sp-root .sp-storm-context,
+html[data-intro-state="revealing"] .sp-root .sp-storm-actions,
+html[data-intro-state="revealing"] .sp-root .sp-storm-microline {
+  animation: none;
+}
+
+html[data-intro-state="active"] .sp-storm-hero .sp-storm-stage {
+  transform: scale(1.06);
+  opacity: 0.52;
+}
+
+html[data-intro-state="active"] .peds-nav-header {
+  opacity: 0;
+  transform: translate3d(0, -16px, 0);
+}
+
+html[data-intro-state="active"] .sp-storm-eyebrow,
+html[data-intro-state="active"] .sp-storm-line > span,
+html[data-intro-state="active"] .sp-storm-context,
+html[data-intro-state="active"] .sp-storm-cta-cluster,
+html[data-intro-state="active"] .sp-pulse-dock {
+  opacity: 0;
+  transform: translate3d(0, 22px, 0);
+}
+
+html[data-intro-state="revealing"] .sp-storm-hero .sp-storm-stage {
+  transform: scale(1);
+  opacity: 1;
+  transition:
+    transform 820ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 720ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html[data-intro-state="revealing"] .peds-nav-header {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition:
+    transform 620ms cubic-bezier(0.16, 1, 0.3, 1) 70ms,
+    opacity 540ms cubic-bezier(0.16, 1, 0.3, 1) 70ms;
+}
+
+html[data-intro-state="revealing"] .sp-storm-eyebrow {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition:
+    transform 640ms cubic-bezier(0.16, 1, 0.3, 1) 110ms,
+    opacity 560ms cubic-bezier(0.16, 1, 0.3, 1) 110ms;
+}
+
+html[data-intro-state="revealing"] .sp-storm-line--first > span {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition:
+    transform 680ms cubic-bezier(0.16, 1, 0.3, 1) 160ms,
+    opacity 580ms cubic-bezier(0.16, 1, 0.3, 1) 160ms;
+}
+
+html[data-intro-state="revealing"] .sp-storm-line--second > span {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition:
+    transform 680ms cubic-bezier(0.16, 1, 0.3, 1) 220ms,
+    opacity 580ms cubic-bezier(0.16, 1, 0.3, 1) 220ms;
+}
+
+html[data-intro-state="revealing"] .sp-storm-line--third > span {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition:
+    transform 700ms cubic-bezier(0.16, 1, 0.3, 1) 280ms,
+    opacity 600ms cubic-bezier(0.16, 1, 0.3, 1) 280ms;
+}
+
+html[data-intro-state="revealing"] .sp-storm-context {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition:
+    transform 660ms cubic-bezier(0.16, 1, 0.3, 1) 330ms,
+    opacity 580ms cubic-bezier(0.16, 1, 0.3, 1) 330ms;
+}
+
+html[data-intro-state="revealing"] .sp-storm-cta-cluster {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition:
+    transform 660ms cubic-bezier(0.16, 1, 0.3, 1) 380ms,
+    opacity 580ms cubic-bezier(0.16, 1, 0.3, 1) 380ms;
+}
+
+html[data-intro-state="revealing"] .sp-pulse-dock {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition:
+    transform 720ms cubic-bezier(0.16, 1, 0.3, 1) 420ms,
+    opacity 620ms cubic-bezier(0.16, 1, 0.3, 1) 420ms;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .podium-intro__sheet,
+  .podium-intro__grid-stage,
+  .podium-intro__cue > div,
+  .podium-intro__launch-brand,
+  .podium-intro__launch-rule,
+  .podium-intro__speed span,
   .podium-intro__flash {
-    animation-name: podiumQuietFlash;
+    animation-duration: 180ms !important;
   }
-  .podium-intro__pressure {
-    animation-name: podiumQuietPressure;
-  }
-  .podium-intro__cue.is-launching > div {
-    animation: podiumQuietFadeOut 0.3s linear both;
-  }
-  .podium-intro__launch-brand {
-    animation: podiumQuietFadeIn 0.3s linear both;
-  }
-  .podium-intro__launch-brand strong,
-  .podium-intro__launch-brand > span {
-    animation: none;
-  }
-  .podium-intro[data-phase='launch'] .podium-intro__speed span {
-    animation: none;
-    opacity: 0.35;
-  }
-}
-@keyframes podiumQuietFadeOut {
-  from {
+
+  html[data-intro-state="active"] .sp-storm-hero .sp-storm-stage,
+  html[data-intro-state="active"] .peds-nav-header,
+  html[data-intro-state="active"] .sp-storm-eyebrow,
+  html[data-intro-state="active"] .sp-storm-line > span,
+  html[data-intro-state="active"] .sp-storm-context,
+  html[data-intro-state="active"] .sp-storm-cta-cluster,
+  html[data-intro-state="active"] .sp-pulse-dock {
     opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
-@keyframes podiumQuietFadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-@keyframes podiumQuietPressure {
-  from {
-    opacity: 0.4;
-  }
-  to {
-    opacity: 0.2;
-  }
-}
-@keyframes podiumQuietFlash {
-  from {
-    opacity: 0.1;
-  }
-  to {
-    opacity: 0;
+    transform: none;
   }
 }
