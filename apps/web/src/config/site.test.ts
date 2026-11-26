@@ -5,6 +5,16 @@ describe("Site indexing host boundary", () => {
   it("allows indexing when the live host exactly matches the configured production VITE_SITE_URL", () => {
     expect(
       resolveCanIndexHost({
+        configuredSiteUrl: "https://podiumeds.pages.dev",
+        indexingRequested: true,
+        deploymentContext: "production",
+        locationOrigin: "https://podiumeds.pages.dev",
+        locationHostname: "podiumeds.pages.dev",
+      }),
+    ).toBe(true);
+
+    expect(
+      resolveCanIndexHost({
         configuredSiteUrl: "https://podiumeds.ducbao147258.workers.dev",
         indexingRequested: true,
         deploymentContext: "production",
@@ -14,24 +24,25 @@ describe("Site indexing host boundary", () => {
     ).toBe(true);
   });
 
-  it("blocks indexing on preview contexts, localhost, and unconfigured preview hosts", () => {
+  it("blocks indexing on preview contexts, preview branch subdomains, and localhost", () => {
+    expect(isPreviewHostname("preview.podiumeds.pages.dev")).toBe(true);
     expect(isPreviewHostname("preview.podiumeds.workers.dev")).toBe(true);
     expect(
       resolveCanIndexHost({
-        configuredSiteUrl: "https://podiumeds.ducbao147258.workers.dev",
+        configuredSiteUrl: "https://podiumeds.pages.dev",
         indexingRequested: true,
         deploymentContext: "preview",
-        locationOrigin: "https://podiumeds.ducbao147258.workers.dev",
-        locationHostname: "podiumeds.ducbao147258.workers.dev",
+        locationOrigin: "https://podiumeds.pages.dev",
+        locationHostname: "podiumeds.pages.dev",
       }),
     ).toBe(false);
     expect(
       resolveCanIndexHost({
-        configuredSiteUrl: "https://podiumeds.ducbao147258.workers.dev",
+        configuredSiteUrl: "https://podiumeds.pages.dev",
         indexingRequested: true,
         deploymentContext: "production",
-        locationOrigin: "https://other-preview.ducbao147258.workers.dev",
-        locationHostname: "other-preview.ducbao147258.workers.dev",
+        locationOrigin: "https://abc123.podiumeds.pages.dev",
+        locationHostname: "abc123.podiumeds.pages.dev",
       }),
     ).toBe(false);
     expect(

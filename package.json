@@ -16,6 +16,7 @@
     "cloudflare:local": "npm run build && wrangler dev --local",
     "cloudflare:dry-run": "wrangler deploy --dry-run --env=\"\" --outdir .wrangler/dry-run",
     "cloudflare:dry-run:prod": "wrangler deploy --dry-run --env production --outdir .wrangler/dry-run-prod",
+    "cloudflare:pages:bundle": "node tools/ci/build-cloudflare-pages.mjs",
     "lint": "eslint .",
     "format:check": "prettier --check .",
     "typecheck": "npm run typecheck --workspaces --if-present",

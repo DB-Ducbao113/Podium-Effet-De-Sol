@@ -4,22 +4,22 @@
 
 ## Core Sections
 
-- [Overview](https://podiumeds.ducbao147258.workers.dev/): Storm Midnight editorial overview with synchronized next-race countdown, championship pulse, and interactive 3D entry points.
-- [2026 Season Hub](https://podiumeds.ducbao147258.workers.dev/season/2026): Live 2026 Grand Prix results, sprint classifications, calendar, and driver/constructor standings.
-- [3D FP-04 RB Showroom](https://podiumeds.ducbao147258.workers.dev/showroom): Interactive 2-bay 3D F1 garage featuring 11 2026 liveries and live pit-crew wheel service.
-- [Engineering Disassembly Studio](https://podiumeds.ducbao147258.workers.dev/engineering): 12-scene interactive 3D FP-04 RB aerodynamic disassembly across 47 assemblies plus original technical essays.
-- [Drivers Directory](https://podiumeds.ducbao147258.workers.dev/drivers): Driver dossiers, season statistics, and team affiliations (2024–2026).
-- [Teams Directory](https://podiumeds.ducbao147258.workers.dev/teams): Constructor profiles, chassis specifications, and season histories.
-- [About & Sources](https://podiumeds.ducbao147258.workers.dev/about): Editorial methodology, public data attribution, and copyright transparency.
+- [Overview](https://podiumeds.pages.dev/): Storm Midnight editorial overview with synchronized next-race countdown, championship pulse, and interactive 3D entry points.
+- [2026 Season Hub](https://podiumeds.pages.dev/season/2026): Live 2026 Grand Prix results, sprint classifications, calendar, and driver/constructor standings.
+- [3D FP-04 RB Showroom](https://podiumeds.pages.dev/showroom): Interactive 2-bay 3D F1 garage featuring 11 2026 liveries and live pit-crew wheel service.
+- [Engineering Disassembly Studio](https://podiumeds.pages.dev/engineering): 12-scene interactive 3D FP-04 RB aerodynamic disassembly across 47 assemblies plus original technical essays.
+- [Drivers Directory](https://podiumeds.pages.dev/drivers): Driver dossiers, season statistics, and team affiliations (2024–2026).
+- [Teams Directory](https://podiumeds.pages.dev/teams): Constructor profiles, chassis specifications, and season histories.
+- [About & Sources](https://podiumeds.pages.dev/about): Editorial methodology, public data attribution, and copyright transparency.
 
 ## Engineering Articles
 
-- [Ground Effect: Creating Downforce Under the Car](https://podiumeds.ducbao147258.workers.dev/engineering/ground-effect-aerodynamics): How floor geometry, floor edges, and the diffuser manage pressure beneath a ground-effect racing prototype.
-- [Active Aerodynamics and Wing Mechanics](https://podiumeds.ducbao147258.workers.dev/engineering/active-aerodynamics-wing-mechanics): From wing sections and slots to actuation, locking, and fail-safe thinking in a switchable aerodynamic system.
-- [Hybrid Powertrains and Energy Management](https://podiumeds.ducbao147258.workers.dev/engineering/hybrid-powertrains-energy-management): Following energy from fuel and battery to the driven wheels, then back to storage through regenerative braking.
-- [Vehicle Dynamics and Suspension](https://podiumeds.ducbao147258.workers.dev/engineering/vehicle-dynamics-suspension): How tyres, suspension, and the aerodynamic platform share load under braking, acceleration, and cornering.
+- [Ground Effect: Creating Downforce Under the Car](https://podiumeds.pages.dev/engineering/ground-effect-aerodynamics): How floor geometry, floor edges, and the diffuser manage pressure beneath a ground-effect racing prototype.
+- [Active Aerodynamics and Wing Mechanics](https://podiumeds.pages.dev/engineering/active-aerodynamics-wing-mechanics): From wing sections and slots to actuation, locking, and fail-safe thinking in a switchable aerodynamic system.
+- [Hybrid Powertrains and Energy Management](https://podiumeds.pages.dev/engineering/hybrid-powertrains-energy-management): Following energy from fuel and battery to the driven wheels, then back to storage through regenerative braking.
+- [Vehicle Dynamics and Suspension](https://podiumeds.pages.dev/engineering/vehicle-dynamics-suspension): How tyres, suspension, and the aerodynamic platform share load under braking, acceleration, and cornering.
 
 ## Discovery & Machine-Readable Endpoints
 
-- [XML Sitemap](https://podiumeds.ducbao147258.workers.dev/sitemap.xml): Canonical index of all public routes, drivers, teams, cars, and engineering articles.
-- [ARD Manifest](https://podiumeds.ducbao147258.workers.dev/.well-known/ard.json): Agentic Resource Discovery JSON manifest.
+- [XML Sitemap](https://podiumeds.pages.dev/sitemap.xml): Canonical index of all public routes, drivers, teams, cars, and engineering articles.
+- [ARD Manifest](https://podiumeds.pages.dev/.well-known/ard.json): Agentic Resource Discovery JSON manifest.
