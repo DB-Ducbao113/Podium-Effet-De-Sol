@@ -1967,6 +1967,8 @@
 .sp-storm-refl-drift img {
   position: relative;
   display: block;
+  max-width: none;
+  max-height: none;
   transform: scaleY(-1);
   transform-origin: center;
 }

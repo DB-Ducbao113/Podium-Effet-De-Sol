@@ -55,10 +55,17 @@ describe("Plan 4 — Storm Cutover & Legacy Retirement Boundary (US-04)", () => 
     expect(llms).toMatch(/\[[^\]]+\]\(https:\/\/[^)]+\)/);
 
     const ard = JSON.parse(readFileSync("public/.well-known/ard.json", "utf8"));
-    expect(ard.version).toBeTruthy();
-    expect(ard.name).toContain("PODIUM");
-    expect(Array.isArray(ard.resources)).toBe(true);
-    expect(ard.resources.length).toBeGreaterThanOrEqual(4);
+    expect(ard.specVersion).toBeTruthy();
+    expect(ard.host?.displayName).toContain("PODIUM");
+    expect(ard.host?.identifier).toBeTruthy();
+    expect(Array.isArray(ard.entries)).toBe(true);
+    expect(ard.entries.length).toBeGreaterThanOrEqual(2);
+    for (const entry of ard.entries) {
+      expect(entry.identifier).toMatch(/^urn:air:/);
+      expect(entry.displayName).toBeTruthy();
+      expect(entry.type).toBeTruthy();
+      expect(entry.url).toMatch(/^https:\/\//);
+    }
 
     expect(existsSync("public/logo/logo-240.avif")).toBe(true);
     expect(existsSync("public/logo/logo-240.webp")).toBe(true);

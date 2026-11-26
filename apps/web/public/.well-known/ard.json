@@ -1,64 +1,52 @@
 {
-  "$schema": "https://agenticresourcediscovery.org/schemas/ard-v1.json",
-  "version": "1.0.0",
-  "name": "PODIUM — Effet de Sol",
-  "description": "Independent motorsport engineering publication, interactive 3D FP-04 RB showroom & disassembly studio, and 2024–2026 Formula 1 race telemetry.",
-  "url": "https://podiumeds.pages.dev",
-  "languages": ["en", "vi"],
-  "documentation": {
-    "llms": "https://podiumeds.pages.dev/llms.txt",
-    "sitemap": "https://podiumeds.pages.dev/sitemap.xml"
+  "$schema": "https://agenticresourcediscovery.org/spec/v0.91/schema.json",
+  "specVersion": "0.91",
+  "host": {
+    "displayName": "PODIUM — Effet de Sol",
+    "identifier": "podiumeds.pages.dev"
   },
-  "resources": [
+  "entries": [
     {
-      "id": "overview",
-      "name": "Overview",
-      "url": "https://podiumeds.pages.dev/",
-      "mediaType": "text/html",
-      "description": "Editorial landing page with live next-race countdown and championship pulse."
+      "identifier": "urn:air:podiumeds.pages.dev:docs:llms",
+      "displayName": "PODIUM — Effet de Sol LLM Guide",
+      "type": "text/markdown",
+      "url": "https://podiumeds.pages.dev/llms.txt",
+      "representativeQueries": [
+        "read Podium Effet de Sol Formula 1 engineering articles and site directory",
+        "find 2026 F1 standings, calendar, drivers, teams, and 3D showroom routes"
+      ],
+      "trustManifest": {
+        "identity": "https://podiumeds.pages.dev",
+        "identityType": "https"
+      }
     },
     {
-      "id": "season-2026",
-      "name": "2026 Season Hub",
-      "url": "https://podiumeds.pages.dev/season/2026",
-      "mediaType": "text/html",
-      "description": "2026 Formula 1 calendar, race results, sprint results, and championship standings."
-    },
-    {
-      "id": "engineering",
-      "name": "Engineering Studio & Articles",
-      "url": "https://podiumeds.pages.dev/engineering",
-      "mediaType": "text/html",
-      "description": "Interactive 47-assembly FP-04 RB aerodynamic disassembly and technical monographs."
-    },
-    {
-      "id": "showroom",
-      "name": "3D FP-04 RB Showroom",
-      "url": "https://podiumeds.pages.dev/showroom",
-      "mediaType": "text/html",
-      "description": "Interactive 2-bay 3D garage featuring 11 2026 team liveries and pit-crew animation."
-    },
-    {
-      "id": "drivers",
-      "name": "Drivers Directory",
-      "url": "https://podiumeds.pages.dev/drivers",
-      "mediaType": "text/html",
-      "description": "Driver profiles and career statistics."
-    },
-    {
-      "id": "teams",
-      "name": "Teams Directory",
-      "url": "https://podiumeds.pages.dev/teams",
-      "mediaType": "text/html",
-      "description": "Constructor specifications and season histories."
-    },
-    {
-      "id": "api-timezone",
-      "name": "Timezone Sync API",
+      "identifier": "urn:air:podiumeds.pages.dev:api:timezone",
+      "displayName": "Podium EDS Edge Timezone Sync API",
+      "type": "application/json",
       "url": "https://podiumeds.pages.dev/api/timezone",
-      "mediaType": "application/json",
-      "methods": ["GET"],
-      "description": "Authoritative UTC epoch and IANA timezone lookup from edge request geolocation."
+      "representativeQueries": [
+        "get authoritative UTC epoch and user IANA timezone for Formula 1 session countdowns",
+        "synchronize race weekend clock offset"
+      ],
+      "trustManifest": {
+        "identity": "https://podiumeds.pages.dev",
+        "identityType": "https"
+      }
+    },
+    {
+      "identifier": "urn:air:podiumeds.pages.dev:web:sitemap",
+      "displayName": "PODIUM — Effet de Sol Canonical Sitemap",
+      "type": "application/xml",
+      "url": "https://podiumeds.pages.dev/sitemap.xml",
+      "representativeQueries": [
+        "list all public pages, engineering essays, drivers, teams, and car profiles on Podium Effet de Sol",
+        "discover canonical URLs for 2024 to 2026 Formula 1 seasons"
+      ],
+      "trustManifest": {
+        "identity": "https://podiumeds.pages.dev",
+        "identityType": "https"
+      }
     }
   ]
 }

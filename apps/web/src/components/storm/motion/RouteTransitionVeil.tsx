@@ -1,5 +1,4 @@
-import { useRef } from "react";
-import { ensureStormGsapPlugins, gsap, useGSAP } from "./gsapPlugins";
+import { useEffect, useRef } from "react";
 import { ROUTE_VEIL_MAX_DURATION_MS } from "./motionConfig";
 
 export interface RouteTransitionVeilProps {
@@ -9,8 +8,8 @@ export interface RouteTransitionVeilProps {
 
 /**
  * FX-08b — Fast, non-blocking Storm accent/glass sweep veil (`<= 190ms`).
- * Skips initial mount, triggers zero React state re-renders, never traps pointer
- * or keyboard input (`pointer-events: none`), and returns null on `reducedMotion`.
+ * Skips initial mount (and never loads GSAP on first paint), triggers zero React
+ * state re-renders, never traps pointer/keyboard input, and returns null on `reducedMotion`.
  */
 export function RouteTransitionVeil({
   triggerKey,
@@ -19,20 +18,22 @@ export function RouteTransitionVeil({
   const veilRef = useRef<HTMLDivElement | null>(null);
   const lastKeyRef = useRef<string | number>(triggerKey);
 
-  useGSAP(
-    () => {
-      if (reducedMotion || typeof window === "undefined") {
-        lastKeyRef.current = triggerKey;
-        return;
-      }
-      if (lastKeyRef.current === triggerKey) {
-        return;
-      }
+  useEffect(() => {
+    if (reducedMotion || typeof window === "undefined") {
       lastKeyRef.current = triggerKey;
+      return;
+    }
+    if (lastKeyRef.current === triggerKey) {
+      return;
+    }
+    lastKeyRef.current = triggerKey;
 
-      const el = veilRef.current;
-      if (!el) return;
+    const el = veilRef.current;
+    if (!el) return;
 
+    let cancelled = false;
+    void import("./gsapPlugins").then(({ ensureStormGsapPlugins, gsap }) => {
+      if (cancelled || !veilRef.current) return;
       ensureStormGsapPlugins();
       gsap.killTweensOf(el);
       gsap.fromTo(
@@ -45,9 +46,12 @@ export function RouteTransitionVeil({
           ease: "power2.out",
         },
       );
-    },
-    { dependencies: [triggerKey, reducedMotion] },
-  );
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [triggerKey, reducedMotion]);
 
   if (reducedMotion) {
     return null;
