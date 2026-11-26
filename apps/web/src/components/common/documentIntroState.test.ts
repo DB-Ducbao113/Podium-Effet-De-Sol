@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { shouldShowDocumentIntro } from "./documentIntroState";
 
@@ -23,5 +24,15 @@ describe("document intro route", () => {
       sessionStorage: { getItem: () => null },
     });
     expect(shouldShowDocumentIntro()).toBe(true);
+  });
+
+  it("keeps DocumentIntroController mounted in main.tsx above Storm layers", () => {
+    const mainSrc = readFileSync("src/main.tsx", "utf8");
+    const introCss = readFileSync(
+      "src/components/common/F1StartLightsPreloader.css",
+      "utf8",
+    );
+    expect(mainSrc).toContain("<DocumentIntroController />");
+    expect(introCss).toMatch(/\.podium-intro\s*\{[^}]*z-index:\s*9999;/s);
   });
 });

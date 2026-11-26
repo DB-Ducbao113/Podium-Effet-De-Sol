@@ -18,6 +18,7 @@ import "./styles/compactDesktop.css";
 import "./styles/densityV2.css";
 import "./styles/visualZoom.css";
 import { BrowserRouter } from "react-router-dom";
+import { DocumentIntroController } from "./components/common/DocumentIntroController";
 import { ErrorBoundary } from "./components/common/ErrorBoundary";
 
 const rootElement = document.getElementById("root")!;
@@ -28,6 +29,7 @@ ReactDOM.createRoot(rootElement).render(
     <ErrorBoundary>
       <BrowserRouter>
         <App />
+        <DocumentIntroController />
       </BrowserRouter>
     </ErrorBoundary>
   </React.StrictMode>,

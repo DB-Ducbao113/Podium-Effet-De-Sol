@@ -2,7 +2,7 @@
   --intro-red: #ff3028;
   position: fixed;
   inset: 0;
-  z-index: 100;
+  z-index: 9999;
   overflow: hidden;
   isolation: isolate;
   color: #fff;

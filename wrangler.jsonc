@@ -17,7 +17,7 @@
   },
   "env": {
     "production": {
-      "name": "podium-effet-de-sol-production",
+      "name": "podiumeds",
       "vars": {
         "APP_ENV": "production",
         "ALLOWED_ORIGINS": "",
