@@ -1,0 +1,843 @@
+{
+  "assets": [
+    {
+      "season": 2024,
+      "kind": "car",
+      "entityId": "redbull",
+      "masterFile": "rbr_car_1794990917901.jpg",
+      "outputFile": "redbull-rb20.webp",
+      "teamName": "Oracle Red Bull Racing",
+      "modelName": "RB20",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "car",
+      "entityId": "mclaren",
+      "masterFile": "mcl38_silver_tungsten_clean_1794991066463.jpg",
+      "outputFile": "mclaren-mcl38.webp",
+      "teamName": "McLaren",
+      "modelName": "MCL38",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "car",
+      "entityId": "ferrari",
+      "masterFile": "ferrari_sf24_telemetry_noir_v2_1794991068303.jpg",
+      "outputFile": "ferrari-sf24.webp",
+      "teamName": "Ferrari",
+      "modelName": "SF-24",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "car",
+      "entityId": "mercedes",
+      "masterFile": "mercedes_w15_hero_studio_1794991051149.jpg",
+      "outputFile": "mercedes-w15.webp",
+      "teamName": "Mercedes",
+      "modelName": "W15",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "car",
+      "entityId": "astonmartin",
+      "masterFile": "amr24_telemetry_noir_hero_v2_1794991069696.jpg",
+      "outputFile": "astonmartin-amr24.webp",
+      "teamName": "Aston Martin",
+      "modelName": "AMR24",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "car",
+      "entityId": "alpine",
+      "masterFile": "alpine_a524_studio_1794991055055.jpg",
+      "outputFile": "alpine-a524.webp",
+      "teamName": "Alpine",
+      "modelName": "A524",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "car",
+      "entityId": "haas",
+      "masterFile": "haas_vf24_studio_2024_final_1794991109668.jpg",
+      "outputFile": "haas-vf24.webp",
+      "teamName": "Haas",
+      "modelName": "VF-24",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "car",
+      "entityId": "racingbulls",
+      "masterFile": "vcarb01_2024_studio_1794991070992.jpg",
+      "outputFile": "racingbulls-vcarb01.webp",
+      "teamName": "Visa Cash App RB",
+      "modelName": "VCARB 01",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "car",
+      "entityId": "williams",
+      "masterFile": "williams_fw46_2024_studio_1794991060927.jpg",
+      "outputFile": "williams-fw46.webp",
+      "teamName": "Williams",
+      "modelName": "FW46",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "car",
+      "entityId": "audi",
+      "masterFile": "sauber_c44_telemetry_noir_1794991062969.jpg",
+      "outputFile": "audi-c44.webp",
+      "teamName": "Stake F1 Team Kick Sauber",
+      "modelName": "C44",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2025,
+      "kind": "car",
+      "entityId": "mclaren",
+      "masterFile": "mclaren_mcl39_ember_front_right_1794991089801.jpg",
+      "outputFile": "mclaren-mcl39.webp",
+      "teamName": "McLaren",
+      "modelName": "MCL39",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2025,
+      "kind": "car",
+      "entityId": "mercedes",
+      "masterFile": "mercedes_w16_brutalist_ember_studio_1794991105404.jpg",
+      "outputFile": "mercedes-w16.webp",
+      "teamName": "Mercedes",
+      "modelName": "W16",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2025,
+      "kind": "car",
+      "entityId": "redbull",
+      "masterFile": "rb21_ember_brutalist_studio_1794991116534.jpg",
+      "outputFile": "redbull-rb21.webp",
+      "teamName": "Oracle Red Bull Racing",
+      "modelName": "RB21",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2025,
+      "kind": "car",
+      "entityId": "ferrari",
+      "masterFile": "ferrari_sf25_brutalist_studio_v3_1794991151727.jpg",
+      "outputFile": "ferrari-sf25.webp",
+      "teamName": "Ferrari",
+      "modelName": "SF-25",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2025,
+      "kind": "car",
+      "entityId": "williams",
+      "masterFile": "williams_fw47_2025_studio_v2_1794991127510.jpg",
+      "outputFile": "williams-fw47.webp",
+      "teamName": "Williams",
+      "modelName": "FW47",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2025,
+      "kind": "car",
+      "entityId": "racingbulls",
+      "masterFile": "vcarb_02_2025_studio_v2_1794991127249.jpg",
+      "outputFile": "racingbulls-vcarb02.webp",
+      "teamName": "Visa Cash App Racing Bulls",
+      "modelName": "VCARB 02",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2025,
+      "kind": "car",
+      "entityId": "astonmartin",
+      "masterFile": "amr25_brutalist_studio_v2_1794991136474.jpg",
+      "outputFile": "astonmartin-amr25.webp",
+      "teamName": "Aston Martin",
+      "modelName": "AMR25",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2025,
+      "kind": "car",
+      "entityId": "haas",
+      "masterFile": "haas_vf25_ember_brutalist_v2_1794991132097.jpg",
+      "outputFile": "haas-vf25.webp",
+      "teamName": "Haas",
+      "modelName": "VF-25",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2025,
+      "kind": "car",
+      "entityId": "audi",
+      "masterFile": "sauber_c45_studio_v2_1794991143593.jpg",
+      "outputFile": "audi-c45.webp",
+      "teamName": "Stake F1 Team Kick Sauber",
+      "modelName": "C45",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2025,
+      "kind": "car",
+      "entityId": "alpine",
+      "masterFile": "alpine_a525_brutalist_ember_v2_1794991138544.jpg",
+      "outputFile": "alpine-a525.webp",
+      "teamName": "Alpine",
+      "modelName": "A525",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2024,
+      "kind": "driver",
+      "entityId": "albon",
+      "masterFile": "2024_albon_telemetry_noir_1794991207734.jpg",
+      "outputFile": "albon.webp",
+      "driverName": "Alexander Albon",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "driver",
+      "entityId": "alonso",
+      "masterFile": "alonso_2024_telemetry_noir_v2_1794991199629.jpg",
+      "outputFile": "alonso.webp",
+      "driverName": "Fernando Alonso",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "driver",
+      "entityId": "bearman",
+      "masterFile": "2024_bearman_silver_tungsten_noir_1794991216941.jpg",
+      "outputFile": "bearman.webp",
+      "driverName": "Oliver Bearman",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "driver",
+      "entityId": "bottas",
+      "masterFile": "2024_bottas_silver_tungsten_noir_1795322854455.jpg",
+      "outputFile": "bottas.webp",
+      "driverName": "Valtteri Bottas",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "driver",
+      "entityId": "colapinto",
+      "masterFile": "2024_colapinto_telemetry_noir_v2_1794991227548.jpg",
+      "outputFile": "colapinto.webp",
+      "driverName": "Franco Colapinto",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "driver",
+      "entityId": "doohan",
+      "masterFile": "2024_doohan_silver_tungsten_noir_1795322901006.jpg",
+      "outputFile": "doohan.webp",
+      "driverName": "Jack Doohan",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "driver",
+      "entityId": "gasly",
+      "masterFile": "2024_gasly_telemetry_noir_1794991174850.jpg",
+      "outputFile": "gasly.webp",
+      "driverName": "Pierre Gasly",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "driver",
+      "entityId": "hamilton",
+      "masterFile": "2024_hamilton_telemetry_noir_v2_1794991186295.jpg",
+      "outputFile": "hamilton.webp",
+      "driverName": "Lewis Hamilton",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "driver",
+      "entityId": "hulkenberg",
+      "masterFile": "2024_hulkenberg_silver_tungsten_noir_piping_1795322874660.jpg",
+      "outputFile": "hulkenberg.webp",
+      "driverName": "Nico Hülkenberg",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "driver",
+      "entityId": "lawson",
+      "masterFile": "2024_lawson_silver_tungsten_1794991217590.jpg",
+      "outputFile": "lawson.webp",
+      "driverName": "Liam Lawson",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "driver",
+      "entityId": "leclerc",
+      "masterFile": "2024_leclerc_silver_tungsten_noir_v3_1794991222038.jpg",
+      "outputFile": "leclerc.webp",
+      "driverName": "Charles Leclerc",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "driver",
+      "entityId": "magnussen",
+      "masterFile": "2024_magnussen_silver_tungsten_noir_1794991222738.jpg",
+      "outputFile": "magnussen.webp",
+      "driverName": "Kevin Magnussen",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "driver",
+      "entityId": "norris",
+      "masterFile": "2024_norris_telemetry_noir_1794991161472.jpg",
+      "outputFile": "norris.webp",
+      "driverName": "Lando Norris",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "driver",
+      "entityId": "ocon",
+      "masterFile": "2024_ocon_telemetry_noir_1794991204638.jpg",
+      "outputFile": "ocon.webp",
+      "driverName": "Esteban Ocon",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "driver",
+      "entityId": "perez",
+      "masterFile": "2024_perez_silver_tungsten_noir_1794991172164.jpg",
+      "outputFile": "perez.webp",
+      "driverName": "Sergio Pérez",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "driver",
+      "entityId": "piastri",
+      "masterFile": "2024_piastri_telemetry_noir_1794991166710.jpg",
+      "outputFile": "piastri.webp",
+      "driverName": "Oscar Piastri",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "driver",
+      "entityId": "ricciardo",
+      "masterFile": "2024_ricciardo_telemetry_noir_1794991211332.jpg",
+      "outputFile": "ricciardo.webp",
+      "driverName": "Daniel Ricciardo",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "driver",
+      "entityId": "russell",
+      "masterFile": "2024_russell_silver_tungsten_noir_v2_1794991186261.jpg",
+      "outputFile": "russell.webp",
+      "driverName": "George Russell",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "driver",
+      "entityId": "sainz",
+      "masterFile": "2024_sainz_silver_tungsten_noir_1794991168227.jpg",
+      "outputFile": "sainz.webp",
+      "driverName": "Carlos Sainz",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "driver",
+      "entityId": "sargeant",
+      "masterFile": "2024_sargeant_silver_tungsten_noir_clean_1795322882201.jpg",
+      "outputFile": "sargeant.webp",
+      "driverName": "Logan Sargeant",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "driver",
+      "entityId": "stroll",
+      "masterFile": "2024_stroll_telemetry_noir_1794991179522.jpg",
+      "outputFile": "stroll.webp",
+      "driverName": "Lance Stroll",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "driver",
+      "entityId": "tsunoda",
+      "masterFile": "2024_tsunoda_telemetry_noir_1794991182509.jpg",
+      "outputFile": "tsunoda.webp",
+      "driverName": "Yuki Tsunoda",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "driver",
+      "entityId": "verstappen",
+      "masterFile": "verstappen_raw_1794990926636.jpg",
+      "outputFile": "verstappen.webp",
+      "driverName": "Max Verstappen",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "driver",
+      "entityId": "zhou",
+      "masterFile": "2024_zhou_silver_tungsten_noir_1794991215970.jpg",
+      "outputFile": "zhou.webp",
+      "driverName": "Zhou Guanyu",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2025,
+      "kind": "driver",
+      "entityId": "albon",
+      "masterFile": "2025_albon_ember_brutalist_1795340968347.jpg",
+      "outputFile": "albon.webp",
+      "driverName": "Alexander Albon",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2025,
+      "kind": "driver",
+      "entityId": "alonso",
+      "masterFile": "2025_alonso_ember_brutalist_1795341021034.jpg",
+      "outputFile": "alonso.webp",
+      "driverName": "Fernando Alonso",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2025,
+      "kind": "driver",
+      "entityId": "antonelli",
+      "masterFile": "2025_antonelli_ember_brutalist_1795340977100.jpg",
+      "outputFile": "antonelli.webp",
+      "driverName": "Kimi Antonelli",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2025,
+      "kind": "driver",
+      "entityId": "bearman",
+      "masterFile": "2025_bearman_ember_brutalist_1795341075023.jpg",
+      "outputFile": "bearman.webp",
+      "driverName": "Oliver Bearman",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2025,
+      "kind": "driver",
+      "entityId": "bortoleto",
+      "masterFile": "2025_bortoleto_ember_brutalist_1795358971357.jpg",
+      "outputFile": "bortoleto.webp",
+      "driverName": "Gabriel Bortoleto",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2025,
+      "kind": "driver",
+      "entityId": "colapinto",
+      "masterFile": "2025_colapinto_ember_brutalist_1795359042966.jpg",
+      "outputFile": "colapinto.webp",
+      "driverName": "Franco Colapinto",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2025,
+      "kind": "driver",
+      "entityId": "doohan",
+      "masterFile": "2025_doohan_ember_brutalist_1795359041904.jpg",
+      "outputFile": "doohan.webp",
+      "driverName": "Jack Doohan",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2025,
+      "kind": "driver",
+      "entityId": "gasly",
+      "masterFile": "2025_gasly_ember_brutalist_1795359044809.jpg",
+      "outputFile": "gasly.webp",
+      "driverName": "Pierre Gasly",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2025,
+      "kind": "driver",
+      "entityId": "hadjar",
+      "masterFile": "2025_hadjar_ember_brutalist_1795358994109.jpg",
+      "outputFile": "hadjar.webp",
+      "driverName": "Isack Hadjar",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2025,
+      "kind": "driver",
+      "entityId": "hamilton",
+      "masterFile": "2025_hamilton_ember_brutalist_v2_1795322959038.jpg",
+      "outputFile": "hamilton.webp",
+      "driverName": "Lewis Hamilton",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2025,
+      "kind": "driver",
+      "entityId": "hulkenberg",
+      "masterFile": "2025_hulkenberg_ember_brutalist_1795358960247.jpg",
+      "outputFile": "hulkenberg.webp",
+      "driverName": "Nico Hülkenberg",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2025,
+      "kind": "driver",
+      "entityId": "lawson",
+      "masterFile": "2025_lawson_ember_brutalist_1795341050688.jpg",
+      "outputFile": "lawson.webp",
+      "driverName": "Liam Lawson",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2025,
+      "kind": "driver",
+      "entityId": "leclerc",
+      "masterFile": "2025_leclerc_ember_brutalist_1795340957010.jpg",
+      "outputFile": "leclerc.webp",
+      "driverName": "Charles Leclerc",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2025,
+      "kind": "driver",
+      "entityId": "norris",
+      "masterFile": "2025_norris_ember_brutalist_1795322879707.jpg",
+      "outputFile": "norris.webp",
+      "driverName": "Lando Norris",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2025,
+      "kind": "driver",
+      "entityId": "ocon",
+      "masterFile": "2025_ocon_ember_brutalist_1795358970953.jpg",
+      "outputFile": "ocon.webp",
+      "driverName": "Esteban Ocon",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2025,
+      "kind": "driver",
+      "entityId": "piastri",
+      "masterFile": "2025_piastri_ember_brutalist_1795340954562.jpg",
+      "outputFile": "piastri.webp",
+      "driverName": "Oscar Piastri",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2025,
+      "kind": "driver",
+      "entityId": "russell",
+      "masterFile": "2025_russell_ember_brutalist_1795322936222.jpg",
+      "outputFile": "russell.webp",
+      "driverName": "George Russell",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2025,
+      "kind": "driver",
+      "entityId": "sainz",
+      "masterFile": "2025_sainz_ember_brutalist_1795341030006.jpg",
+      "outputFile": "sainz.webp",
+      "driverName": "Carlos Sainz",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2025,
+      "kind": "driver",
+      "entityId": "stroll",
+      "masterFile": "2025_stroll_ember_brutalist_1795341004360.jpg",
+      "outputFile": "stroll.webp",
+      "driverName": "Lance Stroll",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2025,
+      "kind": "driver",
+      "entityId": "tsunoda",
+      "masterFile": "2025_tsunoda_ember_brutalist_1795341061192.jpg",
+      "outputFile": "tsunoda.webp",
+      "driverName": "Yuki Tsunoda",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2025,
+      "kind": "driver",
+      "entityId": "verstappen",
+      "masterFile": "2025_verstappen_ember_brutalist_v2_1795322953061.jpg",
+      "outputFile": "verstappen.webp",
+      "driverName": "Max Verstappen",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2024,
+      "kind": "team",
+      "entityId": "alpine",
+      "masterFile": "2024_team_alpine_noir_1795359164145.jpg",
+      "outputFile": "alpine.webp",
+      "teamName": "BWT Alpine F1 Team",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "team",
+      "entityId": "astonmartin",
+      "masterFile": "2024_team_astonmartin_noir_1795359160660.jpg",
+      "outputFile": "astonmartin.webp",
+      "teamName": "Aston Martin Aramco F1 Team",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "team",
+      "entityId": "ferrari",
+      "masterFile": "2024_team_ferrari_noir_1795359129871.jpg",
+      "outputFile": "ferrari.webp",
+      "teamName": "Scuderia Ferrari HP",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "team",
+      "entityId": "mclaren",
+      "masterFile": "2024_team_mclaren_noir_1795359076170.jpg",
+      "outputFile": "mclaren.webp",
+      "teamName": "McLaren Formula 1 Team",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "team",
+      "entityId": "mercedes",
+      "masterFile": "2024_team_mercedes_noir_1795359088417.jpg",
+      "outputFile": "mercedes.webp",
+      "teamName": "Mercedes-AMG PETRONAS Formula One Team",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "team",
+      "entityId": "redbull",
+      "masterFile": "2024_team_redbull_noir_1795359081621.jpg",
+      "outputFile": "redbull.webp",
+      "teamName": "Oracle Red Bull Racing",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "team",
+      "entityId": "audi",
+      "masterFile": "2024_team_audi_noir_1795377121224.jpg",
+      "outputFile": "audi.webp",
+      "teamName": "Stake F1 Team Kick Sauber",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "team",
+      "entityId": "haas",
+      "masterFile": "2024_team_haas_noir_1795377117136.jpg",
+      "outputFile": "haas.webp",
+      "teamName": "MoneyGram Haas F1 Team",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "team",
+      "entityId": "racingbulls",
+      "masterFile": "2024_team_racingbulls_noir_1795377116163.jpg",
+      "outputFile": "racingbulls.webp",
+      "teamName": "Visa Cash App RB Formula One Team",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "team",
+      "entityId": "williams",
+      "masterFile": "2024_team_williams_noir_1795377118736.jpg",
+      "outputFile": "williams.webp",
+      "teamName": "Williams Racing",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2025,
+      "kind": "team",
+      "entityId": "alpine",
+      "masterFile": "2025_team_alpine_ember_1795377171783.jpg",
+      "outputFile": "alpine.webp",
+      "teamName": "BWT Alpine Formula One Team",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2025,
+      "kind": "team",
+      "entityId": "astonmartin",
+      "masterFile": "2025_team_astonmartin_ember_1795377167791.jpg",
+      "outputFile": "astonmartin.webp",
+      "teamName": "Aston Martin Aramco Formula One Team",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2025,
+      "kind": "team",
+      "entityId": "audi",
+      "masterFile": "2025_team_audi_ember_1795377172245.jpg",
+      "outputFile": "audi.webp",
+      "teamName": "Stake F1 Team Kick Sauber",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2025,
+      "kind": "team",
+      "entityId": "ferrari",
+      "masterFile": "2025_team_ferrari_ember_1795377166846.jpg",
+      "outputFile": "ferrari.webp",
+      "teamName": "Scuderia Ferrari HP",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2025,
+      "kind": "team",
+      "entityId": "haas",
+      "masterFile": "2025_team_haas_ember_1795398240845.jpg",
+      "outputFile": "haas.webp",
+      "teamName": "MoneyGram Haas F1 Team",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2025,
+      "kind": "team",
+      "entityId": "mclaren",
+      "masterFile": "2025_team_mclaren_ember_1795377123038.jpg",
+      "outputFile": "mclaren.webp",
+      "teamName": "McLaren Formula 1 Team",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2025,
+      "kind": "team",
+      "entityId": "mercedes",
+      "masterFile": "2025_team_mercedes_ember_1795377125546.jpg",
+      "outputFile": "mercedes.webp",
+      "teamName": "Mercedes-AMG PETRONAS Formula One Team",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2025,
+      "kind": "team",
+      "entityId": "racingbulls",
+      "masterFile": "2025_team_racingbulls_ember_1795377166505.jpg",
+      "outputFile": "racingbulls.webp",
+      "teamName": "Visa Cash App Racing Bulls Formula One Team",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2025,
+      "kind": "team",
+      "entityId": "redbull",
+      "masterFile": "2025_team_redbull_ember_1795377125539.jpg",
+      "outputFile": "redbull.webp",
+      "teamName": "Oracle Red Bull Racing",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2025,
+      "kind": "team",
+      "entityId": "williams",
+      "masterFile": "2025_team_williams_ember_1795377163611.jpg",
+      "outputFile": "williams.webp",
+      "teamName": "Atlassian Williams Racing",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2024,
+      "kind": "hero",
+      "entityId": "championship",
+      "masterFile": "hero_2024_championship_noir_1795398331541.jpg",
+      "outputFile": "hero-championship-2024.webp",
+      "title": "Season 2024 Championship",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "hero",
+      "entityId": "constructors",
+      "masterFile": "hero_2024_constructors_noir_1795398321380.jpg",
+      "outputFile": "hero-constructors-2024.webp",
+      "title": "Season 2024 Constructors",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2024,
+      "kind": "hero",
+      "entityId": "drivers",
+      "masterFile": "hero_2024_drivers_noir_1795398310805.jpg",
+      "outputFile": "hero-drivers-2024.webp",
+      "title": "Season 2024 Drivers Grid",
+      "style": "silver-tungsten-noir"
+    },
+    {
+      "season": 2025,
+      "kind": "hero",
+      "entityId": "championship",
+      "masterFile": "hero_2025_championship_ember_1795398321719.jpg",
+      "outputFile": "hero-championship-2025.webp",
+      "title": "Season 2025 Championship",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2025,
+      "kind": "hero",
+      "entityId": "constructors",
+      "masterFile": "hero_2025_constructors_ember_1795398323392.jpg",
+      "outputFile": "hero-constructors-2025.webp",
+      "title": "Season 2025 Constructors",
+      "style": "ember-brutalist"
+    },
+    {
+      "season": 2025,
+      "kind": "hero",
+      "entityId": "drivers",
+      "masterFile": "hero_2025_drivers_ember_1795398320716.jpg",
+      "outputFile": "hero-drivers-2025.webp",
+      "title": "Season 2025 Drivers Grid",
+      "style": "ember-brutalist"
+    }
+  ]
+}

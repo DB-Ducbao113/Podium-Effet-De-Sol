@@ -103,7 +103,7 @@ export function F1NewsTicker({ variant = 'compact' }: { variant?: 'compact' | 'h
 
   return (
     <div className="relative z-20 flex h-10 w-full items-center overflow-hidden border-y border-white/10 bg-[#08080b] text-white">
-      <div className="z-10 flex h-full shrink-0 items-center gap-2 bg-f1red px-3 text-[11px] font-black tracking-widest">
+      <div className="z-10 flex h-full shrink-0 items-center gap-2 bg-peds-ignition px-3 text-peds-carbon text-[11px] font-black tracking-widest">
         <Radio className="h-3.5 w-3.5" aria-hidden="true" />
         <span>EDS FEED</span>
         <button

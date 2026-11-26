@@ -1,0 +1,10 @@
+{
+  "name": "@peds/jobs",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "sync:2026": "node src/update-2026-data.js",
+    "sync:sessions": "node src/sync-openf1-sessions.js"
+  }
+}

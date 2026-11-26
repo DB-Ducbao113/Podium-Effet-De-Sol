@@ -4,6 +4,7 @@ import { clientAssetsDir, requireHtmlShell } from './build-paths.mjs';
 
 const legacyTargets = [
   'dist/models/README.md',
+  'dist/models/model-b-eds-optimized-v1.glb',
   'dist/models/c42.v2.glb',
   'dist/textures/wheel_base.webp',
   'dist/images/showroom/closeups',
@@ -13,13 +14,19 @@ const legacyTargets = [
   'dist/images/showroom/pirelli_tires.webp',
   'dist/images/showroom/halo_safety.webp',
   'dist/images/showroom/sidepods_cooling.webp',
+  'dist/images/showroom/eds-g01',
+  'dist/images/eds/editorial',
   'dist/images/teams',
   'dist/images/drivers',
   'dist/images/circuits',
   'dist/images/podium-diffuser-hero-v2.webp',
   'dist/dev-showroom.html',
 ];
-const reviewOnlyTargets = ['dist/models/eds-g01.glb', 'dist/models/eds-g02.glb', 'dist/models/eds-g03-preview.glb'];
+const reviewOnlyTargets = [
+  'dist/models/eds-g01.glb',
+  'dist/models/eds-g02.glb',
+  'dist/models/eds-g03-preview.glb',
+];
 const originalTeamStudies = [
   'ferrari',
   'mclaren',
@@ -64,18 +71,16 @@ const originalDriverProfiles = [
   'doohan',
 ];
 const requiredOriginalAssets = [
-  'dist/models/model-b-eds-optimized-v1.glb',
-  'dist/images/showroom/eds-g01/schematic.svg',
-  'dist/images/showroom/eds-g01/wings.svg',
-  'dist/images/showroom/eds-g01/drs.svg',
-  'dist/images/showroom/eds-g01/power_unit.svg',
-  'dist/images/showroom/eds-g01/halo.svg',
-  'dist/images/showroom/eds-g01/sidepods.svg',
-  'dist/images/showroom/eds-g01/tires.svg',
-  'dist/images/showroom/eds-g01/floor.svg',
-  ...originalTeamStudies.map((id) => `dist/images/eds/vehicle-studies/${id}.svg`),
-  ...originalDriverProfiles.map((id) => `dist/images/eds/driver-profiles/${id}.svg`),
-  'dist/images/eds/editorial/eds-g01-hero.svg',
+  'dist/models/fp04rb-engineering-v1.glb',
+  'dist/models/fp04rb-showroom-desktop.glb',
+  'dist/models/fp04rb-showroom-mobile.glb',
+  'dist/models/fp04rb-pit-crew-v1.glb',
+  ...originalTeamStudies.map(
+    (id) => `dist/images/eds/vehicle-studies/${id}.svg`,
+  ),
+  ...originalDriverProfiles.map(
+    (id) => `dist/images/eds/driver-profiles/${id}.svg`,
+  ),
   ...[
     'albert-park',
     'shanghai',
@@ -106,16 +111,26 @@ const requiredOriginalAssets = [
 
 await requireHtmlShell(path.join(clientAssetsDir, 'index.html'));
 if ((await fs.realpath(clientAssetsDir)) !== clientAssetsDir) {
-  throw new Error(`Refusing to prune a redirected client asset directory: ${clientAssetsDir}`);
+  throw new Error(
+    `Refusing to prune a redirected client asset directory: ${clientAssetsDir}`,
+  );
 }
 
 function clientTarget(relativeTarget) {
   if (!relativeTarget.startsWith('dist/')) {
     throw new Error(`Refusing unexpected prune target: ${relativeTarget}`);
   }
-  const target = path.resolve(clientAssetsDir, relativeTarget.slice('dist/'.length));
+  const target = path.resolve(
+    clientAssetsDir,
+    relativeTarget.slice('dist/'.length),
+  );
   const relative = path.relative(clientAssetsDir, target);
-  if (!relative || relative === '..' || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) {
+  if (
+    !relative ||
+    relative === '..' ||
+    relative.startsWith(`..${path.sep}`) ||
+    path.isAbsolute(relative)
+  ) {
     throw new Error(`Refusing to prune outside client assets: ${target}`);
   }
   return target;
@@ -151,9 +166,12 @@ for (const relativeTarget of [...legacyTargets, ...reviewOnlyTargets]) {
   }
 }
 if (remaining.length > 0)
-  throw new Error(`Legacy commercial-release assets remain in client output: ${remaining.join(', ')}`);
+  throw new Error(
+    `Legacy commercial-release assets remain in client output: ${remaining.join(', ')}`,
+  );
 
-for (const requiredAsset of requiredOriginalAssets) await fs.access(clientTarget(requiredAsset));
+for (const requiredAsset of requiredOriginalAssets)
+  await fs.access(clientTarget(requiredAsset));
 console.log(
   `Commercial artifact guard: removed ${legacyTargets.length} legacy and ${reviewOnlyTargets.length} review-only visual targets; verified ${requiredOriginalAssets.length} required assets.`,
 );

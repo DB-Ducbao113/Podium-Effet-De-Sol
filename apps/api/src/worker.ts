@@ -2,9 +2,16 @@ import type { WorkerEnvironment } from "@peds/contracts";
 import { FixedWindowRateLimiter } from "./infrastructure/rateLimiter";
 import jolpicaHandler from "./interfaces/http/jolpica";
 import openF1Handler from "./interfaces/http/openf1";
+import timezoneHandler from "./interfaces/http/timezone";
 import { corsHeaders, jsonResponse } from "./interfaces/http/shared";
 
 const limiter = new FixedWindowRateLimiter(120, 60_000);
+const APPROVED_PUBLIC_MODELS = new Set([
+  "/models/fp04rb-engineering-v1.glb",
+  "/models/fp04rb-showroom-desktop.glb",
+  "/models/fp04rb-showroom-mobile.glb",
+  "/models/fp04rb-pit-crew-v1.glb",
+]);
 
 const securityHeaders = {
   "Content-Security-Policy":
@@ -34,7 +41,7 @@ async function route(
   const pathname = new URL(request.url).pathname;
   if (pathname.startsWith("/models/")) {
     if (
-      pathname !== "/models/model-b-eds-optimized-v1.glb" ||
+      !APPROVED_PUBLIC_MODELS.has(pathname) ||
       !["GET", "HEAD"].includes(request.method)
     ) {
       return new Response("Model asset not found", {
@@ -45,12 +52,37 @@ async function route(
         },
       });
     }
+    const fetchSite = request.headers.get("Sec-Fetch-Site")?.toLowerCase();
+    const fetchMode = request.headers.get("Sec-Fetch-Mode")?.toLowerCase();
+    const fetchDest = request.headers.get("Sec-Fetch-Dest")?.toLowerCase();
+    if (fetchSite === "cross-site") {
+      return new Response("Cross-origin model access denied", {
+        status: 403,
+        headers: {
+          "Content-Type": "text/plain; charset=utf-8",
+          "Cache-Control": "no-store",
+          "X-Robots-Tag": "noindex, noimageindex, nosnippet",
+        },
+      });
+    }
+    if (fetchDest === "document" || fetchMode === "navigate") {
+      return new Response("Direct model navigation forbidden", {
+        status: 403,
+        headers: {
+          "Content-Type": "text/plain; charset=utf-8",
+          "Cache-Control": "no-store",
+          "X-Robots-Tag": "noindex, noimageindex, nosnippet",
+        },
+      });
+    }
     const asset = await environment.ASSETS.fetch(request);
     const response = new Response(asset.body, asset);
     response.headers.set(
       "Cache-Control",
       "public, max-age=31536000, immutable",
     );
+    response.headers.set("X-Robots-Tag", "noindex, noimageindex, nosnippet");
+    response.headers.set("Cross-Origin-Resource-Policy", "same-origin");
     return response;
   }
   if (!pathname.startsWith("/api/")) {
@@ -74,6 +106,9 @@ async function route(
     }
   }
 
+  if (pathname === "/api/timezone") {
+    return timezoneHandler(request, environment);
+  }
   if (pathname === "/api/openf1" || pathname.startsWith("/api/openf1/")) {
     return openF1Handler(request, environment);
   }

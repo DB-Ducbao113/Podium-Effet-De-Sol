@@ -1,5 +1,6 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
+import { useNavigationStore } from '../../store/useNavigationStore';
 
 interface Props {
   children: ReactNode;
@@ -11,6 +12,21 @@ interface State {
   error: Error | null;
   errorInfo: ErrorInfo | null;
 }
+
+const ERROR_COPY = {
+  vi: {
+    title: 'Đã xảy ra sự cố hiển thị (Render Crash)',
+    body: 'Ứng dụng vừa gặp lỗi hiển thị không mong muốn. Bạn có thể tải lại trang hoặc trở về trang chủ. Dữ liệu đã lưu trong trình duyệt sẽ không bị xóa.',
+    reload: 'Tải lại trang',
+    home: 'Trang chủ',
+  },
+  en: {
+    title: 'A rendering error occurred',
+    body: 'The app hit an unexpected rendering error. Reload the page or go back home. Data already stored in your browser is kept.',
+    reload: 'Reload page',
+    home: 'Home',
+  },
+} as const;
 
 export class ErrorBoundary extends Component<Props, State> {
   public state: State = {
@@ -39,6 +55,8 @@ export class ErrorBoundary extends Component<Props, State> {
         return this.props.fallback;
       }
 
+      const copy = ERROR_COPY[useNavigationStore.getState().lang];
+
       return (
         <div className="min-h-screen bg-[#09090b] text-white flex items-center justify-center p-6 font-sans">
           <div className="max-w-2xl w-full bg-[#18181b] border border-red-500/30 rounded-2xl p-8 shadow-2xl space-y-6">
@@ -51,14 +69,13 @@ export class ErrorBoundary extends Component<Props, State> {
                   F1 SYSTEM PIT-STOP ERROR
                 </span>
                 <h1 className="text-2xl font-black tracking-tight text-white mt-0.5">
-                  Đã xảy ra sự cố hiển thị (Render Crash)
+                  {copy.title}
                 </h1>
               </div>
             </div>
 
             <p className="text-sm text-zinc-300 leading-relaxed">
-              Ứng dụng vừa gặp lỗi hiển thị không mong muốn. Bạn có thể tải lại trang hoặc trở về
-              trang chủ. Dữ liệu đã lưu trong trình duyệt sẽ không bị xóa.
+              {copy.body}
             </p>
 
             {this.state.error && (
@@ -75,10 +92,10 @@ export class ErrorBoundary extends Component<Props, State> {
             <div className="flex flex-wrap items-center gap-3 pt-2">
               <button
                 onClick={this.handleReset}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold uppercase tracking-wider transition-all shadow-lg shadow-red-600/20 cursor-pointer"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold uppercase tracking-wider transition-all shadow-lg shadow-red-600/20 cursor-pointer"
               >
                 <RefreshCw className="w-4 h-4" />
-                <span>Tải lại trang</span>
+                <span>{copy.reload}</span>
               </button>
 
               <a
@@ -86,7 +103,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white text-xs font-bold uppercase tracking-wider transition-all ml-auto"
               >
                 <Home className="w-4 h-4" />
-                <span>Trang chủ</span>
+                <span>{copy.home}</span>
               </a>
             </div>
           </div>

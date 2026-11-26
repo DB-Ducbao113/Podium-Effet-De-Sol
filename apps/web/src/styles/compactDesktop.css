@@ -17,9 +17,11 @@
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .page-container {
     padding-inline: clamp(22px, 2.3vw / var(--peds-visual-zoom), 42px);
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .page-section {
     padding-block: var(--peds-density-section);
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .peds-display-page {
     font-size: clamp(2.65rem, 4.35vw / var(--peds-visual-zoom), 4rem);
   }
@@ -28,31 +30,38 @@
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .h1-nav--v4 {
     height: 68px;
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .h1-nav--v4 .h1-nav__bar {
     height: 55px;
     margin-top: 6px;
     padding-inline: clamp(12px, 1.05vw / var(--peds-visual-zoom), 18px);
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .h1-nav--v4.h1-nav--scrolled .h1-nav__bar {
     height: 50px;
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .h1-nav--v4 .h1-nav__brand-logo {
     height: 30px;
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .h1-nav--v4 .h1-nav__desktop {
     gap: clamp(5px, .85vw / var(--peds-visual-zoom), 17px);
     margin-right: clamp(10px, 1.5vw / var(--peds-visual-zoom), 27px);
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .h1-nav--v4 .h1-nav__link {
     min-height: 44px;
     padding-inline: clamp(.5rem, .65vw / var(--peds-visual-zoom), .77rem);
     font-size: clamp(.75rem, .82vw / var(--peds-visual-zoom), .82rem);
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .h1-nav--v4 .h1-nav__cta {
     min-height: 44px;
     padding-inline: .8rem;
     margin-left: .6rem;
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .h1-nav--v4 .h1-nav__lang-option {
     min-width: 44px;
     min-height: 44px;
@@ -64,68 +73,87 @@
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .home-v3__content {
     padding-bottom: clamp(2rem, 3vw / var(--peds-visual-zoom), 3.15rem);
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .home-v3 .home-rc {
     padding-block: clamp(1.25rem, 2.1vw / var(--peds-visual-zoom), 2.1rem) clamp(1.3rem, 1.9vw / var(--peds-visual-zoom), 2rem);
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .home-v3 .home-title-fight {
     padding-block: clamp(.8rem, 1.1vw / var(--peds-visual-zoom), 1.5rem) clamp(1.3rem, 1.9vw / var(--peds-visual-zoom), 2rem);
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .home-v3 .eds-explore {
     padding-block: clamp(1.3rem, 2.25vw / var(--peds-visual-zoom), 2.5rem);
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .home-v3 .home-live__heading {
     margin-bottom: .8rem;
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .home-v3 .home-live__heading h2 {
     font-size: clamp(1.5rem, 1.95vw / var(--peds-visual-zoom), 2.2rem);
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .home-v3 .home-rc__grid,
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .home-v3 .home-title-fight__grid {
     gap: var(--peds-density-panel-gap);
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .home-v3 .home-rc__next {
     min-height: 185px;
     padding: .85rem;
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .home-v3 .home-rc__map {
     min-height: 145px;
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .home-v3 .home-rc__timing {
     min-height: 185px;
     padding: .85rem;
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .home-v3 .home-rc__result {
     min-height: 185px;
     padding: .85rem;
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .home-v3 .home-title-fight__panel {
     padding: clamp(.9rem, 1.3vw / var(--peds-visual-zoom), 1.2rem);
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .home-v3 .home-title-fight__panel-head {
     padding-bottom: .65rem;
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .home-v3 .home-title-fight__rows li {
     grid-template-columns: 2rem 2.55rem minmax(0, 1fr) auto;
     min-height: 54px;
     gap: .55rem;
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .home-v3 .home-title-fight__portrait {
     width: 2.55rem;
     height: 2.55rem;
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .home-v3 .home-title-fight__name {
     font-size: clamp(.85rem, .95vw / var(--peds-visual-zoom), 1rem);
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .home-v3 .home-title-fight__rows strong {
     font-size: clamp(1.05rem, 1.25vw / var(--peds-visual-zoom), 1.27rem);
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .home-v3 .eds-explore__card {
     min-height: 216px;
     aspect-ratio: 1.5;
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .home-v3 .eds-explore__header {
     margin-bottom: 1rem;
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .home-v3 .eds-explore__bottom strong {
     font-size: clamp(1.42rem, 1.8vw / var(--peds-visual-zoom), 2rem);
   }
@@ -134,30 +162,38 @@
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .f4-championship:not([data-text-zoom='200']):not([data-text-zoom='400']) {
     padding-block: 2.1rem;
   }
-  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .f4-championship:not([data-text-zoom='200']):not([data-text-zoom='400']) .page-container.space-y-8 > :not(:last-child) {
+
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .f4-championship:not([data-text-zoom='200']):not([data-text-zoom='400']) .page-container.space-y-8> :not(:last-child) {
     margin-block-end: 1.3rem;
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .f4-overview {
     gap: 1rem;
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .f4-overview-head h2,
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .f4-standings-head h2 {
     font-size: clamp(1.6rem, 2.3vw / var(--peds-visual-zoom), 2.3rem);
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .f4-overview-grid {
     gap: .75rem;
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .f4-overview-tile {
     min-height: 12.4rem;
     padding: clamp(.95rem, 1.35vw / var(--peds-visual-zoom), 1.4rem);
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .f4-overview-tile strong {
     margin-top: 1rem;
     font-size: clamp(1.2rem, 1.7vw / var(--peds-visual-zoom), 1.75rem);
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .f4-standings-head {
     padding: clamp(.95rem, 1.35vw / var(--peds-visual-zoom), 1.4rem);
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .f4-table th,
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .f4-table td {
     padding: .75rem .85rem;
@@ -167,13 +203,16 @@
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .peds-about-layout {
     padding-block: 2.4rem;
   }
-  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .peds-about-layout > header {
+
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .peds-about-layout>header {
     margin-bottom: 2rem;
     padding-bottom: 1.5rem;
   }
-  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .peds-about-layout > section {
+
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .peds-about-layout>section {
     margin-bottom: 1.8rem;
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .peds-footer__main {
     padding-block: clamp(32px, 3.4vw / var(--peds-visual-zoom), 47px);
     gap: clamp(22px, 3vw / var(--peds-visual-zoom), 48px);
@@ -185,16 +224,20 @@
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .home-v3 .home-rc {
     padding-block: 1.5rem 1.2rem;
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .home-v3 .home-title-fight {
     padding-block: 1rem 1.4rem;
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .home-v3 .eds-explore {
     padding-block: 1.5rem 1.9rem;
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .home-v3 .eds-explore__card {
-    min-height: 220px;
-    aspect-ratio: 1.85;
+    min-height: 0;
+    aspect-ratio: auto;
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .home-v3 .home-title-fight__rows li {
     min-height: 56px;
   }
@@ -205,28 +248,35 @@
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .r1-cinema--v7 .r1-cinema__inner {
     padding-bottom: 56px;
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .home-v3 .home-rc {
     padding-block: 1.6rem 1.2rem;
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .home-v3 .home-title-fight {
     padding-block: .9rem 1.25rem;
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .home-v3 .eds-explore {
     padding-block: 1.4rem;
   }
 }
+
 @media (max-width: 500px) {
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .r1-cinema--v7 .r1-cinema__inner {
     padding-bottom: 54px;
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .r1-cinema--v7 .r1-cinema__title {
     font-size: clamp(3rem, 11.2vw / var(--peds-visual-zoom), 4.1rem);
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .r1-cinema--v7 .r1-cinema__scene {
     height: 235px;
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .home-v3 .eds-explore__card {
-    min-height: 235px;
+    min-height: 0;
   }
 }
 
@@ -236,58 +286,74 @@
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .p5-gallery-page {
     padding-block: 1.4rem 2.75rem;
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .p5-gallery-hero,
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .p5-drivers-hero {
-    min-height: 315px;
-    padding: clamp(1.35rem, 2.4vw / var(--peds-visual-zoom), 2.25rem);
+    min-height: 265px;
+    padding: 0;
     border-radius: 18px;
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .p5-gallery-hero h1 {
-    font-size: clamp(3.6rem, 8.7vw / var(--peds-visual-zoom), 8rem);
+    font-size: clamp(2.65rem, 4.6vw / var(--peds-visual-zoom), 4.1rem);
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .p5-controls {
     margin-block: .75rem 1.1rem;
     padding: .75rem;
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .p5-controls :is(input, select) {
     min-height: 44px;
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .p5-driver-card {
-    aspect-ratio: .83;
+    aspect-ratio: auto;
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .p5-team-card {
     min-height: 295px;
     border-radius: 16px;
   }
-  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .peds-engineering-index > header > .page-container {
+
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .peds-engineering-index>header>.page-container {
     padding-block: clamp(3rem, 5.2vw / var(--peds-visual-zoom), 5rem);
   }
-  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .peds-engineering-index > header h1 {
+
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .peds-engineering-index>header h1 {
     font-size: clamp(2.8rem, 4.7vw / var(--peds-visual-zoom), 4.8rem);
   }
-  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .peds-engineering-index > main.page-container {
+
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .peds-engineering-index>main.page-container {
     padding-block: 2.8rem;
   }
-  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .peds-engineering-index > main .grid {
+
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .peds-engineering-index>main .grid {
     gap: 1rem;
   }
-  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .peds-engineering-index > main article a > div:last-child {
+
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .peds-engineering-index>main article a>div:last-child {
     padding: 1.25rem;
   }
-  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .peds-engineering-index > main article h2 {
+
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .peds-engineering-index>main article h2 {
     font-size: clamp(1.4rem, 1.8vw / var(--peds-visual-zoom), 1.9rem);
   }
-  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .peds-engineering-index > main article {
+
+  html:not([data-text-zoom='200']):not([data-text-zoom='400']) .peds-engineering-index>main article {
     border-radius: 1rem;
   }
 }
+
 @media (min-width: 851px) and (max-width: 1179px) {
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .p5-gallery-hero,
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .p5-drivers-hero {
-    min-height: 340px;
-    padding: 1.5rem;
+    min-height: 270px;
+    padding: 0;
   }
+
   html:not([data-text-zoom='200']):not([data-text-zoom='400']) .p5-gallery-hero h1 {
-    font-size: clamp(3.8rem, 8vw / var(--peds-visual-zoom), 6rem);
+    font-size: clamp(2.65rem, 4.6vw / var(--peds-visual-zoom), 4.1rem);
   }
 }

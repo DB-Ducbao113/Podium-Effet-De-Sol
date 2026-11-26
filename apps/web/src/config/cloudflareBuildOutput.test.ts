@@ -139,6 +139,46 @@ describe("Cloudflare build output contract", () => {
     );
   });
 
+  it("flips static index.html robots meta to index, follow only on live production indexing builds", () => {
+    const output = path.join(fixture(), "client");
+    mkdirSync(output, { recursive: true });
+    const shell = path.join(output, "index.html");
+    writeFileSync(
+      shell,
+      '<html><head><meta name="robots" content="noindex, nofollow" /></head><body><div id="root"></div></body></html>',
+    );
+
+    const prod = run("generate-seo-artifacts.mjs", [`--output=${output}`], {
+      env: {
+        ...process.env,
+        VITE_SITE_URL: "https://podium-eds.example",
+        VITE_ALLOW_INDEXING: "true",
+        VITE_DEPLOYMENT_CONTEXT: "production",
+      },
+    });
+    expect(prod.status).toBe(0);
+    expect(readFileSync(shell, "utf8")).toContain(
+      '<meta name="robots" content="index, follow" />',
+    );
+    expect(readFileSync(path.join(output, "robots.txt"), "utf8")).toContain(
+      "Allow: /",
+    );
+
+    // Negative control: preview context forces noindex back on
+    const preview = run("generate-seo-artifacts.mjs", [`--output=${output}`], {
+      env: {
+        ...process.env,
+        VITE_SITE_URL: "https://podium-eds.example",
+        VITE_ALLOW_INDEXING: "true",
+        VITE_DEPLOYMENT_CONTEXT: "preview",
+      },
+    });
+    expect(preview.status).toBe(0);
+    expect(readFileSync(shell, "utf8")).toContain(
+      '<meta name="robots" content="noindex, nofollow" />',
+    );
+  });
+
   it("fails closed for a missing original asset without pruning outside client output", () => {
     const temporary = fixture();
     const clientModels = path.join(temporary, "dist", "client", "models");

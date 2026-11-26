@@ -2,6 +2,11 @@ import { useEffect } from 'react';
 
 export type TextZoomLevel = 'normal' | '200' | '400';
 
+/** Live VISUAL-ZOOM-01 scale: 0.75 on wide desktop, 1 wherever the scale is off. */
+export function visualZoomFactor(root: HTMLElement): number {
+  return Number.parseFloat(getComputedStyle(root).getPropertyValue('--peds-visual-zoom')) || 1;
+}
+
 /** Thresholds are browser text-zoom factors, measured on a rendered 1rem probe. */
 export function textZoomLevel(sizePx: number, visualZoom: number): TextZoomLevel {
   const ratio = sizePx > 0 ? sizePx / (16 * visualZoom) : 1;
@@ -13,8 +18,7 @@ export function textZoomLevel(sizePx: number, visualZoom: number): TextZoomLevel
  * 200/400% text-zoom thresholds are measured against the scaled base.
  */
 export function resolveTextZoomLevel(root: HTMLElement, probe: HTMLElement): TextZoomLevel {
-  const visualZoom = Number.parseFloat(getComputedStyle(root).getPropertyValue('--peds-visual-zoom')) || 1;
-  return textZoomLevel(probe.getBoundingClientRect().width, visualZoom);
+  return textZoomLevel(probe.getBoundingClientRect().width, visualZoomFactor(root));
 }
 
 /**

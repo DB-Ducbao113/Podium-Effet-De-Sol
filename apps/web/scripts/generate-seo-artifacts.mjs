@@ -68,6 +68,20 @@ const robots = indexing
 await mkdir(outputDir, { recursive: true });
 await writeFile(path.join(outputDir, 'sitemap.xml'), sitemap, 'utf8');
 await writeFile(path.join(outputDir, 'robots.txt'), robots, 'utf8');
+const shellIndexPath = path.join(outputDir, 'index.html');
+try {
+  const indexHtml = await readFile(shellIndexPath, 'utf8');
+  const nextRobotsMeta = indexing ? 'index, follow' : 'noindex, nofollow';
+  const updatedHtml = indexHtml.replace(
+    /<meta\s+name="robots"\s+content="[^"]*"\s*\/?>/i,
+    `<meta name="robots" content="${nextRobotsMeta}" />`,
+  );
+  if (updatedHtml !== indexHtml) {
+    await writeFile(shellIndexPath, updatedHtml, 'utf8');
+  }
+} catch (error) {
+  if (error?.code !== 'ENOENT') throw error;
+}
 console.log(
   `SEO artifacts: ${routes.length} routes; indexing=${indexing}; context=${deploymentContext ?? 'UNSET'}; site=${siteUrl ?? 'UNCONFIGURED'}`,
 );

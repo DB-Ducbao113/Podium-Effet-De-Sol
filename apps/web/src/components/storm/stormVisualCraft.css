@@ -1,0 +1,213 @@
+/* ============================================================================
+   STORM MIDNIGHT VISUAL CRAFT LAYER
+   Pure typography, perceptual OKLCH/P3 color science & Liquid Glass material polish.
+   Strict invariant: ZERO layout, spacing, sizing, or content changes.
+   ============================================================================ */
+
+/* ── 1. Perceptual OKLCH Color System (Progressive Enhancement) ─────────────── */
+@supports (color: oklch(0.65 0.22 35)) {
+  .sp-root {
+    --sp-bg: oklch(0.145 0.018 256);
+    --sp-surface: oklch(0.215 0.026 254 / 0.58);
+    --sp-surface-raised: oklch(0.255 0.032 254 / 0.78);
+    --sp-line: oklch(0.96 0.008 245 / 0.14);
+    --sp-line-strong: oklch(0.96 0.01 245 / 0.26);
+    --sp-ink: oklch(0.962 0.01 86);
+    --sp-muted: oklch(0.758 0.028 245);
+    --sp-accent: oklch(0.655 0.224 34);
+    --sp-accent-text: oklch(0.715 0.195 36);
+    --sp-on-accent: oklch(0.13 0.016 256);
+    --sp-cyan: oklch(0.848 0.122 214);
+    --sp-specular-rim: oklch(0.98 0.012 225 / 0.28);
+    --sp-specular-warm: oklch(0.93 0.04 70 / 0.16);
+  }
+
+  /* Wide-gamut OLED / Retina Display-P3 boost for F1 accent & telemetry cyan */
+  @media (color-gamut: p3) {
+    .sp-root {
+      --sp-accent: oklch(0.662 0.246 33.5);
+      --sp-accent-text: oklch(0.728 0.208 36);
+      --sp-cyan: oklch(0.862 0.138 212);
+    }
+  }
+}
+
+/* ── 2. Anti-Banding Micro Film-Grain on Midnight Stage ───────────────────── */
+.sp-stage-radial::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.028;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
+
+/* ── 3. Typography Polish (Optical Sizing, Wrapping, OpenType Telemetry) ──── */
+.sp-root {
+  font-optical-sizing: auto;
+  font-kerning: normal;
+  font-synthesis-weight: none;
+  font-synthesis-style: none;
+}
+
+/* Balanced headlines (no single-word orphans) */
+.sp-lg-h1,
+.sp-panel-title,
+.sp-about-section__title,
+.sp-drawer-title {
+  text-wrap: balance;
+}
+
+/* Smooth editorial paragraph rag */
+.sp-storm-context-copy,
+.sp-hero-lead,
+.sp-panel-sub,
+.sp-about-source-card p,
+.sp-about-bullets li,
+.sp-drawer-sub {
+  text-wrap: pretty;
+}
+
+/* Crisp luminous ivory ink on display headlines (solid color so GSAP SplitText wrappers never lose fill) */
+.sp-storm-display .sp-storm-line--first>span,
+.sp-storm-display .sp-storm-line--second>span {
+  color: #f8f6f0;
+  text-shadow:
+    0 2px 24px rgba(2, 6, 13, 0.42),
+    0 0 18px rgba(255, 255, 255, 0.08);
+}
+
+.sp-lg-h1 {
+  color: var(--sp-ink, #f5f2ea);
+  text-shadow:
+    0 2px 22px rgba(2, 6, 13, 0.46),
+    0 0 16px rgba(255, 255, 255, 0.07);
+}
+
+/* Keep true editorial serif italic luminous warm champagne */
+.sp-lg-h1 em,
+.sp-storm-line--third em {
+  color: #f6e7d4;
+  text-shadow:
+    0 2px 18px rgba(2, 6, 13, 0.72),
+    0 0 30px rgba(255, 168, 120, 0.22);
+}
+
+/* F1 Timing Tower OpenType precision: tabular lining figures + slashed zero */
+.sp-pulse-countdown-digits,
+.sp-pulse-row-meta,
+.sp-mono-tag,
+.sp-lg-kick,
+.sp-lg-pos,
+.sp-lg-pts,
+.sp-lg-points,
+.sp-lg-time,
+.sp-lg-gap,
+.sp-drawer-metric-val,
+.sp-drawer-kicker,
+.sp-about-badge {
+  font-variant-numeric: lining-nums tabular-nums slashed-zero;
+  font-feature-settings:
+    "tnum" 1,
+    "lnum" 1,
+    "zero" 1;
+}
+
+/* Crisp telemetry kicker & overline luminescence */
+.sp-lg-kick,
+.sp-storm-eyebrow-label {
+  text-shadow: 0 1px 10px rgba(2, 6, 14, 0.65);
+}
+
+/* Refined Vietnamese editorial reading clarity (Manrope + Cormorant Garamond) */
+.sp-root[lang="vi"] .sp-storm-context-copy,
+.sp-root[lang="vi"] .sp-hero-lead,
+.sp-root[lang="vi"] .sp-panel-sub,
+.sp-root[lang="vi"] .sp-about-source-card p {
+  letter-spacing: 0.004em;
+}
+
+/* ── 4. Atmospheric 3-Tier Liquid Glass Lighting & Dynamic OKLCH Team Tint ── */
+@supports (color: color-mix(in oklch, white 20%, transparent)) {
+
+  /* Tier 1: Base Glass Panels — crisp top-edge specular refraction */
+  .sp-root .sp-lg-panel {
+    border-color: color-mix(in oklch, var(--sp-ink) 16%, transparent);
+    box-shadow:
+      inset 0 1px 0 var(--sp-specular-rim, rgba(255, 255, 255, 0.24)),
+      inset 0 -1px 0 rgba(2, 6, 14, 0.35),
+      0 14px 36px -14px rgba(1, 5, 12, 0.52);
+  }
+
+  /* Tier 2: Featured Telemetry Panels — richer frosted optical depth */
+  .sp-root .sp-pulse-card,
+  .sp-root .sp-lg-spot,
+  .sp-root .sp-lg-nextpanel,
+  .sp-root .sp-entity-hero {
+    border-color: color-mix(in oklch,
+        var(--sp-cyan) 20%,
+        rgba(255, 255, 255, 0.16));
+    box-shadow:
+      inset 0 1px 0 color-mix(in oklch, white 34%, transparent),
+      inset 0 0 28px color-mix(in oklch, var(--sp-cyan) 5%, transparent),
+      0 18px 44px -16px rgba(1, 5, 12, 0.64);
+  }
+
+  /* Tier 3: Floating Dossier Drawer — elevated sapphire-carbon rim */
+  .sp-root .sp-drawer {
+    border-color: color-mix(in oklch,
+        var(--drawer-accent, var(--sp-cyan)) 34%,
+        rgba(255, 255, 255, 0.2));
+    box-shadow:
+      inset 0 1px 0 color-mix(in oklch, white 36%, transparent),
+      0 28px 72px -18px rgba(0, 4, 12, 0.78),
+      0 0 42px -16px color-mix(in oklch,
+        var(--drawer-accent, var(--sp-cyan)) 26%,
+        transparent);
+  }
+
+  /* Dynamic perceptual OKLCH tint on team/driver/car cards exposing --tc */
+  .sp-root .sp-entity-detail .sp-entity-hero,
+  .sp-root .sp-lg-tcard,
+  .sp-root .sp-lg-dcard {
+    border-color: color-mix(in oklch,
+        var(--tc, var(--sp-cyan)) 28%,
+        rgba(255, 255, 255, 0.14));
+  }
+
+  .sp-root .sp-lg-tcard:hover,
+  .sp-root .sp-lg-dcard:hover {
+    border-color: color-mix(in oklch,
+        var(--tc, var(--sp-cyan)) 58%,
+        rgba(255, 255, 255, 0.28));
+    box-shadow:
+      inset 0 1px 0 color-mix(in oklch, white 34%, transparent),
+      0 18px 42px -18px rgba(0, 0, 0, 0.65),
+      0 0 28px -10px color-mix(in oklch, var(--tc, var(--sp-cyan)) 34%, transparent);
+  }
+
+  /* Active telemetry highlight accents in OKLCH */
+  .sp-root .sp-lg-tile.is-next {
+    border-color: color-mix(in oklch,
+        var(--sp-accent) 55%,
+        rgba(255, 255, 255, 0.2));
+    box-shadow:
+      inset 0 1px 0 color-mix(in oklch, var(--sp-accent-text) 42%, transparent),
+      0 14px 34px -14px color-mix(in oklch, var(--sp-accent) 32%, transparent);
+  }
+}
+
+/* Preserve full contrast under Windows forced-colors / high-contrast mode */
+@media (forced-colors: active) {
+
+  .sp-storm-display .sp-storm-line--first>span,
+  .sp-storm-display .sp-storm-line--second>span,
+  .sp-lg-h1,
+  .sp-lg-h1 em,
+  .sp-storm-line--third em {
+    color: CanvasText;
+    text-shadow: none;
+  }
+}

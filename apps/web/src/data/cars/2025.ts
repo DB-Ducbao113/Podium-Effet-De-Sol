@@ -26,7 +26,11 @@ export const CARS_2025: CarSpec[] = [
       frontSuspension: 'Pull-rod revised front kinematics',
       rearSuspension: 'Push-rod compact gearbox-integrated',
       aeroPhilosophy: 'Sidepod máng dốc khí động học siêu hẹp, hướng luồng gió trực tiếp đến sàn mở rộng.',
+      aeroPhilosophyEn:
+        'A very narrow, steeply ramped aerodynamic sidepod channel that feeds the floor directly.',
       groundEffectNotes: 'Cấu trúc mép sàn lượn sóng kiểm soát hoàn hảo áp suất chênh lệch qua góc cua.',
+      groundEffectNotesEn:
+        'A wave-structured floor edge keeps differential pressure perfectly controlled through corners.',
       chassisConstruction: 'Next-gen carbon monocoque with enhanced side-impact absorption',
     },
     descriptionVi: 'Cỗ máy đánh dấu kỷ nguyên lịch sử của Lewis Hamilton tại Maranello bên cạnh Charles Leclerc, tối ưu hóa toàn diện cho mùa giải 2025.',
@@ -60,7 +64,11 @@ export const CARS_2025: CarSpec[] = [
       frontSuspension: 'Pull-rod evolved geometry',
       rearSuspension: 'Push-rod high-camber stiffness',
       aeroPhilosophy: 'Khí động học Papaya đỉnh cao với mép sàn carbon tinh chỉnh và họng hút gió tối giản.',
+      aeroPhilosophyEn:
+        'A high Papaya aerodynamic package with refined carbon floor edges and a minimal intake mouth.',
       groundEffectNotes: 'Kênh Venturi dưới sàn xe duy trì áp suất âm đều đặn ngay cả khi xe leo gờ kerb.',
+      groundEffectNotesEn:
+        'The underfloor Venturi channel keeps negative pressure consistent even over kerbs.',
       chassisConstruction: 'Molded carbon composite with bio-resins',
     },
     descriptionVi: 'Cỗ máy bảo vệ danh hiệu Vô địch Đội đua của McLaren, được hoàn thiện với khí động học cực kỳ ổn định trong mọi điều kiện thời tiết.',
@@ -94,7 +102,11 @@ export const CARS_2025: CarSpec[] = [
       frontSuspension: 'Pull-rod high anti-dive configuration',
       rearSuspension: 'Push-rod multi-link aero-faired',
       aeroPhilosophy: 'Tiến hóa hốc gió Overbite với cánh chia gió tầng hai và nắp che động cơ thuôn hẹp.',
+      aeroPhilosophyEn:
+        'An evolved Overbite intake with a second-tier air splitter and a slim tapered engine cover.',
       groundEffectNotes: 'Ống Venturi đạt lực nén vượt trội với lực cản không khí tối thiểu.',
+      groundEffectNotesEn:
+        'The Venturi tunnel delivers exceptional compression with minimal aerodynamic drag.',
       chassisConstruction: 'Autoclaved carbon fibre and honeycomb sandwich',
     },
     descriptionVi: 'Vũ khí tốc độ của Max Verstappen trong chiến dịch săn tìm danh hiệu tiếp theo, thiết kế tối đa hóa độ ổn định ở dải vận tốc trên 320 km/h.',
@@ -128,7 +140,11 @@ export const CARS_2025: CarSpec[] = [
       frontSuspension: 'Push-rod dual-wishbone with revised kinematics',
       rearSuspension: 'Push-rod inboard damper packaging',
       aeroPhilosophy: 'Mũi xe Arrow sắc nét kết hợp khe thoát nhiệt sàn đa tầng.',
+      aeroPhilosophyEn:
+        'A sharply defined Arrow nose combined with multi-tier floor cooling exits.',
       groundEffectNotes: 'Hầm Venturi mở rộng tối ưu luồng gió qua bộ khuếch tán sau.',
+      groundEffectNotesEn:
+        'An expanded Venturi tunnel optimises the airflow through the rear diffuser.',
       chassisConstruction: 'Molded carbon fiber composite',
     },
     descriptionVi: 'Kỷ nguyên mới của Mũi Tên Bạc với bộ đôi George Russell và thần đồng trẻ Kimi Antonelli.',
@@ -162,7 +178,11 @@ export const CARS_2025: CarSpec[] = [
       frontSuspension: 'Push-rod wishbone',
       rearSuspension: 'Push-rod arrangement',
       aeroPhilosophy: 'Rãnh lòng máng sidepod dốc sâu dẫn luồng khí sạch xuống đuôi xe.',
+      aeroPhilosophyEn:
+        'A deeply ramped sidepod undercut channels clean air toward the rear of the car.',
       groundEffectNotes: 'Hình học hầm Venturi giữ vững tâm áp suất khí động khi xe đổi hướng nhanh.',
+      groundEffectNotesEn:
+        'The Venturi tunnel geometry keeps the aerodynamic load balanced under fast direction changes.',
       chassisConstruction: 'Aston Martin carbon composite',
     },
     descriptionVi: 'Cỗ máy xanh British Racing Green sắc sảo do Fernando Alonso cầm lái, tích hợp công nghệ từ đại bản doanh Silverstone mới.',
@@ -196,7 +216,11 @@ export const CARS_2025: CarSpec[] = [
       frontSuspension: 'Pull-rod synchronized with Red Bull layout',
       rearSuspension: 'Push-rod configuration',
       aeroPhilosophy: 'Hốc gió thuôn dài với thân xe sơn màu xanh hoàng gia metallic nổi bật.',
+      aeroPhilosophyEn:
+        'A long, tapered intake paired with a striking metallic royal-blue bodywork.',
       groundEffectNotes: 'Sàn xe thiết kế cho sự ổn định ở dải tốc độ trung bình.',
+      groundEffectNotesEn:
+        'The floor is tuned for stability through the mid-speed range.',
       chassisConstruction: 'Carbon composite monocoque',
     },
     descriptionVi: 'Sắc xanh hoàng gia của Racing Bulls với dàn tay đua trẻ giàu nhiệt huyết Liam Lawson và Arvid Lindblad.',
@@ -230,7 +254,11 @@ export const CARS_2025: CarSpec[] = [
       frontSuspension: 'Push-rod',
       rearSuspension: 'Push-rod',
       aeroPhilosophy: 'Cánh gió trước mở rộng kết hợp cửa thoát nhiệt nóc xe tối ưu.',
+      aeroPhilosophyEn:
+        'An extended front wing paired with optimised engine-cover cooling exits.',
       groundEffectNotes: 'Kênh dẫn khí gầm xe ưu tiên lực ép trên đường thẳng dài.',
+      groundEffectNotesEn:
+        'The underfloor channel prioritises downforce on long straights.',
       chassisConstruction: 'Molded carbon fibre composite',
     },
     descriptionVi: 'Chiếc xe phối màu xanh Alpine và hồng BWT của Pierre Gasly và tay đua trẻ người Argentina Franco Colapinto.',
@@ -264,7 +292,11 @@ export const CARS_2025: CarSpec[] = [
       frontSuspension: 'Push-rod',
       rearSuspension: 'Pull-rod',
       aeroPhilosophy: 'Sidepod hạ thấp và cánh chia khí sàn xe carbon cứng.',
+      aeroPhilosophyEn:
+        'A lowered sidepod paired with a stiff carbon floor splitter.',
       groundEffectNotes: 'Mép sàn xe cứng cáp giúp duy trì độ ổn định khi xe chém gờ kerb.',
+      groundEffectNotesEn:
+        'The stiff floor edge keeps the car stable when it rakes across a kerb.',
       chassisConstruction: 'Dallara-manufactured carbon composite',
     },
     descriptionVi: 'Đội đua nước Mỹ với đội hình hoàn toàn mới gồm Esteban Ocon và tân binh tài năng Oliver Bearman.',
@@ -298,7 +330,11 @@ export const CARS_2025: CarSpec[] = [
       frontSuspension: 'Push-rod',
       rearSuspension: 'Push-rod',
       aeroPhilosophy: 'Hệ số cản thấp đặc trưng và tối ưu hóa hiệu quả mở cánh DRS.',
+      aeroPhilosophyEn:
+        'A characteristically low drag coefficient with an efficient DRS opening strategy.',
       groundEffectNotes: 'Sàn xe giải phóng lực nén tối ưu khi bứt tốc trên các đoạn thẳng dài.',
+      groundEffectNotesEn:
+        'The floor releases optimal compression when accelerating along long straights.',
       chassisConstruction: 'Williams carbon composite monocoque',
     },
     descriptionVi: 'Cột mốc chuyển mình của Williams với sự gia nhập của ngôi sao Carlos Sainz sát cánh cùng Alex Albon.',
@@ -332,7 +368,11 @@ export const CARS_2025: CarSpec[] = [
       frontSuspension: 'Push-rod',
       rearSuspension: 'Push-rod',
       aeroPhilosophy: 'Hình học khung gầm tái thiết kế chuẩn bị cho sự chuyển giao toàn diện sang Audi.',
+      aeroPhilosophyEn:
+        'A reworked chassis geometry prepared for the full handover to Audi works.',
       groundEffectNotes: 'Ống Venturi cân bằng giữa lực nén và độ êm ái khi vượt khúc cua gắt.',
+      groundEffectNotesEn:
+        'The Venturi tunnel balances compression against ride comfort through sharp corners.',
       chassisConstruction: 'Carbon composite monocoque',
     },
     descriptionVi: 'Giai đoạn chuyển giao quan trọng tại Hinwil dưới sự chỉ đạo của Mattia Binotto và Nico Hülkenberg.',

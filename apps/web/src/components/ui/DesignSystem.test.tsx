@@ -17,6 +17,14 @@ describe('F0 design-system primitives', () => {
     expect(buttonClassName({ variant: 'ghost' })).toContain('focus-visible:ring-peds-focus');
   });
 
+  it('keeps one accent, one neutral surface and a reserved error role', () => {
+    expect(buttonClassName({ variant: 'primary' })).toContain('bg-peds-ignition');
+    expect(buttonClassName({ variant: 'primary' })).not.toContain('bg-peds-error');
+    expect(buttonClassName({ variant: 'secondary' })).toContain('bg-peds-surface-raised');
+    expect(buttonClassName({ variant: 'secondary' })).not.toContain('bg-peds-ignition');
+    expect(buttonClassName({ variant: 'danger' })).toContain('bg-peds-error');
+  });
+
   it('connects dropdown labels to native selects', () => {
     const markup = renderToStaticMarkup(
       <Dropdown label="Season" id="season-select" defaultValue="2026">

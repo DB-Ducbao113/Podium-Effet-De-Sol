@@ -7,18 +7,18 @@ describe('owner-provided F1 2026 concept assets', () => {
   it('maps 22 drivers and 11 teams to existing production WebP files when present', () => {
     expect(F1_VISUAL_DRIVER_IDS_2026).toHaveLength(22);
     expect(F1_VISUAL_TEAM_IDS_2026).toHaveLength(11);
-    const hasP5ReviewAssets = existsSync(join(process.cwd(), 'public/images/p5'));
+    const hasConcepts2026Assets = existsSync(join(process.cwd(), 'public/images/concepts-2026'));
     for (const driverId of F1_VISUAL_DRIVER_IDS_2026) {
       const src = driverConcept2026(driverId, 2026);
-      expect(src).toMatch(/^\/images\/p5\/concepts-2026\/headshots\/[a-z-]+\.webp$/);
-      if (hasP5ReviewAssets) {
+      expect(src).toMatch(/^\/images\/concepts-2026\/headshots\/[a-z-]+\.webp$/);
+      if (hasConcepts2026Assets) {
         expect(existsSync(join('public', src!))).toBe(true);
       }
     }
     for (const teamId of F1_VISUAL_TEAM_IDS_2026) {
       const src = teamConcept2026(teamId, 2026);
-      expect(src).toMatch(/^\/images\/p5\/concepts-2026\/cars\/[a-z-]+\.webp$/);
-      if (hasP5ReviewAssets) {
+      expect(src).toMatch(/^\/images\/concepts-2026\/cars\/[a-z-]+\.webp$/);
+      if (hasConcepts2026Assets) {
         expect(existsSync(join('public', src!))).toBe(true);
       }
     }

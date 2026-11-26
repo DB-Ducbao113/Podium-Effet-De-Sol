@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 const headers = readFileSync('public/_headers', 'utf8');
 const viteConfig = readFileSync('vite.config.ts', 'utf8');
 const globalCss = readFileSync('src/index.css', 'utf8');
+const main = readFileSync('src/main.tsx', 'utf8');
 
 describe('CSP font delivery contract', () => {
   it('keeps font-src on same-origin hosts only', () => {
@@ -17,21 +18,38 @@ describe('CSP font delivery contract', () => {
     expect(viteConfig).toMatch(/\? false : undefined/);
   });
 
-  it('matches display fallback metrics to Barlow Condensed so a late swap cannot reflow', () => {
+  it('matches display fallback metrics to the shipped display face so a late swap cannot reflow', () => {
     expect(globalCss).toMatch(
-      /@font-face\s*\{\s*font-family:\s*'Barlow Condensed Fallback';\s*src:\s*local\('Arial Narrow'\);\s*size-adjust:\s*80%;/,
+      /@font-face\s*\{\s*font-family:\s*'PEDS Display Fallback';\s*src:\s*local\('Arial'\), local\('Helvetica'\), local\('Liberation Sans'\);\s*size-adjust:\s*100%;/,
     );
     expect(globalCss).toMatch(
-      /@font-face\s*\{\s*font-family:\s*'Barlow Condensed Arial Fallback';\s*src:\s*local\('Arial'\), local\('Helvetica'\), local\('Liberation Sans'\);\s*size-adjust:\s*68%;/,
+      /--peds-font-script:\s*'Corinthia',\s*'Dancing Script Variable', cursive;/,
     );
     expect(globalCss).toMatch(
-      /--peds-font-display:\s*'Barlow Condensed',\s*'Barlow Condensed Fallback',\s*'Barlow Condensed Arial Fallback',\s*'Arial Narrow',\s*sans-serif;/,
+      /--peds-font-hand:\s*'Dancing Script Variable',\s*'Corinthia', cursive;/,
+    );
+    // EN prototype faces.
+    expect(globalCss).toMatch(
+      /--peds-font-editorial:\s*'Instrument Serif', Georgia, 'Times New Roman', serif;/,
     );
     expect(globalCss).toMatch(
-      /@font-face\s*\{\s*font-family:\s*'Barlow Condensed Fallback';\s*src:\s*local\('Arial Narrow'\);\s*size-adjust:\s*83%;\s*font-weight:\s*100 900;\s*font-style:\s*italic;/,
+      /--peds-font-display:\s*'Manrope Variable',\s*'PEDS Display Fallback', Arial, sans-serif;/,
     );
     expect(globalCss).toMatch(
-      /@font-face\s*\{\s*font-family:\s*'Barlow Condensed Arial Fallback';\s*src:\s*local\('Arial'\), local\('Helvetica'\), local\('Liberation Sans'\);\s*size-adjust:\s*70\.5%;\s*font-weight:\s*100 900;\s*font-style:\s*italic;/,
+      /--peds-font-ui:\s*'Manrope Variable',\s*'PEDS Display Fallback', Arial, sans-serif;/,
     );
+    expect(globalCss).toMatch(
+      /--peds-font-body:\s*'DM Sans Variable', Arial, sans-serif;/,
+    );
+    // VI is scoped to fully-covered editorial/technical faces so tone marks never fall back per-glyph.
+    expect(globalCss).toMatch(
+      /html\[lang='vi'\]\s*\{[^}]*--peds-font-editorial:\s*'Cormorant Garamond Variable', Georgia, 'Times New Roman', serif;[^}]*--peds-font-body:\s*'Manrope Variable', Arial, sans-serif;/s,
+    );
+    // The global sheet itself declares no italic; italic accents live in component
+    // styles and are delivered as real self-hosted cuts, never synthesised.
+    expect(globalCss).not.toMatch(/font-style\s*:\s*italic/);
+    expect(main).toContain('@fontsource/instrument-serif/400-italic.css');
+    expect(main).toContain('@fontsource-variable/cormorant-garamond/wght-italic.css');
+    expect(globalCss).not.toMatch(/\b(?:Barlow Condensed|Space Grotesk|Plus Jakarta Sans|Quicksand|Lexend|Lora|Be Vietnam Pro)\b/i);
   });
 });

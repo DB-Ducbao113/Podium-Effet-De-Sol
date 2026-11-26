@@ -123,7 +123,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
           >
             Ground Effect
           </span>
-          <span className="px-1 py-0.2 rounded text-[8px] font-black uppercase tracking-wider bg-f1red text-white shadow-2xs">
+          <span className="px-1 py-0.2 rounded text-[8px] font-black uppercase tracking-wider bg-peds-ignition text-peds-carbon shadow-2xs">
             Hub
           </span>
         </div>

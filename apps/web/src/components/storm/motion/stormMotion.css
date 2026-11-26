@@ -1,0 +1,245 @@
+@property --sm-beam-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes smBeamOrbit {
+  to {
+    --sm-beam-angle: 360deg;
+  }
+}
+
+@keyframes smSheenSweep {
+  from {
+    transform: translateX(-140%) skewX(-22deg);
+    opacity: 0;
+  }
+  35% {
+    opacity: 0.56;
+  }
+  to {
+    transform: translateX(220%) skewX(-22deg);
+    opacity: 0;
+  }
+}
+
+@keyframes smRouteVeilSweep {
+  0% {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  28% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+/* FX-01 SplitText helper spans (zero layout alteration) */
+.sm-split-line {
+  overflow: hidden;
+  padding-bottom: 0.06em;
+}
+
+.sm-split-word {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
+/* FX-03 Rolling Odometer inline typography (inherits host font & layout 100%) */
+.sm-odometer {
+  display: inline-flex;
+  align-items: baseline;
+  font-variant-numeric: tabular-nums;
+}
+
+.sm-countdown-odometer {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.34em;
+  font-variant-numeric: tabular-nums;
+}
+
+.sm-countdown-seg {
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.sm-countdown-unit {
+  font-style: normal;
+  opacity: 0.88;
+}
+
+/* FX-04b Magic UI Orbiting Conic Border-Beam on key Storm Liquid Glass cards (uses ::after so ::before spotlight stays untouched) */
+.sp-root:not([data-motion="reduced"]) .sp-pulse-card,
+.sp-root:not([data-motion="reduced"]) .sp-lg-spot,
+.sp-root:not([data-motion="reduced"]) .sp-lg-nextpanel,
+.sp-root:not([data-motion="reduced"]) .sp-entity-hero,
+.sp-root:not([data-motion="reduced"]) .sp-drawer {
+  isolation: isolate;
+}
+
+.sp-root:not([data-motion="reduced"]) .sp-pulse-card::after,
+.sp-root:not([data-motion="reduced"]) .sp-lg-spot::after,
+.sp-root:not([data-motion="reduced"]) .sp-lg-nextpanel::after,
+.sp-root:not([data-motion="reduced"]) .sp-entity-hero::after,
+.sp-root:not([data-motion="reduced"]) .sp-drawer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  pointer-events: none;
+  z-index: 3;
+  opacity: 0.42;
+  background: conic-gradient(
+    from var(--sm-beam-angle, 0deg),
+    transparent 0deg,
+    transparent 245deg,
+    rgba(255, 74, 24, 0.92) 294deg,
+    rgba(255, 255, 255, 0.9) 316deg,
+    rgba(114, 224, 255, 0.88) 338deg,
+    transparent 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: smBeamOrbit 6.4s linear infinite;
+  transition: opacity 240ms ease;
+}
+
+.sp-root:not([data-motion="reduced"]) .sp-pulse-card:hover::after,
+.sp-root:not([data-motion="reduced"]) .sp-pulse-card[data-lg-lit="true"]::after,
+.sp-root:not([data-motion="reduced"]) .sp-lg-spot:hover::after,
+.sp-root:not([data-motion="reduced"]) .sp-lg-nextpanel:hover::after,
+.sp-root:not([data-motion="reduced"]) .sp-entity-hero:hover::after {
+  opacity: 0.86;
+}
+
+/* Specular pointer spotlight on Home Pulse Dock cards (uses ::before) */
+.sp-root:not([data-motion="reduced"]) .sp-pulse-card[data-lg-glow]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+  background: radial-gradient(
+    360px circle at var(--lg-mx, 50%) var(--lg-my, 20%),
+    rgba(114, 224, 255, 0.16) 0%,
+    rgba(255, 74, 24, 0.08) 40%,
+    transparent 72%
+  );
+  transition: opacity 240ms ease;
+}
+
+.sp-root:not([data-motion="reduced"])
+  .sp-pulse-card[data-lg-glow][data-lg-lit="true"]::before {
+  opacity: 1;
+}
+
+.sp-pulse-card[data-lg-glow] > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* FX-05 Liquid sheen sweep on existing Storm CTA buttons (uses ::before so existing ::after stays intact) */
+.sp-root:not([data-motion="reduced"]) .sp-storm-btn {
+  overflow: hidden;
+  will-change: transform;
+}
+
+.sp-root:not([data-motion="reduced"]) .sp-storm-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.34) 50%,
+    transparent 100%
+  );
+  transform: translateX(-140%) skewX(-22deg);
+  opacity: 0;
+}
+
+.sp-root:not([data-motion="reduced"]) .sp-storm-btn:hover::before {
+  animation: smSheenSweep 540ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Tactile F1 telemetry row & card micro-interactions (pure transform/shadow, 0 layout change) */
+.sp-root:not([data-motion="reduced"]) .sp-pulse-row-btn,
+.sp-root:not([data-motion="reduced"]) .sp-lg-rrow {
+  transition:
+    transform 200ms cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 220ms ease;
+}
+
+.sp-root:not([data-motion="reduced"]) .sp-pulse-row-btn:hover,
+.sp-root:not([data-motion="reduced"]) .sp-lg-rrow:hover {
+  transform: translateX(3px);
+}
+
+.sp-root:not([data-motion="reduced"]) .sp-lg-tile,
+.sp-root:not([data-motion="reduced"]) .sp-lg-tcard,
+.sp-root:not([data-motion="reduced"]) .sp-lg-dcard,
+.sp-root:not([data-motion="reduced"]) .sp-about-source-card {
+  will-change: transform;
+  transition:
+    border-color 220ms ease,
+    box-shadow 260ms ease;
+}
+
+.sp-root:not([data-motion="reduced"]) .sp-lg-tile:hover,
+.sp-root:not([data-motion="reduced"]) .sp-lg-tcard:hover,
+.sp-root:not([data-motion="reduced"]) .sp-lg-dcard:hover,
+.sp-root:not([data-motion="reduced"]) .sp-about-source-card:hover {
+  box-shadow:
+    0 18px 42px -18px rgba(0, 0, 0, 0.62),
+    0 0 0 1px rgba(114, 224, 255, 0.16) inset;
+}
+
+/* FX-08b Fast non-blocking Route Transition Veil (<= 190ms, driven by GSAP) */
+.sm-route-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(-100%);
+  will-change: transform, opacity;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 74, 24, 0.15) 44%,
+    rgba(114, 224, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0.2) 52%,
+    transparent 60%
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sp-pulse-card::after,
+  .sp-lg-spot::after,
+  .sp-lg-nextpanel::after,
+  .sp-entity-hero::after,
+  .sp-drawer::after,
+  .sp-storm-btn::before,
+  .sm-route-veil {
+    animation: none !important;
+    opacity: 0 !important;
+  }
+}

@@ -14,3 +14,12 @@ export interface WorkerEnvironment {
   APP_ENV?: "development" | "production" | "test";
   ASSETS: AssetsBinding;
 }
+
+export type TimezoneDetectSource = "ip" | "unavailable";
+
+export interface TimezoneDetectResponse {
+  timeZone: string | null;
+  source: TimezoneDetectSource;
+  serverTimeUtc: string;
+  serverEpochMs: number;
+}

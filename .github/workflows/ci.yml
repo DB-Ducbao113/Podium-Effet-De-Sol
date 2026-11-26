@@ -1,15 +1,19 @@
-name: Migration CI
+name: CI
 
 on:
-  # Temporarily pause automatic CI while the rebuild UI is in progress.
-  # Restore push/pull_request triggers when the owner resumes CI.
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: migration-ci-${{ github.workflow }}-${{ github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -32,6 +36,7 @@ jobs:
       - run: npm run security:assets
       - run: npm run build
       - run: npm run cloudflare:dry-run
+      - run: npm run cloudflare:dry-run:prod
       - run: npm audit --audit-level=high
 
-# Intentionally no deployment, scheduled, or write-capable workflow during migration.
+# Intentionally no automatic remote deployment or write-capable data sync in CI.

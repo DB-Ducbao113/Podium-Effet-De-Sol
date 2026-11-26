@@ -1,0 +1,833 @@
+{
+  "title": "Storm Midnight Backdrop & 2024-2025 Seasonal Concept Artwork",
+  "release": "production",
+  "releasedAt": "2026-11-25",
+  "totalFiles": 103,
+  "totalBytes": 4104715,
+  "files": [
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/cars/alpine-a524.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/cars/alpine-a524.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/cars/alpine-a524.webp",
+      "bytes": 13954,
+      "sha256": "3d5651e09cdb63bd0cfd076887b38846f8221e55c0e6c23180d25c7450981547"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/cars/astonmartin-amr24.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/cars/astonmartin-amr24.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/cars/astonmartin-amr24.webp",
+      "bytes": 11018,
+      "sha256": "af20eb5a9b69fd5517e6c57d13d23c766b8c57343d51779c5e3e2021ad6115b1"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/cars/audi-c44.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/cars/audi-c44.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/cars/audi-c44.webp",
+      "bytes": 12696,
+      "sha256": "35ad322d8d27367bd3ae1d8cea450b6669fa1abb85c3af8b702caed6f400ce32"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/cars/ferrari-sf24.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/cars/ferrari-sf24.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/cars/ferrari-sf24.webp",
+      "bytes": 10154,
+      "sha256": "1593952d75e33a5e27d37e82ac6b101d10009bb247f25af31d46f54e3741e27f"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/cars/haas-vf24.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/cars/haas-vf24.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/cars/haas-vf24.webp",
+      "bytes": 14636,
+      "sha256": "4c24f4a6f9e6cbd1af786a0c39691a0178466e80f9a44972aa9da1eeb95a4855"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/cars/mclaren-mcl38.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/cars/mclaren-mcl38.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/cars/mclaren-mcl38.webp",
+      "bytes": 12074,
+      "sha256": "381af31f02668ce1001424285f9a68d86bc5990d3918f93ab868320c72bb1e7d"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/cars/mercedes-w15.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/cars/mercedes-w15.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/cars/mercedes-w15.webp",
+      "bytes": 9842,
+      "sha256": "55d2e8b7a0647f5e86ac992abb7af7b1cf0417e96cd011604a367759c424b14d"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/cars/racingbulls-vcarb01.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/cars/racingbulls-vcarb01.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/cars/racingbulls-vcarb01.webp",
+      "bytes": 13722,
+      "sha256": "586dbae6380190e44ea50c0576af0f5f496a0cb789b0010197b68cf8b25fa0e3"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/cars/redbull-rb20.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/cars/redbull-rb20.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/cars/redbull-rb20.webp",
+      "bytes": 9810,
+      "sha256": "cdcf7f785215493f7b8bfb074d2e30d49d375989068aee2a20e891d8a70f8c7d"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/cars/williams-fw46.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/cars/williams-fw46.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/cars/williams-fw46.webp",
+      "bytes": 11146,
+      "sha256": "7c13ca4d74ad5884749ee71484b530f6b00901b8fbf3069b7dc9068c5426ae29"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/drivers/albon.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/drivers/albon.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/drivers/albon.webp",
+      "bytes": 20542,
+      "sha256": "df1cde19cc19b1a6b0c37a0b810a8ff8c5d6d7b7e70d169ef2dd96ab3e5e5490"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/drivers/alonso.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/drivers/alonso.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/drivers/alonso.webp",
+      "bytes": 21098,
+      "sha256": "eec2a77ca501eccda9ec97f3357e4fac42f6ee21a8da146a603d279b9be2b015"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/drivers/bearman.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/drivers/bearman.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/drivers/bearman.webp",
+      "bytes": 23660,
+      "sha256": "fa8db022186fd0a6324f1bcfc6bafa8bb9bc176662343017522ec82a6ad3d3b7"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/drivers/bottas.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/drivers/bottas.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/drivers/bottas.webp",
+      "bytes": 21104,
+      "sha256": "1207e322147fd3820e6e3cbe19d65fd747be44c1177eb33ad6de5a14044de694"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/drivers/colapinto.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/drivers/colapinto.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/drivers/colapinto.webp",
+      "bytes": 21652,
+      "sha256": "0c4a362cdfd3537f1b02f75e6320983ecf75918089313c1663afee76eb2024fa"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/drivers/doohan.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/drivers/doohan.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/drivers/doohan.webp",
+      "bytes": 17628,
+      "sha256": "63a8300169743b857609f8cdeface1ad98423189f12cfe7f5c084fffb3a6beae"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/drivers/gasly.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/drivers/gasly.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/drivers/gasly.webp",
+      "bytes": 17888,
+      "sha256": "b4dd4be9c803287c8ec58f210ef1ca57dbcd440fa7c148c552bf932d6de7dad9"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/drivers/hamilton.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/drivers/hamilton.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/drivers/hamilton.webp",
+      "bytes": 13638,
+      "sha256": "eaa22a9faf12c74913f139a56cbe90d470e0f4af9175e4404a1e198ce5a920bd"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/drivers/hulkenberg.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/drivers/hulkenberg.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/drivers/hulkenberg.webp",
+      "bytes": 20668,
+      "sha256": "6a314423683e299a2abb1b996c4b9a8142e154cec0a7094aa2cf8167aa1965d0"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/drivers/lawson.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/drivers/lawson.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/drivers/lawson.webp",
+      "bytes": 21720,
+      "sha256": "ac5e2cf5db9a0aa8d4eeb12bcc4dfb80661a677ca0fead7d3afaee06b1c088c1"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/drivers/leclerc.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/drivers/leclerc.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/drivers/leclerc.webp",
+      "bytes": 23456,
+      "sha256": "d9f83458e794798caa7240d6b0b8765e594ecb814aff5c9311e99567c825de00"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/drivers/magnussen.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/drivers/magnussen.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/drivers/magnussen.webp",
+      "bytes": 22164,
+      "sha256": "01408625355fea649bc4a602ff1686ca507344f34745f22fd80f2297fb903c90"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/drivers/norris.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/drivers/norris.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/drivers/norris.webp",
+      "bytes": 21478,
+      "sha256": "8bddf6884bc80a2c9b056fa21a453f26dae62a9295d64b64d23beb345d0938d6"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/drivers/ocon.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/drivers/ocon.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/drivers/ocon.webp",
+      "bytes": 18978,
+      "sha256": "1d53a2fede650008a9d1126a0889a0e73aaad57833538840f87a6b954b6d6173"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/drivers/perez.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/drivers/perez.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/drivers/perez.webp",
+      "bytes": 22728,
+      "sha256": "2b4a28a56c0bb16340f59ff85d7e5f8a74315a72005c96a6a834cf2bc1cbf53a"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/drivers/piastri.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/drivers/piastri.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/drivers/piastri.webp",
+      "bytes": 22202,
+      "sha256": "f515fe02695f3635f9227d044b68733cf703ca63eefd7530b242881288ea2393"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/drivers/ricciardo.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/drivers/ricciardo.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/drivers/ricciardo.webp",
+      "bytes": 23356,
+      "sha256": "23d9d4ec1f398a2627774bcfe2dd2c1697398a3251f8fc86d94ffb01fd98fc8d"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/drivers/russell.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/drivers/russell.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/drivers/russell.webp",
+      "bytes": 19174,
+      "sha256": "b6d6a61f2f5aa59c81e5a77876c3eb0de34a75387b7e551e2f20fa225a9fbca6"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/drivers/sainz.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/drivers/sainz.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/drivers/sainz.webp",
+      "bytes": 19418,
+      "sha256": "76ca751ef9f81554c4a248f70b2b68c5d71d22b04f1badd6e1d88b8516c39403"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/drivers/sargeant.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/drivers/sargeant.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/drivers/sargeant.webp",
+      "bytes": 17578,
+      "sha256": "46a9c244ba582494360dcfd14cfbec036fedd1c58aafb166eb9a682d920d3253"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/drivers/stroll.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/drivers/stroll.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/drivers/stroll.webp",
+      "bytes": 20994,
+      "sha256": "722db2931618f9f88977af10119db7d2d63d744d3fdbf623a02c376291b8f51a"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/drivers/tsunoda.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/drivers/tsunoda.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/drivers/tsunoda.webp",
+      "bytes": 24726,
+      "sha256": "95fb8546f7da3886e2ecdc4491aa0230ac530c0ce7198866e3563c84c51d9ab6"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/drivers/verstappen.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/drivers/verstappen.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/drivers/verstappen.webp",
+      "bytes": 26574,
+      "sha256": "a154ac219e79224b72e8a47e474918dd3356b8dbfe7135fd51813b7a93c435de"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/drivers/zhou.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/drivers/zhou.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/drivers/zhou.webp",
+      "bytes": 21590,
+      "sha256": "5f1b3943d0f9cced83dfdb21850cec517a478fd510f932a0963968c31f56f5b6"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/heroes/hero-championship-2024.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/heroes/hero-championship-2024.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/heroes/hero-championship-2024.webp",
+      "bytes": 180874,
+      "sha256": "e2c6ca323840377e78639c9b8abc18e9414ee424a67f5e0960b7c1af7a5bdbb4"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/heroes/hero-constructors-2024.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/heroes/hero-constructors-2024.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/heroes/hero-constructors-2024.webp",
+      "bytes": 126092,
+      "sha256": "283843f66145a4d8cd5acbc3a04f224348c5def3ca3ddab95fa7f71cae652a1d"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/heroes/hero-drivers-2024.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/heroes/hero-drivers-2024.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/heroes/hero-drivers-2024.webp",
+      "bytes": 211956,
+      "sha256": "1bb5e7b1e4222753f382065809b8fc54b3ef411b4b31318da63ebe13bbda4cba"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/teams/alpine.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/teams/alpine.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/teams/alpine.webp",
+      "bytes": 64380,
+      "sha256": "6cc28b027dc0adc03aac6d153098babfc3751017e50390e804385ac15bb24565"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/teams/astonmartin.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/teams/astonmartin.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/teams/astonmartin.webp",
+      "bytes": 66334,
+      "sha256": "761abf3ffbb3fdd3b51e9bf06fa9c8f1f08db1a12aa267d6428865ca7cb9f557"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/teams/audi.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/teams/audi.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/teams/audi.webp",
+      "bytes": 56094,
+      "sha256": "0787a5986731a79f894ddac092b5f3f9decaa9a1dc5d4d2fe1eee3db3481dc3c"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/teams/ferrari.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/teams/ferrari.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/teams/ferrari.webp",
+      "bytes": 62650,
+      "sha256": "a230858376fc434a2d8ddeb0114e4a123f8615bf11417b0818a780eceefa0804"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/teams/haas.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/teams/haas.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/teams/haas.webp",
+      "bytes": 61024,
+      "sha256": "0787e7e393fbbebef78e942258ee1e1b1db04ea5e3a5b5fc551b6557712d390e"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/teams/mclaren.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/teams/mclaren.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/teams/mclaren.webp",
+      "bytes": 65654,
+      "sha256": "d3e8b7b85f22d6df3c14c427a05a18074ecdcb71742d56334b475bd01099cc91"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/teams/mercedes.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/teams/mercedes.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/teams/mercedes.webp",
+      "bytes": 61752,
+      "sha256": "09e88c594fb2d293714862c7a8c2bbc2cda3b8fe24aa561dd4b6dd8cfd872f19"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/teams/racingbulls.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/teams/racingbulls.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/teams/racingbulls.webp",
+      "bytes": 68268,
+      "sha256": "3880c34cd04e3fb688629aece9f98a1c4fe788c649bf263d1365485f94ffc7d1"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/teams/redbull.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/teams/redbull.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/teams/redbull.webp",
+      "bytes": 68848,
+      "sha256": "848f8520bb73c6259437be3ba2d4be9f6e4056a8499d44c3ae2bf98cc94125b5"
+    },
+    {
+      "group": "concepts-2024",
+      "publicPath": "/images/concepts-2024/teams/williams.webp",
+      "publicFile": "apps/web/public/images/concepts-2024/teams/williams.webp",
+      "sourceFile": ".local-assets/concepts-2024-review/teams/williams.webp",
+      "bytes": 51952,
+      "sha256": "cd896973872ffd6b7b7bdfad27826dc95d759820eae1bd73b1cf00c76300ec07"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/cars/alpine-a525.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/cars/alpine-a525.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/cars/alpine-a525.webp",
+      "bytes": 19138,
+      "sha256": "6ac7835c548a52cff65712be7e71c569f027ab17ed17dff3726643b53127a3c3"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/cars/astonmartin-amr25.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/cars/astonmartin-amr25.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/cars/astonmartin-amr25.webp",
+      "bytes": 15590,
+      "sha256": "c6ee160d6d5b9c59d6b7c1829693beb53f281174aa6506b791c408f191bf2d23"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/cars/audi-c45.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/cars/audi-c45.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/cars/audi-c45.webp",
+      "bytes": 12846,
+      "sha256": "657d73c3683a88b0be805019a0cc4494b18838281b15f4168e038c7efac17c86"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/cars/ferrari-sf25.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/cars/ferrari-sf25.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/cars/ferrari-sf25.webp",
+      "bytes": 14384,
+      "sha256": "cc44555e9905f91561ddd861d5c550a2c14e8cd4e0632fb7dfeaa9d5edf7ed71"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/cars/haas-vf25.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/cars/haas-vf25.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/cars/haas-vf25.webp",
+      "bytes": 16712,
+      "sha256": "d736183f8caafe09bd63222ea90bbdb7da50790592eaa1c3130680271745dfbf"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/cars/mclaren-mcl39.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/cars/mclaren-mcl39.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/cars/mclaren-mcl39.webp",
+      "bytes": 15540,
+      "sha256": "569eadfc06a625994227ff780cf2d63e9329ac73203308f585f733adbd982114"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/cars/mercedes-w16.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/cars/mercedes-w16.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/cars/mercedes-w16.webp",
+      "bytes": 15658,
+      "sha256": "7ad9486955302cd40425d15db6c26165cfbcec4cf59405c41fc22fddfeb7dfb5"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/cars/racingbulls-vcarb02.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/cars/racingbulls-vcarb02.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/cars/racingbulls-vcarb02.webp",
+      "bytes": 10536,
+      "sha256": "04b05274ff99c9e13a5670a57ef9f53b072a8cd9880d4f041354f6a7f5ef7d88"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/cars/redbull-rb21.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/cars/redbull-rb21.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/cars/redbull-rb21.webp",
+      "bytes": 13532,
+      "sha256": "f804c2d596ef4fa16e42060d5ae731c61b7c79205318bfd28e4df9425215194e"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/cars/williams-fw47.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/cars/williams-fw47.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/cars/williams-fw47.webp",
+      "bytes": 15216,
+      "sha256": "9c5953d12927c8b1a443510275ce9656c569450e7c75d3d1e710492b479ab2db"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/drivers/albon.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/drivers/albon.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/drivers/albon.webp",
+      "bytes": 19692,
+      "sha256": "197682997feaea2ff41c08ac41c6e29fb04f7e38b58ba61b1d6bee6d867e2e30"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/drivers/alonso.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/drivers/alonso.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/drivers/alonso.webp",
+      "bytes": 15848,
+      "sha256": "5af87d359ab4c0c6284ee9942e87f07a46202c1207fd519d206cb2119bd9a404"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/drivers/antonelli.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/drivers/antonelli.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/drivers/antonelli.webp",
+      "bytes": 21926,
+      "sha256": "2cfe292373143d7826f5bdef7d52bb90a791bc6fd0746c3616ab9661e5f96395"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/drivers/bearman.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/drivers/bearman.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/drivers/bearman.webp",
+      "bytes": 16460,
+      "sha256": "2ff8e8b2ae17181f277eb02d435898cc115d480351dc8625ac7a056cc4c66688"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/drivers/bortoleto.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/drivers/bortoleto.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/drivers/bortoleto.webp",
+      "bytes": 22190,
+      "sha256": "a225d991d851d5d32eb6a55df1598a21e68ea687d1dc32d26d91777bc9d8ffaf"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/drivers/colapinto.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/drivers/colapinto.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/drivers/colapinto.webp",
+      "bytes": 23794,
+      "sha256": "2a13ebbe67cf9eca79e4c16cad6ea467c6b72226d84cca57c45084cd6cfc7448"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/drivers/doohan.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/drivers/doohan.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/drivers/doohan.webp",
+      "bytes": 23358,
+      "sha256": "25d87fd70e3ff0ccaec688952b564cd75d3c1665bf7f60e93f1a9b52c4837a66"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/drivers/gasly.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/drivers/gasly.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/drivers/gasly.webp",
+      "bytes": 18918,
+      "sha256": "c2165076c604081958d2ccd03962f369a55b38086b16b90f5fd21fa2ad497b9d"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/drivers/hadjar.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/drivers/hadjar.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/drivers/hadjar.webp",
+      "bytes": 17600,
+      "sha256": "51f76216e16a88d0d8db5d4a561524226743642caf7cabfed7b2cf19a2be6c81"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/drivers/hamilton.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/drivers/hamilton.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/drivers/hamilton.webp",
+      "bytes": 18122,
+      "sha256": "128deaea7e97a5480a7fc49cd6c9facc46782b9677ed96889b0dd980e04a30e5"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/drivers/hulkenberg.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/drivers/hulkenberg.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/drivers/hulkenberg.webp",
+      "bytes": 20424,
+      "sha256": "35411e877c999e2f3a8795541618e60f1857b71970bf7cb516d25be520111e21"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/drivers/lawson.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/drivers/lawson.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/drivers/lawson.webp",
+      "bytes": 17552,
+      "sha256": "566716e5413108937c0472717e6861a528fe7282e51b8a202a773842cfe6df64"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/drivers/leclerc.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/drivers/leclerc.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/drivers/leclerc.webp",
+      "bytes": 18460,
+      "sha256": "3ff125ede0a805893c49bcf9cbe1b5968ae6b89f81e1a6b2997fcaab34101030"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/drivers/norris.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/drivers/norris.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/drivers/norris.webp",
+      "bytes": 17332,
+      "sha256": "4939fd86154e397db9a70ed02a1fb40f4df5e43ce8a9a73b5b493cf494c964fc"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/drivers/ocon.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/drivers/ocon.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/drivers/ocon.webp",
+      "bytes": 16058,
+      "sha256": "d9a29d294b0e5a03598ee6e430b75e92e4695d93df5507e3b9e0393d0d527fb6"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/drivers/piastri.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/drivers/piastri.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/drivers/piastri.webp",
+      "bytes": 19510,
+      "sha256": "a06284c5f39cb1365bd0db9426f2da20f1b91f8189db2645c1d270daa420bf87"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/drivers/russell.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/drivers/russell.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/drivers/russell.webp",
+      "bytes": 19530,
+      "sha256": "455b564b2455410c1887a99ebe2d6d63232c0060eed9ef464487d61868575c8d"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/drivers/sainz.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/drivers/sainz.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/drivers/sainz.webp",
+      "bytes": 17660,
+      "sha256": "035a64475b85b9b73682615576f3cc6dd6e3075846700d0a3e1039ad71d18b4e"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/drivers/stroll.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/drivers/stroll.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/drivers/stroll.webp",
+      "bytes": 17616,
+      "sha256": "8b71e6d7cd40aaa32c21ec5013e26066dd50951e784afcf5472d633c9f5230c0"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/drivers/tsunoda.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/drivers/tsunoda.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/drivers/tsunoda.webp",
+      "bytes": 16524,
+      "sha256": "0e97d7fc98305347eec36946c89072e870f44faf730554fbf5a26b61f6709afe"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/drivers/verstappen.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/drivers/verstappen.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/drivers/verstappen.webp",
+      "bytes": 16812,
+      "sha256": "1d9d3ad29c813f9f57ae6aef95154997b65a0e6c496aead7e4887a9eeb830273"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/heroes/hero-championship-2025.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/heroes/hero-championship-2025.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/heroes/hero-championship-2025.webp",
+      "bytes": 152176,
+      "sha256": "fcb12ee99e50fc529ee481685fb1e60e9ddb2c3f66f68aae47d13640d39bf54e"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/heroes/hero-constructors-2025.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/heroes/hero-constructors-2025.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/heroes/hero-constructors-2025.webp",
+      "bytes": 136668,
+      "sha256": "f733792efed0d09e73cc02bdf21d5f3f6921a90cf878efb8e0a03267ba6492a6"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/heroes/hero-drivers-2025.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/heroes/hero-drivers-2025.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/heroes/hero-drivers-2025.webp",
+      "bytes": 193414,
+      "sha256": "cdc30e35e8fdcaa6f98e495ccdd52640ba41ad0989fe29cac8d32bf941977ed2"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/teams/alpine.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/teams/alpine.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/teams/alpine.webp",
+      "bytes": 58318,
+      "sha256": "a4e88145579137d0a54a5deb366140f77f413388deb6c3346b77bcf12325a175"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/teams/astonmartin.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/teams/astonmartin.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/teams/astonmartin.webp",
+      "bytes": 59494,
+      "sha256": "087ffdbd374461165a126a829b120cdc7336e2f77d4ac0630cbc88c83fe6ce14"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/teams/audi.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/teams/audi.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/teams/audi.webp",
+      "bytes": 53424,
+      "sha256": "7761fe28807aaa687c11397e52fb7eacb2e6c535de0f0248e9efb5fa980a0795"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/teams/ferrari.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/teams/ferrari.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/teams/ferrari.webp",
+      "bytes": 49232,
+      "sha256": "820e27b59787c2c3be07d4f4a1966cf8058e242ac579f39f15993c0eff30317f"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/teams/haas.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/teams/haas.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/teams/haas.webp",
+      "bytes": 59232,
+      "sha256": "49182464ba8f30cc8ee68979b077c252fd187cd8557d076e0f48c6a53072b97e"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/teams/mclaren.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/teams/mclaren.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/teams/mclaren.webp",
+      "bytes": 55834,
+      "sha256": "6b2dc130c8e5d57d2b56d550e4c4bb9d3e64945335872d16581dada1f7451751"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/teams/mercedes.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/teams/mercedes.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/teams/mercedes.webp",
+      "bytes": 51096,
+      "sha256": "6a748dce300cbe64351dbe1b93e8c8e6eea23c1733df5538c6b226f6c5a33250"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/teams/racingbulls.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/teams/racingbulls.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/teams/racingbulls.webp",
+      "bytes": 50492,
+      "sha256": "073cd90e8d0f857012724658a655160c6d15b84e5d83c187951a1b1071534151"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/teams/redbull.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/teams/redbull.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/teams/redbull.webp",
+      "bytes": 54830,
+      "sha256": "4a495379ae983b13bc719332f61da64245bbac8830ac66e272073f250384f0f6"
+    },
+    {
+      "group": "concepts-2025",
+      "publicPath": "/images/concepts-2025/teams/williams.webp",
+      "publicFile": "apps/web/public/images/concepts-2025/teams/williams.webp",
+      "sourceFile": ".local-assets/concepts-2025-review/teams/williams.webp",
+      "bytes": 54378,
+      "sha256": "7a101a0ab9005db02e54c386cd19de874425fa15be8f4dd5487b149696032e62"
+    },
+    {
+      "group": "storm-backdrop",
+      "publicPath": "/images/storm/storm-hero-1600.avif",
+      "publicFile": "apps/web/public/images/storm/storm-hero-1600.avif",
+      "sourceFile": ".local-assets/site-prototype-ref/storm-hero-ref.jpg",
+      "bytes": 57801,
+      "sha256": "53e89e4da24aa0872a15c5ac6f651c19e799bce07c482bf0f0658c983219eb41"
+    },
+    {
+      "group": "storm-backdrop",
+      "publicPath": "/images/storm/storm-hero-1600.webp",
+      "publicFile": "apps/web/public/images/storm/storm-hero-1600.webp",
+      "sourceFile": ".local-assets/site-prototype-ref/storm-hero-ref.jpg",
+      "bytes": 101386,
+      "sha256": "4e44d9dfa3c1676dfc31750d27e034a1a6c603b65862ee501e573367f64ca53c"
+    },
+    {
+      "group": "storm-backdrop",
+      "publicPath": "/images/storm/storm-hero-2048.avif",
+      "publicFile": "apps/web/public/images/storm/storm-hero-2048.avif",
+      "sourceFile": ".local-assets/site-prototype-ref/storm-hero-ref.jpg",
+      "bytes": 85175,
+      "sha256": "273f7501710f74ac02d5e993051628e67d9955104a1c3341e92a5d245e2476e4"
+    },
+    {
+      "group": "storm-backdrop",
+      "publicPath": "/images/storm/storm-hero-2048.webp",
+      "publicFile": "apps/web/public/images/storm/storm-hero-2048.webp",
+      "sourceFile": ".local-assets/site-prototype-ref/storm-hero-ref.jpg",
+      "bytes": 142478,
+      "sha256": "a1b5a3631dea2579d2f2d7b9b1022d7e8204afa5c8a8add628f664508e8ec974"
+    },
+    {
+      "group": "storm-backdrop",
+      "publicPath": "/images/storm/storm-hero-960.avif",
+      "publicFile": "apps/web/public/images/storm/storm-hero-960.avif",
+      "sourceFile": ".local-assets/site-prototype-ref/storm-hero-ref.jpg",
+      "bytes": 27106,
+      "sha256": "fb7db5285790cdcd3fa52ab8e8fcfeffc2d4d6b00c9aa441350a87257bd8cae4"
+    },
+    {
+      "group": "storm-backdrop",
+      "publicPath": "/images/storm/storm-hero-960.webp",
+      "publicFile": "apps/web/public/images/storm/storm-hero-960.webp",
+      "sourceFile": ".local-assets/site-prototype-ref/storm-hero-ref.jpg",
+      "bytes": 48866,
+      "sha256": "2d0bb9faa49542d984cda5976d474c9899862fc3fff4db1b17071a26b10919d9"
+    },
+    {
+      "group": "storm-backdrop",
+      "publicPath": "/images/storm/storm-tabs-1600.avif",
+      "publicFile": "apps/web/public/images/storm/storm-tabs-1600.avif",
+      "sourceFile": ".local-assets/site-prototype-ref/storm-tabs-ref.jpg",
+      "bytes": 37257,
+      "sha256": "9d1570a89d5f5ef5a8151749161e7f07ed17da7867d7c3295d283fb000b36c44"
+    },
+    {
+      "group": "storm-backdrop",
+      "publicPath": "/images/storm/storm-tabs-1600.webp",
+      "publicFile": "apps/web/public/images/storm/storm-tabs-1600.webp",
+      "sourceFile": ".local-assets/site-prototype-ref/storm-tabs-ref.jpg",
+      "bytes": 67318,
+      "sha256": "843502888edcbb3bde17b01d124ec5c5160d59e273c4e99f1c9888c2931cd3db"
+    },
+    {
+      "group": "storm-backdrop",
+      "publicPath": "/images/storm/storm-tabs-2048.avif",
+      "publicFile": "apps/web/public/images/storm/storm-tabs-2048.avif",
+      "sourceFile": ".local-assets/site-prototype-ref/storm-tabs-ref.jpg",
+      "bytes": 52912,
+      "sha256": "6e0cf9a42b184cb221fbeaabb5adc69f5070abd90ca423d36c85fedb2f798f7c"
+    },
+    {
+      "group": "storm-backdrop",
+      "publicPath": "/images/storm/storm-tabs-2048.webp",
+      "publicFile": "apps/web/public/images/storm/storm-tabs-2048.webp",
+      "sourceFile": ".local-assets/site-prototype-ref/storm-tabs-ref.jpg",
+      "bytes": 92248,
+      "sha256": "8342cc1a95e2a4b8ddb7eda2c6c77003b3d895170e7c000982ab8d371492a7a0"
+    },
+    {
+      "group": "storm-backdrop",
+      "publicPath": "/images/storm/storm-tabs-960.avif",
+      "publicFile": "apps/web/public/images/storm/storm-tabs-960.avif",
+      "sourceFile": ".local-assets/site-prototype-ref/storm-tabs-ref.jpg",
+      "bytes": 17096,
+      "sha256": "bd8d5f6e245894dc7fc4baaa10b9221c5bf49e0aa0862afc1b41d9948ac37c23"
+    },
+    {
+      "group": "storm-backdrop",
+      "publicPath": "/images/storm/storm-tabs-960.webp",
+      "publicFile": "apps/web/public/images/storm/storm-tabs-960.webp",
+      "sourceFile": ".local-assets/site-prototype-ref/storm-tabs-ref.jpg",
+      "bytes": 33002,
+      "sha256": "7363f29a5bb0a119e73de782cdc76e9e4b9c794565bb54dcaea011f0a0b330f5"
+    }
+  ]
+}

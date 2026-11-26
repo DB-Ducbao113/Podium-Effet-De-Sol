@@ -24,8 +24,7 @@ export function MiniRaceLeaderboard({ season, category, rows, lang }: Props) {
     isDrivers ? (row as DriverStanding).driverId : row.teamId;
   const selected = rows.find((row) => idOf(row) === selectedId) ?? rows[0];
   const leaderPoints = Math.max(0, rows[0]?.points ?? 0);
-  const hasReviewCarPack =
-    import.meta.env.DEV && [2024, 2025, 2026].includes(season);
+  const hasIllustrativeCars = [2024, 2025, 2026].includes(season);
 
   return (
     <section
@@ -38,7 +37,14 @@ export function MiniRaceLeaderboard({ season, category, rows, lang }: Props) {
     >
       <div className="mini-race__heading">
         <div>
-          <h2>{lang === "vi" ? "Cuộc đua điểm số" : "The points race"}</h2>
+          <span className="mini-race__eyebrow">
+            {season} / {isDrivers
+              ? (lang === "vi" ? "TAY ĐUA" : "DRIVERS")
+              : (lang === "vi" ? "ĐỘI ĐUA" : "CONSTRUCTORS")}
+          </span>
+          <h2>{lang === "vi"
+            ? <>Cuộc đua <em>điểm số.</em></>
+            : <>The <em>points race.</em></>}</h2>
           <p>
             {lang === "vi"
               ? "Mỗi làn là một hạng; vị trí xe theo điểm so với P1."
@@ -140,10 +146,10 @@ export function MiniRaceLeaderboard({ season, category, rows, lang }: Props) {
             )}
             <p className="mini-race__note">
               {lang === "vi"
-                ? hasReviewCarPack
+                ? hasIllustrativeCars
                   ? `Theo điểm vô địch, không phải vị trí GP. Xe ${season} minh họa; số và logo có thể khác.`
                   : "Theo điểm vô địch, không phải vị trí GP."
-                : hasReviewCarPack
+                : hasIllustrativeCars
                   ? `Championship points, not GP positions. ${season} cars are illustrations; numbers and logos may differ.`
                   : "Championship points, not GP positions."}
             </p>
@@ -187,8 +193,8 @@ export function MiniRaceLeaderboard({ season, category, rows, lang }: Props) {
               <Link
                 to={
                   isDrivers
-                    ? `/drivers/${(selected as DriverStanding).driverId}`
-                    : `/teams/${selected.teamId}`
+                    ? `/drivers/${(selected as DriverStanding).driverId}?season=${season}`
+                    : `/teams/${selected.teamId}?season=${season}`
                 }
               >
                 {lang === "vi" ? "Xem hồ sơ" : "View profile"} →

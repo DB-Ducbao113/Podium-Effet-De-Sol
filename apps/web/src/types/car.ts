@@ -16,9 +16,12 @@ export interface OfficialSpecs {
 export interface TechnicalHighlights {
   frontSuspension: string;
   rearSuspension: string;
+  // The dataset stores these two notes in Vietnamese only.
   aeroPhilosophy: string;
   groundEffectNotes: string;
   chassisConstruction: string;
+  aeroPhilosophyEn?: string;
+  groundEffectNotesEn?: string;
 }
 
 export interface CarSpec {

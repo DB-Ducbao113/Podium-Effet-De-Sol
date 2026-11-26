@@ -1,0 +1,59 @@
+.peds-tz-badge {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0.34rem 0.65rem;
+  max-width: 100%;
+  border-radius: 6px;
+  border: 1px solid rgba(244, 240, 232, 0.14);
+  background: rgba(5, 11, 18, 0.55);
+  color: #d5d9dd;
+  font-family: var(--peds-font-ui);
+  font-size: 0.72rem;
+  line-height: 1.35;
+  cursor: default;
+  overflow-wrap: anywhere;
+}
+
+.peds-tz-badge__icon {
+  flex: none;
+  color: #cbd0d6;
+}
+
+.peds-tz-badge__prefix {
+  color: #cbd0d6;
+  font-weight: 600;
+}
+
+.peds-tz-badge__sep {
+  color: #9fa6b2;
+}
+
+.peds-tz-badge__value {
+  color: #f4f0e8;
+  font-family: var(--peds-font-mono);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.peds-tz-badge--home {
+  margin-top: 0.55rem;
+}
+
+.peds-tz-badge--calendar,
+.peds-tz-badge--results {
+  min-height: 36px;
+  border-color: #484e57;
+  background: #23272e;
+  color: #cbd0d6;
+  font-size: 0.75rem;
+}
+
+[data-text-zoom="200"] .peds-tz-badge,
+[data-text-zoom="400"] .peds-tz-badge {
+  width: fit-content;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}

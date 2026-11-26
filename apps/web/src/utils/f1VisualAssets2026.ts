@@ -1,6 +1,6 @@
 import type { SeasonYear, TeamId } from '../types';
 
-const base = '/images/p5/concepts-2026';
+const base = '/images/concepts-2026';
 
 // Stable application IDs map to the owner's 2026 concept package. The source
 // manifest and file hashes are recorded in docs/asset-manifests/f1-2026-concepts.json.

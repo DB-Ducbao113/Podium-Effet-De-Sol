@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { CALENDAR_2026 } from "../../data/championship";
 import { useChampionshipStore } from "../../store/useChampionshipStore";
+import { useTimezoneStore } from "../../store/useTimezoneStore";
 import { getSessionTimeRange } from "../../utils/raceSchedule";
 import type { GrandPrixRound } from "../../types";
 
@@ -14,17 +15,21 @@ export function useNextRace(): GrandPrixRound | undefined {
   const detailedResultsRaw = useChampionshipStore(
     (state) => state.detailedResults?.[2026],
   );
-  const [scheduleNow, setScheduleNow] = useState(() => Date.now());
+  const clockOffsetMs = useTimezoneStore((state) => state.clockOffsetMs);
+  const [scheduleNow, setScheduleNow] = useState(
+    () => Date.now() + clockOffsetMs,
+  );
 
   useEffect(() => {
-    const refresh = () => setScheduleNow(Date.now());
+    const refresh = () => setScheduleNow(Date.now() + clockOffsetMs);
+    refresh();
     const interval = window.setInterval(refresh, 30_000);
     document.addEventListener("visibilitychange", refresh);
     return () => {
       window.clearInterval(interval);
       document.removeEventListener("visibilitychange", refresh);
     };
-  }, []);
+  }, [clockOffsetMs]);
 
   const nextRace = useMemo(() => {
     const completed = new Set(
@@ -40,11 +45,11 @@ export function useNextRace(): GrandPrixRound | undefined {
       nextRace && getSessionTimeRange(nextRace, "race")?.start.getTime();
     if (start === undefined) return;
     const timeout = window.setTimeout(
-      () => setScheduleNow(Date.now()),
-      nextRaceRefreshDelay(start, Date.now()),
+      () => setScheduleNow(Date.now() + clockOffsetMs),
+      nextRaceRefreshDelay(start, Date.now() + clockOffsetMs),
     );
     return () => window.clearTimeout(timeout);
-  }, [nextRace, scheduleNow]);
+  }, [nextRace, scheduleNow, clockOffsetMs]);
 
   return nextRace;
 }
