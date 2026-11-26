@@ -1,7 +1,13 @@
-import { memo, useEffect, useState } from "react";
+import { Suspense, lazy, memo, useEffect, useState } from "react";
 import { useTimezoneStore } from "../../store/useTimezoneStore";
 import { formatSynchronizedCountdown } from "./countdownFormat";
-import { CountdownOdometer } from "./motion/OdometerNumber";
+import { isFinePointerDevice } from "./motion/motionConfig";
+
+const LazyCountdownOdometer = lazy(() =>
+  import("./motion/OdometerNumber").then((m) => ({
+    default: m.CountdownOdometer,
+  })),
+);
 
 export interface LiveCountdownLeafProps {
   readonly targetEpochMs: number | null;
@@ -75,7 +81,11 @@ export const LiveCountdownLeaf = memo(function LiveCountdownLeaf({
       ? targetEpochMs - syncedNowMs
       : -1;
   const useRollingDigits =
-    !reducedMotion && diff > 0 && typeof window !== "undefined";
+    !reducedMotion &&
+    diff > 0 &&
+    typeof window !== "undefined" &&
+    window.innerWidth > 860 &&
+    isFinePointerDevice();
 
   if (useRollingDigits) {
     const days = Math.floor(diff / 86_400_000);
@@ -89,13 +99,15 @@ export const LiveCountdownLeaf = memo(function LiveCountdownLeaf({
         data-testid="live-countdown-leaf"
         style={{ fontVariantNumeric: "tabular-nums" }}
       >
-        <CountdownOdometer
-          days={days}
-          hours={hours}
-          minutes={minutes}
-          seconds={seconds}
-          reducedMotion={false}
-        />
+        <Suspense fallback={label}>
+          <LazyCountdownOdometer
+            days={days}
+            hours={hours}
+            minutes={minutes}
+            seconds={seconds}
+            reducedMotion={false}
+          />
+        </Suspense>
       </span>
     );
   }

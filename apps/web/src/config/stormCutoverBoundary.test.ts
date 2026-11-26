@@ -45,6 +45,22 @@ describe("Plan 4 — Storm Cutover & Legacy Retirement Boundary (US-04)", () => 
     expect(lines.join("\n")).toContain("/models/*");
     expect(lines.join("\n")).toContain("/images/*");
     expect(lines.join("\n")).toContain("/logo/*");
+    expect(lines.join("\n")).toContain("max-age=31536000");
     expect(lines.join("\n")).not.toContain("model-b-eds-optimized-v1.glb");
+  });
+
+  it("ships valid Agent Discoverability manifests (llms.txt and .well-known/ard.json) and responsive 240w AVIF logo", () => {
+    const llms = readFileSync("public/llms.txt", "utf8");
+    expect(llms).toMatch(/^#\s+\S+/m);
+    expect(llms).toMatch(/\[[^\]]+\]\(https:\/\/[^)]+\)/);
+
+    const ard = JSON.parse(readFileSync("public/.well-known/ard.json", "utf8"));
+    expect(ard.version).toBeTruthy();
+    expect(ard.name).toContain("PODIUM");
+    expect(Array.isArray(ard.resources)).toBe(true);
+    expect(ard.resources.length).toBeGreaterThanOrEqual(4);
+
+    expect(existsSync("public/logo/logo-240.avif")).toBe(true);
+    expect(existsSync("public/logo/logo-240.webp")).toBe(true);
   });
 });

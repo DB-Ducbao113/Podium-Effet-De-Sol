@@ -11,7 +11,13 @@ assert.ok(configuredDirectory, "Wrangler assets.directory is missing");
 assert.equal(path.resolve("../..", configuredDirectory), clientAssetsDir);
 
 await requireHtmlShell(path.join(clientAssetsDir, "index.html"));
-for (const file of ["robots.txt", "sitemap.xml", "engineering/index.html"]) {
+for (const file of [
+  "robots.txt",
+  "sitemap.xml",
+  "llms.txt",
+  ".well-known/ard.json",
+  "engineering/index.html",
+]) {
   await access(path.join(clientAssetsDir, file));
 }
 const articles = JSON.parse(

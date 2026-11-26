@@ -157,31 +157,62 @@ export function GlobalLiquidNav({
 
   useEffect(() => clearMotionTimers, [clearMotionTimers]);
 
-  // Keep --peds-nav-offset synced in layout CSS px (compensated for VISUAL-ZOOM-01) so content headers never touch the floating bar.
+  // Keep --peds-nav-offset synced in layout CSS px (compensated for VISUAL-ZOOM-01) without forcing sync reflow on mount.
   useEffect(() => {
     if (typeof document === "undefined") return;
     const shellEl = shellRef.current;
     if (!shellEl) return;
 
-    const updateOffset = () => {
-      const rect = shellEl.getBoundingClientRect();
+    let lastValue = "";
+    let rafId: number | null = null;
+
+    const applyOffset = (shellHeight?: number) => {
       const zoom = visualZoomFactor(document.documentElement);
-      const offsetLayoutPx = Math.round((rect.bottom + 20) / zoom);
-      document.documentElement.style.setProperty(
-        "--peds-nav-offset",
-        `${Math.max(72, offsetLayoutPx)}px`,
+      const topInset = window.innerWidth <= 860 ? 12 : 18 / zoom;
+      const measuredBottom =
+        typeof shellHeight === "number" && shellHeight > 0
+          ? topInset + shellHeight
+          : shellEl.getBoundingClientRect().bottom;
+      const offsetLayoutPx = Math.max(
+        72,
+        Math.round((measuredBottom + 20) / zoom),
       );
+      const nextValue = `${offsetLayoutPx}px`;
+      if (nextValue !== lastValue) {
+        lastValue = nextValue;
+        document.documentElement.style.setProperty(
+          "--peds-nav-offset",
+          nextValue,
+        );
+      }
     };
 
-    updateOffset();
-    window.addEventListener("resize", updateOffset);
+    const scheduleFallbackMeasure = () => {
+      if (rafId !== null) window.cancelAnimationFrame(rafId);
+      rafId = window.requestAnimationFrame(() => {
+        rafId = null;
+        applyOffset();
+      });
+    };
+
     let observer: ResizeObserver | null = null;
     if (typeof ResizeObserver !== "undefined") {
-      observer = new ResizeObserver(updateOffset);
+      observer = new ResizeObserver((entries) => {
+        const entry = entries[0];
+        const height =
+          entry?.borderBoxSize?.[0]?.blockSize ?? entry?.contentRect.height;
+        applyOffset(height);
+      });
       observer.observe(shellEl);
+    } else {
+      scheduleFallbackMeasure();
     }
+    window.addEventListener("resize", scheduleFallbackMeasure, {
+      passive: true,
+    });
     return () => {
-      window.removeEventListener("resize", updateOffset);
+      if (rafId !== null) window.cancelAnimationFrame(rafId);
+      window.removeEventListener("resize", scheduleFallbackMeasure);
       observer?.disconnect();
       document.documentElement.style.removeProperty("--peds-nav-offset");
     };
@@ -267,36 +298,38 @@ export function GlobalLiquidNav({
         </div>
       </header>
 
-      {/* Invariant intrinsic width mirror: never toggles by fitMode, preventing ResizeObserver loops */}
-      <div className="peds-nav-mirror" aria-hidden="true">
-        <span ref={mirrorBrandRef} className="peds-nav-mirror-item">
-          <span className="peds-nav-brand-link">
-            <OfficialBrandLogo
-              size="lg"
-              variant="full"
-              className="peds-nav-brand-logo"
-            />
-          </span>
-        </span>
-        <span ref={mirrorRailRef} className="peds-nav-mirror-item">
-          <span className="peds-nav-rail">
-            <span className="peds-nav-list">
-              {LIQUID_NAV_DESTINATIONS.map((dest) => (
-                <span key={dest.id} className="peds-nav-link">
-                  {dest.label[lang]}
-                </span>
-              ))}
+      {/* Invariant intrinsic width mirror: skipped on mobileHub (<=860px) to avoid redundant DOM & reflows */}
+      {!mobileHub ? (
+        <div className="peds-nav-mirror" aria-hidden="true">
+          <span ref={mirrorBrandRef} className="peds-nav-mirror-item">
+            <span className="peds-nav-brand-link">
+              <OfficialBrandLogo
+                size="lg"
+                variant="full"
+                className="peds-nav-brand-logo"
+              />
             </span>
           </span>
-        </span>
-        <span ref={mirrorNextRef} className="peds-nav-mirror-item" />
-        <span ref={mirrorLangRef} className="peds-nav-mirror-item">
-          <span className="peds-nav-lang">
-            <span className="peds-nav-lang-btn">EN</span>
-            <span className="peds-nav-lang-btn">VI</span>
+          <span ref={mirrorRailRef} className="peds-nav-mirror-item">
+            <span className="peds-nav-rail">
+              <span className="peds-nav-list">
+                {LIQUID_NAV_DESTINATIONS.map((dest) => (
+                  <span key={dest.id} className="peds-nav-link">
+                    {dest.label[lang]}
+                  </span>
+                ))}
+              </span>
+            </span>
           </span>
-        </span>
-      </div>
+          <span ref={mirrorNextRef} className="peds-nav-mirror-item" />
+          <span ref={mirrorLangRef} className="peds-nav-mirror-item">
+            <span className="peds-nav-lang">
+              <span className="peds-nav-lang-btn">EN</span>
+              <span className="peds-nav-lang-btn">VI</span>
+            </span>
+          </span>
+        </div>
+      ) : null}
 
       <CompactNavDialog
         phase={dialogPhase}

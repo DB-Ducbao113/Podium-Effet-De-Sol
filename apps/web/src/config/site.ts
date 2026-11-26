@@ -21,11 +21,44 @@ export const isPreviewHostname = (hostname: string) =>
   hostname.endsWith(".workers.dev") ||
   hostname.endsWith(".pages.dev");
 
-export const canIndexCurrentHost = () =>
-  Boolean(
-    CONFIGURED_SITE_URL &&
-    INDEXING_REQUESTED &&
-    DEPLOYMENT_CONTEXT !== "preview" &&
-    typeof window !== "undefined" &&
-    !isPreviewHostname(window.location.hostname),
+export interface HostIndexingInput {
+  readonly configuredSiteUrl: string | null;
+  readonly indexingRequested: boolean;
+  readonly deploymentContext?: string;
+  readonly locationOrigin?: string;
+  readonly locationHostname?: string;
+}
+
+export const resolveCanIndexHost = ({
+  configuredSiteUrl,
+  indexingRequested,
+  deploymentContext,
+  locationOrigin,
+  locationHostname,
+}: HostIndexingInput) => {
+  if (
+    !configuredSiteUrl ||
+    !indexingRequested ||
+    deploymentContext === "preview" ||
+    !locationOrigin ||
+    !locationHostname
+  ) {
+    return false;
+  }
+  if (locationHostname === "localhost" || locationHostname === "127.0.0.1") {
+    return false;
+  }
+  return (
+    locationOrigin === configuredSiteUrl || !isPreviewHostname(locationHostname)
   );
+};
+
+export const canIndexCurrentHost = () =>
+  typeof window !== "undefined" &&
+  resolveCanIndexHost({
+    configuredSiteUrl: CONFIGURED_SITE_URL,
+    indexingRequested: INDEXING_REQUESTED,
+    deploymentContext: DEPLOYMENT_CONTEXT,
+    locationOrigin: window.location.origin,
+    locationHostname: window.location.hostname,
+  });

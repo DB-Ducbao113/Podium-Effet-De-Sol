@@ -68,6 +68,16 @@ export function StormHeroBackdrop({
   const reflImgRef = useRef<HTMLImageElement>(null);
 
   const [imgFailed, setImgFailed] = useState(false);
+  const canShowReflection =
+    isHero &&
+    !imgFailed &&
+    !reducedMotion &&
+    (typeof window === "undefined" ||
+      (window.innerWidth > 860 &&
+        !(
+          typeof window.matchMedia === "function" &&
+          window.matchMedia("(pointer: coarse)").matches
+        )));
 
   useEffect(() => {
     const stage = stageRef.current;
@@ -158,14 +168,24 @@ export function StormHeroBackdrop({
       }
     };
 
-    updateCover();
-    seedRain();
+    let initRafId: number | null = null;
+    let rafId: number | null = null;
+    let running = false;
+    let last = 0;
+    let intersecting = true;
+    const minFrameIntervalMs = calmParticles ? 30 : 0; // ~33fps on calm data tabs, 60fps on Hero
 
     if (reducedMotion || saveData || (calmParticles && isCoarsePointer)) {
-      par.style.transform = "translate3d(0, 0, 0)";
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      return;
+      initRafId = window.requestAnimationFrame(() => {
+        initRafId = null;
+        updateCover();
+        par.style.transform = "translate3d(0, 0, 0)";
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      });
+      return () => {
+        if (initRafId !== null) window.cancelAnimationFrame(initRafId);
+      };
     }
 
     let trails: Trail[] = [];
@@ -293,12 +313,6 @@ export function StormHeroBackdrop({
       rings = rings.filter((g) => g.r < g.max);
     };
 
-    let rafId: number | null = null;
-    let running = false;
-    let last = 0;
-    let intersecting = true;
-    const minFrameIntervalMs = calmParticles ? 30 : 0; // ~33fps on calm data tabs, 60fps on Hero
-
     const frame = (ts: number) => {
       if (!running) return;
       if (minFrameIntervalMs > 0 && ts - last < minFrameIntervalMs) {
@@ -368,9 +382,15 @@ export function StormHeroBackdrop({
       observer.observe(stage);
     }
 
-    syncRunState();
+    initRafId = window.requestAnimationFrame(() => {
+      initRafId = null;
+      updateCover();
+      seedRain();
+      syncRunState();
+    });
 
     return () => {
+      if (initRafId !== null) window.cancelAnimationFrame(initRafId);
       stop();
       observer?.disconnect();
       if (!isCoarsePointer) {
@@ -418,7 +438,7 @@ export function StormHeroBackdrop({
 
         <div ref={reflWrapRef} className="sp-storm-refl-wrap">
           <div className="sp-storm-refl-drift">
-            {isHero && !imgFailed && !reducedMotion ? (
+            {canShowReflection ? (
               <img
                 ref={reflImgRef}
                 src={reflWebp}

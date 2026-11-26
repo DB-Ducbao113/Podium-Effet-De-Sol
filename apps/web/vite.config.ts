@@ -60,6 +60,12 @@ export default defineConfig(({ mode }) => ({
           ) {
             return "vendor-react";
           }
+          if (
+            moduleId.includes("/node_modules/gsap/") ||
+            moduleId.includes("/node_modules/@gsap/")
+          ) {
+            return "vendor-motion";
+          }
           if (moduleId.includes("/node_modules/lucide-react/")) {
             return "vendor-icons";
           }

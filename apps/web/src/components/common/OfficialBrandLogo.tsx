@@ -21,19 +21,48 @@ const sourceByVariant: Record<LogoVariant, string> = {
   mark: '/logo/icon-192.png',
 };
 
-/** Keep the approved PNG as the fallback; modern browsers use a smaller derivative. */
+const dimensionsByVariant: Record<
+  LogoVariant,
+  { readonly width: number; readonly height: number }
+> = {
+  full: { width: 600, height: 224 },
+  compact: { width: 240, height: 90 },
+  mark: { width: 192, height: 192 },
+};
+
+/** Keep the approved PNG as the fallback; modern browsers use responsive AVIF/WebP derivatives. */
 export const OfficialBrandLogo: React.FC<OfficialBrandLogoProps> = ({
   className = '',
   size = 'md',
   variant = 'full',
 }) => {
-  const logo = <img
-    src={sourceByVariant[variant]}
-    alt={variant === 'mark' ? '' : variant === 'compact' ? 'EDS' : 'PODIUM — Effet de Sol'}
-    aria-hidden={variant === 'mark' ? true : undefined}
-    className={`${heightByVariant[variant][size]} ${variant === 'mark' ? 'aspect-square' : ''} w-auto max-w-full shrink-0 select-none object-contain transition-all duration-300 group-hover:brightness-110 ${className}`}
-  />;
-  return variant === 'full'
-    ? <picture className="contents"><source srcSet="/logo/logo-optimized.webp" type="image/webp" />{logo}</picture>
-    : logo;
+  const dims = dimensionsByVariant[variant];
+  const logo = (
+    <img
+      src={sourceByVariant[variant]}
+      width={dims.width}
+      height={dims.height}
+      decoding="async"
+      alt={variant === 'mark' ? '' : variant === 'compact' ? 'EDS' : 'PODIUM — Effet de Sol'}
+      aria-hidden={variant === 'mark' ? true : undefined}
+      className={`${heightByVariant[variant][size]} ${variant === 'mark' ? 'aspect-square' : ''} w-auto max-w-full shrink-0 select-none object-contain transition-all duration-300 group-hover:brightness-110 ${className}`}
+    />
+  );
+  return variant === 'full' ? (
+    <picture className="contents">
+      <source
+        srcSet="/logo/logo-240.avif 240w, /logo/logo-600.avif 600w"
+        sizes="(max-width: 860px) 120px, 160px"
+        type="image/avif"
+      />
+      <source
+        srcSet="/logo/logo-240.webp 240w, /logo/logo-optimized.webp 600w"
+        sizes="(max-width: 860px) 120px, 160px"
+        type="image/webp"
+      />
+      {logo}
+    </picture>
+  ) : (
+    logo
+  );
 };

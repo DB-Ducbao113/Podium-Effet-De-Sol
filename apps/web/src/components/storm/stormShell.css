@@ -2365,13 +2365,11 @@
 @keyframes spStormEyebrowWipe {
   from {
     opacity: 0;
-    clip-path: inset(0 100% 0 0);
-    transform: translate3d(-8px, 0, 0);
+    transform: translate3d(-10px, 0, 0);
   }
 
   to {
     opacity: 1;
-    clip-path: inset(0 0 0 0);
     transform: translate3d(0, 0, 0);
   }
 }
@@ -2393,16 +2391,12 @@
 @keyframes spStormCopyEnter {
   from {
     opacity: 0;
-    clip-path: inset(-18% 0 100% 0);
-    transform: translate3d(0, 26px, 0);
-    filter: blur(4px);
+    transform: translate3d(0, 22px, 0);
   }
 
   to {
     opacity: 1;
-    clip-path: inset(-18% 0 -14% 0);
     transform: translate3d(0, 0, 0);
-    filter: blur(0);
   }
 }
 

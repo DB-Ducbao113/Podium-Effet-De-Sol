@@ -1,6 +1,5 @@
 import React, { Suspense, lazy, useEffect } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
-import { INTRO_COMPLETE_EVENT } from "./components/common/documentIntroState";
 import { RouteSeo } from "./components/seo/RouteSeo";
 import {
   DesignPrototypeRedirect,
@@ -90,8 +89,7 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     const onSeasonPage = location.pathname.startsWith("/season/");
-    const onHomepage = location.pathname === "/";
-    if (!onSeasonPage && !onHomepage) return;
+    if (!onSeasonPage) return;
 
     const refreshIfDue = () => {
       if (
@@ -104,30 +102,10 @@ export const App: React.FC = () => {
       void syncSeasonData(2026);
     };
 
-    let postIntro: number | null = null;
-    const afterIntro = () => {
-      postIntro = window.setTimeout(refreshIfDue, 300);
-    };
-    const startHomeRefresh = () => {
-      if (document.querySelector(".podium-intro")) {
-        window.addEventListener(INTRO_COMPLETE_EVENT, afterIntro, {
-          once: true,
-        });
-      } else {
-        refreshIfDue();
-      }
-    };
-
-    const initial = onSeasonPage
-      ? null
-      : window.setTimeout(startHomeRefresh, 2500);
-    if (onSeasonPage) refreshIfDue();
+    refreshIfDue();
     const interval = window.setInterval(refreshIfDue, 15 * 60_000);
     document.addEventListener("visibilitychange", refreshIfDue);
     return () => {
-      if (initial !== null) window.clearTimeout(initial);
-      if (postIntro !== null) window.clearTimeout(postIntro);
-      window.removeEventListener(INTRO_COMPLETE_EVENT, afterIntro);
       window.clearInterval(interval);
       document.removeEventListener("visibilitychange", refreshIfDue);
     };

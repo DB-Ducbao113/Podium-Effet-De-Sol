@@ -53,9 +53,39 @@ describe("Cloudflare Fetch API security boundary", () => {
       environment,
     );
     expect(response.status).toBe(200);
+    expect(response.headers.get("Cache-Control")).toContain("max-age=300");
+    expect(response.headers.get("Cache-Control")).toContain("s-maxage=900");
     expect(String(fetchSpy.mock.calls[0]?.[0])).toContain(
       "ergast/f1/2025/sprint.json",
     );
+  });
+
+  it("serves cached Jolpica payloads from Cloudflare Edge Cache without hitting upstream", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+    const cachedResponse = new Response('{"MRData":{"total":"1"}}', {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+    const matchSpy = vi.fn().mockResolvedValue(cachedResponse);
+    const putSpy = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal("caches", {
+      default: { match: matchSpy, put: putSpy },
+    });
+
+    try {
+      const response = await jolpicaHandler(
+        new Request(
+          "https://podium.example/api/jolpica?path=ergast%2Ff1%2F2026%2Fresults.json&limit=100&offset=0",
+        ),
+        environment,
+      );
+      expect(response.status).toBe(200);
+      expect(response.headers.get("X-Cache")).toBe("EDGE-HIT");
+      expect(fetchSpy).not.toHaveBeenCalled();
+      expect(matchSpy).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 
   it("rejects unknown OpenF1 parameters without fetching", async () => {

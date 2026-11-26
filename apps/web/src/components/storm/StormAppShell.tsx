@@ -1,4 +1,12 @@
-import { useCallback, useMemo, useRef, useState, type ReactNode } from "react";
+import {
+  Suspense,
+  lazy,
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import {
   Navigate,
   useLocation,
@@ -23,9 +31,14 @@ import {
   type NavAdapter,
 } from "../layout/navigation/navRouting";
 import { prefetchStormRoute } from "./routePrefetch";
-import { StormDossierDrawer } from "./StormDossierDrawer";
 import { StormHeroBackdrop } from "./StormHeroBackdrop";
 import { StormSlimFooter } from "./StormSlimFooter";
+
+const StormDossierDrawer = lazy(() =>
+  import("./StormDossierDrawer").then((m) => ({
+    default: m.StormDossierDrawer,
+  })),
+);
 import {
   StormShellContext,
   resolveDesignPrototypeRedirectTarget,
@@ -272,12 +285,16 @@ export function StormAppShell({ children }: StormAppShellProps) {
 
         {showSlimFooter ? <StormSlimFooter lang={lang} /> : null}
 
-        <StormDossierDrawer
-          inspecting={inspecting}
-          defaultSeason={effectiveSeason}
-          lang={lang}
-          onClose={closeInspection}
-        />
+        {inspecting ? (
+          <Suspense fallback={null}>
+            <StormDossierDrawer
+              inspecting={inspecting}
+              defaultSeason={effectiveSeason}
+              lang={lang}
+              onClose={closeInspection}
+            />
+          </Suspense>
+        ) : null}
       </div>
     </StormShellContext.Provider>
   );

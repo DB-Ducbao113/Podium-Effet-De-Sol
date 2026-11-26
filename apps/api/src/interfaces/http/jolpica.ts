@@ -17,6 +17,13 @@ import {
 const allowedPath = /^ergast\/f1\/(2024|2025|2026)\/(results|sprint)\.json$/;
 const allowedParameters = new Set(["path", "limit", "offset"]);
 const proxy = new ProxyUseCase(JOLPICA_POLICY);
+const JOLPICA_CACHE_CONTROL =
+  "public, max-age=300, s-maxage=900, stale-while-revalidate=86400";
+
+function getEdgeCache(): Cache | null {
+  const cacheStorage = (globalThis as { caches?: { default?: Cache } }).caches;
+  return cacheStorage?.default ?? null;
+}
 
 export default async function jolpicaHandler(
   request: Request,
@@ -24,10 +31,7 @@ export default async function jolpicaHandler(
 ): Promise<Response> {
   const cors = corsHeaders(request, environment);
   if (cors instanceof Response) return cors;
-  cors.set(
-    "Cache-Control",
-    "public, s-maxage=900, stale-while-revalidate=86400",
-  );
+  cors.set("Cache-Control", JOLPICA_CACHE_CONTROL);
   const earlyResponse = guardRequest(request, cors);
   if (earlyResponse) return earlyResponse;
 
@@ -51,8 +55,48 @@ export default async function jolpicaHandler(
   }
   const limit = boundedInteger(query.limit, 100, 100);
   const offset = boundedInteger(query.offset, 0, 10_000);
-  return sendResult(
-    await proxy.execute(`${path}?limit=${limit}&offset=${offset}`),
-    cors,
+  const upstreamKey = `${path}?limit=${limit}&offset=${offset}`;
+  const edgeCache = getEdgeCache();
+  const edgeCacheKey = new Request(
+    `https://edge-cache.podiumeds.internal/jolpica/${upstreamKey}`,
+    { method: "GET" },
   );
+
+  if (edgeCache) {
+    try {
+      const edgeHit = await edgeCache.match(edgeCacheKey);
+      if (edgeHit) {
+        const hitHeaders = new Headers(cors);
+        hitHeaders.set("Content-Type", "application/json; charset=utf-8");
+        hitHeaders.set("X-Content-Type-Options", "nosniff");
+        hitHeaders.set("X-Cache", "EDGE-HIT");
+        return new Response(edgeHit.body, {
+          status: edgeHit.status,
+          headers: hitHeaders,
+        });
+      }
+    } catch {
+      // Fall through to isolate cache + upstream when Edge Cache is unavailable.
+    }
+  }
+
+  const result = await proxy.execute(upstreamKey);
+  const response = sendResult(result, cors);
+
+  if (edgeCache && result.status === 200) {
+    try {
+      const cacheable = new Response(response.clone().body, {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+          "Cache-Control": JOLPICA_CACHE_CONTROL,
+        },
+      });
+      await edgeCache.put(edgeCacheKey, cacheable);
+    } catch {
+      // Ignore edge cache write failures so API responses stay reliable.
+    }
+  }
+
+  return response;
 }

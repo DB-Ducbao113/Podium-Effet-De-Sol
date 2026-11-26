@@ -43,13 +43,11 @@
 }
 
 .podium-intro[data-phase="launch"] .podium-intro__sheet {
-  animation: podiumLaunchReveal var(--intro-reveal-duration, 500ms)
-    var(--intro-ease-exit) var(--intro-logo-hold, 800ms) both;
+  animation: podiumLaunchReveal var(--intro-reveal-duration, 500ms) var(--intro-ease-exit) var(--intro-logo-hold, 800ms) both;
 }
 
 .podium-intro[data-skipping="true"] .podium-intro__sheet {
-  animation: podiumSkipDissolve var(--intro-skip-duration, 260ms)
-    var(--intro-ease-exit) both;
+  animation: podiumSkipDissolve var(--intro-skip-duration, 260ms) var(--intro-ease-exit) both;
 }
 
 .podium-intro__scene {
@@ -70,21 +68,15 @@
 
 .podium-intro__atmosphere {
   background:
-    radial-gradient(
-      90% 62% at 78% 12%,
+    radial-gradient(90% 62% at 78% 12%,
       rgba(28, 62, 102, 0.36),
-      transparent 70%
-    ),
-    radial-gradient(
-      58% 48% at 22% 82%,
+      transparent 70%),
+    radial-gradient(58% 48% at 22% 82%,
       rgba(114, 224, 255, 0.08),
-      transparent 68%
-    ),
-    radial-gradient(
-      60% 42% at 50% 56%,
+      transparent 68%),
+    radial-gradient(60% 42% at 50% 56%,
       rgba(255, 74, 24, 0.06),
-      transparent 72%
-    );
+      transparent 72%);
 }
 
 .podium-intro__grid {
@@ -92,22 +84,17 @@
     linear-gradient(rgba(255, 255, 255, 0.028) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.028) 1px, transparent 1px);
   background-size: 64px 64px;
-  mask-image: radial-gradient(
-    ellipse 74% 68% at 50% 50%,
-    #000 35%,
-    transparent 100%
-  );
+  mask-image: radial-gradient(ellipse 74% 68% at 50% 50%,
+      #000 35%,
+      transparent 100%);
   opacity: 0;
-  animation: podiumGridWake var(--intro-grid-wake-duration, 260ms)
-    var(--intro-ease-out) forwards;
+  animation: podiumGridWake var(--intro-grid-wake-duration, 260ms) var(--intro-ease-out) forwards;
 }
 
 .podium-intro__vignette {
-  background: radial-gradient(
-    ellipse at center,
-    transparent 24%,
-    rgba(5, 8, 14, 0.72) 100%
-  );
+  background: radial-gradient(ellipse at center,
+      transparent 24%,
+      rgba(5, 8, 14, 0.72) 100%);
   opacity: 0.72;
   transition: opacity 280ms var(--intro-ease-out);
 }
@@ -123,16 +110,13 @@
   left: 0;
   width: 100%;
   height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(114, 224, 255, 0.55) 30%,
-    rgba(255, 74, 24, 0.78) 65%,
-    transparent 100%
-  );
+  background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(114, 224, 255, 0.55) 30%,
+      rgba(255, 74, 24, 0.78) 65%,
+      transparent 100%);
   opacity: 0;
-  animation: podiumGridSweep var(--intro-sweep-duration, 320ms)
-    var(--intro-ease-out) both;
+  animation: podiumGridSweep var(--intro-sweep-duration, 320ms) var(--intro-ease-out) both;
 }
 
 /* Persistent smooth-scaling ambient crimson glow (no per-light DOM remount) */
@@ -142,15 +126,12 @@
   left: 50%;
   width: min(860px, 130vw / var(--peds-visual-zoom));
   height: min(540px, 78vh / var(--peds-visual-zoom));
-  background: radial-gradient(
-    ellipse at center,
-    rgba(255, 59, 40, 0.28) 0%,
-    rgba(255, 74, 24, 0.1) 42%,
-    transparent 72%
-  );
+  background: radial-gradient(ellipse at center,
+      rgba(255, 59, 40, 0.28) 0%,
+      rgba(255, 74, 24, 0.1) 42%,
+      transparent 72%);
   opacity: calc(var(--pressure-level, 0) * 0.92);
-  transform: translate3d(-50%, -50%, 0)
-    scale(calc(0.76 + var(--pressure-level, 0) * 0.34));
+  transform: translate3d(-50%, -50%, 0) scale(calc(0.76 + var(--pressure-level, 0) * 0.34));
   transition:
     opacity 220ms var(--intro-ease-out),
     transform 260ms var(--intro-ease-out);
@@ -166,8 +147,7 @@
   flex-direction: column;
   gap: 4px;
   z-index: 4;
-  animation: podiumGridWake var(--intro-grid-wake-duration, 260ms)
-    var(--intro-ease-out) both;
+  animation: podiumGridWake var(--intro-grid-wake-duration, 260ms) var(--intro-ease-out) both;
 }
 
 .podium-intro__signature strong {
@@ -183,7 +163,7 @@
   color: var(--intro-accent);
 }
 
-.podium-intro__signature > span {
+.podium-intro__signature>span {
   color: var(--intro-muted);
   font-family: var(--peds-font-mono, "IBM Plex Mono", monospace);
   font-size: 9px;
@@ -209,8 +189,7 @@
   z-index: 2;
   opacity: 1;
   transform: translate3d(0, 0, 0) scale(1);
-  animation: podiumRackWake var(--intro-rack-wake-duration, 280ms)
-    var(--intro-ease-out) both;
+  animation: podiumRackWake var(--intro-rack-wake-duration, 280ms) var(--intro-ease-out) both;
 }
 
 .podium-intro__grid-stage.is-exiting {
@@ -241,11 +220,9 @@
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-top-color: rgba(255, 255, 255, 0.28);
   border-radius: 22px;
-  background: linear-gradient(
-    180deg,
-    rgba(21, 34, 54, 0.72) 0%,
-    rgba(10, 16, 28, 0.86) 100%
-  );
+  background: linear-gradient(180deg,
+      rgba(21, 34, 54, 0.72) 0%,
+      rgba(10, 16, 28, 0.86) 100%);
   backdrop-filter: blur(22px) saturate(135%);
   -webkit-backdrop-filter: blur(22px) saturate(135%);
   box-shadow:
@@ -271,11 +248,9 @@
   width: clamp(28px, 5.8vw / var(--peds-visual-zoom), 64px);
   aspect-ratio: 1;
   border-radius: 50%;
-  background: radial-gradient(
-    circle at 38% 34%,
-    rgba(56, 24, 26, 0.7),
-    rgba(18, 9, 12, 0.96) 72%
-  );
+  background: radial-gradient(circle at 38% 34%,
+      rgba(56, 24, 26, 0.7),
+      rgba(18, 9, 12, 0.96) 72%);
   box-shadow:
     inset 0 0 0 1px rgba(255, 74, 24, 0.14),
     inset 0 2px 6px rgba(0, 0, 0, 0.75);
@@ -286,13 +261,11 @@
   position: absolute;
   inset: -1px;
   border-radius: inherit;
-  background: radial-gradient(
-    circle at 38% 32%,
-    #ffb49c 0%,
-    #ff4a18 32%,
-    #dc0f06 72%,
-    #8c0400 100%
-  );
+  background: radial-gradient(circle at 38% 32%,
+      #ffb49c 0%,
+      #ff4a18 32%,
+      #dc0f06 72%,
+      #8c0400 100%);
   box-shadow:
     0 0 20px rgba(255, 59, 40, 0.68),
     0 0 46px rgba(255, 74, 24, 0.28),
@@ -337,11 +310,9 @@
 .podium-intro__count-rule {
   width: 44px;
   height: 1px;
-  background: linear-gradient(
-    90deg,
-    rgba(255, 74, 24, 0.65),
-    rgba(114, 224, 255, 0.32)
-  );
+  background: linear-gradient(90deg,
+      rgba(255, 74, 24, 0.65),
+      rgba(114, 224, 255, 0.32));
 }
 
 /* Phase 2 — Clean Editorial "LIGHTS OUT." impact */
@@ -349,12 +320,12 @@
   z-index: 3;
 }
 
-.podium-intro__cue > div {
+.podium-intro__cue>div {
   width: 100%;
   animation: podiumLightsImpact 420ms var(--intro-ease-out) both;
 }
 
-.podium-intro__cue.is-launching > div {
+.podium-intro__cue.is-launching>div {
   animation: podiumCueExit 280ms var(--intro-ease-exit) both;
 }
 
@@ -404,13 +375,11 @@
   left: 0;
   width: 100%;
   height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(114, 224, 255, 0.36) 35%,
-    rgba(255, 74, 24, 0.55) 72%,
-    transparent 100%
-  );
+  background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(114, 224, 255, 0.36) 35%,
+      rgba(255, 74, 24, 0.55) 72%,
+      transparent 100%);
   opacity: 0;
   animation: podiumSpeedStreak 640ms var(--intro-ease-out) both;
   animation-delay: calc(var(--line) * 55ms);
@@ -418,20 +387,17 @@
 
 .podium-intro__flash {
   z-index: 4;
-  background: radial-gradient(
-    ellipse 62% 50% at 50% 50%,
-    rgba(255, 247, 237, 0.24) 0%,
-    rgba(255, 74, 24, 0.14) 48%,
-    transparent 85%
-  );
+  background: radial-gradient(ellipse 62% 50% at 50% 50%,
+      rgba(255, 247, 237, 0.24) 0%,
+      rgba(255, 74, 24, 0.14) 48%,
+      transparent 85%);
   animation: podiumFlash 240ms var(--intro-ease-out) both;
 }
 
 /* Phase 3 — Centered Storm Midnight brand lockup before curtain-lift reveal */
 .podium-intro__launch-brand {
   z-index: 3;
-  animation: podiumBrandLockup var(--intro-brand-sweep-duration, 340ms)
-    var(--intro-ease-out) 60ms both;
+  animation: podiumBrandLockup var(--intro-brand-sweep-duration, 340ms) var(--intro-ease-out) 60ms both;
 }
 
 .podium-intro__launch-rule {
@@ -439,13 +405,11 @@
   width: clamp(64px, 12vw / var(--peds-visual-zoom), 140px);
   height: 1px;
   margin-bottom: clamp(18px, 2.8vh / var(--peds-visual-zoom), 28px);
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 74, 24, 0.85) 35%,
-    rgba(114, 224, 255, 0.85) 68%,
-    transparent
-  );
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 74, 24, 0.85) 35%,
+      rgba(114, 224, 255, 0.85) 68%,
+      transparent);
   animation: podiumRuleExpand 360ms var(--intro-ease-out) 80ms both;
 }
 
@@ -458,7 +422,7 @@
   color: var(--intro-ink);
 }
 
-.podium-intro__launch-brand > span:last-child {
+.podium-intro__launch-brand>span:last-child {
   margin-top: clamp(14px, 2.2vh / var(--peds-visual-zoom), 22px);
   color: var(--intro-muted);
   font-family: var(--peds-font-mono, "IBM Plex Mono", monospace);
@@ -543,8 +507,7 @@
   font-weight: 500;
   letter-spacing: 0.2em;
   z-index: 4;
-  animation: podiumGridWake var(--intro-grid-wake-duration, 260ms)
-    var(--intro-ease-out) both;
+  animation: podiumGridWake var(--intro-grid-wake-duration, 260ms) var(--intro-ease-out) both;
 }
 
 /* ── Intro Keyframes (100% compositor-only: transform & opacity) ── */
@@ -552,6 +515,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -562,6 +526,7 @@
     opacity: 0;
     transform: translate3d(0, 12px, 0) scale(0.975);
   }
+
   to {
     opacity: 1;
     transform: translate3d(0, 0, 0) scale(1);
@@ -573,10 +538,10 @@
     opacity: 1;
     transform: translate3d(0, 0, 0) scale(1);
   }
+
   to {
     opacity: 0;
     transform: translate3d(0, -18px, 0) scale(0.94);
-    visibility: hidden;
   }
 }
 
@@ -585,9 +550,11 @@
     opacity: 0;
     transform: translate3d(-100%, 0, 0);
   }
+
   30% {
     opacity: 0.9;
   }
+
   100% {
     opacity: 0;
     transform: translate3d(100%, 0, 0);
@@ -599,6 +566,7 @@
     opacity: 0;
     transform: translate3d(0, 14px, 0) scale(0.94);
   }
+
   100% {
     opacity: 1;
     transform: translate3d(0, 0, 0) scale(1);
@@ -610,6 +578,7 @@
     opacity: 1;
     transform: translate3d(0, 0, 0) scale(1);
   }
+
   100% {
     opacity: 0;
     transform: translate3d(0, -18px, 0) scale(1.06);
@@ -621,6 +590,7 @@
     opacity: 0;
     transform: translate3d(0, 18px, 0) scale(0.96);
   }
+
   100% {
     opacity: 1;
     transform: translate3d(0, 0, 0) scale(1);
@@ -632,6 +602,7 @@
     opacity: 0;
     transform: scaleX(0.15);
   }
+
   100% {
     opacity: 1;
     transform: scaleX(1);
@@ -643,9 +614,11 @@
     opacity: 0;
     transform: translate3d(-55%, 0, 0);
   }
+
   28% {
     opacity: 0.85;
   }
+
   100% {
     opacity: 0;
     transform: translate3d(55%, 0, 0);
@@ -656,6 +629,7 @@
   from {
     opacity: 0.9;
   }
+
   to {
     opacity: 0;
   }
@@ -667,6 +641,7 @@
     opacity: 1;
     transform: translate3d(0, 0, 0) scale(1);
   }
+
   100% {
     opacity: 0;
     transform: translate3d(0, -28px, 0) scale(1.035);
@@ -678,6 +653,7 @@
     opacity: 1;
     transform: translate3d(0, 0, 0) scale(1);
   }
+
   100% {
     opacity: 0;
     transform: translate3d(0, -14px, 0) scale(1.02);
@@ -692,11 +668,11 @@
      (`data-intro-state="revealing"`).
    - Untouched on deep-links, repeat navigation, or reduced-motion.
    ───────────────────────────────────────────────────────────────────────────── */
-html[data-intro-state="active"] .sp-root .sp-storm-line > span,
+html[data-intro-state="active"] .sp-root .sp-storm-line>span,
 html[data-intro-state="active"] .sp-root .sp-storm-context,
 html[data-intro-state="active"] .sp-root .sp-storm-actions,
 html[data-intro-state="active"] .sp-root .sp-storm-microline,
-html[data-intro-state="revealing"] .sp-root .sp-storm-line > span,
+html[data-intro-state="revealing"] .sp-root .sp-storm-line>span,
 html[data-intro-state="revealing"] .sp-root .sp-storm-context,
 html[data-intro-state="revealing"] .sp-root .sp-storm-actions,
 html[data-intro-state="revealing"] .sp-root .sp-storm-microline {
@@ -714,7 +690,7 @@ html[data-intro-state="active"] .peds-nav-header {
 }
 
 html[data-intro-state="active"] .sp-storm-eyebrow,
-html[data-intro-state="active"] .sp-storm-line > span,
+html[data-intro-state="active"] .sp-storm-line>span,
 html[data-intro-state="active"] .sp-storm-context,
 html[data-intro-state="active"] .sp-storm-cta-cluster,
 html[data-intro-state="active"] .sp-pulse-dock {
@@ -733,6 +709,7 @@ html[data-intro-state="revealing"] .sp-storm-hero .sp-storm-stage {
 html[data-intro-state="revealing"] .peds-nav-header {
   opacity: 1;
   transform: translate3d(0, 0, 0);
+  will-change: transform, opacity;
   transition:
     transform 620ms cubic-bezier(0.16, 1, 0.3, 1) 70ms,
     opacity 540ms cubic-bezier(0.16, 1, 0.3, 1) 70ms;
@@ -746,7 +723,7 @@ html[data-intro-state="revealing"] .sp-storm-eyebrow {
     opacity 560ms cubic-bezier(0.16, 1, 0.3, 1) 110ms;
 }
 
-html[data-intro-state="revealing"] .sp-storm-line--first > span {
+html[data-intro-state="revealing"] .sp-storm-line--first>span {
   opacity: 1;
   transform: translate3d(0, 0, 0);
   transition:
@@ -754,7 +731,7 @@ html[data-intro-state="revealing"] .sp-storm-line--first > span {
     opacity 580ms cubic-bezier(0.16, 1, 0.3, 1) 160ms;
 }
 
-html[data-intro-state="revealing"] .sp-storm-line--second > span {
+html[data-intro-state="revealing"] .sp-storm-line--second>span {
   opacity: 1;
   transform: translate3d(0, 0, 0);
   transition:
@@ -762,7 +739,7 @@ html[data-intro-state="revealing"] .sp-storm-line--second > span {
     opacity 580ms cubic-bezier(0.16, 1, 0.3, 1) 220ms;
 }
 
-html[data-intro-state="revealing"] .sp-storm-line--third > span {
+html[data-intro-state="revealing"] .sp-storm-line--third>span {
   opacity: 1;
   transform: translate3d(0, 0, 0);
   transition:
@@ -795,9 +772,10 @@ html[data-intro-state="revealing"] .sp-pulse-dock {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .podium-intro__sheet,
   .podium-intro__grid-stage,
-  .podium-intro__cue > div,
+  .podium-intro__cue>div,
   .podium-intro__launch-brand,
   .podium-intro__launch-rule,
   .podium-intro__speed span,
@@ -808,7 +786,7 @@ html[data-intro-state="revealing"] .sp-pulse-dock {
   html[data-intro-state="active"] .sp-storm-hero .sp-storm-stage,
   html[data-intro-state="active"] .peds-nav-header,
   html[data-intro-state="active"] .sp-storm-eyebrow,
-  html[data-intro-state="active"] .sp-storm-line > span,
+  html[data-intro-state="active"] .sp-storm-line>span,
   html[data-intro-state="active"] .sp-storm-context,
   html[data-intro-state="active"] .sp-storm-cta-cluster,
   html[data-intro-state="active"] .sp-pulse-dock {

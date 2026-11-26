@@ -167,6 +167,13 @@ export function useNavFitMode({
   const forceCompact = mobileHub || textZoom === "200" || textZoom === "400";
 
   useIsomorphicLayoutEffect(() => {
+    if (forceCompact) {
+      fitModeRef.current = "compact";
+      setFitMode("compact");
+      setRailLayout("balanced");
+      return;
+    }
+
     const shellEl = shellRef.current;
     if (!shellEl) return;
 
