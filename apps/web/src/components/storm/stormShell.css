@@ -5550,11 +5550,9 @@
     padding: 20px 22px 18px;
     border-radius: 18px;
     border: 1px solid rgba(165, 214, 255, 0.14);
-    background: linear-gradient(
-      145deg,
-      rgba(7, 12, 24, 0.78) 0%,
-      rgba(7, 12, 24, 0.48) 100%
-    );
+    background: linear-gradient(145deg,
+        rgba(7, 12, 24, 0.78) 0%,
+        rgba(7, 12, 24, 0.48) 100%);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     box-shadow: 0 18px 42px rgba(2, 6, 16, 0.42);
@@ -5636,6 +5634,7 @@
 }
 
 @media (min-width: 861px) and (prefers-reduced-motion: reduce) {
+
   .sp-eng-show-hud .sp-eng-story-stage,
   .sp-eng-show-hud .sp-eng-story-stage[data-story-stage="hidden"],
   .sp-eng-show-hud .sp-eng-story-stage[data-story-stage="exiting"] {

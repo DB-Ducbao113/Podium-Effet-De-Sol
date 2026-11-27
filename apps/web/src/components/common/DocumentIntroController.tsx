@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { F1StartLightsPreloader } from "./F1StartLightsPreloader";
+import { useReducedMotion } from "../../hooks/useReducedMotion";
+import { useNavigationStore } from "../../store/useNavigationStore";
+import { CinematicStartGantryIntro } from "../engineering-lab/CinematicStartGantryIntro";
+import "./F1StartLightsPreloader.css";
 import {
   initialIntroDecision,
   INTRO_COMPLETE_EVENT,
@@ -10,6 +13,8 @@ const HOMEPAGE_REVEAL_SETTLE_MS = 950;
 
 export function DocumentIntroController() {
   const location = useLocation();
+  const lang = useNavigationStore((s) => s.lang);
+  const reducedMotion = useReducedMotion();
   const [showIntro, setShowIntro] = useState(initialIntroDecision);
   const wasShowing = useRef(showIntro);
 
@@ -38,5 +43,17 @@ export function DocumentIntroController() {
   }, [showIntro]);
 
   if (!showIntro || location.pathname !== "/") return null;
-  return <F1StartLightsPreloader onComplete={() => setShowIntro(false)} />;
+  return (
+    <CinematicStartGantryIntro
+      lang={lang}
+      reducedMotion={reducedMotion}
+      divisionLabel={
+        lang === "vi"
+          ? "TRẢI NGHIỆM ĐUA XE KỸ THUẬT SỐ"
+          : "MOTORSPORT DIGITAL EXPERIENCE"
+      }
+      syncDocumentIntroHooks
+      onComplete={() => setShowIntro(false)}
+    />
+  );
 }

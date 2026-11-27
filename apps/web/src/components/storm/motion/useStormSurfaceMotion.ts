@@ -67,31 +67,68 @@ export function useStormSurfaceMotion({
         if (cancelled || !containerRef.current) return;
         ensureStormGsapPlugins();
 
-        const splits: Array<{ revert: () => void }> = [];
+        const cloneDisposers: Array<() => void> = [];
         const hoverCleanups: Array<() => void> = [];
         let triggers: Array<{ kill: () => void }> = [];
 
+        const mountFxClone = (
+          host: HTMLElement,
+          extraClass?: string,
+        ): { clone: HTMLSpanElement; dispose: () => void } => {
+          host
+            .querySelectorAll('[data-sm-fx-clone="true"]')
+            .forEach((n) => n.remove());
+          const clone = document.createElement("span");
+          clone.setAttribute("aria-hidden", "true");
+          clone.setAttribute("data-sm-fx-clone", "true");
+          clone.className = extraClass
+            ? `sm-fx-clone ${extraClass}`
+            : "sm-fx-clone";
+          clone.innerHTML = host.innerHTML;
+          host.setAttribute("data-sm-fx-active", "true");
+          host.appendChild(clone);
+
+          let disposed = false;
+          const dispose = () => {
+            if (disposed) return;
+            disposed = true;
+            gsap.killTweensOf(clone);
+            clone.remove();
+            if (!host.querySelector('[data-sm-fx-clone="true"]')) {
+              host.removeAttribute("data-sm-fx-active");
+            }
+          };
+          cloneDisposers.push(dispose);
+          return { clone, dispose };
+        };
+
         const ctx = gsap.context(() => {
-          // FX-01: SplitText masked reveal on inner-route H1s (preserving Vietnamese diacritics via lines,words)
+          // FX-01: SplitText masked reveal on inner-route H1s via non-destructive overlay clone
+          // so React's real Text / <em> DOM nodes are never detached on VI <-> EN toggles.
           const headings = Array.from(
             root.querySelectorAll<HTMLElement>(".sp-lg-h1"),
           );
-          for (const h1 of headings) {
+          for (const hostHeading of headings) {
+            if (!hostHeading.textContent?.trim()) continue;
+            let disposeHeadingClone: (() => void) | null = null;
+            let headingSplit: { revert: () => void } | null = null;
             try {
-              const split = SplitText.create(h1, {
+              const mounted = mountFxClone(hostHeading);
+              disposeHeadingClone = mounted.dispose;
+              const split = SplitText.create(mounted.clone, {
                 type: "lines,words",
                 mask: "lines",
-                aria: "auto",
+                aria: "none",
                 linesClass: "sm-split-line",
                 wordsClass: "sm-split-word",
               });
-              splits.push(split);
+              headingSplit = split;
               const targets =
                 split.words.length > 0
                   ? split.words
                   : split.lines.length > 0
                     ? split.lines
-                    : [h1];
+                    : [mounted.clone];
               gsap.fromTo(
                 targets,
                 { yPercent: 108, opacity: 0 },
@@ -101,11 +138,15 @@ export function useStormSurfaceMotion({
                   duration: 0.68,
                   stagger: 0.032,
                   ease: "expo.out",
-                  clearProps: "transform,opacity",
+                  onComplete: () => {
+                    headingSplit?.revert();
+                    mounted.dispose();
+                  },
                 },
               );
             } catch {
-              // Graceful no-op in non-layout environments
+              headingSplit?.revert();
+              disposeHeadingClone?.();
             }
           }
 
@@ -130,40 +171,56 @@ export function useStormSurfaceMotion({
           }
 
           // FX-02: Pit-wall telemetry ScrambleText decode on eyebrows & page kickers
+          // Operates strictly on a temporary overlay clone so React's live text node stays 100% intact.
           const kickers = Array.from(
             root.querySelectorAll<HTMLElement>(
               ".sp-storm-eyebrow-label, .sp-lg-kick",
             ),
           );
-          for (const kicker of kickers) {
-            if (kicker.children.length > 0) continue;
-            const originalText = kicker.textContent?.trim();
-            if (!originalText) continue;
-            if (!kicker.getAttribute("aria-label")) {
-              kicker.setAttribute("aria-label", originalText);
-            }
+          for (const hostKicker of kickers) {
+            const hasElementChildren = Array.from(hostKicker.children).some(
+              (child) => child.getAttribute("data-sm-fx-clone") !== "true",
+            );
+            if (hasElementChildren) continue;
+            if (!hostKicker.textContent?.trim()) continue;
 
+            let activeDispose: (() => void) | null = null;
             const runScramble = () => {
-              gsap.to(kicker, {
+              activeDispose?.();
+              const liveText = hostKicker.textContent?.trim();
+              if (!liveText) return;
+              const mounted = mountFxClone(
+                hostKicker,
+                "sm-fx-clone--scramble",
+              );
+              activeDispose = mounted.dispose;
+              gsap.to(mounted.clone, {
                 duration: 0.56,
                 overwrite: "auto",
                 scrambleText: {
-                  text: originalText,
+                  text: liveText,
                   chars: TELEMETRY_CHARSET,
                   speed: 0.45,
                   revealDelay: 0.06,
                 },
                 ease: "none",
+                onComplete: () => {
+                  mounted.dispose();
+                  if (activeDispose === mounted.dispose) {
+                    activeDispose = null;
+                  }
+                },
               });
             };
 
             runScramble();
-            kicker.addEventListener("mouseenter", runScramble, {
+            hostKicker.addEventListener("mouseenter", runScramble, {
               passive: true,
             });
             hoverCleanups.push(() => {
-              kicker.removeEventListener("mouseenter", runScramble);
-              kicker.textContent = originalText;
+              hostKicker.removeEventListener("mouseenter", runScramble);
+              activeDispose?.();
+              activeDispose = null;
             });
           }
 
@@ -199,7 +256,7 @@ export function useStormSurfaceMotion({
 
         cleanup = () => {
           for (const clean of hoverCleanups) clean();
-          for (const split of splits) split.revert();
+          for (const dispose of cloneDisposers) dispose();
           for (const trigger of triggers) trigger.kill();
           ctx.revert();
         };

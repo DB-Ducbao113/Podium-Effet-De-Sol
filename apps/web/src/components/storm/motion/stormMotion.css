@@ -38,10 +38,38 @@
   }
 }
 
+/* FX-01 & FX-02 Non-destructive overlay clones so GSAP SplitText / ScrambleText never detach React text nodes */
+[data-sm-fx-active="true"] {
+  position: relative !important;
+  visibility: hidden !important;
+}
+
+span[data-sm-fx-active="true"] {
+  display: inline-block;
+}
+
+.sm-fx-clone {
+  position: absolute;
+  inset: 0;
+  visibility: visible !important;
+  pointer-events: none;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  line-height: inherit;
+  color: inherit;
+}
+
+.sm-fx-clone--scramble {
+  right: auto;
+  min-width: 100%;
+  white-space: nowrap;
+}
+
 /* FX-01 SplitText helper spans (zero layout alteration) */
 .sm-split-line {
   overflow: hidden;
-  padding-bottom: 0.06em;
+  padding-bottom: 0.08em;
 }
 
 .sm-split-word {

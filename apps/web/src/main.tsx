@@ -24,6 +24,26 @@ import { ErrorBoundary } from "./components/common/ErrorBoundary";
 const rootElement = document.getElementById("root")!;
 if (rootElement.dataset.prerendered === "true") rootElement.replaceChildren();
 
+// Pre-warm Vietnamese editorial & display font subsets after initial paint so
+// switching EN -> VI renders Cormorant Garamond Variable & Manrope instantaneously
+// with zero swap flash and zero fallback even if a local dev server restarts.
+if (typeof window !== "undefined" && "fonts" in document) {
+  const prewarmVietnameseFaces = () => {
+    const sample = "CHIẾN THẮNG ĐIÊU KHẮC GIẢI MÃ BIÊN ĐỘ ẫệợưđ";
+    void Promise.allSettled([
+      document.fonts.load("italic 400 16px 'Cormorant Garamond Variable'", sample),
+      document.fonts.load("400 16px 'Cormorant Garamond Variable'", sample),
+      document.fonts.load("700 16px 'Manrope Variable'", sample),
+      document.fonts.load("800 16px 'Manrope Variable'", sample),
+    ]);
+  };
+  if (typeof window.requestIdleCallback === "function") {
+    window.requestIdleCallback(prewarmVietnameseFaces, { timeout: 800 });
+  } else {
+    globalThis.setTimeout(prewarmVietnameseFaces, 120);
+  }
+}
+
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <ErrorBoundary>

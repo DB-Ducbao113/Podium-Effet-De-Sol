@@ -43,7 +43,7 @@ describe('CSP font delivery contract', () => {
     );
     // VI is scoped to fully-covered editorial/technical faces so tone marks never fall back per-glyph.
     expect(globalCss).toMatch(
-      /html\[lang='vi'\]\s*\{[^}]*--peds-font-editorial:\s*'Cormorant Garamond Variable', Georgia, 'Times New Roman', serif;[^}]*--peds-font-body:\s*'Manrope Variable', Arial, sans-serif;/s,
+      /html\[lang='vi'\]\s*\{[^}]*--peds-font-editorial:\s*'Cormorant Garamond Variable', 'Palatino Linotype', 'Times New Roman', serif;[^}]*--peds-font-body:\s*'Manrope Variable', Arial, sans-serif;/s,
     );
     // The global sheet itself declares no italic; italic accents live in component
     // styles and are delivered as real self-hosted cuts, never synthesised.

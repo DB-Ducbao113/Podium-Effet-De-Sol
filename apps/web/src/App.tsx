@@ -6,6 +6,7 @@ import {
   StormAppShell,
 } from "./components/storm/StormAppShell";
 import { StormNotFound } from "./components/storm/StormNotFound";
+import { isEngineeringLabSandboxPath } from "./components/engineering-lab/engineeringLabRoutes";
 import { useTextZoomAttribute } from "./hooks/useTextZoomAttribute";
 import { useChampionshipStore } from "./store/useChampionshipStore";
 import { useTimezoneStore } from "./store/useTimezoneStore";
@@ -60,6 +61,9 @@ const StormEngineeringArticleRoute = lazy(
 const StormAboutRoute = lazy(
   () => import("./components/storm/routes/StormAboutRoute"),
 );
+const EngineeringLabSandboxRoutes = lazy(
+  () => import("./components/engineering-lab/EngineeringLabSandboxRoutes"),
+);
 
 let lastAutoRaceSyncAt = 0;
 
@@ -112,8 +116,27 @@ export const App: React.FC = () => {
   }, [location.pathname, syncSeasonData]);
 
   useEffect(() => {
+    if (
+      isEngineeringLabSandboxPath(location.pathname) &&
+      (Boolean(location.hash) || location.search.includes("lab="))
+    ) {
+      return;
+    }
     window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
-  }, [location.pathname, location.search]);
+  }, [location.hash, location.pathname, location.search]);
+
+  if (isEngineeringLabSandboxPath(location.pathname)) {
+    return (
+      <Suspense fallback={<StormSuspenseFallback />}>
+        <Routes>
+          <Route
+            path="/__engineering-lab/*"
+            element={<EngineeringLabSandboxRoutes />}
+          />
+        </Routes>
+      </Suspense>
+    );
+  }
 
   return (
     <>

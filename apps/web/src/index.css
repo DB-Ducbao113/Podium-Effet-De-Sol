@@ -139,11 +139,11 @@
     --peds-ease-emphasis: cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  /* Instrument Serif and DM Sans carry no Vietnamese subset; CSS fallback is
-     per-glyph, so VI would mix faces inside a word. Scope VI to fully-covered
-     editorial/technical equivalents (Cormorant true italic + Manrope Variable). */
+  /* Instrument Serif, DM Sans, and Windows Georgia carry no Vietnamese stacked-diacritic
+     subset (U+1EA0-U+1EF9), so VI is scoped to fully-covered editorial/technical faces
+     and Vietnamese-safe serif fallbacks (Palatino Linotype / Times New Roman). */
   html[lang='vi'] {
-    --peds-font-editorial: 'Cormorant Garamond Variable', Georgia, 'Times New Roman', serif;
+    --peds-font-editorial: 'Cormorant Garamond Variable', 'Palatino Linotype', 'Times New Roman', serif;
     --peds-font-body: 'Manrope Variable', Arial, sans-serif;
   }
 

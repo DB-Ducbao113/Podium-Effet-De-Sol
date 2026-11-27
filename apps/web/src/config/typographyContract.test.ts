@@ -13,10 +13,16 @@ const walk = (dir: string): string[] =>
 
 const isTestFile = (file: string) => /\.(test|spec)\.(ts|tsx)$/.test(file);
 
+const isEngineeringLabSandboxFile = (file: string) =>
+  file.replace(/\\/g, '/').includes('src/components/engineering-lab/');
+
 const styleFiles = walk('src').filter((file) => !isTestFile(file));
-const cssFiles = styleFiles.filter((file) => file.endsWith('.css'));
+const canonicalStyleFiles = styleFiles.filter((file) => !isEngineeringLabSandboxFile(file));
+const cssFiles = canonicalStyleFiles.filter((file) => file.endsWith('.css'));
 const cssText = cssFiles.map(read).join('\n');
-const allText = styleFiles.map(read).join('\n');
+const allText = canonicalStyleFiles.map(read).join('\n');
+const sandboxFiles = styleFiles.filter((file) => isEngineeringLabSandboxFile(file));
+const sandboxText = sandboxFiles.map(read).join('\n');
 const globalCss = read('src/index.css');
 const tailwindConfig = read('tailwind.config.js');
 
@@ -57,14 +63,16 @@ describe('PEDS typography contract', () => {
     expect(packageJson.dependencies['@fontsource-variable/cormorant-garamond']).toBeTruthy();
     expect(packageJson.dependencies['@fontsource-variable/nunito']).toBeTruthy();
     expect(packageJson.dependencies['@fontsource/ibm-plex-mono']).toBe('5.3.0');
-    // Withdrawn faces must not creep back in.
+    // Withdrawn faces must not creep back into canonical production routes.
     expect(packageJson.dependencies['@fontsource-variable/quicksand']).toBeUndefined();
     expect(packageJson.dependencies['@fontsource-variable/lexend']).toBeUndefined();
     expect(packageJson.dependencies['@fontsource-variable/lora']).toBeUndefined();
-    expect(packageJson.dependencies['@fontsource/be-vietnam-pro']).toBeUndefined();
     expect(packageJson.dependencies['@fontsource-variable/plus-jakarta-sans']).toBeUndefined();
     expect(packageJson.dependencies['@fontsource/barlow-condensed']).toBeUndefined();
-    expect(packageJson.dependencies['@fontsource-variable/space-grotesk']).toBeUndefined();
+    // Scoped /__engineering-lab* sandbox faces (self-hosted, never imported in src/main.tsx or src/index.css).
+    expect(packageJson.dependencies['@fontsource/be-vietnam-pro']).toBeTruthy();
+    expect(packageJson.dependencies['@fontsource-variable/space-grotesk']).toBeTruthy();
+    expect(sandboxText).not.toMatch(/fonts\.(googleapis|gstatic)\.com/i);
 
     const main = read('src/main.tsx');
     for (const entry of [

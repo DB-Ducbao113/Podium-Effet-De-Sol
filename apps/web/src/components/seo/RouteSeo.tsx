@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { CONFIGURED_SITE_URL, canIndexCurrentHost } from "../../config/site";
 import { useNavigationStore } from "../../store/useNavigationStore";
@@ -24,6 +24,9 @@ export const RouteSeo = () => {
   const { pathname } = useLocation();
   const routePath = normalizeRoutePath(pathname);
   const lang = useNavigationStore((state) => state.lang);
+  useLayoutEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
   useEffect(() => {
     const copy = routeCopy(routePath, lang);
     const canonicalUrl = CONFIGURED_SITE_URL
@@ -129,26 +132,26 @@ export const RouteSeo = () => {
     document.getElementById("route-structured-data")?.remove();
     const schema = copy.article
       ? {
-          "@context": "https://schema.org",
-          "@type": "TechArticle",
-          headline: copy.article.title[lang],
-          alternativeHeadline: copy.article.title[lang === "vi" ? "en" : "vi"],
-          description: copy.article.description[lang],
-          image: imageUrl,
-          inLanguage: ["vi", "en"],
-          ...(canonicalUrl ? { mainEntityOfPage: canonicalUrl } : {}),
-          author: { "@type": "Organization", name: "Podium EDS Editorial" },
-          publisher: { "@type": "Organization", name: "Podium Effet De Sol" },
-        }
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        headline: copy.article.title[lang],
+        alternativeHeadline: copy.article.title[lang === "vi" ? "en" : "vi"],
+        description: copy.article.description[lang],
+        image: imageUrl,
+        inLanguage: ["vi", "en"],
+        ...(canonicalUrl ? { mainEntityOfPage: canonicalUrl } : {}),
+        author: { "@type": "Organization", name: "Podium EDS Editorial" },
+        publisher: { "@type": "Organization", name: "Podium Effet De Sol" },
+      }
       : canonicalUrl
         ? {
-            "@context": "https://schema.org",
-            "@type":
-              routePath === "/engineering" ? "CollectionPage" : "WebPage",
-            name: copy.title,
-            description: copy.description,
-            url: canonicalUrl,
-          }
+          "@context": "https://schema.org",
+          "@type":
+            routePath === "/engineering" ? "CollectionPage" : "WebPage",
+          name: copy.title,
+          description: copy.description,
+          url: canonicalUrl,
+        }
         : null;
     if (schema) {
       const script = document.createElement("script");
