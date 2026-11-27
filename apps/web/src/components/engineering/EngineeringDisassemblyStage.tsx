@@ -51,6 +51,11 @@ import {
   type EngineeringSceneControlState,
 } from "./engineeringInteractionState";
 import {
+  applyEngineeringPodiumLiveryToMaterial,
+  createEngineeringPodiumLiveryBundle,
+  type EngineeringPodiumLiveryBundle,
+} from "./engineeringPodiumLivery";
+import {
   applyLightRigStateToMutable,
   createMutableLightRigState,
   resolveMaterialClassEnvIntensity,
@@ -1019,6 +1024,7 @@ function DisassemblySceneRig({
   const lastTrajectoryProgressRef = useRef<number>(-1);
   const lastCameraKeyRef = useRef<string>("");
   const cameraInitializedRef = useRef<boolean>(false);
+  const liveryBundleRef = useRef<EngineeringPodiumLiveryBundle | null>(null);
   const prevMaterialStateRef = useRef<{
     xray: boolean;
     selectedPartId: string | null;
@@ -1264,6 +1270,14 @@ function DisassemblySceneRig({
         const nextMap = new Map<string, NodeBinding>();
         const ownedMaterials: THREE.Material[] = [];
         const maxAniso = Math.min(8, gl.capabilities.getMaxAnisotropy());
+        liveryBundleRef.current?.dispose();
+        const liveryBundle = createEngineeringPodiumLiveryBundle(
+          maxAniso,
+          () => {
+            if (!cancelled) invalidate();
+          },
+        );
+        liveryBundleRef.current = liveryBundle;
 
         for (const spec of ENGINEERING_PARTS) {
           const obj = root.getObjectByName(spec.node);
@@ -1297,6 +1311,11 @@ function DisassemblySceneRig({
 
                 const std = cloned as THREE.MeshStandardMaterial;
                 if (std.isMeshStandardMaterial) {
+                  applyEngineeringPodiumLiveryToMaterial(
+                    std,
+                    obj.position,
+                    liveryBundle,
+                  );
                   const authored = snapshotAuthoredMaterialState(std);
                   const baseEnv = resolveMaterialClassEnvIntensity(
                     std.name,
@@ -1365,10 +1384,14 @@ function DisassemblySceneRig({
         disposeEngineeringInstanceMaterials(ownedMaterialsRef.current);
         ownedMaterialsRef.current = [];
       }
+      if (liveryBundleRef.current) {
+        liveryBundleRef.current.dispose();
+        liveryBundleRef.current = null;
+      }
       sceneRootRef.current = null;
       bindingsRef.current = new Map();
     };
-  }, [gl, onLoadProgress, onLoadError]);
+  }, [gl, invalidate, onLoadProgress, onLoadError]);
 
   // Pre-compile all shaders asynchronously (using KHR_parallel_shader_compile when
   // available) so first paint never stalls the main thread and mid-scroll reveals
