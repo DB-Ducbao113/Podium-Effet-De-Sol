@@ -1,4 +1,4 @@
-﻿import {
+import {
   getEngineeringStoryShot,
   type EngineeringStoryChapterId,
 } from "../engineering/engineeringStoryTimeline";
@@ -10,12 +10,15 @@ export type EngineeringShowMood =
 export type EngineeringStoryStage =
   "hidden" | "entering" | "visible" | "exiting";
 
+export type EngineeringStorySide = "left" | "right";
+
 export interface EngineeringShowScene {
   readonly id: string;
   readonly index: number;
   readonly indexLabel: string;
   readonly chapterId: EngineeringStoryChapterId;
   readonly mood: EngineeringShowMood;
+  readonly storySide: EngineeringStorySide;
   readonly partId: string | null;
   readonly anchorProgress: number;
   readonly actLabel: LocalizedText;
@@ -26,32 +29,69 @@ export interface EngineeringShowScene {
   readonly transitionHint: LocalizedText;
 }
 
+export interface EngineeringShowCameraArc {
+  readonly fromProgress: number;
+  readonly toProgress: number;
+  readonly progress: number;
+}
+
 export interface EngineeringShowScrollState {
   readonly rawScroll: number;
   readonly timelineProgress: number;
   readonly sceneIndex: number;
   readonly scene: EngineeringShowScene;
+  /** The scene whose text is currently rendered (keeps outgoing copy visible during exit). */
+  readonly displayScene: EngineeringShowScene;
   readonly nextScene: EngineeringShowScene | null;
   readonly phase: "transition" | "resting";
   /** 0..1 progress within the current transition glide (1 when resting). */
   readonly transitionProgress: number;
-  /** 0..1 progress through the resting dwell plateau ("khoáº£ng nghá»‰"). */
+  /** 0..1 progress through the resting dwell plateau ("khoảng nghỉ"). */
   readonly dwellProgress: number;
   readonly isResting: boolean;
   readonly isFinale: boolean;
   /** Choreographed typography stage synchronized with camera motion. */
   readonly storyStage: EngineeringStoryStage;
+  /** Direct scene-to-scene camera arc during glides to prevent intermediate 47-part anchor whips. */
+  readonly cameraArc: EngineeringShowCameraArc | null;
 }
 
 /**
- * Snappy, rhythmic scroll pacing per scene in svh:
- * 12 scenes Ã— 82svh = 984svh total runway.
- * - 48% (~39svh): smooth camera & mechanical glide (previous text exits cleanly).
- * - 52% (~43svh): crisp resting dwell plateau ("khoáº£ng nghá»‰") where the 3D part
- *   locks rock-steady while the staggered story title & narrative animate in.
+ * Calm, museum-grade scroll pacing per scene in svh:
+ * 12 scenes × 150svh = 1800svh total runway.
+ * - 46% (~69svh): unhurried camera & mechanical glide (previous text exits smoothly,
+ *   stage clears mid-flight, incoming text reveals as the camera settles).
+ * - 54% (~81svh): generous resting dwell plateau ("khoảng nghỉ") where the 3D part
+ *   locks rock-steady while the staggered story title & narrative are read.
  */
-export const SHOW_SCENE_SCROLL_VH = 82;
-export const SHOW_TRANSITION_RATIO = 0.48;
+export const SHOW_SCENE_SCROLL_VH = 150;
+export const SHOW_TRANSITION_RATIO = 0.46;
+export const SHOW_AUTOPLAY_TRANSITION_SEC = 2.3;
+export const SHOW_AUTOPLAY_DWELL_SEC = 4.3;
+
+/**
+ * Smooth, velocity-capped timeline damping for the 12-scene Engineering Show.
+ * Prevents abrupt camera/part whips when users flick a mouse wheel or jump across scenes.
+ */
+export function stepShowTimelineProgress(
+  current: number,
+  target: number,
+  deltaMs: number,
+  immediate = false,
+): number {
+  const clampedTarget = Math.max(0, Math.min(1, Number.isFinite(target) ? target : 0));
+  const clampedCurrent = Math.max(0, Math.min(1, Number.isFinite(current) ? current : 0));
+  if (immediate) return clampedTarget;
+  const diff = clampedTarget - clampedCurrent;
+  if (Math.abs(diff) < 0.00012) return clampedTarget;
+  const dtSec = Math.min(0.064, Math.max(0.001, (Number.isFinite(deltaMs) ? deltaMs : 16) / 1000));
+  const alpha = 1 - Math.exp(-4.8 * dtSec);
+  const rawStep = diff * alpha;
+  const maxStep = 0.24 * dtSec;
+  const cappedStep = Math.sign(rawStep) * Math.min(Math.abs(rawStep), maxStep);
+  const next = clampedCurrent + cappedStep;
+  return Math.abs(clampedTarget - next) < 0.00012 ? clampedTarget : next;
+}
 
 function shotHoldProgress(partId: string, fallback: number): number {
   return getEngineeringStoryShot(partId)?.holdProgress ?? fallback;
@@ -69,31 +109,32 @@ export const ENGINEERING_SHOW_SCENES: readonly EngineeringShowScene[] = [
     indexLabel: "01",
     chapterId: "origin",
     mood: "prologue",
+    storySide: "left",
     partId: null,
     anchorProgress: 0,
     actLabel: {
-      en: "PROLOGUE Â· ASSEMBLED DATUM",
-      vi: "Má»ž MÃ€N Â· NGUYÃŠN Báº¢N TÄ¨NH Láº¶NG",
+      en: "PROLOGUE · ASSEMBLED DATUM",
+      vi: "MỞ MÀN · NGUYÊN BẢN TĨNH LẶNG",
     },
     title: {
       en: "Sculpted by air, waiting to open",
-      vi: "ÄiÃªu kháº¯c tá»« giÃ³, sáºµn sÃ ng hÃ© má»Ÿ",
+      vi: "Điêu khắc từ gió, sẵn sàng hé mở",
     },
     subtitle: {
-      en: "FP-04 RB Ground-Effect Architecture Â· 47 Mechanical Assemblies",
-      vi: "Kiáº¿n trÃºc Hiá»‡u á»©ng Máº·t Ä‘áº¥t FP-04 RB Â· 47 Cá»¥m CÆ¡ KhÃ­",
+      en: "FP-04 RB Ground-Effect Architecture · 47 Mechanical Assemblies",
+      vi: "Kiến trúc Hiệu ứng Mặt đất FP-04 RB · 47 Cụm Cơ Khí",
     },
     narrative: {
       en: "Before a single carbon panel moves, look at the car as one unbroken arrow. Scroll gently: the camera glides into each component and pauses just long enough to tell its story.",
-      vi: "TrÆ°á»›c khi máº£nh carbon Ä‘áº§u tiÃªn dá»‹ch chuyá»ƒn, hÃ£y ngáº¯m cá»— mÃ¡y á»Ÿ tráº¡ng thÃ¡i nguyÃªn khá»‘i hoÃ n chá»‰nh. Cuá»™n nháº¹ xuá»‘ng, á»‘ng kÃ­nh sáº½ lÆ°á»›t tá»›i tá»«ng linh kiá»‡n vÃ  dá»«ng nhá»‹p vá»«a Ä‘á»§ Ä‘á»ƒ ká»ƒ cÃ¢u chuyá»‡n cá»§a nÃ³.",
+      vi: "Trước khi mảnh carbon đầu tiên dịch chuyển, hãy ngắm cỗ máy ở trạng thái nguyên khối hoàn chỉnh. Cuộn nhẹ xuống, ống kính sẽ lướt tới từng linh kiện và dừng nhịp vừa đủ để kể câu chuyện của nó.",
     },
     techCue: {
-      en: "DATUM 0.0 mm Â· 47 ASSEMBLIES LOCKED",
-      vi: "CHUáº¨N 0,0 mm Â· 47 Cá»¤M KHÃ“A KHÃT",
+      en: "DATUM 0.0 mm · 47 ASSEMBLIES LOCKED",
+      vi: "CHUẨN 0,0 mm · 47 CỤM KHÓA KHÍT",
     },
     transitionHint: {
-      en: "Scroll down Â· Act I: Front Wing",
-      vi: "Cuá»™n xuá»‘ng Â· Há»“i I: CÃ¡nh GiÃ³ TrÆ°á»›c",
+      en: "Scroll down · Act I: Front Wing",
+      vi: "Cuộn xuống · Hồi I: Cánh Gió Trước",
     },
   },
   {
@@ -102,31 +143,32 @@ export const ENGINEERING_SHOW_SCENES: readonly EngineeringShowScene[] = [
     indexLabel: "02",
     chapterId: "aero",
     mood: "aero",
+    storySide: "right",
     partId: "FRONT_WING_ASSEMBLY",
     anchorProgress: shotHoldProgress("FRONT_WING_ASSEMBLY", 0.055),
     actLabel: {
-      en: "ACT I Â· FIRST CONTACT WITH AIR",
-      vi: "Há»’I I Â· NHÃT Cáº®T Äáº¦U TIÃŠN",
+      en: "ACT I · FIRST CONTACT WITH AIR",
+      vi: "HỒI I · NHÁT CẮT ĐẦU TIÊN",
     },
     title: {
       en: "Multi-Element Front Wing",
-      vi: "CÃ¡nh GiÃ³ TrÆ°á»›c Äa Táº§ng",
+      vi: "Cánh Gió Trước Đa Tầng",
     },
     subtitle: {
-      en: "Front Assembly Â· Four-Plane Carbon Aerofoil",
-      vi: "Äáº§u xe Â· Bá»‘n táº§ng cÃ¡nh carbon táº¡o Ã¡p suáº¥t",
+      en: "Front Assembly · Four-Plane Carbon Aerofoil",
+      vi: "Đầu xe · Bốn tầng cánh carbon tạo áp suất",
     },
     narrative: {
       en: "Our story begins at the leading edge. At 300 km/h, untouched air hits these four stacked carbon planes first, pushing dirty wake around the front tyres while feeding clean air toward the underfloor.",
-      vi: "CÃ¢u chuyá»‡n báº¯t Ä‘áº§u ngay mÅ©i cháº¡m giÃ³ Ä‘áº§u tiÃªn. á»ž 300 km/h, bá»‘n táº§ng cÃ¡nh carbon nÃ y xáº» Ä‘Ã´i dÃ²ng khÃ­: Ä‘áº©y luá»“ng nhiá»…u Ä‘á»™ng vÃ²ng qua bÃ¡nh trÆ°á»›c vÃ  dáº«n khÃ­ sáº¡ch giÃ u nÄƒng lÆ°á»£ng chui tháº³ng xuá»‘ng gáº§m xe.",
+      vi: "Câu chuyện bắt đầu ngay mũi chạm gió đầu tiên. Ở 300 km/h, bốn tầng cánh carbon này xẻ đôi dòng khí: đẩy luồng nhiễu động vòng qua bánh trước và dẫn khí sạch giàu năng lượng chui thẳng xuống gầm xe.",
     },
     techCue: {
-      en: "OUTWASH SHAPING Â· ~25% FRONT DOWNFORCE",
-      vi: "ÄIá»€U HÆ¯á»šNG XOÃY Â· ~25% Lá»°C Ã‰P Äáº¦U XE",
+      en: "OUTWASH SHAPING · ~25% FRONT DOWNFORCE",
+      vi: "ĐIỀU HƯỚNG XOÁY · ~25% LỰC ÉP ĐẦU XE",
     },
     transitionHint: {
-      en: "Next Â· Impact Nosecone & Pitot",
-      vi: "Tiáº¿p theo Â· MÅ©i Carbon & Cáº£m Biáº¿n Pitot",
+      en: "Next · Impact Nosecone & Pitot",
+      vi: "Tiếp theo · Mũi Carbon & Cảm Biến Pitot",
     },
   },
   {
@@ -135,31 +177,32 @@ export const ENGINEERING_SHOW_SCENES: readonly EngineeringShowScene[] = [
     indexLabel: "03",
     chapterId: "aero",
     mood: "aero",
+    storySide: "left",
     partId: "NOSECONE_SHELL",
     anchorProgress: shotHoldProgress("NOSECONE_SHELL", 0.075),
     actLabel: {
-      en: "ACT I Â· IMPACT SPEAR",
-      vi: "Há»’I I Â· MÅ¨I GIÃO Háº¤P THá»¤ Lá»°C",
+      en: "ACT I · IMPACT SPEAR",
+      vi: "HỒI I · MŨI GIÁO HẤP THỤ LỰC",
     },
     title: {
       en: "Carbon Nosecone & Pitot Array",
-      vi: "MÅ©i Carbon & Cá»¥m á»ng Äo Ãp Pitot",
+      vi: "Mũi Carbon & Cụm Ống Đo Áp Pitot",
     },
     subtitle: {
-      en: "Front Crash Structure Â· Structural & Aero Conduit",
-      vi: "Cá»¥m mÅ©i xe Â· Cáº¥u trÃºc háº¥p thá»¥ va cháº¡m chuáº©n FIA",
+      en: "Front Crash Structure · Structural & Aero Conduit",
+      vi: "Cụm mũi xe · Cấu trúc hấp thụ va chạm chuẩn FIA",
     },
     narrative: {
       en: "Follow the airflow backward past the wing. This slender carbon cone crushes progressively to absorb frontal impact energy, yet stays razor-thin so air rushes uninterrupted to the floor inlets.",
-      vi: "Theo dÃ²ng khÃ­ lÃ¹i vá» sau cÃ¡nh trÆ°á»›c. Chiáº¿c mÅ©i carbon thon gá»n nÃ y vá»«a háº¥p thá»¥ xung lá»±c va cháº¡m cá»±c Ä‘áº¡i theo chuáº©n FIA, vá»«a máº£nh mai Ä‘á»ƒ khÃ´ng cáº£n luá»“ng khÃ­ Ä‘á»• tháº³ng vÃ o cá»­a hÃºt gáº§m.",
+      vi: "Theo dòng khí lùi về sau cánh trước. Chiếc mũi carbon thon gọn này vừa hấp thụ xung lực va chạm cực đại theo chuẩn FIA, vừa mảnh mai để không cản luồng khí đổ thẳng vào cửa hút gầm.",
     },
     techCue: {
-      en: "FIA CRASH CONE Â· LIVE AIRSPEED PITOT",
-      vi: "Cáº¤U TRÃšC VA CHáº M FIA Â· ÄO ÃP SUáº¤T GIÃ“",
+      en: "FIA CRASH CONE · LIVE AIRSPEED PITOT",
+      vi: "CẤU TRÚC VA CHẠM FIA · ĐO ÁP SUẤT GIÓ",
     },
     transitionHint: {
-      en: "Next Â· Rear Wing & DRS Valve",
-      vi: "Tiáº¿p theo Â· CÃ¡nh GiÃ³ Sau & CÆ¡ Cáº¥u DRS",
+      en: "Next · Rear Wing & DRS Valve",
+      vi: "Tiếp theo · Cánh Gió Sau & Cơ Cấu DRS",
     },
   },
   {
@@ -168,31 +211,32 @@ export const ENGINEERING_SHOW_SCENES: readonly EngineeringShowScene[] = [
     indexLabel: "04",
     chapterId: "aero",
     mood: "aero",
+    storySide: "right",
     partId: "REAR_DRS_FLAP_ACTUATOR",
     anchorProgress: shotHoldProgress("REAR_DRS_FLAP_ACTUATOR", 0.16),
     actLabel: {
-      en: "ACT I Â· STRAIGHT-LINE RELEASE",
-      vi: "Há»’I I Â· GIáº¢I PHÃ“NG Tá»C Äá»˜ THáº²NG",
+      en: "ACT I · STRAIGHT-LINE RELEASE",
+      vi: "HỒI I · GIẢI PHÓNG TỐC ĐỘ THẲNG",
     },
     title: {
       en: "Rear Wing & Hydraulic DRS Flap",
-      vi: "CÃ¡nh GiÃ³ Sau & Van Tá»‘c Äá»™ DRS",
+      vi: "Cánh Gió Sau & Van Tốc Độ DRS",
     },
     subtitle: {
-      en: "Rear Aero Â· Switchable Drag Reduction System",
-      vi: "ÄuÃ´i xe Â· CÆ¡ cáº¥u thá»§y lá»±c má»Ÿ gÃ³c cÃ¡nh 85mm",
+      en: "Rear Aero · Switchable Drag Reduction System",
+      vi: "Đuôi xe · Cơ cấu thủy lực mở góc cánh 85mm",
     },
     narrative: {
       en: "High downforce comes with drag. On long straights, one thumb press fires this hydraulic actuator, pivoting the upper flap open 85 mm to spill air resistance and unlock an overtaking surge.",
-      vi: "Lá»±c Ã©p lá»›n luÃ´n Ä‘i kÃ¨m lá»±c cáº£n. TrÃªn Ä‘oáº¡n tháº³ng, má»™t nÃºt báº¥m kÃ­ch hoáº¡t cÆ¡ cáº¥u thá»§y lá»±c má»Ÿ lÃ¡ cÃ¡nh trÃªn 85 mm, xáº£ lá»±c cáº£n tá»©c thÃ¬ Ä‘á»ƒ bá»©t tá»‘c hÆ¡n 15 km/h vÆ°á»£t Ä‘á»‘i thá»§.",
+      vi: "Lực ép lớn luôn đi kèm lực cản. Trên đoạn thẳng, một nút bấm kích hoạt cơ cấu thủy lực mở lá cánh trên 85 mm, xả lực cản tức thì để bứt tốc hơn 15 km/h vượt đối thủ.",
     },
     techCue: {
-      en: "85 mm SLOT GAP Â· +12â€“18 KM/H DELTA",
-      vi: "KHE Má»ž 85 mm Â· TÄ‚NG 12â€“18 KM/H KHI VÆ¯á»¢T",
+      en: "85 mm SLOT GAP · +12–18 KM/H DELTA",
+      vi: "KHE MỞ 85 mm · TĂNG 12–18 KM/H KHI VƯỢT",
     },
     transitionHint: {
-      en: "Next Â· Act II: Titanium Halo",
-      vi: "Tiáº¿p theo Â· Há»“i II: Khung Halo Titanium",
+      en: "Next · Act II: Titanium Halo",
+      vi: "Tiếp theo · Hồi II: Khung Halo Titanium",
     },
   },
   {
@@ -201,31 +245,32 @@ export const ENGINEERING_SHOW_SCENES: readonly EngineeringShowScene[] = [
     indexLabel: "05",
     chapterId: "cockpit",
     mood: "cockpit",
+    storySide: "right",
     partId: "COCKPIT_HALO",
     anchorProgress: shotHoldProgress("COCKPIT_HALO", 0.21),
     actLabel: {
-      en: "ACT II Â· TITANIUM SANCTUARY",
-      vi: "Há»’I II Â· VÃ’NG CHáº®N TITANIUM",
+      en: "ACT II · TITANIUM SANCTUARY",
+      vi: "HỒI II · VÒNG CHẮN TITANIUM",
     },
     title: {
       en: "Grade-5 Titanium Halo",
-      vi: "Khung Báº£o Vá»‡ Halo Titanium Cáº¥p 5",
+      vi: "Khung Bảo Vệ Halo Titanium Cấp 5",
     },
     subtitle: {
-      en: "Driver Cockpit Â· 7 kg Structure Rated to 125 kN",
-      vi: "Buá»“ng lÃ¡i Â· Náº·ng 7 kg, chá»‹u táº£i tÆ°Æ¡ng Ä‘Æ°Æ¡ng 2 xe buÃ½t",
+      en: "Driver Cockpit · 7 kg Structure Rated to 125 kN",
+      vi: "Buồng lái · Nặng 7 kg, chịu tải tương đương 2 xe buýt",
     },
     narrative: {
       en: "Now we step inside where human courage meets material science. The Halo hoists upward like a theatre curtain: just seven kilograms of Grade-5 titanium built to bear 125 kN of vertical load.",
-      vi: "BÃ¢y giá» chÃºng ta bÆ°á»›c vÃ o khÃ´ng gian sinh tá»“n cá»§a tay Ä‘ua. Khung Halo nÃ¢ng tháº³ng lÃªn nhÆ° vÃ©n táº¥m mÃ n sÃ¢n kháº¥u: chá»‰ 7 kg titan cáº¥p 5 nhÆ°ng Ä‘á»§ sá»©c chá»‹u táº£i dá»c 125 kN Ä‘á»ƒ báº£o vá»‡ tÃ­nh máº¡ng.",
+      vi: "Bây giờ chúng ta bước vào không gian sinh tồn của tay đua. Khung Halo nâng thẳng lên như vén tấm màn sân khấu: chỉ 7 kg titan cấp 5 nhưng đủ sức chịu tải dọc 125 kN để bảo vệ tính mạng.",
     },
     techCue: {
-      en: "GRADE-5 TITANIUM Â· 125 kN VERTICAL LOAD",
-      vi: "TITANIUM Cáº¤P 5 Â· CHá»ŠU Táº¢I Dá»ŒC 125 kN",
+      en: "GRADE-5 TITANIUM · 125 kN VERTICAL LOAD",
+      vi: "TITANIUM CẤP 5 · CHỊU TẢI DỌC 125 kN",
     },
     transitionHint: {
-      en: "Next Â· F1 OLED Steering Wheel",
-      vi: "Tiáº¿p theo Â· VÃ´-LÄƒng OLED & Buá»“ng LÃ¡i",
+      en: "Next · F1 OLED Steering Wheel",
+      vi: "Tiếp theo · Vô-Lăng OLED & Buồng Lái",
     },
   },
   {
@@ -234,31 +279,32 @@ export const ENGINEERING_SHOW_SCENES: readonly EngineeringShowScene[] = [
     indexLabel: "06",
     chapterId: "cockpit",
     mood: "cockpit",
+    storySide: "right",
     partId: "STEERING_WHEEL_LCD",
     anchorProgress: shotHoldProgress("STEERING_WHEEL_LCD", 0.27),
     actLabel: {
-      en: "ACT II Â· COMMAND AT 320 KM/H",
-      vi: "Há»’I II Â· TRUNG TÃ‚M CHá»ˆ HUY á»ž 320 KM/H",
+      en: "ACT II · COMMAND AT 320 KM/H",
+      vi: "HỒI II · TRUNG TÂM CHỈ HUY Ở 320 KM/H",
     },
     title: {
       en: "F1 OLED Steering Wheel & Telemetry",
-      vi: "VÃ´-LÄƒng OLED & Báº£ng Äiá»u Khiá»ƒn F1",
+      vi: "Vô-Lăng OLED & Bảng Điều Khiển F1",
     },
     subtitle: {
-      en: "Driver Eye-Level Â· 15 Shift LEDs & Rotary Differentials",
-      vi: "Táº§m máº¯t tay Ä‘ua Â· 15 Ä‘Ã¨n sang sá»‘ & nÃºm xoay vi sai",
+      en: "Driver Eye-Level · 15 Shift LEDs & Rotary Differentials",
+      vi: "Tầm mắt tay đua · 15 đèn sang số & núm xoay vi sai",
     },
     narrative: {
       en: "With the Halo lifted clear, take the driver's seat. Brake-migration dials, differential maps, ERS deploy modes, and carbon paddles sit between your thumbs: test them live in the tray on the left.",
-      vi: "Khi khung Halo Ä‘Ã£ má»Ÿ lá»‘i, hÃ£y ngá»“i vÃ o vá»‹ trÃ­ tay Ä‘ua. ToÃ n bá»™ bá»™ nÃ£o chá»‰nh phanh, khÃ³a vi sai, xáº£ pin ERS vÃ  láº«y sá»‘ carbon náº±m gá»n trong hai ngÃ³n cÃ¡i: báº¡n cÃ³ thá»ƒ báº¥m thá»­ ngay trÃªn khay bÃªn trÃ¡i.",
+      vi: "Khi khung Halo đã mở lối, hãy ngồi vào vị trí tay đua. Toàn bộ bộ não chỉnh phanh, khóa vi sai, xả pin ERS và lẫy số carbon nằm gọn trong hai ngón cái: bạn có thể bấm thử ngay trên khay bên trái.",
     },
     techCue: {
-      en: "INTERACTIVE COCKPIT Â· TRY GEAR / DRS / ERS",
-      vi: "BUá»’NG LÃI TÆ¯Æ NG TÃC Â· THá»¬ SANG Sá» / DRS / ERS",
+      en: "INTERACTIVE COCKPIT · TRY GEAR / DRS / ERS",
+      vi: "BUỒNG LÁI TƯƠNG TÁC · THỬ SANG SỐ / DRS / ERS",
     },
     transitionHint: {
-      en: "Next Â· Act III: Wheels & Carbon Brakes",
-      vi: 'Tiáº¿p theo Â· Há»“i III: MÃ¢m 18" & Phanh Carbon',
+      en: "Next · Act III: Wheels & Carbon Brakes",
+      vi: 'Tiếp theo · Hồi III: Mâm 18" & Phanh Carbon',
     },
   },
   {
@@ -267,31 +313,32 @@ export const ENGINEERING_SHOW_SCENES: readonly EngineeringShowScene[] = [
     indexLabel: "07",
     chapterId: "corners",
     mood: "thermal",
+    storySide: "left",
     partId: "FL_BRAKE_SUSPENSION",
     anchorProgress: shotHoldProgress("FL_BRAKE_SUSPENSION", 0.415),
     actLabel: {
-      en: "ACT III Â· FOUR PALMS OF GRIP",
-      vi: "Há»’I III Â· Bá»N ÄIá»‚M CHáº M Máº¶T ÄÆ¯á»œNG",
+      en: "ACT III · FOUR PALMS OF GRIP",
+      vi: "HỒI III · BỐN ĐIỂM CHẠM MẶT ĐƯỜNG",
     },
     title: {
       en: '18" Slicks, Forged Rims & Carbon Brakes',
-      vi: 'Lá»‘p Slick 18", MÃ¢m RÃ¨n & ÄÄ©a Phanh Carbon',
+      vi: 'Lốp Slick 18", Mâm Rèn & Đĩa Phanh Carbon',
     },
     subtitle: {
-      en: "Wheel Corners Â· 720Â° Centerlock Separation",
-      vi: "Bá»‘n gÃ³c bÃ¡nh Â· Äai á»‘c tÃ¢m xoay 720Â° bÃ³c tÃ¡ch cá»¥m phanh",
+      en: "Wheel Corners · 720° Centerlock Separation",
+      vi: "Bốn góc bánh · Đai ốc tâm xoay 720° bóc tách cụm phanh",
     },
     narrative: {
-      en: "Centerlock nuts spin 720Â° outward, peeling back aero covers, 18-inch slicks, and forged rims. Beneath them sit carbon-carbon brake discs capable of 5.5 G stops above 1,000 Â°C.",
-      vi: "Äai á»‘c khÃ³a tÃ¢m xoay 720Â° kÃ©o rá»i á»‘p khÃ­ Ä‘á»™ng, lá»‘p trÆ¡n 18 inch vÃ  mÃ¢m rÃ¨n. áº¨n bÃªn trong lÃ  cá»¥m Ä‘Ä©a phanh carbon chá»‹u lá»±c hÃ£m 5,5 G, Ä‘á» rá»±c vÆ°á»£t 1.000 Â°C á»Ÿ má»—i gÃ³c cua gáº¯t.",
+      en: "Centerlock nuts spin 720° outward, peeling back aero covers, 18-inch slicks, and forged rims. Beneath them sit carbon-carbon brake discs capable of 5.5 G stops above 1,000 °C.",
+      vi: "Đai ốc khóa tâm xoay 720° kéo rời ốp khí động, lốp trơn 18 inch và mâm rèn. Ẩn bên trong là cụm đĩa phanh carbon chịu lực hãm 5,5 G, đỏ rực vượt 1.000 °C ở mỗi góc cua gắt.",
     },
     techCue: {
-      en: "5.5 G DECELERATION Â· >1,000 Â°C CARBON DISCS",
-      vi: "Lá»°C HÃƒM 5,5 G Â· ÄÄ¨A PHANH CARBON >1.000 Â°C",
+      en: "5.5 G DECELERATION · >1,000 °C CARBON DISCS",
+      vi: "LỰC HÃM 5,5 G · ĐĨA PHANH CARBON >1.000 °C",
     },
     transitionHint: {
-      en: "Next Â· Act IV: Sidepods & Cooling",
-      vi: "Tiáº¿p theo Â· Há»“i IV: Sidepod & KÃ©t Táº£n Nhiá»‡t",
+      en: "Next · Act IV: Sidepods & Cooling",
+      vi: "Tiếp theo · Hồi IV: Sidepod & Két Tản Nhiệt",
     },
   },
   {
@@ -300,31 +347,32 @@ export const ENGINEERING_SHOW_SCENES: readonly EngineeringShowScene[] = [
     indexLabel: "08",
     chapterId: "bodywork",
     mood: "thermal",
+    storySide: "right",
     partId: "SIDEPOD_SHELL_LEFT",
     anchorProgress: shotHoldProgress("SIDEPOD_SHELL_LEFT", 0.565),
     actLabel: {
-      en: "ACT IV Â· SCULPTED BREATHING",
-      vi: "Há»’I IV Â· LÃ€N DA KHÃ Äá»˜NG & Táº¢N NHIá»†T",
+      en: "ACT IV · SCULPTED BREATHING",
+      vi: "HỒI IV · LÀN DA KHÍ ĐỘNG & TẢN NHIỆT",
     },
     title: {
       en: "Undercut Sidepods & Inclined Radiators",
-      vi: "Vá» Há»‘c GiÃ³ Sidepod & KÃ©t NÆ°á»›c NghiÃªng",
+      vi: "Vỏ Hốc Gió Sidepod & Két Nước Nghiêng",
     },
     subtitle: {
-      en: "Bodywork & Thermal Packaging Â· Tight Undercut Waist",
-      vi: "ThÃ¢n vá» Â· CÃ¢n báº±ng giá»¯a lÃ m mÃ¡t vÃ  thu háº¹p hÃ´ng xe",
+      en: "Bodywork & Thermal Packaging · Tight Undercut Waist",
+      vi: "Thân vỏ · Cân bằng giữa làm mát và thu hẹp hông xe",
     },
     narrative: {
       en: "Composite sidepods peel laterally like armor plates to expose tilted heat exchangers. Every millimeter shaved here carves a deeper undercut channel guiding fast air onto the rear diffuser.",
-      vi: "Hai lá»›p vá» sidepod tÃ¡ch ngang nhÆ° bá»™ giÃ¡p Ä‘á»ƒ lá»™ cáº·p kÃ©t táº£n nhiá»‡t Ä‘áº·t nghiÃªng cá»±c gáº¯t. Tá»«ng milimÃ©t Ä‘Æ°á»£c Ã©p gá»n má»Ÿ ra rÃ£nh undercut sÃ¢u, tÄƒng tá»‘c luá»“ng khÃ­ quÃ©t tháº³ng vá» bá»™ khuáº¿ch tÃ¡n sau.",
+      vi: "Hai lớp vỏ sidepod tách ngang như bộ giáp để lộ cặp két tản nhiệt đặt nghiêng cực gắt. Từng milimét được ép gọn mở ra rãnh undercut sâu, tăng tốc luồng khí quét thẳng về bộ khuếch tán sau.",
     },
     techCue: {
-      en: "UNDERCUT CHANNEL Â· INCLINED RADIATOR CORES",
-      vi: "RÃƒNH UNDERCUT Â· KÃ‰T GIáº¢I NHIá»†T Äáº¶T NGHIÃŠNG",
+      en: "UNDERCUT CHANNEL · INCLINED RADIATOR CORES",
+      vi: "RÃNH UNDERCUT · KÉT GIẢI NHIỆT ĐẶT NGHIÊNG",
     },
     transitionHint: {
-      en: "Next Â· Act V: Venturi Underfloor",
-      vi: "Tiáº¿p theo Â· Há»“i V: BÃ­ Máº­t SÃ n Venturi",
+      en: "Next · Act V: Venturi Underfloor",
+      vi: "Tiếp theo · Hồi V: Bí Mật Sàn Venturi",
     },
   },
   {
@@ -333,31 +381,32 @@ export const ENGINEERING_SHOW_SCENES: readonly EngineeringShowScene[] = [
     indexLabel: "09",
     chapterId: "core",
     mood: "venturi",
+    storySide: "left",
     partId: "VENTURI_FLOOR_TITANIUM",
     anchorProgress: shotHoldProgress("VENTURI_FLOOR_TITANIUM", 0.625),
     actLabel: {
-      en: "ACT V Â· THE EFFET DE SOL SECRET",
-      vi: "Há»’I V Â· BÃ Máº¬T EFFET DE SOL",
+      en: "ACT V · THE EFFET DE SOL SECRET",
+      vi: "HỒI V · BÍ MẬT EFFET DE SOL",
     },
     title: {
       en: "Venturi Underfloor & Titanium Skid Plank",
-      vi: "SÃ n ÄÆ°á»ng Háº§m Venturi & Táº¥m TrÆ°á»£t Titan",
+      vi: "Sàn Đường Hầm Venturi & Tấm Trượt Titan",
     },
     subtitle: {
-      en: "Underfloor Core Â· Ground-Effect Suction Engine",
-      vi: "Gáº§m xe Â· Nguá»“n sinh lá»±c Ã©p lá»›n nháº¥t toÃ n xe",
+      en: "Underfloor Core · Ground-Effect Suction Engine",
+      vi: "Gầm xe · Nguồn sinh lực ép lớn nhất toàn xe",
     },
     narrative: {
       en: "This is why our project carries the name Effet de Sol. The floor drops away to reveal twin Venturi tunnels that accelerate air beneath the chassis, pulling the car down onto the asphalt.",
-      vi: "ÄÃ¢y lÃ  lÃ½ do cÃ¡i tÃªn Effet de Sol ra Ä‘á»i. SÃ n gáº§m háº¡ tháº¥p Ä‘á»ƒ lá»™ hai Ä‘Æ°á»ng háº§m Venturi tÄƒng tá»‘c luá»“ng khÃ­ bÃªn dÆ°á»›i khung xe, táº¡o vÃ¹ng Ã¡p suáº¥t tháº¥p hÃºt cháº·t chiáº¿c xe xuá»‘ng máº·t Ä‘Æ°á»ng.",
+      vi: "Đây là lý do cái tên Effet de Sol ra đời. Sàn gầm hạ thấp để lộ hai đường hầm Venturi tăng tốc luồng khí bên dưới khung xe, tạo vùng áp suất thấp hút chặt chiếc xe xuống mặt đường.",
     },
     techCue: {
-      en: "VENTURI SUCTION Â· ~55% TOTAL DOWNFORCE",
-      vi: "Lá»°C HÃšT VENTURI Â· ~55% Tá»”NG Lá»°C Ã‰P KHÃ Äá»˜NG",
+      en: "VENTURI SUCTION · ~55% TOTAL DOWNFORCE",
+      vi: "LỰC HÚT VENTURI · ~55% TỔNG LỰC ÉP KHÍ ĐỘNG",
     },
     transitionHint: {
-      en: "Next Â· 1.6L V6 Turbo Hybrid Core",
-      vi: "Tiáº¿p theo Â· TrÃ¡i Tim Hybrid 1.6L V6 Turbo",
+      en: "Next · 1.6L V6 Turbo Hybrid Core",
+      vi: "Tiếp theo · Trái Tim Hybrid 1.6L V6 Turbo",
     },
   },
   {
@@ -366,31 +415,32 @@ export const ENGINEERING_SHOW_SCENES: readonly EngineeringShowScene[] = [
     indexLabel: "10",
     chapterId: "core",
     mood: "venturi",
+    storySide: "right",
     partId: "POWERTRAIN_V6_HYBRID",
     anchorProgress: shotHoldProgress("POWERTRAIN_V6_HYBRID", 0.68),
     actLabel: {
-      en: "ACT V Â· THE HYBRID HEART",
-      vi: "Há»’I V Â· TRÃI TIM HYBRID 1.6L V6",
+      en: "ACT V · THE HYBRID HEART",
+      vi: "HỒI V · TRÁI TIM HYBRID 1.6L V6",
     },
     title: {
       en: "1.6L V6 Turbo Hybrid & Stressed Gearbox",
-      vi: "Äá»™ng CÆ¡ V6 Turbo Hybrid & Há»™p Sá»‘ Chá»‹u Lá»±c",
+      vi: "Động Cơ V6 Turbo Hybrid & Hộp Số Chịu Lực",
     },
     subtitle: {
-      en: "Powertrain Spine Â· >50% Thermal Efficiency",
-      vi: "LÃµi Ä‘á»™ng lá»±c Â· Hiá»‡u suáº¥t nhiá»‡t vÆ°á»£t 50% gáº¯n liá»n khung",
+      en: "Powertrain Spine · >50% Thermal Efficiency",
+      vi: "Lõi động lực · Hiệu suất nhiệt vượt 50% gắn liền khung",
     },
     narrative: {
       en: "Deep behind the driver's spine lives the most thermally efficient hybrid power unit ever raced, bolted directly between the carbon survival cell and 8-speed gearbox as the car's skeleton.",
-      vi: "áº¨n ngay sau lÆ°ng tay Ä‘ua lÃ  cá»— mÃ¡y hybrid cÃ³ hiá»‡u suáº¥t nhiá»‡t vÆ°á»£t 50%. Khá»‘i Ä‘á»™ng cÆ¡ V6 vÃ  há»™p sá»‘ 8 cáº¥p Ä‘Æ°á»£c báº¯t trá»±c tiáº¿p vÃ o khoang sinh tá»“n carbon nhÆ° xÆ°Æ¡ng sá»‘ng chá»‹u lá»±c cá»§a xe.",
+      vi: "Ẩn ngay sau lưng tay đua là cỗ máy hybrid có hiệu suất nhiệt vượt 50%. Khối động cơ V6 và hộp số 8 cấp được bắt trực tiếp vào khoang sinh tồn carbon như xương sống chịu lực của xe.",
     },
     techCue: {
-      en: "1.6L V6 + ERS HYBRID Â· STRESSED CHASSIS MEMBER",
-      vi: "V6 1.6L + ERS HYBRID Â· XÆ¯Æ NG Sá»NG CHá»ŠU Lá»°C",
+      en: "1.6L V6 + ERS HYBRID · STRESSED CHASSIS MEMBER",
+      vi: "V6 1.6L + ERS HYBRID · XƯƠNG SỐNG CHỊU LỰC",
     },
     transitionHint: {
-      en: "Next Â· Climax: 47-Assembly Symphony",
-      vi: "Tiáº¿p theo Â· Cao TrÃ o: ToÃ n Cáº£nh 47 Cá»¥m",
+      en: "Next · Climax: 47-Assembly Symphony",
+      vi: "Tiếp theo · Cao Trào: Toàn Cảnh 47 Cụm",
     },
   },
   {
@@ -399,31 +449,32 @@ export const ENGINEERING_SHOW_SCENES: readonly EngineeringShowScene[] = [
     indexLabel: "11",
     chapterId: "matrix",
     mood: "climax",
+    storySide: "left",
     partId: "MONOCOQUE_CHASSIS",
     anchorProgress: shotHoldProgress("MONOCOQUE_CHASSIS", 0.8),
     actLabel: {
-      en: "CLIMAX Â· 47-ASSEMBLY SYMPHONY",
-      vi: "CAO TRÃ€O Â· Báº¢N GIAO HÆ¯á»žNG 47 Cá»¤M",
+      en: "CLIMAX · 47-ASSEMBLY SYMPHONY",
+      vi: "CAO TRÀO · BẢN GIAO HƯỞNG 47 CỤM",
     },
     title: {
       en: "Monocoque Survival Cell & Exploded Matrix",
-      vi: "Khoang Monocoque & ToÃ n Cáº£nh 47 Cá»¥m LÆ¡ Lá»­ng",
+      vi: "Khoang Monocoque & Toàn Cảnh 47 Cụm Lơ Lửng",
     },
     subtitle: {
-      en: "Peak Disassembly Â· Free 360Â° Orbit Unlocked",
-      vi: "Cá»±c Ä‘áº¡i bÃ³c tÃ¡ch Â· Má»Ÿ khÃ³a xoay tá»± do 360Â° Orbit",
+      en: "Peak Disassembly · Free 360° Orbit Unlocked",
+      vi: "Cực đại bóc tách · Mở khóa xoay tự do 360° Orbit",
     },
     narrative: {
-      en: "Forty-six subsystems float in spatial equilibrium around the central carbon monocoque. Tap 360Â° Orbit below to fly freely around the sculpture or click any assembly to isolate it.",
-      vi: "ToÃ n bá»™ 46 cá»¥m cÆ¡ khÃ­ lÆ¡ lá»­ng cÃ¢n báº±ng quanh khoang sinh tá»“n Monocoque carbon. HÃ£y báº¥m Xoay 360Â° bÃªn dÆ°á»›i Ä‘á»ƒ bay tá»± do quanh tÃ¡c pháº©m hoáº·c báº¥m vÃ o báº¥t ká»³ chi tiáº¿t nÃ o Ä‘á»ƒ soi riÃªng.",
+      en: "Forty-six subsystems float in spatial equilibrium around the central carbon monocoque. Tap 360° Orbit below to fly freely around the sculpture or click any assembly to isolate it.",
+      vi: "Toàn bộ 46 cụm cơ khí lơ lửng cân bằng quanh khoang sinh tồn Monocoque carbon. Hãy bấm Xoay 360° bên dưới để bay tự do quanh tác phẩm hoặc bấm vào bất kỳ chi tiết nào để soi riêng.",
     },
     techCue: {
-      en: "PEAK MATRIX Â· 360Â° ORBIT & ISOLATION READY",
-      vi: "TOÃ€N Cáº¢NH Cá»°C Äáº I Â· Sáº´N SÃ€NG XOAY 360Â°",
+      en: "PEAK MATRIX · 360° ORBIT & ISOLATION READY",
+      vi: "TOÀN CẢNH CỰC ĐẠI · SẴN SÀNG XOAY 360°",
     },
     transitionHint: {
-      en: "Next Â· Finale: Precision Re-Lock",
-      vi: "Tiáº¿p theo Â· Háº¡ MÃ n: TÃ¡i Láº¯p RÃ¡p 0,0 mm",
+      en: "Next · Finale: Precision Re-Lock",
+      vi: "Tiếp theo · Hạ Màn: Tái Lắp Ráp 0,0 mm",
     },
   },
   {
@@ -432,31 +483,32 @@ export const ENGINEERING_SHOW_SCENES: readonly EngineeringShowScene[] = [
     indexLabel: "12",
     chapterId: "reassembly",
     mood: "climax",
+    storySide: "right",
     partId: null,
     anchorProgress: 1,
     actLabel: {
-      en: "FINALE Â· PRECISION RE-LOCK",
-      vi: "Háº  MÃ€N Â· Há»¢P NHáº¤T NGUYÃŠN KHá»I",
+      en: "FINALE · PRECISION RE-LOCK",
+      vi: "HẠ MÀN · HỢP NHẤT NGUYÊN KHỐI",
     },
     title: {
       en: "47 parts return to one racing machine",
-      vi: "47 máº£nh ghÃ©p há»™i tá»¥ thÃ nh má»™t cá»— mÃ¡y Ä‘ua",
+      vi: "47 mảnh ghép hội tụ thành một cỗ máy đua",
     },
     subtitle: {
-      en: "100% Datum Lock Â· End of the Engineering Show",
-      vi: "KhÃ³a chuáº©n 100% Â· Káº¿t thÃºc mÃ n trÃ¬nh diá»…n Ká»¹ thuáº­t",
+      en: "100% Datum Lock · End of the Engineering Show",
+      vi: "Khóa chuẩn 100% · Kết thúc màn trình diễn Kỹ thuật",
     },
     narrative: {
       en: "Core, cockpit, bodywork, wings, and centerlock nuts glide home in reverse sequence and seal to 0.0 mm tolerance. Replay the show anytime, or step into the Pit Garage Showroom.",
-      vi: "LÃµi mÃ¡y, buá»“ng lÃ¡i, thÃ¢n vá», cÃ¡nh giÃ³ vÃ  bá»‘n Ä‘ai á»‘c tÃ¢m trÆ°á»£t ngÆ°á»£c vá» khá»›p kÃ­n chuáº©n 0,0 mm. Báº¡n cÃ³ thá»ƒ xem láº¡i mÃ n trÃ¬nh diá»…n báº¥t cá»© lÃºc nÃ o hoáº·c bÆ°á»›c sang Garage Showroom.",
+      vi: "Lõi máy, buồng lái, thân vỏ, cánh gió và bốn đai ốc tâm trượt ngược về khớp kín chuẩn 0,0 mm. Bạn có thể xem lại màn trình diễn bất cứ lúc nào hoặc bước sang Garage Showroom.",
     },
     techCue: {
-      en: "100% LOCKED Â· CURTAIN CALL",
-      vi: "KHÃ“A CHUáº¨N 100% Â· KHÃ‰P Láº I MÃ€N TRÃŒNH DIá»„N",
+      en: "100% LOCKED · CURTAIN CALL",
+      vi: "KHÓA CHUẨN 100% · KHÉP LẠI MÀN TRÌNH DIỄN",
     },
     transitionHint: {
-      en: "Show complete Â· Replay or visit Showroom",
-      vi: "Káº¿t thÃºc Show Â· Xem láº¡i hoáº·c sang Showroom",
+      en: "Show complete · Replay or visit Showroom",
+      vi: "Kết thúc Show · Xem lại hoặc sang Showroom",
     },
   },
 ];
@@ -466,26 +518,26 @@ export const ENGINEERING_SHOW_TOTAL_VH =
 
 /**
  * Returns a raw scroll ratio (0..1) that lands calmly inside scene `sceneIndex`'s
- * resting dwell plateau ("khoáº£ng nghá»‰").
+ * resting dwell plateau ("khoảng nghỉ").
  */
 export function getShowScrollForScene(sceneIndex: number): number {
   const total = ENGINEERING_SHOW_SCENES.length;
   const clampedIdx = Math.max(0, Math.min(total - 1, Math.round(sceneIndex)));
   if (clampedIdx === 0) return 0;
   const segSize = 1 / total;
-  // Land at 58% of the scene segment â€” cleanly past the 48% glide, with a crisp
+  // Land at 58% of the scene segment — cleanly past the 48% glide, with a crisp
   // resting beat ahead before the next scene starts gliding.
   return Math.min(1, (clampedIdx + 0.58) * segSize);
 }
 
 /**
- * Maps raw page scroll ratio `rawScroll âˆˆ [0, 1]` through a snappy piecewise
+ * Maps raw page scroll ratio `rawScroll ∈ [0, 1]` through a snappy piecewise
  * glide + dwell-plateau curve with synchronized typography reveal/exit states:
  * - During glide (localT < 0.48): camera moves smoothly while text stays veiled
  *   ("hidden"), keeping the 3D choreography unobstructed.
- * - As camera arrives (localT âˆˆ [0.48, 0.56]): text triggers staggered unmask
+ * - As camera arrives (localT ∈ [0.48, 0.56]): text triggers staggered unmask
  *   reveal ("entering" -> "visible").
- * - Across the dwell plateau (localT âˆˆ [0.48, 1.0]): timelineProgress locks
+ * - Across the dwell plateau (localT ∈ [0.48, 1.0]): timelineProgress locks
  *   strictly at `anchorProgress`, with a gentle exit handoff on the final 12%.
  */
 export function evaluateEngineeringShowScroll(
@@ -509,12 +561,13 @@ export function evaluateEngineeringShowScroll(
   // Scene 0 (Prologue) opens immediately visible and gently fades out near its end
   if (sceneIndex === 0) {
     const storyStage: EngineeringStoryStage =
-      localT > 0.84 ? "exiting" : "visible";
+      localT > 0.88 ? "exiting" : "visible";
     return {
       rawScroll,
       timelineProgress: scene.anchorProgress,
       sceneIndex,
       scene,
+      displayScene: scene,
       nextScene,
       phase: "resting",
       transitionProgress: 1,
@@ -522,25 +575,30 @@ export function evaluateEngineeringShowScroll(
       isResting: true,
       isFinale: false,
       storyStage,
+      cameraArc: null,
     };
   }
 
-  const prevAnchor = ENGINEERING_SHOW_SCENES[sceneIndex - 1].anchorProgress;
+  const prevScene = ENGINEERING_SHOW_SCENES[sceneIndex - 1];
+  const prevAnchor = prevScene.anchorProgress;
   const targetAnchor = scene.anchorProgress;
 
   if (localT < SHOW_TRANSITION_RATIO) {
     const glideT = localT / SHOW_TRANSITION_RATIO;
     const eased = smootherstep(glideT);
     const timelineProgress = prevAnchor + (targetAnchor - prevAnchor) * eased;
-    // Keep text veiled while the 3D camera swoops so text never snaps abruptly;
-    // begin staggered reveal right as the camera nears arrival (last 14% of glide).
+    // Outgoing text glides cleanly out in the first 18% of the transition,
+    // stays veiled mid-flight so the 3D camera swoop shines unobstructed,
+    // then reveals the incoming scene in staggered editorial layers on arrival.
     const storyStage: EngineeringStoryStage =
-      glideT >= 0.86 ? "entering" : "hidden";
+      glideT < 0.18 ? "exiting" : glideT >= 0.82 ? "entering" : "hidden";
+    const displayScene = glideT < 0.18 ? prevScene : scene;
     return {
       rawScroll,
       timelineProgress,
       sceneIndex,
       scene,
+      displayScene,
       nextScene,
       phase: "transition",
       transitionProgress: glideT,
@@ -548,6 +606,11 @@ export function evaluateEngineeringShowScroll(
       isResting: false,
       isFinale,
       storyStage,
+      cameraArc: {
+        fromProgress: prevAnchor,
+        toProgress: targetAnchor,
+        progress: glideT,
+      },
     };
   }
 
@@ -555,13 +618,14 @@ export function evaluateEngineeringShowScroll(
     (localT - SHOW_TRANSITION_RATIO) / (1 - SHOW_TRANSITION_RATIO);
   const clampedDwell = Math.max(0, Math.min(1, dwellProgress));
   const storyStage: EngineeringStoryStage =
-    !isFinale && clampedDwell > 0.88 ? "exiting" : "visible";
+    !isFinale && clampedDwell > 0.90 ? "exiting" : "visible";
 
   return {
     rawScroll,
     timelineProgress: targetAnchor,
     sceneIndex,
     scene,
+    displayScene: scene,
     nextScene,
     phase: "resting",
     transitionProgress: 1,
@@ -569,5 +633,6 @@ export function evaluateEngineeringShowScroll(
     isResting: true,
     isFinale,
     storyStage,
+    cameraArc: null,
   };
 }

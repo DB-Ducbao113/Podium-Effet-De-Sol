@@ -25,7 +25,7 @@
 /* Match index.css VI glyph coverage inside standalone prototype even when <RouteSeo> is off */
 .sp-root[lang="vi"] {
   --peds-font-editorial:
-    "Cormorant Garamond Variable", Georgia, "Times New Roman", serif;
+    "Cormorant Garamond Variable", "Palatino Linotype", "Times New Roman", serif;
   --peds-font-body: "Manrope Variable", Arial, sans-serif;
 }
 
@@ -77,7 +77,7 @@
   background: rgba(165, 214, 255, 0.46);
 }
 
-/* â”€â”€ 3D Stage Backdrop â”€â”€ */
+/* ── 3D Stage Backdrop ── */
 .sp-stage-backdrop {
   position: fixed;
   inset: 0;
@@ -130,7 +130,7 @@
       rgba(7, 11, 19, 0.44) 100%);
 }
 
-/* â”€â”€ 3D Depth Transition & Laser Wipe â”€â”€ */
+/* ── 3D Depth Transition & Laser Wipe ── */
 @keyframes spDepthEnter {
   from {
     opacity: 0;
@@ -188,7 +188,7 @@
   animation: spLaserWipe 300ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
-/* â”€â”€ Main Content Layer â”€â”€ */
+/* ── Main Content Layer ── */
 .sp-stage-content {
   position: relative;
   z-index: 10;
@@ -297,7 +297,7 @@
   color: #ff8a5c;
 }
 
-/* â”€â”€ Tab Stack & Home Hero â”€â”€ */
+/* ── Tab Stack & Home Hero ── */
 .sp-tab-stack {
   display: flex;
   flex-direction: column;
@@ -441,7 +441,7 @@
   color: var(--sp-muted);
 }
 
-/* â”€â”€ Panels & Grids â”€â”€ */
+/* ── Panels & Grids ── */
 .sp-section-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -564,7 +564,7 @@
   font-size: 14px;
 }
 
-/* â”€â”€ Portals â”€â”€ */
+/* ── Portals ── */
 .sp-portals {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -621,7 +621,7 @@
   color: #ff8a5c;
 }
 
-/* â”€â”€ Shared Page Headers â”€â”€ */
+/* ── Shared Page Headers ── */
 .sp-page-header {
   display: flex;
   flex-wrap: wrap;
@@ -632,7 +632,7 @@
   border-bottom: 1px solid var(--sp-line);
 }
 
-/* â”€â”€ Results & Podium â”€â”€ */
+/* ── Results & Podium ── */
 .sp-podium-banner {
   background: rgba(14, 17, 22, 0.88);
   border: 1px solid var(--sp-line);
@@ -761,7 +761,7 @@
   cursor: pointer;
 }
 
-/* â”€â”€ Calendar & Circuit Card â”€â”€ */
+/* ── Calendar & Circuit Card ── */
 .sp-circuit-card {
   background: rgba(14, 17, 22, 0.88);
   border: 1px solid var(--sp-line);
@@ -831,7 +831,7 @@
   color: #ff8a5c;
 }
 
-/* â”€â”€ Standings â”€â”€ */
+/* ── Standings ── */
 .sp-segmented {
   display: inline-flex;
   border: 1px solid var(--sp-line-strong);
@@ -883,7 +883,7 @@
   transition: width 320ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* â”€â”€ Showroom HUD (Veyra Ã— Polestar) â”€â”€ */
+/* ── Showroom HUD (Veyra × Polestar) ── */
 .sp-showroom-hud {
   flex: 1;
   display: flex;
@@ -997,7 +997,7 @@
   color: var(--sp-muted);
 }
 
-/* â”€â”€ Engineering Blueprint Grid â”€â”€ */
+/* ── Engineering Blueprint Grid ── */
 .sp-blueprint-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1066,7 +1066,7 @@
   flex: 1;
 }
 
-/* â”€â”€ Teams & Drivers 3D Parallax Matrices â”€â”€ */
+/* ── Teams & Drivers 3D Parallax Matrices ── */
 .sp-matrix-teams {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1216,7 +1216,7 @@
   border: 1px solid var(--sp-line);
 }
 
-/* â”€â”€ Footer & Mobile Telemetry Dock â”€â”€ */
+/* ── Footer & Mobile Telemetry Dock ── */
 .sp-footer {
   position: relative;
   z-index: 10;
@@ -1258,7 +1258,7 @@
   color: var(--sp-ink);
 }
 
-/* â”€â”€ Slide-Over Inspection Drawer (Storm Midnight Liquid Glass Dossier) â”€â”€ */
+/* ── Slide-Over Inspection Drawer (Storm Midnight Liquid Glass Dossier) ── */
 .sp-drawer-backdrop {
   position: fixed;
   inset: 0;
@@ -1603,7 +1603,7 @@
   color: var(--sp-muted);
 }
 
-/* â”€â”€ Responsive Breakpoints (360..1920 + 860/861 hub boundary) â”€â”€ */
+/* ── Responsive Breakpoints (360..1920 + 860/861 hub boundary) ── */
 @media (max-width: 1180px) {
   .sp-matrix-drivers {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1699,7 +1699,7 @@
   }
 }
 
-/* â”€â”€ Non-Intrusive DEV Nav Review Bar (Bottom-Left) â”€â”€ */
+/* ── Non-Intrusive DEV Nav Review Bar (Bottom-Left) ── */
 .sp-dev-review {
   position: fixed;
   left: 16px;
@@ -1817,7 +1817,7 @@
   border-top: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-/* â”€â”€ Correct-Course v2: Storm / Midnight Liquid-Glass Hero & Surface System â”€â”€ */
+/* ── Correct-Course v2: Storm / Midnight Liquid-Glass Hero & Surface System ── */
 .sp-stage-content.is-overview-editorial {
   padding-top: 0;
   padding-bottom: 0;
@@ -2668,7 +2668,7 @@
   transition: none !important;
 }
 
-/* â”€â”€ CC-v4: Storm Transparent Frame-Only Panels (Results / Calendar / Standings / Teams) â”€â”€ */
+/* ── CC-v4: Storm Transparent Frame-Only Panels (Results / Calendar / Standings / Teams) ── */
 .sp-stage-content.is-storm-glass-tab {
   padding-top: 0;
   padding-bottom: 0;
@@ -4007,7 +4007,7 @@
       rgba(4, 7, 13, 0.86) 100%);
 }
 
-/* â”€â”€ CC-v4.3: Storm Liquid Glass Showroom HUD â”€â”€ */
+/* ── CC-v4.3: Storm Liquid Glass Showroom HUD ── */
 .sp-stage-content.is-showroom-hud {
   padding-top: 0;
   padding-bottom: 0;
@@ -5189,7 +5189,7 @@
 }
 
 .sp-lg-eng-host .peds-eng-title {
-  font-family: var(--peds-font-editorial), Georgia, "Times New Roman", serif;
+  font-family: var(--peds-font-editorial);
   font-weight: 400;
   letter-spacing: -0.02em;
   text-wrap: balance;
@@ -5356,7 +5356,7 @@
 }
 
 .sp-lg-eng-host .peds-eng-editorial__heading {
-  font-family: var(--peds-font-editorial), Georgia, "Times New Roman", serif;
+  font-family: var(--peds-font-editorial);
   color: #ffffff;
 }
 
@@ -5404,7 +5404,7 @@
   }
 }
 
-/* â”€â”€ 12-Scene Cinematic Engineering Show (Choreographed Typography, Dwell Rest & Spine) â”€â”€ */
+/* ── 12-Scene Cinematic Engineering Show (Choreographed Typography, Dwell Rest & Spine) ── */
 @keyframes spEngRuleExpand {
   from {
     transform: scaleX(0);
@@ -5420,7 +5420,7 @@
 @keyframes spEngMetaReveal {
   from {
     opacity: 0;
-    transform: translate3d(0, 10px, 0);
+    transform: translate3d(0, 12px, 0);
   }
 
   to {
@@ -5432,8 +5432,8 @@
 @keyframes spEngTitleMaskIn {
   from {
     opacity: 0;
-    transform: translate3d(0, 26px, 0);
-    filter: blur(4px);
+    transform: translate3d(0, 30px, 0);
+    filter: blur(5px);
   }
 
   to {
@@ -5446,8 +5446,8 @@
 @keyframes spEngBodyReveal {
   from {
     opacity: 0;
-    transform: translate3d(0, 16px, 0);
-    filter: blur(3px);
+    transform: translate3d(0, 18px, 0);
+    filter: blur(4px);
   }
 
   to {
@@ -5460,7 +5460,7 @@
 @keyframes spEngFootReveal {
   from {
     opacity: 0;
-    transform: translate3d(0, 12px, 0) scale(0.97);
+    transform: translate3d(0, 14px, 0) scale(0.97);
   }
 
   to {
@@ -5469,62 +5469,178 @@
   }
 }
 
-.sp-eng-story-stage {
+.sp-eng-show-hud .sp-eng-story-stage {
   max-width: 820px;
+  will-change: opacity, transform, filter;
   transition:
-    opacity 380ms cubic-bezier(0.22, 1, 0.36, 1),
-    transform 420ms cubic-bezier(0.22, 1, 0.36, 1),
-    filter 380ms ease;
+    opacity 460ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 520ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 460ms ease;
 }
 
-.sp-eng-story-stage[data-story-stage="hidden"] {
+.sp-eng-show-hud .sp-eng-story-stage[data-story-stage="hidden"] {
   opacity: 0;
-  transform: translate3d(0, -14px, 0);
+  transform: translate3d(0, -18px, 0) scale(0.985);
+  filter: blur(6px);
+  pointer-events: none;
+}
+
+.sp-eng-show-hud .sp-eng-story-stage[data-story-stage="exiting"] {
+  opacity: 0;
+  transform: translate3d(0, -14px, 0) scale(0.99);
   filter: blur(4px);
 }
 
-.sp-eng-story-stage[data-story-stage="exiting"] {
-  opacity: 0.14;
-  transform: translate3d(0, -10px, 0);
-  filter: blur(2px);
-}
-
-.sp-eng-story-stage[data-story-stage="entering"],
-.sp-eng-story-stage[data-story-stage="visible"] {
+.sp-eng-show-hud .sp-eng-story-stage[data-story-stage="entering"],
+.sp-eng-show-hud .sp-eng-story-stage[data-story-stage="visible"] {
   opacity: 1;
-  transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0) scale(1);
   filter: blur(0);
 }
 
 .sp-eng-title-mask {
   overflow: hidden;
-  padding-bottom: 3px;
+  padding-bottom: 4px;
 }
 
-.sp-eng-story-stage[data-story-stage="entering"] .sp-eng-anim-meta,
-.sp-eng-story-stage[data-story-stage="visible"] .sp-eng-anim-meta {
-  animation: spEngMetaReveal 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+.sp-eng-show-hud .sp-eng-story-stage[data-story-stage="entering"] .sp-eng-anim-meta,
+.sp-eng-show-hud .sp-eng-story-stage[data-story-stage="visible"] .sp-eng-anim-meta {
+  animation: spEngMetaReveal 480ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-.sp-eng-story-stage[data-story-stage="entering"] .sp-eng-anim-rule,
-.sp-eng-story-stage[data-story-stage="visible"] .sp-eng-anim-rule {
+.sp-eng-show-hud .sp-eng-story-stage[data-story-stage="entering"] .sp-eng-anim-rule,
+.sp-eng-show-hud .sp-eng-story-stage[data-story-stage="visible"] .sp-eng-anim-rule {
   transform-origin: center;
-  animation: spEngRuleExpand 460ms cubic-bezier(0.16, 1, 0.3, 1) 40ms both;
+  animation: spEngRuleExpand 520ms cubic-bezier(0.16, 1, 0.3, 1) 40ms both;
 }
 
-.sp-eng-story-stage[data-story-stage="entering"] .sp-eng-anim-title,
-.sp-eng-story-stage[data-story-stage="visible"] .sp-eng-anim-title {
-  animation: spEngTitleMaskIn 560ms cubic-bezier(0.16, 1, 0.3, 1) 90ms both;
+.sp-eng-show-hud .sp-eng-story-stage[data-story-stage="entering"] .sp-eng-anim-title,
+.sp-eng-show-hud .sp-eng-story-stage[data-story-stage="visible"] .sp-eng-anim-title {
+  animation: spEngTitleMaskIn 640ms cubic-bezier(0.16, 1, 0.3, 1) 90ms both;
 }
 
-.sp-eng-story-stage[data-story-stage="entering"] .sp-eng-anim-body,
-.sp-eng-story-stage[data-story-stage="visible"] .sp-eng-anim-body {
-  animation: spEngBodyReveal 540ms cubic-bezier(0.16, 1, 0.3, 1) 200ms both;
+.sp-eng-show-hud .sp-eng-story-stage[data-story-stage="entering"] .sp-eng-anim-body,
+.sp-eng-show-hud .sp-eng-story-stage[data-story-stage="visible"] .sp-eng-anim-body {
+  animation: spEngBodyReveal 620ms cubic-bezier(0.16, 1, 0.3, 1) 210ms both;
 }
 
-.sp-eng-story-stage[data-story-stage="entering"] .sp-eng-anim-foot,
-.sp-eng-story-stage[data-story-stage="visible"] .sp-eng-anim-foot {
-  animation: spEngFootReveal 480ms cubic-bezier(0.16, 1, 0.3, 1) 310ms both;
+.sp-eng-show-hud .sp-eng-story-stage[data-story-stage="entering"] .sp-eng-anim-foot,
+.sp-eng-show-hud .sp-eng-story-stage[data-story-stage="visible"] .sp-eng-anim-foot {
+  animation: spEngFootReveal 540ms cubic-bezier(0.16, 1, 0.3, 1) 330ms both;
+}
+
+/* ── Desktop Alternating Left / Right Side-Rail Editorial Layout ── */
+@media (min-width: 861px) {
+  .peds-eng-hud.sp-eng-show-hud {
+    justify-content: flex-end;
+  }
+
+  .peds-eng-hud.sp-eng-show-hud .peds-eng-bottom {
+    margin-top: auto;
+  }
+
+  .sp-eng-show-hud .sp-eng-story-stage {
+    position: absolute;
+    top: 46%;
+    width: min(392px, 30vw);
+    max-width: 400px;
+    margin: 0;
+    align-items: flex-start;
+    text-align: left;
+    padding: 20px 22px 18px;
+    border-radius: 18px;
+    border: 1px solid rgba(165, 214, 255, 0.14);
+    background: linear-gradient(
+      145deg,
+      rgba(7, 12, 24, 0.78) 0%,
+      rgba(7, 12, 24, 0.48) 100%
+    );
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 18px 42px rgba(2, 6, 16, 0.42);
+    transform: translate3d(0, -50%, 0) scale(1);
+  }
+
+  .sp-eng-show-hud .sp-eng-story-stage[data-story-side="left"] {
+    left: clamp(22px, 3vw, 44px);
+    right: auto;
+    border-left: 2px solid rgba(255, 106, 61, 0.78);
+  }
+
+  .sp-eng-show-hud .sp-eng-story-stage[data-story-side="right"] {
+    right: clamp(54px, 4.6vw, 76px);
+    left: auto;
+    border-right: 2px solid rgba(255, 106, 61, 0.78);
+  }
+
+  .sp-eng-show-hud .sp-eng-story-stage[data-story-side="left"][data-story-stage="hidden"] {
+    opacity: 0;
+    transform: translate3d(-26px, -50%, 0) scale(0.98);
+    filter: blur(6px);
+  }
+
+  .sp-eng-show-hud .sp-eng-story-stage[data-story-side="left"][data-story-stage="exiting"] {
+    opacity: 0;
+    transform: translate3d(-18px, -50%, 0) scale(0.99);
+    filter: blur(4px);
+  }
+
+  .sp-eng-show-hud .sp-eng-story-stage[data-story-side="right"][data-story-stage="hidden"] {
+    opacity: 0;
+    transform: translate3d(26px, -50%, 0) scale(0.98);
+    filter: blur(6px);
+  }
+
+  .sp-eng-show-hud .sp-eng-story-stage[data-story-side="right"][data-story-stage="exiting"] {
+    opacity: 0;
+    transform: translate3d(18px, -50%, 0) scale(0.99);
+    filter: blur(4px);
+  }
+
+  .sp-eng-show-hud .sp-eng-story-stage[data-story-stage="entering"],
+  .sp-eng-show-hud .sp-eng-story-stage[data-story-stage="visible"] {
+    opacity: 1;
+    transform: translate3d(0, -50%, 0) scale(1);
+    filter: blur(0);
+  }
+
+  .sp-eng-show-hud .sp-eng-story-stage .peds-eng-copy__meta-bar,
+  .sp-eng-show-hud .sp-eng-story-stage .peds-eng-copy__stagger,
+  .sp-eng-show-hud .sp-eng-story-stage .peds-eng-overline,
+  .sp-eng-show-hud .sp-eng-story-stage .sp-eng-finale-actions {
+    align-items: flex-start;
+    justify-content: flex-start;
+    text-align: left;
+  }
+
+  .sp-eng-show-hud .sp-eng-story-stage .peds-eng-title {
+    font-size: clamp(1.38rem, 1.9vw, 1.85rem);
+    line-height: 1.18;
+    margin-top: 8px;
+  }
+
+  .sp-eng-show-hud .sp-eng-story-stage .sp-eng-narrative {
+    margin-top: 8px;
+    font-size: 0.9rem;
+    line-height: 1.58;
+  }
+
+  .sp-eng-show-hud .sp-eng-story-stage .sp-eng-story-foot {
+    width: 100%;
+    margin-top: 14px;
+    border-radius: 12px;
+    padding: 8px 12px;
+    justify-content: flex-start;
+    gap: 8px 10px;
+  }
+}
+
+@media (min-width: 861px) and (prefers-reduced-motion: reduce) {
+  .sp-eng-show-hud .sp-eng-story-stage,
+  .sp-eng-show-hud .sp-eng-story-stage[data-story-stage="hidden"],
+  .sp-eng-show-hud .sp-eng-story-stage[data-story-stage="exiting"] {
+    transform: translate3d(0, -50%, 0) !important;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -5559,7 +5675,7 @@
   }
 }
 
-/* â”€â”€ Engineering Overline Clean Typographic Step Pill (No Dash Rules) â”€â”€ */
+/* ── Engineering Overline Clean Typographic Step Pill (No Dash Rules) ── */
 .sp-lg-eng-host .peds-eng-overline {
   gap: 8px;
   flex-wrap: wrap;
@@ -5582,7 +5698,7 @@
   color: rgba(165, 214, 255, 0.56);
 }
 
-/* â”€â”€ Diverse Motorsport UX Animations Across All Synced Tabs â”€â”€ */
+/* ── Diverse Motorsport UX Animations Across All Synced Tabs ── */
 @keyframes spEngBeamDrift {
 
   0%,

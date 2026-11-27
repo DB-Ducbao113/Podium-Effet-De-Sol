@@ -1,7 +1,6 @@
 import {
   ArrowLeft,
   ArrowRight,
-  BookOpen,
   ChevronRight,
   Eye,
   Gauge,
@@ -27,7 +26,6 @@ import {
 } from "react";
 import { Link } from "react-router-dom";
 import { ErrorBoundary } from "../common/ErrorBoundary";
-import { ENGINEERING_ARTICLES } from "../../data/engineeringArticles";
 import { EngineeringCockpitPanel } from "../engineering/EngineeringCockpitPanel";
 import type { EngineeringLiveTimelineBridge } from "../engineering/EngineeringDisassemblyStage";
 import { EngineeringPartActions } from "../engineering/EngineeringPartActions";
@@ -56,14 +54,17 @@ import { evaluateEngineeringMotionDirector } from "../engineering/engineeringMot
 import {
   evaluateEngineeringStoryTimeline,
   getEngineeringStoryShot,
-  stepEngineeringStoryProgress,
 } from "../engineering/engineeringStoryTimeline";
 import "../engineering/engineeringStudio.css";
 import {
   ENGINEERING_SHOW_SCENES,
   ENGINEERING_SHOW_TOTAL_VH,
+  SHOW_AUTOPLAY_DWELL_SEC,
+  SHOW_AUTOPLAY_TRANSITION_SEC,
+  SHOW_TRANSITION_RATIO,
   evaluateEngineeringShowScroll,
   getShowScrollForScene,
+  stepShowTimelineProgress,
   type EngineeringShowScrollState,
 } from "./engineeringShowScript";
 import { prefetchStormRoute } from "./routePrefetch";
@@ -159,6 +160,7 @@ export function StormEngineeringShow({
     handoffClearSelection: false,
     stageActive: true,
     latestEvaluation: undefined,
+    cameraArc: null,
   });
 
   const [showState, setShowState] = useState<EngineeringShowScrollState>(() =>
@@ -170,6 +172,8 @@ export function StormEngineeringShow({
   const [isAutoPlaying, setIsAutoPlaying] = useState(false);
   const [isCameraSettled, setIsCameraSettled] = useState(true);
   const isCameraSettledRef = useRef(true);
+  const [isProgrammaticJump, setIsProgrammaticJump] = useState(false);
+  const isProgrammaticJumpRef = useRef(false);
   const [hudMode, setHudMode] = useState<EngineeringHudMode>("contextual");
   const [xray, setXray] = useState(false);
   const [cfdFlow, setCfdFlow] = useState(false);
@@ -228,7 +232,7 @@ export function StormEngineeringShow({
       );
       liveBridgeRef.current.latestEvaluation = nextEval;
 
-      const commitKey = `${nextShow.sceneIndex}:${nextShow.phase}:${nextShow.storyStage}`;
+      const commitKey = `${nextShow.sceneIndex}:${nextShow.displayScene.id}:${nextShow.phase}:${nextShow.storyStage}`;
       if (force || commitKey !== lastSceneCommitKeyRef.current) {
         lastSceneCommitKeyRef.current = commitKey;
         setShowState(nextShow);
@@ -252,6 +256,7 @@ export function StormEngineeringShow({
       rawScrollRef.current = clamped;
       targetTimelineRef.current = mapped.timelineProgress;
       liveBridgeRef.current.targetProgress = mapped.timelineProgress;
+      liveBridgeRef.current.cameraArc = mapped.cameraArc;
 
       const runway = runwayRef.current;
       const sticky = stickyRef.current;
@@ -269,6 +274,8 @@ export function StormEngineeringShow({
       }
 
       if (immediate || reducedMotion || stageUnavailable) {
+        isProgrammaticJumpRef.current = false;
+        setIsProgrammaticJump(false);
         smoothedTimelineRef.current = mapped.timelineProgress;
         liveBridgeRef.current.smoothedProgress = mapped.timelineProgress;
         isCameraSettledRef.current = true;
@@ -279,6 +286,8 @@ export function StormEngineeringShow({
         const needsGlide =
           Math.abs(mapped.timelineProgress - smoothedTimelineRef.current) >
           0.008;
+        isProgrammaticJumpRef.current = needsGlide;
+        setIsProgrammaticJump(needsGlide);
         if (needsGlide && isCameraSettledRef.current) {
           isCameraSettledRef.current = false;
           setIsCameraSettled(false);
@@ -398,8 +407,13 @@ export function StormEngineeringShow({
       rawScrollRef.current = rawScroll;
 
       const mapped = evaluateEngineeringShowScroll(rawScroll);
+      if (isProgrammaticJumpRef.current) {
+        isProgrammaticJumpRef.current = false;
+        setIsProgrammaticJump(false);
+      }
       targetTimelineRef.current = mapped.timelineProgress;
       liveBridgeRef.current.targetProgress = mapped.timelineProgress;
+      liveBridgeRef.current.cameraArc = mapped.cameraArc;
 
       commitShowState(mapped, false);
       liveBridgeRef.current.requestRender?.();
@@ -460,12 +474,16 @@ export function StormEngineeringShow({
       const current = smoothedTimelineRef.current;
       const gap = Math.abs(target - current);
       if (gap > 0.0001) {
-        const next = stepEngineeringStoryProgress(current, target, dt, false);
+        const next = stepShowTimelineProgress(current, target, dt, false);
         smoothedTimelineRef.current = next;
         bridge.smoothedProgress = next;
         bridge.latestEvaluation = evaluateEngineeringStoryTimeline(next);
         bridge.requestRender?.();
         const nowSettled = Math.abs(target - next) <= 0.008;
+        if (nowSettled && isProgrammaticJumpRef.current) {
+          isProgrammaticJumpRef.current = false;
+          setIsProgrammaticJump(false);
+        }
         if (nowSettled !== isCameraSettledRef.current) {
           isCameraSettledRef.current = nowSettled;
           setIsCameraSettled(nowSettled);
@@ -476,6 +494,10 @@ export function StormEngineeringShow({
         bridge.smoothedProgress = target;
         bridge.latestEvaluation = evaluateEngineeringStoryTimeline(target);
         bridge.requestRender?.();
+        if (isProgrammaticJumpRef.current) {
+          isProgrammaticJumpRef.current = false;
+          setIsProgrammaticJump(false);
+        }
         if (!isCameraSettledRef.current) {
           isCameraSettledRef.current = true;
           setIsCameraSettled(true);
@@ -598,6 +620,7 @@ export function StormEngineeringShow({
                 : "LOCKED";
       }
     };
+    bridge.requestRender?.();
 
     return () => {
       if (rafId) window.cancelAnimationFrame(rafId);
@@ -636,8 +659,8 @@ export function StormEngineeringShow({
       const currentState = evaluateEngineeringShowScroll(rawScrollRef.current);
       const sceneSeg = 1 / ENGINEERING_SHOW_SCENES.length;
       const ratePerSec = currentState.isResting
-        ? (sceneSeg * 0.52) / 2.6
-        : (sceneSeg * 0.48) / 1.35;
+        ? (sceneSeg * (1 - SHOW_TRANSITION_RATIO)) / SHOW_AUTOPLAY_DWELL_SEC
+        : (sceneSeg * SHOW_TRANSITION_RATIO) / SHOW_AUTOPLAY_TRANSITION_SEC;
 
       const nextRaw = Math.min(1, rawScrollRef.current + ratePerSec * dtSec);
       const { runwayTopDoc, maxTravel } = scrollMetricsRef.current;
@@ -691,7 +714,10 @@ export function StormEngineeringShow({
       isCockpitInspectorVisible(evaluation.chapter.id, selectedPartId));
   const isHudMinimized = hudMode === "minimized" && !selectedPart;
 
-  const activeScene = showState.scene;
+  const activeScene = showState.displayScene;
+  const effectiveStorySide = showCockpitInspector
+    ? "right"
+    : activeScene.storySide;
   const displayTitle = selectedPart
     ? selectedPart.label[lang]
     : activeScene.title[lang];
@@ -704,7 +730,7 @@ export function StormEngineeringShow({
   const effectiveStoryStage =
     selectedPart !== null
       ? "visible"
-      : !isCameraSettled
+      : isProgrammaticJump && !isCameraSettled
         ? "hidden"
         : showState.storyStage;
 
@@ -719,6 +745,7 @@ export function StormEngineeringShow({
       data-show-resting={effectiveResting ? "true" : "false"}
       data-show-settled={isCameraSettled ? "true" : "false"}
       data-story-stage={effectiveStoryStage}
+      data-story-side={effectiveStorySide}
       data-timeline-progress={showState.timelineProgress.toFixed(4)}
     >
       <section
@@ -792,6 +819,8 @@ export function StormEngineeringShow({
                 <EngineeringDisassemblyStage
                   evaluation={evaluation}
                   liveBridgeRef={liveBridgeRef}
+                  storySide={effectiveStorySide}
+                  hasLeftPanel={showCockpitInspector}
                   xray={xray}
                   cfdFlow={cfdFlow}
                   reducedMotion={reducedMotion}
@@ -919,6 +948,7 @@ export function StormEngineeringShow({
           <div
             className="peds-eng-hud sp-eng-show-hud"
             data-hud-mode={hudMode}
+            data-story-side={effectiveStorySide}
             data-camera-transit={
               !showState.isResting && hudMode === "contextual"
                 ? "true"
@@ -928,6 +958,7 @@ export function StormEngineeringShow({
             <header
               className={`peds-eng-copy sp-eng-story-stage ${isHudMinimized ? "peds-eng-copy--minimized" : ""}`}
               data-story-stage={effectiveStoryStage}
+              data-story-side={effectiveStorySide}
             >
               <div
                 key={`meta-${activeScene.id}`}
@@ -1351,35 +1382,6 @@ export function StormEngineeringShow({
                   </button>
                 </div>
               </div>
-
-              <nav
-                className="sp-eng-articles-bar"
-                aria-label={
-                  isVi
-                    ? "Chuyên đề kỹ thuật chuyên sâu"
-                    : "Engineering deep-dive articles"
-                }
-              >
-                {ENGINEERING_ARTICLES.map((article) => (
-                  <Link
-                    key={article.slug}
-                    to={`/engineering/${article.slug}`}
-                    className="sp-eng-article-chip"
-                    onMouseEnter={() =>
-                      prefetchStormRoute("engineering-article")
-                    }
-                    onFocus={() => prefetchStormRoute("engineering-article")}
-                  >
-                    <BookOpen size={11} aria-hidden="true" />
-                    <span>{article.title[lang]}</span>
-                  </Link>
-                ))}
-                <Link to="/about" className="sp-eng-article-chip">
-                  <span>
-                    {isVi ? "Giới thiệu & Bản quyền" : "About & Provenance"}
-                  </span>
-                </Link>
-              </nav>
 
               <p className="peds-eng-credit">
                 {isVi

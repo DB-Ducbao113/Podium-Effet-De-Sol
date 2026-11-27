@@ -83,6 +83,12 @@ export interface EngineeringLiveTimelineBridge {
   handoffClearSelection: boolean;
   stageActive: boolean;
   latestEvaluation?: EngineeringStoryEvaluation;
+  /** Optional direct scene-to-scene camera arc for curated 12-scene show transitions. */
+  cameraArc?: {
+    readonly fromProgress: number;
+    readonly toProgress: number;
+    readonly progress: number;
+  } | null;
   onControlModeChange?: (mode: EngineeringControlMode) => void;
   onEffectiveProgressSync?: (progress: number) => void;
   onStageActiveChange?: (active: boolean) => void;
@@ -141,6 +147,10 @@ function syncBridgeAfterStep(
 export interface EngineeringDisassemblyStageProps {
   readonly evaluation: EngineeringStoryEvaluation;
   readonly liveBridgeRef?: MutableRefObject<EngineeringLiveTimelineBridge>;
+  /** Desktop side-rail position of the story card; shifts 3D camera safe framing to the opposite side. */
+  readonly storySide?: "left" | "right";
+  /** True when a secondary left-side panel (e.g. Cockpit Inspector) is visible on Desktop. */
+  readonly hasLeftPanel?: boolean;
   readonly xray: boolean;
   readonly cfdFlow?: boolean;
   readonly reducedMotion: boolean;
@@ -1008,6 +1018,7 @@ function DisassemblySceneRig({
   const lastLightKeyRef = useRef<string>("");
   const lastTrajectoryProgressRef = useRef<number>(-1);
   const lastCameraKeyRef = useRef<string>("");
+  const cameraInitializedRef = useRef<boolean>(false);
   const prevMaterialStateRef = useRef<{
     xray: boolean;
     selectedPartId: string | null;
@@ -1276,9 +1287,7 @@ function DisassemblySceneRig({
                 ? mesh.material
                 : [mesh.material];
 
-              const cloneForPart = (
-                sourceMat: THREE.Material,
-              ): THREE.Material => {
+              const cloneForPart = (sourceMat: THREE.Material): THREE.Material => {
                 const hit = partClonedMaterials.get(sourceMat);
                 if (hit) return hit;
 
@@ -1548,6 +1557,44 @@ function DisassemblySceneRig({
         );
       };
 
+      const showArc = bridge?.cameraArc;
+      if (
+        showArc &&
+        !reducedMotion &&
+        Math.abs(showArc.toProgress - showArc.fromProgress) > 1e-5
+      ) {
+        const fromEval = evaluateEngineeringStoryTimeline(showArc.fromProgress);
+        const toEval = evaluateEngineeringStoryTimeline(showArc.toProgress);
+        const fromAnchor = fromEval.cameraRoute.from;
+        const toAnchor = toEval.cameraRoute.from;
+        const fromOk = fitAnchor(fromAnchor, _fromFrameScratch);
+        const toOk = fitAnchor(toAnchor, _toFrameScratch);
+        if (fromOk && toOk) {
+          getSceneBounds().getBoundingSphere(_sceneSphereScratch);
+          interpolateEngineeringCameraFramesInto(
+            _fromFrameScratch,
+            _toFrameScratch,
+            showArc.progress,
+            _sceneSphereScratch.radius * 0.08,
+            _interpFrameScratch,
+            {
+              lateralArc: _sceneSphereScratch.radius * 0.1,
+              easing: "cinematic-dolly",
+            },
+          );
+          const arcEased = evaluateCameraEasing(
+            showArc.progress,
+            "cinematic-dolly",
+          );
+          return {
+            position: _interpFrameScratch.position,
+            target: _interpFrameScratch.target,
+            distance: _interpFrameScratch.distance,
+            fov: THREE.MathUtils.lerp(fromAnchor.fov, toAnchor.fov, arcEased),
+          };
+        }
+      }
+
       const { route, arcLiftMultiplier, lateralArcMultiplier, easingProfile } =
         cueAtP.cameraCue;
       // Fast single-anchor path during hold windows and exact anchor boundaries
@@ -1609,12 +1656,15 @@ function DisassemblySceneRig({
     };
 
     const prevMode = sceneControlRef.current.mode;
+    const arcKey = bridge?.cameraArc
+      ? `${bridge.cameraArc.fromProgress.toFixed(4)}:${bridge.cameraArc.toProgress.toFixed(4)}:${bridge.cameraArc.progress.toFixed(4)}`
+      : "none";
+    const expectedCameraKey = `${incomingProgress.toFixed(5)}:${arcKey}:${size.width}x${size.height}:${safeRegion.left.toFixed(3)}:${safeRegion.top.toFixed(3)}:${safeRegion.width.toFixed(3)}:${safeRegion.height.toFixed(3)}:${xray ? 1 : 0}:${sceneReady ? 1 : 0}`;
     const isTimelineSteady =
       prevMode === "timeline" &&
       Math.abs(incomingProgress - sceneControlRef.current.effectiveProgress) <
-        1e-6 &&
-      lastCameraKeyRef.current ===
-        `${incomingProgress.toFixed(5)}:${size.width}x${size.height}:${safeRegion.left.toFixed(3)}:${safeRegion.top.toFixed(3)}:${safeRegion.width.toFixed(3)}:${safeRegion.height.toFixed(3)}:${xray ? 1 : 0}:${sceneReady ? 1 : 0}`;
+      1e-6 &&
+      lastCameraKeyRef.current === expectedCameraKey;
 
     if (!isTimelineSteady) {
       const clearanceBox =
@@ -1638,6 +1688,7 @@ function DisassemblySceneRig({
       datumGridOpacityRef.current = activeCue.environmentCue.datumGridOpacity;
       cfdZoneOpacitiesRef.current = resolveCfdZoneOpacities(activeCue.parts);
 
+      let cameraStillDamping = false;
       if (stepOut.cameraOwnedByTimeline && stepOut.camera) {
         // Ensure part poses strictly reflect stepOut.effectiveProgress (especially during handoff)
         if (stepOut.state.mode === "handoff" || prevMode === "handoff") {
@@ -1647,21 +1698,66 @@ function DisassemblySceneRig({
             stepOut.isolationBlend,
           );
         }
-        cam.position.copy(stepOut.camera.position);
-        if (
-          cam instanceof THREE.PerspectiveCamera &&
-          Math.abs(cam.fov - stepOut.camera.fov) > 0.01
-        ) {
-          cam.fov = stepOut.camera.fov;
-          cam.updateProjectionMatrix();
+        const snapCamera =
+          reducedMotion ||
+          !cameraInitializedRef.current ||
+          stepOut.state.mode === "handoff";
+        if (snapCamera) {
+          cam.position.copy(stepOut.camera.position);
+          lastCameraTargetRef.current.copy(stepOut.camera.target);
+          if (
+            cam instanceof THREE.PerspectiveCamera &&
+            Math.abs(cam.fov - stepOut.camera.fov) > 0.01
+          ) {
+            cam.fov = stepOut.camera.fov;
+            cam.updateProjectionMatrix();
+          }
+          cameraInitializedRef.current = true;
+        } else {
+          const camAlpha = 1 - Math.exp(-6.5 * Math.min(delta, 0.064));
+          cam.position.lerp(stepOut.camera.position, camAlpha);
+          lastCameraTargetRef.current.lerp(stepOut.camera.target, camAlpha);
+          if (cam instanceof THREE.PerspectiveCamera) {
+            const nextFov = THREE.MathUtils.lerp(
+              cam.fov,
+              stepOut.camera.fov,
+              camAlpha,
+            );
+            if (Math.abs(cam.fov - nextFov) > 0.005) {
+              cam.fov = nextFov;
+              cam.updateProjectionMatrix();
+            }
+          }
+          const posDistSq = cam.position.distanceToSquared(
+            stepOut.camera.position,
+          );
+          const tgtDistSq = lastCameraTargetRef.current.distanceToSquared(
+            stepOut.camera.target,
+          );
+          const fovDiff =
+            cam instanceof THREE.PerspectiveCamera
+              ? Math.abs(cam.fov - stepOut.camera.fov)
+              : 0;
+          if (posDistSq < 1e-5 && tgtDistSq < 1e-5 && fovDiff < 0.02) {
+            cam.position.copy(stepOut.camera.position);
+            lastCameraTargetRef.current.copy(stepOut.camera.target);
+            if (
+              cam instanceof THREE.PerspectiveCamera &&
+              Math.abs(cam.fov - stepOut.camera.fov) > 0.001
+            ) {
+              cam.fov = stepOut.camera.fov;
+              cam.updateProjectionMatrix();
+            }
+          } else {
+            cameraStillDamping = true;
+          }
         }
-        lastCameraTargetRef.current.copy(stepOut.camera.target);
         if (controlsRef.current) {
-          controlsRef.current.target.copy(stepOut.camera.target);
+          controlsRef.current.target.copy(lastCameraTargetRef.current);
         }
-        cam.lookAt(stepOut.camera.target);
-        if (stepOut.state.mode === "timeline") {
-          lastCameraKeyRef.current = `${stepOut.effectiveProgress.toFixed(5)}:${size.width}x${size.height}:${safeRegion.left.toFixed(3)}:${safeRegion.top.toFixed(3)}:${safeRegion.width.toFixed(3)}:${safeRegion.height.toFixed(3)}:${xray ? 1 : 0}:${sceneReady ? 1 : 0}`;
+        cam.lookAt(lastCameraTargetRef.current);
+        if (stepOut.state.mode === "timeline" && !cameraStillDamping) {
+          lastCameraKeyRef.current = `${stepOut.effectiveProgress.toFixed(5)}:${arcKey}:${size.width}x${size.height}:${safeRegion.left.toFixed(3)}:${safeRegion.top.toFixed(3)}:${safeRegion.width.toFixed(3)}:${safeRegion.height.toFixed(3)}:${xray ? 1 : 0}:${sceneReady ? 1 : 0}`;
         } else {
           lastCameraKeyRef.current = "";
         }
@@ -1704,11 +1800,12 @@ function DisassemblySceneRig({
       );
 
       // Keep advancing frames under frameloop="demand" only while an active
-      // transition (handoff glide, isolation camera lerp, or residual timeline delta)
-      // is still in motion; once settled, GPU drops to 0 idle frames.
+      // transition (handoff glide, isolation camera lerp, camera damping, or
+      // residual timeline delta) is still in motion; once settled, GPU drops to 0 idle frames.
       if (
         stepOut.state.mode === "handoff" ||
         isolationCameraAnimatingRef.current ||
+        cameraStillDamping ||
         Math.abs(incomingProgress - stepOut.effectiveProgress) > 1e-6
       ) {
         invalidate();
@@ -2159,7 +2256,7 @@ function EngineeringDisassemblyStageImpl(
 ) {
   const stageRef = useRef<HTMLDivElement>(null);
   const pointerDownPosRef = useRef<{ x: number; y: number } | null>(null);
-  const { onEnterOrbit, onSelectPart, onUnavailable } = props;
+  const { onEnterOrbit, onSelectPart, onUnavailable, storySide, hasLeftPanel } = props;
   const [webglSupported] = useState(() => canCreateWebGLContext());
   const [safeRegion, setSafeRegion] = useState(DEFAULT_SAFE_VIEW_REGION);
   const [stageInViewport, setStageInViewport] = useState(true);
@@ -2212,36 +2309,55 @@ function EngineeringDisassemblyStageImpl(
       const copyRect = copy?.getBoundingClientRect();
       const dockRect = dock?.getBoundingClientRect();
       const mobile = window.matchMedia("(max-width: 860px)").matches;
-      // Keep the 3D F1 car strictly centered horizontally (centerX = 0.50) across the stage!
-      const marginX = mobile ? 0.06 : 0.06;
-      const left = marginX;
-      const top = THREE.MathUtils.clamp(
-        ((copyRect?.bottom ?? stageRect.top + stageRect.height * 0.18) -
-          stageRect.top +
-          10) /
-          stageRect.height,
-        mobile ? 0.22 : 0.17,
-        mobile ? 0.34 : 0.24,
-      );
       const bottom = THREE.MathUtils.clamp(
         (stageRect.bottom -
           (dockRect?.top ?? stageRect.bottom - stageRect.height * 0.14) +
           16) /
-          stageRect.height,
+        stageRect.height,
         mobile ? 0.17 : 0.13,
         mobile ? 0.32 : 0.2,
       );
-      const next: EngineeringSafeViewRegion = {
-        left,
-        top,
-        width: 1 - marginX * 2,
-        height: Math.max(0.36, 1 - top - bottom),
-      };
+
+      let next: EngineeringSafeViewRegion;
+      if (!mobile && storySide) {
+        // Desktop side-rail editorial layout: full vertical height for the 3D F1 car,
+        // framed smoothly on the opposite horizontal side of the active story card.
+        const top = 0.09;
+        const left =
+          storySide === "left"
+            ? 0.31
+            : hasLeftPanel
+              ? 0.23
+              : 0.05;
+        const rightMargin = storySide === "right" ? 0.33 : 0.06;
+        next = {
+          left,
+          top,
+          width: Math.max(0.42, 1 - left - rightMargin),
+          height: Math.max(0.55, 1 - top - bottom),
+        };
+      } else {
+        const marginX = 0.06;
+        const top = THREE.MathUtils.clamp(
+          ((copyRect?.bottom ?? stageRect.top + stageRect.height * 0.2) -
+            stageRect.top +
+            14) /
+          stageRect.height,
+          mobile ? 0.25 : 0.2,
+          mobile ? 0.38 : 0.29,
+        );
+        next = {
+          left: marginX,
+          top,
+          width: 1 - marginX * 2,
+          height: Math.max(0.36, 1 - top - bottom),
+        };
+      }
       setSafeRegion((current) =>
         Math.abs(current.left - next.left) < 0.015 &&
-        Math.abs(current.top - next.top) < 0.015 &&
-        Math.abs(current.width - next.width) < 0.015 &&
-        Math.abs(current.height - next.height) < 0.015
+          Math.abs(current.top - next.top) < 0.015 &&
+          Math.abs(current.width - next.width) < 0.015 &&
+          Math.abs(current.height - next.height) < 0.015
           ? current
           : next,
       );
@@ -2270,7 +2386,7 @@ function EngineeringDisassemblyStageImpl(
       observer?.disconnect();
       window.removeEventListener("resize", scheduleMeasure);
     };
-  }, []);
+  }, [storySide, hasLeftPanel]);
 
   useEffect(() => {
     if (!webglSupported) {

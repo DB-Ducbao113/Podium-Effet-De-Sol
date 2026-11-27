@@ -149,7 +149,7 @@
   opacity: 1;
 }
 
-.peds-eng-hud[data-camera-transit="true"] .peds-eng-copy:not(:hover) {
+.peds-eng-hud[data-camera-transit="true"] .peds-eng-copy:not(.sp-eng-story-stage):not(:hover) {
   opacity: 0.88;
 }
 
