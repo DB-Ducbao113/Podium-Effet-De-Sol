@@ -117,7 +117,7 @@ function drawMetallicWordmark(
   ctx.save();
   ctx.translate(cx, cy);
   if (options?.rotationRad) ctx.rotate(options.rotationRad);
-  ctx.font = `${options?.italic ? "italic " : ""}900 ${Math.round(fontPx)}px "Space Grotesk", "Inter", "Segoe UI", Arial, sans-serif`;
+  ctx.font = `${options?.italic ? "italic " : ""}900 ${Math.round(fontPx)}px "Inter", "Segoe UI", Arial, sans-serif`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   if ("letterSpacing" in ctx && options?.letterSpacing) {
