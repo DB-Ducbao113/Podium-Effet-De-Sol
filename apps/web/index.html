@@ -47,7 +47,22 @@
 
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root" style="min-height:100dvh;background:#070b14">
+      <picture>
+        <source
+          type="image/avif"
+          srcset="/images/storm/storm-hero-960.avif 960w, /images/storm/storm-hero-1600.avif 1600w, /images/storm/storm-hero-2048.avif 2048w"
+          sizes="100vw"
+        />
+        <img
+          src="/images/storm/storm-hero-1600.webp"
+          alt=""
+          fetchpriority="high"
+          decoding="async"
+          style="position:fixed;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;background:#070b14"
+        />
+      </picture>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
