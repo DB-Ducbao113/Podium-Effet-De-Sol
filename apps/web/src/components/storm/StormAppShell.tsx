@@ -13,7 +13,8 @@ import {
   useNavigate,
   useSearchParams,
 } from "react-router-dom";
-import { getRaceResults, getStandings } from "../../data/championship";
+import { getRaceResults } from "../../data/championship/results";
+import { getStandings } from "../../data/championship/standings";
 import { getCompleteRaceClassification } from "../../data/championship/raceClassificationHelper";
 import { DRIVERS_DATA } from "../../data/drivers";
 import { getEngineeringArticle } from "../../data/engineeringArticles";

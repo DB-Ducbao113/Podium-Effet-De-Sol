@@ -7,8 +7,6 @@ import {
 } from '../../types';
 import { CALENDAR_2026 } from './calendar';
 import { TEAMS_DATA } from '../teams';
-import openF1SessionResults from './openF1SessionResults2026.json';
-import { GrandPrixQualifyingData } from '../../types/qualifying';
 import { BASELINE_CUTOFF_BY_SEASON } from './baselineCutoff';
 
 /**
@@ -62,33 +60,12 @@ function sanitizeSprintEntries(entries: DetailedRaceResultEntry[]): DetailedRace
 
 const liveSprintSource: OpenF1SprintSource = {
   getFinishedSprintEntries(season: SeasonYear, round: number) {
-    // The committed snapshot only covers 2026.
+    // All 6 2026 sprint weekends (R2, R4, R5, R9, R11, R17) are already baked
+    // into the R21 baseline. Avoiding a static import of the 684 KB OpenF1
+    // session snapshot here keeps it strictly inside the lazy Results chunk.
     if (season !== 2026) return null;
-    // Historical sprint points are already included in the static standings
-    // baseline. Keep their classifications available to Results, but never
-    // feed them back into standings where they would be counted twice.
     if (round < BASELINE_CUTOFF_BY_SEASON[season].completedRounds) return null;
-    const data = (openF1SessionResults as { qualifying: Record<number, GrandPrixQualifyingData> })
-      .qualifying?.[round];
-    const session = data?.sessions?.sprint;
-    if (!session || session.status !== 'finished' || !Array.isArray(session.entries)) {
-      return null;
-    }
-    return session.entries
-      .filter((entry) => entry && Number.isFinite(entry.position))
-      .map((entry) => ({
-        position: entry.position,
-        driverId: entry.driverId,
-        driverName: entry.driverName,
-        driverCode: entry.driverCode,
-        driverNumber: entry.driverNumber,
-        teamId: isKnownTeam(entry.teamId) ? entry.teamId : UNKNOWN_TEAM_ID,
-        teamName: entry.teamName,
-        laps: entry.lapsCompleted || 0,
-        status: entry.status || 'Finished',
-        timeOrGap: entry.bestLapTime || '',
-        points: sprintPointsForPosition(entry.position, entry.sprintPoints),
-      }));
+    return null;
   },
 };
 

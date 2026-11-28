@@ -3,7 +3,6 @@ import { useLocation } from "react-router-dom";
 import { useReducedMotion } from "../../hooks/useReducedMotion";
 import { useNavigationStore } from "../../store/useNavigationStore";
 import { CinematicStartGantryIntro } from "../engineering-lab/CinematicStartGantryIntro";
-import "./F1StartLightsPreloader.css";
 import {
   initialIntroDecision,
   INTRO_COMPLETE_EVENT,

@@ -222,8 +222,14 @@ export function useNavFitMode({
       );
     };
 
-    measureMirror();
-    recompute();
+    // Defer initial DOM measurement to the next animation frame so React's
+    // initial commit never triggers a synchronous forced reflow.
+    let rafId = 0;
+    if (typeof window !== "undefined" && typeof window.requestAnimationFrame === "function") {
+      rafId = window.requestAnimationFrame(() => recompute());
+    } else {
+      recompute();
+    }
 
     let observer: ResizeObserver | null = null;
     if (typeof ResizeObserver !== "undefined") {
@@ -238,13 +244,15 @@ export function useNavFitMode({
     if (typeof document !== "undefined" && document.fonts?.ready) {
       document.fonts.ready.then(() => {
         if (!active) return;
-        measureMirror();
         recompute();
       });
     }
 
     return () => {
       active = false;
+      if (rafId && typeof window !== "undefined" && typeof window.cancelAnimationFrame === "function") {
+        window.cancelAnimationFrame(rafId);
+      }
       observer?.disconnect();
     };
   }, [

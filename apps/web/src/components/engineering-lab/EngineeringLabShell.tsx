@@ -1,8 +1,3 @@
-import "@fontsource-variable/space-grotesk/wght.css";
-import "@fontsource/be-vietnam-pro/400.css";
-import "@fontsource/be-vietnam-pro/500.css";
-import "@fontsource/be-vietnam-pro/600.css";
-import "@fontsource/be-vietnam-pro/700.css";
 import { Sparkles } from "lucide-react";
 import React, { useEffect, type ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
