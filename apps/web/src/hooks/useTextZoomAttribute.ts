@@ -33,14 +33,21 @@ export function useTextZoomAttribute() {
       'position:absolute;left:-9999px;top:0;width:1rem;height:1rem;pointer-events:none;visibility:hidden';
     document.body.appendChild(probe);
     const root = document.documentElement;
+    let lastLevel: TextZoomLevel | null = null;
     const update = () => {
-      root.dataset.textZoom = resolveTextZoomLevel(root, probe);
+      const next = resolveTextZoomLevel(root, probe);
+      if (next !== lastLevel) {
+        lastLevel = next;
+        root.dataset.textZoom = next;
+      }
     };
     const observer = new ResizeObserver(update);
     observer.observe(probe);
-    window.addEventListener('resize', update);
-    update();
+    window.addEventListener('resize', update, { passive: true });
+    // Defer initial read to next animation frame so appendChild(probe) never forces synchronous layout.
+    const rafId = window.requestAnimationFrame(update);
     return () => {
+      window.cancelAnimationFrame(rafId);
       observer.disconnect();
       window.removeEventListener('resize', update);
       probe.remove();

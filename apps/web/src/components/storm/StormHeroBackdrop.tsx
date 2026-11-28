@@ -111,8 +111,17 @@ export function StormHeroBackdrop({
     let isMobile = false;
 
     const updateCover = () => {
-      cw = par.clientWidth || stage.clientWidth || 1440;
-      ch = par.clientHeight || stage.clientHeight || 900;
+      // Read viewport dimensions directly (stage is fixed 100vw x 100dvh) to avoid forced reflow.
+      cw =
+        (typeof window !== "undefined" ? window.innerWidth : 0) ||
+        par.clientWidth ||
+        stage.clientWidth ||
+        1440;
+      ch =
+        (typeof window !== "undefined" ? window.innerHeight : 0) ||
+        par.clientHeight ||
+        stage.clientHeight ||
+        900;
       isMobile = typeof window !== "undefined" && window.innerWidth <= 860;
       const px = isMobile ? 0.72 : 0.5;
       const py = 0.5;
