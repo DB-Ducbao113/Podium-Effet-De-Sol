@@ -123,7 +123,9 @@ export const App: React.FC = () => {
     ) {
       return;
     }
-    window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+    if (window.scrollY > 0) {
+      window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+    }
   }, [location.hash, location.pathname, location.search]);
 
   if (isEngineeringLabSandboxPath(location.pathname)) {

@@ -113,48 +113,57 @@ export function useSlidingGlassLens({
       }
     }
 
-    const nextRect = measureActiveItemRect(rail, activeId);
-    lastSizeRef.current = { w: rail.offsetWidth, h: rail.offsetHeight };
+    let initRafId = 0;
+    const syncInitialOrAnimate = () => {
+      const nextRect = measureActiveItemRect(rail, activeId);
+      lastSizeRef.current = { w: rail.offsetWidth, h: rail.offsetHeight };
 
-    animRef.current?.cancel();
-    animRef.current = null;
+      animRef.current?.cancel();
+      animRef.current = null;
 
-    applyRestingGeometry(lens, nextRect);
+      applyRestingGeometry(lens, nextRect);
 
-    if (
-      hasMountedRef.current &&
-      !reducedMotion &&
-      startRect !== null &&
-      nextRect !== null &&
-      (Math.abs(startRect.x - nextRect.x) > 0.5 ||
-        Math.abs(startRect.y - nextRect.y) > 0.5 ||
-        Math.abs(startRect.w - nextRect.w) > 0.5) &&
-      typeof lens.animate === "function"
-    ) {
-      const scaleX = startRect.w / nextRect.w;
-      const anim = lens.animate(
-        [
+      if (
+        hasMountedRef.current &&
+        !reducedMotion &&
+        startRect !== null &&
+        nextRect !== null &&
+        (Math.abs(startRect.x - nextRect.x) > 0.5 ||
+          Math.abs(startRect.y - nextRect.y) > 0.5 ||
+          Math.abs(startRect.w - nextRect.w) > 0.5) &&
+        typeof lens.animate === "function"
+      ) {
+        const scaleX = startRect.w / nextRect.w;
+        const anim = lens.animate(
+          [
+            {
+              transform: `translate3d(${startRect.x}px, ${startRect.y}px, 0) scaleX(${scaleX})`,
+            },
+            {
+              transform: `translate3d(${nextRect.x}px, ${nextRect.y}px, 0) scaleX(1)`,
+            },
+          ],
           {
-            transform: `translate3d(${startRect.x}px, ${startRect.y}px, 0) scaleX(${scaleX})`,
+            duration: 380,
+            easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+            fill: "none",
           },
-          {
-            transform: `translate3d(${nextRect.x}px, ${nextRect.y}px, 0) scaleX(1)`,
-          },
-        ],
-        {
-          duration: 380,
-          easing: "cubic-bezier(0.22, 1, 0.36, 1)",
-          fill: "none",
-        },
-      );
-      anim.addEventListener("finish", () => {
-        if (animRef.current === anim) animRef.current = null;
-      });
-      animRef.current = anim;
+        );
+        anim.addEventListener("finish", () => {
+          if (animRef.current === anim) animRef.current = null;
+        });
+        animRef.current = anim;
+      }
+
+      prevRectRef.current = nextRect;
+      hasMountedRef.current = true;
+    };
+
+    if (!hasMountedRef.current && typeof window !== "undefined" && typeof window.requestAnimationFrame === "function") {
+      initRafId = window.requestAnimationFrame(syncInitialOrAnimate);
+    } else {
+      syncInitialOrAnimate();
     }
-
-    prevRectRef.current = nextRect;
-    hasMountedRef.current = true;
 
     const snapSilently = () => {
       animRef.current?.cancel();
@@ -197,6 +206,9 @@ export function useSlidingGlassLens({
 
     return () => {
       mounted = false;
+      if (initRafId && typeof window !== "undefined" && typeof window.cancelAnimationFrame === "function") {
+        window.cancelAnimationFrame(initRafId);
+      }
       observer?.disconnect();
       animRef.current?.cancel();
       animRef.current = null;

@@ -57,7 +57,6 @@ export function StormHeroBackdrop({
   const avifSrcSet = `/images/storm/${baseId}-960.avif 960w, /images/storm/${baseId}-1600.avif 1600w, /images/storm/${baseId}-2048.avif 2048w`;
   const webpSrcSet = `/images/storm/${baseId}-960.webp 960w, /images/storm/${baseId}-1600.webp 1600w, /images/storm/${baseId}-2048.webp 2048w`;
   const fallbackWebp = `/images/storm/${baseId}-1600.webp`;
-  const reflWebp = `/images/storm/${baseId}-960.webp`;
 
   const stageRef = useRef<HTMLDivElement>(null);
   const parRef = useRef<HTMLDivElement>(null);
@@ -445,19 +444,23 @@ export function StormHeroBackdrop({
           <div ref={pulseRef} className="sp-storm-rain-pulse" />
         ) : null}
 
-        <div ref={reflWrapRef} className="sp-storm-refl-wrap">
-          <div className="sp-storm-refl-drift">
-            {canShowReflection ? (
-              <img
-                ref={reflImgRef}
-                src={reflWebp}
-                alt=""
-                loading="lazy"
-                decoding="async"
-              />
-            ) : null}
+        {canShowReflection ? (
+          <div ref={reflWrapRef} className="sp-storm-refl-wrap">
+            <div className="sp-storm-refl-drift">
+              <picture>
+                <source type="image/avif" srcSet={avifSrcSet} sizes="100vw" />
+                <source type="image/webp" srcSet={webpSrcSet} sizes="100vw" />
+                <img
+                  ref={reflImgRef}
+                  src={fallbackWebp}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                />
+              </picture>
+            </div>
           </div>
-        </div>
+        ) : null}
       </div>
       <div className="sp-storm-vignette" />
     </div>
