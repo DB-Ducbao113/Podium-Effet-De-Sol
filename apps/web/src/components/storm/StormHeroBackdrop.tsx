@@ -432,7 +432,7 @@ export function StormHeroBackdrop({
                 string,
                 string
               >)}
-              decoding={isHero ? "sync" : "async"}
+              decoding="async"
               onError={() => setImgFailed(true)}
             />
           </picture>

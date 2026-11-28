@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useNextRace } from "../../home/useNextRace";
-import { getRaceResults, getStandings } from "../../../data/championship";
+import { getRaceResults } from "../../../data/championship/results";
+import { getStandings } from "../../../data/championship/standings";
 import { useReducedMotion } from "../../../hooks/useReducedMotion";
 import { useNavigationStore } from "../../../store/useNavigationStore";
 import { prefetchStormRoute } from "../routePrefetch";
