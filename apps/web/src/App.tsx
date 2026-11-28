@@ -6,15 +6,13 @@ import {
   DesignPrototypeRedirect,
   StormAppShell,
 } from "./components/storm/StormAppShell";
+import StormHomeRoute from "./components/storm/routes/StormHomeRoute";
 import { StormNotFound } from "./components/storm/StormNotFound";
 import { isEngineeringLabSandboxPath } from "./components/engineering-lab/engineeringLabRoutes";
 import { useTextZoomAttribute } from "./hooks/useTextZoomAttribute";
 import { useChampionshipStore } from "./store/useChampionshipStore";
 import { useTimezoneStore } from "./store/useTimezoneStore";
 
-const StormHomeRoute = lazy(
-  () => import("./components/storm/routes/StormHomeRoute"),
-);
 const StormSeasonRoute = lazy(() =>
   import("./components/storm/routes/StormSeasonRoute").then((m) => ({
     default: m.StormSeasonRoute,
