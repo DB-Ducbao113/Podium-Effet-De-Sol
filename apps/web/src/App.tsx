@@ -93,8 +93,9 @@ export const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const onSeasonPage = location.pathname.startsWith("/season/");
-    if (!onSeasonPage) return;
+    const onAutoSyncPage =
+      location.pathname === "/" || location.pathname.startsWith("/season/");
+    if (!onAutoSyncPage) return;
 
     const refreshIfDue = () => {
       if (
@@ -107,10 +108,15 @@ export const App: React.FC = () => {
       void syncSeasonData(2026);
     };
 
-    refreshIfDue();
+    // On Homepage, defer background sync by 3.5s so initial paint/LCP/TBT stay untouched.
+    const initialTimer =
+      location.pathname === "/"
+        ? window.setTimeout(refreshIfDue, 3500)
+        : (refreshIfDue(), null);
     const interval = window.setInterval(refreshIfDue, 15 * 60_000);
     document.addEventListener("visibilitychange", refreshIfDue);
     return () => {
+      if (initialTimer !== null) window.clearTimeout(initialTimer);
       window.clearInterval(interval);
       document.removeEventListener("visibilitychange", refreshIfDue);
     };

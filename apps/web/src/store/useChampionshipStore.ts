@@ -15,6 +15,7 @@ import {
   clearStaleSyncReview,
 } from '../services/f1DataService';
 import { recalculateStandingsFromRaces } from '../services/standingsEngine';
+import { syncOpenF1LiveRaces2026 } from '../services/openF1LiveSync';
 import { BASELINE_CUTOFF_BY_SEASON } from '../data/championship/baselineCutoff';
 import {
   DRIVER_STANDINGS_2024,
@@ -132,7 +133,16 @@ export const useChampionshipStore = create<ChampionshipStoreState>((set, get) =>
       });
 
       const currentRaces = get().detailedResults[season] || [];
-      const syncRes = await syncF1SeasonData(season, currentRaces);
+      let syncRes = await syncF1SeasonData(season, currentRaces);
+
+      // When Jolpica is rate-limited (429) or unavailable on 2026, seamlessly
+      // fall back to live OpenF1 session_result classification via Cloudflare Edge Cache.
+      if (!syncRes.success && season === 2026) {
+        const openF1Res = await syncOpenF1LiveRaces2026(currentRaces);
+        if (openF1Res.success) {
+          syncRes = openF1Res;
+        }
+      }
 
       // Failed or partial sync: keep the saved snapshot untouched (no persist),
       // only report the status honestly.
