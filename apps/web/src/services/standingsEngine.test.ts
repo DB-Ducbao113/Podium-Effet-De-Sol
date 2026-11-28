@@ -19,7 +19,7 @@ describe('2026 Standings and Podiums Integrity', () => {
 
     expect(antonelli).toBeDefined();
     expect(antonelli!.podiums).toBeGreaterThan(0);
-    expect(antonelli!.podiums).toBe(14);
+    expect(antonelli!.podiums).toBe(16);
 
     expect(russell).toBeDefined();
     expect(russell!.podiums).toBeGreaterThan(0);
@@ -27,7 +27,7 @@ describe('2026 Standings and Podiums Integrity', () => {
 
     expect(hamilton).toBeDefined();
     expect(hamilton!.podiums).toBeGreaterThan(0);
-    expect(hamilton!.podiums).toBe(6);
+    expect(hamilton!.podiums).toBe(7);
   });
 
   it('should have positive podium counts for top constructors in 2026', () => {
@@ -37,15 +37,15 @@ describe('2026 Standings and Podiums Integrity', () => {
 
     expect(mercedes).toBeDefined();
     expect(mercedes!.podiums).toBeGreaterThan(0);
-    expect(mercedes!.podiums).toBe(22);
+    expect(mercedes!.podiums).toBe(24);
 
     expect(ferrari).toBeDefined();
     expect(ferrari!.podiums).toBeGreaterThan(0);
-    expect(ferrari!.podiums).toBe(11);
+    expect(ferrari!.podiums).toBe(13);
 
     expect(mclaren).toBeDefined();
     expect(mclaren!.podiums).toBeGreaterThan(0);
-    expect(mclaren!.podiums).toBe(7);
+    expect(mclaren!.podiums).toBe(10);
   });
 
   it('only increments podiums for races beyond the baseline cutoff', () => {
@@ -99,9 +99,13 @@ describe('2026 Standings and Podiums Integrity', () => {
       ],
     };
 
+    const russellBase = DRIVER_STANDINGS_2026.find((d) => d.driverId === 'russell')!.podiums;
+    const antonelliBase = DRIVER_STANDINGS_2026.find((d) => d.driverId === 'antonelli')!.podiums;
+    const mercedesBase = CONSTRUCTOR_STANDINGS_2026.find((c) => c.teamId === 'mercedes')!.podiums;
+
     const res = recalculateStandingsFromRaces(
       2026,
-      [sampleRound18Race],
+      [{ ...sampleRound18Race, id: 'race-2026-r22-qatar', round: 22 }],
       DRIVER_STANDINGS_2026,
       CONSTRUCTOR_STANDINGS_2026,
     );
@@ -110,21 +114,21 @@ describe('2026 Standings and Podiums Integrity', () => {
     const antonelli = res.drivers.find((d) => d.driverId === 'antonelli');
     const mercedes = res.constructors.find((c) => c.teamId === 'mercedes');
 
-    // Russell got P1 (podium +1) -> 8 + 1 = 9
-    expect(russell!.podiums).toBe(9);
-    // Antonelli got P3 (podium +1) -> 14 + 1 = 15
-    expect(antonelli!.podiums).toBe(15);
-    // Mercedes got P1 & P3 (podiums +2) -> 22 + 2 = 24
-    expect(mercedes!.podiums).toBe(24);
+    // Russell got P1 (podium +1)
+    expect(russell!.podiums).toBe(russellBase + 1);
+    // Antonelli got P3 (podium +1)
+    expect(antonelli!.podiums).toBe(antonelliBase + 1);
+    // Mercedes got P1 & P3 (podiums +2)
+    expect(mercedes!.podiums).toBe(mercedesBase + 2);
 
     const baselineRound = recalculateStandingsFromRaces(
       2026,
-      [{ ...sampleRound18Race, id: 'race-2026-r17-singapore', round: 17 }],
+      [{ ...sampleRound18Race, id: 'race-2026-r21-las-vegas', round: 21 }],
       DRIVER_STANDINGS_2026,
       CONSTRUCTOR_STANDINGS_2026,
     );
-    expect(baselineRound.drivers.find((d) => d.driverId === 'antonelli')?.podiums).toBe(14);
-    expect(baselineRound.constructors.find((c) => c.teamId === 'mercedes')?.podiums).toBe(22);
+    expect(baselineRound.drivers.find((d) => d.driverId === 'antonelli')?.podiums).toBe(antonelliBase);
+    expect(baselineRound.constructors.find((c) => c.teamId === 'mercedes')?.podiums).toBe(mercedesBase);
   });
 
   it('recalculateStandingsFromRaces should defensively recover podiums if base has 0 podiums', () => {

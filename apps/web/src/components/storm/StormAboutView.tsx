@@ -93,13 +93,13 @@ export function StormAboutView({ lang }: StormAboutViewProps) {
       title: "FP-04 RB (Peter Kiss / PETERKISSDESIGN)",
       items: isVi
         ? [
-            "Showroom 2 khoang 11 đội 2026 (Desktop & Mobile LOD) và Show Kỹ thuật 47 cụm linh kiện sử dụng mô hình nghiên cứu khái niệm FP-04 RB nén Meshopt + WebP, kèm mô hình Pit Crew hoạt ảnh có khớp xương.",
-            "Đây là mô hình nghiên cứu minh họa phi thương mại, không phải bản vẽ CAD chính thức của FIA hay bất kỳ đội đua nào; phân phối qua kiểm soát same-origin (CORP: same-origin, noindex).",
-          ]
+          "Showroom 2 khoang 11 đội 2026 (Desktop & Mobile LOD) và Show Kỹ thuật 47 cụm linh kiện sử dụng mô hình nghiên cứu khái niệm FP-04 RB nén Meshopt + WebP, kèm mô hình Pit Crew hoạt ảnh có khớp xương.",
+          "Đây là mô hình nghiên cứu minh họa phi thương mại, không phải bản vẽ CAD chính thức của FIA hay bất kỳ đội đua nào; phân phối qua kiểm soát same-origin (CORP: same-origin, noindex).",
+        ]
         : [
-            "The 2-bay 11-team 2026 Showroom (Desktop & Mobile LOD) and 47-assembly Engineering Show use Meshopt + WebP compressed FP-04 RB study meshes alongside a rigged Pit Crew mesh.",
-            "Provided strictly as a non-commercial illustrative engineering study (not official FIA or team CAD) and gated behind same-origin delivery (CORP: same-origin, noindex).",
-          ],
+          "The 2-bay 11-team 2026 Showroom (Desktop & Mobile LOD) and 47-assembly Engineering Show use Meshopt + WebP compressed FP-04 RB study meshes alongside a rigged Pit Crew mesh.",
+          "Provided strictly as a non-commercial illustrative engineering study (not official FIA or team CAD) and gated behind same-origin delivery (CORP: same-origin, noindex).",
+        ],
     },
     {
       badge: "ILLUSTRATIVE ART",
@@ -108,13 +108,13 @@ export function StormAboutView({ lang }: StormAboutViewProps) {
         : "Storm Midnight Plates & 2024–2026 Editorial Concepts",
       items: isVi
         ? [
-            "Ảnh nền đêm mưa Storm (AVIF/WebP đa độ phân giải), chân dung tay đua, hình minh họa xe 2024–2026 và thẻ Mini Race đều là hình minh họa biên tập tạo bởi AI, được kiểm toàn vẹn SHA-256 qua 4 manifest xuất bản.",
-            "Không phải ảnh chụp báo chí chính thức của Formula 1/FIA, không khẳng định quyền thương hiệu hay bản quyền tài trợ của các đội đua.",
-          ]
+          "Ảnh nền đêm mưa Storm (AVIF/WebP đa độ phân giải), chân dung tay đua, hình minh họa xe 2024–2026 và thẻ Mini Race đều là hình minh họa biên tập tạo bởi AI, được kiểm toàn vẹn SHA-256 qua 4 manifest xuất bản.",
+          "Không phải ảnh chụp báo chí chính thức của Formula 1/FIA, không khẳng định quyền thương hiệu hay bản quyền tài trợ của các đội đua.",
+        ]
         : [
-            "Storm Midnight rain plates (responsive AVIF/WebP), driver portraits, 2024–2026 car illustrations, and Mini Race graphics are AI-generated illustrative editorial concepts verified byte-for-byte via 4 SHA-256 manifests.",
-            "They are not official Formula 1/FIA press photographs and assert no trademark, sponsor, livery, or publicity-rights clearance.",
-          ],
+          "Storm Midnight rain plates (responsive AVIF/WebP), driver portraits, 2024–2026 car illustrations, and Mini Race graphics are AI-generated illustrative editorial concepts verified byte-for-byte via 4 SHA-256 manifests.",
+          "They are not official Formula 1/FIA press photographs and assert no trademark, sponsor, livery, or publicity-rights clearance.",
+        ],
     },
     {
       badge: "TYPOGRAPHY & BRAND",
@@ -123,11 +123,11 @@ export function StormAboutView({ lang }: StormAboutViewProps) {
         : "Self-Hosted Fonts & PODIUM EDS Identity",
       items: isVi
         ? [
-            "Toàn bộ phông chữ (Cormorant Garamond, Instrument Serif, Manrope, Nunito, DM Sans, IBM Plex Mono) được tự lưu trữ nội bộ qua Fontsource (giấy phép SIL Open Font License 1.1) với hỗ trợ dấu tiếng Việt đầy đủ — không gọi font ngoài.",
+            "Toàn bộ phông chữ (Chakra Petch, Cormorant Garamond, Be Vietnam Pro, Corinthia, Dancing Script, IBM Plex Mono) được tự lưu trữ nội bộ qua Fontsource (giấy phép SIL Open Font License 1.1) với hỗ trợ dấu tiếng Việt đầy đủ — không gọi font ngoài.",
             "Biểu trưng nguyên bản PODIUM · Effet de Sol và các sơ đồ mạch kỹ thuật SVG gốc thuộc bộ tài sản biên tập của dự án.",
           ]
         : [
-            "All typefaces (Cormorant Garamond, Instrument Serif, Manrope, Nunito, DM Sans, IBM Plex Mono) are self-hosted via Fontsource under SIL Open Font License 1.1 with full Vietnamese glyph support — zero external font requests.",
+            "All typefaces (Chakra Petch, Cormorant Garamond, Be Vietnam Pro, Corinthia, Dancing Script, IBM Plex Mono) are self-hosted via Fontsource under SIL Open Font License 1.1 with full Vietnamese glyph support — zero external font requests.",
             "The canonical PODIUM · Effet de Sol brand mark and original technical SVG diagrams are project-authored editorial assets.",
           ],
     },
@@ -138,59 +138,59 @@ export function StormAboutView({ lang }: StormAboutViewProps) {
         : "Retired Legacy Assets Transparency",
       items: isVi
         ? [
-            "Nhằm tinh gọn dung lượng và thống nhất trải nghiệm Storm Midnight, các tài nguyên cũ (video drift trang chủ, video hầm showroom và các mô hình 3D thế hệ trước, bao gồm Formula 1 2022 Car — CC BY 4.0 của Luis Adrian V.) đã được rút khỏi bản phát hành công khai.",
-          ]
+          "Nhằm tinh gọn dung lượng và thống nhất trải nghiệm Storm Midnight, các tài nguyên cũ (video drift trang chủ, video hầm showroom và các mô hình 3D thế hệ trước, bao gồm Formula 1 2022 Car — CC BY 4.0 của Luis Adrian V.) đã được rút khỏi bản phát hành công khai.",
+        ]
         : [
-            "To streamline payloads and unify the Storm Midnight experience, legacy homepage drift video, showroom tunnel clips, and prior-generation 3D models (including the CC BY 4.0 2022 car study by Luis Adrian V.) have been permanently retired from public builds.",
-          ],
+          "To streamline payloads and unify the Storm Midnight experience, legacy homepage drift video, showroom tunnel clips, and prior-generation 3D models (including the CC BY 4.0 2022 car study by Luis Adrian V.) have been permanently retired from public builds.",
+        ],
     },
   ];
 
   const privacyAndTechRows = isVi
     ? [
-        [
-          "Quyền riêng tư & Theo dõi",
-          "Không tài khoản người dùng · Không cookie quảng cáo · Không yêu cầu quyền định vị GPS / Camera / Micro",
-        ],
-        [
-          "Bảo mật trình duyệt",
-          "Content-Security-Policy chặt chẽ (connect-src 'self'), Permissions-Policy chặn geolocation/camera/microphone",
-        ],
-        [
-          "Tối ưu hiệu năng 3D",
-          "0 byte thư viện Three.js tải trên các trang dữ liệu; chỉ nạp động 3D khi mở Showroom hoặc Kỹ thuật; tối đa 1 ngữ cảnh WebGL",
-        ],
-        [
-          "Khả năng tiếp cận",
-          "Hỗ trợ điều hướng bàn phím đầy đủ (Tab/Enter/Escape), phóng chữ tới 400%, chế độ giảm chuyển động và màn hình dự phòng khi tắt WebGL",
-        ],
-        [
-          "Tuyên bố pháp lý",
-          "F1, FORMULA ONE, FORMULA 1, FIA FORMULA ONE WORLD CHAMPIONSHIP, GRAND PRIX và các tên đội/tay đua là thương hiệu thuộc chủ sở hữu tương ứng, chỉ được dùng cho mục đích biên tập phi thương mại.",
-        ],
-      ]
+      [
+        "Quyền riêng tư & Theo dõi",
+        "Không tài khoản người dùng · Không cookie quảng cáo · Không yêu cầu quyền định vị GPS / Camera / Micro",
+      ],
+      [
+        "Bảo mật trình duyệt",
+        "Content-Security-Policy chặt chẽ (connect-src 'self'), Permissions-Policy chặn geolocation/camera/microphone",
+      ],
+      [
+        "Tối ưu hiệu năng 3D",
+        "0 byte thư viện Three.js tải trên các trang dữ liệu; chỉ nạp động 3D khi mở Showroom hoặc Kỹ thuật; tối đa 1 ngữ cảnh WebGL",
+      ],
+      [
+        "Khả năng tiếp cận",
+        "Hỗ trợ điều hướng bàn phím đầy đủ (Tab/Enter/Escape), phóng chữ tới 400%, chế độ giảm chuyển động và màn hình dự phòng khi tắt WebGL",
+      ],
+      [
+        "Tuyên bố pháp lý",
+        "F1, FORMULA ONE, FORMULA 1, FIA FORMULA ONE WORLD CHAMPIONSHIP, GRAND PRIX và các tên đội/tay đua là thương hiệu thuộc chủ sở hữu tương ứng, chỉ được dùng cho mục đích biên tập phi thương mại.",
+      ],
+    ]
     : [
-        [
-          "Privacy & Telemetry",
-          "Zero user accounts · Zero tracking cookies · Zero GPS / Camera / Microphone permission prompts",
-        ],
-        [
-          "Browser Hardening",
-          "Strict Content-Security-Policy (connect-src 'self') & Permissions-Policy blocking geolocation, camera, and microphone",
-        ],
-        [
-          "3D & Bundle Discipline",
-          "0 bytes of Three.js downloaded on data/editorial pages; lazy-loaded strictly on Showroom & Engineering with <= 1 active WebGL context",
-        ],
-        [
-          "Accessibility",
-          "Full keyboard navigation (Tab/Enter/Escape), 400% text-zoom reflow, prefers-reduced-motion compliance, and WebGL-disabled fallbacks",
-        ],
-        [
-          "Legal Disclaimer",
-          "F1, FORMULA ONE, FORMULA 1, FIA FORMULA ONE WORLD CHAMPIONSHIP, GRAND PRIX, and constructor/driver names belong to their respective trademark holders and are referenced strictly for non-commercial editorial purposes.",
-        ],
-      ];
+      [
+        "Privacy & Telemetry",
+        "Zero user accounts · Zero tracking cookies · Zero GPS / Camera / Microphone permission prompts",
+      ],
+      [
+        "Browser Hardening",
+        "Strict Content-Security-Policy (connect-src 'self') & Permissions-Policy blocking geolocation, camera, and microphone",
+      ],
+      [
+        "3D & Bundle Discipline",
+        "0 bytes of Three.js downloaded on data/editorial pages; lazy-loaded strictly on Showroom & Engineering with <= 1 active WebGL context",
+      ],
+      [
+        "Accessibility",
+        "Full keyboard navigation (Tab/Enter/Escape), 400% text-zoom reflow, prefers-reduced-motion compliance, and WebGL-disabled fallbacks",
+      ],
+      [
+        "Legal Disclaimer",
+        "F1, FORMULA ONE, FORMULA 1, FIA FORMULA ONE WORLD CHAMPIONSHIP, GRAND PRIX, and constructor/driver names belong to their respective trademark holders and are referenced strictly for non-commercial editorial purposes.",
+      ],
+    ];
 
   return (
     <div className="sp-lg-wrap sp-about-page" data-prototype-tab="about">

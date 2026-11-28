@@ -49,19 +49,17 @@ const contrast = (a: string, b: string) => {
 };
 
 describe('PEDS typography contract', () => {
-  it('ships the prototype faces plus the Vietnamese-covered expressive families, all self-hosted', () => {
+  it('ships the unified Motorsport Tech & Luxury Editorial faces, all self-hosted with full Vietnamese coverage', () => {
     const packageJson = JSON.parse(read('package.json')) as {
       dependencies: Record<string, string>;
     };
-    // Prototype trio: Instrument Serif editorial, Manrope display/UI, DM Sans body.
-    expect(packageJson.dependencies['@fontsource/instrument-serif']).toBeTruthy();
-    expect(packageJson.dependencies['@fontsource-variable/manrope']).toBeTruthy();
-    expect(packageJson.dependencies['@fontsource-variable/dm-sans']).toBeTruthy();
-    // Expressive + Vietnamese-covered faces retained for VI and signature accents.
+    // Unified Motorsport Tech trio (EN & VI): Chakra Petch display, Cormorant Garamond editorial, Be Vietnam Pro UI/body.
+    expect(packageJson.dependencies['@fontsource/chakra-petch']).toBeTruthy();
+    expect(packageJson.dependencies['@fontsource/be-vietnam-pro']).toBeTruthy();
+    expect(packageJson.dependencies['@fontsource-variable/cormorant-garamond']).toBeTruthy();
+    // Expressive + telemetry faces.
     expect(packageJson.dependencies['@fontsource/corinthia']).toBeTruthy();
     expect(packageJson.dependencies['@fontsource-variable/dancing-script']).toBeTruthy();
-    expect(packageJson.dependencies['@fontsource-variable/cormorant-garamond']).toBeTruthy();
-    expect(packageJson.dependencies['@fontsource-variable/nunito']).toBeTruthy();
     expect(packageJson.dependencies['@fontsource/ibm-plex-mono']).toBe('5.3.0');
     // Withdrawn faces must not creep back into canonical production routes.
     expect(packageJson.dependencies['@fontsource-variable/quicksand']).toBeUndefined();
@@ -69,9 +67,6 @@ describe('PEDS typography contract', () => {
     expect(packageJson.dependencies['@fontsource-variable/lora']).toBeUndefined();
     expect(packageJson.dependencies['@fontsource-variable/plus-jakarta-sans']).toBeUndefined();
     expect(packageJson.dependencies['@fontsource/barlow-condensed']).toBeUndefined();
-    // Scoped /__engineering-lab* sandbox faces (self-hosted, never imported in src/main.tsx or src/index.css).
-    expect(packageJson.dependencies['@fontsource/be-vietnam-pro']).toBeTruthy();
-    expect(packageJson.dependencies['@fontsource-variable/space-grotesk']).toBeTruthy();
     expect(sandboxText).not.toMatch(/fonts\.(googleapis|gstatic)\.com/i);
 
     const main = read('src/main.tsx');
@@ -79,24 +74,27 @@ describe('PEDS typography contract', () => {
       '@fontsource/corinthia/400.css',
       '@fontsource/corinthia/700.css',
       '@fontsource-variable/dancing-script/wght.css',
-      '@fontsource-variable/manrope/wght.css',
-      '@fontsource-variable/dm-sans/wght.css',
-      '@fontsource/instrument-serif/400.css',
-      '@fontsource/instrument-serif/400-italic.css',
+      '@fontsource/chakra-petch/400.css',
+      '@fontsource/chakra-petch/500.css',
+      '@fontsource/chakra-petch/600.css',
+      '@fontsource/chakra-petch/700.css',
+      '@fontsource/be-vietnam-pro/400.css',
+      '@fontsource/be-vietnam-pro/500.css',
+      '@fontsource/be-vietnam-pro/600.css',
+      '@fontsource/be-vietnam-pro/700.css',
       '@fontsource-variable/cormorant-garamond/wght.css',
       '@fontsource-variable/cormorant-garamond/wght-italic.css',
-      '@fontsource-variable/nunito/wght.css',
       '@fontsource/ibm-plex-mono/500.css',
       '@fontsource/ibm-plex-mono/600.css',
     ]) {
       expect(main).toContain(entry);
     }
-    expect(main).not.toMatch(/barlow-condensed|space-grotesk|plus-jakarta-sans|quicksand|lexend|lora|be-vietnam-pro/i);
+    expect(main).not.toMatch(/barlow-condensed|space-grotesk|plus-jakarta-sans|quicksand|lexend|lora/i);
   });
 
   it('uses one token contract without remote fonts or legacy aliases', () => {
     expect(allText).not.toMatch(/fonts\.(googleapis|gstatic)\.com/i);
-    expect(allText).not.toMatch(/\b(?:Barlow Condensed|Space Grotesk|Plus Jakarta Sans|Quicksand|Lexend|Lora|Be Vietnam Pro)\b/i);
+    expect(allText).not.toMatch(/\b(?:Barlow Condensed|Space Grotesk|Plus Jakarta Sans|Quicksand|Lexend|Lora)\b/i);
     // Canvas textures intentionally paint with system UI faces; only stylesheet
     // font declarations are bound by the family contract.
     expect(cssText).not.toMatch(
@@ -104,19 +102,18 @@ describe('PEDS typography contract', () => {
     );
     expect(allText).not.toMatch(/--font-(?:display|body|mono)\b/);
 
-    // EN reads with the prototype faces.
+    // Unified EN & VI tokens: Chakra Petch display, Cormorant Garamond editorial, Be Vietnam Pro UI/body.
     expect(globalCss).toContain("--peds-font-script: 'Corinthia'");
     expect(globalCss).toContain("--peds-font-hand: 'Dancing Script Variable'");
-    expect(globalCss).toContain("--peds-font-editorial: 'Instrument Serif'");
-    expect(globalCss).toContain("--peds-font-display: 'Manrope Variable'");
-    expect(globalCss).toContain("--peds-font-ui: 'Manrope Variable'");
-    expect(globalCss).toContain("--peds-font-body: 'DM Sans Variable'");
+    expect(globalCss).toContain("--peds-font-editorial: 'Cormorant Garamond Variable'");
+    expect(globalCss).toContain("--peds-font-display: 'Chakra Petch'");
+    expect(globalCss).toContain("--peds-font-ui: 'Be Vietnam Pro'");
+    expect(globalCss).toContain("--peds-font-body: 'Be Vietnam Pro'");
     expect(globalCss).toContain("--peds-font-mono: 'IBM Plex Mono'");
 
-    // Instrument Serif and DM Sans carry no Vietnamese subset, so VI is scoped to
-    // fully-covered editorial/technical faces to avoid mixing typefaces inside a single word.
+    // VI scope stays aligned with full-Vietnamese-covered faces (zero Windows Georgia fallback).
     expect(globalCss).toMatch(
-      /html\[lang='vi'\]\s*\{[^}]*--peds-font-editorial:\s*'Cormorant Garamond Variable'[^}]*--peds-font-body:\s*'Manrope Variable'/s,
+      /html\[lang='vi'\]\s*\{[^}]*--peds-font-editorial:\s*'Cormorant Garamond Variable'[^}]*--peds-font-display:\s*'Chakra Petch'[^}]*--peds-font-body:\s*'Be Vietnam Pro'/s,
     );
   });
 

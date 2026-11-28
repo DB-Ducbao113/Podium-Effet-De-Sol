@@ -1,5 +1,6 @@
 import React, { Suspense, lazy, useEffect } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { LiquidGlassFilterDefs } from "./components/common/LiquidGlassFilterDefs";
 import { RouteSeo } from "./components/seo/RouteSeo";
 import {
   DesignPrototypeRedirect,
@@ -127,19 +128,23 @@ export const App: React.FC = () => {
 
   if (isEngineeringLabSandboxPath(location.pathname)) {
     return (
-      <Suspense fallback={<StormSuspenseFallback />}>
-        <Routes>
-          <Route
-            path="/__engineering-lab/*"
-            element={<EngineeringLabSandboxRoutes />}
-          />
-        </Routes>
-      </Suspense>
+      <>
+        <LiquidGlassFilterDefs />
+        <Suspense fallback={<StormSuspenseFallback />}>
+          <Routes>
+            <Route
+              path="/__engineering-lab/*"
+              element={<EngineeringLabSandboxRoutes />}
+            />
+          </Routes>
+        </Suspense>
+      </>
     );
   }
 
   return (
     <>
+      <LiquidGlassFilterDefs />
       <RouteSeo />
       <StormAppShell>
         <Suspense fallback={<StormSuspenseFallback />}>

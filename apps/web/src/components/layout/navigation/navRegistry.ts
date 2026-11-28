@@ -43,10 +43,6 @@ export const LIQUID_NAV_DESTINATIONS: readonly NavDestinationDef[] = [
   {
     id: "results",
     label: { en: "Results", vi: "Kết quả" },
-    compactDesc: {
-      en: "Race and session classifications",
-      vi: "Kết quả từng phiên đua",
-    },
     icon: Flag,
   },
   {
@@ -72,10 +68,6 @@ export const LIQUID_NAV_DESTINATIONS: readonly NavDestinationDef[] = [
   {
     id: "engineering",
     label: { en: "Engineering", vi: "Kỹ thuật" },
-    compactDesc: {
-      en: "Explore the mechanics of performance",
-      vi: "Khám phá kỹ thuật xe đua",
-    },
     icon: Layers,
   },
   {
@@ -86,10 +78,6 @@ export const LIQUID_NAV_DESTINATIONS: readonly NavDestinationDef[] = [
   {
     id: "about",
     label: { en: "About", vi: "Giới thiệu" },
-    compactDesc: {
-      en: "Project manifesto, data sources & 3D provenance",
-      vi: "Tuyên ngôn dự án, nguồn dữ liệu & bản quyền 3D",
-    },
     icon: Info,
   },
 ] as const;

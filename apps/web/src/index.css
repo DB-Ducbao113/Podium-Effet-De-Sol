@@ -79,14 +79,14 @@
 
     --peds-font-script: 'Corinthia', 'Dancing Script Variable', cursive;
     --peds-font-hand: 'Dancing Script Variable', 'Corinthia', cursive;
-    /* Prototype faces (EN): Instrument Serif editorial, Manrope display/UI, DM Sans body.
-       Instrument Serif ships 400 + true italic only, so editorial rules stay at 400. */
-    --peds-font-editorial: 'Instrument Serif', Georgia, 'Times New Roman', serif;
-    --peds-font-display: 'Manrope Variable',
+    /* Unified Motorsport Tech + Luxury Editorial trio (EN & VI, 100% Vietnamese covered):
+       Chakra Petch display, Cormorant Garamond editorial serif, Be Vietnam Pro UI/body. */
+    --peds-font-editorial: 'Cormorant Garamond Variable', 'Palatino Linotype', 'Times New Roman', serif;
+    --peds-font-display: 'Chakra Petch',
       'PEDS Display Fallback', Arial, sans-serif;
-    --peds-font-ui: 'Manrope Variable',
+    --peds-font-ui: 'Be Vietnam Pro',
       'PEDS Display Fallback', Arial, sans-serif;
-    --peds-font-body: 'DM Sans Variable', Arial, sans-serif;
+    --peds-font-body: 'Be Vietnam Pro', Arial, sans-serif;
     --peds-font-mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
 
     --peds-space-1: 0.25rem;
@@ -139,12 +139,12 @@
     --peds-ease-emphasis: cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  /* Instrument Serif, DM Sans, and Windows Georgia carry no Vietnamese stacked-diacritic
-     subset (U+1EA0-U+1EF9), so VI is scoped to fully-covered editorial/technical faces
-     and Vietnamese-safe serif fallbacks (Palatino Linotype / Times New Roman). */
+  /* Keep explicit VI language scope aligned with the full-Vietnamese-covered
+     editorial, display, and UI/body trio (zero Windows Georgia fallback). */
   html[lang='vi'] {
     --peds-font-editorial: 'Cormorant Garamond Variable', 'Palatino Linotype', 'Times New Roman', serif;
-    --peds-font-body: 'Manrope Variable', Arial, sans-serif;
+    --peds-font-display: 'Chakra Petch', 'PEDS Display Fallback', Arial, sans-serif;
+    --peds-font-body: 'Be Vietnam Pro', Arial, sans-serif;
   }
 
   html {

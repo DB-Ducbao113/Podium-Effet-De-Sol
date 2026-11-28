@@ -68,9 +68,9 @@ const redbullBase = CONSTRUCTOR_STANDINGS_2026.find(
 
 function sprintRace(): DetailedRaceResult {
   return {
-    id: "race-2026-r20-test",
+    id: "race-2026-r22-test",
     season: 2026,
-    round: 20,
+    round: 22,
     grandPrix: "Test Grand Prix",
     officialName: "Test Grand Prix 2026",
     circuit: "Test Circuit",
@@ -252,7 +252,7 @@ describe("critical fixes: synthesized data never drives standings", () => {
   });
 
   it("documents the per-season baseline cutoff with source and meaning", () => {
-    expect(BASELINE_CUTOFF_BY_SEASON[2026].completedRounds).toBe(17);
+    expect(BASELINE_CUTOFF_BY_SEASON[2026].completedRounds).toBe(21);
     expect(BASELINE_CUTOFF_BY_SEASON[2026].source.length).toBeGreaterThan(10);
     expect(BASELINE_CUTOFF_BY_SEASON[2026].meaning.length).toBeGreaterThan(10);
     expect(BASELINE_CUTOFF_BY_SEASON[2024].final).toBe(true);

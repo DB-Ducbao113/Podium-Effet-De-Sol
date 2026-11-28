@@ -28,28 +28,29 @@ describe('CSP font delivery contract', () => {
     expect(globalCss).toMatch(
       /--peds-font-hand:\s*'Dancing Script Variable',\s*'Corinthia', cursive;/,
     );
-    // EN prototype faces.
+    // Unified Motorsport Tech + Luxury Editorial faces (100% Vietnamese covered).
     expect(globalCss).toMatch(
-      /--peds-font-editorial:\s*'Instrument Serif', Georgia, 'Times New Roman', serif;/,
+      /--peds-font-editorial:\s*'Cormorant Garamond Variable', 'Palatino Linotype', 'Times New Roman', serif;/,
     );
     expect(globalCss).toMatch(
-      /--peds-font-display:\s*'Manrope Variable',\s*'PEDS Display Fallback', Arial, sans-serif;/,
+      /--peds-font-display:\s*'Chakra Petch',\s*'PEDS Display Fallback', Arial, sans-serif;/,
     );
     expect(globalCss).toMatch(
-      /--peds-font-ui:\s*'Manrope Variable',\s*'PEDS Display Fallback', Arial, sans-serif;/,
+      /--peds-font-ui:\s*'Be Vietnam Pro',\s*'PEDS Display Fallback', Arial, sans-serif;/,
     );
     expect(globalCss).toMatch(
-      /--peds-font-body:\s*'DM Sans Variable', Arial, sans-serif;/,
+      /--peds-font-body:\s*'Be Vietnam Pro', Arial, sans-serif;/,
     );
-    // VI is scoped to fully-covered editorial/technical faces so tone marks never fall back per-glyph.
+    // VI scope stays aligned with full-Vietnamese-covered faces (zero Windows Georgia fallback).
     expect(globalCss).toMatch(
-      /html\[lang='vi'\]\s*\{[^}]*--peds-font-editorial:\s*'Cormorant Garamond Variable', 'Palatino Linotype', 'Times New Roman', serif;[^}]*--peds-font-body:\s*'Manrope Variable', Arial, sans-serif;/s,
+      /html\[lang='vi'\]\s*\{[^}]*--peds-font-editorial:\s*'Cormorant Garamond Variable', 'Palatino Linotype', 'Times New Roman', serif;[^}]*--peds-font-display:\s*'Chakra Petch', 'PEDS Display Fallback', Arial, sans-serif;[^}]*--peds-font-body:\s*'Be Vietnam Pro', Arial, sans-serif;/s,
     );
     // The global sheet itself declares no italic; italic accents live in component
     // styles and are delivered as real self-hosted cuts, never synthesised.
     expect(globalCss).not.toMatch(/font-style\s*:\s*italic/);
-    expect(main).toContain('@fontsource/instrument-serif/400-italic.css');
+    expect(main).toContain('@fontsource/chakra-petch/700.css');
+    expect(main).toContain('@fontsource/be-vietnam-pro/400.css');
     expect(main).toContain('@fontsource-variable/cormorant-garamond/wght-italic.css');
-    expect(globalCss).not.toMatch(/\b(?:Barlow Condensed|Space Grotesk|Plus Jakarta Sans|Quicksand|Lexend|Lora|Be Vietnam Pro)\b/i);
+    expect(globalCss).not.toMatch(/\b(?:Barlow Condensed|Space Grotesk|Plus Jakarta Sans|Quicksand|Lexend|Lora)\b/i);
   });
 });

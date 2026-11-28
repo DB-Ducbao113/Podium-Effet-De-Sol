@@ -9,8 +9,32 @@ import { DetailedRaceResult, DetailedRaceResultEntry, TeamId } from '../types';
 import { recalculateStandingsFromRaces } from './standingsEngine';
 import { syncF1SeasonData, reconcileSeasonRaces } from './f1DataService';
 import { BASELINE_CUTOFF_BY_SEASON } from '../data/championship/baselineCutoff';
+import openF1SessionResults from '../data/championship/openF1SessionResults2026.json';
+import type { GrandPrixQualifyingData } from '../types/qualifying';
 
 const emptySource: OpenF1SprintSource = { getFinishedSprintEntries: () => null };
+const r17SprintSource: OpenF1SprintSource = {
+  getFinishedSprintEntries: (season, round) => {
+    if (season !== 2026 || round !== 17) return null;
+    const session = (
+      openF1SessionResults as unknown as { qualifying: Record<number, GrandPrixQualifyingData> }
+    ).qualifying?.[17]?.sessions?.sprint;
+    if (!session || session.status !== 'finished') return null;
+    return session.entries.map((entry) => ({
+      position: entry.position,
+      driverId: entry.driverId,
+      driverName: entry.driverName,
+      driverCode: entry.driverCode,
+      driverNumber: entry.driverNumber,
+      teamId: entry.teamId,
+      teamName: entry.teamName,
+      laps: entry.lapsCompleted || 0,
+      status: entry.status || 'Finished',
+      timeOrGap: entry.bestLapTime || '',
+      points: sprintPointsForPosition(entry.position, entry.sprintPoints),
+    }));
+  },
+};
 const firstRoundAfterBaseline = BASELINE_CUTOFF_BY_SEASON[2026].completedRounds + 1;
 
 function totals(results: DetailedRaceResult[]) {
@@ -62,7 +86,7 @@ describe('sprint standings: no sprint yet', () => {
 
 describe('sprint standings: sprint completed before main race', () => {
   it('2. reflects sprint points in both championships without waiting for the race', () => {
-    const attached = attachOpenF1SprintResults({ 2024: [], 2025: [], 2026: [] });
+    const attached = attachOpenF1SprintResults({ 2024: [], 2025: [], 2026: [] }, r17SprintSource);
     const r17 = attached[2026].find((r) => r.round === 17);
     expect(r17).toBeDefined();
     expect(r17!.status).toBe('scheduled');
@@ -90,7 +114,7 @@ describe('sprint standings: sprint completed before main race', () => {
   });
 
   it('3. reads the sprint race, never sprint qualifying', () => {
-    const attached = attachOpenF1SprintResults({ 2024: [], 2025: [], 2026: [] });
+    const attached = attachOpenF1SprintResults({ 2024: [], 2025: [], 2026: [] }, r17SprintSource);
     const res = totals(attached[2026]);
     // Sprint-qualifying order (VER, RUS, ...) differs from the sprint race
     // (VER, HAM, ...): Hamilton must gain 7, Russell must gain nothing.
@@ -99,12 +123,15 @@ describe('sprint standings: sprint completed before main race', () => {
   });
 
   it('4. refreshing twice never accumulates points', () => {
-    const once = attachOpenF1SprintResults({ 2024: [], 2025: [], 2026: [] });
-    const twice = attachOpenF1SprintResults({
-      2024: [],
-      2025: [],
-      2026: once[2026],
-    });
+    const once = attachOpenF1SprintResults({ 2024: [], 2025: [], 2026: [] }, r17SprintSource);
+    const twice = attachOpenF1SprintResults(
+      {
+        2024: [],
+        2025: [],
+        2026: once[2026],
+      },
+      r17SprintSource,
+    );
     const a = totals(once[2026]);
     const b = totals(twice[2026]);
     expect(JSON.stringify(b.drivers)).toBe(JSON.stringify(a.drivers));
@@ -112,7 +139,7 @@ describe('sprint standings: sprint completed before main race', () => {
   });
 
   it('8. credits constructors from their eligible drivers exactly once', () => {
-    const attached = attachOpenF1SprintResults({ 2024: [], 2025: [], 2026: [] });
+    const attached = attachOpenF1SprintResults({ 2024: [], 2025: [], 2026: [] }, r17SprintSource);
     const res = totals(attached[2026]);
     // Ferrari: HAM 7 + LEC 6 = 13; Red Bull: VER 8; Mercedes: ANT 5.
     expect(teamPoints(res, 'ferrari')).toBe(baseTeamPoints('ferrari') + 13);
@@ -321,7 +348,7 @@ describe('sprint standings: FIA countback for ties', () => {
       {
         id: 'r1',
         season: 2026,
-        round: 18,
+        round: firstRoundAfterBaseline,
         grandPrix: 'GP',
         officialName: 'GP',
         circuit: 'C',

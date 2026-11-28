@@ -126,7 +126,7 @@ describe("Vietnamese (VI) Language Switching & UTF-8 Integrity Contract", () => 
       "utf8",
     );
     expect(luxCss).toMatch(
-      /\.peds-eng-lux-root\[lang="vi"\]\s*\{[^}]*--eng-lux-display:\s*"Be Vietnam Pro"/s,
+      /\.peds-eng-lux-root\[lang="vi"\]\s*\{[^}]*--eng-lux-display:\s*"Chakra Petch",\s*"Be Vietnam Pro"/s,
     );
 
     const schematicHtml = renderToStaticMarkup(

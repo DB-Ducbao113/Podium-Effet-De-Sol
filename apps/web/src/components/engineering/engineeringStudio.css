@@ -283,7 +283,8 @@
   border: 1px solid rgba(226, 232, 240, 0.18);
   border-left: 2px solid #e1251b;
   background: rgba(8, 11, 18, 0.88);
-  backdrop-filter: blur(10px);
+  backdrop-filter: var(--peds-lg-backdrop-pill);
+  -webkit-backdrop-filter: var(--peds-lg-backdrop-pill);
   box-shadow:
     0 14px 32px rgba(0, 0, 0, 0.56),
     inset 0 1px 0 rgba(255, 255, 255, 0.06);
@@ -312,7 +313,8 @@
   border: 1px solid rgba(226, 232, 240, 0.2);
   border-left: 2px solid #e1251b;
   background: rgba(12, 18, 30, 0.82);
-  backdrop-filter: blur(8px);
+  backdrop-filter: var(--peds-lg-backdrop-pill);
+  -webkit-backdrop-filter: var(--peds-lg-backdrop-pill);
 }
 
 .peds-eng-phase-pill {
@@ -631,7 +633,8 @@
 
 .peds-eng-parts-dialog::backdrop {
   background: rgba(3, 5, 8, 0.68);
-  backdrop-filter: blur(3px);
+  backdrop-filter: var(--peds-lg-backdrop-subtle);
+  -webkit-backdrop-filter: var(--peds-lg-backdrop-subtle);
 }
 
 .peds-eng-parts-panel {
@@ -889,7 +892,8 @@
   border-radius: 999px;
   border: 1px solid rgba(226, 232, 240, 0.14);
   background: rgba(8, 11, 18, 0.88);
-  backdrop-filter: blur(14px);
+  backdrop-filter: var(--peds-lg-backdrop-panel);
+  -webkit-backdrop-filter: var(--peds-lg-backdrop-panel);
   box-shadow: 0 20px 44px rgba(0, 0, 0, 0.56);
 }
 
@@ -1170,7 +1174,8 @@
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.14);
   background: rgba(12, 15, 22, 0.84);
-  backdrop-filter: blur(14px);
+  backdrop-filter: var(--peds-lg-backdrop-panel);
+  -webkit-backdrop-filter: var(--peds-lg-backdrop-panel);
   display: flex;
   flex-direction: column;
   gap: 10px;

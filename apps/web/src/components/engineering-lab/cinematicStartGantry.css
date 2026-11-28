@@ -14,9 +14,9 @@
   --gantry-storm-orange: #ff4a18;
   --gantry-fia-red: #ff3b2f;
   --gantry-font-display: var(--eng-lux-display,
-      var(--peds-font-display, "Manrope Variable", Arial, sans-serif));
+      var(--peds-font-display, "Chakra Petch", Arial, sans-serif));
   --gantry-font-body: var(--eng-lux-body,
-      var(--peds-font-body, "DM Sans Variable", Arial, sans-serif));
+      var(--peds-font-body, "Be Vietnam Pro", Arial, sans-serif));
   --gantry-font-mono: var(--eng-lux-mono,
       var(--peds-font-mono, "IBM Plex Mono", Consolas, monospace));
   --gantry-ease: cubic-bezier(0.16, 1, 0.3, 1);
@@ -38,9 +38,9 @@
 
 .peds-gantry-intro[lang="vi"] {
   --gantry-font-display: var(--eng-lux-display,
-      "Manrope Variable", Arial, sans-serif);
+      "Chakra Petch", Arial, sans-serif);
   --gantry-font-body: var(--eng-lux-body,
-      "Manrope Variable", Arial, sans-serif);
+      "Be Vietnam Pro", Arial, sans-serif);
 }
 
 .peds-gantry-intro *,

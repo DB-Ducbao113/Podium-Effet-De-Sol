@@ -165,11 +165,13 @@
   gap: 0.45rem;
   padding: 0.35rem 0.65rem;
   border-radius: 999px;
-  background: rgba(11, 14, 19, 0.84);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: var(--peds-lg-surface-pill);
+  border: 1px solid rgba(255, 255, 255, 0.26);
   font-size: 0.74rem;
   color: #dce4f0;
-  backdrop-filter: blur(8px);
+  backdrop-filter: var(--peds-lg-backdrop-pill);
+  -webkit-backdrop-filter: var(--peds-lg-backdrop-pill);
+  box-shadow: var(--peds-lg-rim-pill);
 }
 
 .peds-garage-preset-bar {

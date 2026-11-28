@@ -7,21 +7,25 @@
   --peds-nav-border: rgba(255, 255, 255, 0.35);
   --peds-nav-border-soft: rgba(255, 255, 255, 0.2);
   --peds-nav-sheen: linear-gradient(
-    150deg,
-    rgba(255, 255, 255, 0.14),
-    rgba(255, 255, 255, 0.05) 60%,
-    rgba(255, 255, 255, 0.03)
+    152deg,
+    rgba(255, 255, 255, 0.22) 0%,
+    rgba(255, 255, 255, 0.05) 38%,
+    rgba(114, 224, 255, 0.06) 100%
   );
-  --peds-nav-base: rgba(11, 17, 28, 0.42);
-  --peds-nav-base-light: rgba(11, 17, 28, 0.8);
-  --peds-nav-backdrop: saturate(170%) blur(18px) brightness(1.06);
-  --peds-nav-depth:
-    inset 0 1px 0 rgba(255, 255, 255, 0.45),
-    0 18px 40px rgba(0, 0, 0, 0.35);
-  --peds-nav-lens-bg: rgba(255, 255, 255, 0.22);
-  --peds-nav-lens-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.38);
-  --peds-nav-hover-bg: rgba(255, 255, 255, 0.11);
-  --peds-nav-drawer-bg: rgba(17, 28, 43, 0.9);
+  --peds-nav-base: rgba(10, 19, 34, 0.24);
+  --peds-nav-base-light: rgba(11, 17, 28, 0.72);
+  --peds-nav-backdrop: var(--peds-lg-backdrop-pill);
+  --peds-nav-depth: var(--peds-lg-rim-pill);
+  --peds-nav-lens-bg: linear-gradient(
+    155deg,
+    rgba(255, 255, 255, 0.28) 0%,
+    rgba(114, 224, 255, 0.12) 100%
+  );
+  --peds-nav-lens-highlight:
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.56),
+    inset 0 -1px 1.5px rgba(114, 224, 255, 0.24);
+  --peds-nav-hover-bg: rgba(255, 255, 255, 0.12);
+  --peds-nav-drawer-bg: rgba(11, 22, 38, 0.58);
   --peds-nav-fallback-bg: #111c2b;
   --peds-nav-ease: cubic-bezier(0.2, 0.75, 0.2, 1);
   --peds-nav-ease-drawer: cubic-bezier(0.19, 1, 0.22, 1);
@@ -211,7 +215,7 @@
   justify-content: center;
   padding: calc(8px / var(--peds-visual-zoom)) calc(13px / var(--peds-visual-zoom));
   border-radius: 999px;
-  font-family: var(--peds-font-ui, "Manrope Variable", Arial, sans-serif);
+  font-family: var(--peds-font-ui, "Be Vietnam Pro", Arial, sans-serif);
   font-size: calc(0.75rem / var(--peds-visual-zoom));
   font-weight: 600;
   line-height: 1.25;
@@ -288,7 +292,7 @@
   backdrop-filter: var(--peds-nav-backdrop);
   -webkit-backdrop-filter: var(--peds-nav-backdrop);
   box-shadow: var(--peds-nav-depth);
-  font-family: var(--peds-font-ui, "Manrope Variable", Arial, sans-serif);
+  font-family: var(--peds-font-ui, "Be Vietnam Pro", Arial, sans-serif);
   font-size: calc(0.75rem / var(--peds-visual-zoom));
   font-weight: 700;
   line-height: 1.2;
@@ -544,11 +548,9 @@
   border: 1px solid var(--peds-nav-border);
   background-color: var(--peds-nav-drawer-bg);
   background-image: var(--peds-nav-sheen);
-  backdrop-filter: saturate(170%) blur(20px) brightness(1.04);
-  -webkit-backdrop-filter: saturate(170%) blur(20px) brightness(1.04);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.4),
-    0 24px 60px rgba(0, 0, 0, 0.55);
+  backdrop-filter: var(--peds-lg-backdrop-drawer);
+  -webkit-backdrop-filter: var(--peds-lg-backdrop-drawer);
+  box-shadow: var(--peds-lg-rim-panel);
   color: var(--peds-nav-ink-active);
   overflow: hidden;
   transform: translate3d(0, 0, 0) scale(1);
@@ -598,7 +600,7 @@
 
 .peds-nav-dialog-title {
   margin: 0;
-  font-family: var(--peds-font-ui, "Manrope Variable", Arial, sans-serif);
+  font-family: var(--peds-font-ui, "Be Vietnam Pro", Arial, sans-serif);
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -616,7 +618,7 @@
   border: 1px solid rgba(255, 255, 255, 0.28);
   background: rgba(255, 255, 255, 0.08);
   color: var(--peds-nav-ink-active);
-  font-family: var(--peds-font-ui, "Manrope Variable", Arial, sans-serif);
+  font-family: var(--peds-font-ui, "Be Vietnam Pro", Arial, sans-serif);
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
@@ -731,7 +733,7 @@
 }
 
 .peds-nav-drawer-label {
-  font-family: var(--peds-font-ui, "Manrope Variable", Arial, sans-serif);
+  font-family: var(--peds-font-ui, "Be Vietnam Pro", Arial, sans-serif);
   font-size: 15px;
   font-weight: 600;
   line-height: 1.25;
@@ -772,7 +774,7 @@
   border: 1px solid rgba(255, 255, 255, 0.28);
   background: rgba(255, 255, 255, 0.08);
   color: var(--peds-nav-ink-active);
-  font-family: var(--peds-font-ui, "Manrope Variable", Arial, sans-serif);
+  font-family: var(--peds-font-ui, "Be Vietnam Pro", Arial, sans-serif);
   font-size: 13px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;

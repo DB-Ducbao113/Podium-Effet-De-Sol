@@ -34,10 +34,10 @@ export const BASELINE_CUTOFF_BY_SEASON: Record<SeasonYear, BaselineCutoff> = {
     meaning: 'Toàn bộ mùa đã khóa; không tính lại từ sync.',
   },
   2026: {
-    completedRounds: 17,
+    completedRounds: 21,
     final: false,
-    source: 'Official live standings after 17 events (src/data/championship/standings.ts)',
+    source: 'Official live standings after 21 events (src/data/championship/standings.ts)',
     meaning:
-      'Rounds 1–17 đã khóa trong baseline; chỉ rounds > 17 được cộng thêm từ dữ liệu đồng bộ.',
+      'Rounds 1–21 đã khóa trong baseline; chỉ rounds > 21 được cộng thêm từ dữ liệu đồng bộ.',
   },
 };
